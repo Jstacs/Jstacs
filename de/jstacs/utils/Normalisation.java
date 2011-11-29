@@ -1,0 +1,477 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
+package de.jstacs.utils;
+
+/**
+ * This class can be used for normalisation of any <code>double</code> array or
+ * a part of a <code>double</code> array.
+ * 
+ * @author Jens Keilwagen
+ */
+public class Normalisation {
+
+	/**
+	 * Returns the logarithm of the sum of values given as
+	 * <code>lnVal[i] = Math.log( val[i] )</code>.
+	 * 
+	 * @param lnVal
+	 *            the logs of the values, i.e.
+	 *            <code>lnVal[i] = Math.log( val[i] )</code>
+	 * 
+	 * @return the logarithm of the sum of values
+	 *         <code>\log(\sum_i val[i])</code>
+	 * 
+	 * @see Normalisation#getLogSum(int, int, double...)
+	 * 
+	 */
+	public static double getLogSum( double... lnVal ) {
+		return getLogSum( 0, lnVal.length, lnVal );
+	}
+
+	/**
+	 * Returns the logarithm of the sum of values given as
+	 * <code>lnVal[i] = Math.log( val[i] )</code> between a start and end index.
+	 * 
+	 * @param start
+	 *            the first index in <code>lnVal</code> considered for the sum
+	 * @param end
+	 *            the index after the last index considered for the sum
+	 * @param lnVal
+	 *            the logs of the values, i.e.
+	 *            <code>lnVal[i] = Math.log( val[i] )</code>
+	 * 
+	 * @return the logarithm of the sum of values between the start and end
+	 *         index <code>\log(\sum_{i=start}^{end - 1} val[i])</code>
+	 * 
+	 */
+	public static double getLogSum( int start, int end, double... lnVal ) {
+		/*
+		//default
+		double logSum = lnVal[0];
+		if( lnVal.length > 1 )
+		{
+			for( int i = 1; i < lnVal.length; i++ )
+			{
+				logSum = getLogSumAB( logSum, lnVal[i] );
+			}
+		}
+		return logSum;
+		*/
+		// same proceeding as in normalisation-methods
+		double offset = Double.NEGATIVE_INFINITY, sum = 0;
+		int i;
+		for( i = start; i < end; i++ ) {
+			offset = Math.max( offset, lnVal[i] );
+
+		}
+		if( Double.isInfinite( offset ) ) {
+			return Double.NEGATIVE_INFINITY;
+		} else {
+			for( i = start; i < end; i++ ) {
+				sum += Math.exp( lnVal[i] - offset );
+
+			}
+			return offset + Math.log( sum );
+		}
+
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code>.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * 
+	 * @return the logarithm of the sum of the values
+	 *         <code>\log(\sum_{i=0}^{length(d)-1} val[i])</code>
+	 * 
+	 * @see Normalisation#logSumNormalisation(double[], int, int, double[], int)
+	 */
+	public static double logSumNormalisation( double[] d ) {
+		return logSumNormalisation( d, 0, d.length, d, 0 );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> between start
+	 * index <code>startD</code> and end index <code>endD</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code>.
+	 * 
+	 * @param d
+	 *            the array with the logarithms of the values that should be
+	 *            normalised
+	 * @param startD
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param endD
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 * 
+	 * @return the logarithm of the sum of the values between
+	 *         <code>startD</code> and <code>endD</code>
+	 *         <code>\log(\sum_{i=startD}^{endD-1} val[i])</code>
+	 * 
+	 * @see Normalisation#logSumNormalisation(double[], int, int, double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, int startD, int endD ) {
+		return logSumNormalisation( d, startD, endD, d, startD );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> within start
+	 * index <code>startD</code> and end index <code>endD</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code>. <br>
+	 * A second array <code>secondValues</code> with additional values
+	 * <code>secondValues[i] = Math.log( secval[i] )</code> is also considered
+	 * for the log-sum-normalisation.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * @param startD
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param endD
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 * @param secondValues
+	 *            second array with additional values, the whole array is
+	 *            considered for the log-sum-normalisation
+	 * 
+	 * @return the logarithm of the sum of the values between
+	 *         <code>startD</code> and <code>endD</code> and the values of
+	 *         <code>secondValues</code><br>
+	 *         <code>\log(\sum_{i=startD}^{endD-1} val[i] + \sum_{i=0}^{length(secondValues)-1} secval[i]) </code>
+	 * 
+	 * @see Normalisation#logSumNormalisation(double[], int, int, double,
+	 *      double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, int startD, int endD, double[] secondValues ) {
+		return logSumNormalisation( d, startD, endD, secondValues, d, startD );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> between start
+	 * index <code>startD</code> and end index <code>endD</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code>. <br>
+	 * The method writes the result of <code>d</code> in <code>dest</code>
+	 * starting at position <code>startDest</code> while <code>d</code> remains
+	 * unchanged.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * @param startD
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param endD
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * @param startDest
+	 *            the start index of the destination array
+	 * 
+	 * @return the logarithm of the sum of the values between
+	 *         <code>startD</code> and <code>endD</code>
+	 *         <code>\log(\sum_{i=startD}^{endD-1} val[i])</code>
+	 * 
+	 * @see Normalisation#logSumNormalisation(double[], int, int, double[],
+	 *      double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, int startD, int endD, double[] dest, int startDest ) {
+		return logSumNormalisation( d, startD, endD, null, dest, startDest );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> within start
+	 * index <code>startD</code> and end index <code>endD</code> with the values
+	 * of <code>d</code> given logarithmised:
+	 * <code>d[i] = Math.log( val[i] )</code>. <br>
+	 * A second array <code>secondValues</code> with additional values
+	 * <code>secondValues[i] = Math.log( secval[i] )</code> is also considered
+	 * for the log-sum-normalisation. <br>
+	 * The method writes the result of <code>d</code> in <code>dest</code>
+	 * starting at position <code>startDest</code> while <code>d</code> remains
+	 * unchanged. <code>secondValues</code> will be changed during
+	 * log-sum-normalisation and will not be written to <code>dest</code>.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * @param startD
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param endD
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 * @param secondValues
+	 *            second array with additional values, the whole array is
+	 *            considered for the log-sum-normalisation
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * @param startDest
+	 *            the start index of the destination array
+	 * 
+	 * @return the logarithm of the sum of the values of <code>d</code> between
+	 *         <code>startD</code> and <code>endD</code> and the values of
+	 *         <code>secondValue</code><br>
+	 *         <code>\log(\sum_{i=startD}^{endD-1} val[i] + \sum_{i=0}^{length(secondValues)-1} secval[i]) </code>
+	 * 
+	 *@see Normalisation#logSumNormalisation(double[], int, int, double,
+	 *      double[], double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, int startD, int endD, double[] secondValues, double[] dest, int startDest ) {
+		double offset = Double.NEGATIVE_INFINITY;
+		int i = startD;
+		for( ; i < endD; i++ ) {
+			offset = Math.max( offset, d[i] );
+		}
+		if( secondValues != null ) {
+			for( i = 0; i < secondValues.length; i++ ) {
+				offset = Math.max( offset, secondValues[i] );
+			}
+		}
+		return logSumNormalisation( d, startD, endD, offset, secondValues, dest, startDest );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code> using
+	 * offset <code>offset</code>. <br>
+	 * The method returns the logarithm of the sum of the non-logarithmised
+	 * values.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * 
+	 * @param offset
+	 *            the offset
+	 * 
+	 * @return the logarithm of the sum of the values
+	 *         <code>\log(\sum_{i=0}^{length(d)-1} val[i])</code>
+	 * 
+	 * @see Normalisation#logSumNormalisation(double[], int, int, double,
+	 *      double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, double offset ) {
+		return logSumNormalisation( d, 0, d.length, offset, d, 0 );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> between start
+	 * index <code>startD</code> and end index <code>endD</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code> using
+	 * offset <code>offset</code>. <br>
+	 * The method writes the result of <code>d</code> in <code>dest</code>
+	 * starting at position <code>startDest</code> while <code>d</code> remains
+	 * unchanged.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * @param startD
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param endD
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 * @param offset
+	 *            the offset
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * @param startDest
+	 *            the start index of the destination array
+	 * 
+	 * @return the logarithm of the sum of the values between
+	 *         <code>startD</code> and <code>endD</code>
+	 *         <code>\log(\sum_{i=startD}^{endD-1} val[i])</code>
+	 * 
+	 * @see Normalisation#logSumNormalisation(double[], int, int, double,
+	 *      double[], double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, int startD, int endD, double offset, double[] dest, int startDest ) {
+		return logSumNormalisation( d, startD, endD, offset, null, dest, startDest );
+	}
+
+	/**
+	 * The method does a log-sum-normalisation on <code>d</code> between start
+	 * index <code>startD</code> and end index <code>endD</code> with the values
+	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code> using
+	 * offset <code>offset</code>. <br>
+	 * A second array <code>secondValues</code> with additional values
+	 * <code>secondValues[i] = Math.log( secval[i] )</code> is also considered
+	 * for the log-sum-normalisation. <br>
+	 * The method writes the result of <code>d</code> in <code>dest</code>
+	 * starting at position <code>startDest</code> while <code>d</code> remains
+	 * unchanged. <code>secondValues</code> will be changed during
+	 * log-sum-normalisation and will not be written to <code>dest</code>.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * @param startD
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param endD
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 * @param offset
+	 *            the offset
+	 * @param secondValues
+	 *            second array with additional values, the whole array is
+	 *            considered for the log-sum-normalisation
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * @param startDest
+	 *            the start index of the destination array
+	 * 
+	 * @return the logarithm of the sum of the values of <code>d</code> between
+	 *         <code>startD</code> and <code>endD</code> and the values of
+	 *         <code>secondValue</code><br>
+	 *         <code>\log(\sum_{i=startD}^{endD-1} val[i] + \sum_{i=0}^{length(secondValues)-1} secval[i]) </code>
+	 */
+	public static double logSumNormalisation( double[] d, int startD, int endD, double offset, double[] secondValues, double[] dest,
+			int startDest ) {
+		double sum = 0;
+		int i = 0, l = endD - startD;
+		for( ; i < l; i++ ) {
+			dest[startDest + i] = Math.exp( d[startD + i] - offset );
+
+			sum += dest[startDest + i];
+
+		}
+		if( secondValues != null ) {
+			for( i = 0; i < secondValues.length; i++ ) {
+				secondValues[i] = Math.exp( secondValues[i] - offset );
+				sum += secondValues[i];
+			}
+		}
+		if( sum != 1d ) {
+			normalisation( dest, sum, startDest, startDest + l );
+			if( secondValues != null ) {
+				normalisation( secondValues, sum );
+			}
+		}
+
+		return offset + Math.log( sum );
+	}
+
+	/**
+	 * The method does a sum-normalisation on <code>d</code> and returns the the
+	 * sum of the values.
+	 * 
+	 * @param d
+	 *            the array with the values that should be normalised
+	 * 
+	 * @return the sum of the values of <code>d</code>
+	 *         <code>\sum_{i=0}^{length(d)-1} d[i]</code>
+	 * 
+	 * @see Normalisation#sumNormalisation(double[], double[], int)
+	 */
+	public static double sumNormalisation( double[] d ) {
+		return sumNormalisation( d, d, 0 );
+	}
+
+	/**
+	 * The method does a sum-normalisation on <code>d</code>. <br>
+	 * and writes the result in <code>dest</code> starting at position
+	 * <code>start</code> while <code>d</code> remains unchanged. The sum of the
+	 * values of <code>d</code> will be returned.
+	 * 
+	 * @param d
+	 *            the array with the values that should be normalised
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * @param start
+	 *            the start index of the destination array
+	 * 
+	 * @return the sum of the values of <code>d</code>
+	 *         <code>\sum_{i=0}^{length(d)-1} d[i]</code>
+	 */
+	public static double sumNormalisation( double[] d, double[] dest, int start ) {
+		int i;
+		double sum = d[0];
+		for( i = 1; i < d.length; i++ ) {
+			sum += d[i];
+		}
+		normalisation( d, sum, dest, start );
+		return sum;
+	}
+
+	/**
+	 * The method does a normalisation on <code>d</code> using the value
+	 * <code>v</code> for normalisation.
+	 * 
+	 * @param d
+	 *            the array with the values that should be normalised
+	 * @param v
+	 *            the value for the normalisation
+	 * 
+	 * @see Normalisation#normalisation(double[], double, double[], int)
+	 */
+	public static void normalisation( double[] d, double v ) {
+		normalisation( d, v, d, 0 );
+	}
+
+	/**
+	 * The method does a normalisation on <code>d</code> writing the result in
+	 * <code>dest</code> starting at position <code>start</code> while
+	 * <code>d</code> remains unchanged. The value <code>v</code> is used for
+	 * the normalisation.
+	 * 
+	 * @param d
+	 *            the array with the values that should be normalised
+	 * @param v
+	 *            the value for normalisation
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * @param start
+	 *            the start index of the destination array
+	 */
+	public static void normalisation( double[] d, double v, double[] dest, int start ) {
+		for( int i = 0; i < d.length; i++, start++ ) {
+			dest[start] = d[i] / v;
+		}
+	}
+
+	/**
+	 * The method does a sum normalisation on <code>d</code> between start index
+	 * <code>start</code> and end index <code>end</code> using the value
+	 * <code>v</code> for the normalisation.
+	 * 
+	 * @param d
+	 *            the array with the values that should be normalised
+	 * @param v
+	 *            the value for normalisation
+	 * @param start
+	 *            the first index in <code>d</code> considered for the
+	 *            log-sum-normalisation
+	 * @param end
+	 *            the index after the last index in <code>d</code> considered
+	 *            for the log-sum-normalisation
+	 */
+	public static void normalisation( double[] d, double v, int start, int end ) {
+		for( ; start < end; start++ ) {
+			d[start] /= v;
+		}
+	}
+}

@@ -1,0 +1,193 @@
+<h1>General information</h1>
+
+<p><a href="http://www.jstacs.de/index.php/Dispom">Dispom</a> has been implemented within the framework of <a href="http://www.jstacs.de">Jstacs</a>, 
+an open source Java library for statistical analysis and classification of biological sequences. Since Jstacs has been released under GPL 3 (or later), Dispom is distributed under GPL 3 as well.
+The sources of Dispom can be obtained as part of the Jstacs sources from <a href="http://www.jstacs.de/index.php/Downloads">the Jstacs downloads page</a>. You find the main class of Dispom at projects.dispom.Dispom.java.</p>
+
+<p><em>
+Dispom as well as Jstacs are distributed in the hope that they will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.</em>
+</p>
+
+<h1>Start instructions</h1>
+Once you have unzipped the archive, you can start Dispom e.g. by invoking
+<p>
+<code>java -jar Dispom.jar <font color="green">home=path/to/data/directory/ fg=fgfile.txt bg=bgfile.txt init=best-random=100 p-val=1E-4</font></code>
+</p>
+to search for motifs that are over-represented in <code>path/to/data/directory/fgfile.txt</code> but not in <code>path/to/data/directory/bgfile.txt</code>, initialize Dispom with the best from 100 randomly drawn starting values, and search for motif occurrences with a p-value of less than <code>1E-4</code>.
+
+<p>The arguments have the following meaning
+<table border=0 cellpadding=10 align="center">
+<tr>
+	<td>name</td>
+	<td>comment</td>
+	<td>type</td>
+</tr>
+<tr><td colspan=3><hr></td></tr>
+<tr>
+	<td><font color="green">home</font></td>
+	<td>the path to the data directory, default = ./</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">ignore</font></td>
+	<td>the char that is used to mask comment lines in data files, e.g., '>' in a FASTA-file, default = ></td>
+	<td>Character</td>
+</tr>
+<tr>
+	<td><font color="green">fg</font></td>
+	<td>the file name of the foreground data file (the file containing sequences which are expected to contain binding sites of a common motif)</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">bg</font></td>
+	<td>the file name of the background data file, OPTIONAL</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">position</font></td>
+	<td>a switch whether to use uniform, skew-normal, or mixture position distribution, range={UNIFORM, SKEW_NORMAL, MIXTURE}, default = MIXTURE</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">mean</font></td>
+	<td>the mean of the a priori TFBS distribution, default = 250.0</td>
+	<td>Double</td>
+</tr>
+<tr>
+	<td><font color="green">sd</font></td>
+	<td>the sd of the a priori TFBS distribution, valid range = [1.0, Infinity], default = 150.0</td>
+	<td>Double</td>
+</tr>
+<tr>
+	<td><font color="green">motifs</font></td>
+	<td>the number of motifs to be searched for, valid range = [1, 5], default = 1</td>
+	<td>Integer</td>
+</tr>
+<tr>
+	<td><font color="green">length</font></td>
+	<td>the motif length that is used at the beginning, valid range = [1, 50], default = 15</td>
+	<td>Integer</td>
+</tr>
+<tr>
+	<td><font color="green">flankOrder</font></td>
+	<td>The Markov order of the model for the flanking sequence and the background sequence, valid range = [0, 5], default = 0</td>
+	<td>Integer</td>
+</tr>
+<tr>
+	<td><font color="green">motifOrder</font></td>
+	<td>The Markov order of the motif model, valid range = [0, 3], default = 0</td>
+	<td>Integer</td>
+</tr>
+<tr>
+	<td><font color="green">bothStrands</font></td>
+	<td>a switch whether to use both strands or not, default = true</td>
+	<td>Boolean</td>
+</tr>
+<tr>
+	<td><font color="green">init</font></td>
+	<td>the method that is used for initialization, one of 'best-random=<number>', 'best-random-plugin=<number>', 'best-random-motif=<number>', 'enum-all=<length>', 'enum-data=<length>', 'heuristic=<number>', and 'specific=<sequence or file of sequences>'</td>
+	<td>String=[Integer | String]</td>
+</tr>
+<tr>
+	<td><font color="green">adjust</font></td>
+	<td>a switch whether to adjust the motif length, i.e., either to shrink or expand, default = true</td>
+	<td>Boolean</td>
+</tr>
+<tr>
+	<td><font color="green">maxPos</font></td>
+	<td>a switch whether to use max. pos. in the heuristic or not, default = true</td>
+	<td>Boolean</td>
+</tr>
+<tr>
+	<td><font color="green">learning</font></td>
+	<td>a switch for the learning principle, range={ML, MAP, MCL, MSP}, default = MSP</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">threads</font></td>
+	<td>the number of threads that are use to evaluate the objective function and its gradient, valid range = [1, 128], default = 4</td>
+	<td>Integer</td>
+</tr>
+<tr>
+	<td><font color="green">starts</font></td>
+	<td>the number of independent starts of Dispom, valid range = [1, 100], default = 1</td>
+	<td>Integer</td>
+</tr>
+<tr>
+	<td><font color="green">xml</font></td>
+	<td>the file name of the xml file the classifier is written to, default = ./classifier.xml</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">p-val</font></td>
+	<td>a p-value for predicting binding sites, valid range = [0.0, 1.0], OPTIONAL</td>
+	<td>Double</td>
+</tr>
+</table>
+</p>
+<h1> Case studies </h1>
+In case studies presented in the paper, we started Dispom 50 times.
+<ul>
+<li> 47 times, we used 'init=best-random-plugin=100'.</li>
+<li> Once, we used 'init=heuristic=100'.</li>
+<li> Once, we used 'init=enum-data=6'.</li>
+<li> Once, we used 'init=enum-data=8'.</li>
+</ul>
+For predicting binding sites, we used 'p-val=1E-4'.
+
+For additional information visit <a href="http://www.jstacs.de/index.php/Dispom">the Dispom page at www.jstacs.de</a>
+
+<h1>Dispom Predictor</h1>
+<p>In addition to the Dispom binary, we also provide a program (DispomPredictor.jar) that can be used to predict binding sites using an already trained classifier. Application of DispomPredictor.jar could be to predict binding sites of a motif found on some set of training data on additional, independent test data, or to test different p-values for predictions without the need to start the training process repeatedly as well.</p>
+<p>You can start the Dispom predictor by invoking</p>
+<p>
+<code>java -jar DispomPredictor.jar <font color="green">home=path/to/data/directory/ fg=fgfile.txt bg=bgfile.txt p-val=1E-4 xml=./classifier.xml</font></code>
+</p>
+<p>The arguments have the following meaning
+<table border=0 cellpadding=10 align="center">
+<tr>
+	<td>name</td>
+	<td>comment</td>
+	<td>type</td>
+</tr>
+<tr><td colspan=3><hr></td></tr>
+<tr>
+	<td><font color="green">home</font></td>
+	<td>the path to the data directory, default = ./</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">ignore</font></td>
+	<td>the char that is used to mask comment lines in data files, e.g., '>' in a FASTA-file, default = ></td>
+	<td>Character</td>
+</tr>
+<tr>
+	<td><font color="green">fg</font></td>
+	<td>the file name of the foreground data file (the file containing sequences which are expected to contain binding sites of a common motif)</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">bg</font></td>
+	<td>the file name of the background data file, OPTIONAL</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">xml</font></td>
+	<td>the file name of the xml file the classifier has been written to, default = ./classifier.xml</td>
+	<td>String</td>
+</tr>
+<tr>
+	<td><font color="green">p-val</font></td>
+	<td>a p-value for predicting binding sites, valid range = [0.0, 1.0]</td>
+	<td>Double</td>
+</tr>
+<tr>
+	<td><font color="green">one-histogram</font></td>
+	<td>if no background file is specificed, p-values are computed either using a joint histogram (true), or a sequence-wise histogram (false), default = true, OPTIONAL</td>
+	<td>boolean</td>
+</tr>
+</table>
+</p>
+<!-- TODO reference to paper -->

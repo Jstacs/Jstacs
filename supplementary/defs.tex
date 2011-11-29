@@ -1,0 +1,27 @@
+\usepackage{t1enc, exscale, latexsym, amsthm, amssymb, amsmath,hyperref,color}
+\usepackage[ansinew]{inputenc}
+
+\hypersetup{
+	pdfpagemode = None, pdfpagelayout = OneColumn, pdfstartpage = 1, pdfstartview = FitH,
+	colorlinks = true, urlcolor = blue, linkcolor = black, citecolor = black
+}
+
+\setlength{\textwidth}{150mm}
+\setlength{\oddsidemargin}{10mm}
+
+\renewcommand{\thesection}{\arabic{section}}
+
+\newcommand{\jstacs}{\textsc{Jstacs}}
+\newcommand{\APIhome}{http://www.jstacs.de/api}
+\newcommand{\link}[2]{\href{\APIhome/de/jstacs/#1/#2.html}{#2}}
+
+%concrete links
+\newcommand{\Alphabet}{\link{data}{Alphabet}}
+\newcommand{\AlphabetContainer}{\link{data}{AlphabetContainer}}
+\newcommand{\Sequence}{\link{data}{Sequence}}
+\newcommand{\Sample}{\link{data}{Sample}}
+\newcommand{\Storable}{\link{}{Storable}}
+\newcommand{\Model}{\link{models}{Model}}
+\newcommand{\AbstractModel}{\link{models}{AbstractModel}}
+\newcommand{\AbstractClassifer}{\link{classifier}{AbstractClassifier}}
+\newcommand{\ModelBasedClassifer}{\link{classifier/modelbased}{ModelBasedClassifier}}

@@ -1,0 +1,170 @@
+/*
+ * This file is part of Jstacs.
+ *
+ * Jstacs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
+package de.jstacs.scoringFunctions;
+
+import de.jstacs.NonParsableException;
+import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.Sample;
+import de.jstacs.data.Sequence;
+import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.models.Model;
+
+/**
+ * This class is the main part of any {@link de.jstacs.classifier.scoringFunctionBased.ScoreClassifier}. It implements
+ * many methods of the interface {@link NormalizableScoringFunction}.
+ * 
+ * @author Jens Keilwagen, Jan Grau
+ */
+public abstract class AbstractNormalizableScoringFunction extends AbstractScoringFunction implements NormalizableScoringFunction, Model {
+
+	/**
+	 * The main constructor.
+	 * 
+	 * @param alphabets
+	 *            the {@link AlphabetContainer} of this {@link ScoringFunction}
+	 * @param length
+	 *            the length of this {@link ScoringFunction}, i.e. the length of
+	 *            the modeled sequences
+	 *            
+	 * @throws IllegalArgumentException            
+	 *            if the length is negative or does not match with {@link AlphabetContainer#getPossibleLength()}
+	 */
+	public AbstractNormalizableScoringFunction( AlphabetContainer alphabets, int length ) throws IllegalArgumentException {
+		super( alphabets, length );
+	}
+
+	/**
+	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
+	 * {@link AbstractNormalizableScoringFunction} out of a {@link StringBuffer}
+	 * .
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the XML representation could not be parsed
+	 */
+	public AbstractNormalizableScoringFunction( StringBuffer xml ) throws NonParsableException {
+		super( xml );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.AbstractScoringFunction#clone()
+	 */
+	@Override
+	public AbstractNormalizableScoringFunction clone() 	throws CloneNotSupportedException {
+		return (AbstractNormalizableScoringFunction) super.clone();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.scoringFunctions.NormalizableScoringFunction#isNormalized()
+	 */
+	public boolean isNormalized() {
+		return false;
+	}
+
+	/**
+	 * This method checks whether all given {@link NormalizableScoringFunction}s
+	 * are normalized.
+	 * 
+	 * @param function
+	 *            the {@link NormalizableScoringFunction}s to be checked
+	 * 
+	 * @return <code>true</code> if all {@link NormalizableScoringFunction}s are
+	 *         already normalized, otherwise <code>false</code>
+	 * 
+	 * @see NormalizableScoringFunction#isNormalized()
+	 */
+	public static boolean isNormalized(ScoringFunction... function) {
+		int i = 0;
+		while( i < function.length && (function[i] == null || (function[i] instanceof NormalizableScoringFunction && ((NormalizableScoringFunction)function[i]).isNormalized())) ) {
+			i++;
+		}
+		return i == function.length;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.scoringFunctions.NormalizableScoringFunction#getInitialClassParam
+	 * (double)
+	 */
+	public double getInitialClassParam( double classProb ) {
+		return Math.log( classProb ) - getLogNormalizationConstant();
+	}
+	
+	@Override
+	public double getPriorTerm() throws Exception {
+		return Math.exp( getLogPriorTerm() );
+	}
+
+	@Override
+	public double getLogProbFor( Sequence sequence ) {
+		return getLogScore( sequence ) - getLogNormalizationConstant();
+	}
+
+	@Override
+	public double getLogProbFor( Sequence sequence, int startpos ) throws Exception {
+		return getLogScore( sequence, startpos ) - getLogNormalizationConstant();
+	}
+
+	@Override
+	public double getLogProbFor( Sequence sequence, int startpos, int endpos ) {
+		return getLogScore( sequence.getSubSequence( startpos, endpos-startpos+1 ) ) - getLogNormalizationConstant();
+	}
+	
+	@Override
+	public double[] getLogScoreFor( Sample data ) throws Exception {
+		double[] probs = new double[data.getNumberOfElements()];
+		getLogScoreFor( data, probs );
+		return probs;
+	}
+
+	@Override
+	public void getLogScoreFor( Sample data, double[] res ) throws Exception {
+		if (res.length != data.getNumberOfElements()) {
+			throw new IllegalArgumentException("The array has wrong dimension.");
+		}
+		ElementEnumerator ei = new ElementEnumerator(data);
+		for (int i = 0; i < res.length; i++) {
+			res[i] = getLogScore(ei.nextElement());
+		}
+	}
+
+	@Override
+	public void train( Sample data ) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void train( Sample data, double[] weights ) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+}
