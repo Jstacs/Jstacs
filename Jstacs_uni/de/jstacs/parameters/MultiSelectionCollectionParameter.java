@@ -1,0 +1,710 @@
+/*
+ * This file is part of Jstacs.
+ *
+ * Jstacs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
+package de.jstacs.parameters;
+
+import de.jstacs.DataType;
+import de.jstacs.NonParsableException;
+import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+
+/**
+ * Class for a {@link Parameter} that provides a collection of possible values.
+ * The user can select one or more values out of the collection as values of
+ * this {@link Parameter}.
+ * 
+ * @author Jan Grau
+ * 
+ * @see CollectionParameter
+ */
+public class MultiSelectionCollectionParameter extends CollectionParameter
+		implements RangeIterator {
+
+	private boolean[] selected;
+	private boolean[] defaultSelected;
+	private int current;
+	private boolean ranged;
+
+	/**
+	 * Constructor for a {@link MultiSelectionCollectionParameter}. The first
+	 * option in the selection is selected by default.
+	 * 
+	 * @param datatype
+	 *            the data type of the parameters in the collection
+	 * @param keys
+	 *            the keys/names of the values in the collection, this is the
+	 *            name the user will see in the user interface
+	 * @param values
+	 *            the values the names stand for, this array must be of the same
+	 *            length as <code>keys</code>, a key at a certain position
+	 *            belongs to the value at the same position in the array
+	 * @param name
+	 *            the name of the parameter
+	 * @param comment
+	 *            a comment on the parameter
+	 * @param required
+	 *            <code>true</code> if the parameter is required,
+	 *            <code>false</code> otherwise
+	 * 
+	 * @throws InconsistentCollectionException
+	 *             if the lengths of <code>keys</code> and <code>values</code>
+	 *             are different or the collection is inconsistent for some
+	 *             other reason
+	 * @throws IllegalValueException
+	 *             if one of the values in <code>values</code> is not of type
+	 *             <code>datatype</code>
+	 * @throws DatatypeNotValidException
+	 *             if the <code>datatype</code> is not one of the allowed values
+	 */
+	public MultiSelectionCollectionParameter(DataType datatype, String[] keys,
+			Object[] values, String name, String comment, boolean required)
+			throws InconsistentCollectionException, IllegalValueException,
+			DatatypeNotValidException {
+		super(datatype, keys, values, name, comment, required);
+		selected = new boolean[keys.length];
+		defaultSelected = selected.clone();
+		setValue(new String[] { keys[0] });
+	}
+
+	/**
+	 * Constructor for a {@link MultiSelectionCollectionParameter}. The first
+	 * option in the selection is selected by default.
+	 * 
+	 * @param datatype
+	 *            the data type of the parameters in the collection
+	 * @param keys
+	 *            the keys/names of the values in the collection, this is the
+	 *            name the user will see in the user interface
+	 * @param values
+	 *            the values the names stand for, this array must be of the same
+	 *            length as <code>keys</code>, a key at a certain position
+	 *            belongs to the value at the same position in the array
+	 * @param comments
+	 *            the comments on the values in the collection
+	 * @param name
+	 *            the name of the parameter
+	 * @param comment
+	 *            a comment on the parameter
+	 * @param required
+	 *            <code>true</code> if the parameter is required,
+	 *            <code>false</code> otherwise
+	 * 
+	 * @throws InconsistentCollectionException
+	 *             if the lengths of <code>keys</code> and <code>values</code>
+	 *             are different or the collection is inconsistent for some
+	 *             other reason
+	 * @throws IllegalValueException
+	 *             if one of the values in <code>values</code> is not of type
+	 *             <code>datatype</code>
+	 * @throws DatatypeNotValidException
+	 *             if the <code>datatype</code> is not one of the allowed values
+	 */
+	public MultiSelectionCollectionParameter(DataType datatype, String[] keys,
+			Object[] values, String[] comments, String name, String comment,
+			boolean required) throws InconsistentCollectionException,
+			IllegalValueException, DatatypeNotValidException {
+		super(datatype, keys, values, comments, name, comment, required);
+		selected = new boolean[keys.length];
+		defaultSelected = selected.clone();
+		setValue(new String[] { keys[0] });
+	}
+
+	/**
+	 * Creates a new {@link MultiSelectionCollectionParameter} from an array of
+	 * {@link ParameterSet}s. The first option in the selection is selected by
+	 * default.
+	 * 
+	 * @param values
+	 *            the options/values in the collection
+	 * @param keys
+	 *            the keys/names of the values in the collection, this is the
+	 *            name the user will see in the user interface
+	 * @param comments
+	 *            the comments on the possible values
+	 * @param name
+	 *            the name of this {@link MultiSelectionCollectionParameter}
+	 * @param comment
+	 *            the comment on this {@link MultiSelectionCollectionParameter}
+	 * @param required
+	 *            <code>true</code> if this
+	 *            {@link MultiSelectionCollectionParameter} is required,
+	 *            <code>false</code> otherwise
+	 */
+	public MultiSelectionCollectionParameter(ParameterSet[] values,
+			String[] keys, String[] comments, String name, String comment,
+			boolean required) {
+		super(values, keys, comments, name, comment, required);
+		selected = new boolean[values.length];
+		defaultSelected = selected.clone();
+		try {
+			setValue(new String[] { keys[0] });
+		} catch (IllegalValueException doesnothappen) {
+			doesnothappen.printStackTrace();
+		}
+	}
+
+	/**
+	 * Creates a new {@link MultiSelectionCollectionParameter} from an array of
+	 * {@link ParameterSet}s. The first option in the selection is selected by
+	 * default.
+	 * 
+	 * @param values
+	 *            the options/values in the collection
+	 * @param name
+	 *            the name of this {@link MultiSelectionCollectionParameter}
+	 * @param comment
+	 *            the comment on this {@link MultiSelectionCollectionParameter}
+	 * @param required
+	 *            <code>true</code> if this
+	 *            {@link MultiSelectionCollectionParameter} is required,
+	 *            <code>false</code> otherwise
+	 */
+	public MultiSelectionCollectionParameter(InstanceParameterSet[] values,
+			String name, String comment, boolean required) {
+		super(values, name, comment, required);
+		selected = new boolean[values.length];
+		defaultSelected = selected.clone();
+		try {
+			setValue(new String[] { values[0].getInstanceName() });
+		} catch (IllegalValueException doesnothappen) {
+			doesnothappen.printStackTrace();
+		}
+	}
+
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Creates a new {@link MultiSelectionCollectionParameter} from its XML
+	 * representation
+	 * 
+	 * @param representation
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link StringBuffer} <code>representation</code> could
+	 *             not be parsed
+	 */
+	public MultiSelectionCollectionParameter(StringBuffer representation)
+			throws NonParsableException {
+		super(representation);
+	}
+
+	/**
+	 * Creates a new {@link MultiSelectionCollectionParameter} from the
+	 * necessary field. This constructor should be used to clone a current
+	 * instance.
+	 * 
+	 * @param options
+	 *            the options of the {@link CollectionParameter}
+	 * @param selected
+	 *            the currently selected values
+	 * @param defaultSelected
+	 *            the values selected by default
+	 * @param userSelected
+	 *            <code>true</code> if the current value was selected by the
+	 *            user, <code>false</code>
+	 * @param name
+	 *            the name of the parameter
+	 * @param comment
+	 *            a comment on the parameter
+	 * @param required
+	 *            <code>true</code> if this {@link CollectionParameter} is
+	 *            required, <code>false</code> otherwise
+	 * @param datatype
+	 *            the data type of this {@link CollectionParameter}
+	 * @param errorMessage
+	 *            the error message of the last error or <code>null</code>
+	 * @param current
+	 *            the currently used value in the set of selected values
+	 * @param makeRanged
+	 *            replace the {@link Parameter} in <code>options</code> with
+	 *            their ranged equivalent (if allowed)
+	 * 
+	 * @throws Exception
+	 *             if something went wrong
+	 */
+	protected MultiSelectionCollectionParameter(ParameterSet options,
+			boolean[] selected, boolean[] defaultSelected,
+			boolean userSelected, String name, String comment,
+			boolean required, DataType datatype, String errorMessage,
+			int current, boolean makeRanged) throws Exception {
+		super(options, 0, 0, userSelected, name, comment, required, datatype,
+				errorMessage, false);
+		this.selected = selected.clone();
+		this.defaultSelected = defaultSelected.clone();
+		this.current = current;
+		this.ranged = makeRanged;
+		if (ranged) {
+			this.parameters.makeRanged();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#clone()
+	 */
+	@Override
+	public MultiSelectionCollectionParameter clone()
+			throws CloneNotSupportedException {
+		MultiSelectionCollectionParameter clone = (MultiSelectionCollectionParameter) super
+				.clone();
+		clone.defaultSelected = defaultSelected.clone();
+		clone.selected = selected.clone();
+		return clone;
+
+	}
+
+	/**
+	 * Sets the selection of the option with key <code>key</code> to the value
+	 * of <code>selected</code>.
+	 * 
+	 * @param key
+	 *            the key of the option
+	 * @param selected
+	 *            the selection value
+	 * 
+	 * @return <code>true</code> if the key could be found and set,
+	 *         <code>false</code> otherwise
+	 */
+	public boolean setSelected(String key, boolean selected) {
+		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+			if (parameters.getParameterAt(i).getName().equals(key)) {
+				this.selected[i] = selected;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the selection value of the option with key <code>key</code>.
+	 * 
+	 * @param key
+	 *            the key of the option
+	 * 
+	 * @return the selection value or <code>false</code> if no such option
+	 *         exists
+	 */
+	public boolean isSelected(String key) {
+		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+			if (parameters.getParameterAt(i).getName().equals(key)) {
+				return this.selected[i];
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the value for the option with key <code>key</code>.
+	 * 
+	 * @param key
+	 *            the key of the option
+	 * 
+	 * @return the value or <code>null</code> if the corresponding option either
+	 *         does not exist or is not selected
+	 */
+	public Object getValueFor(String key) {
+		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+			if (parameters.getParameterAt(i).getName().equals(key)) {
+				if (this.selected[i]) {
+					return parameters.getParameterAt(i).getValue();
+				} else {
+					return null;
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.parameters.CollectionParameter#checkValue(java.lang.Object)
+	 */
+	@Override
+	public boolean checkValue(Object value) {
+		// System.out.println("VALUE:::::::::: "+value);
+		if (value instanceof String) {
+			value = new String[] { (String) value };
+		}
+		if (value instanceof String[]) {
+			String[] tmp = (String[]) value;
+			if (tmp.length == 0 && isRequired()) {
+				errorMessage = "At least one value must be selected!";
+				return false;
+			}
+			for (int i = 0; i < tmp.length; i++) {
+				if (!super.checkValue(tmp[i])) {
+					return false;
+				}
+			}
+			errorMessage = null;
+			return true;
+		} else {
+			errorMessage = "Value not of the correct type";
+			return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#setValue(java.lang.Object)
+	 */
+	@Override
+	public void setValue(Object value) throws IllegalValueException {
+		if (value instanceof String) {
+			value = new String[] { (String) value };
+		}
+		if (checkValue(value)) {
+			selected = new boolean[selected.length];
+			current = -1;
+			String[] tmp = (String[]) value;
+			for (int i = 0; i < tmp.length; i++) {
+				for (int j = 0; j < parameters.getNumberOfParameters(); j++) {
+					if (parameters.getParameterAt(j).getName().equals(tmp[i])) {
+						selected[j] = true;
+						if (current == -1 || j < current) {
+							current = j;
+						}
+					}
+				}
+			}
+			userSelected = true;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#getSelected()
+	 */
+	@Override
+	public int getSelected() {
+		return current;
+	}
+
+	/**
+	 * Sets the selection of option with no. <code>idx</code> to
+	 * <code>selected</code>.
+	 * 
+	 * @param idx
+	 *            the index of the option
+	 * @param selected
+	 *            the selection value
+	 * 
+	 * @return <code>true</code> if the option exists and could be set,
+	 *         <code>false</code> otherwise
+	 */
+	public boolean setSelected(int idx, boolean selected) {
+		if (idx < this.selected.length) {
+			this.selected[idx] = selected;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	
+	@Override
+	public boolean isSelected(int idx) {
+		return idx < selected.length && selected[idx];
+	}
+
+	/**
+	 * Returns the value of the option with no. <code>idx</code>.
+	 * 
+	 * @param idx
+	 *            the index of the option
+	 * 
+	 * @return the value or <code>null</code> if the corresponding option either
+	 *         does not exists or is not selected
+	 */
+	public Object getValueFor(int idx) {
+		if (idx < selected.length && selected[idx]) {
+			return parameters.getParameterAt(idx).getValue();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the values of all selected options as an array.
+	 * 
+	 * @return the values of all selected options
+	 */
+	public Object[] getValues() {
+		int count = 0;
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				count++;
+			}
+		}
+		Object[] values = new Object[count];
+		count = 0;
+		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+			if (selected[i]) {
+				values[count++] = parameters.getParameterAt(i).getValue();
+			}
+		}
+		return values;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#getValue()
+	 */
+	@Override
+	public Object getValue() {
+		if (current > -1) {
+			return parameters.getParameterAt(current).getValue();
+		} else {
+			return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#hasDefaultOrIsSet()
+	 */
+	@Override
+	public boolean hasDefaultOrIsSet() {
+		int numSelected = 0;
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				numSelected++;
+				if (!parameters.getParameterAt(i).hasDefaultOrIsSet()) {
+					System.out.println("parameter "
+							+ parameters.getParameterAt(i).getName()
+							+ " not set!!");
+					return false;
+				}
+			}
+		}
+		if (numSelected < 1 && isRequired()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#isSet()
+	 */
+	@Override
+	public boolean isSet() {
+		return userSelected;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#isAtomic()
+	 */
+	@Override
+	public boolean isAtomic() {
+		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+			if (parameters.getParameterAt(i).getValue() instanceof ParameterSet) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#simplify()
+	 */
+	@Override
+	public void simplify() {
+		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+			if (!selected[i]
+					&& parameters.getParameterAt(i).getValue() instanceof ParameterSet) {
+				parameters.getParameterAt(i).reset();
+			} else {
+				parameters.getParameterAt(i).simplify();
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#reset()
+	 */
+	@Override
+	public void reset() {
+		selected = defaultSelected.clone();
+		simplify();
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.parameters.CollectionParameter#setDefault(java.lang.Object)
+	 */
+	@Override
+	public void setDefault(Object defaultValue) throws IllegalValueException {
+		setValue(defaultValue);
+		defaultSelected = selected.clone();
+		userSelected = false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.CollectionParameter#toXML()
+	 */
+	@Override
+	public StringBuffer toXML() {
+		StringBuffer sup = super.toXML();
+		XMLParser.addTags(sup, "superParameter");
+		XMLParser.appendObjectWithTags(sup, selected, "selected");
+		XMLParser.appendObjectWithTags(sup, defaultSelected,
+				"defaultSelected");
+		XMLParser.appendObjectWithTags(sup, current, "current");
+		XMLParser.addTags(sup, "multiSelectionCollectionParameter");
+		return sup;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.parameters.CollectionParameter#fromXML(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void fromXML(StringBuffer representation)
+			throws NonParsableException {
+		representation = XMLParser.extractForTag(representation,
+				"multiSelectionCollectionParameter");
+		super
+				.fromXML(XMLParser.extractForTag(representation,
+						"superParameter"));
+		selected = XMLParser.extractObjectForTags(representation, "selected", boolean[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		defaultSelected = XMLParser.extractObjectForTags(representation, "defaultSelected", boolean[].class );
+		current = XMLParser.extractObjectForTags(representation, "current", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.RangeIterator#next()
+	 */
+	public boolean next() throws ParameterException {
+		int next = -1;
+		for (int i = current + 1; i < selected.length; i++) {
+			if (selected[i]) {
+				next = i;
+				break;
+			}
+		}
+		if (next != -1) {
+			current = next;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.RangeIterator#resetToFirst()
+	 */
+	public void resetToFirst() {
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				current = i;
+				break;
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.RangeIterator#getNumberOfValues()
+	 */
+	public int getNumberOfValues() {
+		int count = 0;
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Returns the number of calls of
+	 * {@link MultiSelectionCollectionParameter#next()} that can be called
+	 * before <code>false</code> is returned.
+	 * 
+	 * @param afterIdx
+	 *            the index after which shall be counted
+	 * 
+	 * @return the number of calls of
+	 *         {@link MultiSelectionCollectionParameter#next()}
+	 */
+	public int getNumberOfNexts(int afterIdx) {
+		int count = 0;
+		for (int i = afterIdx + 1; i < selected.length; i++) {
+			if (selected[i]) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.RangeIterator#valuesToString()
+	 */
+	public String valuesToString() {
+		StringBuffer tmp = new StringBuffer();
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				tmp.append(parameters.getParameterAt(i).getName() + ", ");
+			}
+		}
+		tmp.delete(tmp.length() - 2, tmp.length());
+		return "[" + tmp.toString() + "]";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.RangeIterator#isRanged()
+	 */
+	public boolean isRanged() {
+		return getNumberOfValues() > 1;
+	}
+
+}

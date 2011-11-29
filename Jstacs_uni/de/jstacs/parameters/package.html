@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+/*
+ * This file is part of Jstacs.
+ *
+ * Jstacs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Jstacs.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+-->
+</head>
+<body bgcolor="white">
+This package provides classes for parameters that establish a general convention for the description of parameters
+as defined in the <code>Parameter</code>-interface. This convention includes that each parameter has
+<ul>
+	<li>a name that should be meaningful for a potential user,</li>
+	<li>a comment that adds supplementary information additional to the name</li>
+	<li>a data type that can be used to render the parameter in some interface
+	and to validate possible inputs</li>
+	<li>optionally a <code>ParameterValidator</code> that allows for a stricter validation, e.g. a specified range
+	of allowed parameter values</li>
+</ul>
+The package also provides some predefined parameter types for primitive data types and <code>String</code>s in <code>SimpleParameter</code>, collections of 
+possible parameter values in <code>CollectionParameter</code>, input files in <code>FileParameter</code>, and
+for parameters that can have a number of different parameter values in <code>RangeParameter</code>.<br />
+<br />
+All of these <code>Parameter</code>-types can be combined to <code>ParameterSet</code>s that contain a
+set of <code>Parameter</code>s. As <code>SimpleParameter</code>s can also have <code>ParameterSet</code>s
+as values (the corresponding data type is <code>DataType.PARAMETERSET</code>) and these can also be used
+inside <code>CollectionParameter</code>s, a tree of parameters can be built that allows to select between different
+options in a collection and set the parameters that belong to the selected option, or to bundle sets of parameters
+into subsets to allow for a clearer organization of parameters.
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>

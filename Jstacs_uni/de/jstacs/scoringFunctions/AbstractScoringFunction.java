@@ -1,0 +1,199 @@
+/*
+ * This file is part of Jstacs.
+ *
+ * Jstacs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
+package de.jstacs.scoringFunctions;
+
+import java.util.Random;
+
+import de.jstacs.NonParsableException;
+import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.Sequence;
+import de.jstacs.utils.DoubleList;
+import de.jstacs.utils.IntList;
+
+/**
+ * This class is the main part of any {@link de.jstacs.classifier.scoringFunctionBased.ScoreClassifier}. It implements
+ * many methods of the interface {@link ScoringFunction}.
+ * 
+ * @author Jens Keilwagen, Jan Grau
+ */
+public abstract class AbstractScoringFunction implements ScoringFunction {
+	
+	/**
+	 * Returns the number of recommended starts in a numerical optimization.
+	 * 
+	 * @param score
+	 *            the scoring functions
+	 * 
+	 * @return the number of recommended starts
+	 * 
+	 * @see ScoringFunction#getNumberOfRecommendedStarts()
+	 */
+	public static final int getNumberOfStarts( ScoringFunction[] score ) {
+		int starts = score[0].getNumberOfRecommendedStarts();
+		for( int i = 1; i < score.length; i++ ) {
+			starts = Math.max( starts, score[i].getNumberOfRecommendedStarts() );
+		}
+		return starts;
+	}
+	
+	/**
+	 * This object can be used for drawing initial parameters.
+	 * 
+	 * @see AbstractScoringFunction#getCurrentParameterValues()
+	 */
+	protected static final Random r = new Random();
+
+	/**
+	 * The {@link AlphabetContainer} of this {@link NormalizableScoringFunction}
+	 * .
+	 */
+	protected AlphabetContainer alphabets;
+
+	/**
+	 * The length of the modeled sequences.
+	 */
+	protected int length;
+
+	/**
+	 * The main constructor.
+	 * 
+	 * @param alphabets
+	 *            the {@link AlphabetContainer} of this {@link ScoringFunction}
+	 * @param length
+	 *            the length of this {@link ScoringFunction}, i.e. the length of
+	 *            the modeled sequences
+	 *            
+	 * @throws IllegalArgumentException            
+	 *            if the length is negative or does not match with {@link AlphabetContainer#getPossibleLength()}
+	 */
+	public AbstractScoringFunction( AlphabetContainer alphabets, int length ) throws IllegalArgumentException {
+		this.alphabets = alphabets;
+		int l = alphabets.getPossibleLength();
+		if( length < 0 || (length != 0 && l != 0 && length != l ) ) {
+			throw new IllegalArgumentException( "The given length could not be used. The length has to be not negative and has to match with the possible length defined by the AlphabetContainer." );
+		} else {
+			this.length = length;
+		}
+	}
+
+	/**
+	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
+	 * {@link AbstractScoringFunction} out of a {@link StringBuffer}
+	 * .
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the XML representation could not be parsed
+	 */
+	public AbstractScoringFunction( StringBuffer xml ) throws NonParsableException {
+		alphabets = null;
+		length = -1;
+		fromXML(xml);
+		if (alphabets == null) {
+			throw new NonParsableException( "AlphabetContainer could not be parsed." );
+		}
+		if (length < 0 || alphabets == null) {
+			throw new NonParsableException("Length could not be parsed.");
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public AbstractScoringFunction clone() throws CloneNotSupportedException {
+		return (AbstractScoringFunction) super.clone();
+	}
+
+	/**
+	 * This method is called in the constructor for the {@link de.jstacs.Storable}
+	 * interface to create a scoring function from a {@link StringBuffer}.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link StringBuffer} could not be parsed
+	 * 
+	 * @see AbstractScoringFunction#AbstractScoringFunction(StringBuffer)
+	 */
+	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getAlphabetContainer()
+	 */
+	public final AlphabetContainer getAlphabetContainer() {
+		return alphabets;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLength()
+	 */
+	public int getLength() {
+		return length;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence)
+	 */
+	@Override
+	public final double getLogScore( Sequence seq ) {
+		return getLogScore( seq, 0 );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation
+	 * (de.jstacs.data.Sequence, de.jstacs.utils.IntList,
+	 * de.jstacs.utils.DoubleList)
+	 */
+	public final double getLogScoreAndPartialDerivation( Sequence seq, IntList indices, DoubleList partialDer ) {
+		return getLogScoreAndPartialDerivation( seq, 0, indices, partialDer );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.jstacs.scoringFunctions.ScoringFunction#getNumberOfRecommendedStarts()
+	 */
+	public int getNumberOfRecommendedStarts() {
+		return 1;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getInitialClassParam(double)
+	 */
+	public double getInitialClassParam( double classProb ) {
+		return Math.log( classProb );
+	}
+}

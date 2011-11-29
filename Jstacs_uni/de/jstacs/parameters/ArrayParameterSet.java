@@ -1,0 +1,236 @@
+/*
+ * This file is part of Jstacs.
+ *
+ * Jstacs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
+package de.jstacs.parameters;
+
+import de.jstacs.DataType;
+import de.jstacs.NonParsableException;
+import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.validation.NumberValidator;
+
+/**
+ * Class for a {@link ParameterSet} that consists of a length-{@link Parameter}
+ * that defines the length of the array and an array of
+ * {@link ParameterSetContainer}s of this length. Each
+ * {@link ParameterSetContainer} in the array holds a {@link ParameterSet} as
+ * defined by a template. The template is cloned in order to obtain the
+ * specified number of elements in the array. The class takes care of the
+ * consistency of the length-{@link Parameter} and the length of the array.
+ * 
+ * @author Jan Grau
+ * 
+ */
+public class ArrayParameterSet extends ExpandableParameterSet {
+
+	private int numberChanged;
+	private String lengthName;
+	private String lengthComment;
+	private NumberValidator<Integer> allowedLengths;
+
+	/**
+	 * Creates a new {@link ArrayParameterSet} from a {@link Class} that can be
+	 * instantiated using this {@link ArrayParameterSet} and templates for the
+	 * {@link ParameterSet} in each element of the array, the name and the
+	 * comment that are displayed for the {@link ParameterSetContainer}s
+	 * enclosing the {@link ParameterSet}s.
+	 * 
+	 * @param template
+	 *            the template of the {@link ParameterSet}
+	 * @param nameTemplate
+	 *            the name-template
+	 * @param commentTemplate
+	 *            the comment-template
+	 * @param lengthName
+	 *            the name of the length-{@link Parameter}
+	 * @param lengthComment
+	 *            the comment of the length-{@link Parameter}
+	 * @param allowedLengths
+	 *            a {@link NumberValidator} to set a lower and upper bound on
+	 *            the number of elements in the array
+	 * 
+	 */
+	public ArrayParameterSet(ParameterSet template, String nameTemplate,
+			String commentTemplate, String lengthName, String lengthComment,
+			NumberValidator<Integer> allowedLengths) {
+		super(template, nameTemplate, commentTemplate);
+		this.lengthName = lengthName;
+		this.lengthComment = lengthComment;
+		this.allowedLengths = allowedLengths;
+	}
+
+	/**
+	 * Creates a new {@link ArrayParameterSet} from a {@link Class} that can be
+	 * instantiated using this {@link ArrayParameterSet} and templates for the
+	 * {@link ParameterSet} in each element of the array, the name and the
+	 * comment that are displayed for the {@link ParameterSetContainer}s
+	 * enclosing the {@link ParameterSet}s.
+	 * 
+	 * @param template
+	 *            the template of the {@link ParameterSet}
+	 * @param nameTemplate
+	 *            the name-template
+	 * @param commentTemplate
+	 *            the comment-template
+	 */
+	public ArrayParameterSet(ParameterSet template, String nameTemplate,
+			String commentTemplate) {
+		this(template, nameTemplate, commentTemplate, "Length",
+				"The length of the array.", new NumberValidator<Integer>(1,
+						Integer.MAX_VALUE));
+	}
+
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Creates a new {@link ArrayParameterSet} from its XML representation.
+	 * 
+	 * @param representation
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link StringBuffer} <code>representation</code> could
+	 *             not be parsed
+	 */
+	public ArrayParameterSet(StringBuffer representation)
+			throws NonParsableException {
+		super(representation);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.ExpandableParameterSet#loadParameters()
+	 */
+	@Override
+	protected final void loadParameters() throws Exception {
+		if (parameters == null) {
+			initParameterList();
+			SimpleParameter length = new SimpleParameter(DataType.INT,
+					lengthName, lengthComment, true, allowedLengths);
+			length.setDefault(allowedLengths.getLowerBound());
+			length.setValue(allowedLengths.getLowerBound());
+			length.setRangeable(false);
+			this.parameters.add(length);
+			this.addParameterToSet();
+			numberChanged = 1;
+		} else {
+			int length = (Integer) parameters.get(0).getValue();
+			int oldLength = parameters.size() - 1;
+			numberChanged = length - oldLength;
+			if (length > oldLength) {
+				for (int i = 0; i < length - oldLength; i++) {
+					this.addParameterToSet();
+				}
+			} else if (length < oldLength) {
+				for (int i = 0; i < oldLength - length; i++) {
+					this.removeParameterFromSet();
+				}
+			} else {
+			}
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.ParameterSet#getNumberOfParameters()
+	 */
+	@Override
+	public int getNumberOfParameters() {
+		try {
+			loadParameters();
+			if (ranged) {
+				replaceParametersWithRangedInstance();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.getNumberOfParameters();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.ParameterSet#getParameterAt(int)
+	 */
+	@Override
+	public Parameter getParameterAt(int i) {
+		try {
+			loadParameters();
+			if (ranged) {
+				replaceParametersWithRangedInstance();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return super.getParameterAt(i);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.ParameterSet#hasDefaultOrIsSet()
+	 */
+	@Override
+	public boolean hasDefaultOrIsSet() {
+		if (numberChanged != 0) {
+			return false;
+		} else {
+			return super.hasDefaultOrIsSet();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.ExpandableParameterSet#fromXML(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void fromXML(StringBuffer representation)
+			throws NonParsableException {
+		representation = XMLParser.extractForTag(representation,
+				"arrayParameterSet");
+
+		super.fromXML(XMLParser.extractForTag(representation,
+				"superRepresentation"));
+		lengthName = XMLParser
+				.extractObjectForTags(representation, "lengthName", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		lengthComment = XMLParser.extractObjectForTags(representation, "lengthComment", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		allowedLengths = XMLParser.extractObjectForTags(representation, "allowedLengths", NumberValidator.class );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.ExpandableParameterSet#toXML()
+	 */
+	@Override
+	public StringBuffer toXML() {
+		StringBuffer supBuf = super.toXML();
+		XMLParser.addTags(supBuf, "superRepresentation");
+		XMLParser.appendObjectWithTags(supBuf, lengthName, "lengthName");
+		XMLParser.appendObjectWithTags(supBuf, lengthComment, "lengthComment");
+		XMLParser.appendObjectWithTags(supBuf, allowedLengths,
+				"allowedLengths");
+		XMLParser.addTags(supBuf, "arrayParameterSet");
+		return supBuf;
+
+	}
+
+}
