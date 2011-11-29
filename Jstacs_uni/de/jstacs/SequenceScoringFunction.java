@@ -99,7 +99,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * 
 	 * @return the logarithmic score for the sequence
 	 */
-	public double getLogScore(Sequence seq) throws Exception;
+	public double getLogScoreFor(Sequence seq);
 
 	/**
 	 * Returns the logarithmic score for the {@link Sequence} <code>seq</code>
@@ -112,7 +112,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
 	 */
-	public double getLogScore(Sequence seq, int start) throws Exception;
+	public double getLogScoreFor(Sequence seq, int start);
 	
 	/**
 	 * This method computes the logarithm of the scores of all sequences
@@ -135,7 +135,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see #getLogScore(Sequence)
+	 * @see #getLogScoreFor(Sequence)
 	 */
 	public double[] getLogScoreFor(Sample data) throws Exception;
 
@@ -160,7 +160,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see #getLogScore(Sequence)
+	 * @see #getLogScoreFor(Sequence)
 	 * @see #getLogScoreFor(Sample)
 	 */
 	public void getLogScoreFor(Sample data, double[] res) throws Exception;

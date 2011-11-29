@@ -172,7 +172,7 @@ public abstract class PositionScoringFunction extends AbstractNormalizableScorin
 	 */
 	public abstract double getLogScoreAndPartialDerivation( IntList indices, DoubleList partialDer, int... values );
 
-	public double getLogScore( Sequence seq, int start )
+	public double getLogScoreFor( Sequence seq, int start )
 	{
 		return getLogScore( getValuesFromSequence( seq, start ) );
 	}

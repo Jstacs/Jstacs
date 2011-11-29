@@ -19,12 +19,8 @@
 
 package de.jstacs.models;
 
-import de.jstacs.NotTrainedException;
-import de.jstacs.SequenceScoringFunction;
 import de.jstacs.StatisticalModel;
-import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
-import de.jstacs.data.Sequence;
 
 /**
  * This interface defines all methods for a probabilistic model.
@@ -89,147 +85,6 @@ public interface Model extends StatisticalModel {
 	public void train(Sample data, double[] weights) throws Exception;
 
 	/**
-	 * Returns the logarithm of the probability of (a part of) the given
-	 * sequence given the model. If at least one random variable is continuous
-	 * the value of density function is returned.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * For more details see {@link Model#getProbFor(Sequence, int, int)}
-	 * 
-	 * @param sequence
-	 *            the given sequence
-	 * @param startpos
-	 *            the start position within the given sequence
-	 * @param endpos
-	 *            the last position to be taken into account
-	 * 
-	 * @return the logarithm of the probability or the value of the density
-	 *         function of (the part of) the given sequence given the model
-	 * 
-	 * @throws Exception
-	 *             if the sequence could not be handled (e.g.
-	 *             <code>startpos &gt; </code>, <code>endpos
-	 *             &gt; sequence.length</code>, ...) by the model
-	 * @throws NotTrainedException
-	 *             if the model is not trained yet
-	 * 
-	 * @see Model#getProbFor(Sequence, int, int)
-	 */
-	public double getLogProbFor(Sequence sequence, int startpos, int endpos)
-			throws Exception;
-
-	/**
-	 * Returns the logarithm of the probability of (a part of) the given
-	 * sequence given the model. If at least one random variable is continuous
-	 * the value of density function is returned.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * For more details see {@link Model#getProbFor(Sequence, int)}
-	 * 
-	 * @param sequence
-	 *            the given sequence
-	 * @param startpos
-	 *            the start position within the given sequence
-	 * 
-	 * @return the logarithm of the probability or the value of the density
-	 *         function of (the part of) the given sequence given the model
-	 * 
-	 * @throws Exception
-	 *             if the sequence could not be handled by the model
-	 * @throws NotTrainedException
-	 *             if the model is not trained yet
-	 * 
-	 * @see Model#getProbFor(Sequence, int)
-	 */
-	public double getLogProbFor(Sequence sequence, int startpos)
-			throws Exception;
-
-	/**
-	 * Returns the logarithm of the probability of the given sequence given the
-	 * model. If at least one random variable is continuous the value of density
-	 * function is returned.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * For more details see {@link Model#getProbFor(Sequence)}
-	 * 
-	 * @param sequence
-	 *            the given sequence for which the logarithm of the
-	 *            probability/the value of the density function should be
-	 *            returned
-	 * 
-	 * @return the logarithm of the probability or the value of the density
-	 *         function of the part of the given sequence given the model
-	 * 
-	 * @throws Exception
-	 *             if the sequence could not be handled by the model
-	 * @throws NotTrainedException
-	 *             if the model is not trained yet
-	 * 
-	 * @see Model#getProbFor(Sequence)
-	 */
-	public double getLogProbFor(Sequence sequence) throws Exception;
-
-	/**
-	 * This method computes the logarithm of the probabilities of all sequences
-	 * in the given sample. The values are stored in an array according to the
-	 * index of the respective sequence in the sample.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * The probability for any sequence shall be computed independent of all
-	 * other sequences in the sample. So the result should be exactly the same
-	 * as for the method {@link #getLogProbFor(Sequence)}.
-	 * 
-	 * @param data
-	 *            the sample of sequences
-	 * 
-	 * @return an array containing the logarithm of the probabilities of all
-	 *         sequences of the sample
-	 * 
-	 * @throws Exception
-	 *             if something went wrong
-	 * 
-	 * @see Model#getLogProbFor(Sequence)
-	 */
-	public double[] getLogProbFor(Sample data) throws Exception;
-
-	/**
-	 * This method computes and stores the logarithm of the probabilities for
-	 * any sequence in the sample in the given <code>double</code>-array.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * The probability for any sequence shall be computed independent of all
-	 * other sequences in the sample. So the result should be exactly the same
-	 * as for the method {@link #getLogProbFor(Sequence)}.
-	 * 
-	 * @param data
-	 *            the sample of sequences
-	 * @param res
-	 *            the array for the results, has to have length
-	 *            <code>data.getNumberOfElements()</code> (which returns the
-	 *            number of sequences in the sample)
-	 * 
-	 * @throws Exception
-	 *             if something went wrong
-	 * 
-	 * @see Model#getLogProbFor(Sample)
-	 */
-	public void getLogProbFor(Sample data, double[] res) throws Exception;
-
-	
-
-	
-
-	/**
 	 * Returns <code>true</code> if the model has been trained successfully,
 	 * <code>false</code> otherwise.
 	 * 
@@ -238,32 +93,12 @@ public interface Model extends StatisticalModel {
 	 */
 	public boolean isTrained();
 
-
 	/**
 	 * Should give a simple representation (text) of the model as {@link String}.
 	 * 
 	 * @return the representation as {@link String}
 	 */
 	public String toString();
-
-	/**
-	 * This method tries to set a new instance of an {@link AlphabetContainer}
-	 * for the current model. <b>This instance has to be consistent with the
-	 * underlying instance of an {@link AlphabetContainer}.</b>
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * This method can be very useful to save time.
-	 * 
-	 * @param abc
-	 *            the alphabets in an {@link AlphabetContainer}
-	 * 
-	 * @return <code>true</code> if the new instance could be set
-	 * 
-	 * @see Model#getAlphabetContainer()
-	 * @see AlphabetContainer#checkConsistency(AlphabetContainer)
-	 */
-	public boolean setNewAlphabetContainerInstance(AlphabetContainer abc);
-
+	
+	public double getESS();
 }

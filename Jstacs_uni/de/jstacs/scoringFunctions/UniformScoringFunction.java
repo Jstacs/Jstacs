@@ -20,6 +20,7 @@
 package de.jstacs.scoringFunctions;
 
 import de.jstacs.NonParsableException;
+import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
@@ -89,7 +90,7 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	 * @see de.jstacs.scoringFunctions.BasicUniformScoringFunction#getLogScore(de.jstacs.data.Sequence, int)
 	 */
 	@Override
-	public double getLogScore(Sequence seq, int start) {
+	public double getLogScoreFor(Sequence seq, int start) {
 		return logP;
 	}
 
@@ -174,7 +175,7 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	 * 
 	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getEss()
 	 */
-	public double getEss() {
+	public double getESS() {
 		return ess;
 	}
 
@@ -200,8 +201,7 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.NormalizableScoringFunction#getLogPriorTerm()
+	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getLogPriorTerm()
 	 */
 	public double getLogPriorTerm() {
 		// since the normalization constant does not depend on any parameter,
@@ -212,8 +212,7 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * addGradientOfLogPriorTerm(double[], int)
+	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#addGradientOfLogPriorTerm(double[], int)
 	 */
 	public void addGradientOfLogPriorTerm(double[] grad, int start) {
 	}
@@ -221,9 +220,7 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.AbstractNormalizableScoringFunction#isNormalized
-	 * ()
+	 * @see de.jstacs.scoringFunctions.AbstractNormalizableScoringFunction#isNormalized()
 	 */
 	@Override
 	public boolean isNormalized() {

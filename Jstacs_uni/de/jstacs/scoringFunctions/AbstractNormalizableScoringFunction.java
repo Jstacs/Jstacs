@@ -20,11 +20,11 @@
 package de.jstacs.scoringFunctions;
 
 import de.jstacs.NonParsableException;
+import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.Sample.ElementEnumerator;
-import de.jstacs.models.Model;
 
 /**
  * This class is the main part of any {@link de.jstacs.classifier.scoringFunctionBased.ScoreClassifier}. It implements
@@ -32,7 +32,7 @@ import de.jstacs.models.Model;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public abstract class AbstractNormalizableScoringFunction extends AbstractScoringFunction implements NormalizableScoringFunction, Model {
+public abstract class AbstractNormalizableScoringFunction extends AbstractScoringFunction implements NormalizableScoringFunction {
 
 	/**
 	 * The main constructor.
@@ -114,25 +114,20 @@ public abstract class AbstractNormalizableScoringFunction extends AbstractScorin
 	public double getInitialClassParam( double classProb ) {
 		return Math.log( classProb ) - getLogNormalizationConstant();
 	}
-	
-	@Override
-	public double getPriorTerm() throws Exception {
-		return Math.exp( getLogPriorTerm() );
-	}
 
 	@Override
 	public double getLogProbFor( Sequence sequence ) {
-		return getLogScore( sequence ) - getLogNormalizationConstant();
+		return getLogScoreFor( sequence ) - getLogNormalizationConstant();
 	}
 
 	@Override
 	public double getLogProbFor( Sequence sequence, int startpos ) throws Exception {
-		return getLogScore( sequence, startpos ) - getLogNormalizationConstant();
+		return getLogScoreFor( sequence, startpos ) - getLogNormalizationConstant();
 	}
 
 	@Override
 	public double getLogProbFor( Sequence sequence, int startpos, int endpos ) {
-		return getLogScore( sequence.getSubSequence( startpos, endpos-startpos+1 ) ) - getLogNormalizationConstant();
+		return getLogScoreFor( sequence.getSubSequence( startpos, endpos-startpos+1 ) ) - getLogNormalizationConstant();
 	}
 	
 	@Override
@@ -149,22 +144,55 @@ public abstract class AbstractNormalizableScoringFunction extends AbstractScorin
 		}
 		ElementEnumerator ei = new ElementEnumerator(data);
 		for (int i = 0; i < res.length; i++) {
-			res[i] = getLogScore(ei.nextElement());
+			res[i] = getLogScoreFor(ei.nextElement());
 		}
 	}
 
-	@Override
-	public void train( Sample data ) throws Exception {
-		// TODO Auto-generated method stub
-		
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.StatisticalModel#emitSample(int, int[])
+	 */
+	public Sample emitSample(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+		throw new Exception( "Standard implementation of emitSample used for "
+						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.StatisticalModel#getMaximalMarkovOrder()
+	 */
+	public byte getMaximalMarkovOrder() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException( "The maximal markov order for this model in undefined.");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#setNewAlphabetContainerInstance(de.jstacs.data.AlphabetContainer)
+	 */
+	public final boolean setNewAlphabetContainerInstance(AlphabetContainer abc) {
+		if (abc.checkConsistency(alphabets)) {
+			set(abc);
+			alphabets = abc;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
-	@Override
-	public void train( Sample data, double[] weights ) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
-	
+	/**
+	 * This method should only be invoked by the method
+	 * {@link #setNewAlphabetContainerInstance(AlphabetContainer)} and <b>not be
+	 * made public</b>.
+	 * 
+	 * <br>
+	 * <br>
+	 * 
+	 * It enables you to do more with the method
+	 * {@link #setNewAlphabetContainerInstance(AlphabetContainer)}, e.g. setting
+	 * a new {@link AlphabetContainer} instance for subcomponents.
+	 * 
+	 * @param abc
+	 *            the new instance
+	 */
+	protected void set(AlphabetContainer abc) {}
 }

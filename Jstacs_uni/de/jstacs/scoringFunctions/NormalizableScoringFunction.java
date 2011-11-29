@@ -69,26 +69,17 @@ public interface NormalizableScoringFunction extends ScoringFunction, Statistica
 			throws Exception;
 
 	/**
-	 * Returns the equivalent sample size (ess) of this model, i.e. the
-	 * equivalent sample size for the class or component that is represented by
-	 * this model.
-	 * 
-	 * @return the equivalent sample size.
-	 */
-	public double getEss();
-
-	/**
 	 * This method computes a value that is proportional to
 	 * 
 	 * <p><code>
-	 * {@link #getEss()} * {@link #getLogNormalizationConstant()} + Math.log( prior )
+	 * {@link #getESS()} * {@link #getLogNormalizationConstant()} + Math.log( prior )
 	 * </code></p>
 	 * 
 	 * where <code>prior</code> is the prior for the parameters of this model.
 	 * 
-	 * @return a value that is proportional to <code>{@link #getEss()} * {@link #getLogNormalizationConstant()} + Math.log( prior ).</code>
+	 * @return a value that is proportional to <code>{@link #getESS()} * {@link #getLogNormalizationConstant()} + Math.log( prior ).</code>
 	 * 
-	 * @see NormalizableScoringFunction#getEss()
+	 * @see NormalizableScoringFunction#getESS()
 	 * @see NormalizableScoringFunction#getLogNormalizationConstant()
 	 */
 	public double getLogPriorTerm();

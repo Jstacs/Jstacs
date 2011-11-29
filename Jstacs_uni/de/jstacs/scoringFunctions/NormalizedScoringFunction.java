@@ -137,20 +137,20 @@ public final class NormalizedScoringFunction extends AbstractNormalizableScoring
 		return Double.NEGATIVE_INFINITY;
 	}
 
-	public double getEss()
+	public double getESS()
 	{
-		return nsf.getEss();
+		return nsf.getESS();
 	}
 
 	public double getLogPriorTerm()
 	{
-		return nsf.getLogPriorTerm() - nsf.getEss() * logNorm;
+		return nsf.getLogPriorTerm() - nsf.getESS() * logNorm;
 	}
 
 	public void addGradientOfLogPriorTerm( double[] grad, int start ) throws Exception
 	{
 		nsf.addGradientOfLogPriorTerm( grad, start );
-		double e = nsf.getEss();
+		double e = nsf.getESS();
 		for( int i = 0; i < proportion.length; i++ )
 		{
 			grad[start + i] -= e * proportion[i];
@@ -183,9 +183,9 @@ public final class NormalizedScoringFunction extends AbstractNormalizableScoring
 		return "normalized " + nsf.getInstanceName();
 	}
 
-	public double getLogScore( Sequence seq, int start )
+	public double getLogScoreFor( Sequence seq, int start )
 	{
-		return nsf.getLogScore( seq, start ) - logNorm;
+		return nsf.getLogScoreFor( seq, start ) - logNorm;
 	}
 
 	public double getLogScoreAndPartialDerivation( Sequence seq, int start, IntList indices, DoubleList partialDer )

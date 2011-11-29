@@ -29,11 +29,11 @@ import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
+import de.jstacs.classifier.trainer.numerical.LearningPrinciple;
+import de.jstacs.classifier.trainer.numerical.LogGenDisMixFunction;
+import de.jstacs.classifier.trainer.numerical.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
@@ -159,7 +159,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 				partWeights = ipsf.extractWeights( a, packedWeights );
 				nsfs[i] = train( part[0], partWeights[0], nsfs[i] );
 			}
-			nsf = new IndependentProductScoringFunction( ipsf.getEss(), true, nsfs, ipsf.getIndices(), ipsf.getPartialLengths(), ipsf.getReverseSwitches() );
+			nsf = new IndependentProductScoringFunction( ipsf.getESS(), true, nsfs, ipsf.getIndices(), ipsf.getPartialLengths(), ipsf.getReverseSwitches() );
 		} else {
 			nsf = train( data, weights, nsf );
 		}
@@ -173,7 +173,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 			
 			double[] params;
 			NormalizableScoringFunction best = null;
-			double current, max = Double.NEGATIVE_INFINITY, fac = data.getNumberOfElements(), ess = nsf.getEss();
+			double current, max = Double.NEGATIVE_INFINITY, fac = data.getNumberOfElements(), ess = nsf.getESS();
 			fac = fac / (ess+ fac) * (ess == 0 ? 1d : 2d);
 			
 			NormalizableScoringFunction[] score = { (NormalizableScoringFunction) nsf.clone() };
@@ -232,12 +232,12 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 		{
 			throw new WrongLengthException( "Check length of the sequence." );
 		}
-		return nsf.getLogScore( sequence, startpos ) - logNorm;
+		return nsf.getLogScoreFor( sequence, startpos ) - logNorm;
 	}
 	
 	public double getLogPriorTerm() throws Exception
 	{
-		return nsf.getLogPriorTerm() - nsf.getEss()*logNorm;
+		return nsf.getLogPriorTerm() - nsf.getESS()*logNorm;
 	}
 
 	public String getInstanceName()

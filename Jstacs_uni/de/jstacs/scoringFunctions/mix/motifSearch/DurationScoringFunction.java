@@ -132,7 +132,7 @@ public abstract class DurationScoringFunction extends PositionScoringFunction
 		throw new RuntimeException( "???" );
 	}
 
-	public final double getEss()
+	public final double getESS()
 	{
 		return ess;
 	}

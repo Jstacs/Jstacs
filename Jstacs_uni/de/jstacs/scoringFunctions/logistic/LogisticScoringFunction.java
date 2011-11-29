@@ -90,7 +90,7 @@ public class LogisticScoringFunction extends AbstractScoringFunction {
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence, int)
 	 */
 	@Override
-	public double getLogScore( Sequence seq, int start ) {
+	public double getLogScoreFor( Sequence seq, int start ) {
 		double res = 0;
 		for( int i = 0; i < constraint.length; i++ ) {
 			res += parameter[i]*constraint[i].getValue( seq, start );

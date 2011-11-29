@@ -46,10 +46,10 @@ public class MixtureDuration extends DurationScoringFunction {
 	              
 	
 	private static double getESS( DurationScoringFunction... function ) {
-		double ess = function[0].getEss(), e;
+		double ess = function[0].getESS(), e;
 		boolean noESS = ess == 0;
 		for( int i = 1; i < function.length; i++ ) {
-			e = function[i].getEss();
+			e = function[i].getESS();
 			if( noESS ) {
 				if( e > 0 ) {
 					throw new IllegalArgumentException( "The ESS of duration " + i + " has to be zero." );
@@ -152,7 +152,7 @@ public class MixtureDuration extends DurationScoringFunction {
 			function[i].adjust( length, weight ); //FIXME: problem if identical components
 			hiddenParams[i] = 0;
 			assignedWeights[i] = new double[weight.length];
-			stat[i] = function[i].getEss();
+			stat[i] = function[i].getESS();
 			all += stat[i];
 		}
 		logNorm = Normalisation.getLogSum( hiddenParams );
@@ -216,7 +216,7 @@ public class MixtureDuration extends DurationScoringFunction {
 				function[i].addGradientOfLogPriorTerm( grad, paramRef[i] + start );
 			}
 			for( int j = 0, i = paramRef[function.length]; i < paramRef[function.length+1]; i++, j++ ) {
-				grad[i+start] = function[j].getEss() - ess*Math.exp( hiddenParams[j] - logNorm );
+				grad[i+start] = function[j].getESS() - ess*Math.exp( hiddenParams[j] - logNorm );
 			}
 		}
 	}
@@ -226,7 +226,7 @@ public class MixtureDuration extends DurationScoringFunction {
 		if( ess > 0 ) {
 			for( int i = 0; i < function.length; i++ ) {
 				lp += function[i].getLogPriorTerm()
-					+ function[i].getEss() * hiddenParams[i];
+					+ function[i].getESS() * hiddenParams[i];
 			}
 			lp -= ess * logNorm;
 		}
@@ -266,7 +266,7 @@ public class MixtureDuration extends DurationScoringFunction {
 		int i = 0, j;
 		double w = 1, all = 0;
 		for( ; i < function.length; i++ ) {
-			hiddenParams[i] = function[i].getEss();
+			hiddenParams[i] = function[i].getESS();
 			all += hiddenParams[i];
 		}
 		DirichletMRGParams params = new DirichletMRGParams( hiddenParams );
@@ -314,7 +314,7 @@ public class MixtureDuration extends DurationScoringFunction {
 		double[] hyper = scores.clone();
 		for( int i = 0; i < function.length; i++ ) {
 			function[i].initializeFunctionRandomly( freeParams );
-			hyper[i] = noPrior ? 1 : function[i].getEss();
+			hyper[i] = noPrior ? 1 : function[i].getESS();
 		}
 		DirichletMRG.DEFAULT_INSTANCE.generate( hiddenParams, 0, function.length, new DirichletMRGParams( hyper ) );
 		for( int i = 0; i < function.length; i++ ) {

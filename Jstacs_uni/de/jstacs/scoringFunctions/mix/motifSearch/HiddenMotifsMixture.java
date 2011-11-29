@@ -215,11 +215,11 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		}
 		else
 		{
-			ess = bg.getEss();
+			ess = bg.getESS();
 		}
 		for( int i = 0; i < bgIndex; i += 2 )
 		{
-			ess += function[i].getEss();
+			ess += function[i].getESS();
 		}
 		createSimpleScore();
 		initBgHelp();
@@ -271,7 +271,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 			while( okay );
 			
 			//determine the weight for each possible length
-			w = function[i].getEss() / (double) anz;
+			w = function[i].getESS() / (double) anz;
 			
 			//create the statistic
 			dur.reset();
@@ -296,7 +296,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		// add the weight if no motif is in the sequence
 		if( type == CONTAINS_SOMETIMES_A_MOTIF )
 		{
-			weight[length] += bg.getEss();
+			weight[length] += bg.getESS();
 		}
 		
 		bg.setStatisticForHyperparameters( len, weight );
@@ -319,7 +319,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 
 	public double getHyperparameterForHiddenParameter( int index )
 	{
-		return function[2 * index].getEss();
+		return function[2 * index].getESS();
 	}
 
 	protected double getLogNormalizationConstantForComponent( int i )
@@ -402,7 +402,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		}
 	}
 
-	public double getEss()
+	public double getESS()
 	{
 		return ess;
 	}
@@ -469,7 +469,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 			pos.getInternalPosition( currentPos );
 			homSt = Math.max( 0, currentPos[0] - bgOrder );
 			homE = Math.min( length, currentPos[0] + m + bgOrder );
-			simpleScore[i][l++] = pos.getLogScoreForInternal() + function[j].getLogScore( seq, start + currentPos[0] )
+			simpleScore[i][l++] = pos.getLogScoreForInternal() + function[j].getLogScoreFor( seq, start + currentPos[0] )
 				- bg.getLogScore( seq, start + homSt, homE - homSt )
 				+ bg.getLogScore( seq, start + homSt, currentPos[0] - homSt ) // left
 				+ bg.getLogScore( seq, start + currentPos[0] + m, homE - currentPos[0] - m ); //right
@@ -492,7 +492,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		}
 	}
 
-	public double getLogScore( Sequence seq, int start )
+	public double getLogScoreFor( Sequence seq, int start )
 	{
 		fillComponentScores( seq, start );
 		return bg.getLogScore( seq, start, length ) + Normalisation.getLogSum( componentScore );
@@ -848,7 +848,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 			seq = data[index].getElementAt( s );
 			p = r.nextInt( seq.getLength() - l + 1 );
 			seq = seq.getSubSequence( p, l );
-			h = d * function[2*motif].getEss();
+			h = d * function[2*motif].getESS();
 			function[2*motif].initializeFunction( 0, freeParams, new Sample[]{ new Sample( "", seq ) }, new double[][]{{h}} );
 			
 			//System.out.print( s + "\t" + p + "\t" + seq + "\t" );

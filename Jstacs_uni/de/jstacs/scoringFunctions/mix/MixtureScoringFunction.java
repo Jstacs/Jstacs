@@ -150,7 +150,7 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 	 */
 	@Override
 	public double getHyperparameterForHiddenParameter( int index ) {
-		return function[index].getEss();
+		return function[index].getESS();
 	}
 
 	/*
@@ -158,10 +158,10 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 	 * 
 	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getEss()
 	 */
-	public double getEss() {
+	public double getESS() {
 		double ess = 0;
 		for( int i = 0; i < function.length; i++ ) {
-			ess += function[i].getEss();
+			ess += function[i].getESS();
 		}
 		return ess;
 	}
@@ -173,7 +173,7 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 		double[][] newWeights = new double[function.length][len];
 		int i = 0, j = 0;
 		double[] h = new double[this.getNumberOfComponents()];
-		if( getEss() == 0 ) {
+		if( getESS() == 0 ) {
 			Arrays.fill( h, 1 );
 		} else {
 			for( ; j < h.length; j++ ) {
@@ -285,7 +285,7 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScore( seq, start, seq.getLength()-start );
 				}
 			} else {
-				componentScore[i] = logHiddenPotential[i] + function[i].getLogScore( seq, start);
+				componentScore[i] = logHiddenPotential[i] + function[i].getLogScoreFor( seq, start);
 			}
 		}
 	}

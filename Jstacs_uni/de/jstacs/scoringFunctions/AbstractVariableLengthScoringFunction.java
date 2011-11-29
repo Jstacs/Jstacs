@@ -118,7 +118,7 @@ public abstract class AbstractVariableLengthScoringFunction extends
 	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data
 	 * .Sequence, int)
 	 */
-	public double getLogScore(Sequence seq, int start) {
+	public double getLogScoreFor(Sequence seq, int start) {
 		if (length != 0) {
 			return getLogScore(seq, start, length);
 		} else {

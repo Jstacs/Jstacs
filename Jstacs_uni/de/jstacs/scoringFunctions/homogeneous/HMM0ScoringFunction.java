@@ -373,7 +373,7 @@ public class HMM0ScoringFunction extends HomogeneousScoringFunction {
 	 * 
 	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getEss()
 	 */
-	public double getEss() {
+	public double getESS() {
 		return ess;
 	}
 

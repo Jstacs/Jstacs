@@ -31,8 +31,8 @@ import de.jstacs.algorithms.optimization.termination.CombinedCondition;
 import de.jstacs.algorithms.optimization.termination.IterationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.classifier.scoringFunctionBased.SFBasedOptimizableFunction;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifier.trainer.numerical.SFBasedOptimizableFunction;
+import de.jstacs.classifier.trainer.numerical.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.RecyclableSequenceEnumerator;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
@@ -400,7 +400,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @throws Exception if something went wrong while optimization
 	 *
 	 * @see MutableMotifDiscovererToolbox#clearHistoryArray(de.jstacs.motifDiscovery.history.History[][])
-	 * @see MutableMotifDiscovererToolbox#optimize(ScoringFunction[], SFBasedOptimizableFunction, byte, double, double, StartDistanceForecaster, SafeOutputStream, boolean, History[][], int[][], de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter, boolean)
+	 * @see MutableMotifDiscovererToolbox#optimize(ScoringFunction[], SFBasedOptimizableFunction, byte, double, double, StartDistanceForecaster, SafeOutputStream, boolean, History[][], int[][], de.jstacs.classifier.trainer.numerical.OptimizableFunction.KindOfParameter, boolean)
 	 */
 	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, double eps, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History template, KindOfParameter plugIn, boolean maxPos ) throws Exception {
 		return optimize( funs, opt, algorithm, eps, linEps, startDistance, out, breakOnChanged, createHistoryArray( funs, template ), createMinimalNewLengthArray( funs ), plugIn, maxPos );
