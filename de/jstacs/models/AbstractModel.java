@@ -68,7 +68,7 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	 * 
 	 * The <code>length</code> and <code>alphabets</code> define the type of
 	 * data that can be modeled and therefore both has to be checked before any
-	 * evaluation (e.g. <code>getProbFor</code>)
+	 * evaluation (e.g. {@link #getLogScoreFor(Sequence)})
 	 * 
 	 * @param alphabets
 	 *            the alphabets in an {@link AlphabetContainer}
@@ -147,44 +147,62 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.models.Model#getLogProbFor(de.jstacs.data.Sequence, int,
-	 * int)
+	 * @see de.jstacs.models.Model#getLogProbFor(de.jstacs.data.Sequence)
 	 */
-	/*
-	public final double getLogProbFor(Sequence sequence, int startpos, int endpos)
-			throws Exception {
-		return StrictMath.log(getProbFor(sequence, startpos, endpos));
-	}/**/
+	public double getLogProbFor(Sequence sequence) throws Exception {
+		return getLogProbFor(sequence, 0, sequence.getLength() - 1);
+	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see de.jstacs.models.Model#getLogProbFor(de.jstacs.data.Sequence, int)
 	 */
-	public double getLogProbFor(Sequence sequence, int startpos)
-			throws Exception {
+	public double getLogProbFor(Sequence sequence, int startpos) throws Exception {
 		if (length == 0) {
 			return getLogProbFor(sequence, startpos, sequence.getLength() - 1);
 		} else {
 			return getLogProbFor(sequence, startpos, startpos + length - 1);
 		}
 	}
-
+	
+	public double getLogProbFor(Sequence sequence, int startpos, int endpos ) throws Exception {
+		check( sequence, startpos, endpos );
+		return getLogScoreFor( sequence, startpos, endpos );
+	}
+	
+	protected void check( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, IllegalArgumentException {
+		if( !isTrained() ) {
+			throw new NotTrainedException();
+		} else if( !alphabets.checkConsistency( sequence.getAlphabetContainer().getSubContainer( startpos, endpos - startpos + 1 ) ) ) {
+			throw new IllegalArgumentException( "This sequence is not possible with the given alphabet." );
+		} else if( startpos < 0 ) {
+			throw new IllegalArgumentException( "This startposition is impossible. Try: 0 <= startposition" );
+		} else if( startpos > endpos || endpos >= sequence.getLength() ) {
+			throw new IllegalArgumentException( "This endposition is impossible. Try: startposition <= endposition < sequence.length" );
+		} else if( length != 0 &&  endpos - startpos + 1 != length ) {
+			throw new IllegalArgumentException( "This sequence has not length " + length + "." );
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getLogProbFor(de.jstacs.data.Sequence)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sequence)
 	 */
-	public double getLogProbFor(Sequence sequence) throws Exception {
-		return getLogProbFor(sequence, 0, sequence.getLength() - 1);
+	public double getLogScoreFor(Sequence sequence) {
+		return getLogScoreFor( sequence, 0 );
 	}
 	
-	public double getLogScore(Sequence sequence) throws Exception{
-		return getLogProbFor( sequence );
-	}
-	
-	public double getLogScore(Sequence sequence, int startpos) throws Exception{
-		return getLogProbFor( sequence, startpos );
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sequence, int)
+	 */
+	public double getLogScoreFor(Sequence sequence, int startpos) {
+		if (length == 0) {
+			return getLogScoreFor(sequence, startpos, sequence.getLength() - 1);
+		} else {
+			return getLogScoreFor(sequence, startpos, startpos + length - 1);
+		}
 	}
 	
 	/*
@@ -193,7 +211,7 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	 */
 	public double[] getLogScoreFor(Sample data) throws Exception {
 		double[] res = new double[data.getNumberOfElements()];
-		getLogProbFor(data, res);
+		getLogScoreFor(data, res);
 		return res;
 	}
 
@@ -207,36 +225,22 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 		}
 		ElementEnumerator ei = new ElementEnumerator(data);
 		for (int i = 0; i < res.length; i++) {
-			res[i] = getLogProbFor(ei.nextElement());
+			res[i] = getLogScoreFor(ei.nextElement());
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getPriorTerm()
+	 * @see de.jstacs.StatisticalModel#emitSample(int, int[])
 	 */
-	public double getPriorTerm() throws Exception {
-		return Math.exp(getLogPriorTerm());
+	public Sample emitSample(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+		throw new Exception( "Standard implementation of emitSample used for "
+						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#emitSample(int, int)
-	 */
-	public Sample emitSample(int numberOfSequences, int... seqLength)
-			throws NotTrainedException, Exception {
-		throw new Exception(
-				"Standard implementation of emitSample used for "
-						+ getInstanceName()
-						+ ". You have to overwrite this method to use it in a proper way.");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getAlphabetContainer()
+	 * @see de.jstacs.SequenceScoringFunction#getAlphabetContainer()
 	 */
 	public final AlphabetContainer getAlphabetContainer() {
 		return alphabets;
@@ -244,8 +248,7 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getLength()
+	 * @see de.jstacs.SequenceScoringFunction#getLength()
 	 */
 	public final int getLength() {
 		return length;
@@ -253,23 +256,19 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getMaximalMarkovOrder()
+	 * @see de.jstacs.StatisticalModel#getMaximalMarkovOrder()
 	 */
 	public byte getMaximalMarkovOrder() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(
-				"The maximal markov order for this model in undefined.");
+		throw new UnsupportedOperationException( "The maximal markov order for this model in undefined.");
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getCharacteristics()
+	 * @see de.jstacs.SequenceScoringFunction#getCharacteristics()
 	 */
 	public ResultSet getCharacteristics() throws Exception {
 		return new ResultSet(getNumericalCharacteristics().getResults(),
-				new Result[] { new StorableResult("model",
-						"the xml representation of the model", this) });
+				new Result[] { new StorableResult("model", "the xml representation of the model", this) });
 	}
 
 	/**
@@ -285,15 +284,11 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	 * 
 	 * @see AbstractModel#AbstractModel(StringBuffer)
 	 */
-	protected abstract void fromXML(StringBuffer xml)
-			throws NonParsableException;
+	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.models.Model#setNewAlphabetContainerInstance(de.jstacs.data
-	 * .AlphabetContainer)
+	 * @see de.jstacs.SequenceScoringFunction#setNewAlphabetContainerInstance(de.jstacs.data.AlphabetContainer)
 	 */
 	public final boolean setNewAlphabetContainerInstance(AlphabetContainer abc) {
 		if (abc.checkConsistency(alphabets)) {
@@ -320,6 +315,5 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	 * @param abc
 	 *            the new instance
 	 */
-	protected void set(AlphabetContainer abc) {
-	}
+	protected void set(AlphabetContainer abc) {}
 }

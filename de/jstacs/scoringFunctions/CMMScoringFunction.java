@@ -615,7 +615,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 				if( optimizeFrame )
 				{
 					System.arraycopy( frameHyper, 0, frameProbs, 0, period );
-					logFrameNorm = getEss();
+					logFrameNorm = getESS();
 				}
 				
 				//counting
@@ -868,7 +868,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 		}
 	}
 
-	public double getEss()
+	public double getESS()
 	{
 		double ess = 0;
 		for( int f = 0; f < frameHyper.length; f++ ) {
@@ -949,7 +949,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 	{
 		if( optimize )
 		{
-			double classESS = getEss(), sum, val = -classESS*logFrameNorm;//XXX -?
+			double classESS = getESS(), sum, val = -classESS*logFrameNorm;//XXX -?
 			int A = (int)alphabets.getAlphabetLengthAt( 0 );
 			for( int f = 0; f < params.length; f++ ) {
 				 val += frameParams[f] * frameHyper[f];
@@ -979,7 +979,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 	{
 		if( optimize )
 		{
-			double classESS = getEss(), sum, val = -classESS*logFrameNorm;//XXX -?
+			double classESS = getESS(), sum, val = -classESS*logFrameNorm;//XXX -?
 			int A = (int)alphabets.getAlphabetLengthAt( 0 );
 			for( int f = 0; f < params.length; f++ ) {
 				 val += frameParams[f] * frameHyper[(f+offset)%period];
@@ -1007,7 +1007,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 
 	private void computeConstantsOfLogPrior()
 	{
-		double classESS = getEss(), sum = 0;
+		double classESS = getESS(), sum = 0;
 		int A = (int)alphabets.getAlphabetLengthAt( 0 );
 		logGammaSum = Gamma.logOfGamma( classESS );
 		for( int f = 0; f < params.length; f++ ) {
@@ -1034,7 +1034,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 			int j, p, o, index;
 			if( optimizeFrame )
 			{
-				double classESS = getEss();
+				double classESS = getESS();
 				j = period - (freeParams?1:0);
 				for( p = 0; p < j; p++, start++ )
 				{

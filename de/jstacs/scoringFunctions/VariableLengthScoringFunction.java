@@ -77,7 +77,7 @@ public interface VariableLengthScoringFunction extends NormalizableScoringFuncti
 	 * 
 	 * @return the logarithm of the score for the subsequence
 	 * 
-	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(Sequence,
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreFor(Sequence,
 	 *      int)
 	 */
 	public abstract double getLogScore(Sequence seq, int start, int length);

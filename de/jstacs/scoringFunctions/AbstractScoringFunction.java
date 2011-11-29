@@ -23,7 +23,14 @@ import java.util.Random;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
+import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.results.NumericalResult;
+import de.jstacs.results.NumericalResultSet;
+import de.jstacs.results.Result;
+import de.jstacs.results.ResultSet;
+import de.jstacs.results.StorableResult;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
@@ -163,8 +170,8 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence)
 	 */
 	@Override
-	public final double getLogScore( Sequence seq ) {
-		return getLogScore( seq, 0 );
+	public final double getLogScoreFor( Sequence seq ) {
+		return getLogScoreFor( seq, 0 );
 	}
 
 	/*
@@ -195,5 +202,46 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 */
 	public double getInitialClassParam( double classProb ) {
 		return Math.log( classProb );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sample)
+	 */
+	public double[] getLogScoreFor(Sample data) throws Exception {
+		double[] res = new double[data.getNumberOfElements()];
+		getLogScoreFor(data, res);
+		return res;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sample, double[])
+	 */
+	public void getLogScoreFor(Sample data, double[] res) throws Exception {
+		if (res.length != data.getNumberOfElements()) {
+			throw new IllegalArgumentException("The array has wrong dimension.");
+		}
+		ElementEnumerator ei = new ElementEnumerator(data);
+		for (int i = 0; i < res.length; i++) {
+			res[i] = getLogScoreFor(ei.nextElement());
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#getCharacteristics()
+	 */
+	public ResultSet getCharacteristics() throws Exception {
+		return new ResultSet(getNumericalCharacteristics().getResults(),
+				new Result[] { new StorableResult("model", "the xml representation of the model", this) });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#getNumericalCharacteristics()
+	 */
+	public NumericalResultSet getNumericalCharacteristics() throws Exception {
+		return new NumericalResultSet( new NumericalResult( "number of parameters", "the number of parameters used in this instance to score sequences", getNumberOfParameters() ) );
 	}
 }

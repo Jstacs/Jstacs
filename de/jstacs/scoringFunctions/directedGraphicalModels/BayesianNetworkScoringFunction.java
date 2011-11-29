@@ -685,7 +685,7 @@ public class BayesianNetworkScoringFunction extends
 	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data
 	 * .Sequence, int)
 	 */
-	public double getLogScore(Sequence seq, int start) {
+	public double getLogScoreFor(Sequence seq, int start) {
 		double prob = 0;
 		for (int i = 0; i < trees.length; i++) {
 			prob += trees[i].getParameterFor(seq, start).getValue();
@@ -882,7 +882,7 @@ public class BayesianNetworkScoringFunction extends
 	 * 
 	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getEss()
 	 */
-	public double getEss() {
+	public double getESS() {
 		return ess;
 	}
 

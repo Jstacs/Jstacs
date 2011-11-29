@@ -139,8 +139,8 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 		nsf.addGradientOfLogPriorTerm( grad, start );
 	}
 
-	public double getEss() {
-		return nsf.getEss();
+	public double getESS() {
+		return nsf.getESS();
 	}
 
 	public double getLogNormalizationConstant() {
@@ -167,9 +167,9 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 		return XML_TAG + " for " + nsf.getInstanceName();
 	}
 
-	public double getLogScore( Sequence seq, int start ) {
+	public double getLogScoreFor( Sequence seq, int start ) {
 		mappedSeq.setSequence( seq );
-		return nsf.getLogScore( mappedSeq, start ) - mappedSeq.getLogNumberOfPossibleOriginalSequences( start,
+		return nsf.getLogScoreFor( mappedSeq, start ) - mappedSeq.getLogNumberOfPossibleOriginalSequences( start,
 						length == 0 ? seq.getLength() : ( start + length ) );
 	}
 

@@ -30,7 +30,7 @@ import de.jstacs.utils.IntList;
 /**
  * This class implements a simple wrapper for multidimensional sequences.
  * 
- * The logarithm of the score given by {@link SimpleMultiDimSequenceWrapperScoringFunction#getLogScore(Sequence)} is defined as
+ * The logarithm of the score given by {@link SimpleMultiDimSequenceWrapperScoringFunction#getLogScoreFor(Sequence)} is defined as
  * {@latex.ilb \\[\\frac{1}{N}\\sum_{n=0}^N \\log p(\\underline{x_n} | \\underline{\\lambda}).\\]}
  * 
  * @author Jens Keilwagen
@@ -134,18 +134,18 @@ public class MultiDimensionalSequenceWrapperScoringFunction extends AbstractScor
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence, int)
 	 */
 	@Override
-	public double getLogScore( Sequence seq, int start ) {
+	public double getLogScoreFor( Sequence seq, int start ) {
 		double res;
 		if( seq instanceof MultiDimensionalSequence ) {
 			MultiDimensionalSequence mdSeq = (MultiDimensionalSequence) seq;
 			int n = mdSeq.getNumberOfSequences();
 			res = 0;
 			for( int i = 0; i < n; i++ ) {
-				res += function.getLogScore( mdSeq.getSequence( i ), start );
+				res += function.getLogScoreFor( mdSeq.getSequence( i ), start );
 			}
 			res /= n;
 		} else {
-			res = function.getLogScore( seq, start );
+			res = function.getLogScoreFor( seq, start );
 		}
 		return res;
 	}

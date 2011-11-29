@@ -275,7 +275,7 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 	 * (non-Javadoc)
 	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getEss()
 	 */
-	public double getEss() {
+	public double getESS() {
 		return ess;
 	}
 

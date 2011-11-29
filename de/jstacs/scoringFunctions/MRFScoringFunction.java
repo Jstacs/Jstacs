@@ -201,7 +201,7 @@ public final class MRFScoringFunction extends
 	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data
 	 * .Sequence, int)
 	 */
-	public double getLogScore(Sequence seq, int start) {
+	public double getLogScoreFor(Sequence seq, int start) {
 		double erg = 0;
 		for (int i = 0; i < constr.length; i++) {
 			erg += constr[i].getLambda( constr[i].satisfiesSpecificConstraint( seq, start) );
@@ -436,7 +436,7 @@ public final class MRFScoringFunction extends
 	 * 
 	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getEss()
 	 */
-	public double getEss() {
+	public double getESS() {
 		return ess;
 	}
 

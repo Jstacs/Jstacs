@@ -205,9 +205,9 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 		switch( index )
 		{
 			case 0:
-				return forwardPartOfESS * function[0].getEss();
+				return forwardPartOfESS * function[0].getESS();
 			case 1:
-				return (1d - forwardPartOfESS) * function[0].getEss();
+				return (1d - forwardPartOfESS) * function[0].getESS();
 			default:
 				throw new IndexOutOfBoundsException();
 		}
@@ -223,9 +223,9 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 		return (hiddenPotential[0]/d);
 	}
 	
-	public double getEss()
+	public double getESS()
 	{
-		return function[0].getEss();
+		return function[0].getESS();
 	}
 
 	protected void initializeUsingPlugIn( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception
@@ -240,7 +240,7 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 				if( optimizeHidden )
 				{
 					double[] h = new double[2];
-					if( getEss() == 0 )
+					if( getESS() == 0 )
 					{
 						h[0] = h[1] = 1;
 					}
@@ -339,19 +339,19 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 
 	protected void fillComponentScores( Sequence seq, int start )
 	{
-		componentScore[0] = logHiddenPotential[0] + function[0].getLogScore( seq, start );
+		componentScore[0] = logHiddenPotential[0] + function[0].getLogScoreFor( seq, start );
 		try
 		{
 			if( length != 0 )
 			{
 				componentScore[1] = logHiddenPotential[1]
-						+ function[0].getLogScore( seq.reverseComplement(), seq.getLength() - start - length );
+						+ function[0].getLogScoreFor( seq.reverseComplement(), seq.getLength() - start - length );
 			}
 			else
 			{
 				if( start == 0 )
 				{
-					componentScore[1] = logHiddenPotential[1] + function[0].getLogScore( seq.reverseComplement(), 0 );
+					componentScore[1] = logHiddenPotential[1] + function[0].getLogScoreFor( seq.reverseComplement(), 0 );
 				}
 				else
 				{

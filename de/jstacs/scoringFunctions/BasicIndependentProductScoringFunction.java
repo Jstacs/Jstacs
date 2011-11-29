@@ -27,6 +27,8 @@ import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
+import de.jstacs.results.NumericalResultSet;
+import de.jstacs.results.ResultSet;
 import de.jstacs.scoringFunctions.homogeneous.HomogeneousScoringFunction;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -474,7 +476,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 * (non-Javadoc)
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence, int)
 	 */
-	public double getLogScore( Sequence seq, int start ) {
+	public double getLogScoreFor( Sequence seq, int start ) {
 		double s = 0;
 		for( int i = 0; i < index.length; i++ ) {
 			if( reverse[i] ) {
@@ -482,7 +484,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 					if( isVariable[index[i]] ) {
 						s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScore( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i], partialLength[i] );
 					} else {
-						s += score[index[i]].getLogScore( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i] );
+						s += score[index[i]].getLogScoreFor( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i] );
 					}
 				} catch ( Exception e ) {
 					throw new RuntimeException( e.getMessage() );
@@ -491,7 +493,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 				if( isVariable[index[i]] ) {
 					s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScore( seq, start + this.start[i], partialLength[i] );
 				} else {
-					s += score[index[i]].getLogScore( seq, start + this.start[i] );
+					s += score[index[i]].getLogScoreFor( seq, start + this.start[i] );
 				}
 			}
 		}

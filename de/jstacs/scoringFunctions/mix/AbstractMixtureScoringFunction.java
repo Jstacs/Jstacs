@@ -208,7 +208,7 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 	protected void computeLogGammaSum() {
 		logGammaSum = 0;
 		int i = 0, n = getNumberOfComponents();
-		if( n > 1 && getEss() > 0 ) {
+		if( n > 1 && getESS() > 0 ) {
 			double sum = 0, h;
 			for( ; i < n; i++ ) {
 				h = getHyperparameterForHiddenParameter( i );
@@ -318,7 +318,7 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 		}
 		j = start + paramRef[function.length + 1];
 		start += paramRef[function.length];
-		double e = getEss();
+		double e = getESS();
 		for( i = 0; start < j; i++, start++ ) {
 			grad[start] += getHyperparameterForHiddenParameter( i ) - ( isNormalized() ? e * hiddenPotential[i] : 0 );
 		}
@@ -368,7 +368,7 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 	 * (non-Javadoc)
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence, int)
 	 */
-	public double getLogScore( Sequence seq, int start ) {
+	public double getLogScoreFor( Sequence seq, int start ) {
 		fillComponentScores( seq, start );
 		return Normalisation.getLogSum( componentScore );
 	}
@@ -514,7 +514,7 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 	 */
 	protected void initializeHiddenPotentialRandomly() {
 		double[] h = new double[this.getNumberOfComponents()];
-		if( getEss() == 0 ) {
+		if( getESS() == 0 ) {
 			Arrays.fill( h, 1 );
 		} else {
 			for( int j = 0; j < h.length; j++ ) {

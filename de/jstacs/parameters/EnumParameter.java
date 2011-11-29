@@ -21,7 +21,7 @@ package de.jstacs.parameters;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
+import de.jstacs.classifier.trainer.numerical.LearningPrinciple;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 

@@ -108,7 +108,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 * @param forward a boolean array that indicates whether the symbol on the forward or the reverse complementary strand should be used,
 	 * 				  if <code>null</code> all states use the forward strand
 	 * @param emission the emissions
-	 * @param likelihood if <code>true</code> the likelihood is return  by {@link #getLogScore(Sequence)} otherwise the viterbi score
+	 * @param likelihood if <code>true</code> the likelihood is return  by {@link #getLogScoreFor(Sequence)} otherwise the viterbi score
 	 * @param ess the ess of the model
 	 * @param te the {@link TransitionElement}s used for creating a {@link de.jstacs.models.hmm.Transition}
 	 * 
@@ -216,7 +216,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		return clone;
 	}
 	
-	public double getEss() {
+	public double getESS() {
 		return ess;
 	}
 
@@ -338,11 +338,11 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 //end
 
-	public double getLogScore( Sequence seq ) {
-		return getLogScore( seq, 0 );
+	public double getLogScoreFor( Sequence seq ) {
+		return getLogScoreFor( seq, 0 );
 	}
 
-	public double getLogScore( Sequence seq, int start ) {
+	public double getLogScoreFor( Sequence seq, int start ) {
 		//return logProb( start, seq.getLength()-1, seq );
 		try {
 			int end = seq.getLength()-1;

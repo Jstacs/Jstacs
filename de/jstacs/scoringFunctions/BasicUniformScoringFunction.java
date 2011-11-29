@@ -79,7 +79,7 @@ public class BasicUniformScoringFunction extends AbstractScoringFunction {
 	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data
 	 * .Sequence, int)
 	 */
-	public double getLogScore(Sequence seq, int start) {
+	public double getLogScoreFor(Sequence seq, int start) {
 		return 0;
 	}
 
