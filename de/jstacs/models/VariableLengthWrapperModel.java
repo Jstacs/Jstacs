@@ -109,8 +109,8 @@ public class VariableLengthWrapperModel extends AbstractModel {
 		return m.getLogProbFor( sequence, startpos, endpos );
 	}
 
-	public boolean isTrained() {
-		return m.isTrained();
+	public boolean isInitialized() {
+		return m.isInitialized();
 	}
 
 	public void train( Sample data, double[] weights ) throws Exception {

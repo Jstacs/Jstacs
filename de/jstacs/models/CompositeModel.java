@@ -347,7 +347,7 @@ public class CompositeModel extends AbstractModel {
 		boolean erg = true;
 		int i = 0;
 		while (i < models.length && erg) {
-			erg &= models[i++].isTrained();
+			erg &= models[i++].isInitialized();
 		}
 		return erg;
 	}

@@ -147,7 +147,7 @@ public class StorableValidator implements ParameterValidator {
 	public boolean checkValue(Object value) {
 		if (AbstractModel.class.isAssignableFrom(clazz)
 				&& value instanceof AbstractModel) {
-			if (!trained || ((Model) value).isTrained()) {
+			if (!trained || ((Model) value).isInitialized()) {
 				errorMessage = null;
 				return true;
 			} else {
@@ -186,7 +186,7 @@ public class StorableValidator implements ParameterValidator {
 						Model model = (Model) c.getConstructor(
 								new Class[] { StringBuffer.class })
 								.newInstance(buf);
-						modelTrained = model.isTrained();
+						modelTrained = model.isInitialized();
 					} else if (AbstractClassifier.class.isAssignableFrom(c)) {
 						AbstractClassifier classifier = (AbstractClassifier) c
 								.getConstructor(

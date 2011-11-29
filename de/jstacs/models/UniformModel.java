@@ -141,7 +141,7 @@ public class UniformModel extends AbstractModel
 	 * 
 	 * @return <code>true</code> if the model is trained, <code>false</code> otherwise
 	 */
-	public boolean isTrained()
+	public boolean isInitialized()
 	{
 		return true;
 	}

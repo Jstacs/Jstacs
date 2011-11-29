@@ -769,8 +769,8 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 	 * getMaximalMarkovOrder()
 	 */
 	@Override
-	public int getMaximalMarkovOrder() {
-		return order;
+	public byte getMaximalMarkovOrder() {
+		return (byte)order;
 	}
 
 	/*

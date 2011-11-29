@@ -29,11 +29,11 @@ import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
+import de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
-import de.jstacs.classifier.trainer.numerical.LearningPrinciple;
-import de.jstacs.classifier.trainer.numerical.LogGenDisMixFunction;
-import de.jstacs.classifier.trainer.numerical.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
@@ -103,7 +103,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 		this.startD = startD;
 		this.algo = algo;
 		this.nsf = (NormalizableScoringFunction) nsf.clone();
-		if( isTrained() )
+		if( isInitialized() )
 		{
 			logNorm = nsf.getLogNormalizationConstant();
 		}
@@ -212,7 +212,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 
 	public double getLogProbFor( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, Exception
 	{
-		if( !isTrained() )
+		if( !isInitialized() )
 		{
 			throw new NotTrainedException();
 		}
@@ -244,8 +244,13 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 	{
 		return "model using " + nsf.getInstanceName();
 	}
+	
+	public double getESS()
+	{
+		return nsf.getESS();
+	}
 
-	public boolean isTrained()
+	public boolean isInitialized()
 	{
 		return nsf.isInitialized();
 	}
@@ -280,7 +285,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 		}
 		lineps = XMLParser.extractObjectForTags( rep, "lineps", double.class );
 		startD = XMLParser.extractObjectForTags( rep, "startDistance", double.class );
-		if( isTrained() )
+		if( isInitialized() )
 		{
 			logNorm = nsf.getLogNormalizationConstant();
 		}
