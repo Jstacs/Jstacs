@@ -85,15 +85,6 @@ public interface Model extends StatisticalModel {
 	public void train(Sample data, double[] weights) throws Exception;
 
 	/**
-	 * Returns <code>true</code> if the model has been trained successfully,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return <code>true </code>if the model has been trained successfully,
-	 *         <code>false</code> otherwise
-	 */
-	public boolean isTrained();
-
-	/**
 	 * Should give a simple representation (text) of the model as {@link String}.
 	 * 
 	 * @return the representation as {@link String}

@@ -279,7 +279,7 @@ public class UniformHomogeneousScoringFunction extends
 	 * getMaximalMarkovOrder()
 	 */
 	@Override
-	public int getMaximalMarkovOrder() {
+	public byte getMaximalMarkovOrder() {
 		return 0;
 	}
 

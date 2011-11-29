@@ -172,7 +172,7 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	}
 	
 	protected void check( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, IllegalArgumentException {
-		if( !isTrained() ) {
+		if( !isInitialized() ) {
 			throw new NotTrainedException();
 		} else if( !alphabets.checkConsistency( sequence.getAlphabetContainer().getSubContainer( startpos, endpos - startpos + 1 ) ) ) {
 			throw new IllegalArgumentException( "This sequence is not possible with the given alphabet." );

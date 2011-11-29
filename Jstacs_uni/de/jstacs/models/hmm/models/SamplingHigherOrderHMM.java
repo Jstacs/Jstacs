@@ -290,8 +290,8 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
     }
 	
     @Override
-    public boolean isTrained() {
-	return hasSampled;
+    public boolean isInitialized() {
+    	return hasSampled;
     }
 	
     @Override

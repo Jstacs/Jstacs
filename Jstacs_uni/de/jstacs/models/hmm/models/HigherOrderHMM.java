@@ -882,7 +882,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		return null;
 	}
 
-	public boolean isTrained() {
+	public boolean isInitialized() {
 		return true;
 	}
 	

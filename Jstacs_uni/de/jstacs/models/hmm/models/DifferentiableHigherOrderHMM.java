@@ -268,7 +268,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 	
 	public boolean isInitialized() {
-		return isTrained();
+		return true;
 	}
 	
 	public void setTrainingParameters(MaxHMMTrainingParameterSet params) throws CloneNotSupportedException{

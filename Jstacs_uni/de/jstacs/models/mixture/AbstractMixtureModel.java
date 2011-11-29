@@ -59,6 +59,7 @@ import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.RealTime;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.Time;
+import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
 import de.jstacs.utils.random.FastDirichletMRGParams;
@@ -185,6 +186,8 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * The hyperparameters for estimating the probabilities of the components.
 	 */
 	protected double[] componentHyperParams;
+	
+	protected double ess;
 
 	/**
 	 * The model for the sequences.
@@ -1156,7 +1159,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 */
 	@Override
 	public final double getLogProbFor( Sequence sequence, int startpos, int endpos ) throws Exception {
-		if( !isTrained() ) {
+		if( !isInitialized() ) {
 			throw new NotTrainedException();
 		}
 		switch( algorithm ) {
@@ -1193,13 +1196,13 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @see de.jstacs.models.AbstractModel#getLogProbFor(de.jstacs.data.Sample)
 	 */
 	@Override
-	public final double[] getLogProbFor( Sample data ) throws Exception {
-		if( !isTrained() ) {
+	public final double[] getLogScoreFor( Sample data ) throws Exception {
+		if( !isInitialized() ) {
 			throw new NotTrainedException();
 		}
 		switch( algorithm ) {
 			case EM:
-				return super.getLogProbFor( data );
+				return super.getLogScoreFor( data );
 			case GIBBS_SAMPLING:
 				int i,
 				anz = 0,
@@ -1481,11 +1484,11 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.Model#isTrained()
 	 */
-	public boolean isTrained() {
+	public boolean isInitialized() {
 		switch( algorithm ) {
 			case EM:
 				int i = 0;
-				while( i < model.length && model[i].isTrained() ) {
+				while( i < model.length && model[i].isInitialized() ) {
 					i++;
 				}
 				return i == model.length;
@@ -1622,6 +1625,10 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 		}
 	}
 
+	public double getESS(){
+		return ess;
+	}
+	
 	/* (non-Javadoc)
 	 * @see de.jstacs.Storable#toXML()
 	 */
@@ -1844,6 +1851,12 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 		this.alternativeModel = null;
 		this.estimateComponentProbs = estimateComponentProbs;
 
+		if(componentHyperParams == null){
+			this.ess = 0;
+		}else{
+			this.ess = ToolBox.sum( componentHyperParams );
+		}
+		
 		boolean minValueOfUsedHyperParamIsZero;
 		if( !estimateComponentProbs || componentHyperParams == null ) {
 			this.componentHyperParams = new double[dimension];
@@ -1952,7 +1965,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 */
 	@Override
 	public Sample emitSample( int n, int... lengths ) throws Exception {
-		if( !isTrained() ) {
+		if( !isInitialized() ) {
 			throw new NotTrainedException();
 		}
 		Sequence[] seqs;

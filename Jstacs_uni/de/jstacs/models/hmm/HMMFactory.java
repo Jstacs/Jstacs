@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.jstacs.classifier.trainer.numerical.AbstractMultiThreadedOptimizableFunction;
+import de.jstacs.classifier.scoringFunctionBased.AbstractMultiThreadedOptimizableFunction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.models.discrete.inhomogeneous.SequenceIterator;

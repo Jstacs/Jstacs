@@ -448,7 +448,7 @@ public class HMM0ScoringFunction extends HomogeneousScoringFunction {
 	 * getMaximalMarkovOrder()
 	 */
 	@Override
-	public int getMaximalMarkovOrder() {
+	public byte getMaximalMarkovOrder() {
 		return 0;
 	}
 

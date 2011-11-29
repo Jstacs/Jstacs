@@ -78,7 +78,7 @@ public abstract class HomogeneousScoringFunction extends
 	 * 
 	 * @return the maximal used markov oder
 	 */
-	public abstract int getMaximalMarkovOrder();
+	public abstract byte getMaximalMarkovOrder();
 	
 	/**
 	 * This method allows to initialize the instance with an uniform distribution.

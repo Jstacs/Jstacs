@@ -156,7 +156,7 @@ public abstract class DiscreteGraphicalModel extends AbstractModel implements In
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.Model#isTrained()
 	 */
-	public final boolean isTrained() {
+	public final boolean isInitialized() {
 		return trained;
 	}
 
