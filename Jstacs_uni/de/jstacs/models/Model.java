@@ -90,6 +90,4 @@ public interface Model extends StatisticalModel {
 	 * @return the representation as {@link String}
 	 */
 	public String toString();
-	
-	public double getESS();
 }
