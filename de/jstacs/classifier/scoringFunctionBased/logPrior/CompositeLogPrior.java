@@ -89,7 +89,7 @@ public class CompositeLogPrior extends LogPrior
 			{
 				function[i] = (NormalizableScoringFunction) funs[i];
 			}
-			ess[i] = function[i].getEss();
+			ess[i] = function[i].getESS();
 			if( ess[i] == 0 ) {
 				throw new IllegalArgumentException( "The ess of the function " + i + " is zero, but should be positive." );
 			}

@@ -122,7 +122,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		}
 		this.score = ArrayHandler.clone( score );
 		hasBeenOptimized = false;
-		if( isTrained() ) {
+		if( isInitialized() ) {
 			this.lastScore = lastScore;
 		} else {
 			this.lastScore = NOT_TRAINED_VALUE;
@@ -201,11 +201,12 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		return new NumericalResultSet( pars );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#isTrained()
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.classifier.AbstractClassifier#isInitialized()
 	 */
 	@Override
-	public boolean isTrained() {
+	public boolean isInitialized() {
 		int i = 0;
 		while( i < score.length && score[i].isInitialized() ) {
 			i++;
@@ -517,7 +518,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		if( check ) {
 			check( seq );
 		}
-		return getClassWeight( i ) + score[i].getLogScore( seq, 0 );
+		return getClassWeight( i ) + score[i].getLogScoreFor( seq, 0 );
 	}
 
 	/**

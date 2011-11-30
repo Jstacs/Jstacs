@@ -403,13 +403,13 @@ public class LogGenDisMixFunction extends SFBasedOptimizableFunction
 					for( counter1 = 0; counter1 < cl; counter1++ )
 					{
 						// class weight + class score
-						helpArray[index][counter1] = logClazz[counter1] + score[index][counter1].getLogScore( s, 0 );
+						helpArray[index][counter1] = logClazz[counter1] + score[index][counter1].getLogScoreFor( s, 0 );
 					}
 					cll += weights[counter3][counter2] * (helpArray[index][counter3] - Normalisation.getLogSum( helpArray[index] ));
 				}
 				else
 				{
-					helpArray[index][counter3] = logClazz[counter3] + score[index][counter3].getLogScore( s, 0 );
+					helpArray[index][counter3] = logClazz[counter3] + score[index][counter3].getLogScoreFor( s, 0 );
 				}
 				ll += weights[counter3][counter2] * helpArray[index][counter3];
 			}

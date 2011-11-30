@@ -128,7 +128,7 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	@Override
 	protected void extractFurtherClassifierInfosFromXML( StringBuffer xml ) throws NonParsableException {
 		super.extractFurtherClassifierInfosFromXML( xml );
-		classifier = XMLParser.extractObjectForTags( xml, "classifier", AbstractScoreBasedClassifier.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		classifier = XMLParser.extractObjectForTags( xml, "classifier", AbstractScoreBasedClassifier.class );
 		classMapping = XMLParser.extractObjectForTags( xml, "mapping", int[][].class );
 	}
 
@@ -190,12 +190,13 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 		return getClass().getSimpleName();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#isTrained()
+	/* 
+	 * (non-Javadoc)
+	 * @see de.jstacs.classifier.AbstractClassifier#isInitialized()
 	 */
 	@Override
-	public boolean isTrained() {
-		return classifier.isTrained();
+	public boolean isInitialized() {
+		return classifier.isInitialized();
 	}
 
 	/* (non-Javadoc)

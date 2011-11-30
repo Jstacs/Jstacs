@@ -161,7 +161,7 @@ public abstract class SFBasedOptimizableFunction extends AbstractMultiThreadedOp
 				for( int i = 0; i < cl; i++ )
 				{
 					if( score[0][i] instanceof NormalizableScoringFunction ) {
-						ess[i] = ((NormalizableScoringFunction)score[0][i]).getEss();
+						ess[i] = ((NormalizableScoringFunction)score[0][i]).getESS();
 					}
 					e += ess[i];
 				}

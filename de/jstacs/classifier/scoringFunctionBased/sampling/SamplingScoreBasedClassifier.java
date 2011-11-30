@@ -695,7 +695,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 			sfsc.parseParameterSet( i, burnInLength );
 			while(sfsc.parseNextParameterSet()){
 				setParameters(currentParameters);
-				score += getClassWeight( cls ) + scoringFunctions[cls].getLogScore( seq );
+				score += getClassWeight( cls ) + scoringFunctions[cls].getLogScoreFor( seq );
 				n++;
 			}
 		}
@@ -726,7 +726,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 				setParameters(currentParameters);
 				for(int j=0;j<scores.length;j++){
 					Sequence seq = s.getElementAt( j );
-					scores[j] += getClassWeight( 0 ) - getClassWeight( 1 ) + scoringFunctions[0].getLogScore( seq ) - scoringFunctions[1].getLogScore( seq );
+					scores[j] += getClassWeight( 0 ) - getClassWeight( 1 ) + scoringFunctions[0].getLogScoreFor( seq ) - scoringFunctions[1].getLogScoreFor( seq );
 				}
 				n++;
 			}
@@ -758,7 +758,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	}
 
 	@Override
-	public boolean isTrained() {
+	public boolean isInitialized() {
 		return isTrained;
 	}
 	

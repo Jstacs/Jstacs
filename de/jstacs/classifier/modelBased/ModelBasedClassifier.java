@@ -232,13 +232,14 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 		return new NumericalResultSet( list );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#isTrained()
+	/* 
+	 * (non-Javadoc)
+	 * @see de.jstacs.classifier.AbstractClassifier#isInitialized()
 	 */
 	@Override
-	public boolean isTrained() {
+	public boolean isInitialized() {
 		int i = 0;
-		while( i < models.length && models[i].isTrained() ) {
+		while( i < models.length && models[i].isInitialized() ) {
 			i++;
 		}
 		return i == models.length;
@@ -280,8 +281,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 			}
 			
 			// estimate P(class = i|\lambda)
-			//TODO incorporate prior knowledge
-			c[i] = Math.log( s[i].getNumberOfElementsWithLength( getLength(), weights == null ? null : weights[i] ) );
+			c[i] = Math.log( s[i].getNumberOfElementsWithLength( getLength(), weights == null ? null : weights[i] ) + models[i].getESS() );
 		}
 		setClassWeights( false, c );
 	}
@@ -319,8 +319,8 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 			return new double[0];
 		}
 		check( s );
-		double[] score0 = models[0].getLogProbFor( s );
-		double[] score1 = models[1].getLogProbFor( s );
+		double[] score0 = models[0].getLogScoreFor( s );
+		double[] score1 = models[1].getLogScoreFor( s );
 		double c0 = getClassWeight( 0 ), c1 = getClassWeight( 1 );
 		for( int i = 0; i < score0.length; i++ ) {
 			score0[i] += c0 - ( score1[i] + c1 );
@@ -334,7 +334,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 	@Override
 	public byte[] classify( Sample s ) throws Exception {
 		check( s );
-		double[] best = models[0].getLogProbFor( s ), current = new double[best.length];
+		double[] best = models[0].getLogScoreFor( s ), current = new double[best.length];
 		byte[] clazz = new byte[best.length];
 		double cw = getClassWeight( 0 );
 		int i = 0;
@@ -343,7 +343,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 		}
 		for( byte j = 1; j < getNumberOfClasses(); j++ ) {
 			cw = getClassWeight( j );
-			models[j].getLogProbFor( s, current );
+			models[j].getLogScoreFor( s, current );
 			for( i = 0; i < best.length; i++ ) {
 				if( current[i] + cw > best[i] ) {
 					best[i] = current[i] + cw;
