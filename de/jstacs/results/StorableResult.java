@@ -99,7 +99,7 @@ public class StorableResult extends Result {
 		if (object instanceof SequenceScoringFunction) {
 			return ((SequenceScoringFunction) object).isInitialized() ? TRUE : FALSE;
 		} else if (object instanceof AbstractClassifier) {
-			return ((AbstractClassifier) object).isTrained() ? TRUE : FALSE;
+			return ((AbstractClassifier) object).isInitialized() ? TRUE : FALSE;
 		} else {
 			return NA;
 		}
