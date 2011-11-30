@@ -386,7 +386,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param funs the {@link ScoringFunction}s for scoring sequences
 	 * @param opt the {@link SFBasedOptimizableFunction}
 	 * @param algorithm used for the optimization
-	 * @param eps used for the optimization
+	 * @param condition used for the optimization
 	 * @param linEps used for the optimization
 	 * @param startDistance used for the optimization
 	 * @param out an stream that allows to obtain some information while optimization
@@ -402,8 +402,8 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @see MutableMotifDiscovererToolbox#clearHistoryArray(de.jstacs.motifDiscovery.history.History[][])
 	 * @see MutableMotifDiscovererToolbox#optimize(ScoringFunction[], SFBasedOptimizableFunction, byte, double, double, StartDistanceForecaster, SafeOutputStream, boolean, History[][], int[][], de.jstacs.classifier.trainer.numerical.OptimizableFunction.KindOfParameter, boolean)
 	 */
-	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, double eps, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History template, KindOfParameter plugIn, boolean maxPos ) throws Exception {
-		return optimize( funs, opt, algorithm, eps, linEps, startDistance, out, breakOnChanged, createHistoryArray( funs, template ), createMinimalNewLengthArray( funs ), plugIn, maxPos );
+	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, AbstractTerminationCondition condition, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History template, KindOfParameter plugIn, boolean maxPos ) throws Exception {
+		return optimize( funs, opt, algorithm, condition, linEps, startDistance, out, breakOnChanged, createHistoryArray( funs, template ), createMinimalNewLengthArray( funs ), plugIn, maxPos );
 	}
 	
 	/**
@@ -412,7 +412,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param funs the {@link ScoringFunction}s for scoring sequences 
 	 * @param opt the {@link SFBasedOptimizableFunction}
 	 * @param algorithm used for the optimization
-	 * @param eps used for the optimization
+	 * @param condition used for the optimization
 	 * @param linEps used for the optimization
 	 * @param startDistance used for the optimization
 	 * @param out an stream that allows to obtain some information while optimization
@@ -426,7 +426,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws Exception if something went wrong while optimization
 	 */
-	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, double eps, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History[][] hist, int[][] minimalNewLength, KindOfParameter plugIn, boolean maxPos ) throws Exception {
+	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, AbstractTerminationCondition condition, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History[][] hist, int[][] minimalNewLength, KindOfParameter plugIn, boolean maxPos ) throws Exception {
 		NegativeDifferentiableFunction neg = new NegativeDifferentiableFunction(opt);
 		int k;
 		ScoringFunction[] best = null;
@@ -434,7 +434,6 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 		Sample[] data = opt.getData();
 		double[][] weights = opt.getSequenceWeights();
 		double bestVal = Double.NEGATIVE_INFINITY, current;
-		AbstractTerminationCondition condition = new SmallDifferenceOfFunctionEvaluationsCondition(eps);
 		do{
 			opt.reset();
 			startDistance.reset();

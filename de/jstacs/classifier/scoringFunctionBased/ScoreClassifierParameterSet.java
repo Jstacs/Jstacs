@@ -21,6 +21,8 @@ package de.jstacs.classifier.scoringFunctionBased;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.Optimizer;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
@@ -29,6 +31,7 @@ import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
+import de.jstacs.utils.SubclassFinder;
 
 /**
  * A set of {@link de.jstacs.parameters.Parameter}s for any
@@ -137,12 +140,48 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	 * 
 	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class,
 	 *      AlphabetContainer, int, boolean)
+	 * @see #ScoreClassifierParameterSet(Class, AlphabetContainer, int, byte, AbstractTerminationCondition, double, double, boolean, KindOfParameter)
+	 * @see SmallDifferenceOfFunctionEvaluationsCondition
 	 */
 	public ScoreClassifierParameterSet( Class<? extends ScoreClassifier> instanceClass, AlphabetContainer alphabet, int length, byte algo,
 										double eps, double lineps, double startD, boolean free, KindOfParameter kind ) throws Exception {
+		this( instanceClass, alphabet, length, algo, new SmallDifferenceOfFunctionEvaluationsCondition( eps ), lineps, startD, free, kind );
+	}
+	
+	/**
+	 * The constructor for a simple, instantiated parameter set.
+	 * 
+	 * @param instanceClass
+	 *            the class of the instance
+	 * @param alphabet
+	 *            the alphabet
+	 * @param length
+	 *            the length of the sequences, 0 for homogeneous
+	 * @param algo
+	 *            the choice of algorithm
+	 * @param tc
+	 *            the termination condition for stopping the algorithm
+	 * @param lineps
+	 *            the threshold for stopping the line search in the algorithm
+	 * @param startD
+	 *            the start distance for the line search in the algorithm
+	 * @param free
+	 *            indicates whether only the free parameters or all parameters
+	 *            should be used
+	 * @param kind
+	 *            indicates the kind of class parameter initialization
+	 * 
+	 * @throws Exception
+	 *             if something went wrong
+	 * 
+	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class,
+	 *      AlphabetContainer, int, boolean)
+	 */
+	public ScoreClassifierParameterSet( Class<? extends ScoreClassifier> instanceClass, AlphabetContainer alphabet, int length, byte algo,
+										AbstractTerminationCondition tc, double lineps, double startD, boolean free, KindOfParameter kind ) throws Exception {
 		super( instanceClass, alphabet, length, length == 0 );
 		parameters.get( 0 ).setValue( algorithmStrings[getIndex( algorithmStrings, algorithms, algo, false )] );
-		parameters.get( 1 ).setValue( eps );
+		parameters.get( 1 ).setValue( tc );
 		parameters.get( 2 ).setValue( lineps );
 		parameters.get( 3 ).setValue( startD );
 		parameters.get( 4 ).setValue( free );
@@ -161,11 +200,15 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 				"algorithm",
 				"the algorithm that should be used for numerical optimization",
 				true ) );
-		parameters.add( new SimpleParameter( DataType.DOUBLE,
-				"epsilon",
-				"the threshold for stopping the numerical training",
-				true,
-				new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+		parameters.add(
+				SubclassFinder.getCollection(
+						AbstractTerminationCondition.class,
+						AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
+						"termination condition",
+						"the terminantion condition for stopping the training algorithm",
+						true
+				)
+		);
 		parameters.add( new SimpleParameter( DataType.DOUBLE,
 				"line epsilon",
 				"the threshold for stopping the line search in the numerical training",
