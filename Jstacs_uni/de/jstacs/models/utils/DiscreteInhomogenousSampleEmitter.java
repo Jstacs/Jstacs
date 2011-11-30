@@ -55,7 +55,7 @@ public class DiscreteInhomogenousSampleEmitter {
 	 */
 	public static Sample emitSample(Model m, int n) throws NotTrainedException,
 			Exception {
-		if (!m.isTrained()) {
+		if (!m.isInitialized()) {
 			throw new NotTrainedException();
 		}
 		AlphabetContainer alphabet = m.getAlphabetContainer();
