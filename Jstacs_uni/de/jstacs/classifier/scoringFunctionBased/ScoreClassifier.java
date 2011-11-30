@@ -25,6 +25,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
@@ -310,8 +311,8 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	protected double doOptimization( Sample[] reduced, double[][] newWeights ) throws Exception {
 		// train
 		byte algo = (Byte) params.getParameterAt( 0 ).getValue();
-		double eps = (Double) params.getParameterAt( 1 ).getValue(),
-			linEps = (Double) params.getParameterAt( 2 ).getValue(),
+		AbstractTerminationCondition tc = (AbstractTerminationCondition) params.getParameterAt( 1 ).getValue();
+		double linEps = (Double) params.getParameterAt( 2 ).getValue(),
 			startDist = (Double) params.getParameterAt( 3 ).getValue();
 		KindOfParameter plugIn;
 
@@ -349,7 +350,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 			//new
 			MutableMotifDiscovererToolbox.clearHistoryArray( hist );
 			sd.reset();
-			res = MutableMotifDiscovererToolbox.optimize( score, f, algo, eps, linEps, sd, sostream, false, hist, minimalNewLength, plugIn, true );//TODO
+			res = MutableMotifDiscovererToolbox.optimize( score, f, algo, tc, linEps, sd, sostream, false, hist, minimalNewLength, plugIn, true );//TODO
 			current = res[0][0];
 
 			/*
