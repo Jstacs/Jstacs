@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.jstacs.classifier.scoringFunctionBased.AbstractMultiThreadedOptimizableFunction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.models.discrete.inhomogeneous.SequenceIterator;
@@ -77,12 +76,10 @@ public class HMMFactory {
 			    return new SamplingHigherOrderHMM( (SamplingHMMTrainingParameterSet) pars, name, emissionIdx, forward, ArrayHandler.cast( SamplingEmission.class, emission ), te );
 			}
 		} else {
-			int threads = AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors();
-			System.out.println( threads );
 			if( /*TODO*/true || pars instanceof NumericalHMMTrainingParameterSet ) {
-				return new DifferentiableHigherOrderHMM( threads, (MaxHMMTrainingParameterSet)pars, name, emissionIdx, forward, ArrayHandler.cast( DifferentiableEmission.class, emission ), likelihood, ess, te );
+				return new DifferentiableHigherOrderHMM( (MaxHMMTrainingParameterSet)pars, name, emissionIdx, forward, ArrayHandler.cast( DifferentiableEmission.class, emission ), likelihood, ess, te );
 			} else {
-				return new HigherOrderHMM( threads, pars, name, emission, te );
+				return new HigherOrderHMM( pars, name, emission, te );
 			}
 		}
 	}	

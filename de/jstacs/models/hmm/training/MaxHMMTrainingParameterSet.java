@@ -66,6 +66,10 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 		super( xml );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.models.hmm.HMMTrainingParameterSet#loadParameters()
+	 */
 	@Override
 	protected void loadParameters() throws Exception {
 		super.loadParameters();

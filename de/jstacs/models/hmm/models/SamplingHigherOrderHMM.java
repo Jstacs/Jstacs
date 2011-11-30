@@ -77,7 +77,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      *  </ul>
      */
     public SamplingHigherOrderHMM( SamplingHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, SamplingEmission[] emission, TransitionElement... te ) throws Exception {
-            super( 0, trainingParameterSet, name, emissionIdx, forward, emission, te );
+            super( trainingParameterSet, name, emissionIdx, forward, emission, te );
             hasSampled = false;
             path = new IntList();
     }
