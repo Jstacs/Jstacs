@@ -36,6 +36,7 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.AbstractModel;
 import de.jstacs.models.hmm.states.emissions.Emission;
+import de.jstacs.models.hmm.training.MultiThreadedTrainingParameterSet;
 import de.jstacs.models.hmm.transitions.BasicHigherOrderTransition;
 import de.jstacs.models.hmm.transitions.HigherOrderTransition;
 import de.jstacs.models.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
@@ -58,8 +59,6 @@ import de.jstacs.utils.ToolBox;
  */
 public abstract class AbstractHMM extends AbstractModel implements Cloneable, Storable {
 
-	public static int tempThreads = 1;//TODO remove
-	
 	/**
 	 * The (hidden) states of the HMM.
 	 */
@@ -133,13 +132,13 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @throws CloneNotSupportedException if <code>trainingParameterSet</code> can not be cloned
 	 * @throws WrongAlphabetException if not all (non-silent) emissions have use the same {@link AlphabetContainer}
 	 */
-	protected AbstractHMM( int threads, HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission ) throws CloneNotSupportedException, WrongAlphabetException {
+	protected AbstractHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission ) throws CloneNotSupportedException, WrongAlphabetException {
 		super( getAlphabetContainer( emission ), 0 );
-		this.threads = threads;
 		if( !trainingParameterSet.hasDefaultOrIsSet() ) {
 			throw new IllegalArgumentException( "Please check the training parameters." );
 		}
 		this.trainingParameter = (HMMTrainingParameterSet) trainingParameterSet.clone();
+		setThreads();
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
 		
 		int n = name.length;
@@ -186,6 +185,10 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		}
 		this.fwdMatrix = new double[threads][][];
 		this.bwdMatrix = new double[threads][][];
+	}
+	
+	private void setThreads() {
+		threads = trainingParameter instanceof MultiThreadedTrainingParameterSet ? ((MultiThreadedTrainingParameterSet) trainingParameter).getNumberOfThreads() : 1;
 	}
 	
 	private static AlphabetContainer getAlphabetContainer( Emission... e ) throws WrongAlphabetException {
@@ -269,7 +272,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
-		XMLParser.appendObjectWithTags( xml, threads, "threads" );
+		XMLParser.appendObjectWithTags( xml, trainingParameter, "trainingParameter" );
 		XMLParser.appendObjectWithTags( xml, transition[0], "transition" );
 		
 		XMLParser.appendObjectWithTags( xml, name, "name" );
@@ -277,7 +280,6 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		XMLParser.appendObjectWithTags( xml, forward, "strand" );
 		XMLParser.appendObjectWithTags( xml, emission[0], "emission" );
 		
-		XMLParser.appendObjectWithTags( xml, trainingParameter, "trainingParameter" );
 		appendFurtherInformation( xml );
 		XMLParser.addTags( xml, getXMLTag() );
 		return xml;
@@ -293,11 +295,9 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		length =0;
 		xml = XMLParser.extractForTag( xml, getXMLTag() );
-		try{//TODO remove
-			threads = XMLParser.extractObjectForTags( xml, "threads", int.class );
-		}catch(NonParsableException ex){
-			threads = AbstractHMM.tempThreads;
-		}
+		trainingParameter = (HMMTrainingParameterSet) XMLParser.extractObjectForTags( xml, "trainingParameter" );
+		setThreads();
+		
 		transition = new Transition[threads];
 		transition[0] = ((Transition) XMLParser.extractObjectForTags( xml, "transition" ));//TODO
 		for(int i=1;i<threads;i++){
@@ -321,8 +321,6 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 			}
 		}
 		
-		trainingParameter = (HMMTrainingParameterSet) XMLParser.extractObjectForTags( xml, "trainingParameter" );
-
 		extractFurtherInformation( xml );
 		
 		try {

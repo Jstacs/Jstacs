@@ -28,7 +28,7 @@ import de.jstacs.io.ParameterSetParser.NotInstantiableException;
  * 
  * @author Jens Keilwagen
  */
-public class ViterbiParameterSet extends MaxHMMTrainingParameterSet {
+public class ViterbiParameterSet extends MultiThreadedTrainingParameterSet {
 
 	/**
 	 * This is the empty constructor that can be used to fill the parameters after creation.
@@ -40,10 +40,12 @@ public class ViterbiParameterSet extends MaxHMMTrainingParameterSet {
 	 * 
 	 * @param starts the number of different starts
 	 * @param tc the termination condition for stopping the algorithm
+	 * @param threads the number of threads that should be used during optimization
+	 * 
 	 * @throws Exception if the {@link ViterbiParameterSet} could not be created
 	 */
-	public ViterbiParameterSet( int starts, AbstractTerminationCondition tc ) throws Exception {
-		super( starts, tc );
+	public ViterbiParameterSet( int starts, AbstractTerminationCondition tc, int threads ) throws Exception {
+		super( starts, tc, threads );
 	}
 
 	/**

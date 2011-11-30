@@ -132,8 +132,8 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * 
 	 * @see de.jstacs.models.hmm.models.HigherOrderHMM#HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], BasicHigherOrderTransition.AbstractTransitionElement...)
 	 */
-	public HigherOrderHMM( int threads, HMMTrainingParameterSet trainingParameterSet, String[] name, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
-		this( threads, trainingParameterSet, name, null, null, emission, te );
+	public HigherOrderHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
+		this( trainingParameterSet, name, null, null, emission, te );
 	}
 	
 	/**
@@ -155,8 +155,8 @@ public class HigherOrderHMM extends AbstractHMM {
 	 *  <li>the states can not be handled by the transition
 	 *  </ul>
 	 */
-	public HigherOrderHMM( int threads, HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
-		super( threads, trainingParameterSet, name, emissionIdx, forward, emission );
+	public HigherOrderHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
+		super( trainingParameterSet, name, emissionIdx, forward, emission );
 		createStates();
 		initTransition( te );
 		determineFinalStates();

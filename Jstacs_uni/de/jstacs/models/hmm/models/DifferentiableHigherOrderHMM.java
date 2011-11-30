@@ -19,15 +19,12 @@
 
 package de.jstacs.models.hmm.models;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.NormalizableScoringFunctionModel;
@@ -35,18 +32,15 @@ import de.jstacs.models.hmm.HMMTrainingParameterSet;
 import de.jstacs.models.hmm.State;
 import de.jstacs.models.hmm.states.DifferentiableState;
 import de.jstacs.models.hmm.states.SimpleDifferentiableState;
-import de.jstacs.models.hmm.states.TrainableState;
 import de.jstacs.models.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.models.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.models.hmm.training.NumericalHMMTrainingParameterSet;
 import de.jstacs.models.hmm.transitions.DifferentiableTransition;
-import de.jstacs.models.hmm.transitions.TrainableTransition;
 import de.jstacs.models.hmm.transitions.elements.TransitionElement;
 import de.jstacs.scoringFunctions.SamplingScoringFunction;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
-import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.ToolBox;
 
 
@@ -120,9 +114,9 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 *  <li>the states can not be handled by the transition
 	 *  </ul>
 	 */
-	public DifferentiableHigherOrderHMM( int threads, MaxHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward,
+	public DifferentiableHigherOrderHMM( MaxHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward,
 			DifferentiableEmission[] emission, boolean likelihood, double ess, TransitionElement... te ) throws Exception {
-		super( threads,trainingParameterSet, name, emissionIdx, forward, emission, te );
+		super( trainingParameterSet, name, emissionIdx, forward, emission, te );
 		getOffsets();
 		this.score = likelihood ? Type.LIKELIHOOD : Type.VITERBI;
 		if( ess < 0 ) {

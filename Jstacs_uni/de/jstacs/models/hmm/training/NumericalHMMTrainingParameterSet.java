@@ -33,7 +33,7 @@ import de.jstacs.parameters.validation.NumberValidator;
  * 
  * @author Jens Keilwagen
  */
-public class NumericalHMMTrainingParameterSet extends MaxHMMTrainingParameterSet {
+public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParameterSet {
 
 	private static final String[] algorithmStrings = new String[]{	"steepest descent",
 																	"conjugate gradients (F., R.)",
@@ -74,19 +74,18 @@ public class NumericalHMMTrainingParameterSet extends MaxHMMTrainingParameterSet
 	 * 
 	 * @param starts the number of different starts
 	 * @param tc the termination condition for stopping the algorithm
+	 * @param threads the number of threads that should be used during optimization
 	 * @param algorithm the algorithm that shall be used
 	 * @param lineEps the threshold for stopping the line search
 	 * @param startDist the start distance for the line search
-	 * @param threads the number of threads used during numerical optimization
 	 * 
 	 * @throws Exception if this {@link NumericalHMMTrainingParameterSet} could not be created
 	 */
-	public NumericalHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc, byte algorithm, double lineEps, double startDist, int threads ) throws Exception {
-		super( starts, tc );
-		parameters.get( 2 ).setValue( algorithmStrings[getIndex( algorithmStrings, algorithms, algorithm, false )] );
-		parameters.get( 3 ).setValue( lineEps );
-		parameters.get( 4 ).setValue( startDist );
-		parameters.get( 5 ).setValue( threads );
+	public NumericalHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc, int threads, byte algorithm, double lineEps, double startDist ) throws Exception {
+		super( starts, tc, threads );
+		parameters.get( 3 ).setValue(algorithmStrings[getIndex( algorithmStrings, algorithms, algorithm, false )] );
+		parameters.get( 4 ).setValue( lineEps );
+		parameters.get( 5 ).setValue( startDist );
 	}
 
 	/**
@@ -122,12 +121,6 @@ public class NumericalHMMTrainingParameterSet extends MaxHMMTrainingParameterSet
 				"the start distance for the line search in the numerical training",
 				true,
 				new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
-		parameters.add( new SimpleParameter( DataType.INT,
-					"Threads",
-					"The number of threads that is used during an optimization.",
-					true,
-					new NumberValidator<Integer>(1,128),
-					1 ) );
 	}
 	
 	/**
@@ -136,7 +129,7 @@ public class NumericalHMMTrainingParameterSet extends MaxHMMTrainingParameterSet
 	 * @return a byte encoding for the algorithm that should be used for optimization
 	 */
 	public byte getAlgorithm() {
-		return (Byte) getParameterAt( 2 ).getValue();
+		return (Byte) getParameterAt( 3 ).getValue();
 	}
 	
 	/**
@@ -145,7 +138,7 @@ public class NumericalHMMTrainingParameterSet extends MaxHMMTrainingParameterSet
 	 * @return the threshold that should be used for stopping the line search during the optimization.
 	 */
 	public double getLineEps() {
-		return (Double) getParameterAt( 3 ).getValue();
+		return (Double) getParameterAt( 4 ).getValue();
 	}
 	
 	/**
@@ -154,15 +147,6 @@ public class NumericalHMMTrainingParameterSet extends MaxHMMTrainingParameterSet
 	 * @return the start distance that should be used in the line search during the optimization.
 	 */
 	public double getStartDistance() {
-		return (Double) getParameterAt( 4 ).getValue();
-	}
-	
-	/**
-	 * This method returns the number of threads that should be used during optimization.
-	 * 
-	 * @return the number of threads that should be used during optimization
-	 */
-	public int getNumberOfThreads() {
-		return (Integer)getParameterAt( 5 ).getValue();
+		return (Double) getParameterAt( 5 ).getValue();
 	}
 }
