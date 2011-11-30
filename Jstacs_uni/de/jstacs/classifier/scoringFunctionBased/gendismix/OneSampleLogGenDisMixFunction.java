@@ -210,7 +210,7 @@ public class OneSampleLogGenDisMixFunction extends LogGenDisMixFunction
 			for( counter1 = 0; counter1 < cl; counter1++ )
 			{
 				// class weight + class score
-				helpArray[index][counter1] = logClazz[counter1] + score[index][counter1].getLogScore( s, 0 );
+				helpArray[index][counter1] = logClazz[counter1] + score[index][counter1].getLogScoreFor( s, 0 );
 			}
 			if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 ) {
 				offset = Normalisation.getLogSum( helpArray[index] );

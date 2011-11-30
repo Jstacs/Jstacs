@@ -430,10 +430,10 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	/**
 	 * This method gives information about the state of the classifier.
 	 * 
-	 * @return <code>true</code> if the classifier is trained and therefore able
+	 * @return <code>true</code> if the classifier is initialized and therefore able
 	 *         to classify sequences, otherwise <code>false</code>
 	 */
-	public abstract boolean isTrained();
+	public abstract boolean isInitialized();
 
 	/**
 	 * This method tries to set a new instance of an {@link AlphabetContainer}

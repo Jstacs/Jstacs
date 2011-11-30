@@ -518,7 +518,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @see AbstractClassifier#setNewAlphabetContainerInstance(AlphabetContainer)
 	 */
 	protected void check( Sample s ) throws NotTrainedException, IllegalArgumentException {
-		if( !isTrained() ) {
+		if( !isInitialized() ) {
 			throw new NotTrainedException( "The classifier is not trained yet." );
 		}
 		int length = getLength();
@@ -543,7 +543,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 *             <code>seq</code>
 	 */
 	protected void check( Sequence seq ) throws NotTrainedException, IllegalArgumentException {
-		if( !isTrained() ) {
+		if( !isInitialized() ) {
 			throw new NotTrainedException( "The classifier is not trained yet." );
 		}
 		int length = getLength();
