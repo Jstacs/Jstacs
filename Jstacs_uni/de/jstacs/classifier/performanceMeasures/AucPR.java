@@ -13,8 +13,8 @@ public class AucPR extends PRCurve implements NumericalPerformanceMeasure {
 		super(xml);
 	}
 	
-	public NumericalResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
-		return (NumericalResultSet) super.compute( scoresClass0, scoresClass1 );
+	public NumericalResultSet compute(double[] sortedScoresClass0, double[] sortedScoresClass1) {
+		return (NumericalResultSet) super.compute( sortedScoresClass0, sortedScoresClass1 );
 	}
 
 	public NumericalResultSet compute( double[][][] classSpecificScores ) {

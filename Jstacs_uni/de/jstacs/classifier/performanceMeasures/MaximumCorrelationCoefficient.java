@@ -20,68 +20,68 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 	}
 
 	@Override
-	public NumericalResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
-		int i = 1, j = 1, d = scoresClass1.length, m = scoresClass0.length;
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
+		int i = 1, j = 1, d = sortedScoresClass1.length, m = sortedScoresClass1.length;
 		double[] current = new double[2];
 		double[] erg = new double[]{ Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
 
 		//find second smallest value => first threshold current[0]
 
-		if( scoresClass0[0] == scoresClass1[0] ) {
-			while( j < d && scoresClass1[j - 1] == scoresClass1[j] ) {
+		if( sortedScoresClass1[0] == sortedScoresClass1[0] ) {
+			while( j < d && sortedScoresClass1[j - 1] == sortedScoresClass1[j] ) {
 				j++;
 			}
-			while( i < m && scoresClass0[i - 1] == scoresClass0[i] ) {
+			while( i < m && sortedScoresClass1[i - 1] == sortedScoresClass1[i] ) {
 				i++;
 			}
 			if( i != m && j != d ) {
-				current[0] = Math.min( scoresClass1[j], scoresClass0[i] );
+				current[0] = Math.min( sortedScoresClass1[j], sortedScoresClass1[i] );
 				// decoys_lr[j-1] = motifs_lr[i-1] < c <= Math.min( decoys_lr[j], motifs_lr[i] )
 			} else if( i == m && j == d ) {
 				throw new IllegalArgumentException( "All likelihood-ratios had the same values for both samples." );
 			} else if( i == m ) // j != d
 			{
-				current[0] = scoresClass1[j];
+				current[0] = sortedScoresClass1[j];
 				// motifs_lr[i-1] = decoys_lr[j-1] < c = decoys_lr[j], i == m
 			} else
 			// if( j == d && i != m )
 			{
-				current[0] = scoresClass0[i];
+				current[0] = sortedScoresClass1[i];
 				// decoys_lr[j-1] = motifs_lr[i-1] < c = motifs_lr[i] , j == d
 			}
 		} else {
-			if( scoresClass0[0] < scoresClass1[0] ) {
-				while( i < m && scoresClass0[i - 1] == scoresClass0[i] ) {
+			if( sortedScoresClass1[0] < sortedScoresClass1[0] ) {
+				while( i < m && sortedScoresClass1[i - 1] == sortedScoresClass1[i] ) {
 					i++;
 				}
 				j = 0;
 				if( i == m ) {
-					current[0] = scoresClass1[j];
+					current[0] = sortedScoresClass1[j];
 					// motifs_lr[i-1] < c == decoys_lr[j], i == m
 				} else {
-					if( scoresClass0[i] <= scoresClass1[j] ) {
-						current[0] = scoresClass0[i];
+					if( sortedScoresClass1[i] <= sortedScoresClass1[j] ) {
+						current[0] = sortedScoresClass1[i];
 						// motifs_lr[i-1] < c == motifs_lr[i] <= decoys_lr[j]
 					} else {
-						current[0] = scoresClass1[j];
+						current[0] = sortedScoresClass1[j];
 						// motifs_lr[i-1] < c == decoys_lr[j] < motifs_lr[i]
 					}
 				}
 			} else // ( motifs_lr[0] > decoys_lr[0] )
 			{
-				while( j < d && scoresClass1[j - 1] == scoresClass1[j] ) {
+				while( j < d && sortedScoresClass1[j - 1] == sortedScoresClass1[j] ) {
 					j++;
 				}
 				i = 0;
 				if( j == d ) {
-					current[0] = scoresClass0[i];
+					current[0] = sortedScoresClass1[i];
 					//decoys_lr[j-1] < c == motis_lr[i], j == d
 				} else {
-					if( scoresClass1[j] <= scoresClass0[i] ) {
-						current[0] = scoresClass1[j];
+					if( sortedScoresClass1[j] <= sortedScoresClass1[i] ) {
+						current[0] = sortedScoresClass1[j];
 						// decoys_lr[j-1] < c = decoys_lr[j] <= motifs_lr[i]
 					} else {
-						current[0] = scoresClass0[i];
+						current[0] = sortedScoresClass1[i];
 						// motifs_lr[i-1] < c = motifs_lr[i] < decoys_lr[j]
 					}
 				}
@@ -99,25 +99,25 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 			}
 
 			//find next threshold
-			while( j < d && scoresClass1[j] == current[0] ) {
+			while( j < d && sortedScoresClass1[j] == current[0] ) {
 				j++;
 			}
-			while( i < m && scoresClass0[i] == current[0] ) {
+			while( i < m && sortedScoresClass1[i] == current[0] ) {
 				i++;
 			}
 			if( i < m && j < d ) {
-				if( scoresClass0[i] <= scoresClass1[j] ) {
-					current[0] = scoresClass0[i];
+				if( sortedScoresClass1[i] <= sortedScoresClass1[j] ) {
+					current[0] = sortedScoresClass1[i];
 				} else // if( motifs_lr[ i ] > decoys_lr[ j ] )
 				{
-					current[0] = scoresClass1[j];
+					current[0] = sortedScoresClass1[j];
 				}
 			} else if( i < m ) // j == d
 			{
-				current[0] = scoresClass0[i];
+				current[0] = sortedScoresClass1[i];
 			} else if( j < d ) // i == m
 			{
-				current[0] = scoresClass1[j];
+				current[0] = sortedScoresClass1[j];
 			}
 			// else // i == m && j == d => the outer loop will break
 		}
