@@ -489,7 +489,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 * @throws NonParsableException
 		 *             if the {@link StringBuffer} could not be parsed
 		 * 
-		 * @see FileRepresentation#fromXML(StringBuffer)
+		 * @see #fromXML(StringBuffer)
 		 */
 		public FileRepresentation(StringBuffer buf) throws NonParsableException {
 			fromXML(buf);

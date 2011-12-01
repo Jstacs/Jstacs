@@ -26,7 +26,6 @@ import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
-import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.io.ArrayHandler;
@@ -553,7 +552,7 @@ public abstract class ClassifierAssessment {
 	 * @return a {@link ListResult} that contains the results (mean and standard
 	 *         errors) of user specified performance measures. These performance
 	 *         measures are user specified via the given
-	 *         {@link PerformanceMeasureParameters}.
+	 *         {@link NumericalPerformanceMeasureParameters}.
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of the right type
@@ -564,8 +563,7 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
 	 * 
-	 * @see ClassifierAssessment#assess(PerformanceMeasureParameters,
-	 *      ClassifierAssessmentAssessParameterSet, ProgressUpdater, Sample...)
+	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, Sample...)
 	 */
 	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
@@ -622,7 +620,7 @@ public abstract class ClassifierAssessment {
 	 * @return a {@link ListResult} that contains the results (mean and standard
 	 *         errors) of user specified performance measures. These performance
 	 *         measures are user specified via the given
-	 *         {@link PerformanceMeasureParameters}.
+	 *         {@link NumericalPerformanceMeasureParameters}.
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
@@ -671,7 +669,7 @@ public abstract class ClassifierAssessment {
 	 *            sample. Analog <code>s[iter][1]</code> contains the test
 	 *            samples. The order of the samples is important. For further
 	 *            details see comment of method
-	 *            {@link #assess(PerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, Sample...)}
+	 *            {@link #assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, Sample...)}
 	 *            .<br>
 	 *            The user is responsible to take care or not to take care of
 	 *            the given test and training dataset to be not overlapping.
@@ -690,7 +688,7 @@ public abstract class ClassifierAssessment {
 	 * @return a {@link ListResult} that contains the results (mean and standard
 	 *         errors) of user specified performance measures. These performance
 	 *         measures are user specified via the given
-	 *         {@link PerformanceMeasureParameters}.
+	 *         {@link NumericalPerformanceMeasureParameters}.
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
@@ -904,8 +902,7 @@ public abstract class ClassifierAssessment {
 	 *            classifiers
 	 * @param exception
 	 *            whether an {@link Exception} should be thrown if some
-	 *            {@link de.jstacs.classifier.PerformanceMeasureParameters.Measure} could
-	 *            not be evaluated
+	 *            {@link de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure} could not be evaluated
 	 * @param testS
 	 *            samples used as test sets (has to contain one {@link Sample}
 	 *            for each class)
@@ -925,7 +922,7 @@ public abstract class ClassifierAssessment {
 	 *             <code>testS.length!=this.myAbstractClassifier
 	 *             [0].getNumberOfClasses()</code>)
 	 * 
-	 * @see AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)
+	 * @see AbstractClassifier#evaluate(de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters, boolean, Sample...)
 	 */
 	protected void test( NumericalPerformanceMeasureParameters mp, boolean exception, Sample... testS ) throws IllegalValueException,
 			InconsistentResultNumberException,

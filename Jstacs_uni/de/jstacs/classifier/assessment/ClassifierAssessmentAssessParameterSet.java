@@ -40,14 +40,8 @@ import de.jstacs.results.Result;
  * It is recommended to extend this class for each subclass of
  * {@link ClassifierAssessment}.
  * 
- * @see ClassifierAssessment#assess(de.jstacs.classifier.PerformanceMeasureParameters,
- *      ClassifierAssessmentAssessParameterSet, de.jstacs.data.Sample...)
- * @see ClassifierAssessment#assess(de.jstacs.classifier.PerformanceMeasureParameters,
- *      ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater,
- *      de.jstacs.data.Sample...)
- * @see ClassifierAssessment#assess(de.jstacs.classifier.PerformanceMeasureParameters,
- *      ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater,
- *      de.jstacs.data.Sample...)
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, de.jstacs.data.Sample...)
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater, de.jstacs.data.Sample...)
  * 
  * @author Andre Gohr (bioinf (nospam:.) ag (nospam:@) googlemail (nospam:.)
  *         com)
@@ -98,8 +92,8 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 *            be assessed are able to classify
 	 * @param exceptionIfMPNotComputable
 	 *            A {@link ClassifierAssessmentAssessParameterSet} is used in
-	 *            combination with a
-	 *            {@link de.jstacs.classifier.PerformanceMeasureParameters}-object to call
+	 *            combination with an
+	 *            {@link de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure}-object to call
 	 *            <code>assess( ... )</code>-methods of
 	 *            {@link ClassifierAssessment}s. If
 	 *            <code>exceptionIfMPNotComputable==true</code> an

@@ -457,7 +457,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	/**
 	 * This method classifies a {@link Sequence}. It enables you to check the
 	 * constraints (<code>alphabets</code>, <code>length</code>,
-	 * {@link #isTrained()} ).
+	 * {@link #isInitialized()} ).
 	 * 
 	 * @param seq
 	 *            the {@link Sequence}

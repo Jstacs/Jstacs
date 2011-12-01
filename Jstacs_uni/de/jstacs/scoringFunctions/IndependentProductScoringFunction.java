@@ -29,6 +29,7 @@ import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
+import de.jstacs.scoringFunctions.homogeneous.HomogeneousScoringFunction;
 import de.jstacs.scoringFunctions.mix.AbstractMixtureScoringFunction;
 import de.jstacs.utils.Normalisation;
 

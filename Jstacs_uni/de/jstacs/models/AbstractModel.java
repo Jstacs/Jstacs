@@ -166,6 +166,24 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 		}
 	}
 	
+	/**
+	 * This method checks all parameters before a probability can be computed for a sequence.
+	 * Hence, should be used in {@link #getLogProbFor(Sequence, int, int)}.
+	 * 
+	 * @param sequence
+	 *            the given sequence
+	 * @param startpos
+	 *            the start position within the given sequence
+	 * @param endpos
+	 *            the last position to be taken into account
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the sequence could not be handled (e.g.
+	 *             <code>startpos &gt; </code>, <code>endpos
+	 *             &gt; sequence.length</code>, ...) by the model
+	 * @throws NotTrainedException
+	 *             if the model is not trained yet
+	 */
 	protected void check( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, IllegalArgumentException {
 		if( !isInitialized() ) {
 			throw new NotTrainedException();

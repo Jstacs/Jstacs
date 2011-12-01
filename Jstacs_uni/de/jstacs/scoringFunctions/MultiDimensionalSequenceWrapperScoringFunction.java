@@ -50,7 +50,7 @@ public class MultiDimensionalSequenceWrapperScoringFunction extends AbstractScor
 	 * @param function the internally used function
 	 * 
 	 * @throws IllegalArgumentException            
-	 *            if the length is negative or does not match with {@link AlphabetContainer#getPossibleLength()}
+	 *            if the length is negative or does not match with {@link de.jstacs.data.AlphabetContainer#getPossibleLength()}
 	 * @throws CloneNotSupportedException
 	 *            if the function can not be cloned properly
 	 */

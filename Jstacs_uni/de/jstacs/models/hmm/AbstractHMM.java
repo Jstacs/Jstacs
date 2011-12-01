@@ -117,6 +117,9 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 */
 	protected boolean[] finalState;
 
+	/**
+	 * The number of threads that is internally used.
+	 */
 	protected int threads;
 	
 	/**
@@ -379,6 +382,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * This method fills the forward-matrix for a given sequence.
 	 * 
+	 * @param thread the index of the thread that calls this method
 	 * @param startPos the start position (inclusive) in the sequence
 	 * @param endPos the end position (inclusive) in the sequence
 	 * @param seq the sequence
@@ -390,6 +394,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * This method fills the backward-matrix for a given sequence.
 	 * 
+	 * @param thread the index of the thread that calls this method
 	 * @param startPos the start position (inclusive) in the sequence
 	 * @param endPos the end position (inclusive) in the sequence
 	 * @param seq the sequence
@@ -405,6 +410,11 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 */
 	public static final String START_NODE = "START";
 	
+	/**
+	 * This method returns the number of threads that is internally used.
+	 * 
+	 * @return the number of threads that is internally used
+	 */
 	public int getNumberOfThreads(){
 		return threads;
 	}
@@ -723,14 +733,16 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	
 	/**
 	 * This method instantiates all helper variables that are need inside the model for instance for filling forward and backward matrix, ...
+	 * @param thread the index of the thread for which the helper variables are instantiated
 	 */
 	protected abstract void createHelperVariables(int thread);
 	
 	/**
-	* This method invokes the method {@link #createHelperVariables()} and provides the matrix with given type. Type 0 stands for {@link AbstractHMM#fwdMatrix}, and type 1 stands for {@link AbstractHMM#bwdMatrix}.
+	* This method invokes the method {@link #createHelperVariables(int)} and provides the matrix with given type. Type 0 stands for {@link AbstractHMM#fwdMatrix}, and type 1 stands for {@link AbstractHMM#bwdMatrix}.
 	*
 	* @param type the type of the matrix
 	* @param length the maximal sequence length
+	* @param thread the index of the thread for which the matrix is instantiated
 	*/
 	protected void provideMatrix( int type, int length, int thread ) {
 		createHelperVariables(thread);
@@ -827,15 +839,6 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 			throw getRunTimeException( e );
 		}
 		return bwdMatrix[0][0][0];
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#getPriorTerm()
-	 */
-	public double getPriorTerm() throws Exception {
-		return Math.exp( getLogPriorTerm() );
 	}
 	
 	/*
