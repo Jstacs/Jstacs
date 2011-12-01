@@ -20,7 +20,6 @@
 package de.jstacs.scoringFunctions;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;

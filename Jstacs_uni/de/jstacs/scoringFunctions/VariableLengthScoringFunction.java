@@ -65,7 +65,6 @@ public interface VariableLengthScoringFunction extends NormalizableScoringFuncti
 	public abstract double getLogPartialNormalizationConstant(int parameterIndex,
 			int length) throws Exception;
 
-
 	/**
 	 * This method computes the logarithm of the score for a given subsequence.
 	 * 
