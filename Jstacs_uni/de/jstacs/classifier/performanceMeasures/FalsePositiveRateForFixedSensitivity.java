@@ -1,4 +1,4 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
@@ -8,7 +8,7 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
 
-public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractMeasure {
+public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	public FalsePositiveRateForFixedSensitivity() {
 	}
@@ -40,6 +40,10 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractMeasur
 				new NumericalResult( getName(), "The " + getName().toLowerCase() + " of "+sensitivity, (double)( d - 1 - i ) / (double)d ),
 				new NumericalResult( "Threshold", "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, threshold )
 		});
+	}
+	
+	public NumericalResultSet compute( double[][][] classSpecificScores ) {
+		return (NumericalResultSet) super.compute( classSpecificScores );
 	}
 
 	@Override

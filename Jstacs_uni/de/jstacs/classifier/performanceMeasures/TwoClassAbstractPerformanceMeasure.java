@@ -1,4 +1,4 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import java.util.Arrays;
 
@@ -6,9 +6,9 @@ import de.jstacs.NonParsableException;
 import de.jstacs.results.ResultSet;
 
 
-public abstract class TwoClassAbstractMeasure extends AbstractMeasure {
+public abstract class TwoClassAbstractPerformanceMeasure extends AbstractPerformanceMeasure {
 
-	public TwoClassAbstractMeasure() {
+	public TwoClassAbstractPerformanceMeasure() {
 		super();
 	}	
 
@@ -16,12 +16,12 @@ public abstract class TwoClassAbstractMeasure extends AbstractMeasure {
 	 * @param xml
 	 * @throws NonParsableException
 	 */
-	public TwoClassAbstractMeasure( StringBuffer xml ) throws NonParsableException {
+	public TwoClassAbstractPerformanceMeasure( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
 
 	@Override
-	public final ResultSet compute( double[][][] classSpecificScores ) {
+	public ResultSet compute( double[][][] classSpecificScores ) {
 		if(classSpecificScores.length != 2){
 			throw new RuntimeException( "Only two classes possible for "+ getName() );
 		}

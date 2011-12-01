@@ -1,4 +1,4 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import java.util.ArrayList;
 
@@ -10,30 +10,28 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 
 
-public class PRCurve extends CurveMeasure {
+public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 	public PRCurve() throws Exception {
-		this(false);
-	}
-
-	public PRCurve( boolean getCurve ) throws Exception {
-		super( getCurve );
+		super();
 	}
 
 	public PRCurve( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
-
+	
+	public static final String NAME = "Precision-Recall curve";
+	
 	@Override
 	public String getName() {
-		return "Precision-Recall curve";
+		return NAME;
 	}
 
 	@Override
 	public ResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
 		
 		ArrayList<double[]> list = null;
-		if((Boolean)getParameterAt( 0 ).getValue()){
+		if( !(this instanceof NumericalPerformanceMeasure) ){
 			list = new ArrayList<double[]>();
 		}
 		
@@ -167,4 +165,8 @@ public class PRCurve extends CurveMeasure {
 		}
 	}
 
+	@Override
+	protected void loadParameters() throws Exception {
+		initParameterList();
+	}
 }

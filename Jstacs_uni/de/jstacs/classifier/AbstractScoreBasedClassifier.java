@@ -27,8 +27,10 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.classifier.measures.AbstractMeasure;
-import de.jstacs.classifier.measures.MeasureParameters;
+import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifier.performanceMeasures.PRCurve;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.ROCCurve;
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
@@ -39,7 +41,6 @@ import de.jstacs.results.ImageResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.REnvironment;
 
 /**
@@ -200,7 +201,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#getResults(de.jstacs.data.Sample[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
 	 */
 	@Override
-	protected boolean getResults( LinkedList list, Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, Sample[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
 			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {
@@ -210,8 +211,8 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 			double[][] scores = getSortedTwoClassScores( s );
 			
 			boolean isNumeric = true;
-			AbstractMeasure[] m = params.getAllMeasures();
-			for( AbstractMeasure current : m ) {
+			AbstractPerformanceMeasure[] m = params.getAllMeasures();
+			for( AbstractPerformanceMeasure current : m ) {
 				ResultSet r = null;
 				try {
 					r = current.compute( scores[0], scores[1] );
@@ -840,9 +841,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		 *            the R environment
 		 * @param plotOptions
 		 *            <ol>
-		 *            <li>recommended for {@link Measure#ReceiverOperatingCharacteristicCurve}
-		 *            or {@link Measure#PrecisionRecallCurve}:
-		 *            {@link Measure#getNameString()}</li>
+		 *            <li>recommended for {@link ROCCurve#NAME} or {@link PRCurve#NAME}</li>
 		 *            <li>any String that can be parsed to R plot options</li>
 		 *            <li>
 		 * 
@@ -865,9 +864,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		 *            the R environment
 		 * @param plotOptions
 		 *            <ol>
-		 *            <li>recommended for {@link Measure#ReceiverOperatingCharacteristicCurve}
-		 *            or {@link Measure#PrecisionRecallCurve}:
-		 *            {@link Measure#getNameString()}</li>
+		 *            <li>recommended for {@link ROCCurve#NAME} or {@link PRCurve#NAME}</li>
 		 *            <li>any String that can be parsed to R plot options</li>
 		 *            <li>
 		 * @param colors array of colors for the dtrs
@@ -895,9 +892,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		 *            the R environment
 		 * @param plotOptions
 		 *            <ol>
-		 *            <li>recommended for {@link Measure#ReceiverOperatingCharacteristicCurve}
-		 *            or {@link Measure#PrecisionRecallCurve}:
-		 *            {@link Measure#getNameString()}</li>
+		 *            <li>recommended for {@link ROCCurve#NAME} or {@link PRCurve#NAME}</li>
 		 *            <li>any String that can be parsed to R plot options</li>
 		 *            <li>
 		 * @param colors array of colors for the dtrs
@@ -919,9 +914,9 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 			if( plotOptions == null ) {
 				plotOptions = dtr[0].name == null ? "" : dtr[0].name;
 			}
-			if( plotOptions.equals( Measure.ReceiverOperatingCharacteristicCurve.getNameString() ) ) {
+			if( plotOptions.equals( ROCCurve.NAME ) ) {
 				plotOptions = ", xlim=c(0, 1), ylim=c(0, 1), xlab=\"false positive rate\", ylab=\"sensitivity\", main=\"ROC curve\", lwd=3";
-			} else if( plotOptions.equals( Measure.PrecisionRecallCurve.getNameString() ) ) {
+			} else if( plotOptions.equals( PRCurve.NAME ) ) {
 				plotOptions = ", xlim=c(0, 1), ylim=c(0, 1), xlab=\"recall\", ylab=\"precision\", main=\"PR curve\", lwd=3";
 			} else {
 				plotOptions = plotOptions.trim();

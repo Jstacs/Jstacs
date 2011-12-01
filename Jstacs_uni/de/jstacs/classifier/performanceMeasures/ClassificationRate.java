@@ -1,4 +1,4 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResult;
@@ -6,7 +6,7 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.utils.ToolBox;
 
 
-public class ClassificationRate extends AbstractMeasure {
+public class ClassificationRate extends AbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	public ClassificationRate() {
 	}

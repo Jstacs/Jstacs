@@ -1,4 +1,4 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import java.util.ArrayList;
 
@@ -10,30 +10,28 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 
 
-public class ROCCurve extends CurveMeasure {
+public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 
 	public ROCCurve() throws Exception {
-		this(false);
-	}
-
-	public ROCCurve( boolean getCurve ) throws Exception {
-		super( getCurve );
+		super();
 	}
 
 	public ROCCurve( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
 
+	public static final String NAME = "Receiver Operating Characteristic";
+	
 	@Override
 	public String getName() {
-		return "Receiver Operating Characteristic";
+		return NAME;
 	}
 
 	@Override
 	public ResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
 		
 		ArrayList<double[]> list = null;
-		if((Boolean)getParameterAt( 0 ).getValue()){
+		if( !(this instanceof NumericalPerformanceMeasure) ){
 			list = new ArrayList<double[]>();
 		}
 		
@@ -118,4 +116,8 @@ public class ROCCurve extends CurveMeasure {
 		}
 	}
 
+	@Override
+	protected void loadParameters() throws Exception {
+		initParameterList();
+	}
 }

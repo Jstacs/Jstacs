@@ -23,7 +23,7 @@ import java.util.Random;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.measures.MeasureParameters;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
@@ -284,7 +284,7 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#evaluateClassifier(de.jstacs.classifier.MeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, de.jstacs.data.Sample[], de.jstacs.utils.ProgressUpdater)
 	 */
 	@Override
-	protected void evaluateClassifier( MeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 		if( s.length != 2 ) {
 			throw new IllegalArgumentException( "This class can only handle two classes" );
