@@ -362,10 +362,7 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 		for( int i = 0; i < score.length; i++ ) {
 			((NormalizableScoringFunction)score[i]).addGradientOfLogPriorTerm( grad, start + params[i] );
 		}
-	}
-
-	
-	
+	}	
 	
 	@Override
 	public double getLogProbFor( Sequence sequence, int startpos ) throws Exception {
@@ -378,13 +375,12 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 	}
 
 	@Override
-	public double getProbFor( Sequence sequence, int startpos ) throws Exception {
-		return Math.exp( getLogProbFor( sequence, startpos ) );
-	}
-
-	@Override
-	public double getProbFor( Sequence sequence ) throws Exception {
-		return Math.exp( getLogProbFor( sequence ) );
+	public double getLogProbFor(Sequence sequence, int startpos, int endpos) throws Exception {
+		if( endpos-startpos+1 != length ) {
+			throw new IllegalArgumentException();
+		} else {
+			return getLogProbFor( sequence, startpos );
+		}
 	}
 
 	/**

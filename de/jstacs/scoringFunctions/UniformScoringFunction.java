@@ -247,13 +247,11 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	}
 
 	@Override
-	public double getProbFor( Sequence sequence, int startpos ) throws Exception {
-		return Math.exp( getLogProbFor( sequence, startpos ) );
-	}
-
-	@Override
-	public double getProbFor( Sequence sequence ) throws Exception {
-		return Math.exp( getLogProbFor( sequence ) );
-	}
-	
+	public double getLogProbFor(Sequence sequence, int startpos, int endpos) throws Exception {
+		if( endpos-startpos+1 != length ) {
+			throw new IllegalArgumentException();
+		} else {
+			return getLogProbFor( sequence, startpos );
+		}
+	}	
 }

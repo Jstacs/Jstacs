@@ -121,17 +121,4 @@ public class VariableLengthMixtureScoringFunction extends MixtureScoringFunction
 		// TODO Auto-generated method stub
 		throw new RuntimeException( "not implemented yet" );
 	}
-
-	@Override
-	public double getLogProbFor( Sequence sequence, int startpos, int length ) {
-		return getLogScoreFor( sequence, startpos, length ) - getLogNormalizationConstant( length );
-	}
-
-	@Override
-	public double getProbFor( Sequence sequence, int startpos, int length ) {
-		return Math.exp( getLogProbFor( sequence, startpos, length ) );
-	}
-	
-	
-	
 }
