@@ -22,8 +22,8 @@ import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
-import de.jstacs.classifier.measures.AbstractMeasure;
-import de.jstacs.classifier.measures.MeasureParameters;
+import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
@@ -209,19 +209,19 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment
 	 * @see NumericalResultSet
 	 * @see ResultSet
-	 * @see AbstractClassifier#getResults(Sample[], MeasureParameters, boolean)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(MeasureParameters,
+	 * @see AbstractClassifier#getResults(Sample[], PerformanceMeasureParameters, boolean)
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(PerformanceMeasureParameters,
 	 *      de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet,
 	 *      de.jstacs.utils.ProgressUpdater, Sample...)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(MeasureParameters,
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(PerformanceMeasureParameters,
 	 *      de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet,
 	 *      Sample...)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(MeasureParameters,
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(PerformanceMeasureParameters,
 	 *      de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet,
 	 *      de.jstacs.utils.ProgressUpdater, Sample[][][])
 	 */
 	@SuppressWarnings( "unchecked" )
-	public final ResultSet evaluate( MeasureParameters params, boolean exceptionIfNotComputeable, Sample... s ) throws Exception {
+	public final ResultSet evaluate( PerformanceMeasureParameters params, boolean exceptionIfNotComputeable, Sample... s ) throws Exception {
 		LinkedList list = new LinkedList();
 		boolean isNumeric = getResults( list, s, params, exceptionIfNotComputeable );
 		if( isNumeric ) {
@@ -247,18 +247,18 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see AbstractClassifier#evaluate(MeasureParameters, boolean, Sample...)
+	 * @see AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)
 	 */
 	@SuppressWarnings( "unchecked" )
-	protected boolean getResults( LinkedList list, Sample[] s, de.jstacs.classifier.measures.MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, Sample[] s, de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}
 		double[][][] scores = getMultiClassScores( s );
 		
 		boolean isNumeric = true;
-		AbstractMeasure[] m = params.getAllMeasures();
-		for( AbstractMeasure current : m ) {
+		AbstractPerformanceMeasure[] m = params.getAllMeasures();
+		for( AbstractPerformanceMeasure current : m ) {
 			ResultSet r = null;
 			try {
 				r = current.compute( scores );

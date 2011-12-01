@@ -23,7 +23,8 @@ import java.util.LinkedList;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.measures.MeasureParameters;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.data.EmptySampleException;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sample.PartitionMethod;
@@ -346,12 +347,12 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see ClassifierAssessment#evaluateClassifier(MeasureParameters,
+	 * @see ClassifierAssessment#evaluateClassifier(PerformanceMeasureParameters,
 	 *      ClassifierAssessmentAssessParameterSet, Sample[], ProgressUpdater)
 	 * 
 	 */
 	@Override
-	protected void evaluateClassifier( MeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
 		KFoldCVAssessParameterSet tempAssessPS = null;
@@ -401,7 +402,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	private void evaluate( MeasureParameters mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU, Sample[]... splitData ) throws Exception {
+	private void evaluate( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU, Sample[]... splitData ) throws Exception {
 		int subSeqL = caaps.getElementLength();
 		boolean exceptionIfMPNotComputable = caaps.getExceptionIfMPNotComputable();
 
@@ -466,7 +467,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 
-	public ListResult assessWithPredefinedSplits( MeasureParameters mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU,
+	public ListResult assessWithPredefinedSplits( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU,
 			Sample[]... splitData ) throws Exception {
 		int clazz = myAbstractClassifier[0].getNumberOfClasses();
 		if( splitData.length != clazz ) {

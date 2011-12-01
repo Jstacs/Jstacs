@@ -1,11 +1,11 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
 
-public class MaximumCorrelationCoefficient extends TwoClassAbstractMeasure {
+public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	public MaximumCorrelationCoefficient() {
 	}
@@ -123,8 +123,12 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractMeasure {
 		}
 		return new NumericalResultSet(new NumericalResult[]{
 				new NumericalResult( getName(), "The value of the " + getName().toLowerCase(), erg[1] ),
-				new NumericalResult( "Threshold", "Threshold for the"  + getName().toLowerCase(), erg[0] )
+				new NumericalResult( "Threshold", "Threshold for the "  + getName().toLowerCase(), erg[0] )
 		});
+	}
+	
+	public NumericalResultSet compute( double[][][] classSpecificScores ) {
+		return (NumericalResultSet) super.compute( classSpecificScores );
 	}
 	
 	// double since otherwise an overflow is easily possible

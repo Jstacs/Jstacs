@@ -40,12 +40,12 @@ import de.jstacs.results.Result;
  * It is recommended to extend this class for each subclass of
  * {@link ClassifierAssessment}.
  * 
- * @see ClassifierAssessment#assess(de.jstacs.classifier.MeasureParameters,
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.PerformanceMeasureParameters,
  *      ClassifierAssessmentAssessParameterSet, de.jstacs.data.Sample...)
- * @see ClassifierAssessment#assess(de.jstacs.classifier.MeasureParameters,
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.PerformanceMeasureParameters,
  *      ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater,
  *      de.jstacs.data.Sample...)
- * @see ClassifierAssessment#assess(de.jstacs.classifier.MeasureParameters,
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.PerformanceMeasureParameters,
  *      ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater,
  *      de.jstacs.data.Sample...)
  * 
@@ -99,7 +99,7 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 * @param exceptionIfMPNotComputable
 	 *            A {@link ClassifierAssessmentAssessParameterSet} is used in
 	 *            combination with a
-	 *            {@link de.jstacs.classifier.MeasureParameters}-object to call
+	 *            {@link de.jstacs.classifier.PerformanceMeasureParameters}-object to call
 	 *            <code>assess( ... )</code>-methods of
 	 *            {@link ClassifierAssessment}s. If
 	 *            <code>exceptionIfMPNotComputable==true</code> an

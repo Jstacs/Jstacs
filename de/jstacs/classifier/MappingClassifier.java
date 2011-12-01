@@ -24,7 +24,7 @@ import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.classifier.measures.MeasureParameters;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
@@ -42,9 +42,9 @@ import de.jstacs.utils.Normalisation;
  * class. The user has to create its 3-class-classifier, create an instance of
  * this class using its classifier, map the test samples together (
  * {@link MappingClassifier#mapSample(Sample[])}) and invoke
- * {@link AbstractClassifier#evaluate(MeasureParameters, boolean, Sample...)}
+ * {@link AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)}
  * with these mapped {@link Sample}. Alternatively, the method
- * {@link AbstractClassifier#evaluate(MeasureParameters, boolean, Sample...)} can
+ * {@link AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)} can
  * be used directly and the {@link Sample}s will be mapped internally
  * (i.e. inside the evaluate method).
  * 
@@ -212,7 +212,7 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getResults(java.util.LinkedList, de.jstacs.data.Sample[], de.jstacs.classifier.measures.MeasureParameters, boolean)
 	 */
 	@Override
-	protected boolean getResults( LinkedList list, Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, Sample[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length == getNumberOfClasses() ) {
 			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {

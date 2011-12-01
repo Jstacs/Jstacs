@@ -1,4 +1,4 @@
-package de.jstacs.classifier.measures;
+package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
@@ -8,7 +8,7 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
 
-public class SensitivityForFixedSpecificity extends TwoClassAbstractMeasure {
+public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	public SensitivityForFixedSpecificity() {
 	}
@@ -42,6 +42,10 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractMeasure {
 		});
 	}
 
+	public NumericalResultSet compute( double[][][] classSpecificScores ) {
+		return (NumericalResultSet) super.compute( classSpecificScores );
+	}
+	
 	@Override
 	protected void loadParameters() throws Exception {
 		initParameterList( 1 );
