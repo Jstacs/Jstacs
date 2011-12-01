@@ -42,7 +42,8 @@ public class MeasureParameters extends ExpandableParameterSet {
 	
 	public static MeasureParameters createFilledParameters( boolean numeric, double spForSn, double snForFPR, double snForPPV ) throws Exception {
 		MeasureParameters res = new MeasureParameters( 2 );
-		res.addMeasure( new ClassificationRate() );
+		res.loadParameters();
+		res.setMeasure( new ClassificationRate() );
 		res.addMeasure( new SensitivityForFixedSpecificity( spForSn ) );
 		res.addMeasure( new FalsePositiveRateForFixedSensitivity( snForFPR ) );
 		res.addMeasure( new PositivePredictiveValueForFixedSensitivity( snForPPV ) );
@@ -54,6 +55,10 @@ public class MeasureParameters extends ExpandableParameterSet {
 	
 	public void addMeasure(AbstractMeasure measure) throws CloneNotSupportedException, IllegalValueException{
 		this.addParameterToSet();
+		setMeasure( measure );
+	}
+	
+	private void setMeasure( AbstractMeasure measure ) throws IllegalValueException {
 		ParameterSetContainer cont = (ParameterSetContainer)this.parameters.get( this.parameters.size()-1 );
 		CollectionParameter cp = (CollectionParameter)cont.getValue().getParameterAt( 0 );
 		cp.setValue( measure.getName() );
