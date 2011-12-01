@@ -3,9 +3,9 @@ package de.jstacs.classifier.measures;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.ResultSet;
 
 
 public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractMeasure {
@@ -28,27 +28,24 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractMeasur
 	}
 
 	@Override
-	public ResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
+	public NumericalResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
 		double sensitivity = (Double)getParameterAt( 0 ).getValue();
-		if( !( 0 <= sensitivity && sensitivity <= 1 ) ) {
-			throw new IllegalArgumentException( "The value of percentage has to be in [0,1]." );
-		}
 		int d = scoresClass1.length, i = d - 1;
 		double threshold = scoresClass0[(int)Math.ceil( ( 1 - sensitivity ) * ( scoresClass0.length - 1 ) )];
 		while( i >= 0 && scoresClass1[i] >= threshold ) {
 			i--;
 		}
 
-		return new NumericalResultSet(new NumericalResult[]{
-		                                                    new NumericalResult( "Threshold", "Threshold for the false positive rate", threshold ),
-		                                                    new NumericalResult( "Maximum correlation coefficient", "The false positive rate for a fixed sensitivity of "+sensitivity, (double)( d - 1 - i ) / (double)d )
+		return new NumericalResultSet( new NumericalResult[]{
+				new NumericalResult( getName(), "The " + getName().toLowerCase() + " of "+sensitivity, (double)( d - 1 - i ) / (double)d ),
+				new NumericalResult( "Threshold", "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, threshold )
 		});
 	}
 
 	@Override
 	protected void loadParameters() throws Exception {
 		initParameterList( 1 );
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "Sensitivity", "The fixed sensitivity for the false positive rate.", true ) );
+		parameters.add( new SimpleParameter( DataType.DOUBLE, "Sensitivity", "The fixed sensitivity for the false positive rate.", true, new NumberValidator<Double>(0d,1d) ) );
 	}
 
 }

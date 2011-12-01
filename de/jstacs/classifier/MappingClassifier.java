@@ -24,12 +24,12 @@ import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
+import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.Result;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
 
@@ -209,14 +209,14 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getResults(de.jstacs.data.Sample[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
+	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getResults(java.util.LinkedList, de.jstacs.data.Sample[], de.jstacs.classifier.measures.MeasureParameters, boolean)
 	 */
 	@Override
-	protected LinkedList<? extends Result> getResults( Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length == getNumberOfClasses() ) {
-			return super.getResults( s, params, exceptionIfNotComputeable );
+			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {
-			return super.getResults( mapSample( s ), params, exceptionIfNotComputeable );
+			return super.getResults( list, mapSample( s ), params, exceptionIfNotComputeable );
 		}
 	}
 

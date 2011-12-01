@@ -107,12 +107,13 @@ public class ROCCurve extends CurveMeasure {
 		if( list != null ) {
 			list.add( new double[]{ 0, 0 } );
 		}
+		NumericalResult auc = new NumericalResult( "AUC-ROC", "Area under the " + getName() + " curve", erg );
 		if(list == null){
-			return new NumericalResultSet( new NumericalResult( "AUC-ROC", "Area under the ROC curve", erg ) );
+			return new NumericalResultSet( auc );
 		}else{
 			return new ResultSet( new Result[]{
-			                                   new NumericalResult( "AUC-ROC", "Area under the ROC curve", erg ),
-			                                   new AbstractScoreBasedClassifier.DoubleTableResult("ROC curve", "Receiver operating characteristic curve", list)
+			                                   auc,
+			                                   new AbstractScoreBasedClassifier.DoubleTableResult("ROC curve", getName() + " curve", list)
 			} );
 		}
 	}

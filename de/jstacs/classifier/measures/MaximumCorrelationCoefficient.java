@@ -3,7 +3,6 @@ package de.jstacs.classifier.measures;
 import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.ResultSet;
 
 
 public class MaximumCorrelationCoefficient extends TwoClassAbstractMeasure {
@@ -21,7 +20,7 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractMeasure {
 	}
 
 	@Override
-	public ResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
+	public NumericalResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
 		int i = 1, j = 1, d = scoresClass1.length, m = scoresClass0.length;
 		double[] current = new double[2];
 		double[] erg = new double[]{ Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
@@ -123,8 +122,8 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractMeasure {
 			// else // i == m && j == d => the outer loop will break
 		}
 		return new NumericalResultSet(new NumericalResult[]{
-		                                                    new NumericalResult( "Threshold", "Threshold for the maximum correlation coefficient", erg[0] ),
-		                                                    new NumericalResult( "Maximum correlation coefficient", "The value of the maximum correlation coefficient", erg[1] )
+				new NumericalResult( getName(), "The value of the " + getName().toLowerCase(), erg[1] ),
+				new NumericalResult( "Threshold", "Threshold for the"  + getName().toLowerCase(), erg[0] )
 		});
 	}
 	
@@ -137,5 +136,4 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractMeasure {
 	protected void loadParameters() throws Exception {
 		initParameterList();
 	}
-
 }

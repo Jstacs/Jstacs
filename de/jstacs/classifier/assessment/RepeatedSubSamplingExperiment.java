@@ -21,7 +21,7 @@ package de.jstacs.classifier.assessment;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.MeasureParameters;
+import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.data.Sample;
 import de.jstacs.models.Model;
 import de.jstacs.utils.ProgressUpdater;

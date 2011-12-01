@@ -156,12 +156,13 @@ public class PRCurve extends CurveMeasure {
 				list.add( p.clone() );
 			}
 		}
+		NumericalResult auc = new NumericalResult( "AUC-PR", "Area under the " + getName(), erg );
 		if(list == null){
-			return new NumericalResultSet( new NumericalResult( "AUC-PR", "Area under the PR curve", erg ) );
+			return new NumericalResultSet( auc );
 		}else{
 			return new ResultSet( new Result[]{
-			                                   new NumericalResult( "AUC-PR", "Area under the PR curve", erg ),
-			                                   new AbstractScoreBasedClassifier.DoubleTableResult("PR curve", "Precision recall curve", list)
+			                                   auc,
+			                                   new AbstractScoreBasedClassifier.DoubleTableResult("PR curve", getName(), list)
 			} );
 		}
 	}
