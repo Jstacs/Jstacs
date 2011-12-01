@@ -26,8 +26,10 @@ import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEv
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.CollectionParameter;
 import de.jstacs.parameters.EnumParameter;
+import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
@@ -181,7 +183,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 										AbstractTerminationCondition tc, double lineps, double startD, boolean free, KindOfParameter kind ) throws Exception {
 		super( instanceClass, alphabet, length, length == 0 );
 		parameters.get( 0 ).setValue( algorithmStrings[getIndex( algorithmStrings, algorithms, algo, false )] );
-		parameters.get( 1 ).setValue( tc );
+		parameters.get( 1 ).setValue( tc.getCurrentParameterSet() );
 		parameters.get( 2 ).setValue( lineps );
 		parameters.get( 3 ).setValue( startD );
 		parameters.get( 4 ).setValue( free );
@@ -253,5 +255,17 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	@Override
 	public String getInstanceComment() {
 		return "holds the parameters for a score classifier";
+	}
+	
+	/**
+	 * This method returns the {@link AbstractTerminationCondition} for stopping the training, e.g., if the
+	 * difference of the scores between two iterations is smaller than a given
+	 * threshold the training is stopped.
+	 * 
+	 * @return the {@link AbstractTerminationCondition} for stopping the training
+	 * @throws NotInstantiableException if the {@link AbstractTerminationCondition} could not be created from its {@link de.jstacs.parameters.ParameterSet}
+	 */
+	public AbstractTerminationCondition getTerminantionCondition() throws NotInstantiableException {
+		return (AbstractTerminationCondition)(((InstanceParameterSet)parameters.get(1).getValue()).getInstance());
 	}
 }
