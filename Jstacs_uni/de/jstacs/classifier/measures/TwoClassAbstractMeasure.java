@@ -23,12 +23,15 @@ public abstract class TwoClassAbstractMeasure extends AbstractMeasure {
 	@Override
 	public final ResultSet compute( double[][][] classSpecificScores ) {
 		if(classSpecificScores.length != 2){
-			throw new RuntimeException( "Only two classes possible for "+getClass().getSimpleName() );//XXX getName()
+			throw new RuntimeException( "Only two classes possible for "+ getName() );
 		}
 		double[][] classificationScores = new double[2][];
 		for(int i=0;i<classSpecificScores.length;i++){
 			classificationScores[i] = new double[classSpecificScores[i].length];
 			for(int j=0;j<classSpecificScores[i].length;j++){
+				if(classSpecificScores[i][j].length != 2){
+					throw new RuntimeException( "Only two classes possible for "+ getName() );
+				}
 				classificationScores[i][j] = classSpecificScores[i][j][0] - classSpecificScores[i][j][1];
 			}
 			Arrays.sort( classificationScores[i] );
