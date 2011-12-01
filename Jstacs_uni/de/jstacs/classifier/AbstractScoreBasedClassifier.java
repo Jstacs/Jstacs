@@ -28,8 +28,9 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.classifier.MeasureParameters.Measure;
 import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions.ThresholdMeasurePair;
+import de.jstacs.classifier.measures.AbstractMeasure;
+import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
@@ -40,7 +41,10 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.RangeParameter;
 import de.jstacs.results.ImageResult;
 import de.jstacs.results.NumericalResult;
+import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
+import de.jstacs.results.ResultSet;
+import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.REnvironment;
 
 /**
@@ -180,154 +184,53 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	public byte classify( Sequence seq ) throws Exception {
 		return classify( seq, true );
 	}
+	
+	protected double[][][] getMultiClassScores( Sample[] s ) throws Exception {
+		for( int d = 0; d < s.length; d++ ) {
+			check( s[d] );
+		}
+		double[][][] scores = new double[getNumberOfClasses()][][];
+		for( int d = 0; d < s.length; d++ ) {
+			scores[d] = new double[s[d].getNumberOfElements()][scores.length];
+			for( int n = 0; n < scores[d].length; n++ ) {
+				for( int c = 0; c < s.length; c++ ) {
+					scores[d][n][c] = getScore(s[d].getElementAt(n), c, false);
+				}
+			}
+		}
+		return scores;
+	}
 
 	/* (non-Javadoc)
 	 * @see de.jstacs.classifier.AbstractClassifier#getResults(de.jstacs.data.Sample[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
 	 */
 	@Override
-	protected LinkedList<? extends Result> getResults( Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
-		if( s.length != getNumberOfClasses() ) {
-			throw new ClassDimensionException();
-		}
+	protected boolean getResults( LinkedList list, Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
-			return super.getResults( s, params, exceptionIfNotComputeable );
+			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {
-			LinkedList<Result> list = new LinkedList<Result>();
-			double[][] sortedScores = null;
-
-			int numSelected = params.getNumberOfValues();
-			if( numSelected > 0 ) {
-				sortedScores = getSortedScore( s );
+			if( s.length != getNumberOfClasses() ) {
+				throw new ClassDimensionException();
 			}
-			if( params.isSelected( Measure.ClassificationRate ) ) {
-				list.add( new NumericalResult( Measure.ClassificationRate.getNameString(),
-						Measure.ClassificationRate.getCommentString(),
-						ScoreBasedPerformanceMeasureDefinitions.getClassificationRateFor2Classes( sortedScores[0], sortedScores[1] ) ) );
-				//list.add( getClassificationRate( s ) );
-				numSelected--;
-			}
-			if( params.isSelected( Measure.Sensitivity ) ) {
-				double sp = (Double)( (ParameterSet)params.getValueFor( Measure.Sensitivity.getNameString() ) ).getParameterAt( 0 )
-						.getValue();
-				ThresholdMeasurePair sn = ScoreBasedPerformanceMeasureDefinitions.getSensitivityForSpecificity( sortedScores[0],
-						sortedScores[1],
-						sp );
-				list.add( new NumericalResult( Measure.Sensitivity.getNameString(),
-						Measure.Sensitivity.getCommentString() + " = " + sp,
-						sn.getMeasure() ) );
-				list.add( new NumericalResult( "Threshold for sensitivity",
-						"The threshold for the sensitivity for a specificity of " + sp,
-						sn.getThreshold() ) );
-				numSelected--;
-			}
-			if( params.isSelected( Measure.FalsePositiveRate ) ) {
-				double sn = (Double)( (ParameterSet)params.getValueFor( Measure.FalsePositiveRate.getNameString() ) ).getParameterAt( 0 )
-						.getValue();
-				ThresholdMeasurePair fpr = ScoreBasedPerformanceMeasureDefinitions.getFPRForSensitivity( sortedScores[0],
-						sortedScores[1],
-						sn );
-				list.add( new NumericalResult( Measure.FalsePositiveRate.getNameString(),
-						Measure.FalsePositiveRate.getCommentString() + " = " + sn,
-						fpr.getMeasure() ) );
-				list.add( new NumericalResult( "Threshold for false positive rate",
-						"The threshold for the false positive rate for a fixed sensitivity of " + sn,
-						fpr.getThreshold() ) );
-				numSelected--;
-			}
-			if( params.isSelected( Measure.PositivePredictiveValue ) ) {
-				double sn = (Double)( (ParameterSet)params.getValueFor( Measure.PositivePredictiveValue.getNameString() ) ).getParameterAt( 0 )
-						.getValue();
-				ThresholdMeasurePair ppv = ScoreBasedPerformanceMeasureDefinitions.getPPVForSensitivity( sortedScores[0],
-						sortedScores[1],
-						sn );
-				list.add( new NumericalResult( Measure.PositivePredictiveValue.getNameString(),
-						Measure.PositivePredictiveValue.getCommentString() + " = " + sn,
-						ppv.getMeasure() ) );
-				list.add( new NumericalResult( "Threshold for positive predictive value",
-						"The threshold for the positive predictive value for a fixed sensitivity of " + sn,
-						ppv.getThreshold() ) );
-				numSelected--;
-			}
-			ArrayList<double[]> list2 = null;
-			if( params.isSelected( Measure.AreaUnderROCCurve ) ) {
-				if( params.isSelected( Measure.AreaUnderROCCurve ) ) {
-					list2 = new ArrayList<double[]>( s[0].getNumberOfElements() / 2 );
-				}
-				list.add( new NumericalResult( Measure.AreaUnderROCCurve.getNameString(),
-						Measure.AreaUnderROCCurve.getCommentString(),
-						ScoreBasedPerformanceMeasureDefinitions.getAUC_ROC( sortedScores[0], sortedScores[1], list2 ) ) );
-				numSelected--;
-			}
-			ArrayList<double[]> list3 = null;
-			if( params.isSelected( Measure.AreaUnderPrecisionRecallCurve ) ) {
-				if( params.isSelected( Measure.AreaUnderPrecisionRecallCurve ) ) {
-					list3 = new ArrayList<double[]>( s[0].getNumberOfElements() / 2 );
-				}
-				list.add( new NumericalResult( Measure.AreaUnderPrecisionRecallCurve.getNameString(),
-						Measure.AreaUnderPrecisionRecallCurve.getCommentString(),
-						ScoreBasedPerformanceMeasureDefinitions.getAUC_PR( sortedScores[0], sortedScores[1], list3 ) ) );
-				numSelected--;
-			}
-			if( params.isSelected( Measure.MaximumCorrelationCoefficient ) ) {
-				double cc, t;
+			double[][] scores = getSortedTwoClassScores( s );
+			
+			boolean isNumeric = true;
+			AbstractMeasure[] m = params.getAllMeasures();
+			for( AbstractMeasure current : m ) {
+				ResultSet r = null;
 				try {
-					ThresholdMeasurePair maxCC = ScoreBasedPerformanceMeasureDefinitions.getMaxOfCC( sortedScores[0], sortedScores[1] );
-					cc = maxCC.getMeasure();
-					t = maxCC.getThreshold();
-				} catch( IllegalArgumentException e ) {
+					r = current.compute( scores[0], scores[1] );
+				} catch( Exception e ) {
 					if( exceptionIfNotComputeable ) {
 						throw e;
-					} else {
-						cc = Double.NaN;
-						t = Double.NaN;
 					}
 				}
-				list.add( new NumericalResult( Measure.MaximumCorrelationCoefficient.getNameString(),
-						Measure.MaximumCorrelationCoefficient.getCommentString(), cc ) );
-				list.add( new NumericalResult( "Threshold for maximum correlation coefficient",
-						"The threshold for the maximum correlation coefficient of all possible correlation coefficients", t ) );
-				numSelected--;
-			}
-			if( params.isSelected( Measure.PartialROCCurve ) ) {
-				RangeParameter specs = (RangeParameter)( (ParameterSet)params.getValueFor( Measure.PartialROCCurve.getNameString() ) ).getParameterAt( 0 );
-				double[][] val = ScoreBasedPerformanceMeasureDefinitions.getPartialROC( sortedScores[0], sortedScores[1], specs );
-				specs.resetToFirst();
-				int i = 0;
-				do {
-					list.add( new NumericalResult( "" + val[0][i], "The sensitivity for a specificity of " + val[0][i], val[1][i] ) );
-					list.add( new NumericalResult( "Threshold for a specificity of " + val[0][i],
-							"The threshold for the sensitivity for a specificity of " + val[0][i],
-							val[2][i] ) );
-					i++;
-				} while( specs.next() );
-				numSelected--;
-			}
-			if( params.isSelected( Measure.ReceiverOperatingCharacteristicCurve ) ) {
-				if( list2 == null ) {
-					list2 = new ArrayList<double[]>( s[0].getNumberOfElements() / 2 );
-					ScoreBasedPerformanceMeasureDefinitions.getAUC_ROC( sortedScores[0], sortedScores[1], list2 );
+				isNumeric &= r instanceof NumericalResultSet;
+				for( int j = 0; j < r.getNumberOfResults(); j++ ) {
+					list.add( r.getResultAt(j) );
 				}
-				list.add( new DoubleTableResult( Measure.ReceiverOperatingCharacteristicCurve.getNameString(),
-						Measure.ReceiverOperatingCharacteristicCurve.getCommentString(),
-						list2 ) );
-				numSelected--;
 			}
-			if( params.isSelected( Measure.PrecisionRecallCurve ) ) {
-				if( list3 == null ) {
-					list3 = new ArrayList<double[]>( s[0].getNumberOfElements() / 2 );
-					ScoreBasedPerformanceMeasureDefinitions.getAUC_PR( sortedScores[0], sortedScores[1], list3 );
-				}
-				list.add( new DoubleTableResult( Measure.PrecisionRecallCurve.getNameString(),
-						Measure.PrecisionRecallCurve.getCommentString(),
-						list3 ) );
-				numSelected--;
-			}
-
-			if( exceptionIfNotComputeable && numSelected > 0 ) {
-				throw new IllegalArgumentException( "There are measures that could not be evaluate with this classifier (" + this.getClass() + ")." );
-			}
-
-			return list;
+			return isNumeric;
 		}
 	}
 
@@ -781,7 +684,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		return scores;
 	}
 
-	private double[][] getSortedScore( Sample[] s ) throws Exception {
+	private double[][] getSortedTwoClassScores( Sample[] s ) throws Exception {
 		double[][] scores = new double[][]{ getScores( s[0] ), getScores( s[1] ) };
 		Arrays.sort( scores[0] );
 		Arrays.sort( scores[1] );

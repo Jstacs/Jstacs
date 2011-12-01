@@ -3,7 +3,6 @@ package de.jstacs.classifier.measures;
 import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.ResultSet;
 import de.jstacs.utils.ToolBox;
 
 
@@ -22,7 +21,7 @@ public class ClassificationRate extends AbstractMeasure {
 	}
 
 	@Override
-	public ResultSet compute( double[] classificationScoresFg, double[] classificationScoresBg ) {
+	public NumericalResultSet compute( double[] classificationScoresFg, double[] classificationScoresBg ) {
 		int i = 0, m = classificationScoresFg.length;
 		while( i < m && classificationScoresFg[i] < 0 ) {
 			i++;
@@ -37,7 +36,7 @@ public class ClassificationRate extends AbstractMeasure {
 	}
 
 	@Override
-	public ResultSet compute( double[][][] classSpecificScores ) {
+	public NumericalResultSet compute( double[][][] classSpecificScores ) {
 		int corr = 0, fals = 0;
 		for(int i=0;i<classSpecificScores.length;i++){
 			for(int j=0;j<classSpecificScores[i].length;j++){
@@ -48,7 +47,7 @@ public class ClassificationRate extends AbstractMeasure {
 				}
 			}
 		}
-		return new NumericalResultSet(new NumericalResult("Classification rate","Classification rate for "+classSpecificScores[0][0].length+" classes.",(double)corr/(double)(corr+fals)));
+		return new NumericalResultSet(new NumericalResult(getName(),getName() + " for "+classSpecificScores[0][0].length+" classes.",(double)corr/(double)(corr+fals)));
 	}
 
 	@Override

@@ -22,7 +22,8 @@ import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
-import de.jstacs.classifier.MeasureParameters.Measure;
+import de.jstacs.classifier.measures.AbstractMeasure;
+import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
@@ -56,45 +57,6 @@ import de.jstacs.results.StorableResult;
  * @author Jens Keilwagen, Jan Grau
  */
 public abstract class AbstractClassifier implements Storable, Cloneable {
-
-	/**
-	 * Returns an object of the parameters for the method
-	 * {@link #evaluate(MeasureParameters, boolean, Sample...)}. The parameters
-	 * can be set and the measures can be switched on or off.
-	 * 
-	 * @return an object of the parameters for the method
-	 *         {@link #evaluate(MeasureParameters, boolean, Sample...)}
-	 * 
-	 * @throws ParameterException
-	 *             if something went wrong while constructing the parameter
-	 *             object
-	 * 
-	 * @see AbstractClassifier#evaluate(MeasureParameters, boolean, Sample...)
-	 * @see MeasureParameters#MeasureParameters(boolean)
-	 */
-	public static final MeasureParameters getMeasuresForEvaluate() throws ParameterException {
-		return new MeasureParameters( false );
-	}
-
-	/**
-	 * Returns an object of the parameters for the method
-	 * {@link #evaluateAll(MeasureParameters, boolean, Sample...)}. The
-	 * parameters can be set and the measures can be switched on or off.
-	 * 
-	 * @return an object of the parameters for the method
-	 *         {@link #evaluateAll(MeasureParameters, boolean, Sample...)}
-	 * 
-	 * @throws ParameterException
-	 *             if something went wrong while constructing the parameter
-	 *             object
-	 * 
-	 * @see AbstractClassifier#evaluateAll(MeasureParameters, boolean,
-	 *      Sample...)
-	 * @see MeasureParameters#MeasureParameters(boolean)
-	 */
-	public static final MeasureParameters getMeasuresForEvaluateAll() throws ParameterException {
-		return new MeasureParameters( true );
-	}
 
 	/**
 	 * The underlying alphabets.
@@ -245,7 +207,6 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 *             if something went wrong
 	 * 
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment
-	 * @see MeasureParameters#isNumeric()
 	 * @see NumericalResultSet
 	 * @see ResultSet
 	 * @see AbstractClassifier#getResults(Sample[], MeasureParameters, boolean)
@@ -261,8 +222,9 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 */
 	@SuppressWarnings( "unchecked" )
 	public final ResultSet evaluate( MeasureParameters params, boolean exceptionIfNotComputeable, Sample... s ) throws Exception {
-		LinkedList list = getResults( s, params, exceptionIfNotComputeable );
-		if( params.isNumeric() ) {
+		LinkedList list = new LinkedList();
+		boolean isNumeric = getResults( list, s, params, exceptionIfNotComputeable );
+		if( isNumeric ) {
 			return new NumericalResultSet( (LinkedList<NumericalResult>) list );
 		} else {
 			return new ResultSet( (LinkedList<Result>) list );
@@ -286,56 +248,42 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 *             if something went wrong
 	 * 
 	 * @see AbstractClassifier#evaluate(MeasureParameters, boolean, Sample...)
-	 * @see AbstractClassifier#evaluateAll(MeasureParameters, boolean,
-	 *      Sample...)
 	 */
 	@SuppressWarnings( "unchecked" )
-	protected LinkedList getResults( Sample[] s, MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
-		LinkedList<NumericalResult> list = new LinkedList<NumericalResult>();
-		int numSelected = params.getNumberOfValues();
-		if( params.isSelected( Measure.ClassificationRate ) ) {
-			list.add( getClassificationRate( s ) );
-			numSelected--;
-		}
-		if( exceptionIfNotComputeable && numSelected > 0 ) {
-			throw new IllegalArgumentException( "There are measure that could not be evaluate with this classifier (" + this.getClass()
-												+ ")" );
-		}
-		return list;
-	}
-
-	/**
-	 * This method computes the classification rate for a given array of
-	 * samples.
-	 * 
-	 * @param s
-	 *            the array of {@link Sample}s; {@link Sample} 0 contains only
-	 *            elements of class 0; {@link Sample} 1 ...
-	 * 
-	 * @return the classification rate for the samples
-	 * 
-	 * @throws Exception
-	 *             if something went wrong during the classification
-	 */
-	protected final NumericalResult getClassificationRate( Sample[] s ) throws Exception {
+	protected boolean getResults( LinkedList list, Sample[] s, de.jstacs.classifier.measures.MeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}
-		int correct = 0;
-		double n = 0;
-		for( int i = 0; i < s.length; i++ ) {
-			if( s != null ) {
-				n += s[i].getNumberOfElements();
-				for( int j = 0; j < s[i].getNumberOfElements(); j++ ) {
-					if( this.classify( s[i].getElementAt( j ) ) == i ) {
-						correct++;
-					}
+		double[][][] scores = getMultiClassScores( s );
+		
+		boolean isNumeric = true;
+		AbstractMeasure[] m = params.getAllMeasures();
+		for( AbstractMeasure current : m ) {
+			ResultSet r = null;
+			try {
+				r = current.compute( scores );
+			} catch( Exception e ) {
+				if( exceptionIfNotComputeable ) {
+					throw e;
 				}
 			}
+			isNumeric &= r instanceof NumericalResultSet;
+			for( int j = 0; j < r.getNumberOfResults(); j++ ) {
+				list.add( r.getResultAt(j) );
+			}
 		}
-		return new NumericalResult( Measure.ClassificationRate.getNameString(),
-				Measure.ClassificationRate.getCommentString(),
-				(double)correct / n );
+		return isNumeric;
+	}
+	
+	protected double[][][] getMultiClassScores( Sample[] s ) throws Exception {
+		double[][][] scores = new double[getNumberOfClasses()][][];
+		for( int d = 0; d < s.length; d++ ) {
+			scores[d] = new double[s[d].getNumberOfElements()][scores.length];
+			for( int n = 0; n < scores[d].length; n++ ) {
+				scores[d][n][classify( s[d].getElementAt(n) )] = 1;
+			}
+		}
+		return scores;
 	}
 
 	/**

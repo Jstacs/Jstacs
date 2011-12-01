@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.MeasureParameters;
+import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.data.EmptySampleException;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sample.PartitionMethod;
@@ -480,7 +480,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 
 		evaluate( mp, caaps, pU, splitData );
 
-		LinkedList<Result> annotation = mp.getAnnotation();
+		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment", "a description or name of the assessment", getNameOfAssessment() ) );
 		annotation.addAll( caaps.getAnnotation() );
 		StringBuffer sb = new StringBuffer( 1000 );

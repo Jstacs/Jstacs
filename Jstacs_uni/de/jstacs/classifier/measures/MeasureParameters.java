@@ -18,7 +18,7 @@ public class MeasureParameters extends ExpandableParameterSet {
 	public MeasureParameters( StringBuffer representation ) throws NonParsableException {
 		super( representation );
 	}
-
+	
 	public MeasureParameters( int numClasses, AbstractMeasure... measures ) throws Exception {
 		super( getTemplate(numClasses, measures), "Performance measures", "Performance measures for evaluating a classifier of "+numClasses+" classes" );
 	}
@@ -38,6 +38,18 @@ public class MeasureParameters extends ExpandableParameterSet {
 			cont.setValue( measures[i] );
 		}
 		return pars;
+	}
+	
+	public static MeasureParameters createFilledParameters( boolean numeric, double spForSn, double snForFPR, double snForPPV ) throws Exception {
+		MeasureParameters res = new MeasureParameters( 2 );
+		res.addMeasure( new ClassificationRate() );
+		res.addMeasure( new SensitivityForFixedSpecificity( spForSn ) );
+		res.addMeasure( new FalsePositiveRateForFixedSensitivity( snForFPR ) );
+		res.addMeasure( new PositivePredictiveValueForFixedSensitivity( snForPPV ) );
+		res.addMeasure( new ROCCurve( !numeric ) );
+		res.addMeasure( new PRCurve( !numeric ) );
+		res.addMeasure( new MaximumCorrelationCoefficient() );
+		return res;
 	}
 	
 	public void addMeasure(AbstractMeasure measure) throws CloneNotSupportedException, IllegalValueException{

@@ -24,7 +24,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.MeasureParameters;
+import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sample;
@@ -643,7 +643,7 @@ public abstract class ClassifierAssessment {
 
 		prepareAssessment( s );
 
-		LinkedList<Result> annotation = mp.getAnnotation();
+		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment", "a description or name of the assessment", getNameOfAssessment() ) );
 		annotation.addAll( assessPS.getAnnotation() );
 		annotation.add( new CategoricalResult( "samples", "annotation of used samples", Sample.getAnnotation( s ) ) );
@@ -757,7 +757,7 @@ public abstract class ClassifierAssessment {
 
 		// evaluate
 
-		LinkedList<Result> annotation = mp.getAnnotation();
+		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment",
 				"a description or name of the assessment",
 				"assessment using a series of user-given pairs of test- and train-datasets" ) );

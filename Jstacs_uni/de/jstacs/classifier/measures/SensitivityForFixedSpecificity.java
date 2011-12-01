@@ -2,11 +2,10 @@ package de.jstacs.classifier.measures;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions.ThresholdMeasurePair;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.ResultSet;
 
 
 public class SensitivityForFixedSpecificity extends TwoClassAbstractMeasure {
@@ -29,11 +28,8 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractMeasure {
 	}
 
 	@Override
-	public ResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
+	public NumericalResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
 		double specificity = (Double)getParameterAt( 0 ).getValue();
-		if( !( 0 < specificity && specificity < 1 ) ) {
-			throw new IllegalArgumentException( "The value of specificity has to be in (0,1)." );
-		}
 		int i = 0, m = scoresClass0.length;
 		double threshold = scoresClass1[(int)Math.ceil( specificity * ( scoresClass1.length - 1 ) )];
 		while( i < m && scoresClass0[i] <= threshold ) {
@@ -41,15 +37,14 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractMeasure {
 		}
 		
 		return new NumericalResultSet(new NumericalResult[]{
-		                                                    new NumericalResult( "Threshold", "Threshold for the sensitivity", threshold ),
-		                                                    new NumericalResult( "Sensitivity", "The sensitivity for a specificity of "+specificity, (double)( m - i ) / (double)m  )
+				new NumericalResult( "Sensitivity", "The "+getName().toLowerCase() +" of "+specificity, (double)( m - i ) / (double)m  ),
+				new NumericalResult( "Threshold", "Threshold for the "+getName().toLowerCase() +" of "+specificity, threshold )
 		});
 	}
 
 	@Override
 	protected void loadParameters() throws Exception {
 		initParameterList( 1 );
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "Specificity", "The fixed specificity for the sensitivity.", true ) );
+		parameters.add( new SimpleParameter( DataType.DOUBLE, "Specificity", "The fixed specificity for the sensitivity.", true, new NumberValidator<Double>(0d,1d) ) );
 	}
-
 }

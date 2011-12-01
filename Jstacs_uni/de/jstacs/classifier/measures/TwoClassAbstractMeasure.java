@@ -1,5 +1,7 @@
 package de.jstacs.classifier.measures;
 
+import java.util.Arrays;
+
 import de.jstacs.NonParsableException;
 import de.jstacs.results.ResultSet;
 
@@ -29,6 +31,7 @@ public abstract class TwoClassAbstractMeasure extends AbstractMeasure {
 				}
 				classificationScores[i][j] = classSpecificScores[i][j][0] - classSpecificScores[i][j][1];
 			}
+			Arrays.sort( classificationScores[i] );
 		}
 		return compute( classificationScores[0], classificationScores[1] );
 	}
