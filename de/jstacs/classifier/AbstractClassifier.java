@@ -29,7 +29,6 @@ import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.Sample.ElementEnumerator;
 import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.ParameterException;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
@@ -194,7 +193,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * also <a href="#order">this comment</a>.
 	 * 
 	 * @param params
-	 *            the current parameters
+	 *            the current parameters defining the set of {@link AbstractPerformanceMeasure}s to be evaluated
 	 * @param exceptionIfNotComputeable
 	 *            indicates that the method throws an {@link Exception} if a measure
 	 *            could not be computed
@@ -206,19 +205,12 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment
 	 * @see NumericalResultSet
 	 * @see ResultSet
-	 * @see AbstractClassifier#getResults(Sample[], PerformanceMeasureParameters, boolean)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(PerformanceMeasureParameters,
-	 *      de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet,
-	 *      de.jstacs.utils.ProgressUpdater, Sample...)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(PerformanceMeasureParameters,
-	 *      de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet,
-	 *      Sample...)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(PerformanceMeasureParameters,
-	 *      de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet,
-	 *      de.jstacs.utils.ProgressUpdater, Sample[][][])
+	 * @see #getResults(LinkedList, Sample[], PerformanceMeasureParameters, boolean)
+	 * 
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, Sample...)
 	 */
 	@SuppressWarnings( "unchecked" )
 	public final ResultSet evaluate( PerformanceMeasureParameters params, boolean exceptionIfNotComputeable, Sample... s ) throws Exception {
@@ -234,6 +226,8 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	/**
 	 * This method computes the results for any evaluation of the classifier.
 	 * 
+	 * @param list 
+	 *            a list adding the results
 	 * @param s
 	 *            the array of {@link Sample}s
 	 * @param params
@@ -242,12 +236,14 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 *            indicates the method throws an {@link Exception} if a measure
 	 *            could not be computed
 	 * 
-	 * @return a list of results
+	 * @return a boolean indicating if all results are numerical
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)
+	 * @see #evaluate(PerformanceMeasureParameters, boolean, Sample...)
+	 * @see NumericalResult
+	 * @see Result
 	 */
 	@SuppressWarnings( "unchecked" )
 	protected boolean getResults( LinkedList list, Sample[] s, de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
@@ -275,6 +271,18 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 		return isNumeric;
 	}
 	
+	/**
+	 * This method returns a multidimensional array with class specific scores. The first dimension is for the data set, the second for the sequences, and the third for the classes.
+	 * The entry <code>result[d][n][c]</code> returns the score of class <code>c</code> for sequence <code>n</code> of the data set <code>s[d]</code>. The class with the maximum score
+	 * for any sequence is the predicted class of the sequence. 
+	 * 
+	 * @param s the data sets
+	 * @return a multidimensional array with class specific scores
+	 * 
+	 * @throws Exception if the scores can not be computed
+	 * 
+	 * @see #getResults(LinkedList, Sample[], PerformanceMeasureParameters, boolean)
+	 */
 	protected double[][][] getMultiClassScores( Sample[] s ) throws Exception {
 		double[][][] scores = new double[getNumberOfClasses()][][];
 		for( int d = 0; d < s.length; d++ ) {
@@ -511,7 +519,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	/**
 	 * Returns the {@link String} that is used as tag for the XML representation
 	 * of the classifier. This method is used by the methods
-	 * {@link AbstractClassifier#fromXML(StringBuffer)} and {@link AbstractClassifier#toXML()}.
+	 * {@link #fromXML(StringBuffer)} and {@link #toXML()}.
 	 * 
 	 * @return the {@link String} that is used as tag for the XML representation
 	 *         of the classifier
@@ -527,7 +535,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 
 	/**
 	 * Extracts further information of a classifier from an XML representation.
-	 * This method is used by the method {@link AbstractClassifier#fromXML(StringBuffer)} and
+	 * This method is used by the method {@link #fromXML(StringBuffer)} and
 	 * should not be made public.
 	 * 
 	 * @param xml
@@ -537,7 +545,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 *             if the information could not be parsed out of the XML
 	 *             representation (the {@link StringBuffer} could not be parsed)
 	 * 
-	 * @see AbstractClassifier#fromXML(StringBuffer)
+	 * @see #fromXML(StringBuffer)
 	 */
 	protected abstract void extractFurtherClassifierInfosFromXML( StringBuffer xml ) throws NonParsableException;
 

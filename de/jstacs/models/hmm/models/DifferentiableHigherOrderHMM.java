@@ -264,11 +264,11 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	public boolean isInitialized() {
 		return true;
 	}
-	
+/*	
 	public void setTrainingParameters(MaxHMMTrainingParameterSet params) throws CloneNotSupportedException{
 		this.trainingParameter = (HMMTrainingParameterSet)params.clone();
 	}
-
+*/
 	public void setParameters( double[] params, int start ) {
 		for(int j=0;j<threads;j++){
 			for( int e = 0; e < emission[j].length; e++ ) {

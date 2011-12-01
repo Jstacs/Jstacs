@@ -124,7 +124,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * 
 	 * The score for any sequence shall be computed independent of all
 	 * other sequences in the sample. So the result should be exactly the same
-	 * as for the method {@link #getLogProbFor(Sequence)}.
+	 * as for the method {@link #getLogScoreFor(Sequence)}.
 	 * 
 	 * @param data
 	 *            the sample of sequences
@@ -148,7 +148,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * 
 	 * The score for any sequence shall be computed independent of all
 	 * other sequences in the sample. So the result should be exactly the same
-	 * as for the method {@link #getLogProbFor(Sequence)}.
+	 * as for the method {@link #getLogScoreFor(Sequence)}.
 	 * 
 	 * @param data
 	 *            the sample of sequences

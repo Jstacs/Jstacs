@@ -109,7 +109,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	protected int[][][] numberOfSummands;
 	
 	/**
-	 * Helper variable = only for internal use. This field is used in the method {@link #samplePath(IntList, int, int, Sequence)}.
+	 * Helper variable = only for internal use. This field is used in the method {@link #samplePath(int, IntList, int, int, Sequence)}.
 	 */
 	protected IntList[] stateList;
 	protected boolean skipInit;
@@ -130,7 +130,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 *  <li>the states can not be handled by the transition
 	 *  </ul>
 	 * 
-	 * @see de.jstacs.models.hmm.models.HigherOrderHMM#HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], BasicHigherOrderTransition.AbstractTransitionElement...)
+	 * @see de.jstacs.models.hmm.models.HigherOrderHMM#HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], AbstractTransitionElement...)
 	 */
 	public HigherOrderHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
 		this( trainingParameterSet, name, null, null, emission, te );
@@ -406,6 +406,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * Additionally it allows to modify the sufficient statistics as needed for Baum-Welch training.
 	 * 
 	 * @param t a switch to decide which computation mode 
+	 * @param thread the index of the thread that calls this method
 	 * @param startPos start position of the sequence 
 	 * @param endPos end position of the sequence
 	 * @param weight the given external weight of the sequence (only used for Baum-Welch)
@@ -530,6 +531,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * to the viterbi training algorithm or to compute the viterbi path, which will
 	 * in this case be returned in <code>path</code>.
 	 * 
+	 * @param thread the index of the thread that calls this method
 	 * @param path if <code>null</code> viterbi training, otherwise computation of the viterbi path
 	 * @param startPos the start position
 	 * @param endPos the end position
@@ -636,6 +638,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	/**
 	 * This method computes the likelihood and modifies the sufficient statistics according to the Baum-Welch algorithm.
 	 * 
+	 * @param thread the index of the thread that calls this method
 	 * @param startPos the start position
 	 * @param endPos the end position
 	 * @param weight the sequence weight, in most cases this is 1
@@ -650,11 +653,11 @@ public class HigherOrderHMM extends AbstractHMM {
 		fillBwdOrViterbiMatrix( Type.BAUM_WELCH, thread, startPos, endPos, weight, seq );
 		return bwdMatrix[thread][0][0];
 	}
-	
+/*	
 	public void setSkipInit(boolean skipInit){
 		this.skipInit = skipInit;
 	}
-	
+*/	
 	public synchronized void train(Sample data, double[] weights) throws Exception {
 		if( !(trainingParameter instanceof MaxHMMTrainingParameterSet) ) {
 			throw new IllegalArgumentException( "This kind of training is currently not supported." );
@@ -775,6 +778,9 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * The initialization might use the data, but the default
 	 * implementation refers to {@link #initializeRandomly()}.
 	 * 
+	 * @param data the data set
+	 * @param weight the weights for each sequence of the data set
+	 * 
 	 * @throws Exception if an error occurs during the initialization 
 	 */
 	protected void initialize( Sample data, double[] weight ) throws Exception {
@@ -850,13 +856,15 @@ public class HigherOrderHMM extends AbstractHMM {
 		return "HMM(" + transition[0].getMaximalMarkovOrder() + ") " + trainingParameter.getClass().getSimpleName();
 	}
 	
-	public double[] getLogProbFor(Sample data) throws Exception {
+	@Override
+	public double[] getLogScoreFor(Sample data) throws Exception {
 		double[] logProb = new double[data.getNumberOfElements()];
-		getLogProbFor(data, logProb);
+		getLogScoreFor(data, logProb);
 		return logProb;
 	}
 
-	public void getLogProbFor(Sample data, double[] res) throws Exception {
+	@Override
+	public void getLogScoreFor(Sample data, double[] res) throws Exception {
 		if( !data.getAlphabetContainer().checkConsistency(getAlphabetContainer()) ) {
 			throw new WrongAlphabetException( "The AlphabetContainer of the sample and the model do not match." );
 		}
@@ -902,6 +910,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	/**
 	 * This method samples a valid path for the given sequence <code>seq</code> using the internal parameters.
 	 *  
+	 * @param thread the index of the thread that calls this method
 	 * @param path an {@link IntList} containing the path after using this method 
 	 * @param startPos the start position
 	 * @param endPos the end position

@@ -24,7 +24,6 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
-import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.data.EmptySampleException;
 import de.jstacs.data.Sample;
 import de.jstacs.data.Sample.PartitionMethod;
@@ -347,7 +346,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see ClassifierAssessment#evaluateClassifier(PerformanceMeasureParameters,
+	 * @see ClassifierAssessment#evaluateClassifier(NumericalPerformanceMeasureParameters,
 	 *      ClassifierAssessmentAssessParameterSet, Sample[], ProgressUpdater)
 	 * 
 	 */

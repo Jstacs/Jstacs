@@ -91,8 +91,8 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 *            be assessed are able to classify
 	 * @param exceptionIfMPNotComputable
 	 *            a {@link RepeatedSubSamplingAssessParameterSet} is used in
-	 *            combination with a
-	 *            {@link de.jstacs.classifier.PerformanceMeasureParameters}-object to call
+	 *            combination with an
+	 *            {@link de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure}-object to call
 	 *            <code>assess( ... )</code>-methods of
 	 *            {@link RepeatedSubSamplingExperiment}s. If
 	 *            <code>exceptionIfMPNotComputable==true</code> an

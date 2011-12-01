@@ -100,8 +100,8 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 *            be assessed are able to classify
 	 * @param exceptionIfMPNotComputable
 	 *            a {@link RepeatedHoldOutAssessParameterSet} is used in
-	 *            combination with a
-	 *            {@link de.jstacs.classifier.PerformanceMeasureParameters}-object to call
+	 *            combination with an
+	 *            {@link de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure}-object to call
 	 *            <code>assess( ... )</code>-methods of
 	 *            {@link RepeatedHoldOutExperiment}s. If
 	 *            <code>exceptionIfMPNotComputable==true</code> an exception is
