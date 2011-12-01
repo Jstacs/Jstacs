@@ -235,4 +235,25 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	public int[][] getSamplingGroups(int parameterOffset) {
 		return new int[0][];
 	}
+	
+	@Override
+	public double getLogProbFor( Sequence sequence, int startpos ) throws Exception {
+		return getLogScoreFor( sequence, startpos ) - getLogNormalizationConstant();
+	}
+
+	@Override
+	public double getLogProbFor( Sequence sequence ) throws Exception {
+		return getLogScoreFor( sequence ) - getLogNormalizationConstant();
+	}
+
+	@Override
+	public double getProbFor( Sequence sequence, int startpos ) throws Exception {
+		return Math.exp( getLogProbFor( sequence, startpos ) );
+	}
+
+	@Override
+	public double getProbFor( Sequence sequence ) throws Exception {
+		return Math.exp( getLogProbFor( sequence ) );
+	}
+	
 }
