@@ -26,6 +26,8 @@ import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition.AbstractTerminationConditionParameterSet;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
@@ -311,7 +313,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	protected double doOptimization( Sample[] reduced, double[][] newWeights ) throws Exception {
 		// train
 		byte algo = (Byte) params.getParameterAt( 0 ).getValue();
-		AbstractTerminationCondition tc = (AbstractTerminationCondition) params.getParameterAt( 1 ).getValue();
+		AbstractTerminationCondition tc = params.getTerminantionCondition();
 		double linEps = (Double) params.getParameterAt( 2 ).getValue(),
 			startDist = (Double) params.getParameterAt( 3 ).getValue();
 		KindOfParameter plugIn;
