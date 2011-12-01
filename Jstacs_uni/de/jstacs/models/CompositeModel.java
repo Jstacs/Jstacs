@@ -340,10 +340,9 @@ public class CompositeModel extends AbstractModel {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.models.Model#isTrained()
+	 * @see de.jstacs.SequenceScoringFunction#isInitialized()
 	 */
-	public boolean isTrained() {
+	public boolean isInitialized() {
 		boolean erg = true;
 		int i = 0;
 		while (i < models.length && erg) {
