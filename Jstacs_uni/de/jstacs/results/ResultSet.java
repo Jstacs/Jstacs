@@ -62,16 +62,13 @@ public class ResultSet implements Storable {
 			this.results = new Result[0];
 		} else {
 			int c = 0, i;
-			for (i = 0; i < results.length; c += (results[i] == null) ? 0
-					: results[i].length, i++)
-				;
+			for( i = 0; i < results.length; c += (results[i] == null) ? 0 : results[i].length, i++ );
 
 			this.results = new Result[c];
 			c = 0;
 			for (i = 0; i < results.length; i++) {
 				if (results[i] != null) {
-					System.arraycopy(results[i], 0, this.results, c,
-							results[i].length);
+					System.arraycopy(results[i], 0, this.results, c, results[i].length);
 					c += results[i].length;
 				}
 			}
