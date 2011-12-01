@@ -315,7 +315,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 *            the {@link Parameter}s
 	 */
 	protected ParameterSet(Parameter[] parameters) {
-		this.id = System.currentTimeMillis() + this.hashCode();
+		this();
 		initParameterList(parameters.length);
 		for (int i = 0; i < parameters.length; i++) {
 			this.parameters.add(parameters[i]);
@@ -331,8 +331,8 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 *            the {@link Parameter}s
 	 */
 	protected ParameterSet(ArrayList<Parameter> parameters) {
-		this.id = System.currentTimeMillis() + this.hashCode();
-		initParameterList();
+		this();
+		initParameterList( parameters.size() );
 		Iterator<Parameter> parIt = parameters.iterator();
 		while (parIt.hasNext()) {
 			this.parameters.add(parIt.next());
