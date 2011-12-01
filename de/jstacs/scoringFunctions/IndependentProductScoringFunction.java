@@ -364,6 +364,29 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 		}
 	}
 
+	
+	
+	
+	@Override
+	public double getLogProbFor( Sequence sequence, int startpos ) throws Exception {
+		return getLogScoreFor( sequence, startpos ) - getLogNormalizationConstant();
+	}
+
+	@Override
+	public double getLogProbFor( Sequence sequence ) throws Exception {
+		return getLogScoreFor( sequence ) - getLogNormalizationConstant();
+	}
+
+	@Override
+	public double getProbFor( Sequence sequence, int startpos ) throws Exception {
+		return Math.exp( getLogProbFor( sequence, startpos ) );
+	}
+
+	@Override
+	public double getProbFor( Sequence sequence ) throws Exception {
+		return Math.exp( getLogProbFor( sequence ) );
+	}
+
 	/**
 	 * This method fills the array {@link IndependentProductScoringFunction#motifIndexArray} in the following way.
 	 * The first entry is the index of the {@link ScoringFunction} that handles the motif with index <code>motifIndex</code>.

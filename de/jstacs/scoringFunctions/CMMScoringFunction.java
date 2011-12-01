@@ -327,7 +327,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 		}
 	}
 	
-	public double getLogScore( Sequence seq, int start, int length )
+	public double getLogScoreFor( Sequence seq, int start, int length )
 	{
 		fillFrameLogScores(seq, start, length);
 		return Normalisation.getLogSum( frameLogScore ) - logFrameNorm;
@@ -449,7 +449,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 		}
 		else
 		{
-			return getLogScore( seq, start, length );
+			return getLogScoreFor( seq, start, length );
 		}
 	}
 

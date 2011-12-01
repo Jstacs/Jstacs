@@ -482,7 +482,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 			if( reverse[i] ) {
 				try {
 					if( isVariable[index[i]] ) {
-						s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScore( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i], partialLength[i] );
+						s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreFor( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i], partialLength[i] );
 					} else {
 						s += score[index[i]].getLogScoreFor( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i] );
 					}
@@ -491,7 +491,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 				}
 			} else {
 				if( isVariable[index[i]] ) {
-					s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScore( seq, start + this.start[i], partialLength[i] );
+					s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreFor( seq, start + this.start[i], partialLength[i] );
 				} else {
 					s += score[index[i]].getLogScoreFor( seq, start + this.start[i] );
 				}

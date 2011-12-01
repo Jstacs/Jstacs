@@ -65,12 +65,13 @@ public interface VariableLengthScoringFunction extends NormalizableScoringFuncti
 	public abstract double getLogPartialNormalizationConstant(int parameterIndex,
 			int length) throws Exception;
 
+
 	/**
 	 * This method computes the logarithm of the score for a given subsequence.
 	 * 
 	 * @param seq
 	 *            the {@link Sequence}
-	 * @param start
+	 * @param startpos
 	 *            the start index in the {@link Sequence}
 	 * @param length
 	 *            the length of the {@link Sequence} beginning at <code>start</code>
@@ -80,8 +81,8 @@ public interface VariableLengthScoringFunction extends NormalizableScoringFuncti
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreFor(Sequence,
 	 *      int)
 	 */
-	public abstract double getLogScore(Sequence seq, int start, int length);
-
+	public abstract double getLogScoreFor(Sequence seq, int startpos, int length);
+	
 	/**
 	 * This method computes the logarithm of the score and the partial
 	 * derivations for a given subsequence.

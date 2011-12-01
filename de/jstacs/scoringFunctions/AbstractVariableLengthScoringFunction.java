@@ -120,10 +120,22 @@ public abstract class AbstractVariableLengthScoringFunction extends
 	 */
 	public double getLogScoreFor(Sequence seq, int start) {
 		if (length != 0) {
-			return getLogScore(seq, start, length);
+			return getLogScoreFor(seq, start, length);
 		} else {
-			return getLogScore(seq, start, seq.getLength() - start);
+			return getLogScoreFor(seq, start, seq.getLength() - start);
 		}
+	}
+	
+	
+
+	@Override
+	public double getLogProbFor( Sequence sequence, int startpos, int length ) {
+		return getLogScoreFor( sequence, startpos, length ) - getLogNormalizationConstant( length );
+	}
+
+	@Override
+	public double getProbFor( Sequence sequence, int startpos, int length ) {
+		return Math.exp( getLogProbFor( sequence, startpos, length ) );
 	}
 
 	/*
