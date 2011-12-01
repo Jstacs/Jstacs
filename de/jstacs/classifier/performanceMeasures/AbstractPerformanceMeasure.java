@@ -21,7 +21,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	
 	public abstract String getName();
 	
-	public abstract ResultSet compute(double[] classificationScoresFg, double[] classificationScoresBg);
+	public abstract ResultSet compute(double[] sortedScoresClass0, double[] sortedScoresClass1);
 
 	public abstract ResultSet compute(double[][][] classSpecificScores);
 	

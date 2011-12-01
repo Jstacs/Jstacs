@@ -28,19 +28,19 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 	}
 
 	@Override
-	public ResultSet compute( double[] scoresClass0, double[] scoresClass1 ) {
+	public ResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
 		
 		ArrayList<double[]> list = null;
 		if( !(this instanceof NumericalPerformanceMeasure) ){
 			list = new ArrayList<double[]>();
 		}
 		
-		int i_old = 0, j_old = 0, i = 0, j = 0, d = scoresClass1.length, m = scoresClass0.length;
+		int i_old = 0, j_old = 0, i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass1.length;
 		double helpJ, propTerm;
 		double erg = 0, help1 = 0, help2 = 0;
 
 		// find correct start point
-		while( ( j < d ) && ( scoresClass0[i] > scoresClass1[j] ) ) {
+		while( ( j < d ) && ( sortedScoresClass1[i] > sortedScoresClass1[j] ) ) {
 			j++;
 		}
 		//i is zero, so p[0] = 1 ...
@@ -51,7 +51,7 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 		// which class defines the threshold
 		boolean unique, fromMotif = false;
-		if( j < d && scoresClass0[i] == scoresClass1[j] ) {
+		if( j < d && sortedScoresClass1[i] == sortedScoresClass1[j] ) {
 			unique = false;
 		} else {
 			unique = true;
@@ -63,19 +63,19 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 			// find next possible threshold
 			if( unique ) {
 				if( fromMotif ) {
-					while( i < m && scoresClass1[j] > scoresClass0[i] ) {
+					while( i < m && sortedScoresClass1[j] > sortedScoresClass1[i] ) {
 						i++;
 					}
 				} else {
-					while( j < d && scoresClass0[i] > scoresClass1[j] ) {
+					while( j < d && sortedScoresClass1[i] > sortedScoresClass1[j] ) {
 						j++;
 					}
 				}
 			} else {
-				while( i + 1 < m && scoresClass0[i] == scoresClass0[i + 1] ) {
+				while( i + 1 < m && sortedScoresClass1[i] == sortedScoresClass1[i + 1] ) {
 					i++;
 				}
-				while( j + 1 < d && scoresClass1[j] == scoresClass1[j + 1] ) {
+				while( j + 1 < d && sortedScoresClass1[j] == sortedScoresClass1[j + 1] ) {
 					j++;
 				}
 				i++;
@@ -129,11 +129,11 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 			if( i < m && j < d ) {
 				//next
-				if( scoresClass0[i] == scoresClass1[j] ) {
+				if( sortedScoresClass1[i] == sortedScoresClass1[j] ) {
 					unique = false;
 				} else {
 					unique = true;
-					if( scoresClass0[i] < scoresClass1[j] ) {
+					if( sortedScoresClass1[i] < sortedScoresClass1[j] ) {
 						fromMotif = true;
 					} else {
 						fromMotif = false;

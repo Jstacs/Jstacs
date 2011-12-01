@@ -21,14 +21,14 @@ public class ClassificationRate extends AbstractPerformanceMeasure implements Nu
 	}
 
 	@Override
-	public NumericalResultSet compute( double[] classificationScoresFg, double[] classificationScoresBg ) {
-		int i = 0, m = classificationScoresFg.length;
-		while( i < m && classificationScoresFg[i] < 0 ) {
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
+		int i = 0, m = sortedScoresClass0.length;
+		while( i < m && sortedScoresClass0[i] < 0 ) {
 			i++;
 		}
 
-		int d = classificationScoresBg.length, j = d - 1;
-		while( j >= 0 && classificationScoresBg[j] >= 0 ) {
+		int d = sortedScoresClass1.length, j = d - 1;
+		while( j >= 0 && sortedScoresClass1[j] >= 0 ) {
 			j--;
 		}
 
