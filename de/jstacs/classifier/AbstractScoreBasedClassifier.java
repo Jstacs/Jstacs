@@ -19,7 +19,6 @@
 package de.jstacs.classifier;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -28,7 +27,6 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions.ThresholdMeasurePair;
 import de.jstacs.classifier.measures.AbstractMeasure;
 import de.jstacs.classifier.measures.MeasureParameters;
 import de.jstacs.classifier.utils.PValueComputation;
@@ -37,10 +35,7 @@ import de.jstacs.data.Sample;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.Sample.ElementEnumerator;
 import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.ParameterSet;
-import de.jstacs.parameters.RangeParameter;
 import de.jstacs.results.ImageResult;
-import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
