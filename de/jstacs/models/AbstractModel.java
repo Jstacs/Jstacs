@@ -166,11 +166,6 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 		}
 	}
 	
-	public double getLogProbFor(Sequence sequence, int startpos, int endpos ) throws Exception {
-		check( sequence, startpos, endpos );
-		return getLogScoreFor( sequence, startpos, endpos );
-	}
-	
 	protected void check( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, IllegalArgumentException {
 		if( !isInitialized() ) {
 			throw new NotTrainedException();
@@ -198,10 +193,12 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sequence, int)
 	 */
 	public double getLogScoreFor(Sequence sequence, int startpos) {
-		if (length == 0) {
-			return getLogScoreFor(sequence, startpos, sequence.getLength() - 1);
-		} else {
-			return getLogScoreFor(sequence, startpos, startpos + length - 1);
+		try {
+			return getLogProbFor( sequence, startpos );
+		} catch( Exception e ) {
+			RuntimeException r = new RuntimeException();
+			r.setStackTrace( e.getStackTrace() );
+			throw r;
 		}
 	}
 	
