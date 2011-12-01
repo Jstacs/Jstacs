@@ -470,9 +470,9 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 			homSt = Math.max( 0, currentPos[0] - bgOrder );
 			homE = Math.min( length, currentPos[0] + m + bgOrder );
 			simpleScore[i][l++] = pos.getLogScoreForInternal() + function[j].getLogScoreFor( seq, start + currentPos[0] )
-				- bg.getLogScore( seq, start + homSt, homE - homSt )
-				+ bg.getLogScore( seq, start + homSt, currentPos[0] - homSt ) // left
-				+ bg.getLogScore( seq, start + currentPos[0] + m, homE - currentPos[0] - m ); //right
+				- bg.getLogScoreFor( seq, start + homSt, homE - homSt )
+				+ bg.getLogScoreFor( seq, start + homSt, currentPos[0] - homSt ) // left
+				+ bg.getLogScoreFor( seq, start + currentPos[0] + m, homE - currentPos[0] - m ); //right
 
 		} while( pos.next() );
 		return l;
@@ -495,7 +495,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 	public double getLogScoreFor( Sequence seq, int start )
 	{
 		fillComponentScores( seq, start );
-		return bg.getLogScore( seq, start, length ) + Normalisation.getLogSum( componentScore );
+		return bg.getLogScoreFor( seq, start, length ) + Normalisation.getLogSum( componentScore );
 	}
 
 	public double getLogScoreAndPartialDerivation( Sequence seq, int start, IntList indices, DoubleList partialDer )
@@ -765,7 +765,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 				case UNNORMALIZED_JOINT:
 					d = logHiddenPotential[component];
 				case UNNORMALIZED_CONDITIONAL:
-					d += bg.getLogScore( sequence, startpos, length );
+					d += bg.getLogScoreFor( sequence, startpos, length );
 					break;				
 				case NORMALIZED_CONDITIONAL:
 					d = -Normalisation.getLogSum( 0, simpleScore[component].length, simpleScore[component] );
