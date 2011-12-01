@@ -280,9 +280,9 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 		for( int i = 0; i < function.length; i++ ) {
 			if( function[i] instanceof VariableLengthScoringFunction ) {
 				if( length != 0 ) {
-					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScore( seq, start, length );
+					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, length );
 				} else {
-					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScore( seq, start, seq.getLength()-start );
+					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, seq.getLength()-start );
 				}
 			} else {
 				componentScore[i] = logHiddenPotential[i] + function[i].getLogScoreFor( seq, start);
