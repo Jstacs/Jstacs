@@ -251,7 +251,7 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 	 * de.jstacs.scoringFunctions.VariableLengthScoringFunction#getLogScore(
 	 * de.jstacs.data.Sequence, int, int)
 	 */
-	public double getLogScore(Sequence seq, int start, int length) {
+	public double getLogScoreFor(Sequence seq, int start, int length) {
 		double erg = 0;
 		int l = 0, indexOld, indexNew = 0, o = Math.min(order, length);
 		for (; l < o; l++) {
@@ -325,7 +325,7 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 			}
 			return erg;
 		} else {
-			return getLogScore(seq, start, length);
+			return getLogScoreFor(seq, start, length);
 		}
 	}
 

@@ -133,7 +133,7 @@ public class HMM0ScoringFunction extends HomogeneousScoringFunction {
 	 * de.jstacs.scoringFunctions.VariableLengthScoringFunction#getLogScore(
 	 * de.jstacs.data.Sequence, int, int)
 	 */
-	public double getLogScore(Sequence seq, int start, int length) {
+	public double getLogScoreFor(Sequence seq, int start, int length) {
 		double erg = 0;
 		for (int l = 0; l < length; l++) {
 			erg += params.getLambda(params.satisfiesSpecificConstraint(seq,

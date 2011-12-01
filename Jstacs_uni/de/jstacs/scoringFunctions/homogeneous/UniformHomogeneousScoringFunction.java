@@ -94,7 +94,7 @@ public class UniformHomogeneousScoringFunction extends
 	 * de.jstacs.scoringFunctions.VariableLengthScoringFunction#getLogScore(
 	 * de.jstacs.data.Sequence, int, int)
 	 */
-	public double getLogScore(Sequence seq, int start, int length) {
+	public double getLogScoreFor(Sequence seq, int start, int length) {
 		return length * logP;
 	}
 
