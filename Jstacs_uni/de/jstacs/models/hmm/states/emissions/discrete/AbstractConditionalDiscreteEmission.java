@@ -238,6 +238,8 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		if(counter != null){
 			clone.counter = counter.clone();
 		}
+		
+		//TODO clone colors, initHyperParams, paramsFile, reader, writer
 		return clone;
 	}
 	
