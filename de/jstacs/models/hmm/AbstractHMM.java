@@ -360,16 +360,17 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	//XXX states still have to be *cloned/recreated* => createStates() after cloning emissions;
 	public AbstractHMM clone() throws CloneNotSupportedException {
 		AbstractHMM clone = (AbstractHMM) super.clone();
-		clone.transition = ArrayHandler.clone( transition );
-		clone.fwdMatrix = ArrayHandler.clone( fwdMatrix );
-		clone.bwdMatrix = ArrayHandler.clone( bwdMatrix );
-		clone.finalState = finalState.clone();
 		clone.name = name.clone();
 		clone.emissionIdx = emissionIdx.clone();
 		clone.forward = forward.clone();
 		clone.emission = ArrayHandler.clone( emission );
-		clone.createStates();
+		clone.transition = ArrayHandler.clone( transition );
+		clone.fwdMatrix = ArrayHandler.clone( fwdMatrix );
+		clone.bwdMatrix = ArrayHandler.clone( bwdMatrix );
 		clone.trainingParameter = (HMMTrainingParameterSet) trainingParameter.clone();
+		clone.finalState = finalState.clone();
+		
+		clone.createStates();		
 		clone.setOutputStream( sostream.doesNothing() ? null : SafeOutputStream.DEFAULT_STREAM );
 		return clone;
 	}
