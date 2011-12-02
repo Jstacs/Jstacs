@@ -134,7 +134,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		clone.transitions = ArrayHandler.clone( transitions );
 		return clone;
 	}
-	
+/*	
 	private void showLookup() {
 		for( int index = 0; index < lookup[0].length; index++ ) {
 		System.out.println(index+" ----------------------------");
@@ -146,7 +146,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			}
 		}
 	}
-	
+/**/	
 	private void addAndTopsortTransitionsWithSilentStates( IntList currentLayer, IntList nextLayer, IntList lookup, boolean [] canBeUsed, boolean[] used, int[] inDeg, boolean[] nextUsed ) {
 		int i = 0, j, n, t, idx, d;
 		Arrays.fill( canBeUsed, false );
@@ -795,6 +795,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			clone.parameters = parameters.clone();
 			clone.statistic = statistic.clone();
 			clone.descendants = descendants.clone();
+			clone.weight = weight==null ? null : weight.clone();
 			return clone;
 		}
 		
