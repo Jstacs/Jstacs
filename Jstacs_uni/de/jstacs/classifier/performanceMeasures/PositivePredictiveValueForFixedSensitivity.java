@@ -10,14 +10,27 @@ import de.jstacs.results.NumericalResultSet;
 
 public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
-	public PositivePredictiveValueForFixedSensitivity() {
-	}
+	/**
+	 * Constructs a new instance of the performance measure {@link PositivePredictiveValueForFixedSensitivity} with empty parameter values.
+	 */
+	public PositivePredictiveValueForFixedSensitivity() {}
 	
 	public PositivePredictiveValueForFixedSensitivity(double sensitivity) throws Exception {
 		loadParameters();
 		getParameterAt( 0 ).setValue( sensitivity );
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link PositivePredictiveValueForFixedSensitivity} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link PositivePredictiveValueForFixedSensitivity} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public PositivePredictiveValueForFixedSensitivity( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}

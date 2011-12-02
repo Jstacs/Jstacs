@@ -9,22 +9,74 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.SubclassFinder;
 
-
+/**
+ * This class is the abstract super class of any performance measure used to evaluate
+ * an {@link de.jstacs.classifier.AbstractClassifier}. It is recommended to use the method
+ * {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, de.jstacs.data.Sample...)}
+ * for evaluating the performance of any classifier.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	
-	public AbstractPerformanceMeasure(){
+	/**
+	 * Constructs a new {@link AbstractPerformanceMeasure} with empty parameter values.
+	 */
+	protected AbstractPerformanceMeasure(){
 	}
 	
-	public AbstractPerformanceMeasure(StringBuffer xml) throws NonParsableException{
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link AbstractPerformanceMeasure} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link AbstractPerformanceMeasure} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
+	protected AbstractPerformanceMeasure(StringBuffer xml) throws NonParsableException{
 		super(xml);
 	}
 	
+	/**
+	 * The method returns the name of the performance measure.
+	 * 
+	 * @return the name of the performance measure
+	 */
 	public abstract String getName();
 	
+	/**
+	 * This method allows to compute the performance measure of given sorted score ratios.
+	 * 
+	 * <b>This method can only be used for binary classifiers.</b>
+	 * 
+	 * @param sortedScoresClass0 the sorted score ratios of class 0
+	 * @param sortedScoresClass1 the sorted score ratios of class 1
+	 *  
+	 * @return a result set containing the results of the performance measure
+	 * 
+	 * @see java.util.Arrays#sort(double[])
+	 */
 	public abstract ResultSet compute(double[] sortedScoresClass0, double[] sortedScoresClass1);
 
+	/**
+	 * This method allows to compute the performance measure of given class specific scores.
+	 * 
+	 * @param classSpecificScores the scores; first dimension = data sets, second dimension = sequences of the data set, third dimension classes of the classifier
+	 *  
+	 * @return a result set containing the results of the performance measure
+	 */
 	public abstract ResultSet compute(double[][][] classSpecificScores);
 	
+	/**
+	 * This method returns the allowed number of classes. For many performance measures this
+	 * number is fixed, e.g. for AUC-ROC the number is 2. If the number is not fixed the
+	 * method returns 0, e.g. for the classification rate.
+	 * 
+	 * @return the allowed number of classes
+	 */
 	public abstract int getAllowedNumberOfClasses();
 	
 	public static CollectionParameter getCollectionOfAllMeasures(int numClasses, boolean numerical) throws Exception {
@@ -55,6 +107,5 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 		
 		CollectionParameter cp = new CollectionParameter( ps, keys, comments, "Performance Measures", "Performance measures that can be computed for "+(numClasses == 0 ? "any number of" : numClasses)+" classes.", true );
 		return cp;
-	}
-	
+	}	
 }

@@ -10,14 +10,27 @@ import de.jstacs.results.NumericalResultSet;
 
 public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
-	public FalsePositiveRateForFixedSensitivity() {
-	}
+	/**
+	 * Constructs a new instance of the performance measure {@link FalsePositiveRateForFixedSensitivity} with empty parameter values.
+	 */
+	public FalsePositiveRateForFixedSensitivity() {}
 	
 	public FalsePositiveRateForFixedSensitivity(double sensitivity) throws Exception {
 		loadParameters();
 		getParameterAt( 0 ).setValue( sensitivity );
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link FalsePositiveRateForFixedSensitivity} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link FalsePositiveRateForFixedSensitivity} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public FalsePositiveRateForFixedSensitivity( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}

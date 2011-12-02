@@ -12,10 +12,24 @@ import de.jstacs.results.ResultSet;
 
 public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
+	/**
+	 * Constructs a new instance of the performance measure {@link PRCurve}.
+	 */
 	public PRCurve() throws Exception {
 		super();
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link PRCurve} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link PRCurve} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public PRCurve( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}

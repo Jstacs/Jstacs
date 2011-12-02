@@ -5,10 +5,24 @@ import de.jstacs.results.NumericalResultSet;
 
 public class AucPR extends PRCurve implements NumericalPerformanceMeasure {
 
+	/**
+	 * Constructs a new instance of the performance measure {@link AucPR}.
+	 */
 	public AucPR() throws Exception {
 		super();
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link AucPR} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link AucPR} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public AucPR(StringBuffer xml) throws NonParsableException {
 		super(xml);
 	}

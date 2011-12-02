@@ -10,6 +10,9 @@ import de.jstacs.results.NumericalResultSet;
 
 public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
+	/**
+	 * Constructs a new instance of the performance measure {@link SensitivityForFixedSpecificity} with empty parameter values.
+	 */
 	public SensitivityForFixedSpecificity() {
 	}
 	
@@ -18,6 +21,17 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceM
 		getParameterAt( 0 ).setValue( specificity );
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link SensitivityForFixedSpecificity} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link SensitivityForFixedSpecificity} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public SensitivityForFixedSpecificity( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
