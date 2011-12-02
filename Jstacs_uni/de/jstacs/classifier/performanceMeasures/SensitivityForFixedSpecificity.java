@@ -7,7 +7,11 @@ import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
-
+/**
+ * This class implements the sensitivity for a fixed specificity.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	/**
@@ -16,6 +20,13 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceM
 	public SensitivityForFixedSpecificity() {
 	}
 	
+	/**
+	 * Constructs a new instance of the performance measure {@link SensitivityForFixedSpecificity} with given <code>specificity</code>.
+	 * 
+	 * @param specificity the specificity for which the sensitivity should be computed
+	 * 
+	 * @throws Exception if the internal parameters can not be created or the value can not be set
+	 */
 	public SensitivityForFixedSpecificity(double specificity) throws Exception {
 		loadParameters();
 		getParameterAt( 0 ).setValue( specificity );

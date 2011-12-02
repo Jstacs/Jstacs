@@ -4,7 +4,11 @@ import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
-
+/**
+ * This class implements the maximum of the correlation coefficient.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	/**

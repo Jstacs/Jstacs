@@ -5,7 +5,11 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.utils.ToolBox;
 
-
+/**
+ * This class implements the classification rate.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class ClassificationRate extends AbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	/**

@@ -7,7 +7,11 @@ import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
-
+/**
+ * This class implements the positive predictive value for a fixed sensitivity.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	/**
@@ -15,6 +19,13 @@ public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstract
 	 */
 	public PositivePredictiveValueForFixedSensitivity() {}
 	
+	/**
+	 * Constructs a new instance of the performance measure {@link PositivePredictiveValueForFixedSensitivity} with given <code>sensitivity</code>.
+	 * 
+	 * @param sensitivity the sensitivity for which the positive predictive value should be computed
+	 * 
+	 * @throws Exception if the internal parameters can not be created or the value can not be set
+	 */
 	public PositivePredictiveValueForFixedSensitivity(double sensitivity) throws Exception {
 		loadParameters();
 		getParameterAt( 0 ).setValue( sensitivity );
