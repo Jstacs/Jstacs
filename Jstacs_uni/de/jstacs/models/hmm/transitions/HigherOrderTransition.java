@@ -26,6 +26,8 @@ import de.jstacs.utils.IntList;
  */
 public class HigherOrderTransition extends BasicHigherOrderTransition implements DifferentiableTransition, SamplingTransition {
 
+	private static final String PREFIX = "samplingHOTransition-";
+	
 	private int offset;
 	
 	/**
@@ -142,7 +144,7 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 					filter.put( "pos", ""+i );
 					content = XMLParser.extractObjectAndAttributesForTags( xml, "fileContent", null, filter, String.class );
 					if( !content.equalsIgnoreCase( "" ) ) {
-						paramsFile[i] = File.createTempFile( "pi-", ".dat", null );
+						paramsFile[i] = File.createTempFile( PREFIX, ".dat", null );
 						FileManager.writeFile( paramsFile[i], new StringBuffer( content ) );
 					}
 				}
@@ -177,7 +179,7 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 				clone.counter = new int[paramsFile.length];
 				for( int i = 0; i < paramsFile.length; i++ ) {
 					if( paramsFile[i] != null ) {
-						clone.paramsFile[i] = File.createTempFile( "fsdag-", ".dat", null );
+						clone.paramsFile[i] = File.createTempFile( PREFIX, ".dat", null );
 						FileManager.copy( paramsFile[i].getAbsolutePath(), clone.paramsFile[i].getAbsolutePath() );
 						clone.counter[i] = counter[i];
 					}
@@ -319,7 +321,7 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	@Override
 	public void extendSampling( int sampling, boolean append ) throws IOException {
 		if( paramsFile[sampling] == null ) {
-			paramsFile[sampling] = File.createTempFile( "samplingHOTransition-", ".dat", null );
+			paramsFile[sampling] = File.createTempFile( PREFIX, ".dat", null );
 			//System.out.println( paramsFile[start].getAbsolutePath() );
 		} else {
 			if( append ) {
