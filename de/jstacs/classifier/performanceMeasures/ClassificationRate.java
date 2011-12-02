@@ -8,9 +8,22 @@ import de.jstacs.utils.ToolBox;
 
 public class ClassificationRate extends AbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
-	public ClassificationRate() {
-	}
+	/**
+	 * Constructs a new instance of the performance measure {@link ClassificationRate}.
+	 */
+	public ClassificationRate() {}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link ClassificationRate} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link ClassificationRate} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public ClassificationRate( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}

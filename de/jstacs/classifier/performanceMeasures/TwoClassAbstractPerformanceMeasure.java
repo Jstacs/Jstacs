@@ -5,18 +5,32 @@ import java.util.Arrays;
 import de.jstacs.NonParsableException;
 import de.jstacs.results.ResultSet;
 
-
+/**
+ * This class is the abstract super class of any performance measure that can only be computed for binary classifiers.
+ *  
+ * @author Jan Grau, Jens Keilwagen
+ */
 public abstract class TwoClassAbstractPerformanceMeasure extends AbstractPerformanceMeasure {
 
-	public TwoClassAbstractPerformanceMeasure() {
+	/**
+	 * Constructs a new {@link TwoClassAbstractPerformanceMeasure} with empty parameter values.
+	 */
+	protected TwoClassAbstractPerformanceMeasure() {
 		super();
 	}	
 
 	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link TwoClassAbstractPerformanceMeasure} out of an XML representation.
+	 * 
 	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
 	 * @throws NonParsableException
+	 *             if the {@link TwoClassAbstractPerformanceMeasure} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
 	 */
-	public TwoClassAbstractPerformanceMeasure( StringBuffer xml ) throws NonParsableException {
+	protected TwoClassAbstractPerformanceMeasure( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
 

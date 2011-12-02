@@ -12,10 +12,24 @@ import de.jstacs.results.ResultSet;
 
 public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 
-	public ROCCurve() throws Exception {
+	/**
+	 * Constructs a new instance of the performance measure {@link ROCCurve}.
+	 */
+	public ROCCurve() {
 		super();
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link ROCCurve} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link ROCCurve} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public ROCCurve( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
