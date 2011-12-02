@@ -3,12 +3,17 @@ package de.jstacs.classifier.performanceMeasures;
 import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResultSet;
 
+/**
+ * This class implements the area under curve of the precision-recall curve.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class AucPR extends PRCurve implements NumericalPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link AucPR}.
 	 */
-	public AucPR() throws Exception {
+	public AucPR() {
 		super();
 	}
 

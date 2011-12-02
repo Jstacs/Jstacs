@@ -9,13 +9,17 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 
-
+/**
+ * This class implements the precision-recall curve and its area under the curve.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link PRCurve}.
 	 */
-	public PRCurve() throws Exception {
+	public PRCurve() {
 		super();
 	}
 
@@ -34,6 +38,9 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 		super( xml );
 	}
 	
+	/**
+	 * The name of the performance measure return by {@link #getName()} 
+	 */
 	public static final String NAME = "Precision-Recall curve";
 	
 	@Override

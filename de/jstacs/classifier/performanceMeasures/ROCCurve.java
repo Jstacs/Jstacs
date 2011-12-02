@@ -9,7 +9,11 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 
-
+/**
+ * This class implements the Receiver Operating Characteristics curve and the area under the curve.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 
 	/**
@@ -34,6 +38,9 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 		super( xml );
 	}
 
+	/**
+	 * The name of the performance measure return by {@link #getName()} 
+	 */
 	public static final String NAME = "Receiver Operating Characteristic";
 	
 	@Override

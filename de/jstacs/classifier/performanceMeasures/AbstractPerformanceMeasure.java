@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
+import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.parameters.CollectionParameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.ResultSet;
@@ -16,6 +17,9 @@ import de.jstacs.utils.SubclassFinder;
  * for evaluating the performance of any classifier.
  * 
  * @author Jan Grau, Jens Keilwagen
+ * 
+ * @see AbstractClassifier
+ * @see PerformanceMeasureParameters
  */
 public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	

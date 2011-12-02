@@ -3,12 +3,17 @@ package de.jstacs.classifier.performanceMeasures;
 import de.jstacs.NonParsableException;
 import de.jstacs.results.NumericalResultSet;
 
+/**
+ * This class implements the area under curve of the Receiver Operating Characteristics curve.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class AucROC extends ROCCurve implements NumericalPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link AucROC}.
 	 */
-	public AucROC() throws Exception {
+	public AucROC() {
 		super();
 	}
 

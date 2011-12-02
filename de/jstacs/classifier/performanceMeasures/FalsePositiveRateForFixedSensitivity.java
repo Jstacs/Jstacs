@@ -7,7 +7,11 @@ import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 
-
+/**
+ * This class implements the false positive rate for a fixed sensitivity.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ */
 public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	/**
@@ -15,6 +19,13 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 	 */
 	public FalsePositiveRateForFixedSensitivity() {}
 	
+	/**
+	 * Constructs a new instance of the performance measure {@link FalsePositiveRateForFixedSensitivity} with given <code>sensitivity</code>.
+	 * 
+	 * @param sensitivity the sensitivity for which the false positive rate should be computed
+	 * 
+	 * @throws Exception if the internal parameters can not be created or the value can not be set
+	 */
 	public FalsePositiveRateForFixedSensitivity(double sensitivity) throws Exception {
 		loadParameters();
 		getParameterAt( 0 ).setValue( sensitivity );
