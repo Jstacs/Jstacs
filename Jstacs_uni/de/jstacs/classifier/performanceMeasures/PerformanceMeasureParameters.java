@@ -11,14 +11,49 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 public class PerformanceMeasureParameters extends ExpandableParameterSet {
 
-	public PerformanceMeasureParameters( StringBuffer representation ) throws NonParsableException {
-		super( representation );
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link PerformanceMeasureParameters} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link PerformanceMeasureParameters} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
+	public PerformanceMeasureParameters( StringBuffer xml ) throws NonParsableException {
+		super( xml );
 	}
 	
+	/**
+	 * Constructs a new {@link PerformanceMeasureParameters} that can be used for classifiers that
+	 * handle the given number of classes.
+	 * 
+	 * @param numClasses the number of classes
+	 *  
+	 * @throws Exception if something went wrong
+	 * 
+	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
+	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, AbstractPerformanceMeasure...)
+	 */
 	public PerformanceMeasureParameters( int numClasses ) throws Exception {
 		this( numClasses, new AbstractPerformanceMeasure[0] );
 	}
 
+	/**
+	 * Constructs a new {@link PerformanceMeasureParameters} that can be used for classifiers that
+	 * handle the given number of classes. The instance contains the given performance measures.
+	 * 
+	 * @param numClasses the number of classes
+	 * @param measures the measures contained in the instance 
+	 *  
+	 * @throws Exception if something went wrong
+	 * 
+	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
+	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, CollectionParameter, AbstractPerformanceMeasure... )
+	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
+	 */
 	public PerformanceMeasureParameters( int numClasses, AbstractPerformanceMeasure... measures ) throws Exception {
 		this( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, false ), measures );
 	}
