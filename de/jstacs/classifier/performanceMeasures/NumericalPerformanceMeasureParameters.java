@@ -2,12 +2,41 @@ package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.NonParsableException;
 
+/**
+ * This class implements a container for {@link NumericalPerformanceMeasure}s that can be used in an repeated assessment,
+ * (cf. {@link de.jstacs.classifier.assessment.ClassifierAssessment}).
+ * 
+ * @author Jens Keilwagen
+ */
 public class NumericalPerformanceMeasureParameters extends PerformanceMeasureParameters {
 
-	public NumericalPerformanceMeasureParameters( StringBuffer representation ) throws NonParsableException {
-		super( representation );
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link NumericalPerformanceMeasureParameters} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link NumericalPerformanceMeasureParameters} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
+	public NumericalPerformanceMeasureParameters( StringBuffer xml ) throws NonParsableException {
+		super( xml );
 	}
 	
+	/**
+	 * Constructs a new {@link NumericalPerformanceMeasureParameters} that can be used for classifiers that
+	 * handle the given number of classes.
+	 * 
+	 * @param numClasses the number of classes
+	 *  
+	 * @throws Exception if something went wrong
+	 * 
+	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
+	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
+	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, de.jstacs.parameters.CollectionParameter, AbstractPerformanceMeasure...)
+	 */
 	public NumericalPerformanceMeasureParameters( int numClasses ) throws Exception {
 		super( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, true ), new AbstractPerformanceMeasure[0] );
 	}

@@ -79,9 +79,26 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	 * method returns 0, e.g. for the classification rate.
 	 * 
 	 * @return the allowed number of classes
+	 * 
+	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
 	 */
 	public abstract int getAllowedNumberOfClasses();
 	
+	/**
+	 * This method creates an instance of an {@link CollectionParameter} that can be used to create
+	 * an instance of {@link PerformanceMeasureParameters} of {@link NumericalPerformanceMeasureParameters}.
+	 * 
+	 * @param numClasses the number of classes
+	 * @param numerical 
+	 * 		a switch indicating whether all performance measures or only those implementing
+	 * 		{@link NumericalPerformanceMeasure} shall be contained in the returned
+	 * 		{@link CollectionParameter} 
+	 * @return a {@link CollectionParameter} that can be used to create an instance of {@link PerformanceMeasureParameters} of {@link NumericalPerformanceMeasureParameters}
+	 * 
+	 * @throws Exception if something went wrong, e.g. missing empty constructor of any performance measure.
+	 * 
+	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
+	 */
 	public static CollectionParameter getCollectionOfAllMeasures(int numClasses, boolean numerical) throws Exception {
 		LinkedList<Class<? extends AbstractPerformanceMeasure>> list = SubclassFinder.findInstantiableSubclasses( AbstractPerformanceMeasure.class, "de.jstacs" );
 		Iterator<Class<? extends AbstractPerformanceMeasure>> it = list.iterator();
