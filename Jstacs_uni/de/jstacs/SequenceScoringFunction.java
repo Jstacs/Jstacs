@@ -19,7 +19,7 @@
 package de.jstacs;
 
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.ResultSet;
@@ -137,7 +137,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * 
 	 * @see #getLogScoreFor(Sequence)
 	 */
-	public double[] getLogScoreFor(Sample data) throws Exception;
+	public double[] getLogScoreFor(DataSet data) throws Exception;
 
 	/**
 	 * This method computes and stores the logarithm of the scores for
@@ -161,9 +161,9 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 *             if something went wrong
 	 * 
 	 * @see #getLogScoreFor(Sequence)
-	 * @see #getLogScoreFor(Sample)
+	 * @see #getLogScoreFor(DataSet)
 	 */
-	public void getLogScoreFor(Sample data, double[] res) throws Exception;
+	public void getLogScoreFor(DataSet data, double[] res) throws Exception;
 
 	/**
 	 * This method can be used to determine whether the instance is initialized. If

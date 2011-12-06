@@ -26,7 +26,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -264,7 +264,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	public void train( Sample[] s, double[][] weights ) throws Exception {
+	public void train( DataSet[] s, double[][] weights ) throws Exception {
 		if( weights != null && s.length != weights.length ) {
 			throw new IllegalArgumentException( "data and weights do not match" );
 		}
@@ -281,7 +281,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 			}
 			
 			// estimate P(class = i|\lambda)
-			c[i] = Math.log( s[i].getNumberOfElementsWithLength( getLength(), weights == null ? null : weights[i] ) + models[i].getESS() );
+			c[i] = Math.log( s[i].getNumberOfElementsWithLength( getLength(), weights == null ? null : weights[i] ) );//XXX + models[i].getESS() );
 		}
 		setClassWeights( false, c );
 	}
@@ -311,7 +311,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getScores(de.jstacs.data.Sample)
 	 */
 	@Override
-	public double[] getScores( Sample s ) throws Exception {
+	public double[] getScores( DataSet s ) throws Exception {
 		if( getNumberOfClasses() != 2 ) {
 			throw new OperationNotSupportedException( "This method is only for 2-class-classifiers." );
 		}
@@ -332,7 +332,7 @@ public class ModelBasedClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#classify(de.jstacs.data.Sample)
 	 */
 	@Override
-	public byte[] classify( Sample s ) throws Exception {
+	public byte[] classify( DataSet s ) throws Exception {
 		check( s );
 		double[] best = models[0].getLogScoreFor( s ), current = new double[best.length];
 		byte[] clazz = new byte[best.length];

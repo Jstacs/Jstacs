@@ -23,7 +23,7 @@ import java.util.Random;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.io.ArrayHandler;
@@ -124,7 +124,7 @@ public class LogisticScoringFunction extends AbstractScoringFunction {
 	}
 
 	@Override
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights) throws Exception {
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights) throws Exception {
 		// TODO Auto-generated method stub
 		initializeFunctionRandomly( freeParams );
 	}

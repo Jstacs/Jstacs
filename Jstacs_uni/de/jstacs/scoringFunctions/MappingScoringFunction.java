@@ -21,8 +21,8 @@ package de.jstacs.scoringFunctions;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptySampleException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.EmptyDataSetException;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabetMapping;
 import de.jstacs.data.sequences.MappedDiscreteSequence;
@@ -183,8 +183,8 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 		return nsf.getNumberOfParameters();
 	}
 
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
-		Sample[] mappedData = getMappedData( data );
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
+		DataSet[] mappedData = getMappedData( data );
 		nsf.initializeFunction( index, freeParams, mappedData, weights );
 		for( int i = 0; i < data.length; i++ ) {
 			mappedData[i] = null;
@@ -193,8 +193,8 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 		System.gc();
 	}
 	
-	private Sample[] getMappedData( Sample... data ) throws WrongAlphabetException, EmptySampleException {
-		Sample[] mappedData = new Sample[data.length];
+	private DataSet[] getMappedData( DataSet... data ) throws WrongAlphabetException, EmptyDataSetException {
+		DataSet[] mappedData = new DataSet[data.length];
 		Sequence[] seqs;
 		DiscreteAlphabetMapping[] transformation = mappedSeq.getTransformations();
 		for( int i = 0; i < data.length; i++ ) {
@@ -203,7 +203,7 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 				for( int n = 0; n < seqs.length; n++ ) {
 					seqs[n] = new MappedDiscreteSequence( (SimpleDiscreteSequence) data[i].getElementAt( n ), transformation );
 				}
-				mappedData[i] = new Sample( "mapped: " + data[i].getAnnotation(), seqs );
+				mappedData[i] = new DataSet( "mapped: " + data[i].getAnnotation(), seqs );
 			}
 		}
 		return mappedData;
@@ -254,9 +254,9 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 	 * (non-Javadoc)
 	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#adjustHiddenParameters(int, de.jstacs.data.Sample[], double[][])
 	 */
-	public void adjustHiddenParameters( int index, Sample[] data, double[][] weights ) throws Exception {
+	public void adjustHiddenParameters( int index, DataSet[] data, double[][] weights ) throws Exception {
 		if( nsf instanceof MutableMotifDiscoverer ) {
-			Sample[] mappedData = getMappedData( data );
+			DataSet[] mappedData = getMappedData( data );
 			((MutableMotifDiscoverer)nsf).adjustHiddenParameters( index, mappedData, weights );
 			for( int i = 0; i < data.length; i++ ) {
 				mappedData[i] = null;
@@ -271,9 +271,9 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 	 * (non-Javadoc)
 	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#initializeMotif(int, de.jstacs.data.Sample, double[])
 	 */
-	public void initializeMotif( int motifIndex, Sample data, double[] weights ) throws Exception {
+	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception {
 		if( nsf instanceof MutableMotifDiscoverer ) {
-			Sample[] mappedData = getMappedData( data );
+			DataSet[] mappedData = getMappedData( data );
 			((MutableMotifDiscoverer)nsf).initializeMotif( motifIndex, mappedData[0], weights );
 			mappedData[0] = null;
 			mappedData = null;

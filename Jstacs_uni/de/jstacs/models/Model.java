@@ -20,7 +20,7 @@
 package de.jstacs.models;
 
 import de.jstacs.StatisticalModel;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 
 /**
  * This interface defines all methods for a probabilistic model.
@@ -40,7 +40,7 @@ public interface Model extends StatisticalModel {
 	public Model clone() throws CloneNotSupportedException;
 
 	/**
-	 * Trains the {@link Model} object given the data as {@link Sample}. <br>
+	 * Trains the {@link Model} object given the data as {@link DataSet}. <br>
 	 * This method should work non-incrementally. That means the result of the
 	 * following series: <code>train(data1)</code>; <code>train(data2)</code>
 	 * should be a fully trained model over <code>data2</code> and not over
@@ -48,17 +48,17 @@ public interface Model extends StatisticalModel {
 	 * call of the constructor.
 	 * 
 	 * @param data
-	 *            the given sequences as {@link Sample}
+	 *            the given sequences as {@link DataSet}
 	 * @throws Exception
 	 *             if the training did not succeed
 	 * 
-	 * @see Sample#getElementAt(int)
-	 * @see de.jstacs.data.Sample.ElementEnumerator
+	 * @see DataSet#getElementAt(int)
+	 * @see de.jstacs.data.DataSet.ElementEnumerator
 	 */
-	public void train(Sample data) throws Exception;
+	public void train(DataSet data) throws Exception;
 
 	/**
-	 * Trains the {@link Model} object given the data as {@link Sample} using
+	 * Trains the {@link Model} object given the data as {@link DataSet} using
 	 * the specified weights. The weight at position i belongs to the element at
 	 * position i. So the array <code>weight</code> should have the number of
 	 * sequences in the sample as dimension. (Optionally it is possible to use
@@ -70,7 +70,7 @@ public interface Model extends StatisticalModel {
 	 * call of the constructor.
 	 * 
 	 * @param data
-	 *            the given sequences as {@link Sample}
+	 *            the given sequences as {@link DataSet}
 	 * @param weights
 	 *            the weights of the elements, each weight should be
 	 *            non-negative
@@ -79,10 +79,10 @@ public interface Model extends StatisticalModel {
 	 *             <code>weights</code> and the number of sequences in the
 	 *             sample do not match)
 	 * 
-	 * @see Sample#getElementAt(int)
-	 * @see de.jstacs.data.Sample.ElementEnumerator
+	 * @see DataSet#getElementAt(int)
+	 * @see de.jstacs.data.DataSet.ElementEnumerator
 	 */
-	public void train(Sample data, double[] weights) throws Exception;
+	public void train(DataSet data, double[] weights) throws Exception;
 
 	/**
 	 * Should give a simple representation (text) of the model as {@link String}.

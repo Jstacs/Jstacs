@@ -29,7 +29,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.io.ArrayHandler;
@@ -428,7 +428,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * 
 	 * @return a {@link String} representation of the structure
 	 * 
-	 * @see #getGraphvizRepresentation(NumberFormat, Sample, double[], boolean)
+	 * @see #getGraphvizRepresentation(NumberFormat, DataSet, double[], boolean)
 	 */
 	public String getGraphvizRepresentation( NumberFormat nf ) {
 		return getGraphvizRepresentation( nf, null, null, false );
@@ -443,7 +443,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * 
 	 * @return a {@link String} representation of the structure
 	 * 
-	 * @see #getGraphvizRepresentation(NumberFormat, Sample, double[], boolean)
+	 * @see #getGraphvizRepresentation(NumberFormat, DataSet, double[], boolean)
 	 */
 	public String getGraphvizRepresentation( NumberFormat nf, boolean sameTypeSameRank ) {
 		return getGraphvizRepresentation( nf, null, null, sameTypeSameRank );
@@ -460,7 +460,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * 
 	 * @return a {@link String} representation of the structure
 	 */
-	public String getGraphvizRepresentation( NumberFormat nf, Sample data, double[] weight, boolean sameTypeSameRank ) {
+	public String getGraphvizRepresentation( NumberFormat nf, DataSet data, double[] weight, boolean sameTypeSameRank ) {
 		double[] freq = null;
 		double maxFreq = 0;
 		if(data != null){
@@ -514,7 +514,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		return sb.toString();
 	}
 	
-	private double[] getStateFreq( Sample data, double[] weight ) throws Exception {
+	private double[] getStateFreq( DataSet data, double[] weight ) throws Exception {
 		double[] res = new double[states[0].length];
 		if( data != null ) {			
 			double w = 1, sum = 0;
@@ -634,7 +634,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * 
 	 * @see #getLogStatePosteriorMatrixFor(int, int, Sequence)
 	 */
-	public double[][][] getLogStatePosteriorMatrixFor( Sample data ) throws Exception {
+	public double[][][] getLogStatePosteriorMatrixFor( DataSet data ) throws Exception {
 		double[][][] matrix = new double[data.getNumberOfElements()][][];
 		for( int i = 0; i < matrix.length; i++ ) {
 			Sequence s = data.getElementAt(i);
@@ -654,7 +654,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * 
 	 * @see #getStatePosteriorMatrixFor(Sequence)
 	 */
-	public double[][][] getStatePosteriorMatrixFor( Sample data ) throws Exception {
+	public double[][][] getStatePosteriorMatrixFor( DataSet data ) throws Exception {
 		double[][][] matrix = new double[data.getNumberOfElements()][][];
 		for( int i = 0; i < matrix.length; i++ ) {
 			matrix[i] = getStatePosteriorMatrixFor( data.getElementAt(i) );
@@ -697,7 +697,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * 
 	 * @see #getViterbiPathFor(Sequence)
 	 */
-	public Pair<IntList,Double>[] getViterbiPathsFor( Sample data ) throws Exception {
+	public Pair<IntList,Double>[] getViterbiPathsFor( DataSet data ) throws Exception {
 		Pair<IntList,Double>[] matrix = new Pair[data.getNumberOfElements()];
 		for( int i = 0; i < matrix.length; i++ ) {
 			matrix[i] = getViterbiPathFor( data.getElementAt(i) );
@@ -846,7 +846,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * (non-Javadoc)
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample)
 	 */
-	public void train(Sample data) throws Exception {
+	public void train(DataSet data) throws Exception {
 		train( data, null );
 	}
 	

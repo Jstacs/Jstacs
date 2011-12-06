@@ -23,9 +23,9 @@ import java.io.IOException;
 
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.models.Model;
@@ -113,41 +113,41 @@ public class ModelTester {
 	}
 
 	/**
-	 * Returns the log-likelihood of a {@link Sample} <code>data</code> for a
+	 * Returns the log-likelihood of a {@link DataSet} <code>data</code> for a
 	 * given model <code>m</code>.
 	 * 
 	 * @param m
 	 *            the given model
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * 
 	 * @return the log-likelihood of <code>data</code>
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getLogLikelihood(Model m, Sample data)
+	public static double getLogLikelihood(Model m, DataSet data)
 			throws Exception {
 		return getLogLikelihood(m, data, null);
 	}
 
 	/**
-	 * Returns the log-likelihood of a {@link Sample} <code>data</code> for a
+	 * Returns the log-likelihood of a {@link DataSet} <code>data</code> for a
 	 * given model <code>m</code>.
 	 * 
 	 * @param m
 	 *            the given model
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
-	 *            the weight for each element of the {@link Sample}
+	 *            the weight for each element of the {@link DataSet}
 	 * 
 	 * @return the log-likelihood of <code>data</code>
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getLogLikelihood(Model m, Sample data, double[] weights)
+	public static double getLogLikelihood(Model m, DataSet data, double[] weights)
 			throws Exception {
 		int counter, d = data.getNumberOfElements();
 		double erg = 0;
@@ -447,7 +447,7 @@ public class ModelTester {
 	/**
 	 * This method computes the value of Akaikes Information Criterion (AIC). It
 	 * uses the formula: AIC = <code>2 * log L(t,x) - 2*k</code>, where
-	 * <code>L(t,x)</code> is the likelihood of the {@link Sample} and
+	 * <code>L(t,x)</code> is the likelihood of the {@link DataSet} and
 	 * <code>k</code> is the number of parameters in the model.
 	 * 
 	 * <br>
@@ -458,7 +458,7 @@ public class ModelTester {
 	 * @param m
 	 *            a trained model
 	 * @param s
-	 *            the {@link Sample} for the test
+	 *            the {@link DataSet} for the test
 	 * @param k
 	 *            the number of parameters of the model <code>m</code>
 	 * 
@@ -467,7 +467,7 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getValueOfAIC(Model m, Sample s, int k)
+	public static double getValueOfAIC(Model m, DataSet s, int k)
 			throws Exception {
 		return 2 * getLogLikelihood(m, s) - 2 * k;
 	}
@@ -476,8 +476,8 @@ public class ModelTester {
 	 * This method computes the value of the Bayesian Information Criterion
 	 * (BIC). It uses the formula: BIC = <code>2 * log L(t,x) - k *
 	 * log n</code>, where <code>L(t,x)</code> is the likelihood of the
-	 * {@link Sample}, <code>k</code> is the number of parameters in the model
-	 * and <code>n</code> is the number of sequences in the {@link Sample}.
+	 * {@link DataSet}, <code>k</code> is the number of parameters in the model
+	 * and <code>n</code> is the number of sequences in the {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
@@ -487,7 +487,7 @@ public class ModelTester {
 	 * @param m
 	 *            a trained model
 	 * @param s
-	 *            the {@link Sample} for the test
+	 *            the {@link DataSet} for the test
 	 * @param k
 	 *            the number of parameters of the model <code>m</code>
 	 * 
@@ -496,7 +496,7 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getValueOfBIC(Model m, Sample s, int k)
+	public static double getValueOfBIC(Model m, DataSet s, int k)
 			throws Exception {
 		return 2 * getLogLikelihood(m, s) - k
 				* StrictMath.log(s.getNumberOfElements());

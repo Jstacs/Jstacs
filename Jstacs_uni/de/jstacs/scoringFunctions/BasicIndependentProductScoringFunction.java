@@ -23,7 +23,7 @@ import java.util.Arrays;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -263,8 +263,8 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 * (non-Javadoc)
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#initializeFunction(int, boolean, de.jstacs.data.Sample[], double[][])
 	 */
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
-		Sample[] part = new Sample[data.length];
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
+		DataSet[] part = new DataSet[data.length];
 		double[][] help;
 		for( int a, i = 0; i < score.length; i++ ) {
 			if( plugIn || !(score[i] instanceof HomogeneousScoringFunction) ) {
@@ -281,14 +281,14 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 * 
 	 * @param scoringFunctionIndex the index of the {@link ScoringFunction}
 	 * @param data the original data
-	 * @param result an array for the resulting {@link Sample}s of {@link Sequence}s; has to have same length as <code>data</code>
+	 * @param result an array for the resulting {@link DataSet}s of {@link Sequence}s; has to have same length as <code>data</code>
 	 * 
 	 * @return the number how often the {@link ScoringFunction} was used
 	 * 
 	 * @throws Exception if the Sample can not be created
 	 */
-	public int extractSequenceParts( int scoringFunctionIndex, Sample[] data, Sample[] result ) throws Exception {
-		Sample current;
+	public int extractSequenceParts( int scoringFunctionIndex, DataSet[] data, DataSet[] result ) throws Exception {
+		DataSet current;
 		Arrays.fill( result, null );
 		int used = 0;
 		for( int n, j, k = 0; k < index.length; k++ ) {
@@ -296,18 +296,18 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 				used++;
 				for( j = 0; j < data.length; j++ ) {
 					if( data[j] != null ) {
-						current = data[j].getInfixSample( start[k], partialLength[k] );
+						current = data[j].getInfixDataSet( start[k], partialLength[k] );
 						if( reverse[k] ) {
 							Sequence[] seq = new Sequence[current.getNumberOfElements()];
 							for( n = 0; n < seq.length; n++ ) {
 								seq[n] = current.getElementAt( n ).reverseComplement();
 							}
-							current = new Sample( "reverse complement of \"" + current.getAnnotation() +"\"", seq );
+							current = new DataSet( "reverse complement of \"" + current.getAnnotation() +"\"", seq );
 						}
 						if( result[j] == null ) {
 							result[j] = current;
 						} else {
-							result[j] = Sample.union( result[j], current );
+							result[j] = DataSet.union( result[j], current );
 						}
 					}
 				}
@@ -317,14 +317,14 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	}
 	
 	/**
-	 * This method creates the weights for {@link BasicIndependentProductScoringFunction#extractSequenceParts(int, Sample[], Sample[])}.
+	 * This method creates the weights for {@link BasicIndependentProductScoringFunction#extractSequenceParts(int, DataSet[], DataSet[])}.
 	 * 
 	 * @param number the number how often the weights should be copied after each other.
 	 * @param weights the original weights
 	 * 
 	 * @return the new weights (might be <code>null</code>)
 	 * 
-	 * @see #extractSequenceParts(int, Sample[], Sample[])
+	 * @see #extractSequenceParts(int, DataSet[], DataSet[])
 	 */
 	public double[][] extractWeights( int number, double[][] weights ) {
 		double[][] res;

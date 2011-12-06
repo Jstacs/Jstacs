@@ -51,7 +51,7 @@ public class EnumParameter extends CollectionParameter {
 	 * 
 	 * @param enumInstance
 	 *            the {@link Enum} class, e.g.
-	 *            {@link de.jstacs.data.Sample.PartitionMethod}.class
+	 *            {@link de.jstacs.data.DataSet.PartitionMethod}.class
 	 * @param comment
 	 *            a comment on this parameter
 	 * @param required
@@ -74,7 +74,7 @@ public class EnumParameter extends CollectionParameter {
 	 * 
 	 * @param enumInstance
 	 *            the {@link Enum} class, e.g.
-	 *            {@link de.jstacs.data.Sample.PartitionMethod}.class
+	 *            {@link de.jstacs.data.DataSet.PartitionMethod}.class
 	 * @param comment
 	 *            a comment on this parameter
 	 * @param required

@@ -26,7 +26,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -387,7 +387,7 @@ public class CompositeModel extends AbstractModel {
 	 * 
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample, double[])
 	 */
-	public void train(Sample data, double[] weights) throws Exception {
+	public void train(DataSet data, double[] weights) throws Exception {
 		if (data.getElementLength() != length) {
 			throw new IOException(
 					"The given data has not correct sequence length.");

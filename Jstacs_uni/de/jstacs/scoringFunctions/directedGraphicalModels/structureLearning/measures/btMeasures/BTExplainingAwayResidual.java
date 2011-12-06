@@ -22,7 +22,7 @@ package de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.mea
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.MST;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
@@ -118,7 +118,7 @@ public class BTExplainingAwayResidual extends Measure {
 	 * double[], double[], int)
 	 */
 	@Override
-	public int[][] getParents(Sample fg, Sample bg, double[] weightsFg,
+	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
 
 		double[][][][] statFg = getStatistics(fg, weightsFg, length, ess[0]);

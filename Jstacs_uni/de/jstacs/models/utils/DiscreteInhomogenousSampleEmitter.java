@@ -23,13 +23,13 @@ import java.util.Random;
 
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.models.Model;
 
 /**
- * Emits {@link Sample}s for discrete inhomogeneous models by a naive implementation.
+ * Emits {@link DataSet}s for discrete inhomogeneous models by a naive implementation.
  * 
  * @see de.jstacs.models.Model#emitSample(int, int[])
  * 
@@ -53,7 +53,7 @@ public class DiscreteInhomogenousSampleEmitter {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static Sample emitSample(Model m, int n) throws NotTrainedException,
+	public static DataSet emitSample(Model m, int n) throws NotTrainedException,
 			Exception {
 		if (!m.isInitialized()) {
 			throw new NotTrainedException();
@@ -156,6 +156,6 @@ public class DiscreteInhomogenousSampleEmitter {
 			seqs[i] = new IntSequence(alphabet, sequence);
 		}
 
-		return new Sample("sampled from " + m.getInstanceName(), seqs);
+		return new DataSet("sampled from " + m.getInstanceName(), seqs);
 	}
 }

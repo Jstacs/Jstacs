@@ -23,9 +23,9 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.ArrayHandler;
@@ -33,19 +33,19 @@ import de.jstacs.io.StringExtractor;
 import de.jstacs.io.XMLParser;
 
 /**
- * {@link Result} that contains a {@link Sample}. This {@link Sample} e.g. may
+ * {@link Result} that contains a {@link DataSet}. This {@link DataSet} e.g. may
  * have been created by {@link de.jstacs.models.Model#emitSample(int, int...)},
- * or maybe a {@link Sample} that has been annotated in a classification.
+ * or maybe a {@link DataSet} that has been annotated in a classification.
  * 
  * @author Jan Grau
  */
 public class SampleResult extends Result {
 
-	private Sample data;
+	private DataSet data;
 	private SequenceAnnotationParser parser;
 
 	/**
-	 * Creates a new {@link SampleResult} from a {@link Sample} with the
+	 * Creates a new {@link SampleResult} from a {@link DataSet} with the
 	 * annotation <code>name</code> and <code>comment</code>.
 	 * 
 	 * @param name
@@ -53,15 +53,15 @@ public class SampleResult extends Result {
 	 * @param comment
 	 *            the comment on the {@link Result}
 	 * @param data
-	 *            the {@link Sample} that is the result of some computation
+	 *            the {@link DataSet} that is the result of some computation
 	 */
-	public SampleResult(String name, String comment, Sample data) {
+	public SampleResult(String name, String comment, DataSet data) {
 		super(name, comment, DataType.SAMPLE);
 		this.data = data;
 	}
 	
 	/**
-	 * Creates a new {@link SampleResult} from a {@link Sample} with the
+	 * Creates a new {@link SampleResult} from a {@link DataSet} with the
 	 * annotation <code>name</code> and <code>comment</code>.
 	 * 
 	 * @param name
@@ -69,11 +69,11 @@ public class SampleResult extends Result {
 	 * @param comment
 	 *            the comment on the {@link Result}
 	 * @param data
-	 *            the {@link Sample} that is the result of some computation
+	 *            the {@link DataSet} that is the result of some computation
 	 * @param parser 
 	 * 			  a {@link SequenceAnnotationParser} that can be used to store and parse the annotations of <code>data</code>
 	 */
-	public SampleResult(String name, String comment, Sample data, SequenceAnnotationParser parser) {
+	public SampleResult(String name, String comment, DataSet data, SequenceAnnotationParser parser) {
 		this(name, comment, data);
 		this.parser = parser;
 	}
@@ -108,7 +108,7 @@ public class SampleResult extends Result {
 		String seqs = XMLParser.extractObjectForTags(rep, "data", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
 		StringExtractor ex = new StringExtractor(seqs, 100, "");
 		try {
-			Sample data = new Sample(cont, ex);
+			DataSet data = new DataSet(cont, ex);
 			Sequence[] seq = data.getAllElements();
 
 			Storable[][] annotation = XMLParser.extractObjectForTags( rep, "annotation", Storable[][].class);
@@ -119,7 +119,7 @@ public class SampleResult extends Result {
 				}
 			}
 
-			this.data = new Sample(sampleAnn, seq);
+			this.data = new DataSet(sampleAnn, seq);
 		} catch (Exception e) {
 			NonParsableException np = new NonParsableException(e.getCause()
 					.getMessage());
@@ -135,7 +135,7 @@ public class SampleResult extends Result {
 	 * @see de.jstacs.results.Result#getResult()
 	 */
 	@Override
-	public Sample getResult() {
+	public DataSet getResult() {
 		return data;
 	}
 

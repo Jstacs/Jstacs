@@ -27,7 +27,7 @@ import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.models.discrete.ConstraintManager;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
 
@@ -187,7 +187,7 @@ public class StructureLearner {
 	 * learning method (in some sense).
 	 * 
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
 	 *            the weights
 	 * @param model
@@ -202,10 +202,10 @@ public class StructureLearner {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see StructureLearner#getTensor(Sample, double[], byte, LearningType)
+	 * @see StructureLearner#getTensor(DataSet, double[], byte, LearningType)
 	 * @see StructureLearner#getStructure(Tensor, ModelType, byte)
 	 */
-	public int[][] getStructure( Sample data, double[] weights, ModelType model, byte order, LearningType method ) throws Exception {
+	public int[][] getStructure( DataSet data, double[] weights, ModelType model, byte order, LearningType method ) throws Exception {
 		int[][] dep;
 		int counter1, counter2, counter3, idx;
 		if( order == 0 ) {
@@ -253,7 +253,7 @@ public class StructureLearner {
 	 * @throws Exception
 	 *             if something in the algorithm went wrong
 	 * 
-	 * @see StructureLearner#getTensor(Sample, double[], byte, LearningType)
+	 * @see StructureLearner#getTensor(DataSet, double[], byte, LearningType)
 	 */
 	public static int[][] getStructure( Tensor t, ModelType model, byte order ) throws Exception {
 		int length = t.getNumberOfNodes(), counter1, counter2, counter3;
@@ -318,7 +318,7 @@ public class StructureLearner {
 		return dep;
 	}
 
-	private double[][] getSummands( Sample data, double[] weights, byte order, LearningType method, double[] extra ) throws IllegalArgumentException,
+	private double[][] getSummands( DataSet data, double[] weights, byte order, LearningType method, double[] extra ) throws IllegalArgumentException,
 			WrongAlphabetException {
 		double help;
 		if( method == LearningType.BMA && ess == 0 ) {
@@ -404,7 +404,7 @@ public class StructureLearner {
 	 * 
 	 * @see StructureLearner#getStructure(Tensor, ModelType, byte)
 	 */
-	public SymmetricTensor getTensor( Sample data, double[] weights, byte order, LearningType method ) throws IllegalArgumentException,
+	public SymmetricTensor getTensor( DataSet data, double[] weights, byte order, LearningType method ) throws IllegalArgumentException,
 			WrongAlphabetException {
 		double[] extra = new double[1];
 		return fillTensor( getSummands( data, weights, order, method, extra ), order, extra[0] );

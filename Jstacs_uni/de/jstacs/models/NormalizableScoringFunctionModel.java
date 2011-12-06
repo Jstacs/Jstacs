@@ -34,11 +34,11 @@ import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
-import de.jstacs.data.Sample.WeightedSampleFactory;
-import de.jstacs.data.Sample.WeightedSampleFactory.SortOperation;
+import de.jstacs.data.DataSet.WeightedDataSetFactory;
+import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
@@ -138,7 +138,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 		return clone;
 	}
 	
-	public void train( Sample data, double[] weights ) throws Exception
+	public void train( DataSet data, double[] weights ) throws Exception
 	{
 		if( !data.getAlphabetContainer().checkConsistency( alphabets ) )
 		{
@@ -152,7 +152,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 		if( nsf instanceof IndependentProductScoringFunction ) {
 			IndependentProductScoringFunction ipsf = (IndependentProductScoringFunction) nsf;
 			NormalizableScoringFunction[] nsfs = ArrayHandler.cast( NormalizableScoringFunction.class, ipsf.getFunctions() );
-			Sample[] part = new Sample[1], packedData = { data };
+			DataSet[] part = new DataSet[1], packedData = { data };
 			double[][] partWeights, packedWeights = { weights };
 			for( int a, i = 0; i < nsfs.length; i++ ) {
 				a = ipsf.extractSequenceParts( i, packedData, part );
@@ -165,10 +165,10 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 		}
 	}
 	
-	private NormalizableScoringFunction train( Sample data, double[] weights, NormalizableScoringFunction nsf ) throws Exception {
+	private NormalizableScoringFunction train( DataSet data, double[] weights, NormalizableScoringFunction nsf ) throws Exception {
 		if( !(nsf instanceof UniformScoringFunction || nsf instanceof UniformHomogeneousScoringFunction ) ) {
-			WeightedSampleFactory wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data, weights );
-			Sample small = wsf.getSample();
+			WeightedDataSetFactory wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data, weights );
+			DataSet small = wsf.getDataSet();
 			double[] smallWeights = wsf.getWeights();  
 			
 			double[] params;
@@ -179,7 +179,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 			NormalizableScoringFunction[] score = { (NormalizableScoringFunction) nsf.clone() };
 			LogPrior prior = new CompositeLogPrior();
 			double[] beta = LearningPrinciple.getBeta( ess == 0 ? LearningPrinciple.ML : LearningPrinciple.MAP );
-			LogGenDisMixFunction f = new LogGenDisMixFunction( threads, score, new Sample[]{small}, new double[][]{smallWeights}, prior, beta, true, false );
+			LogGenDisMixFunction f = new LogGenDisMixFunction( threads, score, new DataSet[]{small}, new double[][]{smallWeights}, prior, beta, true, false );
 			NegativeDifferentiableFunction minusF = new NegativeDifferentiableFunction( f );
 			StartDistanceForecaster sd =
 				//new ConstantStartDistance( startD*fac );
@@ -188,7 +188,7 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 			{
 				out.writeln( "start: " + i );
 				//TODO freeParams???
-				score[0].initializeFunction( 0, false, new Sample[]{small}, new double[][]{smallWeights} );
+				score[0].initializeFunction( 0, false, new DataSet[]{small}, new double[][]{smallWeights} );
 				f.reset( score );
 				params = f.getParameters( KindOfParameter.PLUGIN );
 				sd.reset();

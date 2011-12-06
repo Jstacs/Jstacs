@@ -21,9 +21,9 @@ package de.jstacs.scoringFunctions;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 
 /**
  * This class is the main part of any {@link de.jstacs.classifier.scoringFunctionBased.ScoreClassifier}. It implements
@@ -130,14 +130,14 @@ public abstract class AbstractNormalizableScoringFunction extends AbstractScorin
 	}
 	
 	@Override
-	public double[] getLogScoreFor( Sample data ) throws Exception {
+	public double[] getLogScoreFor( DataSet data ) throws Exception {
 		double[] probs = new double[data.getNumberOfElements()];
 		getLogScoreFor( data, probs );
 		return probs;
 	}
 
 	@Override
-	public void getLogScoreFor( Sample data, double[] res ) throws Exception {
+	public void getLogScoreFor( DataSet data, double[] res ) throws Exception {
 		if (res.length != data.getNumberOfElements()) {
 			throw new IllegalArgumentException("The array has wrong dimension.");
 		}

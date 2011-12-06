@@ -25,7 +25,7 @@ import java.util.TreeMap;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.io.ArrayHandler;
@@ -571,7 +571,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 		return erg;
 	}
 	
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights )
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights )
 	{
 		if( optimize && plugIn && data != null && data[index] != null )
 		{

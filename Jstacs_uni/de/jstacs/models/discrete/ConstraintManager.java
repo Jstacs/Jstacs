@@ -26,9 +26,9 @@ import java.util.StringTokenizer;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.graphs.UnionFind;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.models.discrete.inhomogeneous.CombinationIterator;
 import de.jstacs.models.discrete.inhomogeneous.InhCondProb;
 import de.jstacs.models.discrete.inhomogeneous.MEMConstraint;
@@ -73,7 +73,7 @@ public class ConstraintManager {
 
 	/**
 	 * Fills the (inhomogeneous) {@link Constraint} <code>constr</code> with the
-	 * weighted absolute frequencies of the {@link Sample} <code>data</code>.
+	 * weighted absolute frequencies of the {@link DataSet} <code>data</code>.
 	 * The relative frequencies will not be computed, for this task use
 	 * {@link #computeFreqs(double, Constraint...)}
 	 * 
@@ -82,9 +82,9 @@ public class ConstraintManager {
 	 * @param length
 	 *            the length for which the constraints are defined
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
-	 *            the weights for the {@link Sequence}s in the {@link Sample}:
+	 *            the weights for the {@link Sequence}s in the {@link DataSet}:
 	 *            <ol>
 	 *            <li> <code>weights == null</code> or
 	 *            <li> <code>weights.length = data.getNumberOfElements()</code>,
@@ -103,7 +103,7 @@ public class ConstraintManager {
 	 *             if the weights array has wrong dimension or the element
 	 *             length of the data is not correct
 	 */
-	public static double countInhomogeneous( AlphabetContainer alphabets, int length, Sample data, double[] weights, boolean reset,
+	public static double countInhomogeneous( AlphabetContainer alphabets, int length, DataSet data, double[] weights, boolean reset,
 			Constraint... constr ) throws WrongAlphabetException, IllegalArgumentException {
 		int d = data.getNumberOfElements(), counter1, counter2;
 		Sequence seq;

@@ -19,7 +19,7 @@
 package de.jstacs.sampling;
 
 
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 
 /**
  * This is the interface that any {@link de.jstacs.models.AbstractModel} has to implement if it
@@ -28,7 +28,7 @@ import de.jstacs.data.Sample;
  * <br>
  * <br>
  * 
- * During the sampling the method {@link #drawParameters(Sample, double[] )} is used for
+ * During the sampling the method {@link #drawParameters(DataSet, double[] )} is used for
  * drawing the parameters from the posterior.
  * 
  * @author Berit Haldemann, Jens Keilwagen
@@ -63,5 +63,5 @@ public interface GibbsSamplingModel extends SamplingComponent {
 	 * @see SamplingComponent#initForSampling(int)
 	 * @see SamplingComponent#acceptParameters()
 	 */
-	public void drawParameters( Sample data, double[] weights ) throws Exception;
+	public void drawParameters( DataSet data, double[] weights ) throws Exception;
 }

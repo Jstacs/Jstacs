@@ -21,7 +21,7 @@ package de.jstacs.models.discrete.inhomogeneous;
 import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.models.discrete.DGMParameterSet;
 import de.jstacs.models.discrete.inhomogeneous.StructureLearner.LearningType;
 import de.jstacs.models.discrete.inhomogeneous.StructureLearner.ModelType;
@@ -112,7 +112,7 @@ public class BayesianNetworkModel extends DAGModel {
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample, double[])
 	 */
-	public void train( Sample data, double[] weights ) throws Exception {
+	public void train( DataSet data, double[] weights ) throws Exception {
 		createConstraints( sl.getStructure( data, weights, getModel(), getMaximalMarkovOrder(), getMethod() ) );
 		estimateParameters( data, weights );
 	}

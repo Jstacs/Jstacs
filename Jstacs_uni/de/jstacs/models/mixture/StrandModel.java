@@ -24,7 +24,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.models.Model;
 import de.jstacs.sampling.BurnInTest;
@@ -498,14 +498,14 @@ public class StrandModel extends AbstractMixtureModel {
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#setTrainData(de.jstacs.data.Sample)
 	 */
 	@Override
-	public void setTrainData( Sample s ) throws Exception {
+	public void setTrainData( DataSet s ) throws Exception {
 		int i = 0, n = s.getNumberOfElements();
 		Sequence[] seq = new Sequence[2 * n];
 		for( ; i < n; i++ ) {
 			seq[2 * i] = s.getElementAt( i );
 			seq[2 * i + 1] = seq[2 * i].reverseComplement();
 		}
-		sample = new Sample[]{ new Sample( "sample of both strands from " + s.getAnnotation(), seq ) };
+		sample = new DataSet[]{ new DataSet( "sample of both strands from " + s.getAnnotation(), seq ) };
 	}
 
 	/* (non-Javadoc)
@@ -596,7 +596,7 @@ public class StrandModel extends AbstractMixtureModel {
 	 */
 	@Override
 	protected Sequence[] emitSampleUsingCurrentParameterSet( int n, int... lengths ) throws NotTrainedException, Exception {
-		Sample nr = model[0].emitSample( n, lengths );
+		DataSet nr = model[0].emitSample( n, lengths );
 		Random r = new Random();
 		Sequence[] seq = new Sequence[nr.getNumberOfElements()];
 		for( int i = 0; i < seq.length; i++ ) {

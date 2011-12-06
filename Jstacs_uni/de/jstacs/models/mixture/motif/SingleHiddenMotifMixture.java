@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.models.Model;
@@ -387,7 +387,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#setTrainData(de.jstacs.data.Sample)
 	 */
 	@Override
-	protected void setTrainData( Sample data ) throws Exception {
+	protected void setTrainData( DataSet data ) throws Exception {
 		LinkedList<Sequence> fg = new LinkedList<Sequence>();
 		LinkedList<Sequence> bg = new LinkedList<Sequence>();
 
@@ -416,9 +416,9 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 			refBgSample[++i] = trainOnlyMotifModel ? i : bg.size();
 		}
 		Sequence[] empty = new Sequence[0];
-		sample = new Sample[]{ new Sample( "possible motifs", fg.toArray( empty ) ), data };
+		sample = new DataSet[]{ new DataSet( "possible motifs", fg.toArray( empty ) ), data };
 		if( bg.size() != 0 ) {
-			sample[1] = new Sample( "possible background", bg.toArray( empty ) );
+			sample[1] = new DataSet( "possible background", bg.toArray( empty ) );
 		}
 	}
 
@@ -751,7 +751,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.mixture.motif.HiddenMotifMixture#trainBgModel(de.jstacs.data.Sample, double[])
 	 */
-	public void trainBgModel( Sample data, double[] weights ) throws Exception {
+	public void trainBgModel( DataSet data, double[] weights ) throws Exception {
 		model[1].train( data, weights );
 	}
 

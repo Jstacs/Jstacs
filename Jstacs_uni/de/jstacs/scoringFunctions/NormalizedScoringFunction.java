@@ -19,7 +19,7 @@
 package de.jstacs.scoringFunctions;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
 import de.jstacs.io.XMLParser;
@@ -157,7 +157,7 @@ public final class NormalizedScoringFunction extends AbstractNormalizableScoring
 		}
 	}
 
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception
 	{
 		nsf.initializeFunction( index, freeParams, data, weights );
 		precompute();

@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -463,7 +463,7 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 	 * (non-Javadoc)
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#initializeFunction(int, boolean, de.jstacs.data.Sample[], double[][])
 	 */
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		if( plugIn ) {
 			initializeUsingPlugIn( index, freeParams, data, weights );
 			init( freeParams );
@@ -488,9 +488,9 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 	 *             if the initialization could not be done
 	 * 
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#initializeFunction(int,
-	 *      boolean, Sample[], double[][])
+	 *      boolean, DataSet[], double[][])
 	 */
-	protected abstract void initializeUsingPlugIn( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception;
+	protected abstract void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception;
 
 	/*
 	 * (non-Javadoc)
@@ -812,7 +812,7 @@ public abstract class AbstractMixtureScoringFunction extends AbstractNormalizabl
 	 *            a switch for adding hyperparameters to the statistic
 	 * 
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#initializeFunction(int,
-	 *      boolean, Sample[], double[][])
+	 *      boolean, DataSet[], double[][])
 	 */
 	protected void computeHiddenParameter( double[] statistic, boolean add ) {
 		int i, j = hiddenParameter.length;

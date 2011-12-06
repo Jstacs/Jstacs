@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.discrete.inhomogeneous.MEMConstraint;
@@ -237,7 +237,7 @@ public class HMM0ScoringFunction extends HomogeneousScoringFunction {
 	 * boolean, de.jstacs.data.Sample[], double[][])
 	 */
 	public void initializeFunction(int index, boolean freeParams,
-			Sample[] data, double[][] weights) {
+			DataSet[] data, double[][] weights) {
 		params.reset();
 		if (plugIn) {
 			if (data != null && data[index] != null) {
