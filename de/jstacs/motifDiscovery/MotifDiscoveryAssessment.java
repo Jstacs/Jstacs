@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotationWithLength;
@@ -48,7 +48,7 @@ public class MotifDiscoveryAssessment {
 	/**
 	 * This method computes the nucleotide and site measures.
 	 * 
-	 * @param truth the {@link Sample} annotated with the true annotation
+	 * @param truth the {@link DataSet} annotated with the true annotation
 	 * @param prediction  annotated with the predicted annotation
 	 * @param maxDiff the maximal difference between predicted and true start position;
 	 * 		this value is used to determine the site measures
@@ -57,7 +57,7 @@ public class MotifDiscoveryAssessment {
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public static ListResult assess(Sample truth, Sample prediction, int maxDiff) throws Exception{
+	public static ListResult assess(DataSet truth, DataSet prediction, int maxDiff) throws Exception{
 		if(truth.getNumberOfElements() != prediction.getNumberOfElements()){
 			throw new Exception("Truth must contain same number of sequences as prediction.");
 		}
@@ -127,7 +127,7 @@ public class MotifDiscoveryAssessment {
 		return new ListResult("Motif discovery assessment","Assessment of the motif discovery result on nucleotide and site level",null,ress);
 	}
 	
-	private static NumericalResultSet computeSiteLevelMeasures(Sample truth, Sample prediction, int maxDiff, IdentifiersOfType idT, IdentifiersOfType idP){
+	private static NumericalResultSet computeSiteLevelMeasures(DataSet truth, DataSet prediction, int maxDiff, IdentifiersOfType idT, IdentifiersOfType idP){
 		LinkedList<LocatedSequenceAnnotation> listT = new LinkedList<LocatedSequenceAnnotation>();
 		LinkedList<LocatedSequenceAnnotation> listP = new LinkedList<LocatedSequenceAnnotation>();
 		
@@ -399,7 +399,7 @@ public class MotifDiscoveryAssessment {
 	 * 
 	 * @see SequenceAnnotation#getIdentifier()
 	 */
-	public static double[][] getSortedValuesForMotifAndFlanking( Sample data, double[][] values, double offset, double factor, String identifier ) {
+	public static double[][] getSortedValuesForMotifAndFlanking( DataSet data, double[][] values, double offset, double factor, String identifier ) {
 		boolean[] added = null;
 		DoubleList pos = new DoubleList(1000);
 		DoubleList neg = new DoubleList(100000);
@@ -444,17 +444,17 @@ public class MotifDiscoveryAssessment {
 	
 	/**
 	 * Returns the scores read from the prediction <code>pred</code> for the motif with identifier <code>identifier</code> and flanking sequences as annotated in
-	 * the {@link Sample} data. The <code>identifier</code> may be <code>null</code> to obtain the scores for all motifs, irrespective of present identifiers.
+	 * the {@link DataSet} data. The <code>identifier</code> may be <code>null</code> to obtain the scores for all motifs, irrespective of present identifiers.
 	 * The first dimension of the returned array contains the scores for the motif annotations, while the second dimension contains the scores of the flanking sequences. 
 	 * Both dimensions are sorted and can be directly used in the methods of {@link de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure}.
 	 * The scores for the predictions must be added to the {@link LocatedSequenceAnnotationWithLength} representing the motifs as additional annotation using {@link LocatedSequenceAnnotationWithLength#LocatedSequenceAnnotationWithLength(String, String, LocatedSequenceAnnotation[], Result...)}
 	 * with the name of the annotation, i.e. the name of the corresponding {@link Result} equal to &quot;score&quot;.
-	 * @param data the {@link Sample} annotated with the truth
-	 * @param pred the {@link Sample} annotated with the prediction and associated scores
+	 * @param data the {@link DataSet} annotated with the truth
+	 * @param pred the {@link DataSet} annotated with the prediction and associated scores
 	 * @param identifier the identifier of the motif
 	 * @return the scores of motifs and flanking sequences
 	 */
-	public static double[][] getSortedScoresForMotifAndFlanking( Sample data, Sample pred, String identifier ) {
+	public static double[][] getSortedScoresForMotifAndFlanking( DataSet data, DataSet pred, String identifier ) {
 		boolean[] added = new boolean[data.getElementLength()];
 		double[] scores = new double[data.getElementLength()];
 		DoubleList pos = new DoubleList(1000);

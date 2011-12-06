@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
@@ -228,9 +228,9 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 		return function[0].getESS();
 	}
 
-	protected void initializeUsingPlugIn( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception
+	protected void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception
 	{
-		Sample myData = data[index];
+		DataSet myData = data[index];
 		
 		double[] stat = new double[2];
 		switch( initMethod )
@@ -276,7 +276,7 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 							seqs[i] = myData.getElementAt( i ).reverseComplement();
 						}
 					}
-					data[index] = new Sample( "randomly strand scrambled", seqs );
+					data[index] = new DataSet( "randomly strand scrambled", seqs );
 					function[0].initializeFunction( index, freeParams, data, weights );
 					if( optimizeHidden )
 					{
@@ -300,7 +300,7 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 							seqs[i] = myData.getElementAt( i ).reverseComplement();
 						}
 					}
-					data[index] = new Sample( "strand scrambled", seqs );					
+					data[index] = new DataSet( "strand scrambled", seqs );					
 				}
 				else
 				{
@@ -313,7 +313,7 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 				{
 					rcs[i] = myData.getElementAt( i ).reverseComplement();
 				}
-				data[index] = new Sample( "backward strand", rcs );
+				data[index] = new DataSet( "backward strand", rcs );
 			default:
 				stat[0] = forwardPartOfESS;
 				stat[1] = 1d-forwardPartOfESS;

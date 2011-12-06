@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.discrete.inhomogeneous.parameters.FSDAGModelForGibbsSamplingParameterSet;
@@ -235,7 +235,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGModel implements GibbsSampl
 	 * @see de.jstacs.models.discrete.inhomogeneous.DAGModel#drawParameters(de.jstacs.data.Sample, double[])
 	 */
 	@Override
-	public void drawParameters( Sample data, double[] weights ) throws Exception {
+	public void drawParameters( DataSet data, double[] weights ) throws Exception {
 		super.drawParameters( data, weights );
 	}
 
@@ -328,7 +328,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGModel implements GibbsSampl
 	 * @see de.jstacs.models.discrete.inhomogeneous.FSDAGModel#drawParameters(de.jstacs.data.Sample, double[], int[][])
 	 */
 	@Override
-	public void drawParameters( Sample data, double[] weights, int[][] graph ) throws Exception {
+	public void drawParameters( DataSet data, double[] weights, int[][] graph ) throws Exception {
 		if( isInSamplingMode() ) {
 			throw new RuntimeException( "could not change the structure while sampling" );
 		}
@@ -339,7 +339,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGModel implements GibbsSampl
 	 * @see de.jstacs.models.discrete.inhomogeneous.FSDAGModel#train(de.jstacs.data.Sample, double[])
 	 */
 	@Override
-	public void train( Sample data, double[] weights ) throws Exception {
+	public void train( DataSet data, double[] weights ) throws Exception {
 		if( isInSamplingMode() ) {
 			throw new RuntimeException( "could not train the model while sampling" );
 		}
@@ -350,7 +350,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGModel implements GibbsSampl
 	 * @see de.jstacs.models.discrete.inhomogeneous.FSDAGModel#train(de.jstacs.data.Sample, double[], int[][])
 	 */
 	@Override
-	public void train( Sample data, double[] weights, int[][] graph ) throws Exception {
+	public void train( DataSet data, double[] weights, int[][] graph ) throws Exception {
 		if( isInSamplingMode() ) {
 			throw new RuntimeException( "could not train the model while sampling" );
 		}

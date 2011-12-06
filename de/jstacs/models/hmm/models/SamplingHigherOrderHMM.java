@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.hmm.State;
@@ -197,7 +197,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @param weights the weight for each sequence
      * @throws Exception if something wents wrong
      */
-    protected void gibbsSamplingStep( int sampling, int steps, boolean append, Sample data, double[] weights ) throws Exception {
+    protected void gibbsSamplingStep( int sampling, int steps, boolean append, DataSet data, double[] weights ) throws Exception {
         double score = 0, weight = 1;
         int N = data.getNumberOfElements();
         Sequence seq;
@@ -243,7 +243,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
     }
 	
     @Override
-    public void train( Sample data, double[] weights ) throws Exception {
+    public void train( DataSet data, double[] weights ) throws Exception {
         int	numberOfBurnInSteps,
                 numberOfSteps = ((SamplingHMMTrainingParameterSet)trainingParameter).getNumberOfStepsInStationaryPhase(),
                 steps = ((SamplingHMMTrainingParameterSet)trainingParameter).getNumberOfStepsPerIteration(),
@@ -386,7 +386,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @param weights the weight for each sequence
      * @throws Exception if the transition or emissions could not be initialized
      */
-    protected void initTraining( Sample data, double[] weights ) throws Exception {
+    protected void initTraining( DataSet data, double[] weights ) throws Exception {
     	numberOfStarts = trainingParameter.getNumberOfStarts();
    		//GIBBS-SAMPLING INIT
     	burnInTest = ((SamplingHMMTrainingParameterSet)trainingParameter).getBurnInTest();
@@ -405,7 +405,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @param weights the weight for each sequence
      * @throws Exception if the init steps did not succeed
      */
-    protected void furtherInits( Sample data, double[] weights ) throws Exception{
+    protected void furtherInits( DataSet data, double[] weights ) throws Exception{
     }
 
     @Override

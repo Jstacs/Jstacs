@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -286,7 +286,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		getOffsets();
 	}
 	
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		if(skipInit){
 			return;
 		}
@@ -298,7 +298,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		}
 	}
 	
-	public void train( Sample data, double[] weights ) throws Exception {
+	public void train( DataSet data, double[] weights ) throws Exception {
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
 			NumericalHMMTrainingParameterSet params = (NumericalHMMTrainingParameterSet) trainingParameter;
 			NormalizableScoringFunctionModel model = new NormalizableScoringFunctionModel( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminantionCondition(), params.getLineEps(), params.getStartDistance() );

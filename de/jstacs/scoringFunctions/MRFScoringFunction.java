@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -320,7 +320,7 @@ public final class MRFScoringFunction extends
 	 * boolean, de.jstacs.data.Sample[], double[][])
 	 */
 	public void initializeFunction(int index, boolean freeParams,
-			Sample[] data, double[][] weights) throws Exception {
+			DataSet[] data, double[][] weights) throws Exception {
 		if (this.freeParams != freeParams) {
 			offset = null;
 			this.freeParams = freeParams;

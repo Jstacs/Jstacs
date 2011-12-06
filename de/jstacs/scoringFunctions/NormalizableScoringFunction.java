@@ -112,12 +112,13 @@ public interface NormalizableScoringFunction extends ScoringFunction, Statistica
 	 *         to 1, <code>false</code> otherwise
 	 */
 	public boolean isNormalized();
-
-	/*
-	 * (non-Javadoc)
+	
+	/**
+	 * Returns the equivalent sample size (ess) of this model, i.e. the
+	 * equivalent sample size for the class or component that is represented by
+	 * this model.
 	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.ScoringFunction#getInitialClassParam(double)
+	 * @return the equivalent sample size.
 	 */
-	public double getInitialClassParam(double classProb);
+	public double getESS();
 }

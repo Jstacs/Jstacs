@@ -22,7 +22,7 @@ package de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.mea
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.MST;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.InstanceParameterSet;
@@ -152,9 +152,9 @@ public class BTMutualInformation extends Measure {
 	 * double[], double[], int)
 	 */
 	@Override
-	public int[][] getParents(Sample fg, Sample bg, double[] weightsFg,
+	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
-		Sample data = null;
+		DataSet data = null;
 		double[] weights = null;
 		double ess2 = 0;
 		if (clazz == DataSource.FG) {
@@ -166,7 +166,7 @@ public class BTMutualInformation extends Measure {
 			weights = weightsBg;
 			ess2 = ess[1];
 		} else {
-			data = Sample.union(fg, bg);
+			data = DataSet.union(fg, bg);
 			weights = union(new double[][] { weightsFg, weightsBg });
 			ess2 = ess[0] + ess[1];
 		}

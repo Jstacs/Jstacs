@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.classifier.utils.PValueComputation;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
@@ -106,7 +106,7 @@ public class SignificantMotifOccurrencesFinder {
 	
 	private RandomSeqType type;
 	private boolean oneHistogram;
-	private Sample bg;
+	private DataSet bg;
 	private double[] weights;
 	private MotifDiscoverer disc;
 	private int numSequences;
@@ -151,19 +151,19 @@ public class SignificantMotifOccurrencesFinder {
 	}
 
 	/**
-	 * This constructor creates an instance of {@link SignificantMotifOccurrencesFinder} that uses a {@link Sample} to determine the siginificance level.
+	 * This constructor creates an instance of {@link SignificantMotifOccurrencesFinder} that uses a {@link DataSet} to determine the siginificance level.
 	 * 
 	 * @param disc the {@link MotifDiscoverer} for the prediction
 	 * @param bg the background data set
 	 * @param weights the weights of the background data set, can be <code>null</code>
 	 * @param sign the significance level
 	 */
-	public SignificantMotifOccurrencesFinder(MotifDiscoverer disc, Sample bg, double[] weights, double sign){
+	public SignificantMotifOccurrencesFinder(MotifDiscoverer disc, DataSet bg, double[] weights, double sign){
 		this(disc,new SumOfProbabilities(),bg,weights,sign);
 	}
 	
 	/**
-	 * This constructor creates an instance of {@link SignificantMotifOccurrencesFinder} that uses a {@link Sample} to determine the siginificance level.
+	 * This constructor creates an instance of {@link SignificantMotifOccurrencesFinder} that uses a {@link DataSet} to determine the siginificance level.
 	 * 
 	 * @param disc the {@link MotifDiscoverer} for the prediction
 	 * @param joiner the {@link JoinMethod} that defines how the profiles of the same motif in different components shall be joined
@@ -171,7 +171,7 @@ public class SignificantMotifOccurrencesFinder {
 	 * @param weights the weights of the background data set, can be <code>null</code>
 	 * @param sign the significance level
 	 */
-	public SignificantMotifOccurrencesFinder(MotifDiscoverer disc, JoinMethod joiner, Sample bg, double[] weights, double sign){
+	public SignificantMotifOccurrencesFinder(MotifDiscoverer disc, JoinMethod joiner, DataSet bg, double[] weights, double sign){
 		this.disc = disc;
 		this.type = RandomSeqType.BACKGROUND;
 		this.joinMethod = joiner;
@@ -184,7 +184,7 @@ public class SignificantMotifOccurrencesFinder {
 	}
 
 	
-	private void createBgSample( Sample s ) throws Exception {
+	private void createBgSample( DataSet s ) throws Exception {
 		switch( type ) {
 			case BACKGROUND:
 				//already existing
@@ -198,7 +198,7 @@ public class SignificantMotifOccurrencesFinder {
 						seqs[n] = new PermutedSequence( current );
 					}
 				}
-				bg = new Sample( "permuted " + s.getAnnotation(), seqs );
+				bg = new DataSet( "permuted " + s.getAnnotation(), seqs );
 				break;
 			case hMM0:
 			case hMM1:
@@ -208,7 +208,7 @@ public class SignificantMotifOccurrencesFinder {
 			case hMM5:
 				int order = type.getOrder();
 				HMMScoringFunction hmm = new HMMScoringFunction(s.getAlphabetContainer(),order,0,new double[order+1],true,true,1);
-				hmm.initializeFunction( 0, false, new Sample[]{s}, null );
+				hmm.initializeFunction( 0, false, new DataSet[]{s}, null );
 				
 				if( order > 0 ) {
 					double[][][] condProbs = hmm.getAllConditionalStationaryDistributions();
@@ -231,7 +231,7 @@ public class SignificantMotifOccurrencesFinder {
 	}
 	
 	private void createBgSample( Sequence seq ) throws Exception {
-		createBgSample( new Sample( "", seq ) );
+		createBgSample( new DataSet( "", seq ) );
 	}
 	
 	private double[][] getAllProfilesOfScoresFor(int motif, Sequence seq, int start) throws Exception{
@@ -466,117 +466,117 @@ public class SignificantMotifOccurrencesFinder {
 	}	
 	
 	/**
-	 * This method annotates a {@link Sample}.
+	 * This method annotates a {@link DataSet}.
 	 * 
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * 
-	 * @return an annotated {@link Sample}
+	 * @return an annotated {@link DataSet}
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, Sample, int)
+	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, DataSet, int)
 	 */
-	public Sample annotateMotif( Sample data, int motifIndex ) throws Exception
+	public DataSet annotateMotif( DataSet data, int motifIndex ) throws Exception
 	{
 		return annotateMotif( 0, data, motifIndex );
 	}
 	
 	/**
-	 * This method annotates a {@link Sample} starting in each sequence at <code>startPos</code>.
+	 * This method annotates a {@link DataSet} starting in each sequence at <code>startPos</code>.
 	 * 
 	 * @param startPos the start position used for all sequences
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * 
-	 * @return an annotated {@link Sample}
+	 * @return an annotated {@link DataSet}
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, Sample, int)
+	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, DataSet, int)
 	 */
-	public Sample annotateMotif( int startPos, Sample data, int motifIndex ) throws Exception
+	public DataSet annotateMotif( int startPos, DataSet data, int motifIndex ) throws Exception
 	{
 		return annotateMotif( startPos, data, motifIndex, Integer.MAX_VALUE, false );
 	}
 	
 	/**
-	 * This method annotates a {@link Sample}.
+	 * This method annotates a {@link DataSet}.
 	 * At most, <code>addMax</code> motif occurrences of the motif instance will be annotated.
 	 * 
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * @param addMax the number of motif occurrences that can at most be annotated for each motif instance
 	 * 
-	 * @return an annotated {@link Sample}
+	 * @return an annotated {@link DataSet}
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, Sample, int)
+	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, DataSet, int)
 	 */
-	public Sample annotateMotif( Sample data, int motifIndex, int addMax ) throws Exception
+	public DataSet annotateMotif( DataSet data, int motifIndex, int addMax ) throws Exception
 	{
 		return annotateMotif( 0, data, motifIndex, addMax, false );
 	}
 	
 	/**
-	 * This method annotates a {@link Sample} starting in each sequence at <code>startPos</code>.
+	 * This method annotates a {@link DataSet} starting in each sequence at <code>startPos</code>.
 	 * At most, <code>addMax</code> motif occurrences of the motif instance will be annotated.
 	 * 
 	 * @param startPos the start position used for all sequences
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * @param addMax the number of motif occurrences that can at most be annotated for each motif instance
 	 * @param addAnnotation a switch whether to add or replace the current annotation
 	 * 
-	 * @return an annotated {@link Sample}
+	 * @return an annotated {@link DataSet}
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, Sample, int)
+	 * @see SignificantMotifOccurrencesFinder#annotateMotif(int, DataSet, int)
 	 */
-	public Sample annotateMotif( int startPos, Sample data, int motifIndex, int addMax, boolean addAnnotation ) throws Exception {
-		return (Sample) predictBS( startPos, data, null, motifIndex, addMax, 0, 0, addAnnotation ).get( 0 );
+	public DataSet annotateMotif( int startPos, DataSet data, int motifIndex, int addMax, boolean addAnnotation ) throws Exception {
+		return (DataSet) predictBS( startPos, data, null, motifIndex, addMax, 0, 0, addAnnotation ).get( 0 );
 	}
 	
 	/**
-	 * This method returns a {@link Sample} containing the predicted binding sites.
+	 * This method returns a {@link DataSet} containing the predicted binding sites.
 	 * 
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * 
-	 * @return a {@link Sample} containing the predicted binding sites
+	 * @return a {@link DataSet} containing the predicted binding sites
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public Sample getBindingSites( Sample data, int motifIndex ) throws Exception
+	public DataSet getBindingSites( DataSet data, int motifIndex ) throws Exception
 	{
 		return getBindingSites( 0, data, motifIndex, Integer.MAX_VALUE, 0, 0 );
 	}
 	
 	/**
-	 * This method returns a {@link Sample} containing the predicted binding sites.
+	 * This method returns a {@link DataSet} containing the predicted binding sites.
 	 * 
 	 * @param startPos the start position used for all sequences
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * @param addMax the number of motif occurrences that can at most be annotated for each motif instance
 	 * @param addLeft number of positions added to the left of the predicted motif occurrence
 	 * @param addRight number of positions added to the right of the predicted motif occurrence
-	 * @return a {@link Sample} containing the predicted binding sites
+	 * @return a {@link DataSet} containing the predicted binding sites
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public Sample getBindingSites( int startPos, Sample data, int motifIndex, int addMax, int addLeft, int addRight ) throws Exception
+	public DataSet getBindingSites( int startPos, DataSet data, int motifIndex, int addMax, int addLeft, int addRight ) throws Exception
 	{
-		return (Sample) predictBS( startPos, data, null, motifIndex, addMax, addLeft, addRight, false ).get( 1 );
+		return (DataSet) predictBS( startPos, data, null, motifIndex, addMax, addLeft, addRight, false ).get( 1 );
 	}
 	
 	/**
 	 * This method returns a list of start positions of binding sites.
 	 * 
 	 * @param startPos the start position used for all sequences
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motifIndex the index of the motif
 	 * @param addMax the number of motif occurrences that can at most be annotated for each motif instance
 	 * 
@@ -584,7 +584,7 @@ public class SignificantMotifOccurrencesFinder {
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public IntList getStartPositions( int startPos, Sample data, int motifIndex, int addMax ) throws Exception
+	public IntList getStartPositions( int startPos, DataSet data, int motifIndex, int addMax ) throws Exception
 	{
 		return (IntList) predictBS( startPos, data, null, motifIndex, addMax, 0, 0, false ).get( 3 );
 	}
@@ -600,19 +600,19 @@ public class SignificantMotifOccurrencesFinder {
 	 * 
 	 * @throws Exception if the background sample for the prediction could not be created or some of the scores could not be computed
 	 */
-	public double getNumberOfBoundSequences( Sample data, double[] weights, int motifIndex ) throws Exception
+	public double getNumberOfBoundSequences( DataSet data, double[] weights, int motifIndex ) throws Exception
 	{
 		return (Double) predictBS( 0, data, weights, motifIndex, Integer.MAX_VALUE, 0, 0, false ).get(2);
 	}
 	
 	/**
 	 * This method returns an offset that must be added to scores for computing PR curves. If this {@link SignificantMotifOccurrencesFinder} 
-	 * was instantiated using <code>oneHistogram=true</code>, the {@link SignificantMotifOccurrencesFinder#getValuesForEachNucleotide(Sample, int, boolean)} returns scores and no offset is needed. Otherwise,
+	 * was instantiated using <code>oneHistogram=true</code>, the {@link SignificantMotifOccurrencesFinder#getValuesForEachNucleotide(DataSet, int, boolean)} returns scores and no offset is needed. Otherwise,
 	 * it returns p-values and, hence, 1-(p-value) must be used for the PR curve and the offset is 1.
 	 * 
 	 * @return the offset
 	 * 
-	 * @see MotifDiscoveryAssessment#getSortedValuesForMotifAndFlanking(Sample, double[][], double, double, String)
+	 * @see MotifDiscoveryAssessment#getSortedValuesForMotifAndFlanking(DataSet, double[][], double, double, String)
 	 */
 	public double getOffsetForAucPR() {
 		return oneHistogram ? 0 : 1;
@@ -620,12 +620,12 @@ public class SignificantMotifOccurrencesFinder {
 
 	/**
 	 * This method returns a factor that must be multiplied to scores for computing PR curves. If this {@link SignificantMotifOccurrencesFinder} 
-	 * was instantiated using <code>oneHistogram=true</code>, the {@link SignificantMotifOccurrencesFinder#getValuesForEachNucleotide(Sample, int, boolean)} returns scores and a factor of 1 is appropriate. Otherwise,
+	 * was instantiated using <code>oneHistogram=true</code>, the {@link SignificantMotifOccurrencesFinder#getValuesForEachNucleotide(DataSet, int, boolean)} returns scores and a factor of 1 is appropriate. Otherwise,
 	 * it returns p-values and, hence, 1-(p-value) must be used for the PR curve and the factor is -1.
 	 * 
 	 * @return the factor
 	 * 
-	 * @see MotifDiscoveryAssessment#getSortedValuesForMotifAndFlanking(Sample, double[][], double, double, String)
+	 * @see MotifDiscoveryAssessment#getSortedValuesForMotifAndFlanking(DataSet, double[][], double, double, String)
 	 */
 	public double getFactorForAucPR() {
 		return oneHistogram ? 1 : -1;
@@ -637,7 +637,7 @@ public class SignificantMotifOccurrencesFinder {
 	 * motif with index <code>index</code>. If the {@link SignificantMotifOccurrencesFinder}
 	 * was constructed using <code>oneHistogram=true</code> the returned values are arbitrary scores, and p-values otherwise.
 	 * 
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param motif the motif index
 	 * @param addOnlyBest a switch whether to add only the best
 	 * 
@@ -645,11 +645,11 @@ public class SignificantMotifOccurrencesFinder {
 	 * 
 	 * @throws Exception if something went wrong during the computation of the scores of the {@link MotifDiscoverer} 
 	 * 
-	 * @see MotifDiscoveryAssessment#getSortedValuesForMotifAndFlanking(Sample, double[][], double, double, String)
+	 * @see MotifDiscoveryAssessment#getSortedValuesForMotifAndFlanking(DataSet, double[][], double, double, String)
 	 * @see #getOffsetForAucPR()
 	 * @see #getFactorForAucPR()
 	 */
-	public double[][] getValuesForEachNucleotide( Sample data, int motif, boolean addOnlyBest ) throws Exception {
+	public double[][] getValuesForEachNucleotide( DataSet data, int motif, boolean addOnlyBest ) throws Exception {
 		double[][] res = new double[data.getNumberOfElements()][];
 		if( oneHistogram ) {
 			fillSortedScoresArray( motif, 0 );
@@ -717,7 +717,7 @@ public class SignificantMotifOccurrencesFinder {
 		return res;
 	}
 	
-	private ArrayList predictBS( int startPos, Sample data, double[] weights, int motif, int addMax, int addLeft, int addRight, boolean addAnnotation ) throws Exception
+	private ArrayList predictBS( int startPos, DataSet data, double[] weights, int motif, int addMax, int addLeft, int addRight, boolean addAnnotation ) throws Exception
 	{
 		int i, n = data.getNumberOfElements();
 		Sequence[] seqs = new Sequence[n];
@@ -758,10 +758,10 @@ public class SignificantMotifOccurrencesFinder {
 			}
 		}
 		ArrayList res = new ArrayList(4);
-		res.add( new Sample( "annotated sample", seqs ) );
-		Sample bs;
+		res.add( new DataSet( "annotated sample", seqs ) );
+		DataSet bs;
 		try {
-			bs = new Sample( "annotated binding sites", bsList.toArray( new Sequence[0] ) );
+			bs = new DataSet( "annotated binding sites", bsList.toArray( new Sequence[0] ) );
 		} catch( Exception e ) {
 			bs = null;
 		}

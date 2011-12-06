@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.Mutable;
 import de.jstacs.scoringFunctions.SamplingScoringFunction;
@@ -163,7 +163,7 @@ public class MutableMarkovModelScoringFunction extends BayesianNetworkScoringFun
 				if( lengthPenalty != null && !lengthPenalty.isPossible( length ) ) {
 					throw new IllegalArgumentException( "This motif length is not possible: " + length );
 				}
-				this.createTrees( new Sample[]{null,null}, new double[][]{null,null} );
+				this.createTrees( new DataSet[]{null,null}, new double[][]{null,null} );
 				int indexNew = 0, indexOld = 0;
 
 				//left side

@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.MultiDimensionalSequence;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
@@ -207,7 +207,7 @@ public class MultiDimensionalSequenceWrapperScoringFunction extends AbstractScor
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#initializeFunction(int, boolean, de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		function.initializeFunction( index, freeParams, data, weights );
 	}
 

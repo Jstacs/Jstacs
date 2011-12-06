@@ -1,6 +1,6 @@
 package de.jstacs;
 
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.models.Model;
 
@@ -118,15 +118,6 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	public double getLogProbFor(Sequence sequence) throws Exception;
 	
 	/**
-	 * Returns the equivalent sample size (ess) of this model, i.e. the
-	 * equivalent sample size for the class or component that is represented by
-	 * this model.
-	 * 
-	 * @return the equivalent sample size.
-	 */
-	public double getESS();
-
-	/**
 	 * Returns a value that is proportional to the log of the prior. For maximum likelihood (ML) 0
 	 * should be returned.
 	 * 
@@ -138,7 +129,7 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	public double getLogPriorTerm() throws Exception;
 	
 	/**
-	 * This method returns a {@link Sample} object containing artificial
+	 * This method returns a {@link DataSet} object containing artificial
 	 * sequence(s).
 	 * 
 	 * <br>
@@ -176,16 +167,16 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	 *            inhomogeneous model this parameter should be <code>null</code>
 	 *            or an array of size 0.
 	 * 
-	 * @return a {@link Sample} containing the artificial sequence(s)
+	 * @return a {@link DataSet} containing the artificial sequence(s)
 	 * 
 	 * @throws Exception
 	 *             if the emission did not succeed
 	 * @throws NotTrainedException
 	 *             if the model is not trained yet
 	 * 
-	 * @see Sample
+	 * @see DataSet
 	 */
-	public Sample emitSample(int numberOfSequences, int... seqLength)
+	public DataSet emitSample(int numberOfSequences, int... seqLength)
 			throws NotTrainedException, Exception;
 
 	

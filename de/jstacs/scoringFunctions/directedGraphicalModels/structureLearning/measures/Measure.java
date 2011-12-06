@@ -23,7 +23,7 @@ import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 
 /**
@@ -74,7 +74,7 @@ public abstract class Measure implements Cloneable, Storable,
 	 *             if the lengths do not match or other problems concerning the
 	 *             data occur
 	 */
-	public abstract int[][] getParents(Sample fg, Sample bg,
+	public abstract int[][] getParents(DataSet fg, DataSet bg,
 			double[] weightsFg, double[] weightsBg, int length)
 			throws Exception;
 
@@ -90,7 +90,7 @@ public abstract class Measure implements Cloneable, Storable,
 
 	/**
 	 * Creates a new parent structure as defined by
-	 * {@link #getParents(Sample, Sample, double[], double[], int)} from an
+	 * {@link #getParents(DataSet, DataSet, double[], double[], int)} from an
 	 * order and a topological ordering of positions.
 	 * 
 	 * @param o
@@ -165,7 +165,7 @@ public abstract class Measure implements Cloneable, Storable,
 	 * 
 	 * @param counts
 	 *            the counts as returned by
-	 *            {@link #getStatisticsOrderTwo(Sample, double[], int, double)}
+	 *            {@link #getStatisticsOrderTwo(DataSet, double[], int, double)}
 	 * @param n
 	 *            the total weight
 	 * 
@@ -206,10 +206,10 @@ public abstract class Measure implements Cloneable, Storable,
 	 * 
 	 * @param fgStats
 	 *            the counts in the foreground sequences as returned by
-	 *            {@link #getStatisticsOrderTwo(Sample, double[], int, double)}
+	 *            {@link #getStatisticsOrderTwo(DataSet, double[], int, double)}
 	 * @param bgStats
 	 *            the counts in the foreground sequences as returned by
-	 *            {@link #getStatisticsOrderTwo(Sample, double[], int, double)}
+	 *            {@link #getStatisticsOrderTwo(DataSet, double[], int, double)}
 	 * @param n
 	 *            the total weight
 	 * 
@@ -258,10 +258,10 @@ public abstract class Measure implements Cloneable, Storable,
 	 * 
 	 * @param fgStats
 	 *            the counts in the foreground sequences as returned by
-	 *            {@link #getStatisticsOrderTwo(Sample, double[], int, double)}
+	 *            {@link #getStatisticsOrderTwo(DataSet, double[], int, double)}
 	 * @param bgStats
 	 *            the counts in the foreground sequences as returned by
-	 *            {@link #getStatisticsOrderTwo(Sample, double[], int, double)}
+	 *            {@link #getStatisticsOrderTwo(DataSet, double[], int, double)}
 	 * @param nFg
 	 *            the total weight in the foreground
 	 * @param nBg
@@ -311,7 +311,7 @@ public abstract class Measure implements Cloneable, Storable,
 
 	/**
 	 * Counts the occurrences of symbols of the {@link AlphabetContainer} of
-	 * {@link Sample} <code>s</code> using <code>weights</code>. The array
+	 * {@link DataSet} <code>s</code> using <code>weights</code>. The array
 	 * <code>counts</code> is indexed as follows:<br>
 	 * <code>counts[first index][second index][third index][symbol at first index][symbol at second index][symbol at third index]</code>
 	 * .
@@ -331,7 +331,7 @@ public abstract class Measure implements Cloneable, Storable,
 	 *             if the lengths do not match or other problems concerning the
 	 *             data occur
 	 */
-	protected static double[][][][][][] getStatisticsOrderTwo(Sample s,
+	protected static double[][][][][][] getStatisticsOrderTwo(DataSet s,
 			double[] weights, int length, double ess) throws Exception {
 		if (s.getElementLength() != length) {
 			throw new Exception("Lengths do not match.");
@@ -413,7 +413,7 @@ public abstract class Measure implements Cloneable, Storable,
 
 	/**
 	 * Counts the occurrences of symbols of the {@link AlphabetContainer} of
-	 * {@link Sample} <code>s</code> using <code>weights</code>. The array
+	 * {@link DataSet} <code>s</code> using <code>weights</code>. The array
 	 * <code>counts</code> is indexed as follows:<br>
 	 * <code>counts[first index][second index][symbol at first index][symbol at second index]</code>
 	 * .
@@ -433,7 +433,7 @@ public abstract class Measure implements Cloneable, Storable,
 	 *             if the lengths do not match or other problems concerning the
 	 *             data occur
 	 */
-	protected static double[][][][] getStatistics(Sample s, double[] weights,
+	protected static double[][][][] getStatistics(DataSet s, double[] weights,
 			int length, double ess) throws Exception {
 		if (s.getElementLength() != length) {
 			throw new Exception("Lengths do not match.");
@@ -474,7 +474,7 @@ public abstract class Measure implements Cloneable, Storable,
 	 * 
 	 * @param counts
 	 *            the counts as defined in
-	 *            {@link #getStatistics(Sample, double[], int, double)}.
+	 *            {@link #getStatistics(DataSet, double[], int, double)}.
 	 * @param n
 	 *            the total weight
 	 * 
@@ -513,11 +513,11 @@ public abstract class Measure implements Cloneable, Storable,
 	 * 
 	 * @param fgStats
 	 *            the counts as defined in
-	 *            {@link #getStatistics(Sample, double[], int, double)} on the
+	 *            {@link #getStatistics(DataSet, double[], int, double)} on the
 	 *            foreground
 	 * @param bgStats
 	 *            the counts as defined in
-	 *            {@link #getStatistics(Sample, double[], int, double)} on the
+	 *            {@link #getStatistics(DataSet, double[], int, double)} on the
 	 *            background
 	 * @param n
 	 *            the total weight
@@ -572,11 +572,11 @@ public abstract class Measure implements Cloneable, Storable,
 	 * 
 	 * @param fgStats
 	 *            the counts as defined in
-	 *            {@link #getStatistics(Sample, double[], int, double)} on the
+	 *            {@link #getStatistics(DataSet, double[], int, double)} on the
 	 *            foreground
 	 * @param bgStats
 	 *            the counts as defined in
-	 *            {@link #getStatistics(Sample, double[], int, double)} on the
+	 *            {@link #getStatistics(DataSet, double[], int, double)} on the
 	 *            background
 	 * @param nFg
 	 *            the total weight in the foreground

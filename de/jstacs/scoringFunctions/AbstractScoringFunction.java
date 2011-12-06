@@ -24,9 +24,9 @@ import java.util.Random;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
@@ -209,7 +209,7 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 * (non-Javadoc)
 	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sample)
 	 */
-	public double[] getLogScoreFor(Sample data) throws Exception {
+	public double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] res = new double[data.getNumberOfElements()];
 		getLogScoreFor(data, res);
 		return res;
@@ -219,7 +219,7 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 * (non-Javadoc)
 	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sample, double[])
 	 */
-	public void getLogScoreFor(Sample data, double[] res) throws Exception {
+	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if (res.length != data.getNumberOfElements()) {
 			throw new IllegalArgumentException("The array has wrong dimension.");
 		}
@@ -250,7 +250,7 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 * (non-Javadoc)
 	 * @see de.jstacs.StatisticalModel#emitSample(int, int[])
 	 */
-	public Sample emitSample(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+	public DataSet emitSample(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
 		throw new Exception( "Standard implementation of emitSample used for "
 						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
 	}

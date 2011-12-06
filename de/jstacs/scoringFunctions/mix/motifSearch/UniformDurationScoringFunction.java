@@ -19,7 +19,7 @@
 package de.jstacs.scoringFunctions.mix.motifSearch;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
@@ -90,7 +90,7 @@ public final class UniformDurationScoringFunction extends DurationScoringFunctio
 	{
 	}
 
-	public void initializeFunction( int index, boolean meila, Sample[] data, double[][] weights )
+	public void initializeFunction( int index, boolean meila, DataSet[] data, double[][] weights )
 	{
 		// does nothing
 	}

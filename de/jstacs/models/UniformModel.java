@@ -26,7 +26,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.ArbitrarySequence;
 import de.jstacs.data.sequences.IntSequence;
@@ -179,7 +179,7 @@ public class UniformModel extends AbstractModel
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample, double[])
 	 */
 	@Deprecated
-	public void train( Sample data, double[] weights ) throws IOException
+	public void train( DataSet data, double[] weights ) throws IOException
 	{
 		// nothing
 	}
@@ -188,7 +188,7 @@ public class UniformModel extends AbstractModel
 	 * @see de.jstacs.models.AbstractModel#emitSample(int, int[])
 	 */
 	@Override
-	public Sample emitSample( int n, int... lengths ) throws Exception
+	public DataSet emitSample( int n, int... lengths ) throws Exception
 	{
 		Sequence[] seq;
 		if( length == 0 )
@@ -227,7 +227,7 @@ public class UniformModel extends AbstractModel
 				seq[i] = new ArbitrarySequence( alphabets, content );
 			}
 		}
-		return new Sample( "sampled from " + getInstanceName(), seq );
+		return new DataSet( "sampled from " + getInstanceName(), seq );
 	}
 	
 	private static final Random r = new Random();

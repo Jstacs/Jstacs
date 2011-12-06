@@ -33,7 +33,7 @@ import javax.imageio.ImageIO;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.XMLParser;
@@ -375,7 +375,7 @@ public class GalaxyAdaptor {
 	}
 
 	private String getSampleOutput( SampleResult res ) throws IOException {
-		Sample data = res.getResult();
+		DataSet data = res.getResult();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		if(res.getParser() == null){
 			data.save( baos,'>', new SplitSequenceAnnotationParser( ":", ";" ) );

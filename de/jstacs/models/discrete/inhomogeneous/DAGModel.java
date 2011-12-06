@@ -24,7 +24,7 @@ import java.util.Random;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.ByteSequence;
 import de.jstacs.io.ArrayHandler;
@@ -102,7 +102,7 @@ public abstract class DAGModel extends InhomogeneousDGM {
 	 * @see de.jstacs.models.AbstractModel#emitSample(int, int[])
 	 */
 	@Override
-	public Sample emitSample( int n, int... lengths ) throws NotTrainedException, Exception {
+	public DataSet emitSample( int n, int... lengths ) throws NotTrainedException, Exception {
 		if( !( lengths == null || lengths.length == 0 ) ) {
 			throw new Exception( "This is an inhomogeneous model. Please check parameter lengths." );
 		}
@@ -150,7 +150,7 @@ public abstract class DAGModel extends InhomogeneousDGM {
 			}
 			s[counter1] = new ByteSequence( alphabets, content );
 		}
-		return new Sample( "sampled from " + getInstanceName(), s );
+		return new DataSet( "sampled from " + getInstanceName(), s );
 	}
 
 	/* (non-Javadoc)
@@ -322,11 +322,11 @@ public abstract class DAGModel extends InhomogeneousDGM {
 	 *             if something went wrong while counting or drawing
 	 * 
 	 * @see ConstraintManager#countInhomogeneous(de.jstacs.data.AlphabetContainer,
-	 *      int, Sample, double[], boolean,
+	 *      int, DataSet, double[], boolean,
 	 *      de.jstacs.models.discrete.Constraint...)
 	 * @see ConstraintManager#drawFreqs(double, InhCondProb...)
 	 */
-	protected void drawParameters( Sample data, double[] weights ) throws Exception {
+	protected void drawParameters( DataSet data, double[] weights ) throws Exception {
 		if( data != null ) {
 			ConstraintManager.countInhomogeneous( alphabets, length, data, weights, true, constraints );
 		}
@@ -346,9 +346,9 @@ public abstract class DAGModel extends InhomogeneousDGM {
 	 * @throws Exception
 	 *             if something went wrong while counting or estimating
 	 * 
-	 * @see DAGModel#drawParameters(Sample, double[])
+	 * @see DAGModel#drawParameters(DataSet, double[])
 	 */
-	protected void estimateParameters( Sample data, double[] weights ) throws Exception {
+	protected void estimateParameters( DataSet data, double[] weights ) throws Exception {
 		ConstraintManager.countInhomogeneous( alphabets, length, data, weights, true, constraints );
 		ConstraintManager.computeFreqs( getESS(), constraints );
 		trained = true;

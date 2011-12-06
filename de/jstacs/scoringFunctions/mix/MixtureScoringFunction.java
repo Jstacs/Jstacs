@@ -23,7 +23,7 @@ import java.util.Arrays;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
@@ -205,7 +205,7 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 	 * initializeUsingPlugIn(int, boolean, de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	protected void initializeUsingPlugIn( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
+	protected void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		if( weights == null ) {
 			weights = new double[data.length][];
 		}
@@ -240,7 +240,7 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 	 * @param weights the weights for all sequences in data
 	 * @throws Exception thrown if the hidden parameters could not be adjusted
 	 */
-	public void adjustHiddenParameters( int index, Sample[] data, double[][] weights ) throws Exception {
+	public void adjustHiddenParameters( int index, DataSet[] data, double[][] weights ) throws Exception {
 		if( weights == null ) {
 			weights = new double[data.length][];
 		}
@@ -356,7 +356,7 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 		return res-1;
 	}
 
-	public void initializeMotif( int motifIndex, Sample data, double[] weights ) throws Exception {
+	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception {
 		int c = getComponentFor( motifIndex );
 		if( function[c] instanceof MutableMotifDiscoverer ) {
 			((MutableMotifDiscoverer) function[c]).initializeMotif( motifIndex - motifsRef[c], data, weights );

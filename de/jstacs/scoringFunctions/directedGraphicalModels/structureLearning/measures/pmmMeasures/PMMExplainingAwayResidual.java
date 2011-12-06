@@ -24,7 +24,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.DAG;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
@@ -134,7 +134,7 @@ public class PMMExplainingAwayResidual extends Measure {
 	 * double[], double[], int)
 	 */
 	@Override
-	public int[][] getParents(Sample fg, Sample bg, double[] weightsFg,
+	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
 
 		Tensor t = new SymmetricTensor(length, order);

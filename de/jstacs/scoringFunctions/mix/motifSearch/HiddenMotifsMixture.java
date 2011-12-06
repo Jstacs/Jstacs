@@ -22,7 +22,7 @@ import java.util.Arrays;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
@@ -141,7 +141,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 	 * @param type the type of hidden motifs, either {@link HiddenMotifsMixture#CONTAINS_ALWAYS_A_MOTIF} or {@link HiddenMotifsMixture#CONTAINS_SOMETIMES_A_MOTIF}
 	 * @param length the length of the modeled sequences (e.g. 500)
 	 * @param starts the number of recommended starts
-	 * @param plugIn a switch whether to use plug-in or randomly chosen parameter when using {@link ScoringFunction#initializeFunction(int, boolean, Sample[], double[][])}
+	 * @param plugIn a switch whether to use plug-in or randomly chosen parameter when using {@link ScoringFunction#initializeFunction(int, boolean, DataSet[], double[][])}
 	 * @param bg the {@link ScoringFunction} for the overall background (i.e. flanking sequence that does not contain a motif)
 	 * @param motif the {@link ScoringFunction} for the motif
 	 * @param posPrior the {@link ScoringFunction} for the position
@@ -161,7 +161,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 	 * @param type the type of hidden motifs, either {@link HiddenMotifsMixture#CONTAINS_ALWAYS_A_MOTIF} or {@link HiddenMotifsMixture#CONTAINS_SOMETIMES_A_MOTIF}
 	 * @param length the length of the modeled sequences (e.g. 500)
 	 * @param starts the number of recommended starts
-	 * @param plugIn a switch whether to use plug-in or randomly chosen parameter when using {@link ScoringFunction#initializeFunction(int, boolean, Sample[], double[][])}
+	 * @param plugIn a switch whether to use plug-in or randomly chosen parameter when using {@link ScoringFunction#initializeFunction(int, boolean, DataSet[], double[][])}
 	 * @param bg the {@link ScoringFunction} for the overall background (i.e. flanking sequence that does not contain a motif)
 	 * @param motif the {@link ScoringFunction}s for the sequence motif
 	 * @param posPrior the {@link ScoringFunction}s for the position of the the sequence motifs
@@ -690,12 +690,12 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		}
 	}
 
-	public void initializeMotif( int motif, Sample data, double[] weights ) throws Exception
+	public void initializeMotif( int motif, DataSet data, double[] weights ) throws Exception
 	{
 		int c = getNumberOfComponents() - 1;
 		if( motif < c || (motif == c && type == CONTAINS_ALWAYS_A_MOTIF) )
 		{
-			function[2*motif].initializeFunction( 0, freeParams, new Sample[]{data}, (weights==null ? null : new double[][]{weights}) );
+			function[2*motif].initializeFunction( 0, freeParams, new DataSet[]{data}, (weights==null ? null : new double[][]{weights}) );
 			init( freeParams );
 		}
 		else
@@ -822,14 +822,14 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		}
 	}	
 
-	public void adjustHiddenParameters( int classIndex, Sample[] data, double[][] dataWeights ) throws Exception {
+	public void adjustHiddenParameters( int classIndex, DataSet[] data, double[][] dataWeights ) throws Exception {
 		initializeHiddenUniformly();
 		//adjustParameters( classIndex, data, dataWeights, true, true, false );
 		adjustParameters( classIndex, data, dataWeights, false, true, false );
 		adjustParameters( classIndex, data, dataWeights, true, false, false );
 	}
 	
-	protected void initializeUsingPlugIn( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception
+	protected void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception
 	{
 		double[] old = null;
 		if( plugInBg ) {
@@ -849,7 +849,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 			p = r.nextInt( seq.getLength() - l + 1 );
 			seq = seq.getSubSequence( p, l );
 			h = d * function[2*motif].getESS();
-			function[2*motif].initializeFunction( 0, freeParams, new Sample[]{ new Sample( "", seq ) }, new double[][]{{h}} );
+			function[2*motif].initializeFunction( 0, freeParams, new DataSet[]{ new DataSet( "", seq ) }, new double[][]{{h}} );
 			
 			//System.out.print( s + "\t" + p + "\t" + seq + "\t" );
 		}
@@ -867,15 +867,15 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 	/**
 	 * This method allows to adjust all parameter except those of the flanking sequence {@link NormalizableScoringFunction}.
 	 * 
-	 * @param data the {@link Sample} containing sequences with motifs
-	 * @param dataWeights the weights corresponding to the {@link Sequence}s in the {@link Sample} <code>data</code>
+	 * @param data the {@link DataSet} containing sequences with motifs
+	 * @param dataWeights the weights corresponding to the {@link Sequence}s in the {@link DataSet} <code>data</code>
 	 * @param adjustComponent a switch to determine whether the component weights should be adjusted
 	 * @param adjustDuration a switch to determine whether the {@link DurationScoringFunction}s should be adjusted
 	 * @param adjustMotif a switch to determine whether the {@link NormalizableScoringFunction}s that are used for the motifs should be adjusted
 	 * 
 	 * @throws Exception if some initialize or adjust method from {@link NormalizableScoringFunction} and {@link DurationScoringFunction} is thrown 
 	 */
-	private void adjustParameters( int index, Sample[] data, double[][] dataWeights, boolean adjustComponent, boolean adjustDuration, boolean adjustMotif ) throws Exception 
+	private void adjustParameters( int index, DataSet[] data, double[][] dataWeights, boolean adjustComponent, boolean adjustDuration, boolean adjustMotif ) throws Exception 
 	{
 		int c = getNumberOfComponents(), stop = c - (type == CONTAINS_ALWAYS_A_MOTIF?0:1), i = 0, n = 0, anz = data[index].getNumberOfElements(), l;
 
@@ -1055,7 +1055,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		}
 		if( adjustMotif ) {
 			for( i = 0; i < stop; i++ ) {
-				function[2*i].initializeFunction( 0, this.freeParams, new Sample[]{new Sample( "picked sites " + i, seqs[i] ) }, new double[][]{seqComponentWeights[i]} );
+				function[2*i].initializeFunction( 0, this.freeParams, new DataSet[]{new DataSet( "picked sites " + i, seqs[i] ) }, new double[][]{seqComponentWeights[i]} );
 				//System.out.println( function[2*i+1] );
 			}
 		}

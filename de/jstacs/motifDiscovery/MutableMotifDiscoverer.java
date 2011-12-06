@@ -18,7 +18,7 @@
 
 package de.jstacs.motifDiscovery;
 
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 
 /**
  * This is the interface that any tool for de-novo motif discovery should implement that allows any modify-operations like shift, shrink and expand.
@@ -57,7 +57,7 @@ public interface MutableMotifDiscoverer extends MotifDiscoverer {
 	 * 
 	 * @throws Exception if initialize was not possible
 	 */
-	public void initializeMotif( int motifIndex, Sample data, double[] weights ) throws Exception;
+	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception;
 	
 	/**
 	 * This method initializes the motif with index <code>motif</code> randomly using for instance {@link de.jstacs.scoringFunctions.NormalizableScoringFunction#initializeFunctionRandomly(boolean)}.
@@ -78,5 +78,5 @@ public interface MutableMotifDiscoverer extends MotifDiscoverer {
 	 * 
 	 * @throws Exception thrown if the hidden parameters could not be adjusted
 	 */
-	public void adjustHiddenParameters( int index, Sample[] data, double[][] weights ) throws Exception;
+	public void adjustHiddenParameters( int index, DataSet[] data, double[][] weights ) throws Exception;
 }

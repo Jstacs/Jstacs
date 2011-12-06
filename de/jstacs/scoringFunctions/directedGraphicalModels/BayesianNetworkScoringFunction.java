@@ -27,7 +27,7 @@ import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.TopSort;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
@@ -346,7 +346,7 @@ public class BayesianNetworkScoringFunction extends
 	 * boolean, de.jstacs.data.Sample[], double[][])
 	 */
 	public void initializeFunction(int index, boolean freeParams,
-			Sample[] data, double[][] weights) throws Exception {
+			DataSet[] data, double[][] weights) throws Exception {
 		if (data[index] != null && data[index].getElementLength() != length) {
 			throw new Exception("Data has wrong length.");
 		}
@@ -358,10 +358,10 @@ public class BayesianNetworkScoringFunction extends
 				Arrays.fill(weights[i], 1.0);
 			}
 		}
-		Sample[] data2 = data;
+		DataSet[] data2 = data;
 		double[][] weights2 = weights;
 		if (data.length != 2) {
-			data2 = new Sample[2];
+			data2 = new DataSet[2];
 			weights2 = new double[2][];
 			data2[0] = data[index];
 			weights2[0] = weights[index];
@@ -369,7 +369,7 @@ public class BayesianNetworkScoringFunction extends
 			Arrays.fill(in, true);
 			in[index] = false;
 
-			data2[1] = Sample.union(data, in);
+			data2[1] = DataSet.union(data, in);
 			if (data2[1] != null) {
 				weights2[1] = new double[data2[1].getNumberOfElements()];
 				int off = 0;
@@ -420,7 +420,7 @@ public class BayesianNetworkScoringFunction extends
 	 *             and scoring function do not match or other problems
 	 *             concerning the data occur
 	 */
-	protected void createTrees(Sample[] data2, double[][] weights2)
+	protected void createTrees(DataSet[] data2, double[][] weights2)
 			throws Exception {
 		int[][] parents = structureMeasure.getParents(data2[0], data2[1],
 				weights2[0], weights2[1], this.getLength());
@@ -544,7 +544,7 @@ public class BayesianNetworkScoringFunction extends
 	 *            the weights on the data
 	 */
 	protected void setPlugInParameters(int index, boolean freeParameters,
-			Sample[] data, double[][] weights) {
+			DataSet[] data, double[][] weights) {
 		if (data[index] != null) {
 			for (int i = 0; i < data[index].getNumberOfElements(); i++) {
 				for (int j = 0; j < trees.length; j++) {
@@ -956,7 +956,7 @@ public class BayesianNetworkScoringFunction extends
 		this.freeParams = freeParams;
 		boolean temp = this.plugInParameters;
 		this.plugInParameters = false;
-		this.initializeFunction(0, freeParams, new Sample[] { null, null },
+		this.initializeFunction(0, freeParams, new DataSet[] { null, null },
 				new double[][] { null, null });
 		this.plugInParameters = temp;
 

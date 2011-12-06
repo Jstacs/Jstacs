@@ -21,15 +21,16 @@ package de.jstacs.models;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.WeightedSampleFactory;
-import de.jstacs.data.Sample.WeightedSampleFactory.SortOperation;
+import de.jstacs.data.DataSet.WeightedDataSetFactory;
+import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
+import de.jtem.numericalMethods.calculus.functionApproximation.bestFitting.Sample;
 
 /**
- * This class allows to train any {@link Model} on {@link Sample}s of {@link Sequence}s with
+ * This class allows to train any {@link Model} on {@link DataSet}s of {@link Sequence}s with
  * variable length if each individual length is at least {@link Model#getLength()}. All other methods
  * are piped to the internally used {@link Model}.
  * 
@@ -113,8 +114,8 @@ public class VariableLengthWrapperModel extends AbstractModel {
 		return m.isInitialized();
 	}
 
-	public void train( Sample data, double[] weights ) throws Exception {
-		WeightedSampleFactory wsf = new WeightedSampleFactory(SortOperation.NO_SORT,data,weights,length);
-		m.train( wsf.getSample(), wsf.getWeights() );
+	public void train( DataSet data, double[] weights ) throws Exception {
+		WeightedDataSetFactory wsf = new WeightedDataSetFactory(SortOperation.NO_SORT,data,weights,length);
+		m.train( wsf.getDataSet(), wsf.getWeights() );
 	}
 }

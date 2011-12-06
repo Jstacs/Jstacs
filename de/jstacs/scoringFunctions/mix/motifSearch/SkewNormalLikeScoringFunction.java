@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
@@ -149,7 +149,7 @@ public class SkewNormalLikeScoringFunction extends DurationScoringFunction
 	
 	private static RandomNumberGenerator randNumGen = new RandomNumberGenerator();
 	
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception
 	{
 		if( data[index].getAlphabetContainer().checkConsistency( alphabets ) ) {
 		

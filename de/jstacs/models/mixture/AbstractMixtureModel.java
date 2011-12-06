@@ -40,7 +40,7 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
@@ -93,7 +93,7 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  * 
  * The method {@link AbstractMixtureModel#setOutputStream(OutputStream)} enables
  * the user to get comments from the
- * {@link AbstractMixtureModel#train(Sample, double[])} method or to repress
+ * {@link AbstractMixtureModel#train(DataSet, double[])} method or to repress
  * them.
  * 
  * <br>
@@ -223,7 +223,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * The sample that was used in the last training. Will not be stored in the
 	 * {@link StringBuffer} when invoking {@link #toXML()}.
 	 */
-	protected Sample[] sample;
+	protected DataSet[] sample;
 
 	/**
 	 * The switch for estimating the component probabilities or not.
@@ -558,7 +558,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample, double[])
 	 */
-	public void train( Sample data, double[] dataWeights ) throws Exception {
+	public void train( DataSet data, double[] dataWeights ) throws Exception {
 		setNewAlphabetContainerInstance( data.getAlphabetContainer() );
 		sample = null;
 		System.gc();
@@ -664,7 +664,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected abstract void setTrainData( Sample data ) throws Exception;
+	protected abstract void setTrainData( DataSet data ) throws Exception;
 
 	/**
 	 * Creates an array that can be used for weighting sequences in the
@@ -694,13 +694,13 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see AbstractMixtureModel#doFirstIteration(Sample, double[],
+	 * @see AbstractMixtureModel#doFirstIteration(DataSet, double[],
 	 *      MultivariateRandomGenerator, MRGParams[])
 	 * @see AbstractMixtureModel#continueIterations(double[], double[][])
 	 * @see AbstractMixtureModel#continueIterations(double[], double[][], int,
 	 *      int)
 	 */
-	public double iterate( Sample data, double[] dataWeights, MultivariateRandomGenerator m, MRGParams[] params ) throws Exception {
+	public double iterate( DataSet data, double[] dataWeights, MultivariateRandomGenerator m, MRGParams[] params ) throws Exception {
 		sample = null;
 		System.gc();
 		setTrainData( data );
@@ -725,7 +725,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see AbstractMixtureModel#doFirstIteration(Sample, double[],
+	 * @see AbstractMixtureModel#doFirstIteration(DataSet, double[],
 	 *      MultivariateRandomGenerator, MRGParams[])
 	 * @see AbstractMixtureModel#continueIterations(double[], double[][])
 	 * @see AbstractMixtureModel#continueIterations(double[], double[][], int,
@@ -767,7 +767,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected double[][] doFirstIteration( Sample data, double[] dataWeights ) throws Exception {
+	protected double[][] doFirstIteration( DataSet data, double[] dataWeights ) throws Exception {
 		FastDirichletMRGParams[] params = new FastDirichletMRGParams[data.getNumberOfElements()];
 		Arrays.fill( params, new FastDirichletMRGParams( alpha ) );
 		return doFirstIteration( data, dataWeights, DirichletMRG.DEFAULT_INSTANCE, params );
@@ -793,7 +793,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected double[][] doFirstIteration( Sample data, double[] dataWeights, MultivariateRandomGenerator m, MRGParams[] params ) throws Exception {
+	protected double[][] doFirstIteration( DataSet data, double[] dataWeights, MultivariateRandomGenerator m, MRGParams[] params ) throws Exception {
 		sample = null;
 		System.gc();
 		setTrainData( data );
@@ -939,7 +939,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @param iterations
 	 *            the number of iterations that should be done
 	 * @param start
-	 *            the index of the run in a {@link Model#train(Sample)}-call
+	 *            the index of the run in a {@link Model#train(DataSet)}-call
 	 * 
 	 * @return the current score (likelihood or posterior)
 	 * 
@@ -1196,7 +1196,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @see de.jstacs.models.AbstractModel#getLogProbFor(de.jstacs.data.Sample)
 	 */
 	@Override
-	public final double[] getLogScoreFor( Sample data ) throws Exception {
+	public final double[] getLogScoreFor( DataSet data ) throws Exception {
 		if( !isInitialized() ) {
 			throw new NotTrainedException();
 		}
@@ -1290,7 +1290,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 *             if this method is used for an instance that does not use the
 	 *             EM
 	 * 
-	 * @see AbstractMixtureModel#train(Sample, double[])
+	 * @see AbstractMixtureModel#train(DataSet, double[])
 	 * @see AbstractMixtureModel#algorithmHasBeenRun()
 	 */
 	public final double getScoreForBestRun() throws NotTrainedException, OperationNotSupportedException {
@@ -1964,7 +1964,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @see de.jstacs.models.AbstractModel#emitSample(int, int[])
 	 */
 	@Override
-	public Sample emitSample( int n, int... lengths ) throws Exception {
+	public DataSet emitSample( int n, int... lengths ) throws Exception {
 		if( !isInitialized() ) {
 			throw new NotTrainedException();
 		}
@@ -2014,7 +2014,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 			default:
 				throw new IllegalArgumentException( "The type of algorithm is unknown." );
 		}
-		return new Sample( "sampled from " + getInstanceName(), seqs );
+		return new DataSet( "sampled from " + getInstanceName(), seqs );
 	}
 
 	/**

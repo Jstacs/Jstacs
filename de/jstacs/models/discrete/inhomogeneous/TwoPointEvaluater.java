@@ -22,7 +22,7 @@ import java.awt.image.BufferedImage;
 
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.models.discrete.inhomogeneous.StructureLearner.LearningType;
 import de.jstacs.utils.REnvironment;
 
@@ -41,9 +41,9 @@ public class TwoPointEvaluater {
 	 * the sequence positions.
 	 * 
 	 * @param s
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
-	 *            the weights for each sequence of the {@link Sample} or
+	 *            the weights for each sequence of the {@link DataSet} or
 	 *            <code>null</code>
 	 * 
 	 * @return a matrix containing all pairwise mutual informations (in bits)
@@ -54,7 +54,7 @@ public class TwoPointEvaluater {
 	 *             length is not matching with the
 	 *             {@link de.jstacs.data.AlphabetContainer}, ...)
 	 */
-	public static double[][] getMIInBits( Sample s, double[] weights ) throws IllegalArgumentException {
+	public static double[][] getMIInBits( DataSet s, double[] weights ) throws IllegalArgumentException {
 		int l = s.getElementLength(), i = 0;
 		int[] j = new int[1];
 		StructureLearner sl = new StructureLearner( s.getAlphabetContainer(), l );
@@ -97,7 +97,7 @@ public class TwoPointEvaluater {
 	 * @throws Exception
 	 *             if an {@link Exception} is thrown from {@link REnvironment}
 	 * 
-	 * @see TwoPointEvaluater#getMIInBits(Sample, double[])
+	 * @see TwoPointEvaluater#getMIInBits(DataSet, double[])
 	 */
 	public static BufferedImage getImage( double[][] mi, REnvironment r ) throws Exception {
 		r.createMatrix( "mi", mi );

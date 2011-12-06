@@ -27,7 +27,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.io.ArrayHandler;
@@ -658,7 +658,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		this.skipInit = skipInit;
 	}
 */	
-	public synchronized void train(Sample data, double[] weights) throws Exception {
+	public synchronized void train(DataSet data, double[] weights) throws Exception {
 		if( !(trainingParameter instanceof MaxHMMTrainingParameterSet) ) {
 			throw new IllegalArgumentException( "This kind of training is currently not supported." );
 		} else {
@@ -756,7 +756,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		}
 	}
 	
-	private double doOneStep(Sample data, double[] weights, int start, int end, int thread) throws Exception{
+	private double doOneStep(DataSet data, double[] weights, int start, int end, int thread) throws Exception{
 		Sequence seq;
 		double weight = 1;
 		double newValue = 0;
@@ -787,7 +787,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * 
 	 * @throws Exception if an error occurs during the initialization 
 	 */
-	protected void initialize( Sample data, double[] weight ) throws Exception {
+	protected void initialize( DataSet data, double[] weight ) throws Exception {
 		initializeRandomly();
 	}
 	
@@ -861,14 +861,14 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 	
 	@Override
-	public double[] getLogScoreFor(Sample data) throws Exception {
+	public double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] logProb = new double[data.getNumberOfElements()];
 		getLogScoreFor(data, logProb);
 		return logProb;
 	}
 
 	@Override
-	public void getLogScoreFor(Sample data, double[] res) throws Exception {
+	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if( !data.getAlphabetContainer().checkConsistency(getAlphabetContainer()) ) {
 			throw new WrongAlphabetException( "The AlphabetContainer of the sample and the model do not match." );
 		}
@@ -883,7 +883,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		}
 	}
 	
-	public Sample emitSample(int numberOfSequences, int... seqLength)
+	public DataSet emitSample(int numberOfSequences, int... seqLength)
 		throws NotTrainedException, Exception {
 		// TODO Auto-generated method stub
 		return null;
@@ -1058,12 +1058,12 @@ public class HigherOrderHMM extends AbstractHMM {
 		private int idx;
 		private int start, end;
 		private double score;
-		private Sample data;
+		private DataSet data;
 		private double[] weights;
 
 		
 		
-		public WorkerThread(int idx, int start, int end, Sample data, double[] weights){
+		public WorkerThread(int idx, int start, int end, DataSet data, double[] weights){
 			this.idx = idx;
 			this.start = start;
 			this.end = end;

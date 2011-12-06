@@ -32,17 +32,17 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
-import de.jstacs.data.Sample.WeightedSampleFactory;
-import de.jstacs.data.Sample.WeightedSampleFactory.SortOperation;
+import de.jstacs.data.DataSet.WeightedDataSetFactory;
+import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
 
 /**
- * This class enables the user to get some statistics of a {@link Sample} in an easy way.
+ * This class enables the user to get some statistics of a {@link DataSet} in an easy way.
  * 
  * @author Jens Keilwagen
  */
@@ -59,7 +59,7 @@ public final class KMereStatistic {
 	 * @param data the data
 	 * @param k the number of symbols in each counted word
 	 */
-	public KMereStatistic( Sample data, int k ) {
+	public KMereStatistic( DataSet data, int k ) {
 		abc = data.getAlphabetContainer();
 		length = data.getElementLength();
 		if( !abc.isSimple() || length == 0 ) {
@@ -198,7 +198,7 @@ public final class KMereStatistic {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static Sequence[] getCommonString(Sample data, int motifLength, boolean bothStrands) throws Exception {
+	public static Sequence[] getCommonString(DataSet data, int motifLength, boolean bothStrands) throws Exception {
 		int f = bothStrands ? 2 : 1;
 		LinkedList<Sequence> candidates = new LinkedList<Sequence>();
 		HashSet<Sequence> current = new HashSet<Sequence>(f * data.getMaximalElementLength());
@@ -271,10 +271,10 @@ public final class KMereStatistic {
 	 * @throws Exception
 	 *             if something went wrong
 	 *             
-	 * @see KMereStatistic#getAbsoluteKMereFrequencies(Sample, int, boolean, Sample.WeightedSampleFactory.SortOperation)
+	 * @see KMereStatistic#getAbsoluteKMereFrequencies(DataSet, int, boolean, DataSet.WeightedSampleFactory.SortOperation)
 	 * @see SortOperation#NO_SORT
 	 */
-	public static WeightedSampleFactory getAbsoluteKMereFrequencies( Sample data, int k, boolean bothStrands) throws Exception {
+	public static WeightedDataSetFactory getAbsoluteKMereFrequencies( DataSet data, int k, boolean bothStrands) throws Exception {
 		return getAbsoluteKMereFrequencies( data, k, bothStrands, SortOperation.NO_SORT );
 	}
 	
@@ -303,17 +303,17 @@ public final class KMereStatistic {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static WeightedSampleFactory getAbsoluteKMereFrequencies( Sample data, int k, boolean bothStrands, SortOperation sortOp ) throws Exception {
-		Sample myData = data;
+	public static WeightedDataSetFactory getAbsoluteKMereFrequencies( DataSet data, int k, boolean bothStrands, SortOperation sortOp ) throws Exception {
+		DataSet myData = data;
 		if (bothStrands) {
 			Sequence[] seqs = new Sequence[2 * data.getNumberOfElements()];
 			for (int j = 0; j < data.getNumberOfElements(); j++) {
 				seqs[2 * j] = data.getElementAt(j);
 				seqs[2 * j + 1] = seqs[2 * j].reverseComplement();
 			}
-			myData = new Sample("both strands of " + data.getAnnotation(), seqs);
+			myData = new DataSet("both strands of " + data.getAnnotation(), seqs);
 		}
-		WeightedSampleFactory wsf = new WeightedSampleFactory( sortOp, myData, null, k);
+		WeightedDataSetFactory wsf = new WeightedDataSetFactory( sortOp, myData, null, k);
 		if (bothStrands) {
 			wsf = removeReverseComplements(wsf, 2, sortOp );
 		}
@@ -327,7 +327,7 @@ public final class KMereStatistic {
 	 * the <code>k</code>-mer (or its reverse complement) or not.
 	 * 
 	 * @param data
-	 *            the {@link Sample}s of {@link Sequence}s
+	 *            the {@link DataSet}s of {@link Sequence}s
 	 * @param k
 	 *            the motif length
 	 * @param bothStrands
@@ -345,13 +345,13 @@ public final class KMereStatistic {
 	 *         <code>d</code> in sequence <code>n</code> the <code>n</code>-th bit of the
 	 *         <code>d</code>-th {@link BitSet} is true.
 	 *          
-	 * @throws WrongAlphabetException if the {@link AlphabetContainer}s of the {@link Sample}s do not match or if they are not simple and discrete 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer}s of the {@link DataSet}s do not match or if they are not simple and discrete 
 	 * @throws OperationNotSupportedException if the <code>bothStrands==true</code> but the reverse complement could not be computed
 	 * 
 	 * @see Hashtable
 	 * @see KMereStatistic#merge(Hashtable, int, boolean)
 	 */
-	public static Hashtable<Sequence, BitSet[]> getKmereSequenceStatistic( int k, boolean bothStrands, int addIndex, Sample... data ) throws WrongAlphabetException, OperationNotSupportedException {
+	public static Hashtable<Sequence, BitSet[]> getKmereSequenceStatistic( int k, boolean bothStrands, int addIndex, DataSet... data ) throws WrongAlphabetException, OperationNotSupportedException {
 		AlphabetContainer con = data[0].getAlphabetContainer();
 		if( !con.isSimple() || !con.isDiscrete() ) {
 			throw new WrongAlphabetException();
@@ -421,7 +421,7 @@ public final class KMereStatistic {
 	 * @param filter
 	 *            a filter containing all interesting <code>k</code>-mers
 	 * @param data
-	 *            the {@link Sample}s of {@link Sequence}s
+	 *            the {@link DataSet}s of {@link Sequence}s
 	 * 
 	 * @return a {@link Hashtable} on {@link Sequence}s and arrays of {@link BitSet}s; each
 	 * 		   entry encodes a <code>k</code>-mer and the occurrence of this <code>k</code>-mer
@@ -429,13 +429,13 @@ public final class KMereStatistic {
 	 *         <code>d</code> in sequence <code>n</code> the <code>n</code>-th bit of the
 	 *         <code>d</code>-th {@link BitSet} is true.
 	 *         
-	 * @throws WrongAlphabetException if the {@link AlphabetContainer}s of the {@link Sample}s do not match or if they are not simple and discrete 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer}s of the {@link DataSet}s do not match or if they are not simple and discrete 
 	 * @throws OperationNotSupportedException if the <code>bothStrands==true</code> but the reverse complement could not be computed
 	 * 
 	 * @see Hashtable
 	 * @see KMereStatistic#merge(Hashtable, int, boolean)
 	 */
-	public static Pair<Sequence, BitSet[]>[] getKmereSequenceStatistic( boolean bothStrands, int maxMismatch, HashSet<Sequence> filter, Sample... data ) throws WrongAlphabetException, OperationNotSupportedException {
+	public static Pair<Sequence, BitSet[]>[] getKmereSequenceStatistic( boolean bothStrands, int maxMismatch, HashSet<Sequence> filter, DataSet... data ) throws WrongAlphabetException, OperationNotSupportedException {
 		AlphabetContainer con = data[0].getAlphabetContainer();
 		if( !con.isSimple() || !con.isDiscrete() ) {
 			throw new WrongAlphabetException();
@@ -484,7 +484,7 @@ public final class KMereStatistic {
 	/**
 	 * This method allows to merge the statistics of k-mers by allowing mismatches.
 	 * 
-	 * @param statistic a statistic as obtained from {@link KMereStatistic#getKmereSequenceStatistic(int, boolean, int, Sample...)}
+	 * @param statistic a statistic as obtained from {@link KMereStatistic#getKmereSequenceStatistic(int, boolean, int, DataSet...)}
 	 * @param maximalMissmatch the maximal number of allowed mismatches 
 	 * @param bothStrands the switch for using both strand <code>true</code> or only forward strand <code>false</code>.
 	 * 
@@ -496,7 +496,7 @@ public final class KMereStatistic {
 	 * @throws WrongLengthException see {@link Sequence#getHammingDistance(Sequence)}
 	 * 
 	 * @see Sequence#getHammingDistance(Sequence)
-	 * @see KMereStatistic#getKmereSequenceStatistic(int, boolean, int, Sample...)
+	 * @see KMereStatistic#getKmereSequenceStatistic(int, boolean, int, DataSet...)
 	 */
 	public static Hashtable<Sequence, BitSet[]> merge( Hashtable<Sequence, BitSet[]> statistic, int maximalMissmatch, boolean bothStrands ) throws OperationNotSupportedException, CloneNotSupportedException, WrongLengthException, WrongAlphabetException {
 		Hashtable<Sequence, BitSet[]> res = new Hashtable<Sequence, BitSet[]>();
@@ -541,13 +541,13 @@ public final class KMereStatistic {
 	 * or a set of sequences (depending on the input of the <code>statistic</code>) that occurs
 	 * in more than <code>threshold</code> {@link Sequence}s of the data set.
 	 * 
-	 * @param statistic a statistic as obtained from {@link KMereStatistic#getKmereSequenceStatistic(int, boolean, int, Sample...)} or {@link KMereStatistic#merge(Hashtable, int, boolean)}
+	 * @param statistic a statistic as obtained from {@link KMereStatistic#getKmereSequenceStatistic(int, boolean, int, DataSet...)} or {@link KMereStatistic#merge(Hashtable, int, boolean)}
 	 * @param dataSetIndex the index of the {@link BitSet} to be used
 	 * @param threshold a threshold that has to be exceeded by {@link BitSet#cardinality()} to be declared as a conserved pattern
 	 * 
 	 * @return a list of conserved patterns
 	 * 
-	 * @see KMereStatistic#getKmereSequenceStatistic(int, boolean, int, Sample...)
+	 * @see KMereStatistic#getKmereSequenceStatistic(int, boolean, int, DataSet...)
 	 * @see KMereStatistic#merge(Hashtable, int, boolean)
 	 */
 	public static LinkedList<Sequence> getConservedPatterns( Hashtable<Sequence, BitSet[]> statistic, int dataSetIndex, int threshold ) {
@@ -566,7 +566,7 @@ public final class KMereStatistic {
 	/**
 	 * This method allows to remove those entries from the statistic that have a lower weighted foreground cardinality than the weighted background cardinality.
 	 * 
-	 * @param statistic a statistic as obtained from {@link KMereStatistic#getKmereSequenceStatistic(int, boolean, int, Sample...)} or {@link KMereStatistic#merge(Hashtable, int, boolean)}
+	 * @param statistic a statistic as obtained from {@link KMereStatistic#getKmereSequenceStatistic(int, boolean, int, DataSet...)} or {@link KMereStatistic#merge(Hashtable, int, boolean)}
 	 * @param fgIndex the foreground index of the {@link BitSet} to be used
 	 * @param bgIndex the background index of the {@link BitSet} to be used
 	 * @param fgWeight the weight used to weight the foreground cardinality
@@ -589,7 +589,7 @@ public final class KMereStatistic {
 		return res;
 	}	
 
-	private static WeightedSampleFactory removeReverseComplements( WeightedSampleFactory wsf, int div, SortOperation so ) throws Exception {
+	private static WeightedDataSetFactory removeReverseComplements( WeightedDataSetFactory wsf, int div, SortOperation so ) throws Exception {
 		ArrayList<Sequence> seqs = new ArrayList<Sequence>();
 		DoubleList weight = new DoubleList();
 		Sequence seq;
@@ -605,6 +605,6 @@ public final class KMereStatistic {
 				}
 			}
 		}
-		return new WeightedSampleFactory(so, new Sample(null, seqs.toArray(new Sequence[0])), weight.toArray());
+		return new WeightedDataSetFactory(so, new DataSet(null, seqs.toArray(new Sequence[0])), weight.toArray());
 	}
 }

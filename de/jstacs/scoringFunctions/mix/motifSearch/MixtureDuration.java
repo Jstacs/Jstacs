@@ -21,7 +21,7 @@ package de.jstacs.scoringFunctions.mix.motifSearch;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
@@ -262,7 +262,7 @@ public class MixtureDuration extends DurationScoringFunction {
 		return paramRef[function.length+1];
 	}
 
-	public void initializeFunction( int index, boolean freeParams, Sample[] data, double[][] weights ) throws Exception {
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		int i = 0, j;
 		double w = 1, all = 0;
 		for( ; i < function.length; i++ ) {

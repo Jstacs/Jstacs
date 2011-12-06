@@ -24,7 +24,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.DAG;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.InstanceParameterSet;
@@ -129,9 +129,9 @@ public class PMMMutualInformation extends Measure {
 	 * @see de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure#getParents(de.jstacs.data.Sample, de.jstacs.data.Sample, double[], double[], int)
 	 */
 	@Override
-	public int[][] getParents(Sample fg, Sample bg, double[] weightsFg,
+	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
-		Sample data = null;
+		DataSet data = null;
 		double[] weights = null;
 		double ess2 = 0;
 		if (clazz == DataSource.FG) {
@@ -143,7 +143,7 @@ public class PMMMutualInformation extends Measure {
 			weights = weightsBg;
 			ess2 = ess[1];
 		} else {
-			data = Sample.union(fg, bg);
+			data = DataSet.union(fg, bg);
 			weights = union(new double[][] { weightsFg, weightsBg });
 			ess2 = ess[0] + ess[1];
 		}

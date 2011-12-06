@@ -20,7 +20,7 @@
 package de.jstacs.scoringFunctions;
 
 import de.jstacs.SequenceScoringFunction;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -66,7 +66,7 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 *             if something went wrong
 	 */
 	public void initializeFunction(int index, boolean freeParams,
-			Sample[] data, double[][] weights) throws Exception;
+			DataSet[] data, double[][] weights) throws Exception;
 
 	/**
 	 * This method initializes the {@link ScoringFunction} randomly. It has to
@@ -151,7 +151,7 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 * {@link #getNumberOfParameters()} containing the current parameter values.
 	 * If one likes to use these parameters to start an optimization it is
 	 * highly recommended to invoke
-	 * {@link #initializeFunction(int, boolean, Sample[], double[][])} before.
+	 * {@link #initializeFunction(int, boolean, DataSet[], double[][])} before.
 	 * After an optimization this method can be used to get the current
 	 * parameter values.
 	 * 

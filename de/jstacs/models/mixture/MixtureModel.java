@@ -25,7 +25,7 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.models.Model;
 import de.jstacs.sampling.BurnInTest;
@@ -512,7 +512,7 @@ public class MixtureModel extends AbstractMixtureModel {
 		}
 
 		no = 0;
-		Sample help;
+		DataSet help;
 		Sequence[] seqs = new Sequence[n];
 		if( length == 0 ) {
 			// homogenous case
@@ -612,7 +612,7 @@ public class MixtureModel extends AbstractMixtureModel {
 	 * @throws Exception
 	 *             if something went wrong or if the number of components is 1
 	 */
-	public double[][] doFirstIteration( Sample data, double[] dataWeights, double[][] partitioning ) throws Exception {
+	public double[][] doFirstIteration( DataSet data, double[] dataWeights, double[][] partitioning ) throws Exception {
 		setTrainData( data );
 		if( dimension > 1 ) {
 			int counter1, counter2, d = data.getNumberOfElements();
@@ -716,7 +716,7 @@ public class MixtureModel extends AbstractMixtureModel {
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#setTrainData(de.jstacs.data.Sample)
 	 */
 	@Override
-	protected void setTrainData( Sample data ) {
-		sample = new Sample[]{ data };
+	protected void setTrainData( DataSet data ) {
+		sample = new DataSet[]{ data };
 	}
 }

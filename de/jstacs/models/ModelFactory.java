@@ -148,7 +148,7 @@ public class ModelFactory {
 	}
 	
 	/**
-	 * This method allows to create a {@link MixtureModel} that allows to model a {@link de.jstacs.data.Sample} as a mixture of individual components.
+	 * This method allows to create a {@link MixtureModel} that allows to model a {@link de.jstacs.data.DataSet} as a mixture of individual components.
 	 * 
 	 * @param hyper the hyper parameters for the components (should be identical to the ESS of the components)
 	 * @param model the internally used model
@@ -167,7 +167,7 @@ public class ModelFactory {
 	}
 	
 	/**
-	 * This method allows to create a &quot;zero or one occurrence per sequence&quot; (ZOOPS) model that allows to discovers binding sites in a {@link de.jstacs.data.Sample}.
+	 * This method allows to create a &quot;zero or one occurrence per sequence&quot; (ZOOPS) model that allows to discovers binding sites in a {@link de.jstacs.data.DataSet}.
 	 * 
 	 * @param motif the internally used model for the binding sites
 	 * @param bg the internally used model for the flanking sequence

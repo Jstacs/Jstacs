@@ -22,7 +22,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.AbstractModel;
 import de.jstacs.models.discrete.inhomogeneous.FSDAGModel;
@@ -123,7 +123,7 @@ public class SharedStructureClassifier extends ModelBasedClassifier {
 	 * @see de.jstacs.classifier.modelBased.ModelBasedClassifier#train(de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	public void train( Sample[] data, double[][] weights ) throws IllegalArgumentException, Exception {
+	public void train( DataSet[] data, double[][] weights ) throws IllegalArgumentException, Exception {
 		int dimension = models.length;
 		SymmetricTensor[] parts = new SymmetricTensor[dimension];
 		double[] w = new double[dimension];

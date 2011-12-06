@@ -22,7 +22,7 @@ package de.jstacs.scoringFunctions;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
@@ -144,7 +144,7 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#initializeFunction(int,
 	 * boolean, de.jstacs.data.Sample[], double[][])
 	 */
-	public void initializeFunction(int index, boolean meila, Sample[] data,
+	public void initializeFunction(int index, boolean meila, DataSet[] data,
 			double[][] weights) {
 		// does nothing
 	}

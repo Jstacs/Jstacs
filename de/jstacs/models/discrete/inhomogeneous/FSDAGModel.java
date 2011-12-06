@@ -24,7 +24,7 @@ import java.util.TreeMap;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.Model;
 import de.jstacs.models.discrete.DGMParameterSet;
@@ -111,7 +111,7 @@ public class FSDAGModel extends DAGModel {
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample, double[])
 	 */
-	public void train( Sample data, double[] weights ) throws Exception {
+	public void train( DataSet data, double[] weights ) throws Exception {
 		estimateParameters( data, weights );
 	}
 
@@ -119,16 +119,16 @@ public class FSDAGModel extends DAGModel {
 	 * Computes the model with structure <code>graph</code>.
 	 * 
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
-	 *            the weights for the sequences in the {@link Sample}
+	 *            the weights for the sequences in the {@link DataSet}
 	 * @param graph
 	 *            the graph
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public void train( Sample data, double[] weights, int[][] graph ) throws Exception {
+	public void train( DataSet data, double[] weights, int[][] graph ) throws Exception {
 		// check
 		if( !checkAcyclic( length, graph ) ) {
 			throw new IllegalArgumentException( "the graph is not acyclic" );
@@ -143,9 +143,9 @@ public class FSDAGModel extends DAGModel {
 	 * specify a new graph structure.
 	 * 
 	 * @param data
-	 *            a {@link Sample} or <code>null</code>
+	 *            a {@link DataSet} or <code>null</code>
 	 * @param weights
-	 *            the (positive) weights for each sequence of the {@link Sample}
+	 *            the (positive) weights for each sequence of the {@link DataSet}
 	 *            or <code>null</code>
 	 * @param graph
 	 *            the graph or <code>null</code> for the current graph
@@ -153,10 +153,10 @@ public class FSDAGModel extends DAGModel {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see DAGModel#drawParameters(Sample, double[])
+	 * @see DAGModel#drawParameters(DataSet, double[])
 	 * @see DAGModel#checkAcyclic(int, int[][])
 	 */
-	public void drawParameters( Sample data, double[] weights, int[][] graph ) throws Exception {
+	public void drawParameters( DataSet data, double[] weights, int[][] graph ) throws Exception {
 		if( graph != null ) {
 			// check
 			if( !checkAcyclic( length, graph ) ) {
@@ -187,7 +187,7 @@ public class FSDAGModel extends DAGModel {
 	 * 
 	 * @see DAGModel#checkAcyclic(int, int[][])
 	 */
-	private void trainUnchecked( Sample data, double[] weights, int[][] graph ) throws Exception {
+	private void trainUnchecked( DataSet data, double[] weights, int[][] graph ) throws Exception {
 		// set parameter
 		params.getParameterAt( 2 ).setValue( FSDAGMParameterSet.encode( graph ) );
 		// create
@@ -203,16 +203,16 @@ public class FSDAGModel extends DAGModel {
 	 *            an array of {@link de.jstacs.models.AbstractModel}s containing
 	 *            only instances of {@link FSDAGModel}
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
-	 *            the weights for the sequences in the {@link Sample}
+	 *            the weights for the sequences in the {@link DataSet}
 	 * @param graph
 	 *            the graph
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static void train( Model[] models, int[][] graph, double[][] weights, Sample... data ) throws Exception {
+	public static void train( Model[] models, int[][] graph, double[][] weights, DataSet... data ) throws Exception {
 		// check
 		if( !checkAcyclic( graph.length, graph ) ) {
 			throw new IllegalArgumentException( "the graph is not acyclic" );

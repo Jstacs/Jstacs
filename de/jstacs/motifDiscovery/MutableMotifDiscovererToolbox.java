@@ -34,7 +34,7 @@ import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifier.scoringFunctionBased.SFBasedOptimizableFunction;
 import de.jstacs.data.RecyclableSequenceEnumerator;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.io.ArrayHandler;
@@ -91,12 +91,12 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 */
 	public static Sequence[] enumerate( ScoringFunction[] funs, int[] classIndex, int[] motifIndex, RecyclableSequenceEnumerator[] rse, double weight, SFBasedOptimizableFunction opt, OutputStream out ) throws Exception
 	{
-		Sample[] data = opt.getData();
+		DataSet[] data = opt.getData();
 		double[][] dataWeights = opt.getSequenceWeights();
 			
 		int num = 0, idx, i;
 		Sequence[] seq = new Sequence[classIndex.length], bestSeq = new Sequence[classIndex.length];
-		Sample[] s = new Sample[classIndex.length];
+		DataSet[] s = new DataSet[classIndex.length];
 		
 		boolean[] adjust = new boolean[funs.length];
 		Arrays.fill( adjust, false );
@@ -118,7 +118,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 			len[i] = mmd[classIndex[i]].getMotifLength( motifIndex[i] );
 			rse[i].reset();
 			seq[i] = rse[i].nextElement();
-			s[i] = new Sample( "sample " + i, seq[i] );
+			s[i] = new DataSet( "sample " + i, seq[i] );
 		}
 		idx = classIndex.length-1;
 		
@@ -145,19 +145,19 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 			while( idx < rse.length && !rse[idx].hasMoreElements() ) {
 				rse[idx].reset();
 				seq[idx] = rse[idx].nextElement();
-				s[idx] = new Sample( "sample " + idx, seq[idx] );
+				s[idx] = new DataSet( "sample " + idx, seq[idx] );
 				idx++;
 			}
 			if( idx < rse.length ){
 				seq[idx] = rse[idx].nextElement();
-				s[idx] = new Sample( "sample " + idx, seq[idx] );
+				s[idx] = new DataSet( "sample " + idx, seq[idx] );
 			} else {
 				break;
 			}
 		}
 		out.write( ( "best: " + Arrays.toString( bestSeq ) + " " + best + "\n" ).getBytes() );
 		for( i = 0; i < classIndex.length; i++ ) {
-			s[i] = new Sample( "sample " + i, bestSeq[i] );
+			s[i] = new DataSet( "sample " + i, bestSeq[i] );
 		}
 		initMotif( classIndex.length-1, classIndex, motifIndex, s, weights, adjust, mmd, len, data, dataWeights );
 		
@@ -170,8 +170,8 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param idx the index indicates how many motifs are initialized
 	 * @param classIndex the indices of the classes of each motif
 	 * @param motifIndex the indices of each motif within the {@link MutableMotifDiscoverer}
-	 * @param s the {@link Sample}s to be used for the initialization
-	 * @param seqWeights the weights corresponding to the {@link Sample}s
+	 * @param s the {@link DataSet}s to be used for the initialization
+	 * @param seqWeights the weights corresponding to the {@link DataSet}s
 	 * @param adjust an array of switches indicating whether to adjust hidden parameters of not
 	 * @param mmd the array of {@link MutableMotifDiscoverer}s to be initialized
 	 * @param len the length of each motif
@@ -180,7 +180,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public static void initMotif( int idx, int[] classIndex, int[] motifIndex, Sample[] s, double[][] seqWeights, boolean[] adjust, MutableMotifDiscoverer[] mmd, int[] len, Sample data[], double[][] dataWeights ) throws Exception {
+	public static void initMotif( int idx, int[] classIndex, int[] motifIndex, DataSet[] s, double[][] seqWeights, boolean[] adjust, MutableMotifDiscoverer[] mmd, int[] len, DataSet data[], double[][] dataWeights ) throws Exception {
 		int i, sl;
 		for( i = 0; i <= idx; i++ ) {
 			sl = s[i].getElementLength();
@@ -247,7 +247,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	public static ComparableElement<double[],Double>[] getSortedInitialParameters( ScoringFunction[] funs, InitMethodForScoringFunction[] init, SFBasedOptimizableFunction opt, int n, OutputStream stream, int optimizationSteps ) throws Exception
 	{
 		SafeOutputStream info = SafeOutputStream.getSafeOutputStream(stream);
-		Sample[] data = opt.getData();
+		DataSet[] data = opt.getData();
 		double[][] oldParams = new double[funs.length][];
 		for( int j = 0; j < funs.length; j++ ) {
 			if( init[j] == InitMethodForScoringFunction.NOTHING ) {
@@ -431,7 +431,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 		int k;
 		ScoringFunction[] best = null;
 		double[] params, classParams = null;
-		Sample[] data = opt.getData();
+		DataSet[] data = opt.getData();
 		double[][] weights = opt.getSequenceWeights();
 		double bestVal = Double.NEGATIVE_INFINITY, current;
 		do{
@@ -465,7 +465,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * These heuristic steps include shift, shrink, and expand as far as the user allows those operations by the {@link History} array.
 	 * 
 	 * @param funs the {@link ScoringFunction}s  for scoring sequences
-	 * @param data array of {@link Sample} containing the data for each class
+	 * @param data array of {@link DataSet} containing the data for each class
 	 * @param weights the weights corresponding to the {@link Sequence}s in <code>data</code>
 	 * @param opt the {@link SFBasedOptimizableFunction}
 	 * @param neg the {@link NegativeDifferentiableFunction} used in the optimization
@@ -482,7 +482,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public static boolean doHeuristicSteps( ScoringFunction[] funs, Sample[] data, double[][] weights, SFBasedOptimizableFunction opt,
+	public static boolean doHeuristicSteps( ScoringFunction[] funs, DataSet[] data, double[][] weights, SFBasedOptimizableFunction opt,
 			DifferentiableFunction neg, byte algorithm, double linEps, StartDistanceForecaster startDistance, 
 			SafeOutputStream out, boolean breakOnChanged, History[][] hist, int[][] minimalNewLength, boolean maxPos ) throws Exception {
 		boolean changed = false, changedThisOne;
@@ -546,7 +546,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param motif the motif index for which the Scoring function will be tested for modification
 	 * @param mmd the {@link MutableMotifDiscoverer} that will be tested
 	 * @param score the {@link ScoringFunction}s for scoring sequences
-	 * @param data array of {@link Sample} containing the data for each class
+	 * @param data array of {@link DataSet} containing the data for each class
 	 * @param weights array of <code>double[]</code> containing the weights for the data of each class
 	 * @param opt the {@link SFBasedOptimizableFunction}
 	 * @param neg the {@link NegativeDifferentiableFunction} used in the optimization
@@ -562,18 +562,18 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see SignificantMotifOccurrencesFinder#getNumberOfBoundSequences(Sample, double[], int)
+	 * @see SignificantMotifOccurrencesFinder#getNumberOfBoundSequences(DataSet, double[], int)
 	 */
-	public static boolean findModification( int clazz, int motif, MutableMotifDiscoverer mmd, ScoringFunction[] score, Sample[] data, double[][] weights, SFBasedOptimizableFunction opt, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, History hist, int minimalNewLength, boolean maxPos ) throws Exception {
+	public static boolean findModification( int clazz, int motif, MutableMotifDiscoverer mmd, ScoringFunction[] score, DataSet[] data, double[][] weights, SFBasedOptimizableFunction opt, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, History hist, int minimalNewLength, boolean maxPos ) throws Exception {
 		double[] params = opt.getParameters( KindOfParameter.LAST );
 		int len = mmd.getMotifLength( motif ) / 2;
-		Sample[] my = {data[clazz], null};
+		DataSet[] my = {data[clazz], null};
 		double[][] myWeights = { weights[clazz], null };
 		if( data.length > 2 ) {
 			boolean[] in = new boolean[data.length];
 			Arrays.fill( in, true ) ;
 			in[clazz] = false;
-			my[1] = Sample.union( data, in );
+			my[1] = DataSet.union( data, in );
 			int anz = 0;
 			for( int i = 0; i < data.length; i++ ) {
 				if( in[i] ) {
@@ -628,7 +628,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	private static final SafeOutputStream DISCARD_OUT = SafeOutputStream.getSafeOutputStream( null );
 	private static final int NUMBER_OF_PERMUTATIONS = 1000;
 	
-	private static int heuristic( int clazz, int motif, int len, int direction, Sample[] data, double[][] weights, SFBasedOptimizableFunction test, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, double[] params, ScoringFunction[] score, double pred, SafeOutputStream out, boolean maxPos ) throws Exception {
+	private static int heuristic( int clazz, int motif, int len, int direction, DataSet[] data, double[][] weights, SFBasedOptimizableFunction test, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, double[] params, ScoringFunction[] score, double pred, SafeOutputStream out, boolean maxPos ) throws Exception {
 		test.setParams(params);
 		MutableMotifDiscoverer mmd = (MutableMotifDiscoverer) score[clazz];
 		//System.out.println( mmd );

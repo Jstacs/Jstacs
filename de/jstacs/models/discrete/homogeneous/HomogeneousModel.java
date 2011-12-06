@@ -24,8 +24,8 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptySampleException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.EmptyDataSetException;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
@@ -95,25 +95,25 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 	}
 
 	/**
-	 * Creates a {@link Sample} of a given number of {@link Sequence}s from a
+	 * Creates a {@link DataSet} of a given number of {@link Sequence}s from a
 	 * trained homogeneous model.
 	 * 
 	 * @param no
 	 *            the number of {@link Sequence}s that should be in the
-	 *            {@link Sample}
+	 *            {@link DataSet}
 	 * @param length
 	 *            the length of all {@link Sequence}s or an array of lengths
 	 *            with the {@link Sequence} with index <code>i</code> having
 	 *            length <code>length[i]</code>
 	 * 
-	 * @return the created {@link Sample}
+	 * @return the created {@link DataSet}
 	 * 
 	 * @throws NotTrainedException
 	 *             if the model was not trained
 	 * @throws IllegalArgumentException
 	 *             if the dimension of <code>length</code> is neither 1 nor
 	 *             <code>no</code>
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if <code>no == 0</code>
 	 * @throws WrongSequenceTypeException
 	 *             if the {@link Sequence} type is not suitable (for the
@@ -121,12 +121,12 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 	 * @throws WrongAlphabetException
 	 *             if something is wrong with the alphabet
 	 * 
-	 * @see Sample#Sample(String, Sequence...)
+	 * @see DataSet#Sample(String, Sequence...)
 	 */
 	@Override
-	public final Sample emitSample( int no, int... length ) throws NotTrainedException,
+	public final DataSet emitSample( int no, int... length ) throws NotTrainedException,
 			IllegalArgumentException,
-			EmptySampleException,
+			EmptyDataSetException,
 			WrongAlphabetException,
 			WrongSequenceTypeException {
 		if( !trained ) {
@@ -144,7 +144,7 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 		} else {
 			throw new IllegalArgumentException( "The dimension of the array length is not correct." );
 		}
-		return new Sample( "sampled from " + getInstanceName(), seq );
+		return new DataSet( "sampled from " + getInstanceName(), seq );
 	}
 
 	/**
@@ -191,27 +191,27 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 	}
 
 	/**
-	 * Trains the homogeneous model on all given {@link Sample}s.
+	 * Trains the homogeneous model on all given {@link DataSet}s.
 	 * 
 	 * @param data
-	 *            the given {@link Sample}s
+	 *            the given {@link DataSet}s
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see HomogeneousModel#train(Sample[], double[][])
+	 * @see HomogeneousModel#train(DataSet[], double[][])
 	 */
-	public void train( Sample[] data ) throws Exception {
+	public void train( DataSet[] data ) throws Exception {
 		train( data, new double[data.length][] );
 	}
 
 	/**
-	 * Trains the homogeneous model using an array of weighted {@link Sample}s.
+	 * Trains the homogeneous model using an array of weighted {@link DataSet}s.
 	 * The {@link Sequence} weights in <code>weights[i]</code> are for the
-	 * {@link Sample} in <code>data[i]</code>.
+	 * {@link DataSet} in <code>data[i]</code>.
 	 * 
 	 * @param data
-	 *            the given {@link Sample}s
+	 *            the given {@link DataSet}s
 	 * @param weights
 	 *            the weights
 	 * 
@@ -219,7 +219,7 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 	 *             if something went wrong, furthermore <code>data.length</code>
 	 *             has to be <code>weights.length</code>
 	 */
-	public abstract void train( Sample[] data, double[][] weights ) throws Exception;
+	public abstract void train( DataSet[] data, double[][] weights ) throws Exception;
 
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.discrete.DiscreteGraphicalModel#set(de.jstacs.models.discrete.DGMParameterSet, boolean)

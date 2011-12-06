@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
@@ -415,7 +415,7 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 	 * (non-Javadoc)
 	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#initializeMotif(int, de.jstacs.data.Sample, double[])
 	 */
-	public void initializeMotif( int motifIndex, Sample data, double[] weights ) throws Exception {
+	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception {
 		fillMotifIndexArray( motifIndex );
 		if( motifIndexArray[2] >= 0 ) {
 			( (MutableMotifDiscoverer)score[motifIndexArray[0]] ).initializeMotif( motifIndexArray[1], data, weights );
@@ -678,8 +678,8 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 		return AbstractNormalizableScoringFunction.isNormalized( score );
 	}
 
-	public void adjustHiddenParameters( int index, Sample[] data, double[][] weights ) throws Exception {
-		Sample[] part = new Sample[data.length];
+	public void adjustHiddenParameters( int index, DataSet[] data, double[][] weights ) throws Exception {
+		DataSet[] part = new DataSet[data.length];
 		double[][] help;
 		for( int a, i = 0; i < score.length; i++ ) {
 			if( score[i] instanceof MutableMotifDiscoverer ) {

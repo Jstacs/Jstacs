@@ -24,7 +24,7 @@ import java.util.Random;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.ByteSequence;
@@ -425,7 +425,7 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 	 * boolean, de.jstacs.data.Sample[], double[][])
 	 */
 	public void initializeFunction(int index, boolean freeParams,
-			Sample[] data, double[][] weights) {
+			DataSet[] data, double[][] weights) {
 		int len, o, indexOld, indexNew;
 		if (optimize && plugIn && data != null && data[index] != null) {
 			double hyper;
@@ -846,37 +846,37 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 	}
 
 	/**
-	 * This method returns a {@link Sample} object containing artificial
+	 * This method returns a {@link DataSet} object containing artificial
 	 * sequence(s).
 	 * 
 	 * <br>
 	 * <br>
 	 * 
-	 * There are 2 different possibilities to create a {@link Sample}:
+	 * There are 2 different possibilities to create a {@link DataSet}:
 	 * <ol>
-	 * <li> <code>emitSample( int n, int l )</code> returns a {@link Sample} with
+	 * <li> <code>emitSample( int n, int l )</code> returns a {@link DataSet} with
 	 * <code>n</code> sequences of length <code>l</code>.
 	 * <li> <code>emitSample( int n, int[] l )</code> should return a
-	 * {@link Sample} with <code>n</code> sequences which have a sequence length
+	 * {@link DataSet} with <code>n</code> sequences which have a sequence length
 	 * corresponding to the entry in the array.
 	 * </ol>
 	 * 
 	 * @param numberOfSequences
 	 *            the number of sequences that should be contained in the
-	 *            returned {@link Sample}
+	 *            returned {@link DataSet}
 	 * @param seqLength
 	 *            the length of the sequences
 	 * 
-	 * @return a {@link Sample} containing <code>numberOfSequences</code>
+	 * @return a {@link DataSet} containing <code>numberOfSequences</code>
 	 *         artificial sequence(s)
 	 * 
 	 * @throws Exception
-	 *             if the emission of the artificial {@link Sample} did not
+	 *             if the emission of the artificial {@link DataSet} did not
 	 *             succeed
 	 * 
-	 * @see Sample
+	 * @see DataSet
 	 */
-	public Sample emit(int numberOfSequences, int... seqLength)
+	public DataSet emit(int numberOfSequences, int... seqLength)
 			throws Exception {
 		Random r = new Random();
 		Sequence[] seqs = new Sequence[numberOfSequences];
@@ -914,7 +914,7 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 			seqs[i] = new ByteSequence(alphabets, bytes);
 			// System.out.println(seqs[i]);
 		}
-		return new Sample("generated from " + getInstanceName(), seqs);
+		return new DataSet("generated from " + getInstanceName(), seqs);
 	}
 
 	@Override

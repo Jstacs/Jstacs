@@ -25,7 +25,7 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.Model;
@@ -226,7 +226,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureModel implements
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#train(de.jstacs.data.Sample, double[])
 	 */
 	@Override
-	public void train( Sample data, double[] weights ) throws Exception {
+	public void train( DataSet data, double[] weights ) throws Exception {
 		if( data.getMinimalElementLength() < getMinimalSequenceLength() ) {
 			throw new IllegalArgumentException( "The sample contains sequence that are not allowed in this MotifDiscoverer. The minimal length is " + getMinimalSequenceLength()
 												+ "." );
@@ -253,7 +253,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureModel implements
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public abstract void trainBgModel( Sample data, double[] weights ) throws Exception;
+	public abstract void trainBgModel( DataSet data, double[] weights ) throws Exception;
 
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#checkLength(int, int)

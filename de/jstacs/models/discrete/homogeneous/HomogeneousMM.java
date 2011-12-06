@@ -25,9 +25,9 @@ import java.util.TreeMap;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.io.XMLParser;
@@ -180,15 +180,15 @@ public class HomogeneousMM extends HomogeneousModel {
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.Model#train(de.jstacs.data.Sample, double[])
 	 */
-	public void train( Sample data, double[] weights ) throws Exception {
-		train( new Sample[]{ data }, new double[][]{ weights } );
+	public void train( DataSet data, double[] weights ) throws Exception {
+		train( new DataSet[]{ data }, new double[][]{ weights } );
 	}
 
 	/* (non-Javadoc)
 	 * @see de.jstacs.models.discrete.homogeneous.HomogeneousModel#train(de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	public void train( Sample[] data, double[][] weights ) throws Exception {
+	public void train( DataSet[] data, double[][] weights ) throws Exception {
 		// check
 		if( data.length != weights.length ) {
 			throw new IllegalArgumentException( "The constraint data.length == weights.length is not fulfilled." );
@@ -287,13 +287,13 @@ public class HomogeneousMM extends HomogeneousModel {
 	}
 
 	/**
-	 * Counts homogeneously the symbols in the {@link Sample} for this
+	 * Counts homogeneously the symbols in the {@link DataSet} for this
 	 * {@link HomogeneousMM}.
 	 * 
 	 * @param data
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param weights
-	 *            the weights of the {@link Sequence} in the {@link Sample} or
+	 *            the weights of the {@link Sequence} in the {@link DataSet} or
 	 *            <code>null</code>
 	 * 
 	 * @throws IllegalArgumentException
@@ -301,7 +301,7 @@ public class HomogeneousMM extends HomogeneousModel {
 	 * @throws WrongAlphabetException
 	 *             if the alphabets do not match
 	 */
-	private void countHomogeneous( Sample data, double[] weights ) throws WrongAlphabetException {
+	private void countHomogeneous( DataSet data, double[] weights ) throws WrongAlphabetException {
 		int d = data.getNumberOfElements(), counter1, lengthCounter, l;
 		Sequence seq;
 
