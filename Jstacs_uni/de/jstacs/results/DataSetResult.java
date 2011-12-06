@@ -39,13 +39,13 @@ import de.jstacs.io.XMLParser;
  * 
  * @author Jan Grau
  */
-public class SampleResult extends Result {
+public class DataSetResult extends Result {
 
 	private DataSet data;
 	private SequenceAnnotationParser parser;
 
 	/**
-	 * Creates a new {@link SampleResult} from a {@link DataSet} with the
+	 * Creates a new {@link DataSetResult} from a {@link DataSet} with the
 	 * annotation <code>name</code> and <code>comment</code>.
 	 * 
 	 * @param name
@@ -55,13 +55,13 @@ public class SampleResult extends Result {
 	 * @param data
 	 *            the {@link DataSet} that is the result of some computation
 	 */
-	public SampleResult(String name, String comment, DataSet data) {
-		super(name, comment, DataType.SAMPLE);
+	public DataSetResult(String name, String comment, DataSet data) {
+		super(name, comment, DataType.DATASET);
 		this.data = data;
 	}
 	
 	/**
-	 * Creates a new {@link SampleResult} from a {@link DataSet} with the
+	 * Creates a new {@link DataSetResult} from a {@link DataSet} with the
 	 * annotation <code>name</code> and <code>comment</code>.
 	 * 
 	 * @param name
@@ -73,14 +73,14 @@ public class SampleResult extends Result {
 	 * @param parser 
 	 * 			  a {@link SequenceAnnotationParser} that can be used to store and parse the annotations of <code>data</code>
 	 */
-	public SampleResult(String name, String comment, DataSet data, SequenceAnnotationParser parser) {
+	public DataSetResult(String name, String comment, DataSet data, SequenceAnnotationParser parser) {
 		this(name, comment, data);
 		this.parser = parser;
 	}
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Recreates a {@link SampleResult} from its XML representation as returned
+	 * Recreates a {@link DataSetResult} from its XML representation as returned
 	 * by {@link #toXML()}.
 	 * 
 	 * @param source
@@ -89,7 +89,7 @@ public class SampleResult extends Result {
 	 * @throws NonParsableException
 	 *             if the XML code could not be parsed
 	 */
-	public SampleResult(StringBuffer source) throws NonParsableException {
+	public DataSetResult(StringBuffer source) throws NonParsableException {
 		super(source);
 	}
 	
@@ -174,7 +174,7 @@ public class SampleResult extends Result {
 
 	/**
 	 * Returns the {@link SequenceAnnotationParser} that can be used to
-	 * write this {@link SampleResult} including annotations on the contained {@link Sequence}s
+	 * write this {@link DataSetResult} including annotations on the contained {@link Sequence}s
 	 * to a file.
 	 * @return the {@link SequenceAnnotationParser}
 	 */
@@ -184,7 +184,7 @@ public class SampleResult extends Result {
 
 	/**
 	 * Sets the {@link SequenceAnnotationParser} that can be used to
-	 * write this {@link SampleResult} including annotations on the contained {@link Sequence}s
+	 * write this {@link DataSetResult} including annotations on the contained {@link Sequence}s
 	 * to a file
 	 * @param parser the new {@link SequenceAnnotationParser}
 	 */

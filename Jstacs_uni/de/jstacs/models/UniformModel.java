@@ -188,7 +188,7 @@ public class UniformModel extends AbstractModel
 	 * @see de.jstacs.models.AbstractModel#emitSample(int, int[])
 	 */
 	@Override
-	public DataSet emitSample( int n, int... lengths ) throws Exception
+	public DataSet emitDataSet( int n, int... lengths ) throws Exception
 	{
 		Sequence[] seq;
 		if( length == 0 )

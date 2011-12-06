@@ -91,9 +91,9 @@ public enum DataType {
 	STORABLE,
 
 	/**
-	 * This value indicates the data type {@link de.jstacs.data.Sample}.
+	 * This value indicates the data type {@link de.jstacs.data.DataSet}.
 	 */
-	SAMPLE,
+	DATASET,
 
 	/**
 	 * This value indicates the data type {@link de.jstacs.results.ListResult}.
