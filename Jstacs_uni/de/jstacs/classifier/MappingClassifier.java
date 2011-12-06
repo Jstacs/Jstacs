@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
@@ -41,11 +41,11 @@ import de.jstacs.utils.Normalisation;
  * between class 1 and class 2 and 3. This is a good example where to use this
  * class. The user has to create its 3-class-classifier, create an instance of
  * this class using its classifier, map the test samples together (
- * {@link MappingClassifier#mapSample(Sample[])}) and invoke
- * {@link AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)}
- * with these mapped {@link Sample}. Alternatively, the method
- * {@link AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, Sample...)} can
- * be used directly and the {@link Sample}s will be mapped internally
+ * {@link MappingClassifier#mapSample(DataSet[])}) and invoke
+ * {@link AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, DataSet...)}
+ * with these mapped {@link DataSet}. Alternatively, the method
+ * {@link AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, DataSet...)} can
+ * be used directly and the {@link DataSet}s will be mapped internally
  * (i.e. inside the evaluate method).
  * 
  * @author Jens Keilwagen
@@ -203,7 +203,7 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	public void train( Sample[] s, double[][] weights ) throws Exception {
+	public void train( DataSet[] s, double[][] weights ) throws Exception {
 		classifier.train( s, weights );
 	}
 	
@@ -212,7 +212,7 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getResults(java.util.LinkedList, de.jstacs.data.Sample[], de.jstacs.classifier.measures.MeasureParameters, boolean)
 	 */
 	@Override
-	protected boolean getResults( LinkedList list, Sample[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length == getNumberOfClasses() ) {
 			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {
@@ -221,23 +221,23 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	}
 
 	/**
-	 * This method maps the given {@link Sample}s to the internal classes.
+	 * This method maps the given {@link DataSet}s to the internal classes.
 	 * 
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * 
 	 * @return the array of samples corresponding to the classes
 	 */
-	public Sample[] mapSample( Sample[] s ) {
+	public DataSet[] mapSample( DataSet[] s ) {
 		boolean[] in = new boolean[classifier.getNumberOfClasses()];
-		Sample[] mapped = new Sample[classMapping.length];
+		DataSet[] mapped = new DataSet[classMapping.length];
 		try {
 			for( int j, i = 0; i < mapped.length; i++ ) {
 				Arrays.fill( in, false );
 				for( j = 0; j < classMapping[i].length; j++ ) {
 					in[classMapping[i][j]] = true;
 				}
-				mapped[i] = Sample.union( s, in );
+				mapped[i] = DataSet.union( s, in );
 			}
 		} catch ( Exception e ) {
 			// does not happen

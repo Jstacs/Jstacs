@@ -33,9 +33,9 @@ import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.classifier.performanceMeasures.ROCCurve;
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.ImageResult;
 import de.jstacs.results.NumericalResultSet;
@@ -181,7 +181,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		return classify( seq, true );
 	}
 	
-	protected double[][][] getMultiClassScores( Sample[] s ) throws Exception {
+	protected double[][][] getMultiClassScores( DataSet[] s ) throws Exception {
 		for( int d = 0; d < s.length; d++ ) {
 			check( s[d] );
 		}
@@ -201,7 +201,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#getResults(de.jstacs.data.Sample[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
 	 */
 	@Override
-	protected boolean getResults( LinkedList list, Sample[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
 			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {
@@ -374,7 +374,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#test(de.jstacs.data.Sample[])
 	 */
 	@Override
-	public ConfusionMatrix test( Sample... testData ) throws Exception {
+	public ConfusionMatrix test( DataSet... testData ) throws Exception {
 		if( testData.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}
@@ -404,19 +404,19 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	}
 
 	/**
-	 * This method checks if the given {@link Sample} can be used.
+	 * This method checks if the given {@link DataSet} can be used.
 	 * 
 	 * @param s
-	 *            the {@link Sample} to be checked
+	 *            the {@link DataSet} to be checked
 	 * 
 	 * @throws NotTrainedException
 	 *             if the classifier is not trained
 	 * @throws IllegalArgumentException
-	 *             if something is wrong with the {@link Sample} <code>s</code>
+	 *             if something is wrong with the {@link DataSet} <code>s</code>
 	 * 
 	 * @see AbstractClassifier#setNewAlphabetContainerInstance(AlphabetContainer)
 	 */
-	protected void check( Sample s ) throws NotTrainedException, IllegalArgumentException {
+	protected void check( DataSet s ) throws NotTrainedException, IllegalArgumentException {
 		if( !isInitialized() ) {
 			throw new NotTrainedException( "The classifier is not trained yet." );
 		}
@@ -557,8 +557,8 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 
 	/**
 	 * This method returns the scores of the classifier for any {@link Sequence}
-	 * in the {@link Sample}. The scores are stored in the array according to
-	 * the index of the {@link Sequence} in the {@link Sample}.
+	 * in the {@link DataSet}. The scores are stored in the array according to
+	 * the index of the {@link Sequence} in the {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
@@ -566,14 +566,14 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * <b>Only for 2-class-classifiers.</b>
 	 * 
 	 * @param s
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * 
 	 * @return the array of scores
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public double[] getScores( Sample s ) throws Exception {
+	public double[] getScores( DataSet s ) throws Exception {
 		if( classWeights.length != 2 ) {
 			throw new OperationNotSupportedException( "This method is only for 2-class-classifiers." );
 		}
@@ -604,7 +604,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 
 	/**
 	 * Returns the p-value for a {@link Sequence} <code>candidate</code> with
-	 * respect to a given background {@link Sample}.
+	 * respect to a given background {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
@@ -617,29 +617,29 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * <br>
 	 * 
 	 * It is not recommended to use this method in a <code>for</code>-loop. In
-	 * such cases one should use the method that works on two {@link Sample}s.
+	 * such cases one should use the method that works on two {@link DataSet}s.
 	 * 
 	 * @param candidate
 	 *            the candidate {@link Sequence}
 	 * @param bg
-	 *            the background {@link Sample}
+	 *            the background {@link DataSet}
 	 * 
 	 * @return the p-value for the {@link Sequence} <code>candidate</code>
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see AbstractScoreBasedClassifier#getPValue(Sample, Sample)
+	 * @see AbstractScoreBasedClassifier#getPValue(DataSet, DataSet)
 	 * @see PValueComputation#getPValue(double[], double)
 	 */
-	public double getPValue( Sequence candidate, Sample bg ) throws Exception {
+	public double getPValue( Sequence candidate, DataSet bg ) throws Exception {
 		double[] scores = createStatistic( bg );
 		return PValueComputation.getPValue( scores, getScore( candidate, 0 ) - getScore( candidate, 1 ) );
 	}
 
 	/**
-	 * Returns the p-values for all {@link Sequence}s in the {@link Sample}
-	 * <code>candidates</code> with respect to a given background {@link Sample}
+	 * Returns the p-values for all {@link Sequence}s in the {@link DataSet}
+	 * <code>candidates</code> with respect to a given background {@link DataSet}
 	 * .
 	 * 
 	 * <br>
@@ -650,7 +650,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * <code>candidates</code>.
 	 * 
 	 * @param candidates
-	 *            the {@link Sample} with candidate sequences
+	 *            the {@link DataSet} with candidate sequences
 	 * @param bg
 	 *            the background sample
 	 * 
@@ -659,10 +659,10 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see AbstractScoreBasedClassifier#getPValue(Sequence, Sample)
+	 * @see AbstractScoreBasedClassifier#getPValue(Sequence, DataSet)
 	 * @see PValueComputation#getPValue(double[], double)
 	 */
-	public double[] getPValue( Sample candidates, Sample bg ) throws Exception {
+	public double[] getPValue( DataSet candidates, DataSet bg ) throws Exception {
 		double[] scores = createStatistic( bg ), pVal = new double[candidates.getNumberOfElements()];
 		Sequence candidate;
 		for( int i = 0; i < pVal.length; i++ ) {
@@ -673,14 +673,14 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	}
 
 	// just put the scores in the array -> sort
-	private double[] createStatistic( Sample bg ) throws Exception {
+	private double[] createStatistic( DataSet bg ) throws Exception {
 		double[] scores = getScores( bg );
 		Arrays.sort( scores );
 		// System.out.println( scores[0] + " " + scores[scores.length-1] );
 		return scores;
 	}
 
-	private double[][] getSortedTwoClassScores( Sample[] s ) throws Exception {
+	private double[][] getSortedTwoClassScores( DataSet[] s ) throws Exception {
 		double[][] scores = new double[][]{ getScores( s[0] ), getScores( s[1] ) };
 		Arrays.sort( scores[0] );
 		Arrays.sort( scores[1] );

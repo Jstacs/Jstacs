@@ -21,7 +21,7 @@ package de.jstacs.classifier;
 /**
  * This class indicates that a classifier is defined for less than 2 classes or
  * is defined over a different number of classes than given (e.g. by an array of
- * {@link de.jstacs.data.Sample}s).
+ * {@link de.jstacs.data.DataSet}s).
  * 
  * @author Jens Keilwagen
  */
