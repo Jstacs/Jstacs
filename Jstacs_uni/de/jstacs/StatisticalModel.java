@@ -2,7 +2,6 @@ package de.jstacs;
 
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.models.Model;
 
 
 /**
