@@ -93,15 +93,18 @@ public class Normalisation {
 	}
 
 	/**
-	 * The method does a log-sum-normalisation on <code>d</code> with the values
-	 * of <code>d</code> given as <code>d[i] = Math.log( val[i] )</code>.
+	 * The method does a log-sum-normalisation on the array <code>d</code>, where
+	 * the values of <code>d</code> are assumed to be logarithmised.
+	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=0}^{\\mathrm{length}(d)-1} v_i$}.
+	 * Then after log-sum-normalisation, the array <code>d</code> contains the normalized original values, i.e., {@latex.inline $d_i$} is set to
+	 * {@latex.inline $d_i := \\frac{v_i}{s}$ }. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
 	 * 
 	 * @param d
 	 *            the array with the logarithmised values that should be
 	 *            normalised
 	 * 
 	 * @return the logarithm of the sum of the values
-	 *         <code>\log(\sum_{i=0}^{length(d)-1} val[i])</code>
+	 *         {@latex.inline $\\log(\\sum_{i=0}^{\\mathrm{length}(d)-1} v_i)$ }
 	 * 
 	 * @see Normalisation#logSumNormalisation(double[], int, int, double[], int)
 	 */
