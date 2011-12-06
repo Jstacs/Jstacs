@@ -22,7 +22,7 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ImageResult;
 import de.jstacs.utils.REnvironment;
@@ -36,7 +36,7 @@ public class ClassificationVisualizer {
 
 	private ClassificationVisualizer() {}
 
-	private static String getPlotScoresCmd( AbstractScoreBasedClassifier cl, Sample class0, Sample class1, REnvironment e, int bins,
+	private static String getPlotScoresCmd( AbstractScoreBasedClassifier cl, DataSet class0, DataSet class1, REnvironment e, int bins,
 			double density, String plotOptions ) throws Exception {
 		StringBuffer b = new StringBuffer( 100000 );
 		if( cl.getNumberOfClasses() != 2 ) {
@@ -112,7 +112,7 @@ public class ClassificationVisualizer {
 	 *      java.awt.image.BufferedImage)
 	 * @see REnvironment#plot(String, double, double)
 	 */
-	public static ImageResult plotScores( AbstractScoreBasedClassifier cl, Sample class0, Sample class1, REnvironment e, int bins,
+	public static ImageResult plotScores( AbstractScoreBasedClassifier cl, DataSet class0, DataSet class1, REnvironment e, int bins,
 			double density, String plotOptions ) throws Exception {
 		return new ImageResult( "plot of the scores",
 				"this plot shows the scores that are used to assign the classes",
@@ -148,7 +148,7 @@ public class ClassificationVisualizer {
 	 * 
 	 * @see REnvironment#plotToPDF(String, double, double, String, boolean)
 	 */
-	public static void plotScores( AbstractScoreBasedClassifier cl, Sample class0, Sample class1, REnvironment e, int bins, double density,
+	public static void plotScores( AbstractScoreBasedClassifier cl, DataSet class0, DataSet class1, REnvironment e, int bins, double density,
 			String plotOptions, String fName ) throws Exception {
 		e.plotToPDF( getPlotScoresCmd( cl, class0, class1, e, bins, density, plotOptions ), 10, 5, fName, true );
 	}
@@ -180,8 +180,8 @@ public class ClassificationVisualizer {
 	 *      java.awt.image.BufferedImage)
 	 * @see REnvironment#plot(String, double, double)
 	 */
-	public static ImageResult getScatterplot( AbstractScoreBasedClassifier cl1, AbstractScoreBasedClassifier cl2, Sample class0,
-			Sample class1, REnvironment e, boolean drawThreshold ) throws Exception {
+	public static ImageResult getScatterplot( AbstractScoreBasedClassifier cl1, AbstractScoreBasedClassifier cl2, DataSet class0,
+			DataSet class1, REnvironment e, boolean drawThreshold ) throws Exception {
 		if( cl1.getNumberOfClasses() != 2 || cl2.getNumberOfClasses() != 2 ) {
 			throw new OperationNotSupportedException( "This method is only possible for 2-class-classifiers." );
 		}
@@ -218,7 +218,7 @@ public class ClassificationVisualizer {
 		return res + ")";
 	}
 
-	private static String getTitle( Sample class0, Sample class1 ) {
+	private static String getTitle( DataSet class0, DataSet class1 ) {
 		String res = "scatterplot for ";
 		if( class0 != null && class1 != null ) {
 			res += class0.getAnnotation() + " and " + class1.getAnnotation();

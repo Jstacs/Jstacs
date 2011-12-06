@@ -25,9 +25,9 @@ import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.PartitionMethod;
+import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.models.Model;
 import de.jstacs.utils.ProgressUpdater;
 
@@ -284,7 +284,7 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#evaluateClassifier(de.jstacs.classifier.MeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, de.jstacs.data.Sample[], de.jstacs.utils.ProgressUpdater)
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 		if( s.length != 2 ) {
 			throw new IllegalArgumentException( "This class can only handle two classes" );
@@ -303,8 +303,8 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 		int repeats = tempAssessPS.getRepeats(), referenceClass = tempAssessPS.getReferenceClass();
 		double percents = tempAssessPS.getPercent();
 
-		Sample[][] sTrainTestClassWise = new Sample[2][s.length];
-		Sample[] temp;
+		DataSet[][] sTrainTestClassWise = new DataSet[2][s.length];
+		DataSet[] temp;
 
 		pU.setMax( repeats );
 
@@ -374,7 +374,7 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 				// create samples
 				for( clazz = 0; clazz < s.length; clazz++ ) {
 					if( clazz != referenceClass ) {
-						sTrainTestClassWise[j][clazz] = new Sample( "sampled data set", part[j][clazz] );
+						sTrainTestClassWise[j][clazz] = new DataSet( "sampled data set", part[j][clazz] );
 					}
 				}
 			}

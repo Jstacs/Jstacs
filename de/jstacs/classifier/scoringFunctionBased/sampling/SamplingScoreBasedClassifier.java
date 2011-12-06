@@ -38,11 +38,11 @@ import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.scoringFunctionBased.SFBasedOptimizableFunction;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
-import de.jstacs.data.Sample.WeightedSampleFactory;
-import de.jstacs.data.Sample.WeightedSampleFactory.SortOperation;
+import de.jstacs.data.DataSet.WeightedDataSetFactory;
+import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.XMLParser;
@@ -57,7 +57,7 @@ import de.jstacs.utils.Pair;
 /**
  * A classifier that samples the parameters of {@link SamplingScoringFunction}s by the Metropolis-Hastings algorithm.
  * The distribution the parameters are sampled from is the distribution {@latex.inline $P(\\vec{\\lambda}^{t})$} represented by the {@link SFBasedOptimizableFunction} returned by
- * {@link SamplingScoreBasedClassifier#getFunction(Sample[], double[][])}. As proposal distribution, a Gaussian distribution with given sampling
+ * {@link SamplingScoreBasedClassifier#getFunction(DataSet[], double[][])}. As proposal distribution, a Gaussian distribution with given sampling
  * variance is used for each parameter.
  * Specifically, a new set of parameters {@latex.inline $\\vec{\\lambda}^{t}$} is drawn from a proposal distribution {@latex.inline $Q(\\vec{\\lambda}^{t} | \\vec{\\lambda}^{t-1})$},
  * where
@@ -319,11 +319,11 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @throws Exception
 	 *             if the function could not be created
 	 */
-	protected abstract SFBasedOptimizableFunction getFunction( Sample[] data, double[][] weights ) throws Exception;
+	protected abstract SFBasedOptimizableFunction getFunction( DataSet[] data, double[][] weights ) throws Exception;
 	
 	/**
 	 * Allows for a modification of the value returned by the function
-	 * obtained by {@link SamplingScoreBasedClassifier#getFunction(Sample[], double[][])}.
+	 * obtained by {@link SamplingScoreBasedClassifier#getFunction(DataSet[], double[][])}.
 	 * This is for instance necessary in case of {@link de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction} to
 	 * obtain a proper posterior or supervised posterior.
 	 * @param value the original value
@@ -703,7 +703,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	}
 	
 	@Override
-	public double[] getScores( Sample s ) throws Exception {
+	public double[] getScores( DataSet s ) throws Exception {
 		if( scoringFunctions.length != 2 ) {
 			throw new OperationNotSupportedException( "This method is only for 2-class-classifiers." );
 		}
@@ -772,7 +772,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @throws WrongAlphabetException the alphabet of the data does not fit that of the scoring functions
 	 * @throws WrongLengthException the lenght of the sequences does not match that of the scoring functions
 	 */
-	private Pair<Sample[], double[][]> check(Sample[] data, double[][] weights) throws ClassDimensionException, WrongAlphabetException, WrongLengthException{
+	private Pair<DataSet[], double[][]> check(DataSet[] data, double[][] weights) throws ClassDimensionException, WrongAlphabetException, WrongLengthException{
 		if( weights != null && data.length != weights.length ) {
 			throw new IllegalArgumentException( "data and weights do not match" );
 		}
@@ -782,8 +782,8 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		if( weights == null ) {
 			weights = new double[data.length][];
 		}
-		WeightedSampleFactory wsf;
-		Sample[] reduced = new Sample[data.length];
+		WeightedDataSetFactory wsf;
+		DataSet[] reduced = new DataSet[data.length];
 		double[][] newWeights = new double[data.length][];
 		AlphabetContainer abc = getAlphabetContainer();
 		for( int l = getLength(), i = 0; i < scoringFunctions.length; i++ ) {
@@ -795,14 +795,14 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 			}
 			if( data[i].getElementLength() != l ) {
 				// throw new IllegalArgumentException( "At least one sample has not the correct length." );
-				wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data[i], weights[i], l );
+				wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[i], weights[i], l );
 			} else {
-				wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data[i], weights[i] );
+				wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[i], weights[i] );
 			}
-			reduced[i] = wsf.getSample();
+			reduced[i] = wsf.getDataSet();
 			newWeights[i] = wsf.getWeights();
 		}
-		return new Pair<Sample[], double[][]>( reduced, newWeights );
+		return new Pair<DataSet[], double[][]>( reduced, newWeights );
 	}
 	
 	/**
@@ -814,8 +814,8 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * 			are stored
 	 * @throws Exception if the scoring functions could not be initialized or the sampling could not be extended, e.g. due to evaluation errors
 	 */
-	public void doSingleSampling( Sample[] s, double[][] weights, int numSteps, String outfilePrefix ) throws Exception{
-		Pair<Sample[], double[][]> pair= check( s, weights );
+	public void doSingleSampling( DataSet[] s, double[][] weights, int numSteps, String outfilePrefix ) throws Exception{
+		Pair<DataSet[], double[][]> pair= check( s, weights );
 		s = pair.getFirstElement();
 		weights = pair.getSecondElement();
 		init( 1, params.getAdaptVariance(), outfilePrefix );
@@ -829,8 +829,8 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	
 	
 	@Override
-	public void train( Sample[] s, double[][] weights ) throws Exception {
-		Pair<Sample[], double[][]> pair= check( s, weights );
+	public void train( DataSet[] s, double[][] weights ) throws Exception {
+		Pair<DataSet[], double[][]> pair= check( s, weights );
 		s = pair.getFirstElement();
 		weights = pair.getSecondElement();
 		init( params.getNumberOfStarts(), params.getAdaptVariance(), params.getOutfilePrefix() );

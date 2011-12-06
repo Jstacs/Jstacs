@@ -25,7 +25,7 @@ import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierPa
 import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sampling.BurnInTest;
 import de.jstacs.scoringFunctions.SamplingScoringFunction;
@@ -118,7 +118,7 @@ public class SamplingGenDisMixClassifier extends SamplingScoreBasedClassifier {
 	}
 
 	@Override
-	protected SFBasedOptimizableFunction getFunction( Sample[] data, double[][] weights ) throws Exception {
+	protected SFBasedOptimizableFunction getFunction( DataSet[] data, double[][] weights ) throws Exception {
 		
 		SFBasedOptimizableFunction fun = new LogGenDisMixFunction( ((SamplingGenDisMixClassifierParameterSet) params).getNumberOfThreads(), scoringFunctions,
 				data, weights, prior, beta, false, params.getFreeParameters() );

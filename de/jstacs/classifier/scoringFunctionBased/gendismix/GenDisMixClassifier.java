@@ -24,7 +24,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.classifier.scoringFunctionBased.ScoreClassifier;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
@@ -207,7 +207,7 @@ public class GenDisMixClassifier extends ScoreClassifier
 		return clone;
 	}
 
-	protected LogGenDisMixFunction getFunction( Sample[] data, double[][] weights ) throws Exception
+	protected LogGenDisMixFunction getFunction( DataSet[] data, double[][] weights ) throws Exception
 	{
 		GenDisMixClassifierParameterSet p = (GenDisMixClassifierParameterSet) params;
 		if( data.length > 1 ) {

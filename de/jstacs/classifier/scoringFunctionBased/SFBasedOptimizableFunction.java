@@ -24,7 +24,7 @@ import java.util.Arrays;
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.scoringFunctions.NormalizableScoringFunction;
 import de.jstacs.scoringFunctions.ScoringFunction;
 import de.jstacs.utils.DoubleList;
@@ -72,8 +72,8 @@ public abstract class SFBasedOptimizableFunction extends AbstractMultiThreadedOp
 	 * 
 	 * @param threads the number of threads used for evaluating the function and determining the gradient of the function
 	 * @param score an array containing the {@link ScoringFunction}s that are used for determining the sequences scores
-	 * @param data the array of {@link Sample}s containing the data that is needed to evaluate the function
-	 * @param weights the weights for each {@link de.jstacs.data.Sequence} in each {@link Sample} of  <code>data</code> 
+	 * @param data the array of {@link DataSet}s containing the data that is needed to evaluate the function
+	 * @param weights the weights for each {@link de.jstacs.data.Sequence} in each {@link DataSet} of  <code>data</code> 
 	 * @param prior the prior that is used for learning the parameters 
 	 * @param norm
 	 *            the switch for using the normalization (division by the number
@@ -84,7 +84,7 @@ public abstract class SFBasedOptimizableFunction extends AbstractMultiThreadedOp
 	 * @throws IllegalArgumentException
 	 *             if the number of threads is not positive, the number of classes or the dimension of the weights is not correct
 	 */
-	public SFBasedOptimizableFunction( int threads, ScoringFunction[] score, Sample[] data, double[][] weights, LogPrior prior, boolean norm, boolean freeParams )																														throws IllegalArgumentException {
+	public SFBasedOptimizableFunction( int threads, ScoringFunction[] score, DataSet[] data, double[][] weights, LogPrior prior, boolean norm, boolean freeParams )																														throws IllegalArgumentException {
 		super( threads, data, weights, norm, freeParams );
 		shortcut = new int[cl + 1];
 		if( freeParams ) {

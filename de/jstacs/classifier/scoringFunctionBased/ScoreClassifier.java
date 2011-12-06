@@ -26,16 +26,14 @@ import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
-import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
-import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition.AbstractTerminationConditionParameterSet;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
-import de.jstacs.data.Sample.WeightedSampleFactory;
-import de.jstacs.data.Sample.WeightedSampleFactory.SortOperation;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
+import de.jstacs.data.DataSet.WeightedDataSetFactory;
+import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox;
@@ -66,7 +64,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 
 	/**
 	 * This boolean indicates whether the classifier has been optimized with the
-	 * method {@link de.jstacs.classifier.AbstractClassifier#train(Sample[])} or
+	 * method {@link de.jstacs.classifier.AbstractClassifier#train(DataSet[])} or
 	 * the weighted version.
 	 */
 	protected boolean hasBeenOptimized;
@@ -244,7 +242,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
-	public void train( Sample[] data, double[][] weights ) throws Exception {
+	public void train( DataSet[] data, double[][] weights ) throws Exception {
 		hasBeenOptimized = false;
 		// check
 		if( weights == null ) {
@@ -257,8 +255,8 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 			throw new ClassDimensionException();
 		}
 		
-		WeightedSampleFactory wsf;
-		Sample[] reduced = new Sample[data.length];
+		WeightedDataSetFactory wsf;
+		DataSet[] reduced = new DataSet[data.length];
 		double[][] newWeights = new double[weights.length][];
 		AlphabetContainer abc = getAlphabetContainer();
 		int j = 0;
@@ -272,19 +270,19 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 				}
 				if( data[i].getElementLength() != l ) {
 					// throw new IllegalArgumentException( "At least one sample has not the correct length." );
-					wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data[i], weights[i], l );
+					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[i], weights[i], l );
 				} else {
-					wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data[i], weights[i] );
+					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[i], weights[i] );
 				}
-				reduced[i] = wsf.getSample();
+				reduced[i] = wsf.getDataSet();
 				newWeights[i] = wsf.getWeights();
 			} else {
 				
 				if( data[j].getElementLength() != l ) {
 					// throw new IllegalArgumentException( "At least one sample has not the correct length." );
-					wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data[j], weights[i], l );
+					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[j], weights[i], l );
 				} else {
-					wsf = new WeightedSampleFactory( SortOperation.NO_SORT, data[j], weights[i] );
+					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[j], weights[i] );
 				}
 				
 				newWeights[i] = wsf.getWeights();
@@ -310,7 +308,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws Exception
 	 *             if something went wrong during the optimization
 	 */
-	protected double doOptimization( Sample[] reduced, double[][] newWeights ) throws Exception {
+	protected double doOptimization( DataSet[] reduced, double[][] newWeights ) throws Exception {
 		// train
 		byte algo = (Byte) params.getParameterAt( 0 ).getValue();
 		AbstractTerminationCondition tc = params.getTerminantionCondition();
@@ -421,11 +419,11 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected void createStructure( Sample[] data, double[][] weights, boolean initRandomly ) throws Exception {
+	protected void createStructure( DataSet[] data, double[][] weights, boolean initRandomly ) throws Exception {
 		boolean freeParams = params.useOnlyFreeParameter();
-		Sample[] d;
+		DataSet[] d;
 		if( data.length == 1 && weights != null && weights.length > 1 ) {
-			d = new Sample[weights.length];
+			d = new DataSet[weights.length];
 			Arrays.fill( d, data );
 		} else {
 			d = data;
@@ -469,7 +467,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected void createStructure( Sample[] data, double[][] weights) throws Exception{
+	protected void createStructure( DataSet[] data, double[][] weights) throws Exception{
 		createStructure( data, weights, false );
 	}
 
@@ -498,7 +496,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected abstract SFBasedOptimizableFunction getFunction( Sample[] data, double[][] weights ) throws Exception;
+	protected abstract SFBasedOptimizableFunction getFunction( DataSet[] data, double[][] weights ) throws Exception;
 
 	/* (non-Javadoc)
 	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getFurtherClassifierInfos()

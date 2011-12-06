@@ -18,7 +18,7 @@
 
 package de.jstacs.classifier.scoringFunctionBased;
 
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 
 /**
  * This class extends {@link OptimizableFunction} and implements some common
@@ -31,7 +31,7 @@ public abstract class AbstractOptimizableFunction extends OptimizableFunction {
 	/**
 	 * The data that is used to evaluate this function.
 	 */
-	protected Sample[] data;
+	protected DataSet[] data;
 
 	/**
 	 * The weights for the data.
@@ -92,7 +92,7 @@ public abstract class AbstractOptimizableFunction extends OptimizableFunction {
 	 * @throws IllegalArgumentException
 	 *             if the number of classes or the dimension of the weights is not correct
 	 */
-	protected AbstractOptimizableFunction( Sample[] data, double[][] weights, boolean norm, boolean freeParams ) throws IllegalArgumentException {
+	protected AbstractOptimizableFunction( DataSet[] data, double[][] weights, boolean norm, boolean freeParams ) throws IllegalArgumentException {
 		this.norm = norm;
 		this.freeParams = freeParams;
 		cl = weights.length;
@@ -106,7 +106,7 @@ public abstract class AbstractOptimizableFunction extends OptimizableFunction {
 	 * (non-Javadoc)
 	 * @see de.jstacs.classifier.scoringFunctionBased.OptimizableFunction#setDataAndWeights(de.jstacs.data.Sample[], double[][])
 	 */
-	public void setDataAndWeights( Sample[] data, double[][] weights ) throws IllegalArgumentException {
+	public void setDataAndWeights( DataSet[] data, double[][] weights ) throws IllegalArgumentException {
 		if( data.length != cl || weights == null || weights.length != cl ) {
 			throw new IllegalArgumentException( "The dimension of the sample or weights (array) is not correct."  );
 		}
@@ -158,7 +158,7 @@ public abstract class AbstractOptimizableFunction extends OptimizableFunction {
 	 * @see de.jstacs.classifier.scoringFunctionBased.OptimizableFunction#getData()
 	 */
 	@Override
-	public Sample[] getData() {
+	public DataSet[] getData() {
 		return data.clone();
 	}
 

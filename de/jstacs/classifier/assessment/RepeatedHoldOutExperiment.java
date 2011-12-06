@@ -22,8 +22,8 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
-import de.jstacs.data.Sample;
-import de.jstacs.data.Sample.PartitionMethod;
+import de.jstacs.data.DataSet;
+import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.models.Model;
 import de.jstacs.utils.ProgressUpdater;
 
@@ -343,7 +343,7 @@ public class RepeatedHoldOutExperiment extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
 		RepeatedHoldOutAssessParameterSet tempAssessPS = null;
@@ -366,8 +366,8 @@ public class RepeatedHoldOutExperiment extends ClassifierAssessment {
 												+ "as classes the local classifers are able to distinguish." );
 		}
 
-		Sample[][] sTrainTestClassWise = new Sample[2][s.length];
-		Sample[] temp;
+		DataSet[][] sTrainTestClassWise = new DataSet[2][s.length];
+		DataSet[] temp;
 
 		pU.setMax( repeats );
 
