@@ -27,11 +27,11 @@ import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.SparseStringExtractor;
 
 /**
- * This class exist for convenience to allow the user an easy creation of {@link Sample}s of DNA {@link Sequence}s.
+ * This class exist for convenience to allow the user an easy creation of {@link DataSet}s of DNA {@link Sequence}s.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class DNASample extends Sample {
+public class DNADataSet extends DataSet {
 	
 	static {
 		try {
@@ -56,17 +56,17 @@ public class DNASample extends Sample {
 	 *             if the {@link java.io.File} could not be found
 	 * @throws WrongAlphabetException
 	 *             if the DNA {@link AlphabetContainer} is not suitable
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link Sample#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
 	 * @see de.jstacs.io.AbstractStringExtractor#FASTA
-	 * @see DNASample#DNASample(String, char)
+	 * @see DNADataSet#DNASample(String, char)
 	 */
-	public DNASample( String fName ) throws FileNotFoundException, WrongAlphabetException, EmptySampleException, WrongLengthException, IOException {
+	public DNADataSet( String fName ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
 		this( fName, SparseStringExtractor.FASTA );//TODO Jan
 	}
 	
@@ -82,19 +82,19 @@ public class DNASample extends Sample {
 	 *             if the {@link java.io.File} could not be found
 	 * @throws WrongAlphabetException
 	 *             if the DNA {@link AlphabetContainer} is not suitable
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link Sample#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
 	 * @see SparseStringExtractor
 	 * @see de.jstacs.io.AbstractStringExtractor#FASTA
 	 * @see de.jstacs.io.AbstractStringExtractor#USUALLY
-	 * @see DNASample#DNASample(String, char, SequenceAnnotationParser)
+	 * @see DNADataSet#DNASample(String, char, SequenceAnnotationParser)
 	 */
-	public DNASample( String fName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptySampleException, WrongLengthException, IOException {
+	public DNADataSet( String fName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
 		this( fName, ignore, null );
 	}
 	
@@ -111,19 +111,19 @@ public class DNASample extends Sample {
 	 *             if the {@link java.io.File} could not be found
 	 * @throws WrongAlphabetException
 	 *             if the DNA {@link AlphabetContainer} is not suitable
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link Sample#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
 	 * @see SparseStringExtractor
 	 * @see de.jstacs.io.AbstractStringExtractor#FASTA
 	 * @see de.jstacs.io.AbstractStringExtractor#USUALLY
-	 * @see Sample#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor)
+	 * @see DataSet#Sample(AlphabetContainer, de.jstacs.io.AbstractStringExtractor)
 	 */
-	public DNASample( String fName, char ignore, SequenceAnnotationParser parser ) throws FileNotFoundException, WrongAlphabetException, EmptySampleException, WrongLengthException, IOException {
+	public DNADataSet( String fName, char ignore, SequenceAnnotationParser parser ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
 		super( DNA_ALPHABETCONTAINER, new SparseStringExtractor( fName, ignore, parser ) );
 	}
 }

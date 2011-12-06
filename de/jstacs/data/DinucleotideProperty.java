@@ -569,53 +569,53 @@ public enum DinucleotideProperty {
 	}
 	
 	/**
-	 * Creates a new {@link Sample} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty} <code>property</code>.
-	 * @param original {@link Sample} containing the original {@link Sequence}s
+	 * Creates a new {@link DataSet} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty} <code>property</code>.
+	 * @param original {@link DataSet} containing the original {@link Sequence}s
 	 * @param property the property
-	 * @return the converted {@link Sequence}s as a {@link Sample}
+	 * @return the converted {@link Sequence}s as a {@link DataSet}
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static Sample getSampleForProperty(Sample original, DinucleotideProperty property) throws WrongSequenceTypeException{
+	public static DataSet getSampleForProperty(DataSet original, DinucleotideProperty property) throws WrongSequenceTypeException{
 		return getSampleForProperty( original, NO_SMOOTHING, false, property );
 	}
 	
 	/**
-	 * Creates a new {@link Sample} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty} <code>property</code> using the {@link Smoothing} smoothing.
-	 * @param original {@link Sample} containing the original {@link Sequence}s
+	 * Creates a new {@link DataSet} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty} <code>property</code> using the {@link Smoothing} smoothing.
+	 * @param original {@link DataSet} containing the original {@link Sequence}s
 	 * @param smoothing the smoothing
 	 * @param originalAsAnnotation if <code>true</code>, the original {@link Sequence} is added as a {@link ReferenceSequenceAnnotation} to each converted {@link Sequence}
 	 * @param property the property
-	 * @return the converted {@link Sequence}s as a {@link Sample}
+	 * @return the converted {@link Sequence}s as a {@link DataSet}
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static Sample getSampleForProperty(Sample original, Smoothing smoothing, boolean originalAsAnnotation, DinucleotideProperty property) throws WrongSequenceTypeException{
+	public static DataSet getSampleForProperty(DataSet original, Smoothing smoothing, boolean originalAsAnnotation, DinucleotideProperty property) throws WrongSequenceTypeException{
 		return getSampleForProperty( original, smoothing, originalAsAnnotation ? Annotation.ORIGINAL_AS_ANNOTATION : Annotation.NO_ANNOTATION, property );
 	}
 	
 	/**
-	 * Creates a new {@link Sample} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty}s <code>properties</code> and setting these as {@link ReferenceSequenceAnnotation} of each original sequence.
-	 * @param original {@link Sample} containing the original {@link Sequence}s
+	 * Creates a new {@link DataSet} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty}s <code>properties</code> and setting these as {@link ReferenceSequenceAnnotation} of each original sequence.
+	 * @param original {@link DataSet} containing the original {@link Sequence}s
 	 * @param properties the properties
-	 * @return the annotated {@link Sequence}s as a {@link Sample}
+	 * @return the annotated {@link Sequence}s as a {@link DataSet}
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static Sample getSampleForProperty(Sample original, DinucleotideProperty... properties) throws WrongSequenceTypeException{
+	public static DataSet getSampleForProperty(DataSet original, DinucleotideProperty... properties) throws WrongSequenceTypeException{
 		return getSampleForProperty( original, NO_SMOOTHING, Annotation.SET_PROPERTY_AS_ANNOTATION, properties );
 	}
 	
 	/**
-	 * Creates a new {@link Sample} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty}s <code>properties</code> and adding or setting these as {@link ReferenceSequenceAnnotation} of each original sequence.
-	 * @param original {@link Sample} containing the original {@link Sequence}s
+	 * Creates a new {@link DataSet} by converting each {@link Sequence} in <code>original</code> to the {@link DinucleotideProperty}s <code>properties</code> and adding or setting these as {@link ReferenceSequenceAnnotation} of each original sequence.
+	 * @param original {@link DataSet} containing the original {@link Sequence}s
 	 * @param smoothing the smoothing
 	 * @param addToAnnotation if <code>true</code> the converted {@link Sequence}s are added to the current annotation, otherwise the current annotation is replaced
 	 * @param properties the properties
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static Sample getSampleForProperty(Sample original, Smoothing smoothing, boolean addToAnnotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
+	public static DataSet getSampleForProperty(DataSet original, Smoothing smoothing, boolean addToAnnotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
 		return getSampleForProperty( original, smoothing, addToAnnotation ? Annotation.ADD_PROPERTY_AS_ANNOTATION : Annotation.SET_PROPERTY_AS_ANNOTATION, properties );
 	}
 	
-	private static Sample getSampleForProperty(Sample original, Smoothing smoothing, Annotation annotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
+	private static DataSet getSampleForProperty(DataSet original, Smoothing smoothing, Annotation annotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
 		Sequence[] seqs = new Sequence[original.getNumberOfElements()];
 		
 		if(properties.length > 1 && annotation == Annotation.NO_ANNOTATION || annotation == Annotation.ORIGINAL_AS_ANNOTATION){
@@ -651,16 +651,16 @@ public enum DinucleotideProperty {
 		}
 		if(annotation == Annotation.NO_ANNOTATION || annotation == Annotation.ORIGINAL_AS_ANNOTATION){
 			try{
-				return new Sample( original.getAnnotation()+" converted to "+ann.toString(), seqs );
-			}catch(EmptySampleException doesnothappen){
+				return new DataSet( original.getAnnotation()+" converted to "+ann.toString(), seqs );
+			}catch(EmptyDataSetException doesnothappen){
 				return null;
 			}catch(WrongAlphabetException doesnothappen2){
 				return null;
 			}
 		}else{
 			try{
-				return new Sample( original.getAnnotation()+" with annotation "+ann.toString(), seqs );
-			}catch(EmptySampleException doesnothappen){
+				return new DataSet( original.getAnnotation()+" with annotation "+ann.toString(), seqs );
+			}catch(EmptyDataSetException doesnothappen){
 				return null;
 			}catch(WrongAlphabetException doesnothappen2){
 				return null;
@@ -679,7 +679,7 @@ public enum DinucleotideProperty {
 		return new ImageResult("profile for " + prop.name(), "the profile for the dinucleotide property " + prop.name() + " and the smoothing " + smoothing.toString(), img );
 	}
 	
-	public static ImageResult getPropertyImage( Sample original, DinucleotideProperty prop, Smoothing smoothing, REnvironment re, int xLeft, String pltOptions, int width, int height ) throws Exception {
+	public static ImageResult getPropertyImage( DataSet original, DinucleotideProperty prop, Smoothing smoothing, REnvironment re, int xLeft, String pltOptions, int width, int height ) throws Exception {
 		int l = original.getElementLength();
 		if( l == 0 ) {
 			throw new WrongLengthException( "All Sequences of the Sample have to have the same length." );
