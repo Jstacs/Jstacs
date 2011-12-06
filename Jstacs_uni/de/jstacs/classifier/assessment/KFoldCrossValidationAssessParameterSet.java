@@ -42,34 +42,34 @@ import de.jstacs.results.Result;
  *         com)
  * 
  */
-public class KFoldCVAssessParameterSet extends ClassifierAssessmentAssessParameterSet {
+public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessmentAssessParameterSet {
 
 	/**
-	 * Constructs a new {@link KFoldCVAssessParameterSet} with empty parameter
+	 * Constructs a new {@link KFoldCrossValidationAssessParameterSet} with empty parameter
 	 * values. This constructor should only be used to create &quot;filled&quot;
-	 * {@link KFoldCVAssessParameterSet}s, i.e. to create
-	 * {@link KFoldCVAssessParameterSet}s from a set of values and not to fill
+	 * {@link KFoldCrossValidationAssessParameterSet}s, i.e. to create
+	 * {@link KFoldCrossValidationAssessParameterSet}s from a set of values and not to fill
 	 * it from the platform user interface.
 	 * 
 	 * @throws UnsupportedOperationException
-	 *             if the {@link KFoldCVAssessParameterSet} could not be
+	 *             if the {@link KFoldCrossValidationAssessParameterSet} could not be
 	 *             constructed or the parameters could not be loaded
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public KFoldCVAssessParameterSet() throws UnsupportedOperationException {
+	public KFoldCrossValidationAssessParameterSet() throws UnsupportedOperationException {
 		super();
 	}
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Constructs a {@link KFoldCVAssessParameterSet} out of its XML
+	 * Constructs a {@link KFoldCrossValidationAssessParameterSet} out of its XML
 	 * representation.
 	 * 
 	 * @param representation
 	 *            the XML representation as {@link StringBuffer}
 	 * @throws NonParsableException
-	 *             if the {@link KFoldCVAssessParameterSet} could not be
+	 *             if the {@link KFoldCrossValidationAssessParameterSet} could not be
 	 *             reconstructed out of the XML representation (the
 	 *             {@link StringBuffer} <code>representation</code> could not be
 	 *             parsed)
@@ -77,12 +77,12 @@ public class KFoldCVAssessParameterSet extends ClassifierAssessmentAssessParamet
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(StringBuffer)
 	 * @see de.jstacs.Storable
 	 */
-	public KFoldCVAssessParameterSet( StringBuffer representation ) throws NonParsableException {
+	public KFoldCrossValidationAssessParameterSet( StringBuffer representation ) throws NonParsableException {
 		super( representation );
 	}
 
 	/**
-	 * Constructs a new {@link KFoldCVAssessParameterSet} with given parameter
+	 * Constructs a new {@link KFoldCrossValidationAssessParameterSet} with given parameter
 	 * values.
 	 * 
 	 * @param dataSplitMethod
@@ -95,7 +95,7 @@ public class KFoldCVAssessParameterSet extends ClassifierAssessmentAssessParamet
 	 *            defines the length of elements (sequences) the classifiers to
 	 *            be assessed are able to classify
 	 * @param exceptionIfMPNotComputable
-	 *            a {@link KFoldCVAssessParameterSet} is used in combination
+	 *            a {@link KFoldCrossValidationAssessParameterSet} is used in combination
 	 *            with a {@link de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters}-object
 	 *            to call <code>assess( ... )</code>-methods of
 	 *            {@link KFoldCrossValidation}s, if
@@ -117,7 +117,7 @@ public class KFoldCVAssessParameterSet extends ClassifierAssessmentAssessParamet
 	 *      boolean)
 	 * @see de.jstacs.data.Sample.PartitionMethod
 	 */
-	public KFoldCVAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable, int k )
+	public KFoldCrossValidationAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable, int k )
 																																		throws IllegalValueException {
 		super( elementLength, exceptionIfMPNotComputable );
 
@@ -158,10 +158,10 @@ public class KFoldCVAssessParameterSet extends ClassifierAssessmentAssessParamet
 
 	/**
 	 * Returns the number of mutually exclusive random-splits of user supplied
-	 * data defined by this {@link KFoldCVAssessParameterSet}.
+	 * data defined by this {@link KFoldCrossValidationAssessParameterSet}.
 	 * 
 	 * @return the number of mutually exclusive random-splits of user-supplied
-	 *         data defined by this {@link KFoldCVAssessParameterSet}
+	 *         data defined by this {@link KFoldCrossValidationAssessParameterSet}
 	 */
 	public int getK() {
 		return ( (Integer)( this.getParameterAt( 2 ).getValue() ) ).intValue();
