@@ -883,7 +883,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		}
 	}
 	
-	public DataSet emitSample(int numberOfSequences, int... seqLength)
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength)
 		throws NotTrainedException, Exception {
 		// TODO Auto-generated method stub
 		return null;

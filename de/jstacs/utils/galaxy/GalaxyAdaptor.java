@@ -45,7 +45,7 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.results.SampleResult;
+import de.jstacs.results.DataSetResult;
 import de.jstacs.results.SimpleResult;
 import de.jstacs.results.StorableResult;
 
@@ -305,8 +305,8 @@ public class GalaxyAdaptor {
 			buf.append( temp );
 		}else if(res instanceof ListResult){
 			buf.append( getLROutput( ((ListResult) res ) ) );
-		}else if(res instanceof SampleResult){
-			buf.append( getSampleOutput((SampleResult)res) );
+		}else if(res instanceof DataSetResult){
+			buf.append( getSampleOutput((DataSetResult)res) );
 		}else if(res instanceof StorableResult){
 			buf.append( getStorableOutput((StorableResult)res) );
 		}else if(res instanceof DoubleTableResult){
@@ -374,7 +374,7 @@ public class GalaxyAdaptor {
 		return "<a href=\""+name+ext+"\">"+res.getName()+"</a>";
 	}
 
-	private String getSampleOutput( SampleResult res ) throws IOException {
+	private String getSampleOutput( DataSetResult res ) throws IOException {
 		DataSet data = res.getResult();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		if(res.getParser() == null){
@@ -423,14 +423,14 @@ public class GalaxyAdaptor {
 			((ListResult)res).print( pw );
 			pw.close();
 			return "tabular";
-		}else if(res instanceof SampleResult){
+		}else if(res instanceof DataSetResult){
 			File f = new File(filename+"fasta");
 			f.getParentFile().mkdirs();
 			FileOutputStream fos = new FileOutputStream( filename+"fasta" );
-			if( ((SampleResult)res).getParser() == null ){
-				((SampleResult)res).getResult().save(fos,'>',new SplitSequenceAnnotationParser( ":", ";" ) );
+			if( ((DataSetResult)res).getParser() == null ){
+				((DataSetResult)res).getResult().save(fos,'>',new SplitSequenceAnnotationParser( ":", ";" ) );
 			}else{
-				((SampleResult)res).getResult().save(fos,'>', ((SampleResult)res).getParser() );
+				((DataSetResult)res).getResult().save(fos,'>', ((DataSetResult)res).getParser() );
 			}
 			fos.close();
 			return "fasta";

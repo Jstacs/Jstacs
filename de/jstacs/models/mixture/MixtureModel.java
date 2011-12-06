@@ -519,11 +519,11 @@ public class MixtureModel extends AbstractMixtureModel {
 			for( ; counter < dimension; counter++ ) {
 				if( numbers[counter] > 0 ) {
 					if( lengths.length == 1 ) {
-						help = model[counter].emitSample( n, lengths );
+						help = model[counter].emitDataSet( n, lengths );
 					} else {
 						int[] array = new int[numbers[counter]];
 						System.arraycopy( lengths, k, array, 0, numbers[counter] );
-						help = model[counter].emitSample( n, array );
+						help = model[counter].emitDataSet( n, array );
 					}
 					for( k = 0; k < help.getNumberOfElements(); k++ ) {
 						seqs[no] = help.getElementAt( k );
@@ -540,9 +540,9 @@ public class MixtureModel extends AbstractMixtureModel {
 				for( ; counter < dimension; counter++ ) {
 					if( numbers[counter] > 0 ) {
 						if( model[counter].getLength() == 0 ) {
-							help = model[counter].emitSample( numbers[counter], length );
+							help = model[counter].emitDataSet( numbers[counter], length );
 						} else {
-							help = model[counter].emitSample( numbers[counter], lengths );
+							help = model[counter].emitDataSet( numbers[counter], lengths );
 						}
 						for( no = 0; no < numbers[counter]; no++, k++ ) {
 							seqs[k] = help.getElementAt( no );

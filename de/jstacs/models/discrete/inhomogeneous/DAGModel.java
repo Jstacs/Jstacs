@@ -102,7 +102,7 @@ public abstract class DAGModel extends InhomogeneousDGM {
 	 * @see de.jstacs.models.AbstractModel#emitSample(int, int[])
 	 */
 	@Override
-	public DataSet emitSample( int n, int... lengths ) throws NotTrainedException, Exception {
+	public DataSet emitDataSet( int n, int... lengths ) throws NotTrainedException, Exception {
 		if( !( lengths == null || lengths.length == 0 ) ) {
 			throw new Exception( "This is an inhomogeneous model. Please check parameter lengths." );
 		}

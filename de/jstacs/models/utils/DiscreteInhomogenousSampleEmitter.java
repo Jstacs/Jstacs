@@ -22,16 +22,16 @@ package de.jstacs.models.utils;
 import java.util.Random;
 
 import de.jstacs.NotTrainedException;
+import de.jstacs.StatisticalModel;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.IntSequence;
-import de.jstacs.models.Model;
 
 /**
  * Emits {@link DataSet}s for discrete inhomogeneous models by a naive implementation.
  * 
- * @see de.jstacs.models.Model#emitSample(int, int[])
+ * @see StatisticalModel#emitDataSet(int, int[])
  * 
  * @author Jens Keilwagen
  */
@@ -53,7 +53,7 @@ public class DiscreteInhomogenousSampleEmitter {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static DataSet emitSample(Model m, int n) throws NotTrainedException,
+	public static DataSet emitDataSet(StatisticalModel m, int n) throws NotTrainedException,
 			Exception {
 		if (!m.isInitialized()) {
 			throw new NotTrainedException();
@@ -94,9 +94,7 @@ public class DiscreteInhomogenousSampleEmitter {
 		int[] sequence = new int[length + 1];
 		for (counter2 = 0; counter2 < il2; counter2++) {
 			for (counter1 = 0; counter1 < il1; counter1++) {
-				p += m
-						.getProbFor(new IntSequence(alphabet, sequence, 0,
-								length));
+				p += Math.exp( m.getLogProbFor(new IntSequence(alphabet, sequence, 0, length)) );
 				cumulative_p[counter2][counter1] = p;
 				counter3 = 0;
 				while (sequence[counter3] == alphabetLength[counter3] - 1) {

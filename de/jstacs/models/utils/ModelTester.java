@@ -21,6 +21,7 @@ package de.jstacs.models.utils;
 
 import java.io.IOException;
 
+import de.jstacs.StatisticalModel;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -36,7 +37,7 @@ import de.jstacs.utils.Normalisation;
  * several statistics (log-likelihood, Shannon entropy, AIC, BIC, ...) to
  * compare models.
  * 
- * @see de.jstacs.models.AbstractModel
+ * @see de.jstacs.StatisticalModel
  * 
  * @author Jens Keilwagen
  */
@@ -55,14 +56,14 @@ public class ModelTester {
 	 *            another discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the Kullback-Leibler-divergence
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getKLDivergence(Model m1, Model m2, int length)
+	public static double getKLDivergence(StatisticalModel m1, StatisticalModel m2, int length)
 			throws Exception {
 		SeqIterator s = new SeqIterator(m1.getAlphabetContainer(), length);
 		Sequence seq;
@@ -98,16 +99,16 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getSymKLDivergence(Model m1, Model m2, int length)
+	public static double getSymKLDivergence(StatisticalModel m1, StatisticalModel m2, int length)
 			throws Exception {
 		SeqIterator s = new SeqIterator(m1.getAlphabetContainer(), length);
 		Sequence seq;
-		double kl = 0, p1, p2;
+		double kl = 0, logP1, logP2;
 		do {
 			seq = s.getSequence();
-			p1 = m1.getProbFor(seq);
-			p2 = m2.getProbFor(seq);
-			kl += (p1 - p2) * Math.log(p1 / p2);
+			logP1 = m1.getLogProbFor(seq);
+			logP2 = m2.getLogProbFor(seq);
+			kl += (Math.exp(logP1) - Math.exp(logP2)) * (logP1 - logP2);
 		} while (s.next());
 		return kl;
 	}
@@ -126,7 +127,7 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getLogLikelihood(Model m, DataSet data)
+	public static double getLogLikelihood(StatisticalModel m, DataSet data)
 			throws Exception {
 		return getLogLikelihood(m, data, null);
 	}
@@ -147,7 +148,7 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getLogLikelihood(Model m, DataSet data, double[] weights)
+	public static double getLogLikelihood(StatisticalModel m, DataSet data, double[] weights)
 			throws Exception {
 		int counter, d = data.getNumberOfElements();
 		double erg = 0;
@@ -186,7 +187,7 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getMarginalDistribution(Model m, int[] constraint)
+	public static double getMarginalDistribution(StatisticalModel m, int[] constraint)
 			throws Exception {
 		if (m.getLength() != 0 && m.getLength() != constraint.length) {
 			throw new IOException(
@@ -215,14 +216,14 @@ public class ModelTester {
 	 *            another discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the maximum deviation between the probabilities
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getMaxOfDeviation(Model m1, Model m2, int length)
+	public static double getMaxOfDeviation(StatisticalModel m1, StatisticalModel m2, int length)
 			throws Exception {
 		if (m1.getLength() != 0 && m1.getLength() != length) {
 			throw new IOException(
@@ -244,7 +245,7 @@ public class ModelTester {
 		Sequence seq;
 		do {
 			seq = s.getSequence();
-			p = Math.abs(m1.getProbFor(seq) - m2.getProbFor(seq, 0, s.last));
+			p = Math.abs(Math.exp(m1.getLogProbFor(seq, 0, s.last)) - Math.exp(m2.getLogProbFor(seq, 0, s.last)));
 			if (p > max) {
 				max = p;
 			}
@@ -268,14 +269,14 @@ public class ModelTester {
 	 *            the discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return one most probable sequence
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static Sequence getMostProbableSequence(Model m, int length)
+	public static Sequence getMostProbableSequence(StatisticalModel m, int length)
 			throws Exception {
 		SeqIterator s = new SeqIterator(m.getAlphabetContainer(), length);
 		Sequence current, seq = s.getSequence();
@@ -306,23 +307,23 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getShannonEntropy(Model m, int length)
+	public static double getShannonEntropy(StatisticalModel m, int length)
 			throws Exception {
 		if (m.getLength() != 0 && m.getLength() != length) {
 			throw new IOException(
 					"This model can only classify sequences of length "
 							+ m.getLength() + ".");
 		}
-		double p, erg = 0;
+		double logP, erg = 0;
 		SeqIterator s = new SeqIterator(m.getAlphabetContainer(), length);
 		do {
-			p = m.getProbFor(s.getSequence());
-			if (p != 0) {
-				erg -= p * Math.log(p);
+			logP = m.getLogProbFor(s.getSequence());
+			if ( !Double.isInfinite( logP ) ) {
+				erg -= Math.exp(logP) * logP;
 			}
-			if (p < 0 || p > 1) {
+			if ( logP > 0 ) {
 				throw new IOException("The probability of sequence "
-						+ s.getSequence() + " is not correct (" + p + ").");
+						+ s.getSequence() + " is not correct (" + Math.exp(logP) + ").");
 			}
 		} while (s.next());
 		return erg;
@@ -336,14 +337,14 @@ public class ModelTester {
 	 *            the discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the Shannon entropy in bits for a discrete model
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getShannonEntropyInBits(Model m, int length)
+	public static double getShannonEntropyInBits(StatisticalModel m, int length)
 			throws Exception {
 		return (getShannonEntropy(m, length) / Math.log(2));
 	}
@@ -359,14 +360,14 @@ public class ModelTester {
 	 *            another discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the sum of deviations between the probabilities
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getSumOfDeviation(Model m1, Model m2, int length)
+	public static double getSumOfDeviation(StatisticalModel m1, StatisticalModel m2, int length)
 			throws Exception {
 		if (m1.getLength() != 0 && m1.getLength() != length) {
 			throw new IOException(
@@ -388,8 +389,7 @@ public class ModelTester {
 		Sequence seq;
 		do {
 			seq = s.getSequence();
-			sum += Math.abs(m1.getProbFor(seq, 0, s.last)
-					- m2.getProbFor(seq, 0, s.last));
+			sum += Math.abs(Math.exp(m1.getLogProbFor(seq, 0, s.last)) - Math.exp(m2.getLogProbFor(seq, 0, s.last)));
 		} while (s.next());
 		return sum;
 	}
@@ -416,14 +416,14 @@ public class ModelTester {
 	 *            the discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the marginal distribution for a discrete model
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getSumOfDistribution(Model m, int length)
+	public static double getSumOfDistribution(StatisticalModel m, int length)
 			throws Exception {
 		if (m.getLength() != 0 && m.getLength() != length) {
 			throw new IOException(
@@ -467,7 +467,7 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getValueOfAIC(Model m, DataSet s, int k)
+	public static double getValueOfAIC(StatisticalModel m, DataSet s, int k)
 			throws Exception {
 		return 2 * getLogLikelihood(m, s) - 2 * k;
 	}
@@ -496,10 +496,9 @@ public class ModelTester {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getValueOfBIC(Model m, DataSet s, int k)
+	public static double getValueOfBIC(StatisticalModel m, DataSet s, int k)
 			throws Exception {
-		return 2 * getLogLikelihood(m, s) - k
-				* StrictMath.log(s.getNumberOfElements());
+		return 2 * getLogLikelihood(m, s) - k * StrictMath.log(s.getNumberOfElements());
 	}
 
 	private static class SeqIterator {

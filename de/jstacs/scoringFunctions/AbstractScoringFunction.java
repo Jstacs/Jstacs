@@ -250,7 +250,7 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 * (non-Javadoc)
 	 * @see de.jstacs.StatisticalModel#emitSample(int, int[])
 	 */
-	public DataSet emitSample(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
 		throw new Exception( "Standard implementation of emitSample used for "
 						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
 	}

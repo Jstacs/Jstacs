@@ -138,9 +138,9 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	 * There are two different possibilities to create a sample for a model with
 	 * length 0 (homogeneous models).
 	 * <ol>
-	 * <li> <code>emitSample( int n, int l )</code> should return a sample with
+	 * <li> <code>emitDataSet( int n, int l )</code> should return a data set with
 	 * <code>n</code> sequences of length <code>l</code>.
-	 * <li> <code>emitSample( int n, int[] l )</code> should return a sample with
+	 * <li> <code>emitDataSet( int n, int[] l )</code> should return a data set with
 	 * <code>n</code> sequences which have a sequence length corresponding to
 	 * the entry in the given array <code>l</code>.
 	 * </ol>
@@ -149,10 +149,10 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	 * 
 	 * There are two different possibilities to create a sample for a model with
 	 * length greater than 0 (inhomogeneous models).<br>
-	 * <code>emitSample( int n )</code> and
-	 * <code>emitSample( int n, null )</code> should return a sample with
+	 * <code>emitDataSet( int n )</code> and
+	 * <code>emitDataSet( int n, null )</code> should return a sample with
 	 * <code>n</code> sequences of length of the model (
-	 * {@link Model#getLength()}).
+	 * {@link StatisticalModel#getLength()}).
 	 * 
 	 * <br>
 	 * <br>
@@ -176,7 +176,7 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	 * 
 	 * @see DataSet
 	 */
-	public DataSet emitSample(int numberOfSequences, int... seqLength)
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength)
 			throws NotTrainedException, Exception;
 
 	

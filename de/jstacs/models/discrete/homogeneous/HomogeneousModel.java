@@ -124,7 +124,7 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 	 * @see DataSet#Sample(String, Sequence...)
 	 */
 	@Override
-	public final DataSet emitSample( int no, int... length ) throws NotTrainedException,
+	public final DataSet emitDataSet( int no, int... length ) throws NotTrainedException,
 			IllegalArgumentException,
 			EmptyDataSetException,
 			WrongAlphabetException,
