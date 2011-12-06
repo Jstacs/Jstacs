@@ -196,9 +196,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method should be used if one wants to create a {@link Sample} of
+	 * This method should be used if one wants to create a {@link DataSet} of
 	 * {@link CompositeSequence}s. With this constructor you are enabled to
-	 * create a {@link Sample} where every {@link de.jstacs.data.Sequence} has the same
+	 * create a {@link DataSet} where every {@link de.jstacs.data.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -242,9 +242,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method should be used if one wants to create a {@link Sample} of
+	 * This method should be used if one wants to create a {@link DataSet} of
 	 * subsequences of defined length. With this constructor you are enabled to
-	 * create a {@link Sample} where every {@link de.jstacs.data.Sequence} has the same
+	 * create a {@link DataSet} where every {@link de.jstacs.data.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -267,9 +267,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method should be used if one wants to create a {@link Sample} of
+	 * This method should be used if one wants to create a {@link DataSet} of
 	 * subsequences of defined length. With this constructor you are enabled to
-	 * create a {@link Sample} where every {@link de.jstacs.data.Sequence} has the same
+	 * create a {@link DataSet} where every {@link de.jstacs.data.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -1177,8 +1177,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 		/**
 		 * This constructor should be used if one wants to create a
-		 * {@link Sample} of {@link Sequence.CompositeSequence}s. With this constructor
-		 * you are enabled to create a {@link Sample} where every
+		 * {@link DataSet} of {@link Sequence.CompositeSequence}s. With this constructor
+		 * you are enabled to create a {@link DataSet} where every
 		 * {@link de.jstacs.data.Sequence} has the same {@link AlphabetContainer} instance.
 		 * 
 		 * <br>
@@ -1272,8 +1272,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 		/**
 		 * This constructor should be used if one wants to create a
-		 * {@link Sample} of {@link Sequence.SubSequence}s of defined length. With this
-		 * constructor you are enabled to create a {@link Sample} where every
+		 * {@link DataSet} of {@link Sequence.SubSequence}s of defined length. With this
+		 * constructor you are enabled to create a {@link DataSet} where every
 		 * {@link de.jstacs.data.Sequence} has the same {@link AlphabetContainer} instance.
 		 * 
 		 * <br>

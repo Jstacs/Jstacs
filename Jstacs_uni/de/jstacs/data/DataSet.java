@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Sample.WeightedSampleFactory.SortOperation;
+import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.data.sequences.ArbitrarySequence;
 import de.jstacs.data.sequences.ByteSequence;
 import de.jstacs.data.sequences.IntSequence;
@@ -55,28 +55,28 @@ import de.jstacs.utils.Pair;
 
 /**
  * This is the class for any sample of {@link Sequence}s. All {@link Sequence}s
- * in a {@link Sample} have to have the same {@link AlphabetContainer}. The
+ * in a {@link DataSet} have to have the same {@link AlphabetContainer}. The
  * {@link Sequence}s may have different lengths.
  * 
  * <br>
  * 
  * For the internal representation the class {@link Sequence} is used, where the
  * external alphabet is converted to integral numerical values. The class
- * {@link Sample} knows about this coding via instances of class
+ * {@link DataSet} knows about this coding via instances of class
  * {@link AlphabetContainer} and accordingly {@link Alphabet}.
  * 
  * <br>
  * <br>
  * 
  * <a name="access"> There are different ways to access the elements of a
- * {@link Sample}. If one needs random access there is the method
+ * {@link DataSet}. If one needs random access there is the method
  * {@link #getElementAt(int)}. For fast sequential access it is recommended to
  * use an {@link ElementEnumerator}. </a>
  * 
  * <br>
  * <br>
  * 
- * {@link Sample} is immutable.
+ * {@link DataSet} is immutable.
  * 
  * @author Jens Keilwagen
  * 
@@ -84,17 +84,17 @@ import de.jstacs.utils.Pair;
  * @see Alphabet
  * @see Sequence
  */
-public class Sample implements Iterable<Sequence>{
+public class DataSet implements Iterable<Sequence>{
 
 	/**
 	 * This <code>enum</code> defines different partition methods for a
-	 * {@link Sample}.
+	 * {@link DataSet}.
 	 * 
 	 * @author Jens Keilwagen
 	 * 
-	 * @see Sample#partition(PartitionMethod, double...)
-	 * @see Sample#partition(int, PartitionMethod)
-	 * @see Sample#partition(double, PartitionMethod, int)
+	 * @see DataSet#partition(PartitionMethod, double...)
+	 * @see DataSet#partition(int, PartitionMethod)
+	 * @see DataSet#partition(double, PartitionMethod, int)
 	 */
 	public static enum PartitionMethod {
 		/**
@@ -116,16 +116,16 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Returns the annotation for an array of {@link Sample}s.
+	 * Returns the annotation for an array of {@link DataSet}s.
 	 * 
 	 * @param s
-	 *            an array of {@link Sample}s
+	 *            an array of {@link DataSet}s
 	 * 
 	 * @return the annotation
 	 * 
-	 * @see Sample#getAnnotation()
+	 * @see DataSet#getAnnotation()
 	 */
-	public static final String getAnnotation( Sample... s ) {
+	public static final String getAnnotation( DataSet... s ) {
 		if( s == null || s.length == 0 ) {
 			return "[]";
 		} else {
@@ -140,8 +140,8 @@ public class Sample implements Iterable<Sequence>{
 	}
 	
 	/**
-	 * This method computes the difference between the {@link Sample} <code>data</code> and
-	 * the {@link Sample}s <code>samples</code>.
+	 * This method computes the difference between the {@link DataSet} <code>data</code> and
+	 * the {@link DataSet}s <code>samples</code>.
 	 * 
 	 * @param data
 	 * 			  the minuend
@@ -152,10 +152,10 @@ public class Sample implements Iterable<Sequence>{
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer}s do not match, i.e., if the Samples are from different domains
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if the difference is empty
 	 */
-	public static final Sample diff( Sample data, Sample... samples ) throws EmptySampleException, WrongAlphabetException {
+	public static final DataSet diff( DataSet data, DataSet... samples ) throws EmptyDataSetException, WrongAlphabetException {
 		Hashtable<Sequence, int[]> hash = new Hashtable<Sequence, int[]>( data.getNumberOfElements() * 2 );
 		AlphabetContainer abc = data.getAlphabetContainer();
 		int n = 0, i = 0, anz = data.getNumberOfElements();
@@ -202,26 +202,26 @@ public class Sample implements Iterable<Sequence>{
 				seqs[anz++] = seq;
 			}
 		}
-		return new Sample( "diff of " + data.getAnnotation() + " and " + getAnnotation( samples ), seqs );
+		return new DataSet( "diff of " + data.getAnnotation() + " and " + getAnnotation( samples ), seqs );
 	}
 
 	/**
-	 * This method computes the intersection between all elements/{@link Sample}
-	 * s of the array, i.e. it returns a {@link Sample} containing only
-	 * {@link Sequence}s that are contained in all {@link Sample}s of the array.
+	 * This method computes the intersection between all elements/{@link DataSet}
+	 * s of the array, i.e. it returns a {@link DataSet} containing only
+	 * {@link Sequence}s that are contained in all {@link DataSet}s of the array.
 	 * 
 	 * @param samples
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * 
-	 * @return the intersection of the elements/{@link Sample}s in the array
+	 * @return the intersection of the elements/{@link DataSet}s in the array
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the elements of the array are from different domains
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if the intersection is empty
 	 */
-	public static final Sample intersection( Sample... samples ) throws IllegalArgumentException, EmptySampleException {
-		WeightedSampleFactory[] wsf = new WeightedSampleFactory[samples.length];
+	public static final DataSet intersection( DataSet... samples ) throws IllegalArgumentException, EmptyDataSetException {
+		WeightedDataSetFactory[] wsf = new WeightedDataSetFactory[samples.length];
 		int[] index = new int[samples.length];
 		int i = 0, len = -1;
 		double anz;
@@ -231,7 +231,7 @@ public class Sample implements Iterable<Sequence>{
 				throw new IllegalArgumentException( "The sample do not have the same AlphabetContainer." );
 			}
 			try {
-				wsf[i] = new WeightedSampleFactory( SortOperation.SORT_BY_SEQUENCE, samples[i++] );
+				wsf[i] = new WeightedDataSetFactory( SortOperation.SORT_BY_SEQUENCE, samples[i++] );
 			} catch ( WrongAlphabetException doesNotHappen ) {
 				RuntimeException r = new RuntimeException( doesNotHappen.getMessage() );
 				r.setStackTrace( doesNotHappen.getStackTrace() );
@@ -293,31 +293,31 @@ public class Sample implements Iterable<Sequence>{
 				}
 			}
 		} while( goOn );
-		return new Sample( abc, list.toArray( new Sequence[0] ), len, "intersection of " + getAnnotation( samples ) );
+		return new DataSet( abc, list.toArray( new Sequence[0] ), len, "intersection of " + getAnnotation( samples ) );
 	}
 
 	/**
-	 * This method unites all {@link Sample}s of the array <code>s</code>
+	 * This method unites all {@link DataSet}s of the array <code>s</code>
 	 * regarding the array <code>in</code>.
 	 * 
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * @param in
-	 *            an array indicating which {@link Sample} is used in the union,
-	 *            if <code>in[i]==true</code> the {@link Sample}
+	 *            an array indicating which {@link DataSet} is used in the union,
+	 *            if <code>in[i]==true</code> the {@link DataSet}
 	 *            <code>s[i]</code> is used
 	 * 
-	 * @return the united {@link Sample}
+	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if <code>s.length != in.length</code> or the {@link Alphabet}
 	 *             s do not match
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if the union is empty
 	 * 
-	 * @see Sample#union(Sample[], boolean[], int)
+	 * @see DataSet#union(DataSet[], boolean[], int)
 	 */
-	public static final Sample union( Sample[] s, boolean[] in ) throws IllegalArgumentException, EmptySampleException {
+	public static final DataSet union( DataSet[] s, boolean[] in ) throws IllegalArgumentException, EmptyDataSetException {
 		try {
 			return union( s, in, 0 );
 		} catch ( WrongLengthException doesNotHappen ) {
@@ -328,19 +328,19 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Unites all {@link Sample}s of the array <code>s</code>.
+	 * Unites all {@link DataSet}s of the array <code>s</code>.
 	 * 
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * 
-	 * @return the united {@link Sample}
+	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the {@link Alphabet}s do not match
 	 * 
-	 * @see Sample#union(Sample[], boolean[])
+	 * @see DataSet#union(DataSet[], boolean[])
 	 */
-	public static final Sample union( Sample... s ) throws IllegalArgumentException {
+	public static final DataSet union( DataSet... s ) throws IllegalArgumentException {
 		if( s == null || s.length == 0 ) {
 			return null;
 		} else {
@@ -348,7 +348,7 @@ public class Sample implements Iterable<Sequence>{
 			Arrays.fill( in, true );
 			try {
 				return union( s, in );
-			} catch ( EmptySampleException doesNotHappen ) {
+			} catch ( EmptyDataSetException doesNotHappen ) {
 				// since each given sample is not empty, the union can't be empty
 				return null;
 			}
@@ -356,32 +356,32 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * This method unites all {@link Sample}s of the array <code>s</code>
+	 * This method unites all {@link DataSet}s of the array <code>s</code>
 	 * regarding the array <code>in</code> and sets the element length in the
-	 * united {@link Sample} to <code>subsequenceLength</code>.
+	 * united {@link DataSet} to <code>subsequenceLength</code>.
 	 * 
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * @param in
-	 *            an array indicating which {@link Sample} is used in the union,
-	 *            if <code>in[i]==true</code> the {@link Sample}
+	 *            an array indicating which {@link DataSet} is used in the union,
+	 *            if <code>in[i]==true</code> the {@link DataSet}
 	 *            <code>s[i]</code> is used
 	 * @param subsequenceLength
-	 *            the length of the elements in the united {@link Sample}
+	 *            the length of the elements in the united {@link DataSet}
 	 * 
-	 * @return the united {@link Sample}
+	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if <code>s.length != in.length</code> or the {@link Alphabet}
 	 *             s do not match
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if the union is empty
 	 * @throws WrongLengthException
-	 *             if the united {@link Sample} does not support this
+	 *             if the united {@link DataSet} does not support this
 	 *             <code>subsequenceLength</code>
 	 */
-	public static final Sample union( Sample[] s, boolean[] in, int subsequenceLength ) throws IllegalArgumentException,
-			EmptySampleException,
+	public static final DataSet union( DataSet[] s, boolean[] in, int subsequenceLength ) throws IllegalArgumentException,
+			EmptyDataSetException,
 			WrongLengthException {
 		if( s == null || s.length == 0 ) {
 			return null;
@@ -433,7 +433,7 @@ public class Sample implements Iterable<Sequence>{
 				}
 			}
 
-			Sample res = new Sample( s[start].alphabetContainer, seqs, len, annot + "]" );
+			DataSet res = new DataSet( s[start].alphabetContainer, seqs, len, annot + "]" );
 			res.setSubsequenceLength( subsequenceLength );
 
 			return res;
@@ -441,26 +441,26 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * This method unites all {@link Sample}s of the array <code>s</code> and
+	 * This method unites all {@link DataSet}s of the array <code>s</code> and
 	 * sets the element length in the united sample to
 	 * <code>subsequenceLength</code>.
 	 * 
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * @param subsequenceLength
-	 *            the length of the elements in the united {@link Sample}
+	 *            the length of the elements in the united {@link DataSet}
 	 * 
-	 * @return the united {@link Sample}
+	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the {@link Alphabet}s do not match
 	 * @throws WrongLengthException
-	 *             if the united {@link Sample} does not support this
+	 *             if the united {@link DataSet} does not support this
 	 *             <code>subsequenceLength</code>
 	 * 
-	 * @see Sample#union(Sample[], boolean[], int)
+	 * @see DataSet#union(DataSet[], boolean[], int)
 	 */
-	public static final Sample union( Sample[] s, int subsequenceLength ) throws IllegalArgumentException, WrongLengthException {
+	public static final DataSet union( DataSet[] s, int subsequenceLength ) throws IllegalArgumentException, WrongLengthException {
 		if( s == null || s.length == 0 ) {
 			return null;
 		} else {
@@ -468,7 +468,7 @@ public class Sample implements Iterable<Sequence>{
 			Arrays.fill( in, true );
 			try {
 				return union( s, in, subsequenceLength );
-			} catch ( EmptySampleException doesNotHappen ) {
+			} catch ( EmptyDataSetException doesNotHappen ) {
 				// since each given sample is not empty, the union can't be empty
 				return null;
 			}
@@ -476,17 +476,17 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Some annotation for the {@link Sample}.
+	 * Some annotation for the {@link DataSet}.
 	 */
 	private String annotation;
 
 	/**
-	 * The {@link AlphabetContainer} of the {@link Sample}.
+	 * The {@link AlphabetContainer} of the {@link DataSet}.
 	 */
 	private AlphabetContainer alphabetContainer;
 
 	/**
-	 * All sequences of the {@link Sample}.
+	 * All sequences of the {@link DataSet}.
 	 */
 	private Sequence[] seqs;
 
@@ -504,9 +504,9 @@ public class Sample implements Iterable<Sequence>{
 	private int[] indexOfFirstSubseq;
 
 	/**
-	 * Creates a new {@link Sample} from an {@link AlphabetContainer}, an array
+	 * Creates a new {@link DataSet} from an {@link AlphabetContainer}, an array
 	 * of {@link Sequence}s, a given length for the elements of the
-	 * {@link Sample} and an annotation for the {@link Sample}.<br>
+	 * {@link DataSet} and an annotation for the {@link DataSet}.<br>
 	 * This constructor is for the <code>partition</code>- and
 	 * <code>union</code>-methods. You can decide whether to copy the
 	 * {@link Sequence}s in a new array or not.
@@ -526,13 +526,13 @@ public class Sample implements Iterable<Sequence>{
 	 * @param length
 	 *            the length of the {@link Sequence}s
 	 * 
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if the array <code>seqs</code> is <code>null</code> or its
 	 *             length is 0
 	 */
-	private Sample( AlphabetContainer abc, Sequence[] seqs, int length, String annotation ) throws EmptySampleException {
+	private DataSet( AlphabetContainer abc, Sequence[] seqs, int length, String annotation ) throws EmptyDataSetException {
 		if( seqs == null || seqs.length == 0 ) {
-			throw new EmptySampleException();
+			throw new EmptyDataSetException();
 		}
 		this.alphabetContainer = abc;
 		this.seqs = seqs;
@@ -541,7 +541,7 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Creates a new {@link Sample} from a {@link de.jstacs.io.StringExtractor}
+	 * Creates a new {@link DataSet} from a {@link de.jstacs.io.StringExtractor}
 	 * using the given {@link AlphabetContainer}.
 	 * 
 	 * @param abc
@@ -551,23 +551,23 @@ public class Sample implements Iterable<Sequence>{
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not suitable
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link Sample#Sample(AlphabetContainer, AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
-	 * @see Sample#Sample(AlphabetContainer, AbstractStringExtractor, String,
+	 * @see DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String,
 	 *      int)
 	 */
-	public Sample( AlphabetContainer abc, AbstractStringExtractor se ) throws WrongAlphabetException, EmptySampleException,
+	public DataSet( AlphabetContainer abc, AbstractStringExtractor se ) throws WrongAlphabetException, EmptyDataSetException,
 																		WrongLengthException {
 		this( abc, se, abc.getDelim(), 0 );
 	}
 
 	/**
-	 * Creates a new {@link Sample} from a {@link de.jstacs.io.StringExtractor}
+	 * Creates a new {@link DataSet} from a {@link de.jstacs.io.StringExtractor}
 	 * using the given {@link AlphabetContainer} and all overlapping windows of
 	 * length <code>subsequenceLength</code>.
 	 * 
@@ -585,19 +585,19 @@ public class Sample implements Iterable<Sequence>{
 	 *             if the {@link AlphabetContainer} is not suitable
 	 * @throws WrongLengthException
 	 *             if the subsequence length is not supported
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * 
-	 * @see Sample#Sample(AlphabetContainer, AbstractStringExtractor, String,
+	 * @see DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String,
 	 *      int)
 	 */
-	public Sample( AlphabetContainer abc, AbstractStringExtractor se, int subsequenceLength ) throws WrongAlphabetException,
-																								WrongLengthException, EmptySampleException {
+	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, int subsequenceLength ) throws WrongAlphabetException,
+																								WrongLengthException, EmptyDataSetException {
 		this( abc, se, abc.getDelim(), subsequenceLength );
 	}
 
 	/**
-	 * Creates a new {@link Sample} from a {@link de.jstacs.io.StringExtractor}
+	 * Creates a new {@link DataSet} from a {@link de.jstacs.io.StringExtractor}
 	 * using the given {@link AlphabetContainer} and a delimiter
 	 * <code>delim</code>.
 	 * 
@@ -610,23 +610,23 @@ public class Sample implements Iterable<Sequence>{
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not suitable
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link Sample#Sample(AlphabetContainer, AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
-	 * @see Sample#Sample(AlphabetContainer, AbstractStringExtractor, String,
+	 * @see DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String,
 	 *      int)
 	 */
-	public Sample( AlphabetContainer abc, AbstractStringExtractor se, String delim ) throws WrongAlphabetException, EmptySampleException,
+	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim ) throws WrongAlphabetException, EmptyDataSetException,
 																					WrongLengthException {
 		this( abc, se, delim, 0 );
 	}
 
 	/**
-	 * Creates a new {@link Sample} from a {@link de.jstacs.io.StringExtractor}
+	 * Creates a new {@link DataSet} from a {@link de.jstacs.io.StringExtractor}
 	 * using the given {@link AlphabetContainer}, the given delimiter
 	 * <code>delim</code> and all overlapping windows of length
 	 * <code>subsequenceLength</code>.
@@ -645,12 +645,12 @@ public class Sample implements Iterable<Sequence>{
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not suitable
-	 * @throws EmptySampleException
-	 *             if the {@link Sample} would be empty
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             if the subsequence length is not supported
 	 */
-	public Sample( AlphabetContainer abc, AbstractStringExtractor se, String delim, int subsequenceLength ) throws EmptySampleException,
+	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim, int subsequenceLength ) throws EmptyDataSetException,
 																											WrongAlphabetException,
 																											WrongLengthException {
 		alphabetContainer = abc;
@@ -722,7 +722,7 @@ public class Sample implements Iterable<Sequence>{
 		}
 		seqs = new Sequence[newSeqs.size()];
 		if( seqs.length == 0 ) {
-			throw new EmptySampleException();
+			throw new EmptyDataSetException();
 		}
 		newSeqs.toArray( seqs );
 
@@ -735,10 +735,10 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Creates a new {@link Sample} from a given {@link Sample} and a given
+	 * Creates a new {@link DataSet} from a given {@link DataSet} and a given
 	 * length <code>subsequenceLength</code>.<br>
 	 * This constructor enables you to use subsequences of the elements of a
-	 * {@link Sample}.
+	 * {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
@@ -750,23 +750,23 @@ public class Sample implements Iterable<Sequence>{
 	 * {@link Sequence} are approximately equally fast.)
 	 * 
 	 * @param s
-	 *            the given {@link Sample}
+	 *            the given {@link DataSet}
 	 * @param subsequenceLength
 	 *            the new element length
 	 * 
 	 * @throws WrongLengthException
 	 *             if something is wrong with <code>subsequenceLength</code>
 	 */
-	public Sample( Sample s, int subsequenceLength ) throws WrongLengthException {
+	public DataSet( DataSet s, int subsequenceLength ) throws WrongLengthException {
 		this( s, subsequenceLength, false );
 	}
 
 	/**
-	 * Creates a new {@link Sample} from a given {@link Sample} and a given
+	 * Creates a new {@link DataSet} from a given {@link DataSet} and a given
 	 * length <code>subsequenceLength</code>. The given value for
 	 * <code>copy</code> determines if the subsequences shall be copied.<br>
 	 * This constructor enables you to use subsequences of the elements of a
-	 * {@link Sample}.
+	 * {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
@@ -778,10 +778,10 @@ public class Sample implements Iterable<Sequence>{
 	 * {@link Sequence} are approximately equally fast.)
 	 * 
 	 * If <code>copy</code> is <code>true</code> all subsequences are copied to
-	 * form a new {@link Sample}.
+	 * form a new {@link DataSet}.
 	 * 
 	 * @param s
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param subsequenceLength
 	 *            the new element length
 	 * @param copy
@@ -790,7 +790,7 @@ public class Sample implements Iterable<Sequence>{
 	 * @throws WrongLengthException
 	 *             if something is wrong with <code>subsequenceLength</code>
 	 */
-	private Sample( Sample s, int subsequenceLength, boolean copy ) throws WrongLengthException {
+	private DataSet( DataSet s, int subsequenceLength, boolean copy ) throws WrongLengthException {
 		if( copy ) {
 			this.alphabetContainer = s.alphabetContainer;
 			this.seqs = s.getAllElements();
@@ -814,25 +814,25 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Creates a new {@link Sample} from an array of {@link Sequence}s and a
+	 * Creates a new {@link DataSet} from an array of {@link Sequence}s and a
 	 * given annotation.<br>
 	 * This constructor is specially designed for the method
 	 * {@link de.jstacs.models.Model#emitSample(int, int...)}.
 	 * 
 	 * @param annotation
-	 *            the annotation of the {@link Sample}
+	 *            the annotation of the {@link DataSet}
 	 * @param seqs
 	 *            the {@link Sequence}(s)
 	 * 
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if the array <code>seqs</code> is <code>null</code> or the
 	 *             length is 0
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer}s do not match
 	 */
-	public Sample( String annotation, Sequence... seqs ) throws EmptySampleException, WrongAlphabetException {
+	public DataSet( String annotation, Sequence... seqs ) throws EmptyDataSetException, WrongAlphabetException {
 		if( seqs == null || seqs.length == 0 ) {
-			throw new EmptySampleException();
+			throw new EmptyDataSetException();
 		}
 		this.alphabetContainer = seqs[0].getAlphabetContainer();
 		this.seqs = new Sequence[seqs.length];
@@ -854,9 +854,9 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * Returns an array of {@link Sequence}s containing all elements of this
-	 * {@link Sample}.
+	 * {@link DataSet}.
 	 * 
-	 * @return all elements ({@link Sequence}s) of this {@link Sample}
+	 * @return all elements ({@link Sequence}s) of this {@link DataSet}
 	 * 
 	 * @see ElementEnumerator
 	 */
@@ -870,18 +870,18 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Returns the {@link AlphabetContainer} of this {@link Sample}.
+	 * Returns the {@link AlphabetContainer} of this {@link DataSet}.
 	 * 
-	 * @return the {@link AlphabetContainer} of this {@link Sample}
+	 * @return the {@link AlphabetContainer} of this {@link DataSet}
 	 */
 	public final AlphabetContainer getAlphabetContainer() {
 		return alphabetContainer;
 	}
 
 	/**
-	 * Returns some annotation of the {@link Sample}.
+	 * Returns some annotation of the {@link DataSet}.
 	 * 
-	 * @return some annotation of the {@link Sample}
+	 * @return some annotation of the {@link DataSet}
 	 */
 	public final String getAnnotation() {
 		return annotation;
@@ -889,17 +889,17 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This method enables you to use only composite {@link Sequence}s of all
-	 * elements in the current {@link Sample}. Each composite {@link Sequence}
+	 * elements in the current {@link DataSet}. Each composite {@link Sequence}
 	 * will be build from one corresponding {@link Sequence} in this
-	 * {@link Sample} and all composite {@link de.jstacs.data.Sequence}s
-	 * will be returned in a new {@link Sample}.
+	 * {@link DataSet} and all composite {@link de.jstacs.data.Sequence}s
+	 * will be returned in a new {@link DataSet}.
 	 * 
 	 * @param starts
 	 *            the start positions of the chunks
 	 * @param lengths
 	 *            the lengths of the chunks
 	 * 
-	 * @return a composite {@link Sample}
+	 * @return a composite {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if either <code>starts</code> or <code>lengths</code> or both
@@ -907,7 +907,7 @@ public class Sample implements Iterable<Sequence>{
 	 * 
 	 * @see Sequence#getCompositeSequence(AlphabetContainer, int[], int[])
 	 */
-	public final Sample getCompositeSample( int[] starts, int[] lengths ) throws IllegalArgumentException {
+	public final DataSet getCompositeSample( int[] starts, int[] lengths ) throws IllegalArgumentException {
 		AlphabetContainer abc = alphabetContainer.getCompositeContainer( starts, lengths );
 		Sequence[] n = new Sequence[getNumberOfElements()];
 		ElementEnumerator ei = new ElementEnumerator( this );
@@ -919,12 +919,12 @@ public class Sample implements Iterable<Sequence>{
 			length += lengths[i];
 		}
 		try {
-			return new Sample( abc, n, length, "composite sample (starts=" + Arrays.toString( starts )
+			return new DataSet( abc, n, length, "composite sample (starts=" + Arrays.toString( starts )
 												+ ", lengths="
 												+ Arrays.toString( lengths )
 												+ ") of "
 												+ annotation );
-		} catch ( EmptySampleException doesNotHappen ) {
+		} catch ( EmptyDataSetException doesNotHappen ) {
 			// since the current sample is not empty, a sample of infixes can't be empty
 			return null;
 		}
@@ -955,17 +955,17 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * Returns the length of the elements, i.e. the {@link Sequence}s, in this
-	 * {@link Sample}.
+	 * {@link DataSet}.
 	 * 
 	 * @return the length of the elements, i.e. the {@link Sequence}s, in this
-	 *         {@link Sample}
+	 *         {@link DataSet}
 	 */
 	public int getElementLength() {
 		return length;
 	}
 	
 	/**
-	 * Returns the average length of all {@link Sequence}s in this {@link Sample}.
+	 * Returns the average length of all {@link Sequence}s in this {@link DataSet}.
 	 * @return the average length
 	 */
 	public double getAverageElementLength(){
@@ -983,13 +983,13 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This method enables you to use only an infix of all elements, i.e. the
-	 * {@link Sequence}s, in the current {@link Sample}. The subsequences will
-	 * be returned in an new {@link Sample}.
+	 * {@link Sequence}s, in the current {@link DataSet}. The subsequences will
+	 * be returned in an new {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
 	 * 
-	 * This method can also be used to create a {@link Sample} of prefixes if
+	 * This method can also be used to create a {@link DataSet} of prefixes if
 	 * the element length is not zero.
 	 * 
 	 * @param start
@@ -997,13 +997,13 @@ public class Sample implements Iterable<Sequence>{
 	 * @param length
 	 *            the length of the infix, has to be positive
 	 * 
-	 * @return a {@link Sample} of the specified infixes
+	 * @return a {@link DataSet} of the specified infixes
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if either <code>start</code> or <code>length</code> or both
 	 *             in combination are not suitable
 	 */
-	public final Sample getInfixSample( int start, int length ) throws IllegalArgumentException {
+	public final DataSet getInfixDataSet( int start, int length ) throws IllegalArgumentException {
 		if( length <= 0 ) {
 			throw new IllegalArgumentException( "The length has to be positive." );
 		}
@@ -1019,8 +1019,8 @@ public class Sample implements Iterable<Sequence>{
 					n[i] = ei.nextElement().getSubSequence( abc, start, length );
 				}
 				try {
-					return new Sample( abc, n, length, "infix sample (start=" + start + ", length=" + length + ") of " + annotation );
-				} catch ( EmptySampleException doesNotHappen ) {
+					return new DataSet( abc, n, length, "infix sample (start=" + start + ", length=" + length + ") of " + annotation );
+				} catch ( EmptyDataSetException doesNotHappen ) {
 					// since the current sample is not empty, a sample of infixes can't be empty
 					return null;
 				}
@@ -1031,20 +1031,20 @@ public class Sample implements Iterable<Sequence>{
 	}
 
 	/**
-	 * Returns a {@link Sample} that contains the reverse complement of all {@link Sequence}s in
-	 * this {@link Sample}.
+	 * Returns a {@link DataSet} that contains the reverse complement of all {@link Sequence}s in
+	 * this {@link DataSet}.
 	 * @return the reverse complements
-	 * @throws OperationNotSupportedException if the {@link AlphabetContainer} of any of the {@link Sequence}s in this {@link Sample}
+	 * @throws OperationNotSupportedException if the {@link AlphabetContainer} of any of the {@link Sequence}s in this {@link DataSet}
 	 * 						is not complementable
 	 */
-	public Sample getReverseComplementarySample() throws OperationNotSupportedException{
+	public DataSet getReverseComplementarySample() throws OperationNotSupportedException{
 		Sequence[] rc = new Sequence[seqs.length];
 		for(int i=0;i<seqs.length;i++){
 			rc[i] = seqs[i].reverseComplement();
 		}
 		try{
-			return new Sample(annotation == null ? null : "reverse complement of "+annotation,rc);
-		}catch (EmptySampleException e) {
+			return new DataSet(annotation == null ? null : "reverse complement of "+annotation,rc);
+		}catch (EmptyDataSetException e) {
 			//cannot happen since this sample is not empty
 			return null;
 		}catch(WrongAlphabetException ex){
@@ -1055,10 +1055,10 @@ public class Sample implements Iterable<Sequence>{
 	
 	/**
 	 * Returns the minimal length of an element, i.e. a {@link Sequence}, in
-	 * this {@link Sample}.
+	 * this {@link DataSet}.
 	 * 
 	 * @return the minimal length of an element, i.e. a {@link Sequence}, in
-	 *         this {@link Sample}
+	 *         this {@link DataSet}
 	 */
 	public int getMinimalElementLength() {
 		if( length != 0 ) {
@@ -1080,10 +1080,10 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * Returns the maximal length of an element, i.e. a {@link Sequence}, in
-	 * this {@link Sample}.
+	 * this {@link DataSet}.
 	 * 
 	 * @return the maximal length of an element, i.e. a {@link Sequence}, in
-	 *         this {@link Sample}
+	 *         this {@link DataSet}
 	 */
 	public int getMaximalElementLength() {
 		if( length != 0 ) {
@@ -1103,10 +1103,10 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * Returns the number of elements, i.e. the {@link Sequence}s, in this
-	 * {@link Sample}.
+	 * {@link DataSet}.
 	 * 
 	 * @return the number of elements, i.e. the {@link Sequence}s, in this
-	 *         {@link Sample}
+	 *         {@link DataSet}
 	 */
 	public int getNumberOfElements() {
 		if( indexOfFirstSubseq == null ) {
@@ -1180,18 +1180,18 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This method enables you to use only a suffix of all elements, i.e. the
-	 * {@link Sequence}, in the current {@link Sample}. The subsequences will be
-	 * returned in an new {@link Sample}.
+	 * {@link Sequence}, in the current {@link DataSet}. The subsequences will be
+	 * returned in an new {@link DataSet}.
 	 * 
 	 * @param start
 	 *            the start position of the suffix
 	 * 
-	 * @return a {@link Sample} of specified suffixes
+	 * @return a {@link DataSet} of specified suffixes
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if <code>start</code> is not suitable
 	 */
-	public final Sample getSuffixSample( int start ) throws IllegalArgumentException {
+	public final DataSet getSuffixDataSet( int start ) throws IllegalArgumentException {
 		int l = 0;
 		if( length != 0 ) {
 			l = length - start;
@@ -1209,8 +1209,8 @@ public class Sample implements Iterable<Sequence>{
 			n[i] = ei.nextElement().getSubSequence( abc, start );
 		}
 		try {
-			return new Sample( abc, n, l, "suffix sample (start=" + start + ") of " + annotation );
-		} catch ( EmptySampleException doesNotHappen ) {
+			return new DataSet( abc, n, l, "suffix sample (start=" + start + ") of " + annotation );
+		} catch ( EmptyDataSetException doesNotHappen ) {
 			// since the current sample is not empty, a sample of suffixes can't be empty
 			return null;
 		}
@@ -1220,7 +1220,7 @@ public class Sample implements Iterable<Sequence>{
 	 * This method indicates whether all random variables are defined over the
 	 * same range, i.e. all positions use the same (fixed) alphabet.
 	 * 
-	 * @return <code>true</code> if the {@link Sample} is simple,
+	 * @return <code>true</code> if the {@link DataSet} is simple,
 	 *         <code>false</code> otherwise
 	 * 
 	 * @see AlphabetContainer#isSimple()
@@ -1232,7 +1232,7 @@ public class Sample implements Iterable<Sequence>{
 	/**
 	 * This method indicates if all positions use discrete values.
 	 * 
-	 * @return <code>true</code> if the {@link Sample} is discrete,
+	 * @return <code>true</code> if the {@link DataSet} is discrete,
 	 *         <code>false</code> otherwise
 	 * 
 	 * @see AlphabetContainer#isDiscrete()
@@ -1251,104 +1251,104 @@ public class Sample implements Iterable<Sequence>{
 	
 	/**
 	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
-	 * {@link Sample} in two distinct parts. The second part (test sample) holds
+	 * {@link DataSet} in two distinct parts. The second part (test sample) holds
 	 * the percentage of <code>p</code>, the first the rest (train sample). The
-	 * first part has element length as the current {@link Sample}, the second
+	 * first part has element length as the current {@link DataSet}, the second
 	 * has element length <code>subsequenceLength</code>, which might be
 	 * necessary for testing.
 	 * 
 	 * @param p
 	 *            the percentage for the second part, the second part holds at
-	 *            least this percentage of the full {@link Sample}
+	 *            least this percentage of the full {@link DataSet}
 	 * @param method
 	 *            the method how to partition the sample (partitioning
 	 *            criterion)
 	 * @param subsequenceLength
 	 *            the element length of the second part, if 0 (zero) then the
-	 *            sequences are used as given in this {@link Sample}
+	 *            sequences are used as given in this {@link DataSet}
 	 * 
-	 * @return the array of partitioned {@link Sample}s
+	 * @return the array of partitioned {@link DataSet}s
 	 * 
 	 * @throws WrongLengthException
 	 *             if something is wrong with <code>subsequenceLength</code>
 	 * @throws UnsupportedOperationException
-	 *             if the {@link Sample} is not simple
-	 * @throws EmptySampleException
+	 *             if the {@link DataSet} is not simple
+	 * @throws EmptyDataSetException
 	 *             if at least one of the created partitions is empty
 	 * 
-	 * @see Sample.PartitionMethod
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
-	 * @see Sample#partition(PartitionMethod, double...)
+	 * @see DataSet.PartitionMethod
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
+	 * @see DataSet#partition(PartitionMethod, double...)
 	 */
-	public Sample[] partition( double p, PartitionMethod method, int subsequenceLength ) throws WrongLengthException,
+	public DataSet[] partition( double p, PartitionMethod method, int subsequenceLength ) throws WrongLengthException,
 			UnsupportedOperationException,
-			EmptySampleException {
+			EmptyDataSetException {
 		if( !isSimpleSample() && length != subsequenceLength ) {
 			throw new UnsupportedOperationException( "The is method can only be used for simple samples." );
 		}
-		Sample[] parts = partition( method, 1d - p, p );
+		DataSet[] parts = partition( method, 1d - p, p );
 		parts[1].setSubsequenceLength( subsequenceLength );
 		return parts;
 	}
 
 	/**
 	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
-	 * {@link Sample} in distinct parts where each part holds the corresponding
+	 * {@link DataSet} in distinct parts where each part holds the corresponding
 	 * percentage given in the array <code>percentage</code>.
 	 * 
 	 * @param method
-	 *            the method how to partition the {@link Sample} (partitioning
+	 *            the method how to partition the {@link DataSet} (partitioning
 	 *            criterion)
 	 * @param percentage
 	 *            the array of percentages for each &quot;subsample&quot;
 	 * 
-	 * @return the array of partitioned {@link Sample}s
+	 * @return the array of partitioned {@link DataSet}s
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if something with the percentages is not correct (
 	 *             <code>sum != 1</code> or one value is not in
 	 *             <code>[0,1]</code>)
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if at least one of the created partitions is empty
 	 * 
-	 * @see Sample.PartitionMethod
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
+	 * @see DataSet.PartitionMethod
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
 	 */
-	public Sample[] partition( PartitionMethod method, double... percentage ) throws IllegalArgumentException, EmptySampleException {
+	public DataSet[] partition( PartitionMethod method, double... percentage ) throws IllegalArgumentException, EmptyDataSetException {
 		return partition( null, method, percentage ).getFirstElement();
 	}
 	
 	/**
 	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
-	 * {@link Sample} and the corresponding weights in distinct parts where each part holds the corresponding
+	 * {@link DataSet} and the corresponding weights in distinct parts where each part holds the corresponding
 	 * percentage given in the array <code>percentage</code>.
 	 * 
 	 * @param sequenceWeights
 	 * 			  the weights for the sequences (might be <code>null</code>)
 	 * @param method
-	 *            the method how to partition the {@link Sample} (partitioning
+	 *            the method how to partition the {@link DataSet} (partitioning
 	 *            criterion)
 	 * @param percentage
 	 *            the array of percentages for each &quot;subsample&quot;
 	 * 
-	 * @return a {@link Pair} containing an array of partitioned {@link Sample}s and an array of partitioned sequence weights
+	 * @return a {@link Pair} containing an array of partitioned {@link DataSet}s and an array of partitioned sequence weights
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if something with the percentages is not correct (
 	 *             <code>sum != 1</code> or one value is not in
 	 *             <code>[0,1]</code>)
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if at least one of the created partitions is empty
 	 * 
-	 * @see Sample.PartitionMethod
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
+	 * @see DataSet.PartitionMethod
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
 	 */
-	public Pair<Sample[],double[][]> partition( double[] sequenceWeights, PartitionMethod method, double... percentage ) throws IllegalArgumentException, EmptySampleException {
+	public Pair<DataSet[],double[][]> partition( double[] sequenceWeights, PartitionMethod method, double... percentage ) throws IllegalArgumentException, EmptyDataSetException {
 		if( percentage == null | percentage.length <= 1 ) {
-			return new Pair<Sample[],double[][]>( new Sample[]{ this }, new double[][]{sequenceWeights} );
+			return new Pair<DataSet[],double[][]>( new DataSet[]{ this }, new double[][]{sequenceWeights} );
 		}
 		int i = 0;
 		double sum = 0;
@@ -1406,65 +1406,65 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
-	 * {@link Sample} in <code>k</code> distinct parts.
+	 * {@link DataSet} in <code>k</code> distinct parts.
 	 * 
 	 * @param k
 	 *            the number of distinct parts
 	 * @param method
-	 *            the method how to partition the {@link Sample} (partitioning
+	 *            the method how to partition the {@link DataSet} (partitioning
 	 *            criterion)
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if <code>k</code> is not correct
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if at least one of the created partitions is empty
 	 * 
-	 * @return the array of partitioned {@link Sample}s
+	 * @return the array of partitioned {@link DataSet}s
 	 * 
-	 * @see Sample.PartitionMethod
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
+	 * @see DataSet.PartitionMethod
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
 	 */
-	public Sample[] partition( int k, PartitionMethod method ) throws IllegalArgumentException, EmptySampleException {
+	public DataSet[] partition( int k, PartitionMethod method ) throws IllegalArgumentException, EmptyDataSetException {
 		return partition(null, k, method).getFirstElement();
 	}
 	
 	/**
 	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
-	 * {@link Sample} and the corresponding weights in <code>k</code> distinct parts.
+	 * {@link DataSet} and the corresponding weights in <code>k</code> distinct parts.
 	 *
 	 * @param sequenceWeights
 	 * 			  the weights for the sequences (might be <code>null</code>)
 	 * @param k
 	 *            the number of distinct parts
 	 * @param method
-	 *            the method how to partition the {@link Sample} (partitioning
+	 *            the method how to partition the {@link DataSet} (partitioning
 	 *            criterion)
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if <code>k</code> is not correct
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if at least one of the created partitions is empty
 	 * 
-	 * @return a {@link Pair} containing an array of partitioned {@link Sample}s and an array of partitioned sequence weights
+	 * @return a {@link Pair} containing an array of partitioned {@link DataSet}s and an array of partitioned sequence weights
 	 * 
-	 * @see Sample.PartitionMethod
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
-	 * @see Sample.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
+	 * @see DataSet.PartitionMethod
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
+	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
 	 */
-	public Pair<Sample[],double[][]> partition( double[] sequenceWeights, int k, PartitionMethod method ) throws IllegalArgumentException, EmptySampleException {
+	public Pair<DataSet[],double[][]> partition( double[] sequenceWeights, int k, PartitionMethod method ) throws IllegalArgumentException, EmptyDataSetException {
 		if( k < 1 ) {
 			throw new IllegalArgumentException( "Can't partition in " + k + " parts." );
 		}
 		if( k == 1 ) {
-			return new Pair<Sample[],double[][]>( new Sample[]{ this }, new double[][]{sequenceWeights} );
+			return new Pair<DataSet[],double[][]>( new DataSet[]{ this }, new double[][]{sequenceWeights} );
 		}
 		double[] percentage = new double[k];
 		Arrays.fill(percentage,1d/k);
 		return partition(sequenceWeights, method, percentage);
 	}
 
-	private Pair<Sample[], double[][]> partitionSampleAndWeights( double[] anz, PartitionMethod method, double[] seqWeights ) throws EmptySampleException {
+	private Pair<DataSet[], double[][]> partitionSampleAndWeights( double[] anz, PartitionMethod method, double[] seqWeights ) throws EmptyDataSetException {
 		int[] pos = new int[getNumberOfElements()], ends = new int[anz.length];
 		int last = pos.length, drawn, help, i = 0;
 		for( i = 0; i < last; i++ ) {
@@ -1507,8 +1507,8 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * Randomly samples elements, i.e. {@link Sequence}s, from the set of all
-	 * elements, i.e. the {@link Sequence}s, contained in this {@link Sample}. <br>
-	 * Depending on whether this {@link Sample} is chosen to contain overlapping
+	 * elements, i.e. the {@link Sequence}s, contained in this {@link DataSet}. <br>
+	 * Depending on whether this {@link DataSet} is chosen to contain overlapping
 	 * elements (windows of length <code>subsequenceLength</code>) or not, those
 	 * elements (overlapping windows, whole sequences) are subsampled.
 	 * 
@@ -1516,14 +1516,14 @@ public class Sample implements Iterable<Sequence>{
 	 *            the number of {@link Sequence}s that should be drawn from the
 	 *            contained set of {@link Sequence}s (with replacement)
 	 * 
-	 * @return a new {@link Sample} containing the drawn {@link Sequence}s
+	 * @return a new {@link DataSet} containing the drawn {@link Sequence}s
 	 * 
-	 * @throws EmptySampleException
+	 * @throws EmptyDataSetException
 	 *             if <code>number</code> is not positive
 	 */
-	public Sample subSampling( int number ) throws EmptySampleException {
+	public DataSet subSampling( int number ) throws EmptyDataSetException {
 		if( number <= 0 ) {
-			throw new EmptySampleException();
+			throw new EmptyDataSetException();
 		}
 		Random r = new Random();
 		Sequence subsampled_seqs[] = new Sequence[number];
@@ -1534,11 +1534,11 @@ public class Sample implements Iterable<Sequence>{
 			subsampled_seqs[i] = this.getElementAt( r.nextInt( numOfElements ) );
 		}
 
-		return new Sample( this.alphabetContainer, subsampled_seqs, this.length, "subsample of " + annotation );
+		return new DataSet( this.alphabetContainer, subsampled_seqs, this.length, "subsample of " + annotation );
 	}
 
 	/**
-	 * This method writes the {@link Sample} to a file <code>f</code>.
+	 * This method writes the {@link DataSet} to a file <code>f</code>.
 	 * 
 	 * @param f
 	 *            the {@link File}
@@ -1546,7 +1546,7 @@ public class Sample implements Iterable<Sequence>{
 	 * @throws IOException
 	 *             if something went wrong with the file
 	 *             
-	 * @see Sample#save(OutputStream, char, SequenceAnnotationParser)
+	 * @see DataSet#save(OutputStream, char, SequenceAnnotationParser)
 	 */
 	public final void save( File f ) throws IOException {
 		save( new FileOutputStream( f ), AbstractStringExtractor.FASTA, null );
@@ -1559,7 +1559,7 @@ public class Sample implements Iterable<Sequence>{
 	 * {@link SequenceAnnotationParser}.
 	 * 
 	 * @param stream
-	 *            the stream which is used to write the {@link Sample}
+	 *            the stream which is used to write the {@link DataSet}
 	 * @param commentChar
 	 *            the character that marks comment lines
 	 * @param p
@@ -1639,9 +1639,9 @@ public class Sample implements Iterable<Sequence>{
 		}
 	}
 
-	private Pair<Sample[],double[][]> getPartitionsOfElements( int[] pos, int[] ends, double[] seqWeights ) throws EmptySampleException {
+	private Pair<DataSet[],double[][]> getPartitionsOfElements( int[] pos, int[] ends, double[] seqWeights ) throws EmptyDataSetException {
 		int i = 0, j, last = 0;
-		Sample[] parts = new Sample[ends.length];
+		DataSet[] parts = new DataSet[ends.length];
 		double[][] partWeights = new double[ends.length][];
 		Sequence[] seqs;
 		DoubleList w = new DoubleList();
@@ -1656,9 +1656,9 @@ public class Sample implements Iterable<Sequence>{
 			}
 			last = ends[i];
 			partWeights[i] = w.length() == 0 ? null : w.toArray();
-			parts[i] = new Sample( alphabetContainer, seqs, length, "partition of " + annotation );
+			parts[i] = new DataSet( alphabetContainer, seqs, length, "partition of " + annotation );
 		}
-		return new Pair<Sample[], double[][]>(parts,partWeights);
+		return new Pair<DataSet[], double[][]>(parts,partWeights);
 	}
 
 	/**
@@ -1713,7 +1713,7 @@ public class Sample implements Iterable<Sequence>{
 	
 	/**
 	 * This method returns all {@link SequenceAnnotation} types and the corresponding
-	 * identifier which occur in this {@link Sample}.
+	 * identifier which occur in this {@link DataSet}.
 	 * 
 	 * @return a {@link Hashtable} with key = {@link SequenceAnnotation} type and identifier = {@link SequenceAnnotation} identifier
 	 * 
@@ -1745,7 +1745,7 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This method creates a matrix which contains the index of the {@link Sequence} with specific {@link SequenceAnnotation}
-	 * combination or -1 if the {@link Sample} does not contain any {@link Sequence} with such a combination. The rows and
+	 * combination or -1 if the {@link DataSet} does not contain any {@link Sequence} with such a combination. The rows and
 	 * columns are indexed according to the {@link Hashtable}s.
 	 * 
 	 * <br><br>
@@ -1769,9 +1769,9 @@ public class Sample implements Iterable<Sequence>{
 	 * 
 	 * @return a matrix with the indices of the {@link Sequence}s with each specific combination of
 	 * 		   {@link SequenceAnnotation} for code>rowType</code> and <code>columnType</code> and -1
-	 * 		   if this combination does not exist in the {@link Sample}
+	 * 		   if this combination does not exist in the {@link DataSet}
 	 * 
-	 * @see Sample#getAnnotationTypesAndIdentifier()
+	 * @see DataSet#getAnnotationTypesAndIdentifier()
 	 * @see de.jstacs.utils.ToolBox#parseHashSet2IndexHashtable(HashSet)
 	 */
 	public int[][] getSequenceAnnotationIndexMatrix( String rowType, Hashtable<String, Integer> rowHash, String columnType, Hashtable<String, Integer> columnHash ) {
@@ -1805,8 +1805,8 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This class can be used to have a fast sequential access to a
-	 * {@link Sample}. <a name="ElementEnumerator"> It enumerates all elements
-	 * of a {@link Sample}.
+	 * {@link DataSet}. <a name="ElementEnumerator"> It enumerates all elements
+	 * of a {@link DataSet}.
 	 * 
 	 * <br>
 	 * <br>
@@ -1820,16 +1820,16 @@ public class Sample implements Iterable<Sequence>{
 
 		private int seqCounter, startPosCounter;
 
-		private Sample s;
+		private DataSet s;
 
 		/**
-		 * Creates a new {@link ElementEnumerator} on the given {@link Sample}
+		 * Creates a new {@link ElementEnumerator} on the given {@link DataSet}
 		 * <code>data</code>.
 		 * 
 		 * @param data
-		 *            the given {@link Sample}
+		 *            the given {@link DataSet}
 		 */
-		public ElementEnumerator( Sample data ) {
+		public ElementEnumerator( DataSet data ) {
 			s = data;
 			reset();
 		}
@@ -1881,16 +1881,16 @@ public class Sample implements Iterable<Sequence>{
 
 	/**
 	 * This class enables you to eliminate {@link Sequence}s that occur more
-	 * than once in one or more {@link Sample}s. The number of occurrences is
+	 * than once in one or more {@link DataSet}s. The number of occurrences is
 	 * given by the weight for a {@link Sequence}.
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static class WeightedSampleFactory {
+	public static class WeightedDataSetFactory {
 
 		/**
 		 * This <code>enum</code> defines the different types of sort operations
-		 * that can be performed while creating a {@link WeightedSampleFactory}.
+		 * that can be performed while creating a {@link WeightedDataSetFactory}.
 		 * 
 		 * @author Jens Keilwagen
 		 */
@@ -1916,21 +1916,21 @@ public class Sample implements Iterable<Sequence>{
 			SORT_BY_WEIGHTS;
 		}
 
-		private Sample res;
+		private DataSet res;
 
 		private double[] weights;
 
 		/**
-		 * Creates a new {@link WeightedSampleFactory} on the given
-		 * {@link Sample}(s) with {@link SortOperation} <code>sort</code>.
+		 * Creates a new {@link WeightedDataSetFactory} on the given
+		 * {@link DataSet}(s) with {@link SortOperation} <code>sort</code>.
 		 * 
 		 * @param sort
 		 *            the given {@link SortOperation}
 		 * @param data
-		 *            the given {@link Sample}(s)
+		 *            the given {@link DataSet}(s)
 		 * 
 		 * @throws WrongAlphabetException
-		 *             if the alphabets of the {@link Sample}s do not match
+		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
 		 *             {@link de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)}
@@ -1938,24 +1938,24 @@ public class Sample implements Iterable<Sequence>{
 		 * 
 		 * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int) 
 		 */
-		public WeightedSampleFactory( SortOperation sort, Sample... data ) throws WrongAlphabetException, WrongLengthException {
+		public WeightedDataSetFactory( SortOperation sort, DataSet... data ) throws WrongAlphabetException, WrongLengthException {
 			this( sort, data, null, 0 );
 		}
 
 		/**
-		 * Creates a new {@link WeightedSampleFactory} on the given
-		 * {@link Sample} and an array of <code>weights</code> with
+		 * Creates a new {@link WeightedDataSetFactory} on the given
+		 * {@link DataSet} and an array of <code>weights</code> with
 		 * {@link SortOperation} <code>sort</code>.
 		 * 
 		 * @param sort
 		 *            the given {@link SortOperation}
 		 * @param data
-		 *            the given {@link Sample}
+		 *            the given {@link DataSet}
 		 * @param weights
-		 *            the weights for each element in the {@link Sample}
+		 *            the weights for each element in the {@link DataSet}
 		 * 
 		 * @throws WrongAlphabetException
-		 *             if the alphabets of the {@link Sample}s do not match
+		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
 		 *             {@link de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)}
@@ -1963,59 +1963,59 @@ public class Sample implements Iterable<Sequence>{
 		 * 
 		 * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)
 		 */
-		public WeightedSampleFactory( SortOperation sort, Sample data, double[] weights ) throws WrongAlphabetException,
+		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights ) throws WrongAlphabetException,
 																							WrongLengthException {
-			this( sort, new Sample[]{ data }, new double[][]{ weights }, 0 );
+			this( sort, new DataSet[]{ data }, new double[][]{ weights }, 0 );
 		}
 
 		/**
-		 * Creates a new {@link WeightedSampleFactory} on the given
-		 * {@link Sample} and an array of <code>weights</code> with a given
+		 * Creates a new {@link WeightedDataSetFactory} on the given
+		 * {@link DataSet} and an array of <code>weights</code> with a given
 		 * <code>length</code> and {@link SortOperation} <code>sort</code>.
 		 * 
 		 * @param sort
 		 *            the given {@link SortOperation}
 		 * @param data
-		 *            the given {@link Sample}
+		 *            the given {@link DataSet}
 		 * @param weights
-		 *            the weight for each element in the {@link Sample}
+		 *            the weight for each element in the {@link DataSet}
 		 * @param length
 		 *            the length of the elements in the resulting
-		 *            {@link WeightedSampleFactory}
+		 *            {@link WeightedDataSetFactory}
 		 * 
 		 * @throws WrongAlphabetException
-		 *             if the alphabets of the {@link Sample}s do not match
+		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             if the length is not supported
 		 * 
 		 * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)
 		 */
-		public WeightedSampleFactory( SortOperation sort, Sample data, double[] weights, int length ) throws WrongAlphabetException,
+		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights, int length ) throws WrongAlphabetException,
 																										WrongLengthException {
-			this( sort, new Sample[]{ data }, new double[][]{ weights }, length );
+			this( sort, new DataSet[]{ data }, new double[][]{ weights }, length );
 		}
 
 		/**
-		 * Creates a new {@link WeightedSampleFactory} on the given array of
-		 * {@link Sample}s and an array of <code>weights</code> with a given
+		 * Creates a new {@link WeightedDataSetFactory} on the given array of
+		 * {@link DataSet}s and an array of <code>weights</code> with a given
 		 * <code>length</code> and {@link SortOperation} <code>sort</code>.
 		 * 
 		 * @param sort
 		 *            the given {@link SortOperation}
 		 * @param data
-		 *            the given {@link Sample}
+		 *            the given {@link DataSet}
 		 * @param weights
-		 *            the weights for each element in each {@link Sample}
+		 *            the weights for each element in each {@link DataSet}
 		 * @param length
 		 *            the length of the elements in the resulting
-		 *            {@link WeightedSampleFactory}
+		 *            {@link WeightedDataSetFactory}
 		 * 
 		 * @throws WrongAlphabetException
-		 *             if the alphabets of the {@link Sample}s do not match
+		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             if the length is not supported
 		 */
-		public WeightedSampleFactory( SortOperation sort, Sample[] data, double[][] weights, int length ) throws WrongAlphabetException,
+		public WeightedDataSetFactory( SortOperation sort, DataSet[] data, double[][] weights, int length ) throws WrongAlphabetException,
 																											WrongLengthException {
 			Hashtable<Sequence, double[]> ht = new Hashtable<Sequence, double[]>( data.length * data[0].getNumberOfElements() );
 			for( int i = 0; i < data.length; i++ ) {
@@ -2029,12 +2029,12 @@ public class Sample implements Iterable<Sequence>{
 					throw new WrongAlphabetException( "The AlphabetContainer for all Sample has to be consistent." );
 				}
 			}
-			create( "all sequences" + ( length > 0 ? ( " of length " + length ) : "" ) + " that occur in " + Sample.getAnnotation( data ),
+			create( "all sequences" + ( length > 0 ? ( " of length " + length ) : "" ) + " that occur in " + DataSet.getAnnotation( data ),
 					sort,
 					ht );
 		}
 
-		private void add( Hashtable<Sequence, double[]> ht, Sample data, double[] weights, int length ) throws WrongLengthException {
+		private void add( Hashtable<Sequence, double[]> ht, DataSet data, double[] weights, int length ) throws WrongLengthException {
 			Sequence s;
 			double w = 1;
 			int i = 0, anz = data.getNumberOfElements(), j, l;
@@ -2093,7 +2093,7 @@ public class Sample implements Iterable<Sequence>{
 				weights[i] = e.getValue()[0];
 			}
 			try {
-				res = new Sample( annotation, seqs );
+				res = new DataSet( annotation, seqs );
 			} catch ( Exception doesNotHappen ) {
 				RuntimeException r = new RuntimeException( doesNotHappen.getMessage() );
 				r.setStackTrace( doesNotHappen.getStackTrace() );
@@ -2115,23 +2115,23 @@ public class Sample implements Iterable<Sequence>{
 
 		/**
 		 * Returns the number of elements, i.e. {@link Sequence}s, in the
-		 * internal {@link Sample}.
+		 * internal {@link DataSet}.
 		 * 
 		 * @return the number of elements, i.e. {@link Sequence}s, in the
-		 *         internal {@link Sample}
+		 *         internal {@link DataSet}
 		 */
 		public int getNumberOfElements() {
 			return res.getNumberOfElements();
 		}
 
 		/**
-		 * Returns the {@link Sample}, where each {@link Sequence} occurs only
+		 * Returns the {@link DataSet}, where each {@link Sequence} occurs only
 		 * once.
 		 * 
-		 * @return the {@link Sample}, where each {@link Sequence} occurs only
+		 * @return the {@link DataSet}, where each {@link Sequence} occurs only
 		 *         once
 		 */
-		public Sample getSample() {
+		public DataSet getDataSet() {
 			return res;
 		}
 
@@ -2141,7 +2141,7 @@ public class Sample implements Iterable<Sequence>{
 		 * @return the sum of all weights
 		 */
 		public double getSumOfWeights() {
-			return Sample.getSumOfWeights(weights);
+			return DataSet.getSumOfWeights(weights);
 		}
 
 		/**
@@ -2159,9 +2159,9 @@ public class Sample implements Iterable<Sequence>{
 		}
 
 		/**
-		 * Returns a copy of the weights for the {@link Sample}.
+		 * Returns a copy of the weights for the {@link DataSet}.
 		 * 
-		 * @return the weights for the {@link Sample}
+		 * @return the weights for the {@link DataSet}
 		 */
 		public double[] getWeights() {
 			return weights.clone();
@@ -2180,7 +2180,7 @@ public class Sample implements Iterable<Sequence>{
 		}
 
 		/**
-		 * This comparator can be used to sort the elements in a {@link WeightedSampleFactory}.
+		 * This comparator can be used to sort the elements in a {@link WeightedDataSetFactory}.
 		 * It corresponds to {@link SortOperation#SORT_BY_WEIGHTS}
 		 * 
 		 * @author Jens Keilwagen
@@ -2200,7 +2200,7 @@ public class Sample implements Iterable<Sequence>{
 		}
 
 		/**
-		 * This comparator can be used to sort the elements in a {@link WeightedSampleFactory}.
+		 * This comparator can be used to sort the elements in a {@link WeightedDataSetFactory}.
 		 * It corresponds to {@link SortOperation#SORT_BY_SEQUENCE}
 		 * 
 		 * @author Jens Keilwagen

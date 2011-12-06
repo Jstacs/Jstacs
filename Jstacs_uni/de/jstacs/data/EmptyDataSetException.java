@@ -19,12 +19,12 @@
 package de.jstacs.data;
 
 /**
- * An {@link EmptySampleException} will be thrown if no {@link Sequence} is in a
- * {@link Sample} (i.e. the {@link Sample} is empty).
+ * An {@link EmptyDataSetException} will be thrown if no {@link Sequence} is in a
+ * {@link DataSet} (i.e. the {@link DataSet} is empty).
  * 
  * @author Jens Keilwagen
  */
-public class EmptySampleException extends Exception {
+public class EmptyDataSetException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class EmptySampleException extends Exception {
 	 * This constructor creates an instance with default error message
 	 * (&quot;The created Sample is empty.&quot;).
 	 */
-	public EmptySampleException() {
+	public EmptyDataSetException() {
 		super( "The created Sample is empty." );
 	}
 }

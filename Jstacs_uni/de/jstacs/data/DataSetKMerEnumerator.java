@@ -24,23 +24,23 @@ import java.util.Iterator;
 import javax.naming.OperationNotSupportedException;
 
 /**
- * Class for an {@link RecyclableSequenceEnumerator} of {@link Sequence}s that enumerates all k-mers that exist in a given {@link Sample}, optionally ignoring reverse complements.
+ * Class for an {@link RecyclableSequenceEnumerator} of {@link Sequence}s that enumerates all k-mers that exist in a given {@link DataSet}, optionally ignoring reverse complements.
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class SampleKMerEnumerator implements RecyclableSequenceEnumerator {
+public class DataSetKMerEnumerator implements RecyclableSequenceEnumerator {
 
 	private Iterator<Sequence> it;
 	private HashSet<Sequence> current;
 	
 	/**
-	 * Constructs a new SampleKMerEnumerator from a {@link Sample} <code>data</code> by extracting all k-mers.
+	 * Constructs a new SampleKMerEnumerator from a {@link DataSet} <code>data</code> by extracting all k-mers.
 	 * @param data the data to extract the k-mers from
 	 * @param k the length of the k-mers
 	 * @param eliminateRevComp whether to ignore the reverse complement of already existing k-mers
 	 * @throws OperationNotSupportedException if a {@link Sequence} in <code>data</code> does not support to compute the reverse complement but <code>eliminateRevComp</code> is true
 	 */
-	public SampleKMerEnumerator(Sample data, int k, boolean eliminateRevComp) throws OperationNotSupportedException{
+	public DataSetKMerEnumerator(DataSet data, int k, boolean eliminateRevComp) throws OperationNotSupportedException{
 
 		int f = eliminateRevComp ? 2 : 1;
 		
