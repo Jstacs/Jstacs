@@ -27,7 +27,7 @@ import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.models.Model;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
@@ -563,9 +563,9 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
 	 * 
-	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, Sample...)
+	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		return assess( mp, assessPS, null, s );
@@ -630,7 +630,7 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, Sample... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		if( pU == null ) {
@@ -642,7 +642,7 @@ public abstract class ClassifierAssessment {
 		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment", "a description or name of the assessment", getNameOfAssessment() ) );
 		annotation.addAll( assessPS.getAnnotation() );
-		annotation.add( new CategoricalResult( "samples", "annotation of used samples", Sample.getAnnotation( s ) ) );
+		annotation.add( new CategoricalResult( "samples", "annotation of used samples", DataSet.getAnnotation( s ) ) );
 
 		this.evaluateClassifier( mp, assessPS, s, pU );
 
@@ -669,7 +669,7 @@ public abstract class ClassifierAssessment {
 	 *            sample. Analog <code>s[iter][1]</code> contains the test
 	 *            samples. The order of the samples is important. For further
 	 *            details see comment of method
-	 *            {@link #assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, Sample...)}
+	 *            {@link #assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, DataSet...)}
 	 *            .<br>
 	 *            The user is responsible to take care or not to take care of
 	 *            the given test and training dataset to be not overlapping.
@@ -699,7 +699,7 @@ public abstract class ClassifierAssessment {
 	 *             forwarded from training/testing of classifiers/models
 	 * 
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, Sample[][]... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet[][]... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		if( pU == null ) {
@@ -715,7 +715,7 @@ public abstract class ClassifierAssessment {
 		int eL = assessPS.getElementLength();
 		boolean exceptionIfMPNotComputable = assessPS.getExceptionIfMPNotComputable();
 
-		Sample[][][] correctedS = new Sample[s.length][2][s[0][0].length];
+		DataSet[][][] correctedS = new DataSet[s.length][2][s[0][0].length];
 
 		AlphabetContainer abc = this.myAbstractClassifier[0].getAlphabetContainer();
 		for( i = 0; i < s.length; i++ ) {
@@ -735,7 +735,7 @@ public abstract class ClassifierAssessment {
 				for( int k=0; k < 2; k++ ) {
 					abc.checkConsistency( s[i][k][j].getAlphabetContainer() );
 					if( s[i][k][j].getElementLength() != eL ) {
-						correctedS[i][k][j] = new Sample( s[i][k][j], eL );
+						correctedS[i][k][j] = new DataSet( s[i][k][j], eL );
 					} else {
 						correctedS[i][k][j] = s[i][k][j];
 					}
@@ -848,17 +848,17 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             that occurred during training or using classifiers/models
 	 */
-	protected abstract void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s,
+	protected abstract void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s,
 			ProgressUpdater pU ) throws IllegalArgumentException, Exception;
 
 	/**
-	 * Prepares an assessment. If the given {@link Sample} may not be used for
+	 * Prepares an assessment. If the given {@link DataSet} may not be used for
 	 * this assessment, this method throws an {@link Exception}. <br>
 	 * Further {@link MeanResultSet}s are initiated for this assessment (one for
 	 * each contained classifier).
 	 * 
 	 * @param s
-	 *            the {@link Sample} to be checked
+	 *            the {@link DataSet} to be checked
 	 *            
 	 * @throws WrongAlphabetException
 	 *             if <br>
@@ -872,7 +872,7 @@ public abstract class ClassifierAssessment {
 	 * @throws IllegalArgumentException
 	 * 				if the given samples are not suitable
 	 */
-	protected void prepareAssessment( Sample... s ) throws IllegalArgumentException, WrongAlphabetException {
+	protected void prepareAssessment( DataSet... s ) throws IllegalArgumentException, WrongAlphabetException {
 
 		if( s == null || s.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
 			throw new IllegalArgumentException( "Either no samples are given or the number of samples " + "is not equal to the number of different classes "
@@ -904,7 +904,7 @@ public abstract class ClassifierAssessment {
 	 *            whether an {@link Exception} should be thrown if some
 	 *            {@link de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure} could not be evaluated
 	 * @param testS
-	 *            samples used as test sets (has to contain one {@link Sample}
+	 *            samples used as test sets (has to contain one {@link DataSet}
 	 *            for each class)
 	 * 
 	 * @throws IllegalValueException
@@ -922,9 +922,9 @@ public abstract class ClassifierAssessment {
 	 *             <code>testS.length!=this.myAbstractClassifier
 	 *             [0].getNumberOfClasses()</code>)
 	 * 
-	 * @see AbstractClassifier#evaluate(de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters, boolean, Sample...)
+	 * @see AbstractClassifier#evaluate(de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters, boolean, DataSet...)
 	 */
-	protected void test( NumericalPerformanceMeasureParameters mp, boolean exception, Sample... testS ) throws IllegalValueException,
+	protected void test( NumericalPerformanceMeasureParameters mp, boolean exception, DataSet... testS ) throws IllegalValueException,
 			InconsistentResultNumberException,
 			AdditionImpossibleException,
 			Exception {
@@ -951,7 +951,7 @@ public abstract class ClassifierAssessment {
 	 * 
 	 * @param trainS
 	 *            samples used as training sets (has to contain one
-	 *            {@link Sample} for each class)
+	 *            {@link DataSet} for each class)
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the length of <code>trainS</code> is not equal to the
@@ -961,7 +961,7 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             if necessary
 	 */
-	protected void train( Sample... trainS ) throws IllegalArgumentException, Exception {
+	protected void train( DataSet... trainS ) throws IllegalArgumentException, Exception {
 
 		if( trainS.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
 			throw new IllegalArgumentException( "Dimension of given trainSample-array is not " + "equal to problem-dimension (classifier.getNumberOfClasses)." );

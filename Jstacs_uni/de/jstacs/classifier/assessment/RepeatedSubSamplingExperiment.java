@@ -22,7 +22,7 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.models.Model;
 import de.jstacs.utils.ProgressUpdater;
 
@@ -348,7 +348,7 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
 		RepeatedSubSamplingAssessParameterSet tempAssessPS = null;
@@ -378,18 +378,18 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 												+ "as classes the local classifers are able to distinguish." );
 		}
 
-		Sample[] tempS = new Sample[s.length];
+		DataSet[] tempS = new DataSet[s.length];
 
 		for( int i = 0; i < tempS.length; i++ ) {
 
 			if( s[i].getElementLength() != eL ) {
-				tempS[i] = new Sample( s[i], eL );
+				tempS[i] = new DataSet( s[i], eL );
 			} else {
 				tempS[i] = s[i];
 			}
 		}
 
-		Sample[][] sTrainTestClassWise = new Sample[2][s.length];
+		DataSet[][] sTrainTestClassWise = new DataSet[2][s.length];
 
 		pU.setMax( repeats );
 
@@ -399,7 +399,7 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 				sTrainTestClassWise[0][classes] = tempS[classes].subSampling( trainN[classes] );
 
 				//test
-				sTrainTestClassWise[1][classes] = new Sample( tempS[classes].subSampling( testN[classes] ), subSeqL );
+				sTrainTestClassWise[1][classes] = new DataSet( tempS[classes].subSampling( testN[classes] ), subSeqL );
 			}
 
 			train( sTrainTestClassWise[0] );

@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.data.Sample.PartitionMethod;
+import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.ParameterSet;
@@ -126,7 +126,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
-	 * @see de.jstacs.data.Sample.PartitionMethod
+	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public RepeatedHoldOutAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable,
 												int repeats, double[] percents ) throws IllegalValueException {
@@ -274,7 +274,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * @return the {@link PartitionMethod} defining how the mutually exclusive
 	 *         random-splits of user supplied data are generated
 	 * 
-	 * @see de.jstacs.data.Sample.PartitionMethod
+	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public PartitionMethod getDataSplitMethod() {
 		return (PartitionMethod)( (EnumParameter)getParameterAt( 4 ) ).getValue();

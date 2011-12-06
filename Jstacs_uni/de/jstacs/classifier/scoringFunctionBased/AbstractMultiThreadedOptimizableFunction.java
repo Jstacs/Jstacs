@@ -20,7 +20,7 @@ package de.jstacs.classifier.scoringFunctionBased;
 
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 
 /**
  * This class enables the user to exploit all CPUs of an computer by using threads.
@@ -63,8 +63,8 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 * The constructor for an multi-threaded instance.
 	 * 
 	 * @param threads the number of threads used for evaluating the function and determining the gradient of the function
-	 * @param data the array of {@link Sample}s containing the data that is needed to evaluate the function
-	 * @param weights the weights for each {@link de.jstacs.data.Sequence} in each {@link Sample} of  <code>data</code>
+	 * @param data the array of {@link DataSet}s containing the data that is needed to evaluate the function
+	 * @param weights the weights for each {@link de.jstacs.data.Sequence} in each {@link DataSet} of  <code>data</code>
 	 * @param norm
 	 *            the switch for using the normalization (division by the number
 	 *            of sequences)
@@ -72,9 +72,9 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 *            the switch for using only the free parameters
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if the number of threads is not positive, the {@link Sample}s contain too less {@link de.jstacs.data.Sequence} for the number of threads, the number of classes or the dimension of the weights is not correct
+	 *             if the number of threads is not positive, the {@link DataSet}s contain too less {@link de.jstacs.data.Sequence} for the number of threads, the number of classes or the dimension of the weights is not correct
 	 */
-	public AbstractMultiThreadedOptimizableFunction( int threads, Sample[] data, double[][] weights, boolean norm, boolean freeParams ) throws IllegalArgumentException
+	public AbstractMultiThreadedOptimizableFunction( int threads, DataSet[] data, double[][] weights, boolean norm, boolean freeParams ) throws IllegalArgumentException
 	{
 		super( data, weights, norm, freeParams );
 		if( threads < 1 )
@@ -87,7 +87,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	
 	
 	
-	public void setDataAndWeights( Sample[] data, double[][] weights ) throws IllegalArgumentException {
+	public void setDataAndWeights( DataSet[] data, double[][] weights ) throws IllegalArgumentException {
 		super.setDataAndWeights(data, weights);
 		if( worker != null ) {
 			prepareThreads();

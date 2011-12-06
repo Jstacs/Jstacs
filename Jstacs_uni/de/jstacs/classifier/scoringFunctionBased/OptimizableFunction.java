@@ -20,7 +20,7 @@ package de.jstacs.classifier.scoringFunctionBased;
 
 import de.jstacs.algorithms.optimization.DifferentiableFunction;
 import de.jstacs.algorithms.optimization.DimensionException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 
 /**
  * This is the main function for the {@link ScoreClassifier}.
@@ -97,7 +97,7 @@ public abstract class OptimizableFunction extends DifferentiableFunction {
 	 * 
 	 * @see OptimizableFunction#getSequenceWeights()
 	 */
-	public abstract Sample[] getData();
+	public abstract DataSet[] getData();
 
 	/**
 	 * Returns the weights for each {@link de.jstacs.data.Sequence} for each
@@ -118,5 +118,5 @@ public abstract class OptimizableFunction extends DifferentiableFunction {
 	 * 
 	 * @throws IllegalArgumentException if the data or the weights can not be used
 	 */
-	public abstract void setDataAndWeights( Sample[] data, double[][] weights ) throws IllegalArgumentException;
+	public abstract void setDataAndWeights( DataSet[] data, double[][] weights ) throws IllegalArgumentException;
 }

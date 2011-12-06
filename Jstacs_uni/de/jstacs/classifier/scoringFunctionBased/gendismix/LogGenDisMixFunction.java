@@ -24,7 +24,7 @@ import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.classifier.scoringFunctionBased.SFBasedOptimizableFunction;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.scoringFunctions.NormalizableScoringFunction;
 import de.jstacs.scoringFunctions.ScoringFunction;
@@ -100,8 +100,8 @@ public class LogGenDisMixFunction extends SFBasedOptimizableFunction
 	 * @param threads the number of threads used for evaluating the function and determining the gradient of the function
 	 * @param score an array containing the {@link ScoringFunction}s that are used for determining the sequences scores;
 	 * 			if the weight <code>beta[LearningPrinciple.LIKELIHOOD_INDEX]</code> is positive all elements of <code>score</code> have to be {@link NormalizableScoringFunction}
-	 * @param data the array of {@link Sample}s containing the data that is needed to evaluate the function
-	 * @param weights the weights for each {@link Sequence} in each {@link Sample} of  <code>data</code> 
+	 * @param data the array of {@link DataSet}s containing the data that is needed to evaluate the function
+	 * @param weights the weights for each {@link Sequence} in each {@link DataSet} of  <code>data</code> 
 	 * @param prior the prior that is used for learning the parameters
 	 * @param beta the beta-weights for the three terms of the learning principle 
 	 * @param norm
@@ -113,7 +113,7 @@ public class LogGenDisMixFunction extends SFBasedOptimizableFunction
 	 * @throws IllegalArgumentException
 	 *             if the number of threads is not positive, the number of classes or the dimension of the weights is not correct
 	 */
-	public LogGenDisMixFunction( int threads, ScoringFunction[] score, Sample[] data, double[][] weights,
+	public LogGenDisMixFunction( int threads, ScoringFunction[] score, DataSet[] data, double[][] weights,
 			LogPrior prior, double[] beta, boolean norm, boolean freeParams ) throws IllegalArgumentException
 	{
 		super( threads, score, data, weights, prior, norm, freeParams );
