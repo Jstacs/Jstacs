@@ -21,7 +21,7 @@ package de.jstacs.io;
 
 /**
  * This is a simple class that extracts {@link String}s. It enables the user to
- * create a {@link de.jstacs.data.Sample} from a bunch of {@link String}s. It
+ * create a {@link de.jstacs.data.DataSet} from a bunch of {@link String}s. It
  * might be useful if one likes to select or create the {@link String}s by an
  * own procedure. The extracted Strings which should be parsed to
  * {@link de.jstacs.data.Sequence} will not be annotated, since
