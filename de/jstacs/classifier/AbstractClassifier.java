@@ -25,9 +25,9 @@ import de.jstacs.Storable;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.ElementEnumerator;
+import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
@@ -161,7 +161,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @throws Exception
 	 *             if something went wrong during the classification
 	 */
-	public byte[] classify( Sample s ) throws Exception {
+	public byte[] classify( DataSet s ) throws Exception {
 		byte[] clazz = new byte[s.getNumberOfElements()];
 		ElementEnumerator ei = new ElementEnumerator( s );
 		for( int i = 0; i < clazz.length; i++ ) {
@@ -198,7 +198,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 *            indicates that the method throws an {@link Exception} if a measure
 	 *            could not be computed
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * 
 	 * @return a set of results, if all results are scalars the return type is {@link NumericalResultSet}, otherwise {@link ResultSet}
 	 * 
@@ -207,13 +207,13 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * 
 	 * @see NumericalResultSet
 	 * @see ResultSet
-	 * @see #getResults(LinkedList, Sample[], PerformanceMeasureParameters, boolean)
+	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameters, boolean)
 	 * 
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, Sample...)
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
 	@SuppressWarnings( "unchecked" )
-	public final ResultSet evaluate( PerformanceMeasureParameters params, boolean exceptionIfNotComputeable, Sample... s ) throws Exception {
+	public final ResultSet evaluate( PerformanceMeasureParameters params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
 		LinkedList list = new LinkedList();
 		boolean isNumeric = getResults( list, s, params, exceptionIfNotComputeable );
 		if( isNumeric ) {
@@ -229,7 +229,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @param list 
 	 *            a list adding the results
 	 * @param s
-	 *            the array of {@link Sample}s
+	 *            the array of {@link DataSet}s
 	 * @param params
 	 *            the current parameters
 	 * @param exceptionIfNotComputeable
@@ -241,12 +241,12 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see #evaluate(PerformanceMeasureParameters, boolean, Sample...)
+	 * @see #evaluate(PerformanceMeasureParameters, boolean, DataSet...)
 	 * @see NumericalResult
 	 * @see Result
 	 */
 	@SuppressWarnings( "unchecked" )
-	protected boolean getResults( LinkedList list, Sample[] s, de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}
@@ -281,9 +281,9 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * 
 	 * @throws Exception if the scores can not be computed
 	 * 
-	 * @see #getResults(LinkedList, Sample[], PerformanceMeasureParameters, boolean)
+	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameters, boolean)
 	 */
-	protected double[][][] getMultiClassScores( Sample[] s ) throws Exception {
+	protected double[][][] getMultiClassScores( DataSet[] s ) throws Exception {
 		double[][][] scores = new double[getNumberOfClasses()][][];
 		for( int d = 0; d < s.length; d++ ) {
 			scores[d] = new double[s[d].getNumberOfElements()][scores.length];
@@ -429,11 +429,11 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @return the confusion matrix
 	 * 
 	 * @throws ClassDimensionException
-	 *             if the number of {@link Sample}s is incorrect
+	 *             if the number of {@link DataSet}s is incorrect
 	 * @throws Exception
 	 *             if something else went wrong
 	 */
-	public ConfusionMatrix test( Sample... testData ) throws Exception, ClassDimensionException {
+	public ConfusionMatrix test( DataSet... testData ) throws Exception, ClassDimensionException {
 		if( testData.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}
@@ -453,7 +453,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 
 	/**
 	 * Trains the {@link AbstractClassifier} object given the data as
-	 * {@link Sample}s.<br>
+	 * {@link DataSet}s.<br>
 	 * This method should work non-incrementally. That means the result of the
 	 * following series: <code>train(data1); train(data2);</code> should be a
 	 * fully trained model over <code>data2</code> and not over
@@ -462,29 +462,29 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * <br>
 	 * <br>
 	 * 
-	 * This method should check that the {@link Sample}s are defined over the
+	 * This method should check that the {@link DataSet}s are defined over the
 	 * underlying alphabet and length.
 	 * 
 	 * @param s
 	 *            the data
 	 *            <ul>
-	 *            <li>either an array of {@link Sample}s:
+	 *            <li>either an array of {@link DataSet}s:
 	 *            <code>train( new Sample[]{s1,s2,s3})</code> or
-	 *            <li>an enumeration of {@link Sample}s:
+	 *            <li>an enumeration of {@link DataSet}s:
 	 *            <code>train(s1,s2,s3)</code>
 	 *            </ul>
 	 * 
 	 * @throws Exception
 	 *             if the training did not succeed
 	 * 
-	 * @see AbstractClassifier#train(Sample[], double[][])
+	 * @see AbstractClassifier#train(DataSet[], double[][])
 	 */
-	public void train( Sample... s ) throws Exception {
+	public void train( DataSet... s ) throws Exception {
 		train( s, new double[s.length][] );
 	}
 
 	/**
-	 * This method trains a classifier over an array of weighted {@link Sample}
+	 * This method trains a classifier over an array of weighted {@link DataSet}
 	 * s. That is why the following has to be fulfilled:
 	 * 
 	 * <ul>
@@ -494,25 +494,25 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * </ul>
 	 * 
 	 * This method should work non-incrementally as the method
-	 * {@link #train(Sample...)}.
+	 * {@link #train(DataSet...)}.
 	 * 
 	 * <br>
 	 * <br>
 	 * 
-	 * This method should check that the {@link Sample}s are defined over the
+	 * This method should check that the {@link DataSet}s are defined over the
 	 * underlying alphabet and length.
 	 * 
 	 * @param s
-	 *            an array of {@link Sample}s
+	 *            an array of {@link DataSet}s
 	 * @param weights
-	 *            the weights for the {@link Sample}s
+	 *            the weights for the {@link DataSet}s
 	 * 
 	 * @throws Exception
 	 *             if the weights are incorrect or the training did not succeed
 	 * 
-	 * @see AbstractClassifier#train(Sample...)
+	 * @see AbstractClassifier#train(DataSet...)
 	 */
-	public abstract void train( Sample[] s, double[][] weights ) throws Exception;
+	public abstract void train( DataSet[] s, double[][] weights ) throws Exception;
 
 	// methods for Storable
 
