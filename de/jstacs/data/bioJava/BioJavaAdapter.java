@@ -58,7 +58,7 @@ import org.biojavax.ontology.SimpleComparableTerm;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.Alphabet;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
@@ -73,14 +73,14 @@ import de.jstacs.results.Result;
 /**
  * This class provides static methods to convert BioJava datatypes (
  * {@link SequenceIterator}, {@link org.biojava.bio.seq.Sequence}) to
- * {@link Sample}s and vice versa.
+ * {@link DataSet}s and vice versa.
  * 
  * <br>
  * <br>
  * 
  * Here are two small examples how to create a
  * {@link org.biojavax.bio.seq.RichSequenceIterator} that can be used to create
- * a {@link Sample}.
+ * a {@link DataSet}.
  * 
  * <br>
  * <br>
@@ -105,7 +105,7 @@ public class BioJavaAdapter {
 	private static final String ANNOTATION_ID = "BJRSA";
 
 	/**
-	 * This method creates a new {@link Sample} from a {@link SequenceIterator}.
+	 * This method creates a new {@link DataSet} from a {@link SequenceIterator}.
 	 * In cases where BioJava does return {@link org.biojava.bio.seq.Sequence}s
 	 * instead of a {@link SequenceIterator}, you can use a
 	 * {@link SimpleSequenceIterator} to wrap them up.
@@ -117,12 +117,12 @@ public class BioJavaAdapter {
 	 *            determines which features will be adopted
 	 * 
 	 * @return the {@link org.biojava.bio.seq.Sequence}s in <code>it</code>
-	 *         converted to a {@link Sample}
+	 *         converted to a {@link DataSet}
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static Sample sequenceIteratorToSample( SequenceIterator it, FeatureFilter filter ) throws Exception {
+	public static DataSet sequenceIteratorToSample( SequenceIterator it, FeatureFilter filter ) throws Exception {
 		LinkedList<Sequence> parsed = new LinkedList<Sequence>();
 		org.biojava.bio.seq.Sequence current = it.nextSequence();
 		org.biojava.bio.symbol.Alphabet abcCurrent, bioAbc = current.getAlphabet();
@@ -192,7 +192,7 @@ public class BioJavaAdapter {
 				break;
 			}
 		} while( true );
-		return new Sample( "", parsed.toArray( new Sequence[0] ) );
+		return new DataSet( "", parsed.toArray( new Sequence[0] ) );
 	}
 
 	/**
@@ -331,12 +331,12 @@ public class BioJavaAdapter {
 	}
 
 	/**
-	 * Creates a {@link SequenceIterator} from the {@link Sample}
+	 * Creates a {@link SequenceIterator} from the {@link DataSet}
 	 * <code>sample</code> preserving as much annotation as possible. This
 	 * method works only for discrete alphabets.
 	 * 
 	 * @param sample
-	 *            the {@link Sample}
+	 *            the {@link DataSet}
 	 * @param flat
 	 *            indicates if the features should be flattened, this may be
 	 *            necessary to preserve all features, because some data formats
@@ -345,11 +345,11 @@ public class BioJavaAdapter {
 	 * @return the corresponding {@link SequenceIterator}
 	 * 
 	 * @throws WrongAlphabetException
-	 *             if the alphabet of the {@link Sample} is not discrete
+	 *             if the alphabet of the {@link DataSet} is not discrete
 	 * @throws BioException
 	 *             if forwarded from BioJava
 	 */
-	public static SequenceIterator sampleToSequenceIterator( Sample sample, boolean flat ) throws WrongAlphabetException, BioException {
+	public static SequenceIterator sampleToSequenceIterator( DataSet sample, boolean flat ) throws WrongAlphabetException, BioException {
 		LinkedList<org.biojava.bio.seq.Sequence> bjSeqs = new LinkedList<org.biojava.bio.seq.Sequence>();
 
 		AlphabetContainer cont = sample.getAlphabetContainer();

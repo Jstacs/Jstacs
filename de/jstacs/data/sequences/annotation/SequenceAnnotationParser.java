@@ -61,7 +61,7 @@ public interface SequenceAnnotationParser {
 	 * 
 	 * @return a String representing the given {@link SequenceAnnotation}s
 	 * 
-	 * @see de.jstacs.data.Sample#save(java.io.OutputStream, char, SequenceAnnotationParser)
+	 * @see de.jstacs.data.DataSet#save(java.io.OutputStream, char, SequenceAnnotationParser)
 	 */
 	String parseAnnotationToComment( char commentChar, SequenceAnnotation... annotations );
 }
