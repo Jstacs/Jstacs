@@ -339,10 +339,10 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @param assessPS
 	 *            contains parameters for a run of this
 	 *            {@link KFoldCrossValidation}. Must be of type
-	 *            {@link KFoldCVAssessParameterSet}.
+	 *            {@link KFoldCrossValidationAssessParameterSet}.
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of type
-	 *             {@link KFoldCVAssessParameterSet}
+	 *             {@link KFoldCrossValidationAssessParameterSet}
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
@@ -354,10 +354,10 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, Sample[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
-		KFoldCVAssessParameterSet tempAssessPS = null;
+		KFoldCrossValidationAssessParameterSet tempAssessPS = null;
 
 		try {
-			tempAssessPS = (KFoldCVAssessParameterSet)assessPS;
+			tempAssessPS = (KFoldCrossValidationAssessParameterSet)assessPS;
 		} catch ( ClassCastException e ) {
 			throw new IllegalArgumentException( "Given AssessParameterSet is not of type " + "KFoldCVAssessParameterSet." );
 		}
