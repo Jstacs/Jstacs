@@ -24,8 +24,8 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptySampleException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.EmptyDataSetException;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
@@ -270,12 +270,12 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 	}
 
 	/**
-	 * This method allows to create a {@link Sample} containing {@link SparseSequence}s.
+	 * This method allows to create a {@link DataSet} containing {@link SparseSequence}s.
 	 * 
-	 * @param con the {@link AlphabetContainer} for the {@link Sample} and {@link Sequence}s
-	 * @param se the {@link AbstractStringExtractor}s that handle the {@link Sample} as {@link String} 
+	 * @param con the {@link AlphabetContainer} for the {@link DataSet} and {@link Sequence}s
+	 * @param se the {@link AbstractStringExtractor}s that handle the {@link DataSet} as {@link String} 
 	 * 
-	 * @return a {@link Sample} containing {@link SparseSequence}s
+	 * @return a {@link DataSet} containing {@link SparseSequence}s
 	 *  
 	 * @throws WrongSequenceTypeException
 	 *             if the {@link AlphabetContainer} is not simple or the
@@ -283,9 +283,9 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 	 *             symbols
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not discrete
-	 * @throws EmptySampleException if a {@link Sample} with 0 (zero) {@link Sequence} should be created
+	 * @throws EmptyDataSetException if a {@link DataSet} with 0 (zero) {@link Sequence} should be created
 	 */
-	public static final Sample getSample( AlphabetContainer con, AbstractStringExtractor... se ) throws WrongSequenceTypeException, WrongAlphabetException, EmptySampleException {
+	public static final DataSet getDataSet( AlphabetContainer con, AbstractStringExtractor... se ) throws WrongSequenceTypeException, WrongAlphabetException, EmptyDataSetException {
 		LinkedList<SparseSequence> list = new LinkedList<SparseSequence>();
 		SymbolExtractor symEx = new SymbolExtractor( con.getDelim() );
 		String s, annot = null;
@@ -301,6 +301,6 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 				annot += ", " + se[i].getAnnotation();
 			}
 		}
-		return new Sample( annot, list.toArray( new Sequence[0] ) );
+		return new DataSet( annot, list.toArray( new Sequence[0] ) );
 	}
 }
