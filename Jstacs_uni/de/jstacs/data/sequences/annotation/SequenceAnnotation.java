@@ -164,12 +164,12 @@ public class SequenceAnnotation extends ResultSet {
 	 * @return the additional annotations of this {@link SequenceAnnotation}
 	 */
 	public Result[] getAnnotations() {
-		if( results.length > 0 ) {
+		if( results.size() > 0 ) {
 			LinkedList<Result> list = new LinkedList<Result>();
-			for( int i = 0; i < results.length; i++ ) {
+			for( int i = 0; i < results.size(); i++ ) {
 				boolean add = true;
-				if( results[i] instanceof ListResult ) {
-					ListResult lr = (ListResult)results[i];
+				if( results.get( i ) instanceof ListResult ) {
+					ListResult lr = (ListResult)results.get( i );
 					ResultSet[] rs = lr.getRawResult();
 					for( int j = 0; j < rs.length; j++ ) {
 						if( rs[j] instanceof SequenceAnnotation ) {
@@ -178,7 +178,7 @@ public class SequenceAnnotation extends ResultSet {
 					}
 				}
 				if( add ) {
-					list.add( results[i] );
+					list.add( results.get( i ) );
 				}
 			}
 			if( list.size() > 0 ) {
@@ -198,8 +198,8 @@ public class SequenceAnnotation extends ResultSet {
 	 * @return the sub-annotations of this {@link SequenceAnnotation}
 	 */
 	public SequenceAnnotation[] getSubAnnotations() {
-		if( results.length > 0 && results[results.length - 1] instanceof ListResult ) {
-			ListResult lr = (ListResult)results[results.length - 1];
+		if( results.size() > 0 && results.get( results.size() - 1) instanceof ListResult ) {
+			ListResult lr = (ListResult)results.get( results.size() - 1);
 			ResultSet[] rs = lr.getRawResult();
 			int num = 0;
 			for( int i = 0; i < rs.length; i++ ) {
@@ -234,15 +234,15 @@ public class SequenceAnnotation extends ResultSet {
 		buf.append( ", " );
 		buf.append( identifier );
 		buf.append( ":\n" );
-		for( int i = 0; i < results.length; i++ ) {
-			if( results[i] instanceof ListResult ) {
-				ResultSet[] ress = (ResultSet[])results[i].getResult();
+		for( int i = 0; i < results.size(); i++ ) {
+			if( results.get( i ) instanceof ListResult ) {
+				ResultSet[] ress = (ResultSet[])results.get( i ).getValue();
 				for( int j = 0; j < ress.length; j++ ) {
 					buf.append( ress[j].toString() );
 					buf.append( "\n" );
 				}
 			} else {
-				buf.append( results[i].toString() );
+				buf.append( results.get( i ).toString() );
 				buf.append( "\n" );
 			}
 		}
