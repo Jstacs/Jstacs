@@ -211,9 +211,9 @@ public class ClassificationVisualizer {
 
 	private static String getClassifierName( AbstractClassifier cl ) {
 		CategoricalResult[] cat = cl.getClassifierAnnotation();
-		String res = cat[0].getResult() + "(" + cat[1].getResult();
+		String res = cat[0].getValue() + "(" + cat[1].getValue();
 		for( int i = 2; i < cat.length; i++ ) {
-			res += "; " + cat[i].getResult();
+			res += "; " + cat[i].getValue();
 		}
 		return res + ")";
 	}
