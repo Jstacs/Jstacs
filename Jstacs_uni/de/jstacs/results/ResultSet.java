@@ -21,6 +21,8 @@ package de.jstacs.results;
 
 import java.util.Collection;
 
+import de.jstacs.AnnotatedEntity;
+import de.jstacs.AnnotatedEntityList;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.io.ArrayHandler;
@@ -35,10 +37,8 @@ import de.jstacs.io.XMLParser;
  * @author Jan Grau, Jens Keilwagen
  */
 public class ResultSet implements Storable {
-	/**
-	 * The set of results as an array of {@link Result}s.
-	 */
-	protected Result[] results;
+	
+	protected AnnotatedEntityList<Result> results;
 
 	/**
 	 * Constructs a new {@link ResultSet} containing one {@link Result}.
@@ -47,7 +47,8 @@ public class ResultSet implements Storable {
 	 *            the {@link Result} to be contained
 	 */
 	public ResultSet(Result result) {
-		this.results = new Result[] { result };
+		this.results = new AnnotatedEntityList<Result>( 1 );
+		this.results.add( result );
 	}
 
 	/**
@@ -59,12 +60,12 @@ public class ResultSet implements Storable {
 	 */
 	public ResultSet(Result[]... results) {
 		if (results == null) {
-			this.results = new Result[0];
+			this.results = new AnnotatedEntityList<Result>( 1 );
 		} else {
 			int c = 0, i;
 			for( i = 0; i < results.length; c += (results[i] == null) ? 0 : results[i].length, i++ );
 
-			this.results = new Result[c];
+			this.results = new AnnotatedEntityList<Result>(c);
 			c = 0;
 			for (i = 0; i < results.length; i++) {
 				if (results[i] != null) {
@@ -83,7 +84,8 @@ public class ResultSet implements Storable {
 	 *            a {@link Collection} of {@link Result}s
 	 */
 	public ResultSet(Collection<? extends Result> results) {
-		this.results = results.toArray(new Result[0]);
+		this.results = new AnnotatedEntityList<Result>(results.size());
+		this.results.addAll( results );
 	}
 
 	/**
@@ -111,7 +113,20 @@ public class ResultSet implements Storable {
 	 * @return the {@link Result} at <code>index</code>
 	 */
 	public Result getResultAt(int index) {
-		return results[index];
+		return results.get( index );
+	}
+	
+	/**
+	 * Returns {@link Result} with name <code>name</code> in this
+	 * {@link ResultSet}.
+	 * 
+	 * @param name
+	 *            the name of the {@link Result}
+	 * 
+	 * @return the {@link Result} with name <code>name</code>
+	 */
+	public Result getResultForName(String name) {
+		return results.get( name );
 	}
 
 	/**
@@ -120,7 +135,7 @@ public class ResultSet implements Storable {
 	 * @return all internal results as an array of {@link Result}s
 	 */
 	public Result[] getResults() {
-		Result[] res = new Result[results.length];
+		Result[] res = new Result[results.size()];
 		System.arraycopy(results, 0, res, 0, res.length);
 		return res;
 	}
@@ -131,7 +146,7 @@ public class ResultSet implements Storable {
 	 * @return the number of {@link Result}s
 	 */
 	public int getNumberOfResults() {
-		return results.length;
+		return results.size();
 	}
 
 	/*
@@ -141,7 +156,7 @@ public class ResultSet implements Storable {
 	 */
 	public StringBuffer toXML() {
 		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags( buf, results, "resStrings" );
+		XMLParser.appendObjectWithTags( buf, results.toArray(new Result[0]), "resStrings" );
 		XMLParser.addTags(buf, "resultSet");
 		return buf;
 	}
@@ -158,7 +173,9 @@ public class ResultSet implements Storable {
 	 */
 	protected void fromXML(StringBuffer representation) throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "resultSet" );
-		results = XMLParser.extractObjectForTags( representation, "resStrings", Result[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		Result[] temp = XMLParser.extractObjectForTags( representation, "resStrings", Result[].class );
+		this.results = new AnnotatedEntityList<Result>( temp.length );
+		this.results.add( temp );
 	}
 
 	/*
@@ -168,9 +185,9 @@ public class ResultSet implements Storable {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer help = new StringBuffer(100 * results.length);
-		for (int i = 0; i < results.length; i++) {
-			help.append(results[i].toString() + "\n");
+		StringBuffer help = new StringBuffer(100 * results.size());
+		for (int i = 0; i < results.size(); i++) {
+			help.append(results.get(i).toString() + "\n");
 		}
 		return help.toString();
 	}
@@ -185,8 +202,8 @@ public class ResultSet implements Storable {
 	 * @return the index of the column, if it could be found, otherwise -1.
 	 */
 	public int findColumn(String columnName) {
-		for (int i = 0; i < results.length; i++) {
-			if (results[i].getName().equals(columnName)) {
+		for (int i = 0; i < results.size(); i++) {
+			if (results.get(i).getName().equals(columnName)) {
 				return i;
 			}
 		}

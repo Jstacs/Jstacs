@@ -185,7 +185,7 @@ public abstract class SimpleResult extends Result implements
 	 * @see de.jstacs.results.Result#getResult()
 	 */
 	@Override
-	public Comparable getResult() {
+	public Comparable getValue() {
 		return result;
 	}
 

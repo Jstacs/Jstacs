@@ -135,7 +135,7 @@ public class DataSetResult extends Result {
 	 * @see de.jstacs.results.Result#getResult()
 	 */
 	@Override
-	public DataSet getResult() {
+	public DataSet getValue() {
 		return data;
 	}
 

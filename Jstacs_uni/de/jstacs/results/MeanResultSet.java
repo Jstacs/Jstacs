@@ -19,6 +19,7 @@
 
 package de.jstacs.results;
 
+import de.jstacs.AnnotatedEntityList;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
@@ -135,7 +136,7 @@ public class MeanResultSet extends NumericalResultSet {
 		for (int i = 0; i < infos.length; i++) {
 			infos[i] = (SimpleResult) infosTemp[i];
 		}
-		count = (Integer) infos[infos.length - 1].getResult();
+		count = (Integer) infos[infos.length - 1].getValue();
 		if( count > 0 ) {
 			squares = XMLParser.extractObjectForTags(representation, "squares", double[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
 		}
@@ -179,8 +180,8 @@ public class MeanResultSet extends NumericalResultSet {
 			}
 			squares[i] = r1.squares[i] + r2.squares[i];
 			results[i] = new NumericalResult(curr1.getName(), curr1
-					.getComment(), ((Double) curr1.getResult())
-					+ ((Double) curr2.getResult()));
+					.getComment(), ((Double) curr1.getValue())
+					+ ((Double) curr2.getValue()));
 		}
 		return new MeanResultSet(results, r1.infos, squares, r1.count
 				+ r2.count);
@@ -214,8 +215,8 @@ public class MeanResultSet extends NumericalResultSet {
 		}
 
 		if (count == 0) {
-			results = new NumericalResult[anz];
-			squares = new double[results.length];
+			results = new AnnotatedEntityList<Result>( anz );
+			squares = new double[anz];
 		} else if (anz != this.getNumberOfResults()) {
 			throw new InconsistentResultNumberException();
 		}
@@ -251,20 +252,20 @@ public class MeanResultSet extends NumericalResultSet {
 				curr = res.getResultAt(i);
 				double currVal = 0;
 				if (curr.getDatatype() == DataType.DOUBLE) {
-					currVal = (Double) curr.getResult();
+					currVal = (Double) curr.getValue();
 				} else {
-					currVal = (Integer) curr.getResult();
+					currVal = (Integer) curr.getValue();
 				}
 				squares[index] += currVal * currVal;
-				if (results[index] == null) {
-					results[index] = new NumericalResult(curr.getName(), curr
-							.getComment(), currVal);
+				if (results.get( index ) == null) {
+					results.set( index, new NumericalResult(curr.getName(), curr
+							.getComment(), currVal) );
 				} else {
-					if (!results[index].isCastableResult(curr)) {
+					if (!results.get( index ).isCastableResult(curr)) {
 						throw new AdditionImpossibleException();
 					} else {
-						((NumericalResult) results[index]).setResult(currVal
-								+ ((Number) results[index].getResult())
+						((NumericalResult) results.get( index )).setResult(currVal
+								+ ((Number) results.get( index ).getValue())
 										.doubleValue());
 					}
 				}
@@ -287,22 +288,22 @@ public class MeanResultSet extends NumericalResultSet {
 		} else {
 			factor = 1;
 		}
-		NumericalResult[] resultsTemp = new NumericalResult[results.length
+		NumericalResult[] resultsTemp = new NumericalResult[results.size()
 				* factor];
 		double n = count;
-		for (int i = 0; i < results.length; i++) {
-			resultsTemp[i * factor] = new NumericalResult(results[i].getName(),
-					results[i].getComment(), ((Double) results[i].getResult())
+		for (int i = 0; i < results.size(); i++) {
+			resultsTemp[i * factor] = new NumericalResult(results.get( i ).getName(),
+					results.get( i ).getComment(), ((Double) results.get( i ).getValue())
 							/ n);
 			if (count > 1) {
 				resultsTemp[(i * factor) + 1] = new NumericalResult(
-						"Standard error of " + results[i].getName(),
+						"Standard error of " + results.get( i ).getName(),
 						"Standard error of the values of "
-								+ results[i].getName(), Math
+								+ results.get( i ).getName(), Math
 								.sqrt((squares[i] / n - ((Double) resultsTemp[i
-										* factor].getResult())
+										* factor].getValue())
 										* ((Double) resultsTemp[i * factor]
-												.getResult()))
+												.getValue()))
 										/ (n - 1)));
 			}
 		}
