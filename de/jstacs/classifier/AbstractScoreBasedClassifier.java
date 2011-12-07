@@ -371,29 +371,6 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#test(de.jstacs.data.Sample[])
-	 */
-	@Override
-	public ConfusionMatrix test( DataSet... testData ) throws Exception {
-		if( testData.length != getNumberOfClasses() ) {
-			throw new ClassDimensionException();
-		}
-
-		ConfusionMatrix matrix = new ConfusionMatrix( testData.length );
-		ElementEnumerator ei;
-		for( int i = 0; i < testData.length; i++ ) {
-			if( testData[i] != null ) {
-				check( testData[i] );
-				ei = new ElementEnumerator( testData[i] );
-				while( ei.hasMoreElements() ) {
-					matrix.add( i, classify( ei.nextElement(), false ) );
-				}
-			}
-		}
-		return matrix;
-	}
-
-	/* (non-Javadoc)
 	 * @see de.jstacs.classifier.AbstractClassifier#getFurtherClassifierInfos()
 	 */
 	@Override

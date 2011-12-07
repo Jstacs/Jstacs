@@ -421,37 +421,6 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	}
 
 	/**
-	 * This method computes the confusion matrix for a given array of test data.
-	 * 
-	 * @param testData
-	 *            the given array of test data
-	 * 
-	 * @return the confusion matrix
-	 * 
-	 * @throws ClassDimensionException
-	 *             if the number of {@link DataSet}s is incorrect
-	 * @throws Exception
-	 *             if something else went wrong
-	 */
-	public ConfusionMatrix test( DataSet... testData ) throws Exception, ClassDimensionException {
-		if( testData.length != getNumberOfClasses() ) {
-			throw new ClassDimensionException();
-		}
-
-		ConfusionMatrix matrix = new ConfusionMatrix( testData.length );
-		ElementEnumerator ei;
-		for( int i = 0; i < testData.length; i++ ) {
-			if( testData[i] != null ) {
-				ei = new ElementEnumerator( testData[i] );
-				while( ei.hasMoreElements() ) {
-					matrix.add( i, classify( ei.nextElement() ) );
-				}
-			}
-		}
-		return matrix;
-	}
-
-	/**
 	 * Trains the {@link AbstractClassifier} object given the data as
 	 * {@link DataSet}s.<br>
 	 * This method should work non-incrementally. That means the result of the

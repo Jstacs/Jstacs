@@ -4,7 +4,6 @@ import de.jstacs.NonParsableException;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.ToolBox;
 
@@ -61,7 +60,6 @@ public class ConfusionMatrix extends AbstractPerformanceMeasure {
 	@Override
 	public ResultSet compute(double[][][] classSpecificScores) {
 		int[][] res = new int[classSpecificScores.length][classSpecificScores.length];
-		int corr = 0, fals = 0;
 		for(int i=0;i<classSpecificScores.length;i++){
 			for(int j=0;j<classSpecificScores[i].length;j++){
 				int predicted = ToolBox.getMaxIndex( classSpecificScores[i][j] );
