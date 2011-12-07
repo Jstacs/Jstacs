@@ -36,14 +36,6 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
 public class FileParameter extends Parameter implements GalaxyConvertible {
 
 	/**
-	 * The name of the parameter
-	 */
-	private String name;
-	/**
-	 * The comment on the parameter
-	 */
-	private String comment;
-	/**
 	 * <code>true</code> if the parameter is required
 	 */
 	private boolean required;
@@ -100,6 +92,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 */
 	public FileParameter(StringBuffer buf) throws NonParsableException {
 		fromXML(buf);
+		this.datatype = DataType.FILE;
 	}
 
 	/**
@@ -121,6 +114,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		this.comment = comment;
 		this.mime = mime;
 		this.required = required;
+		this.datatype = DataType.FILE;
 	}
 
 	/**
@@ -141,16 +135,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			boolean required, ParameterValidator validator) {
 		this(name, comment, mime, required);
 		this.valid = validator;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
+		this.datatype = DataType.FILE;
 	}
 
 	/*
@@ -161,26 +146,6 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	@Override
 	public boolean isAtomic() {
 		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getDatatype()
-	 */
-	@Override
-	public DataType getDatatype() {
-		return DataType.FILE;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getComment()
-	 */
-	@Override
-	public String getComment() {
-		return comment;
 	}
 
 	/*

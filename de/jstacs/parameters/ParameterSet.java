@@ -21,8 +21,11 @@ package de.jstacs.parameters;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
+import de.jstacs.AnnotatedEntity;
+import de.jstacs.AnnotatedEntityList;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.io.XMLParser;
@@ -145,9 +148,8 @@ public abstract class ParameterSet implements Storable, Cloneable,
 			for (int i = 0; i < this.parameters.size(); i++) {
 				ret.parameters.add(i, this.parameters.get(i).clone());
 			}
-			Iterator<Parameter> it = ret.parameters.iterator();
-			while (it.hasNext()) {
-				Parameter par = it.next();
+			for(int i = 0; i<ret.parameters.size();i++) {
+				Parameter par = ret.parameters.get( i );
 				if (par.getNeededReferenceId() != null) {
 					ParameterSet set = findParameterSet(par
 							.getNeededReferenceId(), false);
@@ -379,6 +381,48 @@ public abstract class ParameterSet implements Storable, Cloneable,
 		}
 	}
 
+	/**
+	 * Returns the names of all {@link Parameter}s in this {@link ParameterList}
+	 * @return
+	 */
+	public String[] getAllParameterNames(){
+		if (parameters == null) {
+			try {
+				loadParameters();
+				if (ranged) {
+					replaceParametersWithRangedInstance();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return parameters.getNames();
+	}
+	
+	/**
+	 * Returns the {@link Parameter} with name <code>name</code>.
+	 * 
+	 * @param name
+	 *            the name of the {@link Parameter}
+	 * 
+	 * @return the {@link Parameter} with name <code>name</code>
+	 */
+	public Parameter getParameterForName(String name){
+		if (parameters == null) {
+			try {
+				loadParameters();
+				if (ranged) {
+					replaceParametersWithRangedInstance();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return parameters.get(name);
+	}
+	
 	/**
 	 * Returns the {@link Parameter} at position <code>i</code>.
 	 * 
@@ -693,9 +737,8 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 */
 	protected void recieveId() {
 		if (parameters != null) {
-			Iterator<Parameter> it = parameters.iterator();
-			while (it.hasNext()) {
-				Parameter par = it.next();
+			for(int i=0;i<parameters.size();i++) {
+				Parameter par = parameters.get( i );
 				Long neededId = par.getNeededReferenceId();
 				if (neededId != null) {
 					par.setNeededReference(findParameterSet(neededId, false));
@@ -718,9 +761,8 @@ public abstract class ParameterSet implements Storable, Cloneable,
 					return null;
 				}
 			} else if (parameters != null) {
-				Iterator<Parameter> it = parameters.iterator();
-				while (it.hasNext()) {
-					Parameter par = it.next();
+				for(int i=0;i<this.parameters.size();i++) {
+					Parameter par = parameters.get( i );
 					if (par instanceof ParameterSetContainer) {
 						ParameterSet set = ((ParameterSetContainer) par)
 								.getValue().findParameterSet(id, true);
@@ -748,9 +790,8 @@ public abstract class ParameterSet implements Storable, Cloneable,
 				&& this.getParent().getParent() != null) {
 			return this.getParent().getParent().propagateId(id, set, false);
 		} else if (parameters != null) {
-			Iterator<Parameter> it = this.parameters.iterator();
-			while (it.hasNext()) {
-				Parameter par = it.next();
+			for(int i=0;i<this.parameters.size();i++) {
+				Parameter par = this.parameters.get( i );
 				if (par.getNeededReferenceId() != null
 						&& par.getNeededReferenceId() == id) {
 					par.setNeededReference(set);
@@ -799,102 +840,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 		this.parent = parent;
 	}
 
-	/**
-	 * Class for a {@link java.util.List} of {@link Parameter}s that basically
-	 * has the same functionality as {@link ArrayList}, but additionally takes
-	 * care of the references {@link Parameter#parent}.
-	 * 
-	 * @author Jan Grau
-	 */
-	public class ParameterList extends ArrayList<Parameter> {
-
-		private static final long serialVersionUID = 5646161850340681495L;
-
-		/**
-		 * Creates a new empty {@link ParameterList}.
-		 */
-		public ParameterList() {
-			super();
-		}
-
-		/**
-		 * Creates a new {@link ParameterList} from an existing
-		 * {@link Collection} of {@link Parameter}s. This may be another
-		 * {@link ParameterList}.
-		 * 
-		 * @param c
-		 *            the {@link Collection} of {@link Parameter}s
-		 */
-		public ParameterList(Collection<? extends Parameter> c) {
-			super(c);
-			Iterator<? extends Parameter> it = c.iterator();
-			while (it.hasNext()) {
-				it.next().setParent(ParameterSet.this);
-			}
-		}
-
-		/**
-		 * Creates a new empty {@link ParameterList} with a defined initial
-		 * capacity.
-		 * 
-		 * @param initialCapacity
-		 *            the initial capacity of the new {@link ParameterList}
-		 */
-		public ParameterList(int initialCapacity) {
-			super(initialCapacity);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.ArrayList#add(int, java.lang.Object)
-		 */
-		@Override
-		public void add(int index, Parameter element) {
-			element.setParent(ParameterSet.this);
-			super.add(index, element);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.ArrayList#add(java.lang.Object)
-		 */
-		@Override
-		public boolean add(Parameter o) {
-			o.setParent(ParameterSet.this);
-			return super.add(o);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.ArrayList#addAll(java.util.Collection)
-		 */
-		@Override
-		public boolean addAll(Collection<? extends Parameter> c) {
-			Iterator<? extends Parameter> it = c.iterator();
-			while (it.hasNext()) {
-				it.next().setParent(ParameterSet.this);
-			}
-			return super.addAll(c);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.ArrayList#addAll(int, java.util.Collection)
-		 */
-		@Override
-		public boolean addAll(int index, Collection<? extends Parameter> c) {
-			Iterator<? extends Parameter> it = c.iterator();
-			while (it.hasNext()) {
-				it.next().setParent(ParameterSet.this);
-			}
-			return super.addAll(index, c);
-		}
-
-	}
 	
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
 		StringBuffer xml = new StringBuffer();
@@ -912,6 +857,48 @@ public abstract class ParameterSet implements Storable, Cloneable,
 		}
 	}
 	
-	
+	/**
+	 * Class for a {@link AnnotatedEntityList} that automatically sets
+	 * the {@link Parameter#parent} field to the enclosing {@link ParameterSet}.
+	 * @author Jan Grau
+	 *
+	 */
+	protected class ParameterList extends AnnotatedEntityList<Parameter>{
+
+		/**
+		 * 
+		 */
+		public ParameterList() {
+			super();
+		}
+
+		/**
+		 * @param initialSize
+		 */
+		public ParameterList( int initialSize ) {
+			super( initialSize );
+		}
+
+		@Override
+		public void set( int idx, Parameter p ) {
+			p.setParent( ParameterSet.this );
+			super.set( idx, p );
+		}
+
+		@Override
+		public void add( int idx, Parameter p ) {
+			p.setParent( ParameterSet.this );
+			super.add( idx, p );
+		}
+
+		@Override
+		public void add( Parameter... p ) {
+			for(int i=0;i<p.length;i++){
+				p[i].setParent( ParameterSet.this );
+			}
+			super.add( p );
+		}
+		
+	}
 
 }

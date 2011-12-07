@@ -37,8 +37,6 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
 public class ParameterSetContainer extends Parameter implements Rangeable,
 		RangeIterator, GalaxyConvertible {
 
-	private String name;
-	private String comment;
 	private ParameterSet parameters;
 
 	/**
@@ -65,6 +63,7 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 		this.parameters = content;
 		this.parameters.setParent(this);
 		this.errorMessage = null;
+		this.datatype = DataType.PARAMETERSET;
 	}
 
 	/**
@@ -81,6 +80,7 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	public ParameterSetContainer(StringBuffer representation)
 			throws NonParsableException {
 		fromXML(representation);
+		this.datatype = DataType.PARAMETERSET;
 	}
 
 	/*
@@ -96,36 +96,6 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 			clone.parameters.setParent(clone);
 		}
 		return clone;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getDatatype()
-	 */
-	@Override
-	public DataType getDatatype() {
-		return DataType.PARAMETERSET;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getComment()
-	 */
-	@Override
-	public String getComment() {
-		return comment;
 	}
 
 	/*
