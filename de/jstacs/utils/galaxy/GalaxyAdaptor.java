@@ -239,14 +239,14 @@ public class GalaxyAdaptor {
 						&& d != DataType.LIST && d != DataType.STORABLE) {
 					StringBuffer sb = new StringBuffer();
 					sb.append("<label>"+r.getName()+":</label>");
-					sb.append(r.getResult().toString());
+					sb.append(r.getValue().toString());
 					XMLParser.addTags( sb, "div" );
 					all.append( sb );
 				}
 			}
 		}
 		StringBuffer list = new StringBuffer();
-			ResultSet[] res = lr.getResult();
+			ResultSet[] res = lr.getValue();
 			boolean newNames;
 			int i = 0, j, k;
 			for (; i < res.length; i++) {
@@ -280,7 +280,7 @@ public class GalaxyAdaptor {
 				list.append( "<tr>" );
 				for (j = 0; j <= k; j++) {
 					if(res[i].getResultAt(j) instanceof SimpleResult){
-						list.append("<td>"+res[i].getResultAt(j).getResult()+"</td>");
+						list.append("<td>"+res[i].getResultAt(j).getValue()+"</td>");
 					}else{
 						list.append("<td>"+getOutput( res[i].getResultAt(j) )+"</td>");
 					}
@@ -300,7 +300,7 @@ public class GalaxyAdaptor {
 		XMLParser.addTagsAndAttributes( temp2, "div", "class=\"toolFormTitle\"" );
 		if(res instanceof SimpleResult){
 			StringBuffer temp = new StringBuffer();
-			temp.append( res.getResult().toString().replaceAll( "\\n", "<br />" ) );
+			temp.append( res.getValue().toString().replaceAll( "\\n", "<br />" ) );
 			XMLParser.addTags( temp, "div" );
 			buf.append( temp );
 		}else if(res instanceof ListResult){
@@ -331,7 +331,7 @@ public class GalaxyAdaptor {
 	}
 
 	private String getDTROutput( DoubleTableResult res ) {
-		double[][] r = res.getResult();
+		double[][] r = res.getValue();
 		StringBuffer sb = new StringBuffer();
 		sb.append( "<table>" );
 		for(int i=0;i<r.length;i++){
@@ -351,7 +351,7 @@ public class GalaxyAdaptor {
 		String filename = htmlFilesPath+System.getProperty( "file.separator" )+name;
 		File f = new File(filename+"png");
 		f.getParentFile().mkdirs();
-		BufferedImage img = ((ImageResult)res).getResult();
+		BufferedImage img = ((ImageResult)res).getValue();
 		ImageIO.write( img, "png", f );
 		String ext = "png";		
 		
@@ -375,7 +375,7 @@ public class GalaxyAdaptor {
 	}
 
 	private String getSampleOutput( DataSetResult res ) throws IOException {
-		DataSet data = res.getResult();
+		DataSet data = res.getValue();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		if(res.getParser() == null){
 			data.save( baos,'>', new SplitSequenceAnnotationParser( ":", ";" ) );
@@ -428,9 +428,9 @@ public class GalaxyAdaptor {
 			f.getParentFile().mkdirs();
 			FileOutputStream fos = new FileOutputStream( filename+"fasta" );
 			if( ((DataSetResult)res).getParser() == null ){
-				((DataSetResult)res).getResult().save(fos,'>',new SplitSequenceAnnotationParser( ":", ";" ) );
+				((DataSetResult)res).getValue().save(fos,'>',new SplitSequenceAnnotationParser( ":", ";" ) );
 			}else{
-				((DataSetResult)res).getResult().save(fos,'>', ((DataSetResult)res).getParser() );
+				((DataSetResult)res).getValue().save(fos,'>', ((DataSetResult)res).getParser() );
 			}
 			fos.close();
 			return "fasta";
@@ -438,14 +438,14 @@ public class GalaxyAdaptor {
 			File f = new File(filename+"xml");
 			f.getParentFile().mkdirs();
 			PrintWriter pw = new PrintWriter( filename+"xml" );
-			pw.println(((StorableResult)res).getResult());
+			pw.println(((StorableResult)res).getValue());
 			pw.close();
 			return "xml";
 		}else if(res instanceof DoubleTableResult){
 			File f = new File(filename+"tabular");
 			f.getParentFile().mkdirs();
 			PrintWriter pw = new PrintWriter( filename+"tabular" );
-			double[][] tab = ((DoubleTableResult)res).getResult();
+			double[][] tab = ((DoubleTableResult)res).getValue();
 			for(int i=0;i<tab.length;i++){
 				for(int j=0;j<tab[i].length-1;j++){
 					pw.print( tab[i][j]+"\t" );
@@ -463,14 +463,14 @@ public class GalaxyAdaptor {
 		}else if(res instanceof ImageResult){
 			File f = new File(filename+"png");
 			f.getParentFile().mkdirs();
-			BufferedImage img = ((ImageResult)res).getResult();
+			BufferedImage img = ((ImageResult)res).getValue();
 			ImageIO.write( img, "png", new File(filename+"png") );
 			return "png";
 		}else if(res instanceof FileResult){
 			String ext = ((FileResult)res).getExtension();
 			File f = new File(filename+ext);
 			f.getParentFile().mkdirs();
-			FileManager.copy( ((FileResult)res).getResult().getAbsolutePath(), f.getAbsolutePath() );
+			FileManager.copy( ((FileResult)res).getValue().getAbsolutePath(), f.getAbsolutePath() );
 			System.out.println("exported "+f.getAbsolutePath());
 			return ext;
 		}
@@ -694,7 +694,7 @@ public class GalaxyAdaptor {
 			this.path = fullPath.substring( 0, idx );
 			this.filename = fullPath.substring( idx+1, extIdx );
 			this.extension = fullPath.substring( extIdx+1 );
-			this.getResult().getParentFile().mkdirs();
+			this.getValue().getParentFile().mkdirs();
 		}
 		
 		/**
@@ -710,7 +710,7 @@ public class GalaxyAdaptor {
 			this.path = path;
 			this.filename = filename;
 			this.extension = extension;
-			this.getResult().getParentFile().mkdirs();
+			this.getValue().getParentFile().mkdirs();
 		}
 		
 		
@@ -749,7 +749,7 @@ public class GalaxyAdaptor {
 		}
 
 		@Override
-		public File getResult() {
+		public File getValue() {
 			String sep = System.getProperty( "file.separator" );
 			return new File(path+sep+filename+"."+extension);
 		}
