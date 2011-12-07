@@ -726,15 +726,17 @@ public class HigherOrderHMM extends AbstractHMM {
 			if( bestEmissions != null ) {
 				emission[0] = bestEmissions;
 				transition[0] = bestTransition;
-				for(int i=1;i<threads;i++){
-					emission[i] = ArrayHandler.clone(bestEmissions);
+				for(int i=1;i<emission.length;i++){
+					emission[i] = ArrayHandler.clone(emission[0]);
 					transition[i] = bestTransition.clone();
 				}
 				createStates();
 			}
 			for(int i=0;i<workers.length;i++){
 				workers[i].setState( WorkerState.STOP );
+				workers[i] = null;
 			}
+			workers = null;
 		}
 	}
 	
