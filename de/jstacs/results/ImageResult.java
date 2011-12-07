@@ -82,7 +82,7 @@ public class ImageResult extends Result {
 	 * @see de.jstacs.results.Result#getResult()
 	 */
 	@Override
-	public BufferedImage getResult() {
+	public BufferedImage getValue() {
 		return image;
 	}
 

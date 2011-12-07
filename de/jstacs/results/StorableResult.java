@@ -121,7 +121,7 @@ public class StorableResult extends Result {
 	 * @see de.jstacs.results.Result#getResult()
 	 */
 	@Override
-	public String getResult() {
+	public String getValue() {
 		return object.toXML().toString();
 	}
 

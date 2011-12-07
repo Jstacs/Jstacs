@@ -21,6 +21,7 @@ package de.jstacs.results;
 
 import java.awt.image.BufferedImage;
 
+import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
@@ -35,22 +36,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * 
  * @author Jan Grau
  */
-public abstract class Result implements Storable {
-
-	/**
-	 * The name of the result.
-	 */
-	protected String name;
-
-	/**
-	 * The comment for the result.
-	 */
-	protected String comment;
-
-	/**
-	 * The data type of the result.
-	 */
-	protected DataType datatype;
+public abstract class Result extends AnnotatedEntity {
 
 	/**
 	 * The main constructor which takes the main information of a result.
@@ -134,40 +120,6 @@ public abstract class Result implements Storable {
 		name = XMLParser.extractObjectForTags(buf, "name", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
 		comment = XMLParser.extractObjectForTags(buf, "comment", String.class );
 		datatype = XMLParser.extractObjectForTags(buf, "datatype", DataType.class );
-	}
-
-	/**
-	 * Returns the data type of the {@link Result}.
-	 * 
-	 * @return the data type of the {@link Result}
-	 */
-	public final DataType getDatatype() {
-		return datatype;
-	}
-
-	/**
-	 * Returns the value of the {@link Result}.
-	 * 
-	 * @return the value of the {@link Result}
-	 */
-	public abstract Object getResult();
-
-	/**
-	 * Returns the name of the {@link Result}.
-	 * 
-	 * @return the name of the {@link Result}
-	 */
-	public final String getName() {
-		return name;
-	}
-
-	/**
-	 * Returns the comment on the {@link Result}.
-	 * 
-	 * @return the comment on the {@link Result}
-	 */
-	public final String getComment() {
-		return comment;
 	}
 
 	/**

@@ -90,7 +90,7 @@ public class ListResult extends Result {
 	 * @see de.jstacs.results.Result#getResult()
 	 */
 	@Override
-	public ResultSet[] getResult() {
+	public ResultSet[] getValue() {
 		int i = 0, k;
 		ResultSet[] resultsToShow = new ResultSet[list.length];
 		for (; i < list.length; i++) {
@@ -207,13 +207,13 @@ public class ListResult extends Result {
 					writer.print("# ");
 					writer.print(r.getName());
 					writer.print(": ");
-					writer.println(r.getResult().toString());
+					writer.println(r.getValue().toString());
 				}
 			}
 		}
 		if (list != null) {
 			writer.println("# ");
-			ResultSet[] res = getResult();
+			ResultSet[] res = getValue();
 			boolean newNames;
 			int i = 0, j, k;
 			for (; i < res.length; i++) {
@@ -248,7 +248,7 @@ public class ListResult extends Result {
 				}
 				// write results
 				for (j = 0; j <= k; j++) {
-					writer.print(res[i].getResultAt(j).getResult());
+					writer.print(res[i].getResultAt(j).getValue());
 					if (j < k) {
 						writer.print("\t");
 					} else {
@@ -285,7 +285,7 @@ public class ListResult extends Result {
 					r = ((MeanResultSet) list[i]).getInfos();
 					k = r.findColumn(columnName);
 					if (k >= 0) {
-						comp = (Comparable) r.getResultAt(k).getResult();
+						comp = (Comparable) r.getResultAt(k).getValue();
 					}
 				}
 
@@ -294,7 +294,7 @@ public class ListResult extends Result {
 							"Could not find such a column.");
 				}
 			} else {
-				comp = (Comparable) list[i].getResultAt(k).getResult();
+				comp = (Comparable) list[i].getResultAt(k).getValue();
 			}
 
 			c[i] = new ComparableElement<ResultSet, Comparable>(list[i], comp);

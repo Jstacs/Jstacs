@@ -88,6 +88,6 @@ public class NumericalResultSet extends ResultSet {
 	 */
 	@Override
 	public NumericalResult getResultAt(int index) {
-		return (NumericalResult) results[index];
+		return (NumericalResult) results.get( index );
 	}
 }
