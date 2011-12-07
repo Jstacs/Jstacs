@@ -56,12 +56,12 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 			list = new ArrayList<double[]>();
 		}
 		
-		int i_old = 0, j_old = 0, i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass1.length;
+		int i_old = 0, j_old = 0, i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
 		double helpJ, propTerm;
 		double erg = 0, help1 = 0, help2 = 0;
 
 		// find correct start point
-		while( ( j < d ) && ( sortedScoresClass1[i] > sortedScoresClass1[j] ) ) {
+		while( ( j < d ) && ( sortedScoresClass0[i] > sortedScoresClass1[j] ) ) {
 			j++;
 		}
 		//i is zero, so p[0] = 1 ...
@@ -72,7 +72,7 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 		// which class defines the threshold
 		boolean unique, fromMotif = false;
-		if( j < d && sortedScoresClass1[i] == sortedScoresClass1[j] ) {
+		if( j < d && sortedScoresClass0[i] == sortedScoresClass1[j] ) {
 			unique = false;
 		} else {
 			unique = true;
@@ -84,16 +84,16 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 			// find next possible threshold
 			if( unique ) {
 				if( fromMotif ) {
-					while( i < m && sortedScoresClass1[j] > sortedScoresClass1[i] ) {
+					while( i < m && sortedScoresClass1[j] > sortedScoresClass0[i] ) {
 						i++;
 					}
 				} else {
-					while( j < d && sortedScoresClass1[i] > sortedScoresClass1[j] ) {
+					while( j < d && sortedScoresClass0[i] > sortedScoresClass1[j] ) {
 						j++;
 					}
 				}
 			} else {
-				while( i + 1 < m && sortedScoresClass1[i] == sortedScoresClass1[i + 1] ) {
+				while( i + 1 < m && sortedScoresClass0[i] == sortedScoresClass0[i + 1] ) {
 					i++;
 				}
 				while( j + 1 < d && sortedScoresClass1[j] == sortedScoresClass1[j + 1] ) {
@@ -150,11 +150,11 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 			if( i < m && j < d ) {
 				//next
-				if( sortedScoresClass1[i] == sortedScoresClass1[j] ) {
+				if( sortedScoresClass0[i] == sortedScoresClass1[j] ) {
 					unique = false;
 				} else {
 					unique = true;
-					if( sortedScoresClass1[i] < sortedScoresClass1[j] ) {
+					if( sortedScoresClass0[i] < sortedScoresClass1[j] ) {
 						fromMotif = true;
 					} else {
 						fromMotif = false;

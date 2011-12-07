@@ -474,27 +474,29 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence, int)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sequence, int)
 	 */
+	@Override
 	public double getLogScoreFor( Sequence seq, int start ) {
 		double s = 0;
-		for( int i = 0; i < index.length; i++ ) {
+		Sequence help;
+		for( int myStart, i = 0; i < index.length; i++ ) {
 			if( reverse[i] ) {
 				try {
-					if( isVariable[index[i]] ) {
-						s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreFor( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i], partialLength[i] );
-					} else {
-						s += score[index[i]].getLogScoreFor( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i] );
-					}
+					myStart = seq.getLength() - start - this.start[i] - partialLength[i];
+					help = seq.reverseComplement();
 				} catch ( Exception e ) {
 					throw new RuntimeException( e.getMessage() );
 				}
 			} else {
-				if( isVariable[index[i]] ) {
-					s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreFor( seq, start + this.start[i], partialLength[i] );
-				} else {
-					s += score[index[i]].getLogScoreFor( seq, start + this.start[i] );
-				}
+				help = seq;
+				myStart = start + this.start[i];
+			}
+			
+			if( isVariable[index[i]] ) {
+				s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreFor( seq, myStart, myStart+partialLength[i]-1 );
+			} else {
+				s += score[index[i]].getLogScoreFor( seq, myStart );
 			}
 		}
 		return s;
@@ -504,29 +506,30 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 * (non-Javadoc)
 	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation(de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
 	 */
+	@Override
 	public double getLogScoreAndPartialDerivation( Sequence seq, int start, IntList indices, DoubleList partialDer ) {
 		double s = 0;
-		for( int j, i = 0; i < index.length; i++ ) {
+		Sequence help;
+		for( int myStart, j, i = 0; i < index.length; i++ ) {
 			partIList.clear();
 			if( reverse[i] ) {
 				try {
-					if( isVariable[index[i]] ) {
-						s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreAndPartialDerivation( seq.reverseComplement(),
-								seq.getLength() - start - this.start[i] - partialLength[i], partialLength[i], partIList, partialDer );
-					} else {
-						s += score[index[i]].getLogScoreAndPartialDerivation( seq.reverseComplement(), seq.getLength() - start - this.start[i] - partialLength[i], partIList, partialDer );
-					}
+					myStart = seq.getLength() - start - this.start[i] - partialLength[i];
+					help = seq.reverseComplement();
 				} catch ( Exception e ) {
 					throw new RuntimeException( e.getMessage() );
 				}
 			} else {
-				if( isVariable[index[i]] ) {
-					s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreAndPartialDerivation( seq,
-							start + this.start[i], partialLength[i], partIList, partialDer );
-				} else {
-					s += score[index[i]].getLogScoreAndPartialDerivation( seq, start + this.start[i], partIList, partialDer );
-				}
+				help = seq;
+				myStart = start + this.start[i];
 			}
+			
+			if( isVariable[index[i]] ) {
+				s += ( (VariableLengthScoringFunction)score[index[i]] ).getLogScoreAndPartialDerivation( help, myStart, myStart+partialLength[i], partIList, partialDer );
+			} else {
+				s += score[index[i]].getLogScoreAndPartialDerivation( help, myStart, partIList, partialDer );
+			}
+			
 			for( j = 0; j < partIList.length(); j++ ) {
 				indices.add( partIList.get( j ) + params[index[i]] );
 			}

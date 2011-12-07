@@ -468,11 +468,11 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		{
 			pos.getInternalPosition( currentPos );
 			homSt = Math.max( 0, currentPos[0] - bgOrder );
-			homE = Math.min( length, currentPos[0] + m + bgOrder );
+			homE = Math.min( length, currentPos[0] + m + bgOrder )-1;
 			simpleScore[i][l++] = pos.getLogScoreForInternal() + function[j].getLogScoreFor( seq, start + currentPos[0] )
-				- bg.getLogScoreFor( seq, start + homSt, homE - homSt )
-				+ bg.getLogScoreFor( seq, start + homSt, currentPos[0] - homSt ) // left
-				+ bg.getLogScoreFor( seq, start + currentPos[0] + m, homE - currentPos[0] - m ); //right
+				- bg.getLogScoreFor( seq, start + homSt, homE )
+				+ bg.getLogScoreFor( seq, start + homSt, currentPos[0]-1 ) // left
+				+ bg.getLogScoreFor( seq, start + currentPos[0] + m, homE ); //right
 
 		} while( pos.next() );
 		return l;
@@ -495,7 +495,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 	public double getLogScoreFor( Sequence seq, int start )
 	{
 		fillComponentScores( seq, start );
-		return bg.getLogScoreFor( seq, start, length ) + Normalisation.getLogSum( componentScore );
+		return bg.getLogScoreFor( seq, start, start+length-1 ) + Normalisation.getLogSum( componentScore );
 	}
 
 	public double getLogScoreAndPartialDerivation( Sequence seq, int start, IntList indices, DoubleList partialDer )
@@ -531,20 +531,20 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 				// get current position
 				pos.getInternalPosition( currentPos );
 				homSt = Math.max( 0, currentPos[0] - bgOrder );
-				homE = Math.min( length, currentPos[0] + m + bgOrder );
+				homE = Math.min( length, currentPos[0] + m + bgOrder )-1;
 				// compute the score
 				simpleScore[i][stop] =
 					pos.getLogScoreAndPartialDerivationForInternal( iList[j + 1], dList[j + 1] ) // position
 					+ function[j].getLogScoreAndPartialDerivation( seq, start + currentPos[0], iList[j], dList[j] ) // motif
-					- bg.getLogScoreAndPartialDerivation( seq, start + homSt, homE - homSt, iList[bgIndex], dList[bgIndex] );
+					- bg.getLogScoreAndPartialDerivation( seq, start + homSt, homE, iList[bgIndex], dList[bgIndex] );
 				
 				end[0][stop] = iList[j].length();
 				end[1][stop] = iList[j + 1].length();
 				end[2][stop] = iList[bgIndex].length();
 				
 				simpleScore[i][stop] +=
-					bg.getLogScoreAndPartialDerivation( seq, start + homSt, currentPos[0] - homSt, iList[bgIndex], dList[bgIndex] )
-					+ bg.getLogScoreAndPartialDerivation( seq, start + currentPos[0] + m, homE - currentPos[0] - m, iList[bgIndex], dList[bgIndex] );
+					bg.getLogScoreAndPartialDerivation( seq, start + homSt, currentPos[0]-1, iList[bgIndex], dList[bgIndex] )
+					+ bg.getLogScoreAndPartialDerivation( seq, start + currentPos[0] + m, homE, iList[bgIndex], dList[bgIndex] );
 
 				end[3][stop++] = iList[bgIndex].length();
 			}while( pos.next() );
@@ -605,7 +605,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 		// bg for complete sequence
 		iList[bgIndex].clear();
 		dList[bgIndex].clear();
-		logScore += bg.getLogScoreAndPartialDerivation( seq, start, length, iList[bgIndex], dList[bgIndex] );
+		logScore += bg.getLogScoreAndPartialDerivation( seq, start, start+length-1, iList[bgIndex], dList[bgIndex] );
 
 		for( i = 0; i < iList[bgIndex].length(); i++ )
 		{
@@ -765,7 +765,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 				case UNNORMALIZED_JOINT:
 					d = logHiddenPotential[component];
 				case UNNORMALIZED_CONDITIONAL:
-					d += bg.getLogScoreFor( sequence, startpos, length );
+					d += bg.getLogScoreFor( sequence, startpos, startpos+length-1 );
 					break;				
 				case NORMALIZED_CONDITIONAL:
 					d = -Normalisation.getLogSum( 0, simpleScore[component].length, simpleScore[component] );

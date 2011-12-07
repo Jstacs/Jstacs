@@ -26,6 +26,7 @@ import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
@@ -174,6 +175,19 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	public final double getLogScoreFor( Sequence seq ) {
 		return getLogScoreFor( seq, 0 );
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence)
+	 */
+	@Override
+	public double getLogScoreFor( Sequence seq, int startpos, int endpos ) throws WrongLengthException {
+		if( endpos-startpos+1 == length ) {
+			return getLogScoreFor( seq, startpos );
+		} else {
+			throw new WrongLengthException( "The sequence length of " + (endpos-startpos+1) + " is not supported by this instance." );
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -185,6 +199,19 @@ public abstract class AbstractScoringFunction implements ScoringFunction {
 	 */
 	public final double getLogScoreAndPartialDerivation( Sequence seq, IntList indices, DoubleList partialDer ) {
 		return getLogScoreAndPartialDerivation( seq, 0, indices, partialDer );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation(int, de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
+	 */
+	@Override
+	public double getLogScoreAndPartialDerivation( Sequence seq, int startpos, int endpos, IntList indices, DoubleList partialDer ) throws WrongLengthException {
+		if( endpos-startpos+1 == length ) {
+			return getLogScoreAndPartialDerivation( seq, startpos, indices, partialDer );
+		} else {
+			throw new WrongLengthException( "The sequence length of " + (endpos-startpos+1) + " is not supported by this instance." );
+		}
 	}
 
 	/*

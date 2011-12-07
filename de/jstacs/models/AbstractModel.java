@@ -222,6 +222,21 @@ public abstract class AbstractModel implements Cloneable, Storable, Model {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(int, de.jstacs.data.Sequence, int)
+	 */
+	@Override
+	public double getLogScoreFor( Sequence sequence, int startpos, int endpos) {
+		try {
+			return getLogProbFor( sequence, startpos, endpos );
+		} catch( Exception e ) {
+			RuntimeException r = new RuntimeException();
+			r.setStackTrace( e.getStackTrace() );
+			throw r;
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sample)
 	 */
 	public double[] getLogScoreFor(DataSet data) throws Exception {

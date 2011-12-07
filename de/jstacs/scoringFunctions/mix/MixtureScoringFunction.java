@@ -280,9 +280,9 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 		for( int i = 0; i < function.length; i++ ) {
 			if( function[i] instanceof VariableLengthScoringFunction ) {
 				if( length != 0 ) {
-					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, length );
+					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, start+length-1 );
 				} else {
-					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, seq.getLength()-start );
+					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, seq.getLength()-1 );
 				}
 			} else {
 				componentScore[i] = logHiddenPotential[i] + function[i].getLogScoreFor( seq, start);
@@ -306,9 +306,9 @@ public class MixtureScoringFunction extends AbstractMixtureScoringFunction imple
 			dList[i].clear();
 			if( function[i] instanceof VariableLengthScoringFunction ) {
 				if( length != 0 ) {
-					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreAndPartialDerivation( seq, start, length, iList[i], dList[i] );
+					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreAndPartialDerivation( seq, start, start+length-1, iList[i], dList[i] );
 				} else {
-					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreAndPartialDerivation( seq, start, seq.getLength()-start, iList[i], dList[i] );
+					componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreAndPartialDerivation( seq, start, seq.getLength()-1, iList[i], dList[i] );
 				}
 			} else {
 				componentScore[i] = logHiddenPotential[i] + function[i].getLogScoreAndPartialDerivation( seq, start, iList[i], dList[i] );

@@ -67,20 +67,25 @@ public class VariableLengthMixtureScoringFunction extends MixtureScoringFunction
 		super( xml );
 	}
 
-	public double getLogScoreFor( Sequence seq, int start, int length ) {
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.AbstractScoringFunction#getLogScoreFor(int, de.jstacs.data.Sequence, int)
+	 */
+	@Override
+	public double getLogScoreFor( Sequence seq, int start, int end ) {
 		for( int i = 0; i < function.length; i++ ) {
-			componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, length );
+			componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreFor( seq, start, end );
 		}
 		return Normalisation.getLogSum( componentScore );
 	}
 
-	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int length, IntList indices, DoubleList partialDer ) {
+	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList partialDer ) {
 		int i = 0, j = 0, k = paramRef.length - 1;
 		k = paramRef[k] - paramRef[k - 1];
 		for( ; i < function.length; i++ ) {
 			iList[i].clear();
 			dList[i].clear();
-			componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreAndPartialDerivation( seq, start, length, iList[i], dList[i] );
+			componentScore[i] = logHiddenPotential[i] + ((VariableLengthScoringFunction)function[i]).getLogScoreAndPartialDerivation( seq, start, end, iList[i], dList[i] );
 		}
 		double logScore = Normalisation.logSumNormalisation( componentScore, 0, function.length, componentScore, 0 );
 		for( i = 0; i < function.length; i++ ) {

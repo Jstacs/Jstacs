@@ -33,8 +33,8 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class UniformHomogeneousScoringFunction extends
-		HomogeneousScoringFunction {
+public class UniformHomogeneousScoringFunction extends HomogeneousScoringFunction {
+	
 	private double ess, p, logP;
 
 	/**
@@ -89,25 +89,19 @@ public class UniformHomogeneousScoringFunction extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.VariableLengthScoringFunction#getLogScore(
-	 * de.jstacs.data.Sequence, int, int)
+	 * @see de.jstacs.scoringFunctions.AbstractVariableLengthScoringFunction#getLogScoreFor(int, de.jstacs.data.Sequence, int)
 	 */
-	public double getLogScoreFor(Sequence seq, int start, int length) {
-		return length * logP;
+	public double getLogScoreFor( Sequence seq, int start, int end ) {
+		return (end-start+1) * logP;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.VariableLengthScoringFunction#
-	 * getLogScoreAndPartialDerivation(de.jstacs.data.Sequence, int, int,
-	 * de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
+	 * @see de.jstacs.scoringFunctions.AbstractVariableLengthScoringFunction#getLogScoreAndPartialDerivation(int, de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
 	 */
-	public double getLogScoreAndPartialDerivation(Sequence seq, int start,
-			int length, IntList indices, DoubleList dList) {
-		return length * logP;
+	@Override
+	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList dList) {
+		return getLogScoreFor( seq, start, end );
 	}
 
 	/*
