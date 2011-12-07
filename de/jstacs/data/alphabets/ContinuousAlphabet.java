@@ -37,6 +37,11 @@ public class ContinuousAlphabet extends Alphabet {
 	 * The minimal and the maximal value.
 	 */
 	private double min, max;
+	
+	/**
+	 * Allow NaN values?
+	 */
+	private boolean allowNaN;
 
 	private ContinuousAlphabetParameterSet parameters;
 
@@ -51,7 +56,7 @@ public class ContinuousAlphabet extends Alphabet {
 	 * @see de.jstacs.InstantiableFromParameterSet
 	 */
 	public ContinuousAlphabet( ContinuousAlphabetParameterSet parameters ) {
-		this( (Double)parameters.getParameterAt( 0 ).getValue(), (Double)parameters.getParameterAt( 1 ).getValue() );
+		this( (Double)parameters.getParameterAt( 0 ).getValue(), (Double)parameters.getParameterAt( 1 ).getValue(), (Boolean)parameters.getParameterAt( 2 ).getValue() );
 		try {
 			this.parameters = (ContinuousAlphabetParameterSet)parameters.clone();
 		} catch ( Exception e ) {
@@ -61,7 +66,7 @@ public class ContinuousAlphabet extends Alphabet {
 
 	/**
 	 * Creates a new {@link ContinuousAlphabet} from a minimal and a maximal
-	 * value.
+	 * value. NaN values are not allowed.
 	 * 
 	 * @param min
 	 *            the minimal value
@@ -72,6 +77,24 @@ public class ContinuousAlphabet extends Alphabet {
 	 *             if the minimum or the maximum could not be set
 	 */
 	public ContinuousAlphabet( double min, double max ) throws IllegalArgumentException {
+		this(min,max,false);
+	}
+	
+	/**
+	 * Creates a new {@link ContinuousAlphabet} from a minimal and a maximal
+	 * value.
+	 * 
+	 * @param min
+	 *            the minimal value
+	 * @param max
+	 *            the maximal value
+	 * @param allowNaN
+	 * 			  true if NaN values are allowed
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the minimum or the maximum could not be set
+	 */
+	public ContinuousAlphabet( double min, double max, boolean allowNaN ) throws IllegalArgumentException {
 		if( Double.isInfinite( min ) || Double.isNaN( min ) || Double.isNaN( max ) || Double.isInfinite( max ) ) {
 			throw new IllegalArgumentException( "min and max have to be numbers (not infinity, NaN, ...)" );
 		}
@@ -80,12 +103,13 @@ public class ContinuousAlphabet extends Alphabet {
 		}
 		this.min = min;
 		this.max = max;
+		this.allowNaN = allowNaN;
 	}
 
 	/**
 	 * Creates a new {@link ContinuousAlphabet} with minimum and maximum value
 	 * being -{@link Double#MAX_VALUE} and {@link Double#MAX_VALUE},
-	 * respectively.
+	 * respectively. NaN values are not allowed.
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the minimum or the maximum could not be set
@@ -93,7 +117,24 @@ public class ContinuousAlphabet extends Alphabet {
 	 * @see ContinuousAlphabet#ContinuousAlphabet(double, double)
 	 */
 	public ContinuousAlphabet() {
-		this( -Double.MAX_VALUE, Double.MAX_VALUE );
+		this(false);
+	}
+	
+	/**
+	 * Creates a new {@link ContinuousAlphabet} with minimum and maximum value
+	 * being -{@link Double#MAX_VALUE} and {@link Double#MAX_VALUE},
+	 * respectively.
+	 * 
+	 * @param allowNaN
+	 * 			  true if NaN values are allowed
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the minimum or the maximum could not be set
+	 * 
+	 * @see ContinuousAlphabet#ContinuousAlphabet(double, double)
+	 */
+	public ContinuousAlphabet(boolean allowNaN) {
+		this( -Double.MAX_VALUE, Double.MAX_VALUE, allowNaN );
 	}
 
 	/**
@@ -114,6 +155,10 @@ public class ContinuousAlphabet extends Alphabet {
 		StringBuffer help = XMLParser.extractForTag( xml, XML_TAG );
 		min = XMLParser.extractObjectForTags( help, "MIN", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
 		max = XMLParser.extractObjectForTags( help, "MAX", double.class );
+		Object o = XMLParser.extractObjectForTags( help, "allowNaN", boolean.class );
+		if(o != null){
+			allowNaN = (Boolean)o;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -123,7 +168,7 @@ public class ContinuousAlphabet extends Alphabet {
 		if( parameters != null ) {
 			return (ContinuousAlphabetParameterSet)parameters.clone();
 		} else {
-			return new ContinuousAlphabetParameterSet( min, max );
+			return new ContinuousAlphabetParameterSet( min, max, allowNaN );
 		}
 	}
 
@@ -136,6 +181,8 @@ public class ContinuousAlphabet extends Alphabet {
 		XMLParser.appendObjectWithTags( xml, min, "MIN" );
 		xml.append( "\t" );
 		XMLParser.appendObjectWithTags( xml, max, "MAX" );
+		xml.append( "\t" );
+		XMLParser.appendObjectWithTags( xml, allowNaN, "allowNaN" );
 		XMLParser.addTags( xml, XML_TAG );
 		return xml;
 	}
@@ -185,7 +232,7 @@ public class ContinuousAlphabet extends Alphabet {
 	 *         internal interval, <code>false</code> otherwise
 	 */
 	public final boolean isEncodedSymbol( double candidat ) {
-		return ( min <= candidat ) && ( candidat <= max );
+		return (Double.isNaN( candidat ) && allowNaN) || ( ( min <= candidat ) && ( candidat <= max ) );
 	}
 
 	/* (non-Javadoc)
@@ -224,7 +271,7 @@ public class ContinuousAlphabet extends Alphabet {
 
 		/**
 		 * Creates a new {@link ContinuousAlphabetParameterSet} from a minimum
-		 * and a maximum value.
+		 * and a maximum value. NaN values are not allowed.
 		 * 
 		 * @param min
 		 *            the minimum
@@ -237,10 +284,31 @@ public class ContinuousAlphabet extends Alphabet {
 		 * @see de.jstacs.data.alphabets.ContinuousAlphabet.ContinuousAlphabetParameterSet#ContinuousAlphabet.ContinuousAlphabetParameterSet() ContinuousAlphabet.ContinuousAlphabetParameterSet#ContinuousAlphabetParameterSet()
 		 */
 		public ContinuousAlphabetParameterSet( double min, double max ) throws Exception {
+			this(min,max,false);
+		}
+		
+		/**
+		 * Creates a new {@link ContinuousAlphabetParameterSet} from a minimum
+		 * and a maximum value.
+		 * 
+		 * @param min
+		 *            the minimum
+		 * @param max
+		 *            the maximum
+		 * @param allowNaN
+		 * 			  true if NaN values are allowed
+		 * 
+		 * @throws Exception
+		 *             if minimum or maximum could not be set
+		 * 
+		 * @see de.jstacs.data.alphabets.ContinuousAlphabet.ContinuousAlphabetParameterSet#ContinuousAlphabet.ContinuousAlphabetParameterSet() ContinuousAlphabet.ContinuousAlphabetParameterSet#ContinuousAlphabetParameterSet()
+		 */
+		public ContinuousAlphabetParameterSet( double min, double max, boolean allowNaN ) throws Exception {
 			this();
 			loadParameters();
 			parameters.get( 0 ).setValue( new Double( min ) );
 			parameters.get( 1 ).setValue( new Double( max ) );
+			parameters.get( 2 ).setValue( allowNaN );
 		}
 
 		/**
@@ -272,6 +340,7 @@ public class ContinuousAlphabet extends Alphabet {
 			initParameterList();
 			parameters.add( new SimpleParameter( DataType.DOUBLE, "Minimum", "The minimal value of the alphabet.", true ) );
 			parameters.add( new SimpleParameter( DataType.DOUBLE, "Maximum", "The maximum value of the alphabet", true ) );
+			parameters.add( new SimpleParameter( DataType.BOOLEAN, "Allow NaN", "Allow NaN values", true, false ) );
 		}
 
 		/* (non-Javadoc)
