@@ -478,13 +478,13 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 			if( !super.hasDefaultOrIsSet() ) {
 				return false;
 			} else {
-				Iterator<Parameter> it = parameters.iterator();
-				boolean[] set = new boolean[(Integer)it.next().getValue()];
+				boolean[] set = new boolean[(Integer)parameters.get( 0 ).getValue()];
 				LinkedList<Integer> tempList;
 				int no = 0;
-				while( it.hasNext() ) {
+				for(int i=1;i<parameters.size();i++){
+					Parameter element = parameters.get( i );
 					no++;
-					ParameterSet temp = (ParameterSet)it.next().getValue();
+					ParameterSet temp = (ParameterSet)element.getValue();
 					String section = (String)temp.getParameterAt( 1 ).getValue();
 					try {
 						tempList = parseSections( section );
