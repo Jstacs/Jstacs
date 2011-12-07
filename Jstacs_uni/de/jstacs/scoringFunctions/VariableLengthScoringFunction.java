@@ -20,6 +20,7 @@
 package de.jstacs.scoringFunctions;
 
 import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
@@ -65,52 +66,20 @@ public interface VariableLengthScoringFunction extends NormalizableScoringFuncti
 	public abstract double getLogPartialNormalizationConstant(int parameterIndex,
 			int length) throws Exception;
 
-	/**
-	 * This method computes the logarithm of the score for a given subsequence.
-	 * 
-	 * @param seq
-	 *            the {@link Sequence}
-	 * @param startpos
-	 *            the start index in the {@link Sequence}
-	 * @param length
-	 *            the length of the {@link Sequence} beginning at <code>start</code>
-	 * 
-	 * @return the logarithm of the score for the subsequence
-	 * 
-	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreFor(Sequence,
-	 *      int)
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence)
 	 */
-	public abstract double getLogScoreFor(Sequence seq, int startpos, int length);
+	@Override
+	public abstract double getLogScoreFor( Sequence seq, int startpos, int endpos );
 	
-	/**
-	 * This method computes the logarithm of the score and the partial
-	 * derivations for a given subsequence.
-	 * 
-	 * @param seq
-	 *            the {@link Sequence}
-	 * @param start
-	 *            the start index in the {@link Sequence}
-	 * @param length
-	 *            the end index in the {@link Sequence}
-	 * @param indices
-	 *            an {@link IntList} of indices, after method invocation the
-	 *            list should contain the indices i where
-	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
-	 *            is not zero
-	 * @param dList
-	 *            a {@link DoubleList} of partial derivations, after method
-	 *            invocation the list should contain the corresponding
-	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
-	 *            that are not zero
-	 * 
-	 * @return the logarithm of the score
-	 * 
-	 * @see ScoringFunction#getLogScoreAndPartialDerivation(Sequence, int,
-	 *      IntList, DoubleList)
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation(int, de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
 	 */
-	public abstract double getLogScoreAndPartialDerivation(Sequence seq,
-			int start, int length, IntList indices, DoubleList dList);
-
+	@Override
+	public abstract double getLogScoreAndPartialDerivation( Sequence seq, int startpos, int endpos, IntList indices, DoubleList partialDer );
+	
 	/**
 	 * This method sets the hyperparameters for the model parameters by
 	 * evaluating the given statistic. The statistic can be interpreted as

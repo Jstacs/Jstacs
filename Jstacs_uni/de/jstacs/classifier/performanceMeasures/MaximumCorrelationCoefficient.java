@@ -38,21 +38,21 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 
 	@Override
 	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
-		int i = 1, j = 1, d = sortedScoresClass1.length, m = sortedScoresClass1.length;
+		int i = 1, j = 1, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
 		double[] current = new double[2];
 		double[] erg = new double[]{ Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };
 
 		//find second smallest value => first threshold current[0]
 
-		if( sortedScoresClass1[0] == sortedScoresClass1[0] ) {
+		if( sortedScoresClass0[0] == sortedScoresClass1[0] ) {
 			while( j < d && sortedScoresClass1[j - 1] == sortedScoresClass1[j] ) {
 				j++;
 			}
-			while( i < m && sortedScoresClass1[i - 1] == sortedScoresClass1[i] ) {
+			while( i < m && sortedScoresClass0[i - 1] == sortedScoresClass0[i] ) {
 				i++;
 			}
 			if( i != m && j != d ) {
-				current[0] = Math.min( sortedScoresClass1[j], sortedScoresClass1[i] );
+				current[0] = Math.min( sortedScoresClass1[j], sortedScoresClass0[i] );
 				// decoys_lr[j-1] = motifs_lr[i-1] < c <= Math.min( decoys_lr[j], motifs_lr[i] )
 			} else if( i == m && j == d ) {
 				throw new IllegalArgumentException( "All likelihood-ratios had the same values for both samples." );
@@ -63,12 +63,12 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 			} else
 			// if( j == d && i != m )
 			{
-				current[0] = sortedScoresClass1[i];
+				current[0] = sortedScoresClass0[i];
 				// decoys_lr[j-1] = motifs_lr[i-1] < c = motifs_lr[i] , j == d
 			}
 		} else {
-			if( sortedScoresClass1[0] < sortedScoresClass1[0] ) {
-				while( i < m && sortedScoresClass1[i - 1] == sortedScoresClass1[i] ) {
+			if( sortedScoresClass0[0] < sortedScoresClass1[0] ) {
+				while( i < m && sortedScoresClass0[i - 1] == sortedScoresClass0[i] ) {
 					i++;
 				}
 				j = 0;
@@ -76,8 +76,8 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 					current[0] = sortedScoresClass1[j];
 					// motifs_lr[i-1] < c == decoys_lr[j], i == m
 				} else {
-					if( sortedScoresClass1[i] <= sortedScoresClass1[j] ) {
-						current[0] = sortedScoresClass1[i];
+					if( sortedScoresClass0[i] <= sortedScoresClass1[j] ) {
+						current[0] = sortedScoresClass0[i];
 						// motifs_lr[i-1] < c == motifs_lr[i] <= decoys_lr[j]
 					} else {
 						current[0] = sortedScoresClass1[j];
@@ -91,14 +91,14 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 				}
 				i = 0;
 				if( j == d ) {
-					current[0] = sortedScoresClass1[i];
+					current[0] = sortedScoresClass0[i];
 					//decoys_lr[j-1] < c == motis_lr[i], j == d
 				} else {
-					if( sortedScoresClass1[j] <= sortedScoresClass1[i] ) {
+					if( sortedScoresClass1[j] <= sortedScoresClass0[i] ) {
 						current[0] = sortedScoresClass1[j];
 						// decoys_lr[j-1] < c = decoys_lr[j] <= motifs_lr[i]
 					} else {
-						current[0] = sortedScoresClass1[i];
+						current[0] = sortedScoresClass0[i];
 						// motifs_lr[i-1] < c = motifs_lr[i] < decoys_lr[j]
 					}
 				}
@@ -119,19 +119,19 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 			while( j < d && sortedScoresClass1[j] == current[0] ) {
 				j++;
 			}
-			while( i < m && sortedScoresClass1[i] == current[0] ) {
+			while( i < m && sortedScoresClass0[i] == current[0] ) {
 				i++;
 			}
 			if( i < m && j < d ) {
-				if( sortedScoresClass1[i] <= sortedScoresClass1[j] ) {
-					current[0] = sortedScoresClass1[i];
+				if( sortedScoresClass0[i] <= sortedScoresClass1[j] ) {
+					current[0] = sortedScoresClass0[i];
 				} else // if( motifs_lr[ i ] > decoys_lr[ j ] )
 				{
 					current[0] = sortedScoresClass1[j];
 				}
 			} else if( i < m ) // j == d
 			{
-				current[0] = sortedScoresClass1[i];
+				current[0] = sortedScoresClass0[i];
 			} else if( j < d ) // i == m
 			{
 				current[0] = sortedScoresClass1[j];

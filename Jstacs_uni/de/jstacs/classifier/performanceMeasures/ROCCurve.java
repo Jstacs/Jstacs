@@ -56,7 +56,7 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 			list = new ArrayList<double[]>();
 		}
 		
-		int i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass1.length;
+		int i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
 		double erg = 0, help1, help2;
 		double[] p = new double[]{ 1, 1 };
 
@@ -65,11 +65,11 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 		}
 		//which class defines the threshold
 		boolean unique, fromMotif = false;
-		if( sortedScoresClass1[i] == sortedScoresClass1[j] ) {
+		if( sortedScoresClass0[i] == sortedScoresClass1[j] ) {
 			unique = false;
 		} else {
 			unique = true;
-			if( sortedScoresClass1[i] < sortedScoresClass1[j] ) {
+			if( sortedScoresClass0[i] < sortedScoresClass1[j] ) {
 				fromMotif = true;
 			} else {
 				fromMotif = false;
@@ -80,16 +80,16 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 			// discard values that are not interesting
 			if( unique ) {
 				if( fromMotif ) {
-					while( i < m && sortedScoresClass1[i] < sortedScoresClass1[j] ) {
+					while( i < m && sortedScoresClass0[i] < sortedScoresClass1[j] ) {
 						i++;
 					}
 				} else {
-					while( j < d && sortedScoresClass1[i] > sortedScoresClass1[j] ) {
+					while( j < d && sortedScoresClass0[i] > sortedScoresClass1[j] ) {
 						j++;
 					}
 				}
 			} else {
-				while( i + 1 < m && sortedScoresClass1[i] == sortedScoresClass1[i + 1] ) {
+				while( i + 1 < m && sortedScoresClass0[i] == sortedScoresClass0[i + 1] ) {
 					i++;
 				}
 				while( j + 1 < d && sortedScoresClass1[j] == sortedScoresClass1[j + 1] ) {
@@ -111,11 +111,11 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 
 			if( i < m && j < d ) {
 				//next
-				if( sortedScoresClass1[i] == sortedScoresClass1[j] ) {
+				if( sortedScoresClass0[i] == sortedScoresClass1[j] ) {
 					unique = false;
 				} else {
 					unique = true;
-					if( sortedScoresClass1[i] < sortedScoresClass1[j] ) {
+					if( sortedScoresClass0[i] < sortedScoresClass1[j] ) {
 						fromMotif = true;
 					} else {
 						fromMotif = false;

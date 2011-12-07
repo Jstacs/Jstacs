@@ -115,6 +115,19 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	public double getLogScoreFor(Sequence seq, int start);
 	
 	/**
+	 * Returns the logarithmic score for the {@link Sequence} <code>seq</code>
+	 * beginning at position <code>start</code> in the {@link Sequence}.
+	 * 
+	 * @param seq
+	 *            the {@link Sequence}
+	 * @param start
+	 *            the start position in the {@link Sequence}
+	 * 
+	 * @return the logarithmic score for the {@link Sequence}
+	 */
+	public double getLogScoreFor(Sequence seq, int start, int end) throws Exception;
+	
+	/**
 	 * This method computes the logarithm of the scores of all sequences
 	 * in the given sample. The values are stored in an array according to the
 	 * index of the respective sequence in the sample.

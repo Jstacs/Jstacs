@@ -28,7 +28,6 @@ import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.NormalizableScoringFunctionModel;
-import de.jstacs.models.hmm.HMMTrainingParameterSet;
 import de.jstacs.models.hmm.State;
 import de.jstacs.models.hmm.states.DifferentiableState;
 import de.jstacs.models.hmm.states.SimpleDifferentiableState;
@@ -332,14 +331,32 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 //end
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.models.AbstractModel#getLogScoreFor(de.jstacs.data.Sequence)
+	 */
+	@Override
 	public double getLogScoreFor( Sequence seq ) {
 		return getLogScoreFor( seq, 0 );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.models.AbstractModel#getLogScoreFor(de.jstacs.data.Sequence, int)
+	 */
+	@Override
 	public double getLogScoreFor( Sequence seq, int start ) {
+		return getLogScoreFor( seq, start, seq.getLength()-1 );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.models.AbstractModel#getLogScoreFor(int, de.jstacs.data.Sequence, int)
+	 */
+	@Override
+	public double getLogScoreFor( Sequence seq, int start, int end ) {
 		//return logProb( start, seq.getLength()-1, seq );
 		try {
-			int end = seq.getLength()-1;
 			fillBwdOrViterbiMatrix( score, 0, start, end, 0, seq );
 			
 			return bwdMatrix[0][0][0];
@@ -353,9 +370,12 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 
 	public double getLogScoreAndPartialDerivation( Sequence seq, int startPos, IntList indices, DoubleList partialDer ) {
+		return getLogScoreAndPartialDerivation( seq, startPos, seq.getLength()-1, indices, partialDer);
+	}
+		
+	public double getLogScoreAndPartialDerivation( Sequence seq, int startPos, int endPos, IntList indices, DoubleList partialDer ) {
 		try {
 			boolean zero = transition[0].getMaximalMarkovOrder() == 0;
-			int endPos = seq.getLength()-1;
 			int l = endPos-startPos+1, stateID, context, n, children;
 			
 			provideMatrix( 1, endPos-startPos+1, 0);

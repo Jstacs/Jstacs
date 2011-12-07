@@ -113,35 +113,41 @@ public abstract class AbstractVariableLengthScoringFunction extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data
-	 * .Sequence, int)
+	 * @see de.jstacs.SequenceScoringFunction#getLogScoreFor(de.jstacs.data.Sequence, int)
 	 */
+	@Override
 	public double getLogScoreFor(Sequence seq, int start) {
 		if (length != 0) {
-			return getLogScoreFor(seq, start, length);
+			return getLogScoreFor( seq, start, start+length-1 );
 		} else {
-			return getLogScoreFor(seq, start, seq.getLength() - start);
+			return getLogScoreFor( seq, start, seq.getLength()-1 );
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation
-	 * (de.jstacs.data.Sequence, int, de.jstacs.utils.IntList,
-	 * de.jstacs.utils.DoubleList)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation(de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
 	 */
-	public double getLogScoreAndPartialDerivation(Sequence seq, int start,
-			IntList indices, DoubleList dList) {
+	@Override
+	public double getLogScoreAndPartialDerivation(Sequence seq, int start, IntList indices, DoubleList dList) {
 		if (length != 0) {
-			return getLogScoreAndPartialDerivation(seq, start, length, indices,
-					dList);
+			return getLogScoreAndPartialDerivation( seq, start, start+length-1, indices, dList );
 		} else {
-			return getLogScoreAndPartialDerivation(seq, start, seq.getLength()
-					- start, indices, dList);
+			return getLogScoreAndPartialDerivation( seq, start, seq.getLength()-1, indices, dList );
 		}
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScore(de.jstacs.data.Sequence)
+	 */
+	@Override
+	public abstract double getLogScoreFor( Sequence seq, int startpos, int endpos );
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#getLogScoreAndPartialDerivation(int, de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
+	 */
+	@Override
+	public abstract double getLogScoreAndPartialDerivation( Sequence seq, int startpos, int endpos, IntList indices, DoubleList partialDer );
 }

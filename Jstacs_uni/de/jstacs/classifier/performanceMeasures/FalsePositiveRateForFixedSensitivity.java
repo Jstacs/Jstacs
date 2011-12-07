@@ -55,7 +55,7 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
 		double sensitivity = (Double)getParameterAt( 0 ).getValue();
 		int d = sortedScoresClass1.length, i = d - 1;
-		double threshold = sortedScoresClass1[(int)Math.ceil( ( 1 - sensitivity ) * ( sortedScoresClass1.length - 1 ) )];
+		double threshold = sortedScoresClass0[(int)Math.ceil( ( 1 - sensitivity ) * ( sortedScoresClass0.length - 1 ) )];
 		while( i >= 0 && sortedScoresClass1[i] >= threshold ) {
 			i--;
 		}

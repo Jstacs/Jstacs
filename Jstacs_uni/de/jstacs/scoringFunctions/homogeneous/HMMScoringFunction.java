@@ -29,9 +29,9 @@ import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.ByteSequence;
 import de.jstacs.io.XMLParser;
-import de.jstacs.models.utils.StationaryDistribution;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
+import de.jstacs.utils.StationaryDistribution;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.FastDirichletMRGParams;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
@@ -246,14 +246,12 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.VariableLengthScoringFunction#getLogScore(
-	 * de.jstacs.data.Sequence, int, int)
+	 * @see de.jstacs.scoringFunctions.AbstractVariableLengthScoringFunction#getLogScoreFor(int, de.jstacs.data.Sequence, int)
 	 */
-	public double getLogScoreFor(Sequence seq, int start, int length) {
+	@Override
+	public double getLogScoreFor( Sequence seq, int start, int end ) {
 		double erg = 0;
-		int l = 0, indexOld, indexNew = 0, o = Math.min(order, length);
+		int length = end-start+1, l = 0, indexOld, indexNew = 0, o = Math.min(order, length);
 		for (; l < o; l++) {
 			indexOld = indexNew;
 			indexNew = indexOld * powers[1] + seq.discreteVal(start++);
@@ -269,19 +267,16 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.scoringFunctions.VariableLengthScoringFunction#
-	 * getLogScoreAndPartialDerivation(de.jstacs.data.Sequence, int, int,
-	 * de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
+	 * @see de.jstacs.scoringFunctions.AbstractVariableLengthScoringFunction#getLogScoreAndPartialDerivation(int, de.jstacs.data.Sequence, int, de.jstacs.utils.IntList, de.jstacs.utils.DoubleList)
 	 */
-	public double getLogScoreAndPartialDerivation(Sequence seq, int start,
-			int length, IntList indices, DoubleList dList) {
+	@Override
+	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList dList) {
 		if (optimize) {
 			Arrays.fill(counter, 0);
 			Arrays.fill(distCounter, 0);
 			double erg = 0;
 			int stop = powers[1] - (freeParams ? 1 : 0);
-			int l = 0, indexOld, indexNew = 0, h, o = Math.min(order, length), index, z;
+			int length = end-start+1, l = 0, indexOld, indexNew = 0, h, o = Math.min(order, length), index, z;
 			// start probabilities
 			for (; l < o; l++) {
 				indexOld = indexNew;
@@ -325,7 +320,7 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 			}
 			return erg;
 		} else {
-			return getLogScoreFor(seq, start, length);
+			return getLogScoreFor(seq, start, end);
 		}
 	}
 

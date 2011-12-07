@@ -99,8 +99,7 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
 	 */
-	public double getLogScoreAndPartialDerivation(Sequence seq,
-			IntList indices, DoubleList partialDer);
+	public double getLogScoreAndPartialDerivation(Sequence seq, IntList indices, DoubleList partialDer);
 
 	/**
 	 * Returns the logarithmic score for a {@link Sequence} beginning at
@@ -124,8 +123,31 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
 	 */
-	public double getLogScoreAndPartialDerivation(Sequence seq, int start,
-			IntList indices, DoubleList partialDer);
+	public double getLogScoreAndPartialDerivation(Sequence seq, int start, IntList indices, DoubleList partialDer);
+
+	/**
+	 * Returns the logarithmic score for a {@link Sequence} beginning at
+	 * position <code>start</code> in the {@link Sequence} and fills lists with
+	 * the indices and the partial derivations.
+	 * 
+	 * @param seq
+	 *            the {@link Sequence}
+	 * @param start
+	 *            the start position in the {@link Sequence}
+	 * @param indices
+	 *            an {@link IntList} of indices, after method invocation the
+	 *            list should contain the indices i where
+	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
+	 *            is not zero
+	 * @param partialDer
+	 *            a {@link DoubleList} of partial derivations, after method
+	 *            invocation the list should contain the corresponding
+	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
+	 *            that are not zero
+	 * 
+	 * @return the logarithmic score for the {@link Sequence}
+	 */
+	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList partialDer ) throws Exception;
 
 	/**
 	 * Returns the number of parameters in this {@link ScoringFunction}. If the

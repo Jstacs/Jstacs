@@ -200,6 +200,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	/* (non-Javadoc)
 	 * @see de.jstacs.classifier.AbstractClassifier#getResults(de.jstacs.data.Sample[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
@@ -209,7 +210,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 				throw new ClassDimensionException();
 			}
 			double[][] scores = getSortedTwoClassScores( s );
-			
+
 			boolean isNumeric = true;
 			AbstractPerformanceMeasure[] m = params.getAllMeasures();
 			for( AbstractPerformanceMeasure current : m ) {

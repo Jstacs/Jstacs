@@ -54,14 +54,14 @@ public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstract
 	@Override
 	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
 		double sensitivity = (Double)getParameterAt( 0 ).getValue();
-		int d = sortedScoresClass1.length, j = (int)Math.ceil( ( 1 - sensitivity ) * ( sortedScoresClass1.length - 1 ) ), i = d - 1;
-		double threshold = sortedScoresClass1[j];
-		while( j >= 0 && sortedScoresClass1[j] == threshold ) {
+		int d = sortedScoresClass1.length, j = (int)Math.ceil( ( 1 - sensitivity ) * ( sortedScoresClass0.length - 1 ) ), i = d - 1;
+		double threshold = sortedScoresClass0[j];
+		while( j >= 0 && sortedScoresClass0[j] == threshold ) {
 			j--;
 		}
 		// => (j+1) false negatives
 		// => (scoresClass0.length-1-j) true positives
-		j = sortedScoresClass1.length - 1 - j; // true positives
+		j = sortedScoresClass0.length - 1 - j; // true positives
 		while( i >= 0 && sortedScoresClass1[i] >= threshold ) {
 			i--;
 		}

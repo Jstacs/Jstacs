@@ -327,14 +327,15 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 		}
 	}
 	
-	public double getLogScoreFor( Sequence seq, int start, int length )
+	public double getLogScoreFor( Sequence seq, int start, int end )
 	{
-		fillFrameLogScores(seq, start, length);
+		fillFrameLogScores( seq, start, end-start+1 );
 		return Normalisation.getLogSum( frameLogScore ) - logFrameNorm;
 	}
 
-	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int length, IntList indices, DoubleList dList )
+	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList dList )
 	{
+		int length = end-start+1;
 		if( optimize )
 		{
 			int l = 0, indexOld, indexNew = 0, h, o = Math.min( order, length ), index, z, p;
@@ -449,7 +450,7 @@ public class CMMScoringFunction extends AbstractVariableLengthScoringFunction im
 		}
 		else
 		{
-			return getLogScoreFor( seq, start, length );
+			return getLogScoreFor( seq, start, end );
 		}
 	}
 

@@ -55,9 +55,9 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceM
 	@Override
 	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
 		double specificity = (Double)getParameterAt( 0 ).getValue();
-		int i = 0, m = sortedScoresClass1.length;
+		int i = 0, m = sortedScoresClass0.length;
 		double threshold = sortedScoresClass1[(int)Math.ceil( specificity * ( sortedScoresClass1.length - 1 ) )];
-		while( i < m && sortedScoresClass1[i] <= threshold ) {
+		while( i < m && sortedScoresClass0[i] <= threshold ) {
 			i++;
 		}
 		
