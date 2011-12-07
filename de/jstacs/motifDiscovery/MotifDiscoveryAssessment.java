@@ -115,7 +115,7 @@ public class MotifDiscoveryAssessment {
 				}
 				
 				NumericalResultSet nMeasures = computeNucleotideLevelMeasures( annotT, annotP, idT );
-				if(bestNMeasures == null || bestNMeasures.getResultAt( bestNMeasures.getNumberOfResults() - 1 ).getResult().compareTo( nMeasures.getResultAt( nMeasures.getNumberOfResults() - 1 ).getResult() ) < 0){
+				if(bestNMeasures == null || bestNMeasures.getResultAt( bestNMeasures.getNumberOfResults() - 1 ).getValue().compareTo( nMeasures.getResultAt( nMeasures.getNumberOfResults() - 1 ).getValue() ) < 0){
 					bestNMeasures = nMeasures;
 					bestSMeasures = computeSiteLevelMeasures( truth, prediction, maxDiff, idT, idP );
 				}	
@@ -477,7 +477,7 @@ public class MotifDiscoveryAssessment {
 					addRes = lsawl.getAnnotations();
 					for(int q=0;q<addRes.length;q++){
 						if("score".equals( addRes[q].getName()) && addRes[q] instanceof NumericalResult ){
-							score = (Double) ((NumericalResult)addRes[q]).getResult();
+							score = (Double) ((NumericalResult)addRes[q]).getValue();
 						}
 					}
 					for(int q=start;q<end;q++){
