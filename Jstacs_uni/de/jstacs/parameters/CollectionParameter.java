@@ -58,24 +58,9 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	protected boolean userSelected;
 
 	/**
-	 * The name of this {@link CollectionParameter}
-	 */
-	private String name;
-
-	/**
-	 * Comment on this {@link CollectionParameter}
-	 */
-	private String comment;
-
-	/**
 	 * <code>true</code> if the current parameter is required, false otherwise
 	 */
 	private boolean required;
-
-	/**
-	 * The data type of the parameters in the collection
-	 */
-	private DataType datatype;
 
 	/**
 	 * If a value was illegal for the collection parameter, this field holds the
@@ -603,36 +588,6 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	protected void extractCollection(StringBuffer buf)
 			throws NonParsableException {
 		parameters = new SimpleParameterSet(XMLParser.extractForTag(buf,"collection"));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getDatatype()
-	 */
-	@Override
-	public DataType getDatatype() {
-		return datatype;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getComment()
-	 */
-	@Override
-	public String getComment() {
-		return comment;
 	}
 
 	/*

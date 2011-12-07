@@ -35,20 +35,6 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
 public class SimpleParameter extends Parameter implements Rangeable, GalaxyConvertible {
 
 	/**
-	 * The data type of the parameter value
-	 */
-	protected DataType datatype;
-
-	/**
-	 * The name of the parameter
-	 */
-	protected String name;
-	/**
-	 * A comment on the parameter
-	 */
-	protected String comment;
-
-	/**
 	 * Determines if the parameter is required
 	 */
 	protected boolean required;
@@ -309,36 +295,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	@Override
 	public boolean isAtomic() {
 		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getDatatype()
-	 */
-	@Override
-	public DataType getDatatype() {
-		return datatype;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getComment()
-	 */
-	@Override
-	public String getComment() {
-		return comment;
 	}
 
 	/*

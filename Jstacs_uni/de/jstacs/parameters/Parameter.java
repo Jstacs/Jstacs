@@ -19,6 +19,7 @@
 
 package de.jstacs.parameters;
 
+import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
@@ -40,7 +41,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * @author Jan Grau
  * 
  */
-public abstract class Parameter implements Storable, Cloneable {
+public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 
 	/**
 	 * In cases, when the validity of some {@link ParameterSet} depends on the
@@ -82,28 +83,6 @@ public abstract class Parameter implements Storable, Cloneable {
 	}
 
 	/**
-	 * Returns the name of the {@link Parameter}.
-	 * 
-	 * @return the name of the {@link Parameter}
-	 */
-	public abstract String getName();
-
-	/**
-	 * Returns the data type of the {@link Parameter}.
-	 * 
-	 * @return the data type of the {@link Parameter}
-	 */
-	public abstract DataType getDatatype();
-
-	/**
-	 * Returns a comment on this {@link Parameter} that tells something about
-	 * useful values, domains, usage of this parameter, etc.
-	 * 
-	 * @return the comment
-	 */
-	public abstract String getComment();
-
-	/**
 	 * Returns <code>true</code> if the {@link Parameter} is required,
 	 * <code>false</code> otherwise.
 	 * 
@@ -135,13 +114,6 @@ public abstract class Parameter implements Storable, Cloneable {
 	 *             {@link Parameter}
 	 */
 	public abstract void setValue(Object value) throws IllegalValueException;
-
-	/**
-	 * Returns the current value of this {@link Parameter}.
-	 * 
-	 * @return the current value of the {@link Parameter}
-	 */
-	public abstract Object getValue();
 
 	/**
 	 * Returns <code>true</code> if the parameter either has a default value or
