@@ -758,10 +758,10 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.jstacs.results.Result#getResult()
+		 * @see de.jstacs.results.Result#getValue()
 		 */
 		@Override
-		public double[][] getResult() {
+		public double[][] getValue() {
 			double[][] res = new double[content.length][];
 			for( int i = 0; i < res.length; i++ ) {
 				res[i] = content[i].clone();
