@@ -460,17 +460,17 @@ public class BioJavaAdapter {
 
 				for( int i = 0; i < res.length; i++ ) {
 					if( res[i].getName().equals( "Description" ) ) {
-						builder.setDescription( res[i].getResult().toString() );
+						builder.setDescription( res[i].getValue().toString() );
 					} else if( res[i].getName().equals( "Accession" ) ) {
-						builder.setAccession( res[i].getResult().toString() );
+						builder.setAccession( res[i].getValue().toString() );
 						setAccession = true;
 					} else if( res[i].getName().equals( "Name" ) ) {
-						builder.setName( res[i].getResult().toString() );
+						builder.setName( res[i].getValue().toString() );
 						setName = true;
 					} else if( res[i].getName().equals( "ID" ) ) {
-						builder.setIdentifier( res[i].getResult().toString() );
+						builder.setIdentifier( res[i].getValue().toString() );
 					} else if( res[i].equals( "Version" ) ) {
-						builder.setVersion( Integer.parseInt( res[i].getResult().toString() ) );
+						builder.setVersion( Integer.parseInt( res[i].getValue().toString() ) );
 					}
 				}
 			}
@@ -539,7 +539,7 @@ public class BioJavaAdapter {
 		map.put( "identifier", annotation.getIdentifier() );
 		if( res != null ) {
 			for( int i = 0; i < res.length; i++ ) {
-				map.put( res[i].getName(), res[i].getResult().toString() );
+				map.put( res[i].getName(), res[i].getValue().toString() );
 			}
 		}
 		templ.annotation = new SimpleAnnotation( map );
