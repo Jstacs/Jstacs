@@ -64,7 +64,7 @@ public class SimpleSequenceAnnotationParser implements SequenceAnnotationParser 
 				if( annotations[i].getType().equals( TYPE )
 						&& annotations[i].getNumberOfResults() == 1
 						&& annotations[i].getResultAt( 0 ) instanceof CategoricalResult ) {
-					res.append( start + commentChar +  annotations[i].getResultAt( 0 ).getResult().toString() );
+					res.append( start + commentChar +  annotations[i].getResultAt( 0 ).getValue().toString() );
 					start = "\n";
 				}
 			}
