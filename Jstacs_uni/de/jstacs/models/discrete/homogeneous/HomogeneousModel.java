@@ -121,7 +121,7 @@ public abstract class HomogeneousModel extends DiscreteGraphicalModel {
 	 * @throws WrongAlphabetException
 	 *             if something is wrong with the alphabet
 	 * 
-	 * @see DataSet#Sample(String, Sequence...)
+	 * @see DataSet#DataSet(String, Sequence...)
 	 */
 	@Override
 	public final DataSet emitDataSet( int no, int... length ) throws NotTrainedException,
