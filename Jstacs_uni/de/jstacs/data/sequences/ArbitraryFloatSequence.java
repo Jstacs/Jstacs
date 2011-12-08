@@ -18,16 +18,28 @@
 
 package de.jstacs.data.sequences;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
+
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
+import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
+import de.jstacs.io.AbstractStringExtractor;
+import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.SymbolExtractor;
 
 /**
  * This class is for any continuous or hybrid sequence.
+ * In contrast to {@link ArbitrarySequence}s, the numeric values are represented by <code>float</code>s instead of <code>double</code>s.
+ * This may be useful if either the represented data are known to be only of <code>float</code> precision or if <code>double</code> precision is dispensible
+ * for the sake of memory consumption.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class ArbitraryFloatSequence extends Sequence<float[]> {
 
@@ -35,7 +47,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 
 	/**
 	 * Creates a new {@link ArbitraryFloatSequence} from an array of
-	 * <code>double</code>-encoded alphabet symbols. This constructor is
+	 * <code>float</code>-encoded alphabet symbols. This constructor is
 	 * designed for the method
 	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
@@ -49,7 +61,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             <code>alphabetContainer</code>
 	 * @throws WrongSequenceTypeException
 	 *             if <code>alphabetContainer</code> contains alphabets that can
-	 *             not be encoded with <code>double</code>s
+	 *             not be encoded with <code>float</code>s
 	 * 
 	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
 	 * @see Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
@@ -86,7 +98,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             <code>alphabetContainer</code>
 	 * @throws WrongSequenceTypeException
 	 *             if <code>alphabetContainer</code> contains alphabets that can
-	 *             not be encoded with <code>double</code>s
+	 *             not be encoded with <code>float</code>s
 	 * 
 	 * @see ArbitraryFloatSequence#ArbitraryFloatSequence(AlphabetContainer, SequenceAnnotation[], SymbolExtractor)
 	 */
@@ -114,7 +126,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             <code>alphabetContainer</code>
 	 * @throws WrongSequenceTypeException
 	 *             if <code>alphabetContainer</code> contains alphabets that can
-	 *             not be encoded with <code>double</code>s
+	 *             not be encoded with <code>float</code>s
 	 * @throws IllegalArgumentException
 	 *             if the delimiter is empty and the alphabet container is not
 	 *             discrete
@@ -151,7 +163,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             <code>alphabetContainer</code>
 	 * @throws WrongSequenceTypeException
 	 *             if <code>alphabetContainer</code> contains alphabets that can
-	 *             not be encoded with <code>double</code>s
+	 *             not be encoded with <code>float</code>s
 	 * 
 	 * @see Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
 	 */
@@ -247,5 +259,73 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	protected int hashCodeForPos( int pos ) {
 		long bits = Double.doubleToLongBits( continuousVal( pos ) );
 		return (int)( bits ^ ( bits >>> 32 ) );
+	}
+	
+	/**
+	 * This method allows to create a {@link DataSet} containing {@link ArbitraryFloatSequence}s using
+	 * a file name. Annotations are parsed by the supplied {@link SequenceAnnotationParser}. The file is 
+	 * assumed to be in FastA format.
+	 * 
+	 * @param con the {@link AlphabetContainer} for the {@link DataSet} and {@link ArbitraryFloatSequence}s
+	 * @param filename the file name
+	 * @param parser a parser for the annotations of the {@link ArbitraryFloatSequence}s
+	 * @return a {@link DataSet} containing {@link ArbitraryFloatSequence}s
+	 * 
+	 * @throws FileNotFoundException if the file <code>filename</code> could not be found
+	 * @throws WrongAlphabetException if the alphabet does not fit the data
+	 * @throws WrongSequenceTypeException if the data can not be represented as floats
+	 * @throws EmptyDataSetException if not sequences exist in <code>filename</code>
+	 * @throws IOException if the file could not be read
+	 */
+	public static DataSet getDataSet( AlphabetContainer con, String filename, SequenceAnnotationParser parser ) throws FileNotFoundException, WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException, IOException{
+		return getDataSet( con, new SparseStringExtractor( filename, '>', parser ) );
+	}
+	
+	/**
+	 * This method allows to create a {@link DataSet} containing {@link ArbitraryFloatSequence}s using
+	 * a file name.
+	 * 
+	 * @param con the {@link AlphabetContainer} for the {@link DataSet} and {@link ArbitraryFloatSequence}s
+	 * @param filename the file name
+	 * @return a {@link DataSet} containing {@link ArbitraryFloatSequence}s
+	 * @throws FileNotFoundException if the file <code>filename</code> could not be found
+	 * @throws WrongAlphabetException if the alphabet does not fit the data
+	 * @throws WrongSequenceTypeException if the data can not be represented as floats
+	 * @throws EmptyDataSetException if not sequences exist in <code>filename</code>
+	 * @throws IOException if the file could not be read
+	 */
+	public static DataSet getDataSet( AlphabetContainer con, String filename ) throws FileNotFoundException, WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException, IOException{
+		return getDataSet( con, new SparseStringExtractor( filename ) );
+	}
+	
+	/**
+	 * This method allows to create a {@link DataSet} containing {@link ArbitraryFloatSequence}s.
+	 * 
+	 * @param con the {@link AlphabetContainer} for the {@link DataSet} and {@link ArbitraryFloatSequence}s
+	 * @param se the {@link AbstractStringExtractor}s that handle the {@link DataSet} as {@link String} 
+	 * 
+	 * @return a {@link DataSet} containing {@link ArbitraryFloatSequence}s
+     * @throws WrongAlphabetException if the alphabet does not fit the data
+	 * @throws WrongSequenceTypeException if the data can not be represented as floats
+	 *  
+	 * @throws EmptyDataSetException if a {@link DataSet} with 0 (zero) {@link ArbitraryFloatSequence}s should be created
+	 */
+	public static DataSet getDataSet( AlphabetContainer con, AbstractStringExtractor... se ) throws WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException{
+		LinkedList<ArbitraryFloatSequence> list = new LinkedList<ArbitraryFloatSequence>();
+		SymbolExtractor symEx = new SymbolExtractor( con.getDelim() );
+		String s, annot = null;
+		for( int i = 0; i < se.length; i++ ) { 
+			while( se[i].hasMoreElements() ) {
+				s = se[i].nextElement();
+				symEx.setStringToBeParsed( s );
+				list.add(  new ArbitraryFloatSequence( con, se[i].getCurrentSequenceAnnotations(), symEx ) );
+			}
+			if( i == 0 ) {
+				annot = se[i].getAnnotation();
+			} else {
+				annot += ", " + se[i].getAnnotation();
+			}
+		}
+		return new DataSet( annot, list.toArray( new Sequence[0] ) );
 	}
 }
