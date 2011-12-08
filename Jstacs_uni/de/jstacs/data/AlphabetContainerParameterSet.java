@@ -374,7 +374,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		 *             if the {@link SectionDefinedAlphabetParameterSet} could
 		 *             not be created
 		 * 
-		 * @see de.jstacs.data.AlphabetContainerParameterSet.SectionDefinedAlphabetParameterSet#SectionDefinedAlphabetParameterSet(AlphabetContainer.AlphabetContainerType) 
+		 * @see de.jstacs.data.AlphabetContainerParameterSet.SectionDefinedAlphabetParameterSet#AlphabetContainerParameterSet.SectionDefinedAlphabetParameterSet(AlphabetContainer.AlphabetContainerType) 
 		 */
 		public SectionDefinedAlphabetParameterSet( Alphabet[] alphabets, int[] indexes ) throws Exception {
 			this( AlphabetContainerType.determineType( alphabets ) );

@@ -141,7 +141,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	 *             if something went wrong
 	 * 
 	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class, AlphabetContainer, int, boolean)
-	 * @see #ScoreClassifierParameterSet(Class, AlphabetContainer, int, byte, AbstractTerminationCondition, double, double, boolean, KindOfParameter)
+	 * @see #ScoreClassifierParameterSet(Class, AlphabetContainer, int, byte, AbstractTerminationCondition, double, double, boolean, de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter)
 	 * @see SmallDifferenceOfFunctionEvaluationsCondition
 	 */
 	public ScoreClassifierParameterSet( Class<? extends ScoreClassifier> instanceClass, AlphabetContainer alphabet, int length, byte algo,
