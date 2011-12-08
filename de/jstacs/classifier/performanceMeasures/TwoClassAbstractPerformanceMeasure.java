@@ -15,9 +15,7 @@ public abstract class TwoClassAbstractPerformanceMeasure extends AbstractPerform
 	/**
 	 * Constructs a new {@link TwoClassAbstractPerformanceMeasure} with empty parameter values.
 	 */
-	protected TwoClassAbstractPerformanceMeasure() {
-		super();
-	}	
+	protected TwoClassAbstractPerformanceMeasure() {}	
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
