@@ -30,7 +30,7 @@ import de.jstacs.utils.IntList;
 /**
  * This class implements a simple wrapper for multidimensional sequences.
  * 
- * The logarithm of the score given by {@link SimpleMultiDimSequenceWrapperScoringFunction#getLogScoreFor(Sequence)} is defined as
+ * The logarithm of the score given by {@link MultiDimensionalSequenceWrapperScoringFunction#getLogScoreFor(Sequence)} is defined as
  * {@latex.ilb \\[\\frac{1}{N}\\sum_{n=0}^N \\log p(\\underline{x_n} | \\underline{\\lambda}).\\]}
  * 
  * @author Jens Keilwagen

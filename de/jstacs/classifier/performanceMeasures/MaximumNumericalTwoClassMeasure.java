@@ -11,9 +11,23 @@ import de.jstacs.results.NumericalResultSet;
  */
 public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
 
-	public MaximumNumericalTwoClassMeasure() {}
+	/**
+	 * Constructs a new instance of the performance measure {@link MaximumNumericalTwoClassMeasure}.
+	 */
+	protected MaximumNumericalTwoClassMeasure() {}
 
-	public MaximumNumericalTwoClassMeasure(StringBuffer xml) throws NonParsableException {
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link MaximumNumericalTwoClassMeasure} out of an XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link MaximumFMeasure} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
+	protected MaximumNumericalTwoClassMeasure(StringBuffer xml) throws NonParsableException {
 		super(xml);
 	}
 	
@@ -26,10 +40,28 @@ public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPe
 		return "Maximum " + getMeasureName();
 	}
 	
+	/**
+	 * This method returns a short name of the measure without any parameters.
+	 * @return a short name of the measure without any parameters
+	 */
 	protected abstract String getMeasureName();
 	
+	/**
+	 * This method returns a specific name of the measure including any parameters.
+	 * @return a specific name of the measure including any parameters
+	 */
 	protected abstract String getSpecificName();
 
+	/**
+	 * This measure compute the measure for a given confusion matrix
+	 * 
+	 * @param tp true positives
+	 * @param fp false positives
+	 * @param fn false negatives
+	 * @param tn true negative
+	 * 
+	 * @return the value of the measure
+	 */
 	protected abstract double getMeasure( double tp, double fp, double fn, double tn );
 	
 	@Override

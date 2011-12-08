@@ -4,7 +4,6 @@ package de.jstacs.classifier.performanceMeasures;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 
 //http://en.wikipedia.org/wiki/F1_score
@@ -16,7 +15,7 @@ import de.jstacs.parameters.validation.NumberValidator;
 public class MaximumFMeasure extends MaximumNumericalTwoClassMeasure {
 
 	/**
-	 * Constructs a new instance of the performance measure {@link MaximumFMeasure}.
+	 * Constructs a new instance of the performance measure {@link MaximumFMeasure} with empty parameters.
 	 * 
 	 * @throws Exception if the internal parameters can not be created
 	 */
