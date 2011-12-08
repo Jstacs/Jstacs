@@ -3,8 +3,10 @@ package de.jstacs;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 
-
 /**
+ * This interface declares methods an statistical model.
+ * If you like to train the model please have a look at {@link de.jstacs.models.Model},
+ * if you like to use the model in some optimization (e.g. discriminative learning) have a look at {@link de.jstacs.scoringFunctions.NormalizableScoringFunction}.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
@@ -178,8 +180,6 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	public DataSet emitDataSet(int numberOfSequences, int... seqLength)
 			throws NotTrainedException, Exception;
 
-	
-
 	/**
 	 * This method returns the maximal used Markov order, if possible.
 	 * 
@@ -188,6 +188,5 @@ public interface StatisticalModel extends SequenceScoringFunction {
 	 * @throws UnsupportedOperationException
 	 *             if the model can't give a proper answer
 	 */
-	public byte getMaximalMarkovOrder() throws UnsupportedOperationException;
-	
+	public byte getMaximalMarkovOrder() throws UnsupportedOperationException;	
 }
