@@ -271,7 +271,7 @@ public final class KMereStatistic {
 	 * @throws Exception
 	 *             if something went wrong
 	 *             
-	 * @see KMereStatistic#getAbsoluteKMereFrequencies(DataSet, int, boolean, DataSet.WeightedSampleFactory.SortOperation)
+	 * @see KMereStatistic#getAbsoluteKMereFrequencies(DataSet, int, boolean, DataSet.WeightedDataSetFactory.SortOperation)
 	 * @see SortOperation#NO_SORT
 	 */
 	public static WeightedDataSetFactory getAbsoluteKMereFrequencies( DataSet data, int k, boolean bothStrands) throws Exception {

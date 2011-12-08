@@ -135,7 +135,7 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 * @param start
 	 *            the start position in the {@link Sequence}
 	 * @param end
-	 *            the end position (exclusive) in the {@link Sequence}
+	 *            the end position (inclusive) in the {@link Sequence}
 	 * @param indices
 	 *            an {@link IntList} of indices, after method invocation the
 	 *            list should contain the indices i where
