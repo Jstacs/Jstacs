@@ -1931,10 +1931,10 @@ public class DataSet implements Iterable<Sequence>{
 		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
-		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)}
+		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)}
 		 *             )
 		 * 
-		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int) 
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int) 
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet... data ) throws WrongAlphabetException, WrongLengthException {
 			this( sort, data, null, 0 );
@@ -1956,10 +1956,10 @@ public class DataSet implements Iterable<Sequence>{
 		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
-		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)}
+		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)}
 		 *             )
 		 * 
-		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights ) throws WrongAlphabetException,
 																							WrongLengthException {
@@ -1986,7 +1986,7 @@ public class DataSet implements Iterable<Sequence>{
 		 * @throws WrongLengthException
 		 *             if the length is not supported
 		 * 
-		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights, int length ) throws WrongAlphabetException,
 																										WrongLengthException {

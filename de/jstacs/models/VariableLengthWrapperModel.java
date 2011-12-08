@@ -39,7 +39,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jens Keilwagen
  * 
- * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(SortOperation, DataSet, double[], int)
+ * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet, double[], int)
  * @see de.jstacs.classifier.assessment.ClassifierAssessment
  */
 public class VariableLengthWrapperModel extends AbstractModel {
