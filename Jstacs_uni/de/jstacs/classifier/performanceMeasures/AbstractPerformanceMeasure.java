@@ -25,8 +25,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	/**
 	 * Constructs a new {@link AbstractPerformanceMeasure} with empty parameter values.
 	 */
-	protected AbstractPerformanceMeasure(){
-	}
+	protected AbstractPerformanceMeasure(){}
 	
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.

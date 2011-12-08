@@ -102,6 +102,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 			res.addMeasure( new PRCurve() );
 		}
 		res.addMeasure( new MaximumCorrelationCoefficient() );
+		res.addMeasure( new MaximumFMeasure(1) );
 		return res;
 	}
 	
