@@ -69,8 +69,8 @@ public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstract
 		// => (d-1-i) false positives
 		i = d - 1 - i; // false positives
 		return new NumericalResultSet(new NumericalResult[]{
-				new NumericalResult( getName(), "The " + getName().toLowerCase() + " of "+sensitivity, ( (double)j ) / (double)( i + j ) ),
-				new NumericalResult( "Threshold", "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, threshold ),
+				new NumericalResult( getName() + " of "+sensitivity, "", ( (double)j ) / (double)( i + j ) ),
+				new NumericalResult( "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, "", threshold ),
 		});
 	}
 	

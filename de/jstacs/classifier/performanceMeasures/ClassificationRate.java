@@ -49,7 +49,7 @@ public class ClassificationRate extends AbstractPerformanceMeasure implements Nu
 			j--;
 		}
 
-		return new NumericalResultSet(new NumericalResult("Classification rate","Classification rate for two classes.",( ( m - i ) + j + 1 ) / (double)( m + d )));
+		return new NumericalResultSet(new NumericalResult("Classification rate", "Classification rate for two classes.",( ( m - i ) + j + 1 ) / (double)( m + d )));
 	}
 
 	@Override

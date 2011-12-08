@@ -37,20 +37,19 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.CategoricalResult;
+import de.jstacs.results.DataSetResult;
 import de.jstacs.results.ImageResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.results.DataSetResult;
 import de.jstacs.results.SimpleResult;
 import de.jstacs.results.StorableResult;
 
 /**
- * Adaptor class between the parameter representation of Jstacs in {@link Parameter}s and {@link ParameterSet}s and the parameter representation
+ * Adaptor class between the parameter representation of Jstacs in {@link de.jstacs.parameters.Parameter}s and {@link ParameterSet}s and the parameter representation
  * in <a href="http://galaxy.psu.edu/">Galaxy</a>.
  * A {@link GalaxyAdaptor} can be created from a {@link ParameterSet} containing all parameters that are necessary for
  * the execution of some program that shall be included in a Galaxy installation.
@@ -643,19 +642,30 @@ public class GalaxyAdaptor {
 			super( xml );
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.results.ImageResult#getXMLTag()
+		 */
 		@Override
-		public StringBuffer toXML() {
-			StringBuffer sb = super.toXML();
-			XMLParser.addTags( sb, "super" );
-			XMLParser.appendObjectWithTags( sb, link, "link" );
-			XMLParser.addTags( sb, getClass().getSimpleName() );
-			return sb;
+		public String getXMLTag() {
+			return getClass().getSimpleName();
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.results.ImageResult#appendFurtherInfos(java.lang.StringBuffer)
+		 */
 		@Override
-		protected void fromXML( StringBuffer representation ) throws NonParsableException {
-			representation = XMLParser.extractForTag( representation, getClass().getSimpleName() );
-			super.fromXML( XMLParser.extractForTag( representation, "super" ) );
+		protected void appendFurtherInfos( StringBuffer sb ) {
+			XMLParser.appendObjectWithTags( sb, link, "link" );
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.results.ImageResult#extractFurtherInfos(java.lang.StringBuffer)
+		 */
+		@Override
+		protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 			link = XMLParser.extractObjectForTags( representation, "link", FileResult.class );
 		}
 		
@@ -723,26 +733,33 @@ public class GalaxyAdaptor {
 		public FileResult( StringBuffer rep ) throws NonParsableException {
 			super( rep );
 		}
-
+		
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.results.ImageResult#getXMLTag()
+		 */
 		@Override
-		public StringBuffer toXML() {
-			StringBuffer sb = new StringBuffer();
-			XMLParser.appendObjectWithTags( sb, name, "name" );
-			XMLParser.appendObjectWithTags( sb, comment, "comment" );
-			XMLParser.appendObjectWithTags( sb, datatype, "datatype" );
+		public String getXMLTag() {
+			return getClass().getSimpleName();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
+		 */
+		@Override
+		protected void appendFurtherInfos( StringBuffer sb ) {
 			XMLParser.appendObjectWithTags( sb, path, "path" );
 			XMLParser.appendObjectWithTags( sb, filename, "filename" );
 			XMLParser.appendObjectWithTags( sb, extension, "extension" );
-			XMLParser.addTags( sb, getClass().getSimpleName() );
-			return sb;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
+		 */
 		@Override
-		protected void fromXML( StringBuffer rep ) throws NonParsableException {
-			rep = XMLParser.extractForTag( rep, getClass().getSimpleName() );
-			name = XMLParser.extractObjectForTags( rep, "name", String.class );
-			comment = XMLParser.extractObjectForTags( rep, "comment", String.class );
-			datatype = XMLParser.extractObjectForTags( rep, "datatype", DataType.class );
+		protected void extractFurtherInfos( StringBuffer rep ) throws NonParsableException {
 			path = XMLParser.extractObjectForTags( rep, "path", String.class );
 			filename = XMLParser.extractObjectForTags( rep, "filename", String.class );
 			extension = XMLParser.extractObjectForTags( rep, "extension", String.class );

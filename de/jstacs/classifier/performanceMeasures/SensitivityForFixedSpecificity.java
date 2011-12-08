@@ -62,8 +62,8 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceM
 		}
 		
 		return new NumericalResultSet(new NumericalResult[]{
-				new NumericalResult( "Sensitivity", "The "+getName().toLowerCase() +" of "+specificity, (double)( m - i ) / (double)m  ),
-				new NumericalResult( "Threshold", "Threshold for the "+getName().toLowerCase() +" of "+specificity, threshold )
+				new NumericalResult( getName() +" of "+specificity, "", (double)( m - i ) / (double)m  ),
+				new NumericalResult( "Threshold for the "+getName().toLowerCase() +" of "+specificity, "", threshold )
 		});
 	}
 

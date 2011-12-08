@@ -318,7 +318,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureModel implements
 	 * {@link OperationNotSupportedException}.
 	 */
 	@Override
-	protected Sequence[] emitSampleUsingCurrentParameterSet( int n, int... lengths ) throws Exception {
+	protected Sequence[] emitDataSetUsingCurrentParameterSet( int n, int... lengths ) throws Exception {
 		throw new OperationNotSupportedException();
 	}
 }

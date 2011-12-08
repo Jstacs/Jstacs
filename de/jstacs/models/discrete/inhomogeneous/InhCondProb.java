@@ -206,7 +206,7 @@ public class InhCondProb extends InhConstraint {
 	 *             if this instance models a joint probability for more than one
 	 *             position (shall be implemented in the future)
 	 * 
-	 * @see de.jstacs.models.Model#emitSample(int, int...)
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int[])
 	 */
 	public void getOutput( byte[] content, double p ) throws OperationNotSupportedException {
 		int off = 0;

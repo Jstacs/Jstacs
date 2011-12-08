@@ -40,7 +40,7 @@ import de.jtem.numericalMethods.calculus.functionApproximation.bestFitting.Sampl
  * 
  * @author Jens Keilwagen
  * 
- * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(SortOperation, Sample, double[], int)
+ * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(SortOperation, DataSet, double[], int)
  * @see de.jstacs.classifier.assessment.ClassifierAssessment
  */
 public class VariableLengthWrapperModel extends AbstractModel {

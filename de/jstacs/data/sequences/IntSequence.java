@@ -37,7 +37,7 @@ public class IntSequence extends SimpleDiscreteSequence {
 	/**
 	 * Creates a new {@link IntSequence} from an array of <code>int</code>-
 	 * encoded alphabet symbols. This constructor is designed for the method
-	 * {@link de.jstacs.models.AbstractModel#emitSample(int, int...)}.
+	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -51,7 +51,7 @@ public class IntSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>int</code>s
 	 * 
-	 * @see de.jstacs.models.Model#emitSample(int, int...)
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
 	 * @see IntSequence#IntSequence(AlphabetContainer, int[], int, int)
 	 */
 	public IntSequence( AlphabetContainer alphabetContainer, int... content ) throws WrongAlphabetException, WrongSequenceTypeException {
@@ -78,8 +78,7 @@ public class IntSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>int</code>s
 	 * 
-	 * @see DiscreteSequence#DiscreteSequence(AlphabetContainer,
-	 *      SequenceAnnotation[])
+	 * @see SimpleDiscreteSequence#SimpleDiscreteSequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public IntSequence( AlphabetContainer alphabetContainer, int[] content, int start, int length ) throws WrongAlphabetException,
 																									WrongSequenceTypeException {
@@ -168,8 +167,7 @@ public class IntSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>int</code>s
 	 * 
-	 * @see DiscreteSequence#DiscreteSequence(AlphabetContainer,
-	 *      SequenceAnnotation[])
+	 * @see SimpleDiscreteSequence#SimpleDiscreteSequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public IntSequence( AlphabetContainer alphabetContainer, SequenceAnnotation[] annotation, SymbolExtractor extractor )
 																															throws WrongAlphabetException,

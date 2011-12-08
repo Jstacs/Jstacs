@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.ComparableElement;
 
@@ -60,8 +59,7 @@ public class ListResult extends Result {
 	 * @param results
 	 *            the array of {@link ResultSet}s
 	 */
-	public ListResult(String name, String comment, ResultSet annotation,
-			ResultSet... results) {
+	public ListResult( String name, String comment, ResultSet annotation, ResultSet... results ) {
 		super(name, comment, DataType.LIST);
 		this.list = new ResultSet[results.length];
 		System.arraycopy(results, 0, list, 0, results.length);
@@ -80,7 +78,7 @@ public class ListResult extends Result {
 	 *             if the {@link StringBuffer}<code>representation</code> could
 	 *             not be parsed
 	 */
-	public ListResult(StringBuffer representation) throws NonParsableException {
+	public ListResult( StringBuffer representation ) throws NonParsableException {
 		super(representation);
 	}
 
@@ -135,34 +133,34 @@ public class ListResult extends Result {
 	public ResultSet getAnnotation() {
 		return annotation;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		appendMainInfo(buf);
-		if (annotation != null) {
-			XMLParser.appendObjectWithTags(buf, annotation, "annotation");
-		}
-		XMLParser.appendObjectWithTags(buf, list, "list");
-		XMLParser.addTags(buf, "listResult");
-
-		return buf;
+	@Override
+	public String getXMLTag() {
+		return "listResult";
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.Result#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation, "listResult");
-		extractMainInfo(representation);
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		if (annotation != null) {
+			XMLParser.appendObjectWithTags(buf, annotation, "annotation");
+		}
+		XMLParser.appendObjectWithTags(buf, list, "list");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		try {
 			annotation = XMLParser.extractObjectForTags( representation, "annotation", ResultSet.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
 		} catch (NonParsableException e) {

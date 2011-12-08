@@ -25,7 +25,6 @@ import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
-import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
@@ -49,9 +48,7 @@ public abstract class Result extends AnnotatedEntity {
 	 *            the data type of the result
 	 */
 	protected Result(String name, String comment, DataType datatype) {
-		this.name = name;
-		this.comment = comment;
-		this.datatype = datatype;
+		super( name, comment, datatype );
 	}
 
 	/**
@@ -67,59 +64,7 @@ public abstract class Result extends AnnotatedEntity {
 	 * @see Storable
 	 */
 	protected Result(StringBuffer rep) throws NonParsableException {
-		fromXML(rep);
-	}
-
-	/**
-	 * This method is used in {@link #Result(StringBuffer)} to extract the
-	 * information. The method can be seen as opposite of
-	 * {@link Storable#toXML()} and should not be made public.
-	 * 
-	 * @param rep
-	 *            the XML represenation of the {@link Result} to be parsed
-	 * 
-	 * @throws NonParsableException
-	 *             if the XML representation is not parsable
-	 * 
-	 * @see Result#extractMainInfo(StringBuffer)
-	 */
-	protected abstract void fromXML(StringBuffer rep)
-			throws NonParsableException;
-
-	/**
-	 * This method can be used in the method {@link Storable#toXML()} to append
-	 * the main information (name, comment, datatype).
-	 * 
-	 * @param buf
-	 *            a XML representation of the main information as
-	 *            {@link StringBuffer}
-	 * 
-	 * @see Storable#toXML()
-	 */
-	protected void appendMainInfo(StringBuffer buf) {
-		XMLParser.appendObjectWithTags(buf, name, "name");
-		XMLParser.appendObjectWithTags(buf, comment, "comment");
-		XMLParser.appendObjectWithTags(buf, datatype, "datatype");
-	}
-
-	/**
-	 * This method can be used in the method {@link #fromXML(StringBuffer)} to
-	 * extract the main information (name, comment, data type).
-	 * 
-	 * @param buf
-	 *            a XML represenation of the main information as
-	 *            {@link StringBuffer}
-	 * 
-	 * @throws NonParsableException
-	 *             if the XML representation is not parsable
-	 * 
-	 * @see Result#fromXML(StringBuffer)
-	 */
-	protected void extractMainInfo(StringBuffer buf)
-			throws NonParsableException {
-		name = XMLParser.extractObjectForTags(buf, "name", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		comment = XMLParser.extractObjectForTags(buf, "comment", String.class );
-		datatype = XMLParser.extractObjectForTags(buf, "datatype", DataType.class );
+		super( rep );
 	}
 
 	/**
@@ -128,7 +73,7 @@ public abstract class Result extends AnnotatedEntity {
 	 * 
 	 * <br>
 	 * 
-	 * <b>The method does NOT answer whether the method {@link #getResult()}
+	 * <b>The method does NOT answer whether the method {@link #getValue()}
 	 * returns an instance of {@link Comparable}.</b>
 	 * 
 	 * @param test
@@ -150,7 +95,7 @@ public abstract class Result extends AnnotatedEntity {
 	 * 
 	 * <br>
 	 * 
-	 * <b>The method does NOT answer whether the method {@link #getResult()}
+	 * <b>The method does NOT answer whether the method {@link #getValue()}
 	 * returns an instance of {@link Comparable}.</b>
 	 * 
 	 * @param test

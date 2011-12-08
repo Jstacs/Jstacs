@@ -257,9 +257,13 @@ public class MeanResultSet extends NumericalResultSet {
 					currVal = (Integer) curr.getValue();
 				}
 				squares[index] += currVal * currVal;
-				if (results.get( index ) == null) {
-					results.set( index, new NumericalResult(curr.getName(), curr
-							.getComment(), currVal) );
+				if ( results.size() <= index ) {
+					NumericalResult nr = new NumericalResult(curr.getName(), curr.getComment(), currVal);
+					if( results.size() <= index ) {
+						results.add( nr );
+					} else {
+						//throw XXX
+					}
 				} else {
 					if (!results.get( index ).isCastableResult(curr)) {
 						throw new AdditionImpossibleException();

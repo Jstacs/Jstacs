@@ -80,9 +80,8 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	 *             if the {@link SimpleParameter} could not be restored from the
 	 *             {@link StringBuffer} <code>representation</code>
 	 */
-	public SimpleParameter(StringBuffer representation)
-			throws NonParsableException {
-		fromXML(representation);
+	public SimpleParameter( StringBuffer representation ) throws NonParsableException {
+		super(representation);
 	}
 
 	/**
@@ -105,6 +104,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	 */
 	public SimpleParameter(DataType datatype, String name, String comment,
 			boolean required) throws DatatypeNotValidException {
+		super( name, comment, datatype );
 		if (datatype != DataType.BOOLEAN && datatype != DataType.BYTE
 				&& datatype != DataType.CHAR && datatype != DataType.DOUBLE
 				&& datatype != DataType.FLOAT && datatype != DataType.INT
@@ -113,9 +113,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 			throw new DatatypeNotValidException(
 					"Only primitive datatypes and Strings are allowed as datatypes of a SimpleParameter!");
 		}
-		this.datatype = datatype;
-		this.name = name;
-		this.comment = comment;
 		this.required = required;
 		this.validator = null;
 		this.isSet = false;
@@ -584,6 +581,15 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	public Object getValue() {
 		return value;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
+	 */
+	@Override
+	public String getXMLTag() {
+		return "simpleParameter";
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -591,55 +597,26 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	 * @see de.jstacs.parameters.Parameter#toXML()
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "superParameter");
-		XMLParser.appendObjectWithTags(buf, datatype, "datatype");
-		XMLParser.appendObjectWithTags(buf, name, "name");
-		XMLParser.appendObjectWithTags(buf, comment, "comment");
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		super.appendFurtherInfos( buf );
+		
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, isSet, "isSet");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
 		XMLParser.appendObjectWithTags(buf, isRangeable, "isRangeable");
 		XMLParser.appendObjectWithTags(buf, validator, "validator");
-		/*
-		if (validator != null) {
-			StringBuffer buf2 = new StringBuffer();
-			XMLParser.appendObjectWithTags(buf2, validator.getClass().getName(), "className");
-			buf2.append(validator.toXML());
-			XMLParser.addTags(buf2, "validator");
-			buf.append(buf2);
-		} else {
-			XMLParser.appendObjectWithTags( buf, null, "validator" );
-		}
-		*/
 		XMLParser.appendObjectWithTags(buf, defaultValue, "defaultValue");
 		XMLParser.appendObjectWithTags(buf, value, "value");
-		/*
-		if (value != null) {
-			XMLParser.appendObjectWithTags(buf, value.toString(), "value");
-		} else {
-			XMLParser.appendObjectWithTags(buf, "null", "value");
-		}
-		*/
-		XMLParser.addTags(buf, "simpleParameter");
-
-		return buf;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.Parameter#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation, "simpleParameter");
-		super.fromXML(XMLParser.extractForTag(representation,"superParameter"));
-		datatype = XMLParser.extractObjectForTags(representation, "datatype", DataType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		name = XMLParser.extractObjectForTags(representation, "name", String.class );
-		comment = XMLParser.extractObjectForTags(representation, "comment", String.class );
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
+		super.extractFurtherInfos( representation );
+		
 		required = XMLParser.extractObjectForTags(representation, "required", boolean.class );
 		isSet = XMLParser.extractObjectForTags(representation, "isSet", boolean.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
@@ -650,22 +627,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 			isRangeable = Boolean.parseBoolean(help.toString());
 		}
 		validator = XMLParser.extractObjectForTags( representation, "validator", ParameterValidator.class );
-		/*
-		String valid = XMLParser.extractObjectForTags(representation, "validator", String.class );
-		if (valid.equals("null")) {
-			validator = null;
-		} else {
-			StringBuffer buf = new StringBuffer(valid);
-			String className = XMLParser.extractObjectAndAttributesForTags(buf, "className", null, null, String.class, false );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-			try {
-				validator = (ParameterValidator) Class.forName(className)
-						.getConstructor(new Class[] { StringBuffer.class })
-						.newInstance(buf);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new NonParsableException(e.getMessage());
-			}
-		}/**/
 		if( !XMLParser.hasTag(representation, "defaultValue", null, null) ) {
 			defaultValue = null;
 		} else {

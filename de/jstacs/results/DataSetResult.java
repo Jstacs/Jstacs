@@ -34,7 +34,7 @@ import de.jstacs.io.XMLParser;
 
 /**
  * {@link Result} that contains a {@link DataSet}. This {@link DataSet} e.g. may
- * have been created by {@link de.jstacs.models.Model#emitSample(int, int...)},
+ * have been created by {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)},
  * or maybe a {@link DataSet} that has been annotated in a classification.
  * 
  * @author Jan Grau
@@ -97,15 +97,13 @@ public class DataSetResult extends Result {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.Result#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer rep) throws NonParsableException {
-		rep = XMLParser.extractForTag(rep, "sampleResult");
+	protected void extractFurtherInfos( StringBuffer rep ) throws NonParsableException {
 		AlphabetContainer cont = XMLParser.extractObjectForTags(rep, "alphabet", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		String sampleAnn = XMLParser.extractObjectForTags(rep, "sampleAnnotation", String.class );
-		String seqs = XMLParser.extractObjectForTags(rep, "data", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		String sampleAnn = XMLParser.extractObjectForTags(rep, "dataSetAnnotation", String.class );
+		String seqs = XMLParser.extractObjectForTags(rep, "data", String.class );
 		StringExtractor ex = new StringExtractor(seqs, 100, "");
 		try {
 			DataSet data = new DataSet(cont, ex);
@@ -114,19 +112,16 @@ public class DataSetResult extends Result {
 			Storable[][] annotation = XMLParser.extractObjectForTags( rep, "annotation", Storable[][].class);
 			for (int i = 0; i < seq.length; i++) {
 				if (annotation[i].length > 0) {
-					seq[i] = seq[i].annotate(false,
-							ArrayHandler.cast(SequenceAnnotation.class, annotation[i]));
+					seq[i] = seq[i].annotate(false, ArrayHandler.cast(SequenceAnnotation.class, annotation[i]));
 				}
 			}
 
-			this.data = new DataSet(sampleAnn, seq);
+			this.data = new DataSet( sampleAnn, seq );
 		} catch (Exception e) {
-			NonParsableException np = new NonParsableException(e.getCause()
-					.getMessage());
+			NonParsableException np = new NonParsableException(e.getCause().getMessage());
 			np.setStackTrace(e.getStackTrace());
 			throw np;
 		}
-
 	}
 
 	/*
@@ -141,11 +136,10 @@ public class DataSetResult extends Result {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
+	@Override
+	protected void appendFurtherInfos( StringBuffer buf ) {
 		AlphabetContainer cont = data.getAlphabetContainer();
 		XMLParser.appendObjectWithTags(buf, cont, "alphabet");
 		StringBuffer seqs = new StringBuffer();
@@ -164,12 +158,18 @@ public class DataSetResult extends Result {
 			}
 			i++;
 		}
-		XMLParser.appendObjectWithTags(buf, data.getAnnotation(),
-				"sampleAnnotation");
+		XMLParser.appendObjectWithTags(buf, data.getAnnotation(), "dataSetAnnotation");
 		XMLParser.appendObjectWithTags(buf, seqs.toString(), "data");
 		XMLParser.appendObjectWithTags(buf, annotation, "annotation");
-		XMLParser.addTags(buf, "sampleResult");
-		return buf;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
+	 */
+	@Override
+	public String getXMLTag() {
+		return "DataSetResult";
 	}
 
 	/**

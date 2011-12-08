@@ -502,7 +502,7 @@ public class MixtureModel extends AbstractMixtureModel {
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#emitSampleUsingCurrentParameterSet(int, int[])
 	 */
 	@Override
-	protected Sequence[] emitSampleUsingCurrentParameterSet( int n, int... lengths ) throws Exception {
+	protected Sequence[] emitDataSetUsingCurrentParameterSet( int n, int... lengths ) throws Exception {
 		int[] numbers = new int[dimension];
 		Arrays.fill( numbers, 0 );
 		int counter = 0, no = 0, k = 0;

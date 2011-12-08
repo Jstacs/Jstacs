@@ -37,7 +37,7 @@ public class ShortSequence extends SimpleDiscreteSequence {
 	/**
 	 * Creates a new {@link ShortSequence} from an array of <code>short</code>-
 	 * encoded alphabet symbols. This constructor is designed for the method
-	 * {@link de.jstacs.models.AbstractModel#emitSample(int, int...)}.
+	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -51,9 +51,8 @@ public class ShortSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>short</code>s
 	 * 
-	 * @see de.jstacs.models.AbstractModel#emitSample(int, int...)
-	 * @see DiscreteSequence#DiscreteSequence(AlphabetContainer,
-	 *      SequenceAnnotation[])
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
+	 * @see SimpleDiscreteSequence#SimpleDiscreteSequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ShortSequence( AlphabetContainer alphabetContainer, short[] content ) throws WrongAlphabetException, WrongSequenceTypeException {
 		super( alphabetContainer, null );
@@ -146,8 +145,7 @@ public class ShortSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>short</code>s
 	 * 
-	 * @see DiscreteSequence#DiscreteSequence(AlphabetContainer,
-	 *      SequenceAnnotation[])
+	 * @see SimpleDiscreteSequence#SimpleDiscreteSequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ShortSequence( AlphabetContainer alphabetContainer, SequenceAnnotation[] annotation, SymbolExtractor extractor )
 																															throws WrongAlphabetException,

@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import de.jstacs.utils.Normalisation;
+
 /**
  * Class for generating random numbers of many different distributions.<br>
  * <br>
@@ -301,6 +303,37 @@ public class RandomNumberGenerator implements java.io.Serializable {
 		}
 		return beta * gamma + lambda;
 	}
+	
+	public synchronized double nextGammaLog( double alpha, double beta ) {
+		double logGamma = 0;
+		if( alpha <= 0 || beta <= 0 ) {
+			throw new IllegalArgumentException( "alpha and beta must be strictly positive." );
+		} else if( alpha < 1 ) {
+			double logB, logP;
+			boolean flag = false;
+			logB = Normalisation.getLogSum( 0, Math.log(alpha) -1 );
+			while( !flag ) {
+				logP = logB + Math.log( nextUniform() );
+				if( logP > 0 ) {
+					logGamma = Math.log( -Math.log( ( Math.exp(logB) - Math.exp(logP) ) / alpha ) );
+					if( Math.log( nextUniform() ) <= logGamma * (alpha - 1) ) flag = true;
+				} else {
+					logGamma = logP / alpha;
+					if( Math.log( nextUniform() ) <= -logGamma ) flag = true;
+				}
+			}
+		} else if( alpha == 1 ) {
+			logGamma = Math.log(-Math.log( nextUniform() ) );
+		} else {
+			double y = -Math.log( nextUniform() );
+			while( Math.log( nextUniform() ) > (Math.log( y ) + (1-y)) * (alpha - 1) ) {
+				y = -Math.log( nextUniform() );
+			}
+			logGamma = Math.log(alpha) + Math.log( y );
+		}		
+		return Math.log( beta ) + logGamma;
+	}
+	
 
 	/**
 	 * generates a random number from Exp(1) (E(X)=1 ; Var(X)=1)

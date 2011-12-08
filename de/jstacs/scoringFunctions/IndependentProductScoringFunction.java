@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import de.jstacs.NonParsableException;
+import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
@@ -689,5 +690,24 @@ public class IndependentProductScoringFunction extends BasicIndependentProductSc
 			}
 		}		
 		setParamsStarts();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int[])
+	 */
+	@Override
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+		throw new Exception( "Standard implementation of emitSample used for "
+						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.StatisticalModel#getMaximalMarkovOrder()
+	 */
+	@Override
+	public byte getMaximalMarkovOrder() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException( "The maximal markov order for this model in undefined.");
 	}
 }

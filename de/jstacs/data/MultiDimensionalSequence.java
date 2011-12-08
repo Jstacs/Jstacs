@@ -20,7 +20,7 @@ public abstract class MultiDimensionalSequence<T> extends Sequence<T> {
 	/**
 	 * This constructor creates an {@link MultiDimensionalSequence} from a set of individual {@link Sequence}s.
 	 * 
-	 * @param seqAnnotations the annotations for the aligned sequences
+	 * @param seqAn the annotations for the aligned sequences
 	 * @param sequence the individual sequences that have been aligned
 	 * 
 	 * @throws WrongLengthException if the sequences have different lengths

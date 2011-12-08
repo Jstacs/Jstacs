@@ -25,8 +25,6 @@ import de.jstacs.SequenceScoringFunction;
 import de.jstacs.Storable;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.io.XMLParser;
-import de.jstacs.models.AbstractModel;
-import de.jstacs.models.Model;
 
 /**
  * Class for {@link Result}s that are {@link Storable}s. The method
@@ -67,8 +65,8 @@ public class StorableResult extends Result {
 	 * @param object
 	 *            the {@link Storable} that is the result
 	 */
-	public StorableResult(String name, String comment, Storable object) {
-		super(name, comment, DataType.STORABLE);
+	public StorableResult( String name, String comment, Storable object ) {
+		super( name, comment, DataType.STORABLE );
 		this.object = object;
 	}
 
@@ -137,29 +135,29 @@ public class StorableResult extends Result {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		appendMainInfo(buf);
-		XMLParser.appendObjectWithTags(buf, object, "object");
-		XMLParser.addTags(buf, "objectResult");
-		return buf;
+	@Override
+	public String getXMLTag() {
+		return "objectResult";
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		XMLParser.appendObjectWithTags( buf, object, "object" );
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.Result#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser
-				.extractForTag(representation, "objectResult");
-		extractMainInfo(representation);
-		this.object = XMLParser.extractObjectForTags(representation, "object", Storable.class);
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
+		this.object = XMLParser.extractObjectForTags( representation, "object", Storable.class );
 	}
 
 	/*

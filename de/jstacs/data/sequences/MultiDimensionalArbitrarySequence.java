@@ -34,11 +34,11 @@ public class MultiDimensionalArbitrarySequence extends MultiDimensionalSequence<
 	/**
 	 * This constructor creates an {@link MultiDimensionalDiscreteSequence} from a set of individual {@link Sequence}s.
 	 * 
-	 * @param seqAnnotations the annotations for the aligned sequences
+	 * @param seqAn the annotations for the aligned sequences
 	 * @param sequence the individual sequences that have been aligned
 	 * 
 	 * @throws WrongLengthException if the sequences have different lengths
-	 * @throws WrongAlphabetException if the sequences have different {@link AlphabetContainer}s 
+	 * @throws WrongAlphabetException if the sequences have different {@link de.jstacs.data.AlphabetContainer}s 
 	 */
 	public MultiDimensionalArbitrarySequence( SequenceAnnotation[] seqAn, ArbitrarySequence... sequence ) throws WrongLengthException, WrongAlphabetException {
 		super( seqAn, sequence );

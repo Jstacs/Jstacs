@@ -253,5 +253,24 @@ public class UniformScoringFunction extends BasicUniformScoringFunction implemen
 		} else {
 			return getLogProbFor( sequence, startpos );
 		}
-	}	
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int[])
+	 */
+	@Override
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+		throw new Exception( "Standard implementation of emitSample used for "
+						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.StatisticalModel#getMaximalMarkovOrder()
+	 */
+	@Override
+	public byte getMaximalMarkovOrder() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException( "The maximal markov order for this model in undefined.");
+	}
 }

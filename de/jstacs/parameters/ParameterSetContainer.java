@@ -58,12 +58,11 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	 */
 	public ParameterSetContainer(String name, String comment,
 			ParameterSet content) {
-		this.name = name;
+		super( name, comment, DataType.PARAMETERSET );
 		this.comment = comment;
 		this.parameters = content;
 		this.parameters.setParent(this);
 		this.errorMessage = null;
-		this.datatype = DataType.PARAMETERSET;
 	}
 
 	/**
@@ -77,10 +76,8 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	 *             if the {@link StringBuffer} <code>representation</code> could
 	 *             not be parsed
 	 */
-	public ParameterSetContainer(StringBuffer representation)
-			throws NonParsableException {
-		fromXML(representation);
-		this.datatype = DataType.PARAMETERSET;
+	public ParameterSetContainer(StringBuffer representation) throws NonParsableException {
+		super( representation );
 	}
 
 	/*
@@ -213,36 +210,36 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	public void setDefault(Object defaultValue) throws Exception {
 		throw new Exception("Not applicable to ParameterSetContainer");
 	}
-
+	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#toXML()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "superParameter");
-		XMLParser.appendObjectWithTags(buf, name, "name");
-		XMLParser.appendObjectWithTags(buf, comment, "comment");
-		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
-		XMLParser.appendObjectWithTags(buf, parameters, "parameters");
-		XMLParser.addTags(buf, "parameterSetContainer");
-		return buf;
+	public String getXMLTag() {
+		return "parameterSetContainer";
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.Parameter#appendFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation,"parameterSetContainer");
-		super.fromXML(XMLParser.extractForTag(representation,"superParameter"));
-		name = XMLParser.extractObjectForTags(representation, "name", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		comment = XMLParser.extractObjectForTags(representation, "comment", String.class );
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		super.appendFurtherInfos( buf );
+		
+		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
+		XMLParser.appendObjectWithTags(buf, parameters, "parameters");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.parameters.Parameter#extractFurtherInfos(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
+		super.appendFurtherInfos( representation );
+		
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
 		parameters = XMLParser.extractObjectForTags( representation, "parameters", ParameterSet.class );
 		parameters.setParent(this);
