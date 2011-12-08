@@ -212,7 +212,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 */
 	public static enum InitMethodForScoringFunction {
 		/**
-		 * This constants indicates that a {@link ScoringFunction} should be initialized using {@link ScoringFunction#initializeFunction(int, boolean, Sample[], double[][])}.
+		 * This constants indicates that a {@link ScoringFunction} should be initialized using {@link ScoringFunction#initializeFunction(int, boolean, DataSet[], double[][])}.
 		 */
 		PLUG_IN,
 		/**
