@@ -98,19 +98,19 @@ public class DataSet implements Iterable<Sequence>{
 	 */
 	public static enum PartitionMethod {
 		/**
-		 * This value indicates that the {@link Sample} will be split by the
+		 * This value indicates that the {@link DataSet} will be split by the
 		 * number of elements.
 		 */
 		PARTITION_BY_NUMBER_OF_ELEMENTS,
 
 		/**
-		 * This value indicates that the {@link Sample} will be split by the
+		 * This value indicates that the {@link DataSet} will be split by the
 		 * number of &quot;symbols&quot;.
 		 */
 		PARTITION_BY_NUMBER_OF_SYMBOLS,
 		
 		/**
-		 * This value indicates that the {@link Sample} will be split by weights of the sequences.
+		 * This value indicates that the {@link DataSet} will be split by weights of the sequences.
 		 */
 		PARTITION_BY_WEIGHTS;
 	}
@@ -555,11 +555,10 @@ public class DataSet implements Iterable<Sequence>{
 	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#DataSet(AlphabetContainer, AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
-	 * @see DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String,
-	 *      int)
+	 * @see DataSet#DataSet(AlphabetContainer, AbstractStringExtractor, String, int)
 	 */
 	public DataSet( AlphabetContainer abc, AbstractStringExtractor se ) throws WrongAlphabetException, EmptyDataSetException,
 																		WrongLengthException {
@@ -588,8 +587,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @throws EmptyDataSetException
 	 *             if the {@link DataSet} would be empty
 	 * 
-	 * @see DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String,
-	 *      int)
+	 * @see DataSet#DataSet(AlphabetContainer, AbstractStringExtractor, String, int)
 	 */
 	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, int subsequenceLength ) throws WrongAlphabetException,
 																								WrongLengthException, EmptyDataSetException {
@@ -614,10 +612,10 @@ public class DataSet implements Iterable<Sequence>{
 	 *             if the {@link DataSet} would be empty
 	 * @throws WrongLengthException
 	 *             never happens (forwarded from
-	 *             {@link DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String, int)}
+	 *             {@link DataSet#DataSet(AlphabetContainer, AbstractStringExtractor, String, int)}
 	 *             )
 	 * 
-	 * @see DataSet#Sample(AlphabetContainer, AbstractStringExtractor, String,
+	 * @see DataSet#DataSet(AlphabetContainer, AbstractStringExtractor, String,
 	 *      int)
 	 */
 	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim ) throws WrongAlphabetException, EmptyDataSetException,
@@ -817,7 +815,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * Creates a new {@link DataSet} from an array of {@link Sequence}s and a
 	 * given annotation.<br>
 	 * This constructor is specially designed for the method
-	 * {@link de.jstacs.models.Model#emitSample(int, int...)}.
+	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}
 	 * 
 	 * @param annotation
 	 *            the annotation of the {@link DataSet}
@@ -1933,10 +1931,10 @@ public class DataSet implements Iterable<Sequence>{
 		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
-		 *             {@link de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)}
+		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)}
 		 *             )
 		 * 
-		 * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int) 
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int) 
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet... data ) throws WrongAlphabetException, WrongLengthException {
 			this( sort, data, null, 0 );
@@ -1958,10 +1956,10 @@ public class DataSet implements Iterable<Sequence>{
 		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
-		 *             {@link de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)}
+		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)}
 		 *             )
 		 * 
-		 * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights ) throws WrongAlphabetException,
 																							WrongLengthException {
@@ -1988,7 +1986,7 @@ public class DataSet implements Iterable<Sequence>{
 		 * @throws WrongLengthException
 		 *             if the length is not supported
 		 * 
-		 * @see de.jstacs.data.Sample.WeightedSampleFactory#Sample.WeightedSampleFactory(de.jstacs.data.Sample.WeightedSampleFactory.SortOperation, de.jstacs.data.Sample[], double[][], int)
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation, de.jstacs.data.DataSet[], double[][], int)
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights, int length ) throws WrongAlphabetException,
 																										WrongLengthException {

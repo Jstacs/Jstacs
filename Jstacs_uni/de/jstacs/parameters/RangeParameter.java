@@ -176,6 +176,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 *             <code>false</code>
 	 */
 	public RangeParameter(SimpleParameter par) throws Exception {
+		super( par.getName(), par.getComment(), par.getDatatype() );
 		if (!par.isRangeable()) {
 			throw new Exception("Parameter must be rangeable");
 		}
@@ -195,9 +196,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 *             if the {@link StringBuffer} <code>representation</code> could
 	 *             not be parsed
 	 */
-	public RangeParameter(StringBuffer representation)
-			throws NonParsableException {
-		fromXML(representation);
+	public RangeParameter(StringBuffer representation) throws NonParsableException {
+		super(representation);
 	}
 
 	/**
@@ -216,16 +216,6 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 
 		return new EnumParameter(Scale.class,
 				"The possible scales for a range of parameter values", true);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getName()
-	 */
-	@Override
-	public String getName() {
-		return rangedParameter.getName();
 	}
 
 	/**
@@ -333,26 +323,6 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 				return null;
 			}
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getDatatype()
-	 */
-	@Override
-	public DataType getDatatype() {
-		return rangedParameter.getDatatype();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getComment()
-	 */
-	@Override
-	public String getComment() {
-		return rangedParameter.getComment();
 	}
 
 	/*
@@ -912,16 +882,24 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 			return errorMessage;
 		}
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
+	 */
+	@Override
+	public String getXMLTag() {
+		return "rangeParameter";
+	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#toXML()
+	 * @see de.jstacs.parameters.Parameter#appendFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "superParameter");
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		super.appendFurtherInfos( buf );
+		
 		XMLParser.appendObjectWithTags(buf, rangedParameter, "rangedParameter");
 		if (values != null) {
 			StringBuffer buf2 = new StringBuffer();
@@ -935,8 +913,6 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 		XMLParser.appendObjectWithTags(buf, shallBeRanged, "shallBeRanged");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
 		XMLParser.appendObjectWithTags(buf, scale, "scale");
-		XMLParser.addTags(buf, "rangeParameter");
-		return buf;
 
 	}
 
@@ -946,44 +922,16 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 * @see de.jstacs.parameters.Parameter#fromXML(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		StringBuffer buf = XMLParser.extractForTag(representation,"rangeParameter");
-		super.fromXML(XMLParser.extractForTag(buf,"superParameter"));
+	protected void extractFurtherInfos( StringBuffer buf ) throws NonParsableException {
+		super.extractFurtherInfos( buf );
 		rangedParameter = XMLParser.extractObjectForTags(buf,"rangedParameter", SimpleParameter.class);
 		StringBuffer buf2 = XMLParser.extractForTag(buf, "values");
 		if (buf2.toString().equals("null")) {
 			values = null;
 		} else {
 			values = (Object[]) XMLParser.extractObjectForTags(buf2, "vals");
-			/*
-			String[] vals = XMLParser.extractObjectForTags(buf2, "vals", String[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-			values = new Object[vals.length];
-			for (int i = 0; i < vals.length; i++) {
-				switch (getDatatype()) {
-				case BYTE:
-					values[i] = new Byte(vals[i]);
-					break;
-				case SHORT:
-					values[i] = new Short(vals[i]);
-					break;
-				case INT:
-					values[i] = new Integer(vals[i]);
-					break;
-				case LONG:
-					values[i] = new Long(vals[i]);
-					break;
-				case FLOAT:
-					values[i] = new Float(vals[i]);
-					break;
-				case DOUBLE:
-					values[i] = new Double(vals[i]);
-					break;
-				}
-			}
-			*/
 		}
-		current = XMLParser.extractObjectForTags(buf, "current", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		current = XMLParser.extractObjectForTags(buf, "current", int.class );
 		isSet = XMLParser.extractObjectForTags(buf, "isSet", boolean.class );
 		shallBeRanged = XMLParser.extractObjectForTags(buf, "shallBeRanged", RangeType.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(buf, "errorMessage", String.class ) );

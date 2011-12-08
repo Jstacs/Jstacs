@@ -595,7 +595,7 @@ public class StrandModel extends AbstractMixtureModel {
 	 * @see de.jstacs.models.mixture.AbstractMixtureModel#emitSampleUsingCurrentParameterSet(int, int[])
 	 */
 	@Override
-	protected Sequence[] emitSampleUsingCurrentParameterSet( int n, int... lengths ) throws NotTrainedException, Exception {
+	protected Sequence[] emitDataSetUsingCurrentParameterSet( int n, int... lengths ) throws NotTrainedException, Exception {
 		DataSet nr = model[0].emitDataSet( n, lengths );
 		Random r = new Random();
 		Sequence[] seq = new Sequence[nr.getNumberOfElements()];

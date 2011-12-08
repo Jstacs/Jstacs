@@ -87,12 +87,9 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 * 
 	 * @throws NonParsableException
 	 *             if the XML code could not be parsed
-	 * 
-	 * @see FileParameter#fromXML(StringBuffer)
 	 */
 	public FileParameter(StringBuffer buf) throws NonParsableException {
-		fromXML(buf);
-		this.datatype = DataType.FILE;
+		super( buf );
 	}
 
 	/**
@@ -108,13 +105,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 *            <code>true</code> if this {@link FileParameter} is required to
 	 *            continue, <code>false</code> otherwise
 	 */
-	public FileParameter(String name, String comment, String mime,
-			boolean required) {
-		this.name = name;
-		this.comment = comment;
+	public FileParameter(String name, String comment, String mime, boolean required) {
+		super( name, comment, DataType.FILE );
 		this.mime = mime;
 		this.required = required;
-		this.datatype = DataType.FILE;
 	}
 
 	/**
@@ -131,8 +125,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 * @param validator
 	 *            a validator that validates e.g. the contents of the file
 	 */
-	public FileParameter(String name, String comment, String mime,
-			boolean required, ParameterValidator validator) {
+	public FileParameter(String name, String comment, String mime, boolean required, ParameterValidator validator) {
 		this(name, comment, mime, required);
 		this.valid = validator;
 		this.datatype = DataType.FILE;
@@ -292,17 +285,24 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		return isSet;
 	}
 
+	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#toXML()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "superParameter");
-		XMLParser.appendObjectWithTags(buf, name, "name");
-		XMLParser.appendObjectWithTags(buf, comment, "comment");
+	public String getXMLTag() {
+		return "fileParameter";
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.parameters.Parameter#appendFurtherInfos(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		super.appendFurtherInfos( buf );
+		
 		XMLParser.appendObjectWithTags(buf, mime, "mime");
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, isSet, "isSet");
@@ -310,40 +310,16 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		
 		XMLParser.appendObjectWithTags(buf, value,"value");
 		XMLParser.appendObjectWithTags(buf, valid, "validator");
-		/*
-		if (value == null) {
-			XMLParser.appendObjectWithTags(buf, "null", "value");
-		} else {
-			XMLParser.appendObjectWithTags(buf, value.toXML().toString(),
-					"value");
-		}
-		if (valid == null) {
-			XMLParser.appendObjectWithTags(buf, "null", "validator");
-		} else {
-			StringBuffer buf2 = new StringBuffer();
-			XMLParser.appendObjectWithTags(buf2, valid.getClass().getName(),
-					"className");
-			buf2.append(valid.toXML());
-			XMLParser.appendObjectWithTags(buf, buf2.toString(), "validator");
-		}
-		*/
-		XMLParser.addTags(buf, "fileParameter");
-
-		return buf;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.Parameter#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		StringBuffer buf = XMLParser.extractForTag(representation,"fileParameter");
-		super.fromXML(XMLParser.extractForTag(buf,"superParameter"));
-		name = XMLParser.extractObjectForTags(buf, "name", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		comment = XMLParser.extractObjectForTags(buf, "comment", String.class );
+	protected void extractFurtherInfos( StringBuffer buf ) throws NonParsableException {
+		super.extractFurtherInfos( buf );
+		
 		mime = XMLParser.extractObjectForTags(buf, "mime", String.class );
 		required = XMLParser.extractObjectForTags(buf, "required", boolean.class );
 		isSet = XMLParser.extractObjectForTags(buf, "isSet", boolean.class );
@@ -351,30 +327,6 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		
 		value = XMLParser.extractObjectForTags(buf, "value", FileRepresentation.class );
 		valid = XMLParser.extractObjectForTags(buf, "validator", ParameterValidator.class );
-		/*
-		String val = XMLParser.extractObjectForTags(buf, "value", String.class );
-		if (val == null ) {//XXX
-			value = null;
-		} else {
-			value = new FileRepresentation(new StringBuffer(val));
-		}
-		System.out.println("hier");
-		System.exit( 1 );
-		val = XMLParser.extractObjectForTags(buf, "validator", String.class );
-		if (val.equals("null")) {
-			valid = null;
-		} else {
-			StringBuffer buf2 = new StringBuffer(val);
-			String className = XMLParser.extractObjectForTags(buf2, "className", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-			try {
-				valid = (ParameterValidator) Class.forName(className)
-						.getConstructor(new Class[] { StringBuffer.class })
-						.newInstance(buf2);
-			} catch (Exception e) {
-				throw new NonParsableException(e.getMessage());
-			}
-		}
-		*/
 	}
 
 	/**
@@ -453,8 +405,6 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 * 
 		 * @throws NonParsableException
 		 *             if the {@link StringBuffer} could not be parsed
-		 * 
-		 * @see #fromXML(StringBuffer)
 		 */
 		public FileRepresentation(StringBuffer buf) throws NonParsableException {
 			fromXML(buf);
@@ -506,8 +456,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 				throws NonParsableException {
 			representation = XMLParser.extractForTag(representation,
 					"fileRepresentation");
-			filename = XMLParser
-					.extractObjectForTags(representation, "filename", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			filename = XMLParser.extractObjectForTags(representation, "filename", String.class );
 			content = XMLParser.extractObjectForTags(representation, "content", String.class );
 		}
 

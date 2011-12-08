@@ -4,18 +4,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Class for a list of {@link AnnotatedEntity}s where
  * elements can be accessed either by index or by the name 
  * of the {@link AnnotatedEntity}. 
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
+ * 
+ * @param <T> an extension of {@link AnnotatedEntity} 
  */
 public class AnnotatedEntityList<T extends AnnotatedEntity> {
-	ArrayList<T> entityList;
-	HashMap<String, T> entities;
+	
+	private ArrayList<T> entityList;
+	private HashMap<String, T> entities;
 	
 	/**
 	 * Creates a new {@link AnnotatedEntityList} with an initial
@@ -67,11 +69,11 @@ public class AnnotatedEntityList<T extends AnnotatedEntity> {
 	 * an {@link IllegalArgumentException} is thrown.
 	 * @param idx the index
 	 * @param entity the added {@link AnnotatedEntity}
-	 * @see List#add(int, Object)
+	 * @see java.util.List#add(int, Object)
 	 */
 	public void add( int idx, T entity ){
 		if( entities.containsKey( entity.getName() ) ) {
-			throw new IllegalArgumentException();//XXX
+			throw new IllegalArgumentException( "The name \"" +entity.getName()+ "\" is already contained." );
 		}
 		entityList.add( idx, entity );
 		entities.put( entity.getName(), entity );
@@ -87,7 +89,7 @@ public class AnnotatedEntityList<T extends AnnotatedEntity> {
 	public void add( T... entities ) {
 		for(int i=0;i<entities.length;i++){
 			if( this.entities.containsKey( entities[i].getName() ) ) {
-				throw new IllegalArgumentException();//XXX
+				throw new IllegalArgumentException( "The name \"" +entities[i].getName()+ "\" is already contained." );
 			}
 			entityList.add( entities[i] );
 			this.entities.put( entities[i].getName(), entities[i] );

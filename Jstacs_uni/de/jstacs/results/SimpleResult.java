@@ -70,14 +70,11 @@ public abstract class SimpleResult extends Result implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		appendMainInfo(buf);
+	@Override
+	protected void appendFurtherInfos( StringBuffer buf ) {
 		XMLParser.appendObjectWithTags(buf, result.toString(), "result");
-		return buf;
 	}
 
 	/*
@@ -86,27 +83,25 @@ public abstract class SimpleResult extends Result implements
 	 * @see de.jstacs.results.Result#fromXML(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		extractMainInfo(representation);
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		switch (datatype) {
-		case STRING:
-			result = XMLParser.extractObjectForTags(representation, "result", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-			break;
-		case BOOLEAN:
-			result = XMLParser.extractObjectForTags(representation, "result", boolean.class );
-			break;
-		case INT:
-			result = XMLParser.extractObjectForTags(representation, "result", int.class );
-			break;
-		case LONG:
-			result = XMLParser.extractObjectForTags(representation, "result", long.class );
-			break;
-		case DOUBLE:
-			result = XMLParser.extractObjectForTags(representation, "result", double.class );
-			break;
-		default:
-			throw new NonParsableException("Result not of expected datatype");
+			case STRING:
+				result = XMLParser.extractObjectForTags(representation, "result", String.class );
+				break;
+			case BOOLEAN:
+				result = XMLParser.extractObjectForTags(representation, "result", boolean.class );
+				break;
+			case INT:
+				result = XMLParser.extractObjectForTags(representation, "result", int.class );
+				break;
+			case LONG:
+				result = XMLParser.extractObjectForTags(representation, "result", long.class );
+				break;
+			case DOUBLE:
+				result = XMLParser.extractObjectForTags(representation, "result", double.class );
+				break;
+			default:
+				throw new NonParsableException("Result not of expected datatype");
 		}
 	}
 

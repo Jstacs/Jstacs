@@ -43,7 +43,7 @@ import de.jstacs.io.SymbolExtractor;
  * The symbols are encoded in the bits of the primitive type <code>long</code>,
  * which allows to save 32 symbols in one <code>long</code>. On the one hand an
  * instance of this class is more memory efficient than any other
- * {@link DiscreteSequence}, e.g. {@link ByteSequence}. But on the other hand
+ * {@link SimpleDiscreteSequence}, e.g. {@link ByteSequence}. But on the other hand
  * this class will be a little bit slower when accessing single positions.
  * 
  * @author Jens Keilwagen
@@ -106,7 +106,7 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not discrete
 	 * 
-	 * @see SparseSequence#SparseSequence(AlphabetContainer, int, SequenceAnnotation[])
+	 * @see #SparseSequence(AlphabetContainer, int, SequenceAnnotation[])
 	 */
 	public SparseSequence( AlphabetContainer alphCon, SymbolExtractor se ) throws WrongSequenceTypeException, WrongAlphabetException {
 		this( alphCon, se.countElements(), null );

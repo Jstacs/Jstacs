@@ -577,38 +577,37 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#toXML()
+	 * @see de.jstacs.parameters.CollectionParameter#getXMLTag()
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer sup = super.toXML();
-		XMLParser.addTags(sup, "superParameter");
+	public String getXMLTag() {
+		return "multiSelectionCollectionParameter";
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.parameters.CollectionParameter#appendFurtherInfos(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void appendFurtherInfos( StringBuffer sup ) {
+		super.appendFurtherInfos( sup );
+		
 		XMLParser.appendObjectWithTags(sup, selected, "selected");
-		XMLParser.appendObjectWithTags(sup, defaultSelected,
-				"defaultSelected");
+		XMLParser.appendObjectWithTags(sup, defaultSelected, "defaultSelected");
 		XMLParser.appendObjectWithTags(sup, current, "current");
-		XMLParser.addTags(sup, "multiSelectionCollectionParameter");
-		return sup;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.parameters.CollectionParameter#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.CollectionParameter#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation,
-				"multiSelectionCollectionParameter");
-		super
-				.fromXML(XMLParser.extractForTag(representation,
-						"superParameter"));
-		selected = XMLParser.extractObjectForTags(representation, "selected", boolean[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+	protected void extractFurtherInfos(StringBuffer representation) throws NonParsableException {
+		super.extractFurtherInfos( representation );
+		
+		selected = XMLParser.extractObjectForTags(representation, "selected", boolean[].class );
 		defaultSelected = XMLParser.extractObjectForTags(representation, "defaultSelected", boolean[].class );
-		current = XMLParser.extractObjectForTags(representation, "current", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		current = XMLParser.extractObjectForTags(representation, "current", int.class );
 	}
 
 	/*

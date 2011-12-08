@@ -61,8 +61,8 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 		}
 
 		return new NumericalResultSet( new NumericalResult[]{
-				new NumericalResult( getName(), "The " + getName().toLowerCase() + " of "+sensitivity, (double)( d - 1 - i ) / (double)d ),
-				new NumericalResult( "Threshold", "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, threshold )
+				new NumericalResult( getName() + " of "+sensitivity, "", (double)( d - 1 - i ) / (double)d ),
+				new NumericalResult( "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, "", threshold )
 		});
 	}
 	

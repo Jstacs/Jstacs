@@ -21,11 +21,9 @@ package de.jstacs.results;
 
 import java.util.Collection;
 
-import de.jstacs.AnnotatedEntity;
 import de.jstacs.AnnotatedEntityList;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
-import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 
 /**
@@ -38,6 +36,9 @@ import de.jstacs.io.XMLParser;
  */
 public class ResultSet implements Storable {
 	
+	/**
+	 * The internally stores results.
+	 */
 	protected AnnotatedEntityList<Result> results;
 
 	/**
@@ -69,8 +70,7 @@ public class ResultSet implements Storable {
 			c = 0;
 			for (i = 0; i < results.length; i++) {
 				if (results[i] != null) {
-					System.arraycopy(results[i], 0, this.results, c, results[i].length);
-					c += results[i].length;
+					this.results.add( results[i] );
 				}
 			}
 		}

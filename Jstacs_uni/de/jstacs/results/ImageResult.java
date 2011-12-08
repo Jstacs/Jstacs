@@ -57,7 +57,7 @@ public class ImageResult extends Result {
 	 *            the image itself
 	 */
 	public ImageResult(String name, String comment, BufferedImage image) {
-		super(name, comment, DataType.PNG);
+		super( name, comment, DataType.PNG );
 		this.image = image;
 	}
 	
@@ -86,17 +86,21 @@ public class ImageResult extends Result {
 		return image;
 	}
 
-	private static final String XML_TAG = "ImageResult";
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
+	 */
+	@Override
+	public String getXMLTag() {
+		return "ImageResult";
+	}
 	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
 	 */
-	public StringBuffer toXML() {
-		StringBuffer xml = new StringBuffer();
-		XMLParser.appendObjectWithTags(xml, name, "name");
-		XMLParser.appendObjectWithTags(xml, comment, "comment");
+	@Override
+	protected void appendFurtherInfos( StringBuffer xml ) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(1000);
 		try {
 			ImageIO.write( image, "png", baos );
@@ -104,22 +108,14 @@ public class ImageResult extends Result {
 			throw new RuntimeException( e.getMessage() );
 		}
 		XMLParser.appendObjectWithTags(xml, Base64.encode(baos.toByteArray()), "image");
-		XMLParser.addTags( xml, XML_TAG );
-		return xml;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.Result#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser.extractForTag( representation, XML_TAG );
-		name = (String) XMLParser.extractObjectForTags( representation, "name" );
-		comment = (String) XMLParser.extractObjectForTags( representation, "comment" );
-
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		try {
 			byte[] bytearray = Base64.decode( (String) XMLParser.extractObjectForTags( representation, "image" ) );
 			image = ImageIO.read( new ByteArrayInputStream( bytearray ) );

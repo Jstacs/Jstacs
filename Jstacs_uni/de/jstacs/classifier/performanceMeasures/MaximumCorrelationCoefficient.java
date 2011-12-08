@@ -140,7 +140,7 @@ public class MaximumCorrelationCoefficient extends TwoClassAbstractPerformanceMe
 		}
 		return new NumericalResultSet(new NumericalResult[]{
 				new NumericalResult( getName(), "The value of the " + getName().toLowerCase(), erg[1] ),
-				new NumericalResult( "Threshold", "Threshold for the "  + getName().toLowerCase(), erg[0] )
+				new NumericalResult( "Threshold for the "  + getName().toLowerCase(), "", erg[0] )
 		});
 	}
 	

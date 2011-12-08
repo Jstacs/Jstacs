@@ -86,11 +86,8 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	}
 
 	// default constructor
-	private CollectionParameter(DataType datatype, String name, String comment,
-			boolean required) {
-		this.datatype = datatype;
-		this.comment = comment;
-		this.name = name;
+	private CollectionParameter(DataType datatype, String name, String comment, boolean required) {
+		super( name, comment, datatype );
 		this.required = required;
 		this.userSelected = false;
 		this.rangeable = true;
@@ -129,14 +126,12 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 			int defaultSelected, boolean userSelected, String name,
 			String comment, boolean required, DataType datatype,
 			String errorMessage, boolean rangeable) {
+		super( name, comment, datatype );
 		this.parameters = options;
 		this.selected = selected;
 		this.defaultSelected = defaultSelected;
 		this.userSelected = userSelected;
-		this.name = name;
-		this.comment = comment;
 		this.required = required;
-		this.datatype = datatype;
 		this.errorMessage = errorMessage;
 		this.rangeable = rangeable;
 	}
@@ -433,12 +428,9 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} <code>representation</code> could
 	 *             not be parsed
-	 * 
-	 * @see CollectionParameter#fromXML(StringBuffer)
 	 */
-	public CollectionParameter(StringBuffer representation)
-			throws NonParsableException {
-		fromXML(representation);
+	public CollectionParameter(StringBuffer representation) throws NonParsableException {
+		super(representation);
 	}
 
 	/**
@@ -512,16 +504,21 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#toXML()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "superParameter");
-		XMLParser.appendObjectWithTags(buf, datatype, "datatype");
-		XMLParser.appendObjectWithTags(buf, name, "name");
-		XMLParser.appendObjectWithTags(buf, comment, "comment");
+	public String getXMLTag() {
+		return "collectionParameter";
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.parameters.Parameter#appendFurtherInfos(java.lang.StringBuffer)
+	 */
+	@Override
+	protected void appendFurtherInfos( StringBuffer buf ) {
+		super.appendFurtherInfos( buf );
+		
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, userSelected, "userSelected");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
@@ -529,10 +526,6 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		XMLParser.appendObjectWithTags(buf, defaultSelected, "defaultSelected");
 		XMLParser.appendObjectWithTags(buf, rangeable, "rangeable");
 		appendCollection(buf);
-
-		XMLParser.addTags(buf, "collectionParameter");
-
-		return buf;
 	}
 
 	/**
@@ -549,19 +542,14 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#fromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.Parameter#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation,"collectionParameter");
-		super.fromXML(XMLParser.extractForTag(representation,"superParameter"));
-		datatype = XMLParser.extractObjectForTags(representation, "datatype", DataType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		name = XMLParser.extractObjectForTags(representation, "name", String.class );
-		comment = XMLParser.extractObjectForTags(representation, "comment", String.class );
+	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
+		super.extractFurtherInfos( representation );
+		
 		required = XMLParser.extractObjectForTags(representation, "required", boolean.class );
-		userSelected = XMLParser.extractObjectForTags(representation, "userSelected", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		userSelected = XMLParser.extractObjectForTags(representation, "userSelected", boolean.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
 		selected = XMLParser.extractObjectForTags(representation, "selected", int.class );
 		defaultSelected = XMLParser.extractObjectForTags(representation, "defaultSelected", int.class );

@@ -67,10 +67,37 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	private long id;
 
 	/**
-	 * Creates a new {@link Parameter} and generates the internal id.
+	 * The main constructor which takes the main information of a {@link Parameter} and generates an internal ID.
+	 * 
+	 * @param name
+	 *            the name of the result
+	 * @param comment
+	 *            the comment for the result
+	 * @param type
+	 *            the data type of the result
+	 *            
+	 * @see #getId()
 	 */
-	public Parameter() {
+	public Parameter( String name, String comment, DataType type ) {
+		super( name, comment, type );
 		id = System.currentTimeMillis() + this.hashCode();
+	}
+	
+	/**
+	 * The standard constructor for the interface {@link Storable}. Creates a
+	 * new {@link Parameter} out of its XML representation.
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the XML representation is not parsable
+	 * 
+	 * @see Storable
+	 * @see #extractFurtherInfos(StringBuffer)
+	 */
+	public Parameter( StringBuffer xml ) throws NonParsableException {
+		super( xml );
 	}
 
 	/**
@@ -248,24 +275,16 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	public ParameterSet getParent() {
 		return parent;
 	}
-
-	/**
-	 * Parses a {@link Parameter} from a XML representation as returned by
-	 * {@link #toXML()}.
-	 * 
-	 * @param source
-	 *            the XML representation as {@link StringBuffer}
-	 * 
-	 * @throws NonParsableException
-	 *             if the XML code could not be parsed
-	 * 
-	 * @see Parameter#toXML()
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
 	 */
-	protected void fromXML(StringBuffer source) throws NonParsableException {
-		source = XMLParser.extractForTag(source, "parameter");
-		this.id = XMLParser.extractObjectForTags(source, "id", long.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+	@Override
+	protected void extractFurtherInfos(StringBuffer source) throws NonParsableException {
+		this.id = XMLParser.extractObjectForTags(source, "id", long.class );
 		try {
-			this.neededReferenceId = XMLParser.extractObjectForTags(source, "neededReferenceId", long.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			this.neededReferenceId = XMLParser.extractObjectForTags(source, "neededReferenceId", long.class );
 		} catch (NonParsableException e) {
 			this.neededReferenceId = null;
 		}
@@ -273,18 +292,15 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
+	@Override
+	protected void appendFurtherInfos( StringBuffer buf ) {
 		XMLParser.appendObjectWithTags(buf, id, "id");
-		XMLParser.addTags(buf, "parameter");
 		if (neededReference != null) {
 			XMLParser.appendObjectWithTags(buf, neededReferenceId,
 					"neededReferenceId");
 		}
-		return buf;
 	}
 
 }

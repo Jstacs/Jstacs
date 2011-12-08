@@ -186,8 +186,6 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * The hyperparameters for estimating the probabilities of the components.
 	 */
 	protected double[] componentHyperParams;
-	
-	protected double ess;
 
 	/**
 	 * The model for the sequences.
@@ -1624,10 +1622,6 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 			}
 		}
 	}
-
-	public double getESS(){
-		return ess;
-	}
 	
 	/* (non-Javadoc)
 	 * @see de.jstacs.Storable#toXML()
@@ -1850,12 +1844,6 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 		this.model = model;
 		this.alternativeModel = null;
 		this.estimateComponentProbs = estimateComponentProbs;
-
-		if(componentHyperParams == null){
-			this.ess = 0;
-		}else{
-			this.ess = ToolBox.sum( componentHyperParams );
-		}
 		
 		boolean minValueOfUsedHyperParamIsZero;
 		if( !estimateComponentProbs || componentHyperParams == null ) {
@@ -1971,7 +1959,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 		Sequence[] seqs;
 		switch( algorithm ) {
 			case EM:
-				seqs = emitSampleUsingCurrentParameterSet( n, lengths );
+				seqs = emitDataSetUsingCurrentParameterSet( n, lengths );
 				break;
 			case GIBBS_SAMPLING:
 				int[] anz = new int[starts];
@@ -2002,7 +1990,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 								len = new int[no[all]];
 								System.arraycopy( lengths, j, len, 0, no[all] );
 							}
-							help = emitSampleUsingCurrentParameterSet( no[all], len );
+							help = emitDataSetUsingCurrentParameterSet( no[all], len );
 							for( k = 0; k < no[all]; k++, j++ ) {
 								seqs[j] = help[k];
 							}
@@ -2030,9 +2018,9 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 * @throws Exception
 	 *             if it was impossible to sample the sequences
 	 * 
-	 * @see AbstractModel#emitSample(int, int...)
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
 	 */
-	protected abstract Sequence[] emitSampleUsingCurrentParameterSet( int n, int... lengths ) throws Exception;
+	protected abstract Sequence[] emitDataSetUsingCurrentParameterSet( int n, int... lengths ) throws Exception;
 
 	/**
 	 * This method allows the user to parse the set of parameters with index

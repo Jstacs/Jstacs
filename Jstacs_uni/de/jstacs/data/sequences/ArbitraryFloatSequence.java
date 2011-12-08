@@ -37,7 +37,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 * Creates a new {@link ArbitraryFloatSequence} from an array of
 	 * <code>double</code>-encoded alphabet symbols. This constructor is
 	 * designed for the method
-	 * {@link de.jstacs.models.AbstractModel#emitSample(int, int...)}.
+	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -51,7 +51,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>double</code>s
 	 * 
-	 * @see de.jstacs.models.AbstractModel#emitSample(int, int...)
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
 	 * @see Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ArbitraryFloatSequence( AlphabetContainer alphabetContainer, float[] content ) throws WrongAlphabetException,
@@ -88,8 +88,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>double</code>s
 	 * 
-	 * @see ArbitraryFloatSequence#ArbitrarySequence(AlphabetContainer,
-	 *      SequenceAnnotation[], SymbolExtractor)
+	 * @see ArbitraryFloatSequence#ArbitraryFloatSequence(AlphabetContainer, SequenceAnnotation[], SymbolExtractor)
 	 */
 	public ArbitraryFloatSequence( AlphabetContainer alphabetContainer, String sequence ) throws WrongAlphabetException,
 																					WrongSequenceTypeException {
@@ -120,8 +119,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             if the delimiter is empty and the alphabet container is not
 	 *             discrete
 	 * 
-	 * @see ArbitraryFloatSequence#ArbitrarySequence(AlphabetContainer,
-	 *      SequenceAnnotation[], SymbolExtractor)
+	 * @see ArbitraryFloatSequence#ArbitraryFloatSequence(AlphabetContainer, SequenceAnnotation[], SymbolExtractor)
 	 */
 	public ArbitraryFloatSequence( AlphabetContainer alphabetContainer, SequenceAnnotation[] annotation, String sequence, String delim )
 																																	throws WrongAlphabetException,

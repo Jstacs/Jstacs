@@ -21,7 +21,6 @@ package de.jstacs.results;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.io.XMLParser;
 
 /**
  * Class for numerical {@link Result} values. Possible data types are the
@@ -83,7 +82,7 @@ public class NumericalResult extends SimpleResult {
 	 * @param result
 	 *            the result itself
 	 * 
-	 * @see NumericalResult#NumericalResult(DataType, String, String, Comparable)
+	 * @see #NumericalResult(DataType, String, String, Comparable)
 	 */
 	public NumericalResult(String name, String comment, double result) {
 		this(DataType.DOUBLE, name, comment, new Double(result));
@@ -99,7 +98,7 @@ public class NumericalResult extends SimpleResult {
 	 * @param result
 	 *            the result itself
 	 * 
-	 * @see NumericalResult#NumericalResult(DataType, String, String, Comparable)
+	 * @see #NumericalResult(DataType, String, String, Comparable)
 	 */
 	public NumericalResult(String name, String comment, int result) {
 		this(DataType.INT, name, comment, new Integer(result));
@@ -115,7 +114,7 @@ public class NumericalResult extends SimpleResult {
 	 * @param result
 	 *            the result itself
 	 * 
-	 * @see NumericalResult#NumericalResult(DataType, String, String, Comparable)
+	 * @see #NumericalResult(DataType, String, String, Comparable)
 	 */
 	public NumericalResult(String name, String comment, Integer result) {
 		this(DataType.INT, name, comment, result);
@@ -131,36 +130,12 @@ public class NumericalResult extends SimpleResult {
 	 * @param result
 	 *            the result itself
 	 * 
-	 * @see NumericalResult#NumericalResult(DataType, String, String, Comparable)
+	 * @see #NumericalResult(DataType, String, String, Comparable)
 	 */
 	public NumericalResult(String name, String comment, long result) {
 		this(DataType.LONG, name, comment, new Long(result));
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.SimpleResult#toXML()
-	 */
-	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "numericalResult");
-		return buf;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.SimpleResult#fromXML(java.lang.StringBuffer)
-	 */
-	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		super.fromXML(XMLParser
-				.extractForTag(representation, "numericalResult"));
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -178,5 +153,14 @@ public class NumericalResult extends SimpleResult {
 			erg += " ";
 		}
 		return erg;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
+	 */
+	@Override
+	public String getXMLTag() {
+		return "numericalResult";
 	}
 }

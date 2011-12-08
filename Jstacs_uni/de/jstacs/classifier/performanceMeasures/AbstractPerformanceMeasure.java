@@ -12,7 +12,7 @@ import de.jstacs.utils.SubclassFinder;
 /**
  * This class is the abstract super class of any performance measure used to evaluate
  * an {@link de.jstacs.classifier.AbstractClassifier}. It is recommended to use the method
- * {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, de.jstacs.data.Sample...)}
+ * {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, de.jstacs.data.DataSet...)}
  * for evaluating the performance of any classifier.
  * 
  * @author Jan Grau, Jens Keilwagen

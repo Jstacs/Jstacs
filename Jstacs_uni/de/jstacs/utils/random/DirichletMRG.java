@@ -18,6 +18,8 @@
 
 package de.jstacs.utils.random;
 
+import de.jstacs.utils.Normalisation;
+
 /**
  * This class is a multivariate random generator based on a Dirichlet
  * distribution.
@@ -44,20 +46,26 @@ public class DirichletMRG extends MultivariateRandomGenerator {
 	 */
 	@Override
 	public void generate( double[] d, int start, int n, MRGParams p ) {
+		fill( d, start, n, p );
+		Normalisation.logSumNormalisation( d, start, start+n );
+	}
+	
+	private void fill( double[] d, int start, int n, MRGParams p ) {
 		DiMRGParams param = (DiMRGParams)p;
 		int i = param.getDimension();
 		if( i > 0 && i != n ) {
 			throw new IllegalArgumentException( "Hyperparameter doesnot have a correct dimension." );
 		}
-		double sum = 0d;
 		for( i = 0; i < n; i++ ) {
-			d[start + i] = r.nextGamma( param.getHyperparameter( i ), 1 );
-			sum += d[start + i];
+			d[start + i] = r.nextGammaLog( param.getHyperparameter( i ), 1 );
 		}
-		// we obtain: i == n;
-		i += start;
-		for( ; start < i; start++ ) {
-			d[start] /= sum;
+	}
+	
+	public void generateLog(  double[] d, int start, int n, MRGParams p ) {
+		fill( d, start, n, p );
+		double logSum = Normalisation.getLogSum( start, start+n, d );
+		for( n-- ; n >= 0; n-- ) {
+			d[start+n] -= logSum;
 		}
 	}
 }

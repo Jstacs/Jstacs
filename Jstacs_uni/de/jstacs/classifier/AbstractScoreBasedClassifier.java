@@ -679,7 +679,14 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 
 		private double[][] content;
 
-		private static final String XML_TAG = "DoubleTableResult";
+		/*
+		 * (non-Javadoc)
+		 * @see de.jstacs.AnnotatedEntity#getXMLTag()
+		 */
+		@Override
+		public String getXMLTag() {
+			return "DoubleTableResult";
+		}
 
 		/**
 		 * This is the default constructor that creates an instance based on the results
@@ -718,14 +725,13 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 			super( representation );
 		}
 
-		/* (non-Javadoc)
-		 * @see de.jstacs.results.Result#fromXML(java.lang.StringBuffer)
+		/* 
+		 * (non-Javadoc)
+		 * @see de.jstacs.AnnotatedEntity#extractFurtherInfos(java.lang.StringBuffer)
 		 */
 		@Override
-		protected void fromXML( StringBuffer representation ) throws NonParsableException {
-			StringBuffer xml = XMLParser.extractForTag( representation, XML_TAG );
-			extractMainInfo( xml );
-			content = XMLParser.extractObjectForTags( xml, "content", double[][].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		protected void extractFurtherInfos( StringBuffer xml ) throws NonParsableException {
+			content = XMLParser.extractObjectForTags( xml, "content", double[][].class );
 		}
 
 		/**
@@ -769,16 +775,13 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 			return res;
 		}
 
-		/* (non-Javadoc)
-		 * @see de.jstacs.Storable#toXML()
+		/* 
+		 * (non-Javadoc)
+		 * @see de.jstacs.AnnotatedEntity#appendFurtherInfos(java.lang.StringBuffer)
 		 */
-		public StringBuffer toXML() {
-			int l = content.length == 0 ? 0 : content[0].length;
-			StringBuffer xml = new StringBuffer( 500 + content.length * l * 10 );
-			appendMainInfo( xml );
+		@Override
+		protected void appendFurtherInfos( StringBuffer xml ) {
 			XMLParser.appendObjectWithTags( xml, content, "content" );
-			XMLParser.addTags( xml, XML_TAG );
-			return xml;
 		}
 
 		/**

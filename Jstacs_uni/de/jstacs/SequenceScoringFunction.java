@@ -122,8 +122,12 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 *            the {@link Sequence}
 	 * @param start
 	 *            the start position in the {@link Sequence}
+	 * @param end
+	 *            the end position (exclusive) in the {@link Sequence}
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
+	 * 
+	 * @throws Exception if, for instance, the subsequence length can not be handled
 	 */
 	public double getLogScoreFor(Sequence seq, int start, int end) throws Exception;
 	

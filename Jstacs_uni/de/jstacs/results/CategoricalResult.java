@@ -21,7 +21,6 @@ package de.jstacs.results;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
@@ -105,25 +104,10 @@ public class CategoricalResult extends SimpleResult {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.SimpleResult#toXML()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
 	@Override
-	public StringBuffer toXML() {
-		StringBuffer buf = super.toXML();
-		XMLParser.addTags(buf, "categoricalResult");
-		return buf;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.results.SimpleResult#fromXML(java.lang.StringBuffer)
-	 */
-	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
-		super.fromXML(XMLParser.extractForTag(representation,
-				"categoricalResult"));
+	public String getXMLTag() {
+		return "categoricalResult";
 	}
 }
