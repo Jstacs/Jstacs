@@ -30,8 +30,13 @@ public class MaximumCorrelationCoefficient extends MaximumNumericalTwoClassMeasu
 	}
 
 	@Override
-	public String getName() {
+	protected String getMeasureName() {
 		return "correlation coefficient";
+	}
+	
+	@Override
+	protected String getSpecificName() {
+		return getName();
 	}
 
 	// double since otherwise an overflow is easily possible

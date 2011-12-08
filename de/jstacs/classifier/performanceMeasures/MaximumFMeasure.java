@@ -52,7 +52,12 @@ public class MaximumFMeasure extends MaximumNumericalTwoClassMeasure {
 	}
 
 	@Override
-	public String getName() {
+	protected String getMeasureName() {
+		return "F-Measure";
+	}
+	
+	@Override
+	protected String getSpecificName() {
 		if (parameters == null) {
 			try {
 				loadParameters();
@@ -64,7 +69,7 @@ public class MaximumFMeasure extends MaximumNumericalTwoClassMeasure {
 				return null;
 			}
 		}
-		return "F-measure with beta=" + parameters.get("beta").getValue();
+		return getMeasureName() + " with beta=" + parameters.get("beta").getValue();
 	}
 
 	@Override
