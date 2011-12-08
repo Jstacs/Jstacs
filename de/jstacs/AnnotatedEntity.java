@@ -77,6 +77,7 @@ public abstract class AnnotatedEntity implements Storable {
 		XMLParser.appendObjectWithTags( buf, comment, "comment" );
 		XMLParser.appendObjectWithTags( buf, datatype, "datatype" );
 		appendFurtherInfos( buf );
+		XMLParser.addTags( buf, getXMLTag() );
 		return buf;
 	}
 	/**

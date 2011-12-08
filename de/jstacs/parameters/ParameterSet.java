@@ -662,61 +662,14 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 */
 	protected void fromXML(StringBuffer representation)
 			throws NonParsableException {
+		representation = XMLParser.extractForTag(representation, "parameterSet");	
 		
-		representation = XMLParser.extractForTag(representation, "parameterSet");
 		StringBuffer buf = XMLParser.extractForTag(representation, "set");
 		if (!buf.toString().equalsIgnoreCase("null")) {
-			int numPars = XMLParser.extractObjectForTags(buf, "numberOfParameters", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			int numPars = XMLParser.extractObjectForTags(buf, "numberOfParameters", int.class );
 			parameters = new ParameterList(numPars);
 			for (int i = 0; i < numPars; i++) {
 				parameters.add( (Parameter) XMLParser.extractObjectForTags( buf, "parameter" ) );
-
-				/*
-				String s = buf.toString();
-				String par = XMLParser.extractObjectAndAttributesForTags(buf, "parameter", null,null,String.class,false );
-				if (par.equals("null")) {
-					parameters.add(null);
-				} else {
-					if( buf2 == null ) {
-						buf2 = new StringBuffer(par);
-					} else {
-						buf2.delete(0, buf2.length());
-						buf2.append(par);
-					}
-					String className = XMLParser.extractObjectForTags(buf2, "className", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-					s = buf2.toString();
-					try {
-						parameters.add((Parameter) Class.forName(className)
-								.getConstructor( new Class[] { StringBuffer.class }).newInstance(buf2));
-					} catch (Exception e) {
-						System.out.println();
-						System.out.println( "StringBuffer:\n" + s );
-						System.out.println();
-						
-						System.out.println("parameter: " + i);
-						System.out.println("class    : " + className);
-						System.out.println("buffer   : " + par);
-						
-						System.out.println();
-						System.out.println("buffer remaining:\n" + buf2 );
-						
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						
-						NonParsableException n = new NonParsableException(e.getMessage());
-						n.setStackTrace(e.getStackTrace());
-						System.out.print("ParameterSet: ");
-						e.printStackTrace();
-						
-						System.exit(1);
-						throw n;
-					}
-				}
-				/**/
 			}
 		}
 		StringBuffer help = XMLParser.extractForTag(representation, "ranged");
@@ -725,7 +678,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 		} else {
 			ranged = Boolean.parseBoolean(help.toString());
 		}
-		id = XMLParser.extractObjectForTags(representation, "id", long.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		id = XMLParser.extractObjectForTags(representation, "id", long.class );
 		propagateId(id, this, false);
 		recieveId();
 	}
