@@ -140,8 +140,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class,
-	 *      AlphabetContainer, int, boolean)
+	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class, AlphabetContainer, int, boolean)
 	 * @see #ScoreClassifierParameterSet(Class, AlphabetContainer, int, byte, AbstractTerminationCondition, double, double, boolean, KindOfParameter)
 	 * @see SmallDifferenceOfFunctionEvaluationsCondition
 	 */

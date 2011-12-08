@@ -123,7 +123,7 @@ public interface SequenceScoringFunction extends Cloneable, Storable {
 	 * @param start
 	 *            the start position in the {@link Sequence}
 	 * @param end
-	 *            the end position (exclusive) in the {@link Sequence}
+	 *            the end position (inclusive) in the {@link Sequence}
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
 	 * 
