@@ -222,9 +222,15 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 						throw e;
 					}
 				}
-				isNumeric &= r instanceof NumericalResultSet;
-				for( int j = 0; j < r.getNumberOfResults(); j++ ) {
-					list.add( r.getResultAt(j) );
+				if( r == null ) {
+					if( exceptionIfNotComputeable ) {
+						throw new IllegalArgumentException( "The measure \""+current.getName()+"\" could not be evaluate with this classifier ("+this.getClass()+")." );
+					}
+				} else {
+					isNumeric &= r instanceof NumericalResultSet;
+					for( int j = 0; j < r.getNumberOfResults(); j++ ) {
+						list.add( r.getResultAt(j) );
+					}
 				}
 			}
 			return isNumeric;
