@@ -298,8 +298,7 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	protected void appendFurtherInfos( StringBuffer buf ) {
 		XMLParser.appendObjectWithTags(buf, id, "id");
 		if (neededReference != null) {
-			XMLParser.appendObjectWithTags(buf, neededReferenceId,
-					"neededReferenceId");
+			XMLParser.appendObjectWithTags(buf, neededReferenceId, "neededReferenceId");
 		}
 	}
 
