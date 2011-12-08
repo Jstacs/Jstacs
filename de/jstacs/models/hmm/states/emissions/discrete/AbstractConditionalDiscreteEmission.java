@@ -942,7 +942,4 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	public int getSizeOfEventSpace() {
 		return params.length*params[0].length;
 	}
-	
-	
-	
 }
