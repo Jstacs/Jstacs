@@ -244,11 +244,6 @@ public class NormalizableScoringFunctionModel extends AbstractModel
 	{
 		return "model using " + nsf.getInstanceName();
 	}
-	
-	public double getESS()
-	{
-		return nsf.getESS();
-	}
 
 	public boolean isInitialized()
 	{

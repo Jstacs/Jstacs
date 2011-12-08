@@ -134,6 +134,8 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 *            the {@link Sequence}
 	 * @param start
 	 *            the start position in the {@link Sequence}
+	 * @param end
+	 *            the end position (exclusive) in the {@link Sequence}
 	 * @param indices
 	 *            an {@link IntList} of indices, after method invocation the
 	 *            list should contain the indices i where
@@ -146,6 +148,8 @@ public interface ScoringFunction extends SequenceScoringFunction {
 	 *            that are not zero
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
+	 * 
+	 * @throws Exception if, for instance, the subsequence length can not be handled
 	 */
 	public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList partialDer ) throws Exception;
 

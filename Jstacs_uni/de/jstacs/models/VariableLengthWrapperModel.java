@@ -27,7 +27,6 @@ import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
-import de.jtem.numericalMethods.calculus.functionApproximation.bestFitting.Sample;
 
 /**
  * This class allows to train any {@link Model} on {@link DataSet}s of {@link Sequence}s with
@@ -40,7 +39,7 @@ import de.jtem.numericalMethods.calculus.functionApproximation.bestFitting.Sampl
  * 
  * @author Jens Keilwagen
  * 
- * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(SortOperation, DataSet, double[], int)
+ * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(SortOperation, DataSet, double[], int)
  * @see de.jstacs.classifier.assessment.ClassifierAssessment
  */
 public class VariableLengthWrapperModel extends AbstractModel {
