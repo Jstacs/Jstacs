@@ -82,7 +82,11 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 		super( getParameterSets(numClasses, collection, measures), "Performance measures", "Performance measures for evaluating a classifier of "+numClasses+" classes" );
 	}	
 	
-	public static PerformanceMeasureParameters createFilledParameters( boolean numerical, double spForSn, double snForFPR, double snForPPV ) throws Exception {
+	public static NumericalPerformanceMeasureParameters createFilledParameters() throws Exception {
+		return (NumericalPerformanceMeasureParameters) createFilledParameters( true, 0.999, 0.95, 0.95, 1 ); 
+	}
+	
+	public static PerformanceMeasureParameters createFilledParameters( boolean numerical, double spForSn, double snForFPR, double snForPPV, double beta ) throws Exception {
 		PerformanceMeasureParameters res;
 		if( numerical ) {
 			res = new NumericalPerformanceMeasureParameters( 2 );
@@ -102,7 +106,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 			res.addMeasure( new PRCurve() );
 		}
 		res.addMeasure( new MaximumCorrelationCoefficient() );
-		res.addMeasure( new MaximumFMeasure(1) );
+		res.addMeasure( new MaximumFMeasure(beta) );
 		return res;
 	}
 	

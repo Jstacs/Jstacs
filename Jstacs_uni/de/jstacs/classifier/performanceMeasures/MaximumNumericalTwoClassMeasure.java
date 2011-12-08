@@ -16,6 +16,19 @@ public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPe
 	public MaximumNumericalTwoClassMeasure(StringBuffer xml) throws NonParsableException {
 		super(xml);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure#getName()
+	 */
+	@Override
+	public final String getName() {
+		return "Maximum " + getMeasureName();
+	}
+	
+	protected abstract String getMeasureName();
+	
+	protected abstract String getSpecificName();
 
 	protected abstract double getMeasure( double tp, double fp, double fn, double tn );
 	
@@ -63,8 +76,8 @@ public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPe
 					+ "[" + sortedScoresClass1[0] + " .. " + sortedScoresClass1[sortedScoresClass1.length-1] + "].");
 		}
 		return new NumericalResultSet(new NumericalResult[]{
-				new NumericalResult( "Maximum "+ getName(), "The maximal value of the " + getName().toLowerCase(), erg[1] ),
-				new NumericalResult( "Threshold for the maximum "  + getName().toLowerCase(), "", erg[0] )
+				new NumericalResult( "Maximum "+ getSpecificName(), "The maximal value of the " + getSpecificName().toLowerCase(), erg[1] ),
+				new NumericalResult( "Threshold for the maximum "  + getSpecificName().toLowerCase(), "", erg[0] )
 		});
 	}
 
