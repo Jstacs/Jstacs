@@ -125,8 +125,7 @@ public class MeanResultSet extends NumericalResultSet {
 	 * @see de.jstacs.results.ResultSet#fromXML(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
+	protected void fromXML(StringBuffer representation) throws NonParsableException {
 		representation = XMLParser.extractForTag(representation,
 				"meanResultSet");
 		super.fromXML(XMLParser.extractForTag(representation, "superSet"));
@@ -138,7 +137,7 @@ public class MeanResultSet extends NumericalResultSet {
 		}
 		count = (Integer) infos[infos.length - 1].getValue();
 		if( count > 0 ) {
-			squares = XMLParser.extractObjectForTags(representation, "squares", double[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			squares = XMLParser.extractObjectForTags(representation, "squares", double[].class );
 		}
 	}
 
@@ -214,68 +213,40 @@ public class MeanResultSet extends NumericalResultSet {
 			}
 		}
 
-		if (count == 0) {
+		boolean first = count == 0;
+		if ( first ) {
 			results = new AnnotatedEntityList<Result>( anz );
 			squares = new double[anz];
 		} else if (anz != this.getNumberOfResults()) {
 			throw new InconsistentResultNumberException();
 		}
 
-		for (i = 0; i < rs.length; i++) {
-			idx = add(idx, rs[i]);
-		}
-		count++;
-	}
-
-	/**
-	 * Adds the {@link NumericalResultSet}s beginning at the position
-	 * <code>index</code>.
-	 * 
-	 * @param index
-	 *            the start index
-	 * @param res
-	 *            the {@link NumericalResultSet}s to be added
-	 * 
-	 * @return the new index
-	 * 
-	 * @throws IllegalValueException
-	 *             if the new (merged) value could not be set
-	 * @throws AdditionImpossibleException
-	 *             if some results are not comparable (name, comment,type)
-	 */
-	private int add(int index, NumericalResultSet res)
-			throws IllegalValueException, AdditionImpossibleException {
-		if (res != null) {
-			int i = 0, end = res.getNumberOfResults();
-			NumericalResult curr;
-			for (; i < end; i++, index++) {
-				curr = res.getResultAt(i);
-				double currVal = 0;
-				if (curr.getDatatype() == DataType.DOUBLE) {
-					currVal = (Double) curr.getValue();
-				} else {
-					currVal = (Integer) curr.getValue();
-				}
-				squares[index] += currVal * currVal;
-				if ( results.size() <= index ) {
-					NumericalResult nr = new NumericalResult(curr.getName(), curr.getComment(), currVal);
-					if( results.size() == index ) {
-						results.add( nr );
+		NumericalResult curr;
+		for (int r = 0; r < rs.length; r++) {
+			if (rs[r] != null) {
+				int end = rs[r].getNumberOfResults();
+				for ( i = 0; i < end; i++, idx++) {
+					curr = rs[r].getResultAt(i);
+					double currVal = 0;
+					if (curr.getDatatype() == DataType.DOUBLE) {
+						currVal = (Double) curr.getValue();
 					} else {
-						//throw XXX
+						currVal = (Integer) curr.getValue();
 					}
-				} else {
-					if (!results.get( index ).isCastableResult(curr)) {
-						throw new AdditionImpossibleException();
+					squares[idx] += currVal * currVal;
+					if ( first ) {
+						results.add( new NumericalResult(curr.getName(), curr.getComment(), currVal) );
 					} else {
-						((NumericalResult) results.get( index )).setResult(currVal
-								+ ((Number) results.get( index ).getValue())
-										.doubleValue());
+						if (!results.get( idx ).isCastableResult(curr)) {
+							throw new AdditionImpossibleException();
+						} else {
+							((NumericalResult) results.get( idx )).setResult( currVal + ((Number) results.get( idx ).getValue()).doubleValue() );
+						}
 					}
 				}
 			}
 		}
-		return index;
+		count++;
 	}
 
 	/**
