@@ -161,10 +161,10 @@ public final class MRFScoringFunction extends
 	protected void fromXML(StringBuffer representation)
 			throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag(representation, XML_TAG);
-		length = XMLParser.extractObjectForTags(xml, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		alphabets = XMLParser.extractObjectForTags(xml, "alphabets", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		//TODO ess = XMLParser.extractObjectForTags(xml, "ess", double.class );
-		//name = XMLParser.extractObjectForTags(xml, "name", String.class );
+		length = XMLParser.extractObjectForTags(xml, "length", int.class );
+		alphabets = XMLParser.extractObjectForTags(xml, "alphabets", AlphabetContainer.class );
+		ess = XMLParser.extractObjectForTags(xml, "ess", double.class );
+		name = XMLParser.extractObjectForTags(xml, "name", String.class );
 		constr = XMLParser.extractObjectForTags(xml, "constr", MEMConstraint[].class );
 		freeParams = XMLParser.extractObjectForTags(xml, "freeParams", boolean.class );
 		getNumberOfParameters();
