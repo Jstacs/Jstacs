@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeMap;
 
 import de.jstacs.NonParsableException;
@@ -388,41 +387,8 @@ public final class XMLParser {
 		int taglength = tag.length(), start, endOfStart = offset;
 		Map<String, String> myMap = null;
 		boolean found = false;
-		char c;
-		String startTag = "<" + tag;
-/*
-//old//XXX
-		do{
-			start = source.indexOf( startTag, endOfStart );
-			if(start < 0){
-	 			return -1;
-			}
-			endOfStart = source.indexOf( ">", start + taglength );
-			if( endOfStart < 0 ) {
-				throw new NonParsableException( "Could not find appropriate start tag for tag " + tag
-												+ " and attributes "
-												+ Arrays.toString( filterAttributes.keySet().toArray() ) );
-			}
-			endOfStart += 1;
-			c = source.charAt( start+taglength+1 );
-			if( c == ' ' || c == '>' ) {
-				if( filterAttributes != null || attributes != null ) {
-					myMap = parseAttributes( source.substring( start + taglength + 2, endOfStart - 1 ) );
-				}
-				if( filterAttributes != null ) {
-					found = testFilter( myMap, filterAttributes );
-				} else  {
-					found = true;
-				}
-				if( found && attributes != null ) {
-					attributes.putAll( myMap );
-				}
-			}
-		} while( !found );
-		return start;
-/**/
-
-		startTag = "<";
+		
+		String startTag = "<";
 		String endTag = ">";
 		String currentTag;
 		int idx;
@@ -463,7 +429,6 @@ public final class XMLParser {
 			endOfStart = findClosingTag( source, currentTag, attributes, filterAttributes, endOfStart );
 			endOfStart += 3 + currentTag.length();
 		} while( true );
-		/**/
 	}
 	
 	/**
@@ -480,62 +445,7 @@ public final class XMLParser {
 	 * @throws NonParsableException if the XML is malformed (e.g. end tag not found, wrong end tag, ...) 
 	 */
 	private static int findClosingTag( StringBuffer source, String tag, Map<String, String> attributes,
-			Map<String, String> filterAttributes, int offset ) throws NonParsableException {
-/*
-		//old//XXX
-		Stack<String> tags = new Stack<String>();
-		tags.push( tag );
-
-		int pos = 0, endOfTag;
-		int closepos = 0;
-		int closepos2 = 0;
-		int nextpos = source.indexOf( "<", offset );
-		String current;
-		while( ( pos = nextpos ) > 0 ) {
-			closepos = source.indexOf( ">", pos + 1 );
-			nextpos = source.indexOf( "<", pos + 1 );
-
-			if( source.charAt( pos - 1 ) == '\\' ) {
-				//< is escaped -> not XML
-				continue;
-			}
-			if( nextpos >= 0 && nextpos < closepos ) {
-				//another < before >, no < within a tag, hence, skip
-				continue;
-			}
-
-			if( source.charAt( pos + 1 ) == '/' ) {
-				if( source.substring( pos + 2, closepos ).equals( tags.peek() ) ) {
-					tags.pop();
-				} else {
-					throw new NonParsableException( "Malformed XML: Nested tags may not overlap. Open tags: " + tags.toString()
-													+ ",  found end tag "
-													+ source.substring( pos + 2, closepos ) );
-				}
-			} else {
-				closepos2 = source.indexOf( " ", pos + 1 );
-				if( closepos2 < 0 ) {
-					closepos2 = closepos;
-				}
-				endOfTag = Math.min( closepos, closepos2 );
-				current = source.substring( pos + 1, endOfTag );
-				if( current.startsWith( "!--" ) //comment
-						|| current.startsWith( "![CDATA[" ) //CDATA
-						|| current.startsWith( "?" ) //processing information
-						|| source.charAt( closepos-1 ) == '/' //empty element tag 
-					) {
-					continue;
-				} else {
-					tags.push( source.substring( pos + 1, endOfTag ) );
-				}
-			}
-			if( tags.size() == 0 ) {
-				return pos;
-			}
-		}
-		throw new NonParsableException( "Malformed XML: No end tag found for " + tag + "." );
-/**/
-		
+			Map<String, String> filterAttributes, int offset ) throws NonParsableException {	
 		int counter = 1, idx, h;
 		String endTag = "</" + tag + ">", startPrefix = "<" + tag;
 		do {
@@ -654,12 +564,12 @@ public final class XMLParser {
 	 * 
 	 * @see XMLParser#appendObjectWithTagsAndAttributes(StringBuffer, Object, String, String, boolean)
 	 */
-	@SuppressWarnings( "unchecked" )
 	public static<T, S> T extractObjectAndAttributesForTags( StringBuffer xml, String tag, Map<String, String> attributes,
 			Map<String, String> filterAttributes, Class<T> k, Class<S> outerClass, S outerInstance ) throws NonParsableException{
 		return extractObjectAndAttributesForTags( xml, tag, attributes, filterAttributes, k, outerClass, outerInstance, null );
 	}
 	
+	@SuppressWarnings( "unchecked" )
 	private static<T, S> T extractObjectAndAttributesForTags( StringBuffer xml, String tag, Map<String, String> attributes,
 			Map<String, String> filterAttributes, Class<T> k, Class<S> outerClass, S outerInstance, int[] index ) throws NonParsableException{
 		T erg;
@@ -727,25 +637,6 @@ public final class XMLParser {
 				} catch ( NoSuchMethodException e ) {
 					throw getNonParsableException( "You must provide a constructor " + k.getName() + "(StringBuffer).", e );
 				} catch ( Exception e ) {
-					/*
-					System.out.println( tag + "\t" + (filterAttributes!=null?filterAttributes.entrySet().iterator().next().getValue():"") );
-					System.out.println( k );
-					System.out.println( outerClass );
-					System.out.println( outerInstance != null );
-					System.out.println("-----------------------");
-					//System.out.println( old );
-					System.out.println("-----------------------");
-					System.out.println( ex );
-					System.out.println("-----------------------");
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					e.printStackTrace();
-					System.exit( 1 );
-					/**/
 					throw getNonParsableException( "problem at " + k.getName() + ": " + e.getClass().getSimpleName() + ": " + e.getCause().toString()+"\n"+Arrays.toString( e.getCause().getStackTrace() ).replaceAll( "(,|\\[|\\])", "\n-- " )+"]]", e );
 				}
 			} else {

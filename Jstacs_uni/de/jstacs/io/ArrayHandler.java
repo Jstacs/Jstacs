@@ -42,6 +42,7 @@ public final class ArrayHandler {
 	 * 
 	 * @return the superclass of all elements of the given array
 	 */
+	@SuppressWarnings( "unchecked" )
 	public static <T> Class getSuperClassOf( T... o ) {
 		Class current;
 		LinkedList<Class> classHierarchy = new LinkedList<Class>();
@@ -76,7 +77,7 @@ public final class ArrayHandler {
 			return o.getClass().getComponentType();
 		}
 	}
-
+	
 	/**
 	 * This method creates a new array of the superclass of all elements of the
 	 * given array and copies the elements. The order of the elements is not
