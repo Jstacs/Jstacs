@@ -18,6 +18,8 @@
 
 package de.jstacs.data.sequences;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
@@ -30,7 +32,9 @@ import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
+import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.AbstractStringExtractor;
+import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.SymbolExtractor;
 
 /**
@@ -267,6 +271,46 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 		} catch ( Exception doesnothappen ) {
 			throw new RuntimeException( doesnothappen );
 		}
+	}
+	
+	/**
+	 * This method allows to create a {@link DataSet} containing {@link SparseSequence}s using
+	 * a file name. Annotations are parsed by the supplied {@link SequenceAnnotationParser}. The file is 
+	 * assumed to be in FastA format.
+	 * 
+	 * @param con the {@link AlphabetContainer} for the {@link DataSet} and {@link SparseSequence}s
+	 * @param filename the file name
+	 * @param parser a parser for the annotations of the {@link SparseSequence}s
+	 * 
+	 * @return a {@link DataSet} containing {@link SparseSequence}s
+	 * 
+	 * @throws FileNotFoundException if the file <code>filename</code> could not be found
+	 * @throws WrongAlphabetException if the alphabet does not fit the data
+	 * @throws WrongSequenceTypeException if the data can not be represented as floats
+	 * @throws EmptyDataSetException if not sequences exist in <code>filename</code>
+	 * @throws IOException if the file could not be read
+	 */
+	public static DataSet getDataSet( AlphabetContainer con, String filename, SequenceAnnotationParser parser ) throws FileNotFoundException, WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException, IOException{
+		return getDataSet( con, new SparseStringExtractor( filename, '>', parser ) );
+	}
+	
+	/**
+	 * This method allows to create a {@link DataSet} containing {@link SparseSequence}s using
+	 * a file name.
+	 * 
+	 * @param con the {@link AlphabetContainer} for the {@link DataSet} and {@link SparseSequence}s
+	 * @param filename the file name
+	 * 
+	 * @return a {@link DataSet} containing {@link SparseSequence}s
+	 * 
+	 * @throws FileNotFoundException if the file <code>filename</code> could not be found
+	 * @throws WrongAlphabetException if the alphabet does not fit the data
+	 * @throws WrongSequenceTypeException if the data can not be represented as floats
+	 * @throws EmptyDataSetException if not sequences exist in <code>filename</code>
+	 * @throws IOException if the file could not be read
+	 */
+	public static DataSet getDataSet( AlphabetContainer con, String filename ) throws FileNotFoundException, WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException, IOException{
+		return getDataSet( con, new SparseStringExtractor( filename ) );
 	}
 
 	/**
