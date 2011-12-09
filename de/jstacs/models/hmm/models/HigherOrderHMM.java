@@ -732,29 +732,49 @@ public class HigherOrderHMM extends AbstractHMM {
 				}
 				createStates();
 			}
-			for(int i=0;i<workers.length;i++){
-				workers[i].setState( WorkerState.STOP );
-				workers[i] = null;
-			}
+			stopThreads( workers );
 			workers = null;
 		}
 	}
 	
 	private void waitUntilWorkersFinished(WorkerThread[] workers){
-		int i;
+		int i, t = -1;
+		boolean exception = false;
 		while( true )
 		{
 			i = 0;
 			while( i < workers.length && workers[i].isWaiting() ){
+				if( workers[i].exception ) {
+					t = i;
+					exception = true;
+				}
 				i++;
 			}
 			if( i == workers.length ){
-				break;
+				if( exception ) {
+					stopThreads( workers );
+					throw new RuntimeException( "Terminate program, since at leat thread " + t + " throws an exception." );
+				} else {
+					//System.out.println( "raus" );
+					break;
+				}
 			}else{
 				try{
 					wait();
 				} catch( InterruptedException e ) { }
 			}
+		}
+	}
+	
+	/**
+	 * This method can and should be used to stop all threads if they are not needed any longer.
+	 */
+	private void stopThreads( WorkerThread[] workers )
+	{
+		for( int i = 0; i < workers.length; i++ )
+		{
+			workers[i].setState( WorkerState.STOP );
+			workers[i] = null;
 		}
 	}
 	
@@ -1056,6 +1076,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	
 	private class WorkerThread extends Thread{
 
+		private boolean exception;
 		private WorkerState state;
 		private int idx;
 		private int start, end;
@@ -1087,31 +1108,27 @@ public class HigherOrderHMM extends AbstractHMM {
 		
 		@Override
 		public synchronized void run() {
+			exception = false;
 			//System.out.println(idx+" : "+state);
 			while(state != WorkerState.STOP){
 				//System.out.println(idx+" ; "+state);
 				if(state == WorkerState.WAIT){
 					try {
 						wait();
-					} catch ( InterruptedException e ) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					} catch ( InterruptedException e ) {}
 				}else{
 					try{
 						if(state == WorkerState.COMPUTE){
 							score = doOneStep( data, weights, start, end, idx );
 						}
-						
-						synchronized( HigherOrderHMM.this )
-						{
-							state = WorkerState.WAIT;
-							HigherOrderHMM.this.notify();
-						}
 					}catch( Exception e ){
-						RuntimeException re = new RuntimeException( e.getClass().getName() + ": " + e.getMessage() );
-						re.setStackTrace( e.getStackTrace() );
-						throw re;
+						exception = true;
+						e.printStackTrace();
+					}
+					synchronized( HigherOrderHMM.this )
+					{
+						state = WorkerState.WAIT;
+						HigherOrderHMM.this.notify();
 					}
 				}
 			}

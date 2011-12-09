@@ -242,7 +242,8 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 			worker[t].setTask( wt );
 		}
 		
-		int i;
+		boolean exception = false;
+		int t = -1, i;
 		while( true )
 		{
 			i = 0;
@@ -251,12 +252,21 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 				//System.out.println("main: I've the lock");
 				while( i < worker.length && worker[i].isWaiting() )
 				{
+					if( worker[i].exception ) {
+						exception = true;
+						t = i;
+					}
 					i++;
 				}
 				if( i == worker.length )
 				{
-					//System.out.println( "raus" );
-					break;
+					if( exception ) {
+						stopThreads();
+						throw new RuntimeException( "Terminate program, since at leat thread " + t + " throws an exception." );
+					} else {
+						//System.out.println( "raus" );
+						break;
+					}
 				}
 				else
 				{
@@ -345,6 +355,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	{		
 		private WorkerTask task;
 		private int index, startClass, startSeq, endClass, endSeq;
+		private boolean exception;
 		
 		/**
 		 * This constructor creates a {@link Worker} that is used to evaluate the function and its gradient.
@@ -374,6 +385,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 
 		public synchronized void run()
 		{
+			exception = false;
 			while( task != WorkerTask.STOP )
 			{
 				if( task != WorkerTask.WAIT )
@@ -396,9 +408,8 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 					}
 					catch( Exception e )
 					{
-						RuntimeException re = new RuntimeException( e.getClass().getName() + ": " + e.getMessage() );
-						re.setStackTrace( e.getStackTrace() );
-						throw re;
+						exception = true;
+						e.printStackTrace();
 					}
 					synchronized( AbstractMultiThreadedOptimizableFunction.this )
 					{
