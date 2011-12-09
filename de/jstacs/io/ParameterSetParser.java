@@ -274,6 +274,7 @@ public class ParameterSetParser {
 	 *             if <code>instanceClass</code> is <code>null</code>, could not
 	 *             be found or cannot be instantiated from <code>pars</code>
 	 */
+	@SuppressWarnings( "unchecked" )
 	public static InstantiableFromParameterSet getInstanceFromParameterSet( ParameterSet pars, Class instanceClass ) throws NotInstantiableException {
 		if( instanceClass == null ) {
 			throw new NotInstantiableException( "An instance class must be specified." );
