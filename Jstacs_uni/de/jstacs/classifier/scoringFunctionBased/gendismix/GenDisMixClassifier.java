@@ -25,7 +25,6 @@ import de.jstacs.classifier.scoringFunctionBased.ScoreClassifier;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
-import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.scoringFunctions.NormalizableScoringFunction;
