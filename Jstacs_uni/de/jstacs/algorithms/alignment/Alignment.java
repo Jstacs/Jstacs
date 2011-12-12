@@ -51,7 +51,7 @@ public class Alignment {
 	
 	private AlignmentType type;
 	
-	private int startS1, endS1, startS2, endS2;
+	private int startS1, startS2;
 	
 	private Sequence s1, s2;
 
@@ -129,8 +129,8 @@ public class Alignment {
 	 */
 	public PairwiseStringAlignment getAlignment( Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
 
-		this.s1 = s1; this.startS1 = startS1; this.endS1 = endS1;
-		this.s2 = s2; this.startS2 = startS2; this.endS2 = endS2;
+		this.s1 = s1; this.startS1 = startS1;
+		this.s2 = s2; this.startS2 = startS2;
 		
 		int l1 = endS1-startS1, l2 = endS2-startS2, start, end;
 		
