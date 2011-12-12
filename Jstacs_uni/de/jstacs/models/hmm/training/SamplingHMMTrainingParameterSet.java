@@ -108,7 +108,7 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 	 * @return the number of steps to be done in each start before testing for the end of the burn in phase (again)
 	 */
 	public int getNumberOfStepsPerIteration() {
-		return (Integer)getParameterAt( 1 ).getValue();
+		return (Integer)getParameterForName( "stepsPerIteration" ).getValue();
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 	 * @return the number of steps to be done in the stationary phase
 	 */
 	public int getNumberOfStepsInStationaryPhase() {
-		return (Integer)getParameterAt( 2 ).getValue();
+		return (Integer)getParameterForName( "steps" ).getValue();
 	}
 
 	/**
@@ -128,6 +128,6 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 	 * @throws NotInstantiableException if the burn in test could not be created 
 	 */
 	public AbstractBurnInTest getBurnInTest() throws NotInstantiableException {
-		return (AbstractBurnInTest)((AbstractBurnInTestParameterSet)parameters.get( 3 ).getValue()).getInstance();
+		return (AbstractBurnInTest)((AbstractBurnInTestParameterSet)getParameterForName( AbstractBurnInTest.class.getSimpleName() ).getValue()).getInstance();
 	}
 }

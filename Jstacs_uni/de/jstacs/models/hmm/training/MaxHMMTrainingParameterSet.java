@@ -93,6 +93,6 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 	 * @throws NotInstantiableException if the {@link AbstractTerminationCondition} could not be created from its {@link de.jstacs.parameters.ParameterSet}
 	 */
 	public AbstractTerminationCondition getTerminantionCondition() throws NotInstantiableException {
-		return (AbstractTerminationCondition)(((InstanceParameterSet)parameters.get(1).getValue()).getInstance());
+		return (AbstractTerminationCondition)(((InstanceParameterSet)getParameterForName( "termination condition" ).getValue()).getInstance());
 	}
 }

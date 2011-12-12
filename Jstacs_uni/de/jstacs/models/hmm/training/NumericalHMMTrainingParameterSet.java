@@ -129,7 +129,7 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 * @return a byte encoding for the algorithm that should be used for optimization
 	 */
 	public byte getAlgorithm() {
-		return (Byte) getParameterAt( 3 ).getValue();
+		return (Byte) getParameterForName( "algorithm" ).getValue();
 	}
 	
 	/**
@@ -138,7 +138,7 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 * @return the threshold that should be used for stopping the line search during the optimization.
 	 */
 	public double getLineEps() {
-		return (Double) getParameterAt( 4 ).getValue();
+		return (Double) getParameterForName( "line epsilon" ).getValue();
 	}
 	
 	/**
@@ -147,6 +147,6 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 * @return the start distance that should be used in the line search during the optimization.
 	 */
 	public double getStartDistance() {
-		return (Double) getParameterAt( 5 ).getValue();
+		return (Double) getParameterForName( "start distance" ).getValue();
 	}
 }

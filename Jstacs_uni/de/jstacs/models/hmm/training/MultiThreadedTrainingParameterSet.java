@@ -82,6 +82,6 @@ public abstract class MultiThreadedTrainingParameterSet extends MaxHMMTrainingPa
 	 * @return the number of threads that should be used during optimization
 	 */
 	public int getNumberOfThreads() {
-		return (Integer)getParameterAt( 2 ).getValue();
+		return (Integer)getParameterForName( "Threads" ).getValue();
 	}
 }
