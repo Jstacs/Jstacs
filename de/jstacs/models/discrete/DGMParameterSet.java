@@ -193,6 +193,6 @@ public abstract class DGMParameterSet extends SequenceScoringParameterSet {
 	 *             if the ess is negative
 	 */
 	public void setEss( double ess ) throws IllegalValueException {
-		parameters.get( 0 ).setValue( ess );
+		getParameterForName( "ESS" ).setValue( ess );
 	}
 }
