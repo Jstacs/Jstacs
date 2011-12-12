@@ -138,7 +138,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 											double eps, double lineps, double startD, boolean free, KindOfParameter kind, boolean norm, int threads )
 																																		throws Exception {
 		super( instanceClass, alphabet, length, algo, eps, lineps, startD, free, kind );
-		parameters.get( 6 ).setValue( norm );
+		getParameterForName( "Normalize" ).setValue( norm );
 		setNumberOfThreads( threads );
 	}
 
@@ -178,7 +178,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 *         optimization, <code>false</code> otherwise
 	 */
 	public boolean shouldBeNormalized() {
-		return (Boolean)getParameterAt( 6 ).getValue();
+		return (Boolean)getParameterForName( "Normalize" ).getValue();
 	}
 	
 	/**
@@ -187,7 +187,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 * @return the number of threads that should be used during optimization
 	 */
 	public int getNumberOfThreads() {
-		return (Integer)getParameterAt( 7 ).getValue();
+		return (Integer)getParameterForName( "Threads" ).getValue();
 	}
 	
 	/***
@@ -198,6 +198,6 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 * @throws IllegalValueException if the value could not be set
 	 */
 	public void setNumberOfThreads( int threads ) throws IllegalValueException {
-		parameters.get( 7 ).setValue( threads );
+		getParameterForName( "Threads" ).setValue( threads );
 	}
 }
