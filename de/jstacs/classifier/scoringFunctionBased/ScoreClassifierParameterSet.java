@@ -237,7 +237,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	 *         <code>false</code> otherwise
 	 */
 	public boolean useOnlyFreeParameter() {
-		return (Boolean)getParameterAt( 4 ).getValue();
+		return (Boolean)getParameterForName( "free parameters" ).getValue();
 	}
 
 	/* (non-Javadoc)
@@ -265,6 +265,6 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	 * @throws NotInstantiableException if the {@link AbstractTerminationCondition} could not be created from its {@link de.jstacs.parameters.ParameterSet}
 	 */
 	public AbstractTerminationCondition getTerminantionCondition() throws NotInstantiableException {
-		return (AbstractTerminationCondition)(((InstanceParameterSet)parameters.get(1).getValue()).getInstance());
+		return (AbstractTerminationCondition)(((InstanceParameterSet)getParameterForName("termination condition").getValue()).getInstance());
 	}
 }

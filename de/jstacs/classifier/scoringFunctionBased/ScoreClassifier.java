@@ -310,10 +310,10 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 */
 	protected double doOptimization( DataSet[] reduced, double[][] newWeights ) throws Exception {
 		// train
-		byte algo = (Byte) params.getParameterAt( 0 ).getValue();
+		byte algo = (Byte) params.getParameterForName( "algorithm" ).getValue();
 		AbstractTerminationCondition tc = params.getTerminantionCondition();
-		double linEps = (Double) params.getParameterAt( 2 ).getValue(),
-			startDist = (Double) params.getParameterAt( 3 ).getValue();
+		double linEps = (Double) params.getParameterForName( "line epsilon" ).getValue(),
+			startDist = (Double) params.getParameterForName( "start distance" ).getValue();
 		KindOfParameter plugIn;
 
 		double[] best = null;
@@ -403,7 +403,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws Exception if the pre-optimization fails
 	 */
 	protected KindOfParameter preoptimize( OptimizableFunction f ) throws Exception {
-		return (KindOfParameter) params.getParameterAt( 5 ).getValue();
+		return (KindOfParameter) params.getParameterForName( KindOfParameter.class.getSimpleName() ).getValue();
 	}	
 	
 	/**
