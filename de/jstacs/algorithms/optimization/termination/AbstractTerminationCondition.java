@@ -57,6 +57,7 @@ public abstract class AbstractTerminationCondition implements TerminationConditi
 	 *             if the {@link AbstractTerminationCondition} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
+	@SuppressWarnings("unchecked")
 	protected AbstractTerminationCondition( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, getXmlTag() );
 		parameter = (AbstractTerminationConditionParameterSet) XMLParser.extractObjectForTags( xml, "parameter" );
