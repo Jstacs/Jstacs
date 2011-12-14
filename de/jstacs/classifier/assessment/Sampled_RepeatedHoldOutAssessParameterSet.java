@@ -27,8 +27,6 @@ import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
