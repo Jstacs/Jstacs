@@ -353,7 +353,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 										"The section for that this alphabet is applied. Use &quot;,&quot; to separate different positions and &quot;-&quot; to indicate ranges, e.g. 1-3,5.",
 										true ) } ),
 				"Alphabet",
-				"Set the alphabet" );
+				"Set the alphabet", 0 );
 			SimpleParameter length = new SimpleParameter( DataType.INT, "Length", "The length of the array.", true );
 			length.setRangeable( false );
 			this.parameters.add( 0, length );
