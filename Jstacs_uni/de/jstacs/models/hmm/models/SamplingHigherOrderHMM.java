@@ -151,7 +151,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @throws Exception if the sampling step did not succeed
      */
     protected double gibbsSampling( int startPos, int endPos, double weight, Sequence seq ) throws Exception {
-            samplePath( 0,path, startPos, endPos, seq );
+            samplePath( path, startPos, endPos, seq );
             addToStatistics( startPos, weight, seq, path );
             return bwdMatrix[0][0][0];
     }

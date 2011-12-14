@@ -355,14 +355,17 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 */
 	@Override
 	public double getLogScoreFor( Sequence seq, int start, int end ) {
-		//return logProb( start, seq.getLength()-1, seq );
+		return logProb( 0, start, seq.getLength()-1, seq );
+	}
+	
+	protected double logProb( int thread, int startpos, int endpos, Sequence sequence ) {
 		try {
-			fillBwdOrViterbiMatrix( score, 0, start, end, 0, seq );
-			
-			return bwdMatrix[0][0][0];
+			fillBwdOrViterbiMatrix( score, thread, startpos, endpos, 0, sequence );
 		} catch( Exception e ) {
 			throw getRunTimeException( e );
 		}
+
+		return bwdMatrix[thread][0][0];
 	}
 	
 	public double getLogScoreAndPartialDerivation( Sequence seq, IntList indices, DoubleList partialDer ) {

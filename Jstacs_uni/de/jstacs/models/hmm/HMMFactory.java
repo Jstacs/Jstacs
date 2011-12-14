@@ -19,6 +19,7 @@ import de.jstacs.models.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.models.hmm.states.emissions.Emission;
 import de.jstacs.models.hmm.states.emissions.SamplingEmission;
 import de.jstacs.models.hmm.states.emissions.SilentEmission;
+import de.jstacs.models.hmm.states.emissions.UniformEmission;
 import de.jstacs.models.hmm.states.emissions.discrete.AbstractConditionalDiscreteEmission;
 import de.jstacs.models.hmm.states.emissions.discrete.DiscreteEmission;
 import de.jstacs.models.hmm.states.emissions.discrete.PhyloDiscreteEmission;
@@ -142,6 +143,56 @@ public class HMMFactory {
 		addTransitions( states, ess*(expectedSequenceLength-order), selfTranistionPart, order, list );
 		
 		return getHMM( pars, name, null, null, emission, list.toArray( new TransitionElement[0] ), ess, true );
+	}
+	
+	public static AbstractHMM createPseudoErgodicHMM( HMMTrainingParameterSet pars, double ess, double selfTranistionPart, AlphabetContainer con, int numStates, boolean insertUniform ) throws Exception {
+		Emission[] emission = new Emission[numStates+1];
+		String[] name = new String[numStates+1];
+		int[] states;
+		
+		ArrayList<PseudoTransitionElement> list = new ArrayList<PseudoTransitionElement>();
+		double[] hyperParams;
+		
+		//start
+		states = new int[numStates];
+		for( int i = 0; i < states.length; i++ ){
+			states[i] = i;
+		}
+		hyperParams = new double[states.length];
+		double e = ess/hyperParams.length;
+		Arrays.fill( hyperParams, e );
+		list.add( new PseudoTransitionElement( null, states, hyperParams, true ) );
+		
+		//main
+		states = new int[numStates+1];
+		for( int i = 0; i < states.length; i++ ){
+			states[i] = i;
+		}
+		hyperParams = new double[states.length];
+		e = (1-selfTranistionPart)*ess/(hyperParams.length-1);
+		Arrays.fill( hyperParams, e );
+		for( int i = 0; i < numStates; i++ ) {
+			hyperParams[i] = selfTranistionPart*ess;
+			list.add( new PseudoTransitionElement( new int[]{i}, states, hyperParams, true ) );
+			hyperParams[i] = e;			
+		}
+		
+		//final
+		name[numStates] = "F";
+		states[numStates] = numStates-1;
+		emission[numStates] = new SilentEmission();
+		
+		Pair<TransitionElement[], double[]> p = propagateESS(ess, list);
+		double[] stateEss = p.getSecondElement(); 
+		for( int i = 0; i < numStates; i++ ) {
+			name[i] = "" + i;
+			if( insertUniform ) {
+				emission[i] = new UniformEmission( con );
+			} else {
+				emission[i] = new DiscreteEmission( con, stateEss[i] );
+			}
+		}
+		return getHMM( pars, name, null, null, emission, p.getFirstElement(), ess, false );
 	}
 	
 	/**
@@ -318,9 +369,9 @@ public class HMMFactory {
 	 */
 	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, HMMType type, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, boolean closeCircle, double[][] conditionInitProbs) throws Exception{
 		double[][] initFromTo = getInitFromTo(type, ess);
-		return createProfileHMM( trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, conditionalMain, closeCircle, conditionInitProbs );
+		return createProfileHMM( trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, conditionalMain, closeCircle, conditionInitProbs, false );
 	}
-	
+
 	/**
 	 * Creates a new profile HMM for a given architecture and number of layers.
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
@@ -337,11 +388,33 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, boolean closeCircle, double[][] conditionInitProbs) throws Exception{
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, boolean closeCircle, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+		return createProfileHMM(trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, conditionalMain, closeCircle?1:0, conditionInitProbs, insertUniform );
+	}
+	
+	/**
+	 * Creates a new profile HMM for a given architecture and number of layers.
+	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
+	 * @param initFromTo hyper-parameters of the transition from each state (first dimension) of the current layer to each other state in the same layer (first three entries of the second dimension)
+	 * 						and the next layer (next three entries in the second dimension). If a hyper-parameter is set to {@link Double#NaN}, the corresponding transition is not allowed
+	 * @param likelihood if <code>true</code>, the likelihood is considered as score of a sequence, and the probability of the Viterbi path otherwise
+	 * @param order the order of the HMM, i.e., the number of previous states that are considered for a transition probability
+	 * @param numLayers the number of layers of the profile HMM
+	 * @param con the alphabet of the profile HMM
+	 * @param ess the equivalent sample size, is propagated between states to obtain consistent hyper-parameters for all parameters
+	 * @param conditionalMain if <code>true</code>, the match states have {@link ReferenceSequenceDiscreteEmission}s, and {@link DiscreteEmission}s otherwise
+	 * @param joiningStates the number of states used in the joining arc, if not positive the profile HMM does not contain any joining states (i.e. the circle is not closed)
+	 * @param conditionInitProbs the hyper-parameters for initializing the match states if <code>conditionalMain</code> is <code>true. May be <code>null</code> for using the hyper-parameters of the prior
+	 * @return the profile HMM
+	 * @throws Exception if the profile HMM could not be created
+	 */
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
 		PseudoTransitionElement[] coreTransitionTemplate = null;
 		AbstractList<Class<? extends DifferentiableEmission>> emList = new LinkedList<Class<? extends DifferentiableEmission>>();
 		ArrayList<PseudoTransitionElement> list = new ArrayList<PseudoTransitionElement>();
 		AbstractList<String> nameList = new LinkedList<String>();
+		
+		Class<? extends DifferentiableEmission> insertClass = insertUniform ? UniformEmission.class : DiscreteEmission.class;
 		
 		//add states of silent chain (end)
 		int endContext[] = new int[order];
@@ -370,7 +443,7 @@ public class HMMFactory {
 		//TODO multiple cores?
 		
 		//createProfileHMMCore( numLayers, initFromTo, order, emList, nameList, list, offset, conditionalMain, coreTransitionTemplate, "" );
-		createProfileHMMCore( numLayers, lastLayer, initFromTo, order, emList, nameList, list, offset, lastStartNodeIndex, conditionalMain, coreTransitionTemplate, "" );
+		createProfileHMMCore( numLayers, lastLayer, initFromTo, order, emList, nameList, list, offset, lastStartNodeIndex, conditionalMain, coreTransitionTemplate, "", insertClass );
 		
 		//connect with end chain
 		int[] states = new int[6];
@@ -388,28 +461,58 @@ public class HMMFactory {
 		nameList.add( "F" );
 		emList.add( SilentEmission.class );
 				
-		if(closeCircle){
-			nameList.add( "J" );
-			emList.add( DiscreteEmission.class );
+		if(joiningStates>0){
+			int e = emList.size();
+			list.add( new PseudoTransitionElement( endContext, new int[]{e-1, e}, new double[]{ess/2.0,ess/2.0}, true ) );
 			
-			list.add( new PseudoTransitionElement( endContext, new int[]{emList.size()-2, emList.size()-1}, new double[]{ess/2d,ess/2d}, true ) );
+			for( int i = 0; i < joiningStates; i++ ) {
+				nameList.add( "J" + i );
+				emList.add( insertClass );//TODO?
+			}
+			int[] myContext = endContext.clone();
+			System.arraycopy( myContext, 1, myContext, 0, order-1 );
+			myContext[order-1] = e;
+			
+			ContextContainer[] possible = new ContextContainer[joiningStates];
+			for( int i = 0; i < joiningStates; i++ ) {
+				possible[i] = new ContextContainer();
+			}
+			possible[0].addConditional( myContext );
+			ContextContainer extra = new ContextContainer();
 			
 			//cycle in state
-			int[] myContext = endContext.clone();
-			for( int i = 0; i < order; i++ ) {
-				System.arraycopy( myContext, 1, myContext, 0, order-1 );
-				myContext[order-1] = emList.size()-1;
-				list.add( new PseudoTransitionElement( myContext, new int[]{emList.size()-1,order}, new double[]{ess/2.0,ess/2.0}, true ) );				
+			double[] hyperParams = new double[]{ess/3.0,ess/3.0,ess/3.0};
+			int[] children;
+			for( int f = e, j = 0; j < joiningStates; j++, f++ ) {
+				if( j+1 == joiningStates ) {
+					children = new int[]{f,order};
+					hyperParams = new double[]{ess/2.0,ess/2.0};
+				} else {
+					children = new int[]{f,f+1,order};
+				}
+				for( int k = 0; k < possible[j].size(); k++ ) {
+					myContext = possible[j].get(k);
+					list.add( new PseudoTransitionElement( myContext, children, hyperParams, true ) );
+					for( int l = 0; l < children.length; l++ ) {
+						int[] next = myContext.clone();
+						System.arraycopy( next, 1, next, 0, order-1 );
+						next[order-1] = children[l];
+						if( children[l] == order ) {
+							extra.addConditional( next );
+						} else {
+							possible[children[l]-e].addConditional( next );
+						}
+					}
+				}
 			}
-			
 			//go to start
-			myContext = endContext.clone();
-			System.arraycopy( myContext, 1, myContext, 0, order-1 );
-			myContext[order-1] = emList.size()-1;
-			for( int i = 0; i < order-1; i++ ) {
-				System.arraycopy( myContext, 1, myContext, 0, order-1 );
-				myContext[order-1] = order+i;
-				list.add( new PseudoTransitionElement( myContext, new int[]{order+i+1}, new double[]{ess}, true ) );
+			for( int k = 0; k < extra.size(); k++ ) {
+				myContext = extra.get(k).clone();
+				for( int i = 0; i < order-1; i++ ) {
+					list.add( new PseudoTransitionElement( myContext, new int[]{order+i+1}, new double[]{ess}, true ) );
+					System.arraycopy( myContext, 1, myContext, 0, order-1 );
+					myContext[order-1] = order+i+1;
+				}	
 			}
 		} else {
 			list.add( new PseudoTransitionElement( endContext, new int[]{emList.size()-1}, new double[]{ess}, true ) );
@@ -421,6 +524,25 @@ public class HMMFactory {
 		
 		return getHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, em, p.getFirstElement(), ess, likelihood );
 		//return new DifferentiableHigherOrderHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, em, likelihood, ess, p.getFirstElement() );
+	}
+	
+	private static class ContextContainer extends ArrayList<int[]> {
+		public boolean addConditional( int[] newContext ) {
+			int i = 0, j; 
+			while( i < size() ) {
+				int[] test = get(i);
+				j = 0;
+				while( j < newContext.length && newContext[j] == test[j] ) {
+					j++;
+				}
+				if( j == newContext.length ) {
+					return false;
+				}
+				i++;
+			}
+			add( newContext );
+			return true;
+		}
 	}
 
 	private static double[][] getInitFromTo( HMMType type, double ess ) {
@@ -473,10 +595,18 @@ public class HMMFactory {
 				refIdx++;
 			}else{ 
 				Constructor<? extends DifferentiableEmission>[] cons = (Constructor<? extends DifferentiableEmission>[])cl.getConstructors();
-				for(int j=0;j<cons.length;j++){
+				for(int j=0;em[i] == null && j<cons.length;j++){
 					Class[] pars = cons[j].getParameterTypes();
-					if(pars[0] == AlphabetContainer.class && pars[1] == double.class){
-						em[i] = cons[j].newInstance( con, ess[i] );
+					switch( pars.length ) {
+						case 1:
+							if( pars[0] == AlphabetContainer.class) {
+								em[i] = cons[j].newInstance( con );
+							}
+							break;
+						case 2:
+							if( pars[0] == AlphabetContainer.class && pars[1] == double.class){
+								em[i] = cons[j].newInstance( con, ess[i] );
+							}
 					}
 				}
 				if(em[i] == null){
@@ -496,7 +626,7 @@ public class HMMFactory {
 		System.arraycopy( context, s, context, 0, context.length-s );
 	}
 
-	private static void createProfileHMMCore(int numLayers, ArrayList<int[]> lastLayer, double[][] initFromTo, int order, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, AbstractList<PseudoTransitionElement> list, int totalOffset, int lastStartNodeIndex, boolean conditionalMain, PseudoTransitionElement[] coreTransitionTemplate, String suffix){
+	private static void createProfileHMMCore(int numLayers, ArrayList<int[]> lastLayer, double[][] initFromTo, int order, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, AbstractList<PseudoTransitionElement> list, int totalOffset, int lastStartNodeIndex, boolean conditionalMain, PseudoTransitionElement[] coreTransitionTemplate, String suffix, Class<? extends DifferentiableEmission> insertClass ){
 		if( order < 1 ) {
 			throw new IllegalArgumentException("The order of a profile HMM has to be at least 1.");
 		}
@@ -506,7 +636,7 @@ public class HMMFactory {
 		emList.add( SilentEmission.class );
 		nameList.add( "D"+0 + suffix );
 
-		emList.add( DiscreteEmission.class );
+		emList.add( insertClass );
 		nameList.add( "I"+0 + suffix );
 		
 		//connect start layer with initial states
@@ -543,7 +673,7 @@ public class HMMFactory {
 				}
 			}
 			int last = emList.size();
-			createEmissions( createStates, emList, nameList, i+1, conditionalMain, suffix );
+			createEmissions( createStates, emList, nameList, i+1, conditionalMain, suffix, insertClass );
 			shiftContext( states, 3 );
 			for( int j = 3; j < states.length; j++ ) {
 				states[j] = createStates[j-3] ? last++ : -1;
@@ -661,7 +791,7 @@ public class HMMFactory {
 		elements.addAll( tes );
 	}/**/
 
-	private static int createEmissions( boolean[] createState, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, int offset, boolean conditionalMain, String suffix){
+	private static int createEmissions( boolean[] createState, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, int offset, boolean conditionalMain, String suffix, Class<? extends DifferentiableEmission> insertClass){
 		int i=0, a = 0;
 		if( createState[i] ) {
 			emList.add( SilentEmission.class );
@@ -671,7 +801,7 @@ public class HMMFactory {
 		i++;
 
 		if( createState[i] ) {
-			emList.add( DiscreteEmission.class );
+			emList.add( insertClass );
 			nameList.add( "I"+(offset) + suffix );
 			a++;
 		}

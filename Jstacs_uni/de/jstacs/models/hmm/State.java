@@ -71,10 +71,4 @@ public interface State  {
 	 * @see de.jstacs.models.hmm.states.emissions.SilentEmission
 	 */
 	public boolean isSilent();
-	
-	/**
-	 * Returns a {@link String} indentifier for the type of this state.
-	 * @return the identifier
-	 */
-	public String getEmissionType();
 }
