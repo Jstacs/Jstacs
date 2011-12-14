@@ -86,9 +86,4 @@ public class ConfusionMatrix extends AbstractPerformanceMeasure {
 	public String getName() {
 		return "Confusion matrix";
 	}
-
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
-	}
 }

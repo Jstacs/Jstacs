@@ -25,7 +25,9 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.parameters.EnumParameter;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
@@ -54,11 +56,13 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *             if the {@link Sampled_RepeatedHoldOutAssessParameterSet}
 	 *             could not be constructed or the parameters could not be
 	 *             loaded
+	 * @throws ParameterException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public Sampled_RepeatedHoldOutAssessParameterSet() throws UnsupportedOperationException {
+	public Sampled_RepeatedHoldOutAssessParameterSet() throws UnsupportedOperationException, ParameterException {
 		super();
+		addParameters();
 	}
 
 	/**
@@ -119,17 +123,15 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *            if <code>true</code> for test and train dataset the sequences
 	 *            of the non-reference classes have the same length as the
 	 *            corresponding sequence of the reference class
-	 * 
-	 * @throws IllegalValueException
-	 *             in case of out-of-range or invalid given parameters
+	 * @throws ParameterException 
 	 * 
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public Sampled_RepeatedHoldOutAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength,
 														boolean exceptionIfMPNotComputable, int repeats, int referenceClass,
-														double percentage, boolean sameLength ) throws IllegalValueException {
+														double percentage, boolean sameLength ) throws ParameterException {
 		super( elementLength, exceptionIfMPNotComputable );
-
+		addParameters();
 		this.parameters.get( 2 ).setValue( repeats );
 		this.parameters.get( 3 ).setValue( referenceClass );
 		this.parameters.get( 4 ).setValue( percentage );
@@ -137,21 +139,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 		this.parameters.get( 6 ).setValue( sameLength );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#initializeMyParametersArrayList()
-	 */
-	@Override
-	protected void initializeMyParametersArrayList() {
-		initParameterList( 6 );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-
+	private void addParameters() throws ParameterException {
 		// 2-k
 		this.parameters.add( new SimpleParameter( DataType.INT,
 				"repeats",

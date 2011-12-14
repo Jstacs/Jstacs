@@ -22,6 +22,7 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.Alphabet;
 import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 
 /**
@@ -262,11 +263,14 @@ public class ContinuousAlphabet extends Alphabet {
 		/**
 		 * Creates a new {@link ContinuousAlphabetParameterSet} with empty
 		 * values.
-		 * 
+		 * @throws ParameterException 
 		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
-		public ContinuousAlphabetParameterSet() {
+		public ContinuousAlphabetParameterSet() throws ParameterException {
 			super( ContinuousAlphabet.class );
+			parameters.add( new SimpleParameter( DataType.DOUBLE, "Minimum", "The minimal value of the alphabet.", true ) );
+			parameters.add( new SimpleParameter( DataType.DOUBLE, "Maximum", "The maximum value of the alphabet", true ) );
+			parameters.add( new SimpleParameter( DataType.BOOLEAN, "Allow NaN", "Allow NaN values", true, false ) );
 		}
 
 		/**
@@ -305,7 +309,6 @@ public class ContinuousAlphabet extends Alphabet {
 		 */
 		public ContinuousAlphabetParameterSet( double min, double max, boolean allowNaN ) throws Exception {
 			this();
-			loadParameters();
 			parameters.get( 0 ).setValue( new Double( min ) );
 			parameters.get( 1 ).setValue( new Double( max ) );
 			parameters.get( 2 ).setValue( allowNaN );
@@ -330,17 +333,6 @@ public class ContinuousAlphabet extends Alphabet {
 		 */
 		public ContinuousAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {
 			super( representation );
-		}
-
-		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			parameters.add( new SimpleParameter( DataType.DOUBLE, "Minimum", "The minimal value of the alphabet.", true ) );
-			parameters.add( new SimpleParameter( DataType.DOUBLE, "Maximum", "The maximum value of the alphabet", true ) );
-			parameters.add( new SimpleParameter( DataType.BOOLEAN, "Allow NaN", "Allow NaN values", true, false ) );
 		}
 
 		/* (non-Javadoc)

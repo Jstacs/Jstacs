@@ -138,22 +138,14 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 											double eps, double lineps, double startD, boolean free, KindOfParameter kind, boolean norm, int threads )
 																																		throws Exception {
 		super( instanceClass, alphabet, length, algo, eps, lineps, startD, free, kind );
-		getParameterForName( "Normalize" ).setValue( norm );
-		setNumberOfThreads( threads );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.scoringFunctionBased.ScoreClassifierParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
 		parameters.add( new SimpleParameter( DataType.BOOLEAN,
 				"Normalize",
 				"If true the conditional likelihood will be normalized to the number of samples.",
 				true,
 				new Boolean( true ) ) );
 		parameters.add( getThreadsParameter() );
+		getParameterForName( "Normalize" ).setValue( norm );
+		setNumberOfThreads( threads );
 	}
 	
 	private static Parameter getThreadsParameter() {

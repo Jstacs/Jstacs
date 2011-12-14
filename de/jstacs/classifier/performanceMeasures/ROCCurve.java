@@ -137,8 +137,4 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 		}
 	}
 
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
-	}
 }

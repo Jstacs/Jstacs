@@ -3,6 +3,7 @@ package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -17,10 +18,12 @@ public class MaximumFMeasure extends MaximumNumericalTwoClassMeasure {
 	/**
 	 * Constructs a new instance of the performance measure {@link MaximumFMeasure} with empty parameters.
 	 * 
-	 * @throws Exception if the internal parameters can not be created
 	 */
-	public MaximumFMeasure() throws Exception {
-		loadParameters();
+	public MaximumFMeasure() {
+		super();
+		try{
+			parameters.add( new SimpleParameter( DataType.DOUBLE, "beta", "the beta defining the F measure", true, new NumberValidator<Double>(0d,Double.POSITIVE_INFINITY), 1d ) );
+		}catch(ParameterException doesnothappen){ }	
 	}
 	
 	/**
@@ -57,24 +60,7 @@ public class MaximumFMeasure extends MaximumNumericalTwoClassMeasure {
 	
 	@Override
 	protected String getSpecificName() {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
 		return getMeasureName() + " with beta=" + parameters.get("beta").getValue();
-	}
-
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList( 1 );
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "beta", "the beta defining the F measure", true, new NumberValidator<Double>(0d,Double.POSITIVE_INFINITY), 1d ) );
 	}
 
 	@Override

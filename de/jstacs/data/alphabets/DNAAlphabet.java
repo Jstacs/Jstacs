@@ -106,7 +106,7 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 	 * 
 	 * @author Jan Grau, Jens Keilwagen
 	 */
-	public static final class DNAAlphabetParameterSet extends DiscreteAlphabetParameterSet {
+	public static final class DNAAlphabetParameterSet extends AlphabetParameterSet {
 
 		private static final String[] DNA = { "A", "C", "G", "T" };
 
@@ -141,14 +141,6 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 		 */
 		public DNAAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {
 			super( representation );
-		}
-
-		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
 		}
 
 		/* (non-Javadoc)

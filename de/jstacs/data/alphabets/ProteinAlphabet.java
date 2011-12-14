@@ -99,7 +99,7 @@ public final class ProteinAlphabet extends DiscreteAlphabet {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static final class ProteinAlphabetParameterSet extends DiscreteAlphabetParameterSet {
+	public static final class ProteinAlphabetParameterSet extends AlphabetParameterSet {
 
 		private static final String[] AMINOACID = { "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V" };
 
@@ -134,14 +134,6 @@ public final class ProteinAlphabet extends DiscreteAlphabet {
 		 */
 		public ProteinAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {
 			super( representation );
-		}
-
-		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
 		}
 
 		/* (non-Javadoc)

@@ -1,5 +1,7 @@
 package de.jstacs.classifier.performanceMeasures;
 
+import java.util.LinkedList;
+
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.CollectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
@@ -93,7 +95,6 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 		} else {
 			res = new PerformanceMeasureParameters( 2 );
 		}
-		res.loadParameters();
 		res.setMeasure( new ClassificationRate() );
 		res.addMeasure( new SensitivityForFixedSpecificity( spForSn ) );
 		res.addMeasure( new FalsePositiveRateForFixedSensitivity( snForFPR ) );
@@ -130,12 +131,28 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 		return (AbstractPerformanceMeasure)cp.getValue();
 	}
 	
-	public int[] removeMeasures(Class<? extends AbstractPerformanceMeasure> clazz){
-		return null;//TODO
+	public AbstractPerformanceMeasure[] removeMeasures(Class<? extends AbstractPerformanceMeasure> clazz){
+		LinkedList<AbstractPerformanceMeasure> list = new LinkedList<AbstractPerformanceMeasure>();
+		for(int i=0;i<parameters.size();i++){
+			if(((ParameterSet)this.parameters.get( i ).getValue()).getParameterAt( 0 ).getValue().getClass().equals( clazz )){
+				list.add( removeMeasure( i ) );
+				i--;
+			}
+		}
+		return list.toArray( new AbstractPerformanceMeasure[0] );
+		
 	}
 	
-	public int[] removeMeasures(String name){
-		return null;//TODO
+	public AbstractPerformanceMeasure[] removeMeasures(String name){
+		LinkedList<AbstractPerformanceMeasure> list = new LinkedList<AbstractPerformanceMeasure>();
+		for(int i=0;i<parameters.size();i++){
+			AbstractPerformanceMeasure meas = (AbstractPerformanceMeasure)((ParameterSet)this.parameters.get( i ).getValue()).getParameterAt( 0 ).getValue();
+			if(meas.getName().equals( name )){
+				list.add( removeMeasure( i ) );
+				i--;
+			}
+		}
+		return list.toArray( new AbstractPerformanceMeasure[0] );
 	}
 	
 	public AbstractPerformanceMeasure[] getAllMeasures(){

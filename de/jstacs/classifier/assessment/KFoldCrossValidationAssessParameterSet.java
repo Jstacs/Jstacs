@@ -24,7 +24,9 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.parameters.EnumParameter;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
@@ -54,11 +56,12 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 * @throws UnsupportedOperationException
 	 *             if the {@link KFoldCrossValidationAssessParameterSet} could not be
 	 *             constructed or the parameters could not be loaded
-	 * 
+	 * @throws ParameterException 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public KFoldCrossValidationAssessParameterSet() throws UnsupportedOperationException {
+	public KFoldCrossValidationAssessParameterSet() throws UnsupportedOperationException, ParameterException {
 		super();
+		addParameters();
 	}
 
 	/**
@@ -110,17 +113,17 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 *            <code>k</code>) repeated classifier trainings and classifier
 	 *            evaluations (tests) are performed.
 	 * 
-	 * @throws IllegalValueException
-	 *             in case of out-of-range or invalid given parameters
+	 * @throws UnsupportedOperationException 
+	 * @throws ParameterException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public KFoldCrossValidationAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable, int k )
-																																		throws IllegalValueException {
+																																		throws UnsupportedOperationException, ParameterException {
 		super( elementLength, exceptionIfMPNotComputable );
-
+		addParameters();
 		( this.parameters.get( 2 ) ).setValue( new Integer( k ) );
 
 		( this.parameters.get( 3 ) ).setValue( dataSplitMethod );
@@ -130,20 +133,7 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	//	member methods
 	//	**********************
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#initializeMyParametersArrayList()
-	 */
-	@Override
-	protected void initializeMyParametersArrayList() {
-		initParameterList( 4 );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
+	private void addParameters() throws ParameterException {
 
 		//2-k
 		this.parameters.add( new SimpleParameter( DataType.INT,

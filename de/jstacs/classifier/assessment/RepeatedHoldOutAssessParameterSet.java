@@ -27,10 +27,13 @@ import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
@@ -54,15 +57,14 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * &quot;filled&quot; {@link RepeatedHoldOutAssessParameterSet}s, i.e. to
 	 * create {@link RepeatedHoldOutAssessParameterSet}s from a set of values
 	 * and not to fill it from the platform user interface.
-	 * 
-	 * @throws UnsupportedOperationException
-	 *             if the {@link RepeatedHoldOutAssessParameterSet} could not be
-	 *             constructed or the parameters could not be loaded
+	 * @throws ParameterException 
+	 * @throws CloneNotSupportedException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public RepeatedHoldOutAssessParameterSet() throws UnsupportedOperationException {
+	public RepeatedHoldOutAssessParameterSet() throws CloneNotSupportedException, ParameterException {
 		super();
+		addParameters();
 	}
 
 	/**
@@ -121,17 +123,18 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 *            iteration of that {@link RepeatedHoldOutExperiment} this
 	 *            {@link RepeatedHoldOutAssessParameterSet} is used with
 	 * 
-	 * @throws IllegalValueException
-	 *             in case of out-of-range or invalid given parameters
+	 * @throws UnsupportedOperationException 
+	 * @throws ParameterException 
+	 * @throws CloneNotSupportedException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public RepeatedHoldOutAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable,
-												int repeats, double[] percents ) throws IllegalValueException {
+												int repeats, double[] percents ) throws UnsupportedOperationException, CloneNotSupportedException, ParameterException {
 		super( elementLength, exceptionIfMPNotComputable );
-
+		addParameters();
 		this.parameters.get( 2 ).setValue( new Integer( repeats ) );
 
 		ParameterSet[] tempPSA = new ParameterSet[percents.length];
@@ -163,44 +166,24 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * 
 	 * @throws IllegalValueException
 	 *             if something went wrong
+	 * @throws DatatypeNotValidException 
 	 */
-	private ParameterSet getParameterSetContainingASingleDoubleValue( double percent ) throws IllegalValueException {
+	private ParameterSet getParameterSetContainingASingleDoubleValue( double percent ) throws IllegalValueException, DatatypeNotValidException {
 
-		ParameterSet ret = new ParameterSet() {
-
-			@Override
-			protected void loadParameters() throws Exception {
-				initParameterList( 1 );
-				this.parameters.add( new SimpleParameter( DataType.DOUBLE,
+		ParameterSet ret = new SimpleParameterSet( new SimpleParameter( DataType.DOUBLE,
 						"percent",
 						"Defines the percentage of the entire given data (for a " + "specific class) should be used as test-data in a "
 								+ "RepeatedHoldOutExperiment.",
 						true,
 						new NumberValidator<Double>( 0d, 1d ) ) );
-			}
-		};
 		if( !Double.isNaN( percent ) ) {
 			ret.getParameterAt( 0 ).setValue( new Double( percent ) );
 		}
 
 		return ret;
 	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#initializeMyParametersArrayList()
-	 */
-	@Override
-	protected void initializeMyParametersArrayList() {
-		initParameterList( 5 );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-
+	
+	private void addParameters() throws CloneNotSupportedException, ParameterException {
 		//2-k
 		this.parameters.add( new SimpleParameter( DataType.INT,
 				"repeats",
