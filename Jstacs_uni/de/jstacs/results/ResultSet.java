@@ -136,7 +136,9 @@ public class ResultSet implements Storable {
 	 */
 	public Result[] getResults() {
 		Result[] res = new Result[results.size()];
-		System.arraycopy(results, 0, res, 0, res.length);
+		for( int i = 0; i < res.length; i++ ) {
+			res[i] = results.get(i);
+		}
 		return res;
 	}
 
