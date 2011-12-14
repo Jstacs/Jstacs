@@ -74,6 +74,7 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 			boolean plugInParameters, Measure structureMeasure)
 			throws Exception {
 		super(BayesianNetworkScoringFunction.class, alphabet, length, false);
+		addParameters();
 		parameters.get(0).setValue(ess);
 		parameters.get(1).setValue(plugInParameters);
 		InstanceParameterSet struct = structureMeasure.getCurrentParameterSet();
@@ -88,15 +89,16 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 	/**
 	 * Creates a new {@link BayesianNetworkScoringFunctionParameterSet} with
 	 * empty parameter values.
-	 * @throws DatatypeNotValidException 
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
+	 * @throws Exception 
 	 */
-	public BayesianNetworkScoringFunctionParameterSet() throws DatatypeNotValidException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
+	public BayesianNetworkScoringFunctionParameterSet() throws Exception {
 		super(BayesianNetworkScoringFunction.class,
 				AlphabetContainerType.DISCRETE, false);
+		addParameters();
+		
+	}
+
+	private void addParameters() throws Exception {
 		parameters.add(new SimpleParameter(DataType.DOUBLE, "ESS",
 				"The equivalent sample size", true));
 		parameters.add(new SimpleParameter(DataType.BOOLEAN,
@@ -105,7 +107,7 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 				Measure.class.getPackage().getName(), "Structure measure",
 				"Choose a measure to determine the structure.", true));
 	}
-
+	
 	/**
 	 * Creates a new {@link BayesianNetworkScoringFunctionParameterSet} from its
 	 * XML representation as defined by the {@link de.jstacs.Storable}
