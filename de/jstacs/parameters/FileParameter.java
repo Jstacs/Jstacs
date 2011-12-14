@@ -128,7 +128,6 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	public FileParameter(String name, String comment, String mime, boolean required, ParameterValidator validator) {
 		this(name, comment, mime, required);
 		this.valid = validator;
-		this.datatype = DataType.FILE;
 	}
 
 	/*

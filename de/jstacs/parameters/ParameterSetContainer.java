@@ -58,12 +58,9 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 */
 	public ParameterSetContainer(String name, String comment,
 			ParameterSet content) {
-		super( name, comment, DataType.PARAMETERSET );
-		this.comment = comment;
+		this( name, comment, content.getClass() );
 		this.parameters = content;
 		this.parameters.setParent(this);
-		this.parameterClass = this.parameters.getClass();
-		this.errorMessage = null;
 	}
 	
 	/**
@@ -74,14 +71,12 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 *            the name of the {@link ParameterSetContainer}
 	 * @param comment
 	 *            a comment on the {@link ParameterSetContainer}
-	 * @param content
-	 *            the content of the {@link ParameterSetContainer} (the
-	 *            contained {@link ParameterSet})
+	 * @param contentClazz
+	 *            the class of the contained {@link ParameterSet}
 	 */
 	public ParameterSetContainer(String name, String comment,
 			Class<? extends ParameterSet> contentClazz) {
 		super( name, comment, DataType.PARAMETERSET );
-		this.comment = comment;
 		this.parameterClass = contentClazz;
 		this.errorMessage = null;
 	}
