@@ -22,6 +22,7 @@ package de.jstacs.algorithms.optimization.termination;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.utils.Time;
@@ -106,9 +107,15 @@ public class AbsoluteValueCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
+		 * @throws DatatypeNotValidException 
 		 */
-		public AbsoluteValueConditionParameterSet() {
+		public AbsoluteValueConditionParameterSet() throws DatatypeNotValidException {
 			super( AbsoluteValueCondition.class );
+			parameters.add( new SimpleParameter( DataType.DOUBLE,
+					"absolute value",
+					"if the optimized value is smaller than this value the algorithm is stopped",
+					true,
+					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
 		}
 		
 		/**
@@ -134,8 +141,9 @@ public class AbsoluteValueCondition extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
+		 * @throws DatatypeNotValidException 
 		 */
-		public AbsoluteValueConditionParameterSet( double absValue ) throws IllegalArgumentException, IllegalValueException {
+		public AbsoluteValueConditionParameterSet( double absValue ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
 			this();
 			this.getParameterAt( 0 ).setValue( absValue );
 		}
@@ -150,15 +158,5 @@ public class AbsoluteValueCondition extends AbstractTerminationCondition {
 			return "AbsoluteValueConditionParameterSet";
 		}
 
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"absolute value",
-					"if the optimized value is smaller than this value the algorithm is stopped",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
-
-		}
 	}
 }

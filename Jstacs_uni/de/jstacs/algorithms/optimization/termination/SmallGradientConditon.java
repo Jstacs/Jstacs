@@ -20,6 +20,7 @@ package de.jstacs.algorithms.optimization.termination;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.utils.Time;
@@ -105,9 +106,15 @@ public class SmallGradientConditon extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
+		 * @throws DatatypeNotValidException 
 		 */
-		public SmallGradientConditonParameterSet() {
+		public SmallGradientConditonParameterSet() throws DatatypeNotValidException {
 			super( SmallGradientConditon.class );
+			parameters.add( new SimpleParameter( DataType.DOUBLE,
+					"epsilon",
+					"the epsilon for the gradient used for deciding whether to stop the algorithm or not",
+					true,
+					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
 		}
 		
 		/**
@@ -133,8 +140,9 @@ public class SmallGradientConditon extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
+		 * @throws DatatypeNotValidException 
 		 */
-		public SmallGradientConditonParameterSet( double eps ) throws IllegalArgumentException, IllegalValueException {
+		public SmallGradientConditonParameterSet( double eps ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
 			this();
 			getParameterAt( 0 ).setValue( eps );
 		}
@@ -147,17 +155,6 @@ public class SmallGradientConditon extends AbstractTerminationCondition {
 		@Override
 		public String getInstanceName() {
 			return "SmallGradientConditonParameterSet";
-		}
-
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"epsilon",
-					"the epsilon for the gradient used for deciding whether to stop the algorithm or not",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
-
 		}
 	}
 }

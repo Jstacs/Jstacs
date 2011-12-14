@@ -22,6 +22,7 @@ package de.jstacs.algorithms.optimization.termination;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.utils.Time;
@@ -102,9 +103,15 @@ public class TimeCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
+		 * @throws DatatypeNotValidException 
 		 */
-		public TimeConditionParameterSet() {
+		public TimeConditionParameterSet() throws DatatypeNotValidException {
 			super( TimeCondition.class );
+			parameters.add( new SimpleParameter( DataType.DOUBLE,
+					"seconds",
+					"the number of seconds until stopping the algorithm",
+					true,
+					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
 		}
 		
 		/**
@@ -130,8 +137,9 @@ public class TimeCondition extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
+		 * @throws DatatypeNotValidException 
 		 */
-		public TimeConditionParameterSet( double seconds ) throws IllegalArgumentException, IllegalValueException {
+		public TimeConditionParameterSet( double seconds ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
 			this();
 			this.getParameterAt( 0 ).setValue( seconds );
 		}
@@ -146,15 +154,5 @@ public class TimeCondition extends AbstractTerminationCondition {
 			return "TimeConditionParameterSet";
 		}
 
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"seconds",
-					"the number of seconds until stopping the algorithm",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
-
-		}
 	}
 }
