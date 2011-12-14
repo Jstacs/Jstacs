@@ -222,24 +222,41 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	
 	public AbstractConditionalDiscreteEmission clone() throws CloneNotSupportedException {
 		AbstractConditionalDiscreteEmission clone = (AbstractConditionalDiscreteEmission) super.clone();
-		clone.params = ArrayHandler.clone( params );
-		clone.probs = ArrayHandler.clone( probs );
-		clone.hyperParams = ArrayHandler.clone( hyperParams );
-		clone.statistic = ArrayHandler.clone( statistic );
-		if(grad != null){
-			clone.grad = grad.clone();
-		}
-		if(logNorm != null){
-			clone.logNorm = logNorm.clone();
+		clone.colors = colors == null ? null : colors.clone();
+		if(counter != null){
+			clone.counter = counter.clone();
 		}
 		if(ess != null){
 			clone.ess = ess.clone();
 		}
-		if(counter != null){
-			clone.counter = counter.clone();
+		if(grad != null){
+			clone.grad = grad.clone();
 		}
-		
-		//TODO clone colors, initHyperParams, paramsFile, reader, writer
+		clone.hyperParams = ArrayHandler.clone( hyperParams );
+		clone.initHyperParams = ArrayHandler.clone( initHyperParams );
+		if(logNorm != null){
+			clone.logNorm = logNorm.clone();
+		}
+		clone.params = ArrayHandler.clone( params );
+		if( paramsFile != null ) {
+			clone.paramsFile = new File[paramsFile.length];
+			try {
+				for( int i = 0; i < paramsFile.length; i++ ) {
+					if( paramsFile[i] != null ) {
+						clone.paramsFile[i] = createFile();
+						FileManager.copy( paramsFile[i].getAbsolutePath(), clone.paramsFile[i].getAbsolutePath() );
+					}
+				}
+			} catch( IOException e ) {
+				CloneNotSupportedException c = new CloneNotSupportedException( e.getMessage() );
+				c.setStackTrace( e.getStackTrace() );
+				throw c;
+			}
+		}
+		clone.probs = ArrayHandler.clone( probs );
+		clone.reader = null; //XXX ??
+		clone.statistic = ArrayHandler.clone( statistic );
+		clone.writer = null; //XXX ??
 		return clone;
 	}
 	
@@ -484,7 +501,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 					filter.put( "pos", ""+i );
 					content = XMLParser.extractObjectAndAttributesForTags( xml, "fileContent", null, filter, String.class );
 					if( !content.equalsIgnoreCase( "" ) ) {
-						paramsFile[i] = File.createTempFile( "samplingDEmission-", ".dat", null );
+						paramsFile[i] = createFile();
 						FileManager.writeFile( paramsFile[i], new StringBuffer( content ) );
 					}
 				}
@@ -680,7 +697,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	public void extendSampling(int start, boolean append) throws IOException {
 		
 		if( paramsFile[start] == null ) {
-			paramsFile[start] = File.createTempFile( "samplingDEmission-", ".dat", null );
+			paramsFile[start] = createFile();
 		} else {
 			if( append ) {
 				parseParameterSet( start, counter[start] - 1 );
@@ -941,5 +958,9 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	@Override
 	public int getSizeOfEventSpace() {
 		return params.length*params[0].length;
+	}
+	
+	private File createFile() throws IOException {
+		return File.createTempFile( "samplingDEmission-", ".dat", null );
 	}
 }

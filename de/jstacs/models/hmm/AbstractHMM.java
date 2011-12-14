@@ -24,6 +24,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
@@ -36,6 +37,7 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.AbstractModel;
 import de.jstacs.models.hmm.states.emissions.Emission;
+import de.jstacs.models.hmm.states.emissions.SilentEmission;
 import de.jstacs.models.hmm.training.MultiThreadedTrainingParameterSet;
 import de.jstacs.models.hmm.transitions.BasicHigherOrderTransition;
 import de.jstacs.models.hmm.transitions.HigherOrderTransition;
@@ -461,6 +463,15 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @return a {@link String} representation of the structure
 	 */
 	public String getGraphvizRepresentation( NumberFormat nf, DataSet data, double[] weight, boolean sameTypeSameRank ) {
+		HashMap<String, String> map = new HashMap<String, String>();
+		String regex = ".*";
+		for( int i = 0; i < name.length; i++ ) {
+			map.put( name[i].charAt(0) + regex, "same" );
+		}
+		return getGraphvizRepresentation(nf, data, weight, map );
+	}
+		
+	public String getGraphvizRepresentation( NumberFormat nf, DataSet data, double[] weight, HashMap<String, String> rankPatterns ) {
 		double[] freq = null;
 		double maxFreq = 0;
 		if(data != null){
@@ -478,26 +489,38 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 			maxFreq = -1;
 		}
 		StringBuffer sb = new StringBuffer();
-		sb.append( "digraph G {\n\trankdir="+(sameTypeSameRank ? "TB" : "LR")+"\n\n" );
+		sb.append( "digraph G {\n\trankdir="+(rankPatterns != null ? "TB" : "LR")+"\n\n" );
 		sb.append( "\t" + START_NODE + "[shape=point];\n\n" );
 		for( int s = 0; s < states[0].length; s++ ) {
 			sb.append( "\t"+s+"[" + states[0][s].getGraphvizNodeOptions( freq[s], maxFreq, nf ) + ",color=" + (finalState[s]?"red":"black")+ "];\n" );
 		}
 		
-		if(sameTypeSameRank){
+		if(rankPatterns != null){
 			StringBuffer ranks = new StringBuffer();
 			HashMap<String, IntList> map = new HashMap<String, IntList>();
-			for(int s=0;s<states[0].length;s++){
-				String key = states[0][s].getEmissionType();
-				if(map.get( key ) == null){
-					map.put( key, new IntList() );
+			for(int s=0;s<name.length;s++){
+				Iterator<String> it = rankPatterns.keySet().iterator();
+				while( it.hasNext() ) {
+					String key = it.next();
+					if( name[s].matches( key ) ) {
+						IntList list = map.get( key );
+						if(list == null){
+							map.put( key, new IntList() );
+						}
+						map.get( key ).add( s );
+						break;
+					}
 				}
-				map.get( key ).add( s );
 			}
 			
+			boolean startRanked = false;
 			for(String key : map.keySet()){
-				ranks.append( "{rank=same; " );
 				
+				ranks.append( "{rank=" + rankPatterns.get(key) + "; " );
+				if( !startRanked && START_NODE.matches( key ) ) {
+					ranks.append( START_NODE + " " );
+					startRanked = true;
+				}
 				IntList list = map.get( key );
 				for(int i=0;i<list.length();i++){
 					ranks.append( list.get( i )+" " );
@@ -834,12 +857,16 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @throws Exception if the model has no parameters (for instance if it is not trained)
 	 */
 	protected double logProb( int startpos, int endpos, Sequence sequence ) throws Exception {
+		return logProb(0, startpos, endpos, sequence);
+	}	
+	
+	protected double logProb( int thread, int startpos, int endpos, Sequence sequence ) throws Exception {
 		try {
-			fillBwdMatrix(0,startpos, endpos, sequence);
+			fillBwdMatrix(thread,startpos, endpos, sequence);
 		} catch( Exception e ) {
 			throw getRunTimeException( e );
 		}
-		return bwdMatrix[0][0][0];
+		return bwdMatrix[thread][0][0];
 	}
 	
 	/*

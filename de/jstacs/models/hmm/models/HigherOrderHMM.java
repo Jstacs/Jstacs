@@ -114,6 +114,8 @@ public class HigherOrderHMM extends AbstractHMM {
 	protected IntList[] stateList;
 	protected boolean skipInit;
 	
+	private WorkerThread[] workers;
+	
 	/**
 	 * This is a convenience constructor. It assumes that state <code>i</code> used emission <code>i</code> on the forward strand.
 	 * 
@@ -236,6 +238,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		for(int i=0;i<threads;i++){
 			clone.createHelperVariables(i);
 		}
+		clone.workers = null;
 		return clone;
 	}
 	
@@ -658,6 +661,15 @@ public class HigherOrderHMM extends AbstractHMM {
 		this.skipInit = skipInit;
 	}
 */	
+	private void setDataSet( DataSet data, double[] weights ) {
+		int last = 0, N = data.getNumberOfElements();
+		for(int i=0;i<threads-1;i++){
+			workers[i].set( last, (i+1)*N/workers.length, data, weights );
+			last = workers[i].end;
+		}
+		workers[ workers.length-1 ].set( last, N, data, weights );
+	}
+	
 	public synchronized void train(DataSet data, double[] weights) throws Exception {
 		if( !(trainingParameter instanceof MaxHMMTrainingParameterSet) ) {
 			throw new IllegalArgumentException( "This kind of training is currently not supported." );
@@ -665,20 +677,20 @@ public class HigherOrderHMM extends AbstractHMM {
 			Transition bestTransition = null;
 			Emission[] bestEmissions = null;
 			double best = Double.NEGATIVE_INFINITY;
-			
-			int N = data.getNumberOfElements();
-			
+					
 			int numberOfStarts = trainingParameter.getNumberOfStarts();
 			AbstractTerminationCondition tc = ((MaxHMMTrainingParameterSet) trainingParameter).getTerminantionCondition();
-			WorkerThread[] workers = new WorkerThread[threads];
-			int last = 0;
-			for(int i=0;i<threads-1;i++){
-				workers[i] = new WorkerThread( i, last, (i+1)*N/workers.length, data, weights );
-				workers[i].start();
-				last = workers[i].end;
+			
+			if( workers == null || workers.length != threads ) {
+				if( workers != null ) {
+					stopThreads();
+				}
+				workers = new WorkerThread[threads];
+				for(int i=0;i<threads;i++){
+					workers[i] = new WorkerThread( i );
+				}
 			}
-			workers[ workers.length-1 ] = new WorkerThread( workers.length-1, last, N, data, weights );
-			workers[ workers.length-1 ].start();
+			setDataSet( data, weights );
 			
 			RealTime time = new RealTime();
 			for( int it, start = 0; start < numberOfStarts; start++ ) {
@@ -700,7 +712,7 @@ public class HigherOrderHMM extends AbstractHMM {
 					for(int i=0;i<workers.length;i++){
 						workers[i].setState( WorkerState.COMPUTE );
 					}
-					waitUntilWorkersFinished(workers);
+					waitUntilWorkersFinished();
 					for(int i=0;i<workers.length;i++){
 						new_value += workers[i].getScore();
 					}
@@ -732,12 +744,10 @@ public class HigherOrderHMM extends AbstractHMM {
 				}
 				createStates();
 			}
-			stopThreads( workers );
-			workers = null;
 		}
 	}
 	
-	private void waitUntilWorkersFinished(WorkerThread[] workers){
+	private void waitUntilWorkersFinished(){
 		int i, t = -1;
 		boolean exception = false;
 		while( true )
@@ -752,7 +762,7 @@ public class HigherOrderHMM extends AbstractHMM {
 			}
 			if( i == workers.length ){
 				if( exception ) {
-					stopThreads( workers );
+					stopThreads();
 					throw new RuntimeException( "Terminate program, since at leat thread " + t + " throws an exception." );
 				} else {
 					//System.out.println( "raus" );
@@ -769,7 +779,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	/**
 	 * This method can and should be used to stop all threads if they are not needed any longer.
 	 */
-	private void stopThreads( WorkerThread[] workers )
+	private void stopThreads()
 	{
 		for( int i = 0; i < workers.length; i++ )
 		{
@@ -883,14 +893,14 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 	
 	@Override
-	public double[] getLogScoreFor(DataSet data) throws Exception {
+	public synchronized double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] logProb = new double[data.getNumberOfElements()];
 		getLogScoreFor(data, logProb);
 		return logProb;
 	}
 
 	@Override
-	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
+	public synchronized void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if( !data.getAlphabetContainer().checkConsistency(getAlphabetContainer()) ) {
 			throw new WrongAlphabetException( "The AlphabetContainer of the sample and the model do not match." );
 		}
@@ -899,9 +909,17 @@ public class HigherOrderHMM extends AbstractHMM {
 			throw new WrongLengthException( "The length of the sample and the model do not match." );
 		}
 		Sequence seq;
-		for( int n = 0; n < data.getNumberOfElements(); n++ ) {
-			seq = data.getElementAt(n);
-			res[n] = logProb(0,seq.getLength()-1,seq);
+		if( workers == null ) {
+			for( int n = 0; n < data.getNumberOfElements(); n++ ) {
+				seq = data.getElementAt(n);
+				res[n] = logProb(0,seq.getLength()-1,seq);
+			}
+		} else {
+			setDataSet(data, res);
+			for( int n = 0; n < threads; n++ ) {
+				workers[n].setState( WorkerState.LOG_SCORE );
+			}
+			waitUntilWorkersFinished();		
 		}
 	}
 	
@@ -930,13 +948,16 @@ public class HigherOrderHMM extends AbstractHMM {
 		logEmission = null;
 		forwardIntermediate = null;
 		backwardIntermediate = null;
+		if( workers != null ) {
+			stopThreads();
+			workers = null;
+		}
 		super.finalize();
 	}
 	
 	/**
 	 * This method samples a valid path for the given sequence <code>seq</code> using the internal parameters.
 	 *  
-	 * @param thread the index of the thread that calls this method
 	 * @param path an {@link IntList} containing the path after using this method 
 	 * @param startPos the start position
 	 * @param endPos the end position
@@ -944,7 +965,8 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * 
 	 * @throws Exception if an error occurs during computation
 	 */
-	public void samplePath( int thread, IntList path, int startPos, int endPos, Sequence seq ) throws Exception {		
+	public void samplePath( IntList path, int startPos, int endPos, Sequence seq ) throws Exception {
+		int thread = 0;
 		fillBwdMatrix( thread, startPos, endPos, seq );
 		
 		int l = 0, stateID, context = 0, n;
@@ -1068,7 +1090,8 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 	/**/
 	
-	private enum WorkerState{
+	private static enum WorkerState{
+		LOG_SCORE,
 		COMPUTE,
 		WAIT,
 		STOP
@@ -1084,17 +1107,30 @@ public class HigherOrderHMM extends AbstractHMM {
 		private DataSet data;
 		private double[] weights;
 
-		
-		
-		public WorkerThread(int idx, int start, int end, DataSet data, double[] weights){
+		public WorkerThread( int idx ) {
 			this.idx = idx;
+			this.setDaemon( true );
+			this.state = WorkerState.WAIT;
+			start();
+		}
+		
+		private void set( int start, int end, DataSet data, double[] weights){
 			this.start = start;
 			this.end = end;
 			this.score = 0;
-			this.state = WorkerState.WAIT;
 			this.data = data;
+			
+			/*XXX remove
+			int n = 0;
+			for( int i = start; i < end; i++){
+				n+= data.getElementAt(i).getLength();
+			}
+			System.out.println( idx + "\t" + n );
+			System.out.flush();
+			*/
 			this.weights = weights;
-			this.setDaemon( true );
+			
+			this.state = WorkerState.WAIT;
 		}
 		
 		public double getScore() {
@@ -1120,6 +1156,12 @@ public class HigherOrderHMM extends AbstractHMM {
 					try{
 						if(state == WorkerState.COMPUTE){
 							score = doOneStep( data, weights, start, end, idx );
+						} else if( state == WorkerState.LOG_SCORE ) {
+							Sequence seq;
+							for( int i = start; i < end; i++ ) {
+								seq = data.getElementAt(i);
+								weights[i] = logProb(idx, 0, seq.getLength()-1, seq );
+							}
 						}
 					}catch( Exception e ){
 						exception = true;
@@ -1136,9 +1178,6 @@ public class HigherOrderHMM extends AbstractHMM {
 		
 		public boolean isWaiting(){
 			return state == WorkerState.WAIT;
-		}
-		
+		}	
 	}
-	
-	
 }
