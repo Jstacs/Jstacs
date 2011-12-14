@@ -84,7 +84,7 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(StringBuffer)
 	 */
-	protected RepeatedSubSamplingAssessParameterSet( StringBuffer representation ) throws NonParsableException {
+	public RepeatedSubSamplingAssessParameterSet( StringBuffer representation ) throws NonParsableException {
 		super( representation );
 	}
 
