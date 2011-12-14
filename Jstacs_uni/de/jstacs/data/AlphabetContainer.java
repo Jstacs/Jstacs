@@ -39,6 +39,7 @@ import de.jstacs.io.ParameterSetParser;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.utils.SubclassFinder;
@@ -124,18 +125,18 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 * @throws IOException
 		 *             if the classes are searched for in a jar file, but that
 		 *             file could not be accessed or read
+		 * @throws ParameterException 
 		 */
 		public LinkedList<InstanceParameterSet> getInstanceParameterSets()
 				throws ClassNotFoundException, IOException,
-				InstantiationException, IllegalAccessException {
+				InstantiationException, IllegalAccessException, ParameterException {
 			LinkedList<InstanceParameterSet> list = new LinkedList<InstanceParameterSet>();
 			if (this != CONTINUOUS) {
 				list.addAll(SubclassFinder.getInstanceParameterSets(
 						DiscreteAlphabet.class, "de.jstacs.data"));
 			}
 			if (this != DISCRETE) {
-				list
-						.add(new ContinuousAlphabet.ContinuousAlphabetParameterSet());
+				list.add(new ContinuousAlphabet.ContinuousAlphabetParameterSet());
 			}
 			return list;
 		}
