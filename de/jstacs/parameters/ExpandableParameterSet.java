@@ -68,15 +68,11 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *            the name-template
 	 * @param commentTemplate
 	 *            the comment-template
+	 * @throws CloneNotSupportedException 
 	 */
 	public ExpandableParameterSet(ParameterSet template, String nameTemplate,
-			String commentTemplate) {
-		super();
-		this.template = template;
-		this.nameTemplate = nameTemplate;
-		this.commentTemplate = commentTemplate;
-		this.count = 0;
-		this.initCount = 1;
+			String commentTemplate) throws CloneNotSupportedException {
+		this( template, nameTemplate, commentTemplate, 1 );
 	}
 
 	/**
@@ -96,15 +92,19 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *            the comment-template
 	 * @param initCount
 	 *            the number of initial copies of the template
+	 * @throws CloneNotSupportedException 
 	 */
 	public ExpandableParameterSet(ParameterSet template, String nameTemplate,
-			String commentTemplate, int initCount) {
+			String commentTemplate, int initCount) throws CloneNotSupportedException {
 		super();
 		this.template = template;
 		this.nameTemplate = nameTemplate;
 		this.commentTemplate = commentTemplate;
 		this.count = 0;
 		this.initCount = initCount;
+		for (int i = 0; i < initCount; i++) {
+			addParameterToSet();
+		}
 	}
 
 	/**
@@ -150,8 +150,6 @@ public class ExpandableParameterSet extends ParameterSet {
 					"At least one of the given ParameterSets is not of "
 							+ "the specified template-Type");
 		}
-
-		initParameterList(templateAndContent.length);
 		for (int i = 0; i < templateAndContent.length; i++) {
 			parameters.add(new ParameterSetContainer(nameTemplate + " no. "
 					+ (i + 1), commentTemplate, templateAndContent[i]));
@@ -172,32 +170,6 @@ public class ExpandableParameterSet extends ParameterSet {
 		return clone;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		if (parameters == null) {
-			initParameterList();
-			for (int i = 0; i < initCount; i++) {
-				addParameterToSet();
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.parameters.ParameterSet#replaceParametersWithRangedInstance()
-	 */
-	@Override
-	protected void replaceParametersWithRangedInstance() throws Exception {
-		this.template.makeRanged();
-		super.replaceParametersWithRangedInstance();
-	}
 
 	/**
 	 * Adds a new {@link ParameterSetContainer} containing a clone of the
@@ -207,16 +179,7 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *             if the template could not be cloned
 	 */
 	public void addParameterToSet() throws CloneNotSupportedException {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		
 		ParameterSetContainer simplePar = new ParameterSetContainer(
 				nameTemplate + " no. " + (++count), commentTemplate, template
 						.clone());
@@ -284,16 +247,6 @@ public class ExpandableParameterSet extends ParameterSet {
 	 * Removes the last {@link Parameter} from set.
 	 */
 	public void removeParameterFromSet() {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 
 		if (count > 0) {
 			parameters.remove(parameters.size() - 1);

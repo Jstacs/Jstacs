@@ -36,7 +36,9 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 	/**
 	 * This is the empty constructor that can be used to fill the parameters after creation.
 	 */
-	protected MaxHMMTrainingParameterSet() {}
+	protected MaxHMMTrainingParameterSet() {
+		addParameters();
+	}
 
 	/**
 	 * This constructor can be used to create an instance with specified parameters.
@@ -48,6 +50,7 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 	 */
 	protected MaxHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc ) throws Exception {
 		super( starts );
+		addParameters();
 		parameters.get(1).setValue(tc.getCurrentParameterSet());
 	}
 
@@ -66,22 +69,23 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 		super( xml );
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.models.hmm.HMMTrainingParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		parameters.add(
-				SubclassFinder.getCollection(
-						AbstractTerminationCondition.class,
-						AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
-						"termination condition",
-						"the terminantion condition for stopping the training algorithm",
-						true
-				)
-		);
+
+	private void addParameters() {
+		try{
+			parameters.add(
+					SubclassFinder.getCollection(
+							AbstractTerminationCondition.class,
+							AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
+							"termination condition",
+							"the terminantion condition for stopping the training algorithm",
+							true
+					)
+			);
+		}catch(Exception hopefullydoesnothappen){
+			RuntimeException ex = new RuntimeException( hopefullydoesnothappen );
+			ex.setStackTrace( hopefullydoesnothappen.getStackTrace() );
+			throw ex;
+		}
 	}
 
 	/**

@@ -24,6 +24,7 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.discrete.inhomogeneous.FSDAGModel;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 
 /**
  * The class for the parameters of a {@link FSDAGModel} (<b>f</b>ixed
@@ -109,6 +110,14 @@ public class FSDAGMParameterSet extends IDGMParameterSet {
 	 */
 	protected FSDAGMParameterSet( Class<? extends FSDAGModel> clazz ) {
 		super( clazz );
+		try {
+			parameters.add( new SimpleParameter( DataType.STRING,
+					"graph structure",
+					"the graph structure for the model (has to be acyclic)&lt;br&gt;" + "The graph has to be given in a semi-XML-format, i.e. if 1, 2 and 5 are the parents from node 0 enter&lt;br&gt;"
+							+ "&lt;parents node=0&gt;1,2,5&lt;/parents&gt;&lt;br&gt;"
+							+ "the root nodes do not have to be insert explicitly",
+					false ) );
+		} catch ( DatatypeNotValidException doesnothappen ) { }
 	}
 
 	/**
@@ -145,21 +154,13 @@ public class FSDAGMParameterSet extends IDGMParameterSet {
 	protected FSDAGMParameterSet( Class<? extends FSDAGModel> clazz, AlphabetContainer alphabet, int length, double ess,
 									String description, String graph ) throws Exception {
 		super( clazz, alphabet, length, ess, description );
-		parameters.get( 2 ).setValue( graph );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.models.discrete.DGMParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
 		parameters.add( new SimpleParameter( DataType.STRING,
 				"graph structure",
 				"the graph structure for the model (has to be acyclic)&lt;br&gt;" + "The graph has to be given in a semi-XML-format, i.e. if 1, 2 and 5 are the parents from node 0 enter&lt;br&gt;"
 						+ "&lt;parents node=0&gt;1,2,5&lt;/parents&gt;&lt;br&gt;"
 						+ "the root nodes do not have to be insert explicitly",
 				false ) );
+		parameters.get( 2 ).setValue( graph );
 	}
 
 	/* (non-Javadoc)

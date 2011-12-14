@@ -114,15 +114,10 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 						"The length of sequences the model can work on", true,
 						new NumberValidator<Integer>(1, Integer.MAX_VALUE));
 			}
-		} catch (ParameterException doesNotHappen) {
-		}
-		try {
-			loadParameters();
-		} catch (Exception e) {
-			UnsupportedOperationException u = new UnsupportedOperationException(
-					e.getMessage());
-			u.setStackTrace(e.getStackTrace());
-			throw u;
+		} catch (Exception hopefullyDoesNotHappen) {
+			RuntimeException ex = new RuntimeException( hopefullyDoesNotHappen );
+			ex.setStackTrace( hopefullyDoesNotHappen.getStackTrace() );
+			throw ex;
 		}
 	}
 
@@ -310,25 +305,6 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 			// "+(super.getNumberOfParameters() + 2));
 			return super.getNumberOfParameters() + 2;
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.parameters.ParameterSet#replaceParametersWithRangedInstance()
-	 */
-	@Override
-	protected void replaceParametersWithRangedInstance() throws Exception {
-		if (alphabet instanceof Rangeable
-				&& ((Rangeable) alphabet).isRangeable()) {
-			alphabet = ((Rangeable) alphabet).getRangedInstance();
-		}
-
-		if (length instanceof Rangeable && ((Rangeable) length).isRangeable()) {
-			length = ((Rangeable) length).getRangedInstance();
-		}
-		super.replaceParametersWithRangedInstance();
 	}
 
 	/*

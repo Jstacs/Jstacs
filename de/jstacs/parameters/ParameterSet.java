@@ -20,11 +20,8 @@
 package de.jstacs.parameters;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 
-import de.jstacs.AnnotatedEntity;
 import de.jstacs.AnnotatedEntityList;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
@@ -40,7 +37,7 @@ import de.jstacs.io.XMLParser;
  * @author Jan Grau
  */
 public abstract class ParameterSet implements Storable, Cloneable,
-		RangeIterator, GalaxyConvertible {
+		GalaxyConvertible {
 	
 	/**
 	 * This method tries to find the correct name ({@link String}) for your
@@ -92,20 +89,11 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	protected String errorMessage;
 
 	/**
-	 * Indicates if the {@link Parameter}s of this {@link ParameterSet} that
-	 * implement {@link Rangeable} and return <code>true</code> shall be
-	 * replaced by their ranged instances
-	 */
-	protected boolean ranged = false;
-
-	/**
 	 * If this {@link ParameterSet} is contained in a
 	 * {@link ParameterSetContainer}, this variable holds a reference to that
 	 * {@link ParameterSetContainer}.
 	 */
 	protected ParameterSetContainer parent;
-
-	private long id;
 
 	/**
 	 * Constructs a new {@link ParameterSet} with empty parameter values. The
@@ -114,7 +102,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 * {@link #getNumberOfParameters()}, is called.
 	 */
 	public ParameterSet() {
-		this.id = System.currentTimeMillis() + this.hashCode();
+		initParameterList();
 	}
 
 	/**
@@ -148,18 +136,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 			for (int i = 0; i < this.parameters.size(); i++) {
 				ret.parameters.add(i, this.parameters.get(i).clone());
 			}
-			for(int i = 0; i<ret.parameters.size();i++) {
-				Parameter par = ret.parameters.get( i );
-				if (par.getNeededReferenceId() != null) {
-					ParameterSet set = findParameterSet(par
-							.getNeededReferenceId(), false);
-					if (set != null) {
-						par.setNeededReference(set);
-					}
-				}
-			}
 		}
-		propagateId(this.id, this, false);
 		return ret;
 	}
 
@@ -182,25 +159,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	protected final void initParameterList(int initCapacity) {
 		this.parameters = new ParameterList(initCapacity);
 	}
-
-	/**
-	 * Loads the parameters for this {@link ParameterSet}. This is in most cases
-	 * done by calling {@link #initParameterList()} or
-	 * {@link #initParameterList(int)} to initialize
-	 * {@link ParameterSet#parameters} and afterwards filling
-	 * {@link ParameterSet#parameters} with instances of subclasses of
-	 * {@link Parameter}.
-	 * 
-	 * @throws Exception
-	 *             if the parameters could not be loaded
-	 * 
-	 * @see Parameter
-	 * @see ParameterSet#parameters
-	 * @see ParameterSet#initParameterList()
-	 * @see ParameterSet#initParameterList(int)
-	 */
-	protected abstract void loadParameters() throws Exception;
-
+	
 	/**
 	 * Returns <code>true</code> if the parameters of this {@link ParameterSet}
 	 * have already been loaded using {@link #loadParameters()}.
@@ -210,7 +169,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	public boolean parametersLoaded() {
 		return (parameters != null);
 	}
-
+	
 	/**
 	 * Returns the index of the first parameter in the set of required
 	 * parameters that has not been set. If all required parameters have been
@@ -234,17 +193,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 *         atomic parameters, <code>false</code> otherwise
 	 */
 	public boolean isAtomic() {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
 		for (int i = 0; i < parameters.size(); i++) {
 			if (!parameters.get(i).isAtomic()) {
 				return false;
@@ -269,29 +217,9 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 *         <code>false</code> otherwise
 	 */
 	public boolean hasDefaultOrIsSet() {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				errorMessage = "Parameters could not be loaded";
-				e.printStackTrace();
-				return false;
-			}
-		}
 		for (int i = 0; i < parameters.size(); i++) {
 			if (parameters.get(i).isRequired()
 					&& (!parameters.get(i).hasDefaultOrIsSet())) {
-				// errorMessage =
-				// "Parameter no."+i+" ("+parameters.get(i).getName()+") was not set.";
-				/*
-				 * if(parameters.get(i).getErrorMessage() != null){ errorMessage
-				 * =
-				 * "Parameter no. "+(i+1)+" had the following error: "+parameters
-				 * .get(i).getErrorMessage(); }
-				 */
 				return false;
 			}
 		}
@@ -317,7 +245,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 *            the {@link Parameter}s
 	 */
 	protected ParameterSet(Parameter[] parameters) {
-		this();
 		initParameterList(parameters.length);
 		for (int i = 0; i < parameters.length; i++) {
 			this.parameters.add(parameters[i]);
@@ -333,7 +260,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 *            the {@link Parameter}s
 	 */
 	protected ParameterSet(ArrayList<Parameter> parameters) {
-		this();
 		initParameterList( parameters.size() );
 		Iterator<Parameter> parIt = parameters.iterator();
 		while (parIt.hasNext()) {
@@ -363,17 +289,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 * @return the number of parameters in the {@link ParameterSet}
 	 */
 	public int getNumberOfParameters() {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
-		}
 		if (parameters != null) {
 			return parameters.size();
 		} else {
@@ -386,17 +301,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 * @return
 	 */
 	public String[] getAllParameterNames(){
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
 		return parameters.getNames();
 	}
 	
@@ -409,17 +313,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 * @return the {@link Parameter} with name <code>name</code>
 	 */
 	public Parameter getParameterForName(String name){
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
 		return parameters.get(name);
 	}
 	
@@ -432,152 +325,7 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 * @return the {@link Parameter} at position <code>i</code>
 	 */
 	public Parameter getParameterAt(int i) {
-		if (parameters == null) {
-			try {
-				loadParameters();
-				if (ranged) {
-					replaceParametersWithRangedInstance();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
 		return parameters.get(i);
-	}
-
-	/**
-	 * Replaces all {@link Parameter}s in this {@link ParameterSet} by their
-	 * equivalents implementing the {@link Rangeable} interface.
-	 * 
-	 * @throws Exception
-	 *             if these instances could not be created
-	 * 
-	 * @see ParameterSet#replaceParametersWithRangedInstance()
-	 */
-	public void makeRanged() throws Exception {
-		if (parameters != null) {
-			replaceParametersWithRangedInstance();
-		}
-		this.ranged = true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#next()
-	 */
-	public boolean next() throws ParameterException {
-		if (ranged) {
-			RangeIterator ri;
-			for (int i = 0; i < parameters.size(); i++) {
-				if (parameters.get(i) instanceof RangeIterator) {
-					ri = (RangeIterator) parameters.get(i);
-					if (ri.next()) {
-						return true;
-					} else {
-						ri.resetToFirst();
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#resetToFirst()
-	 */
-	public void resetToFirst() {
-		if (ranged) {
-			for (int i = 0; i < parameters.size(); i++) {
-				if (parameters.get(i) instanceof RangeIterator) {
-					((RangeIterator) parameters.get(i)).resetToFirst();
-				}
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#getNumberOfValues()
-	 */
-	public int getNumberOfValues() {
-		if (ranged) {
-			int erg = 1;
-			for (int i = 0; i < parameters.size(); i++) {
-				if (parameters.get(i) instanceof RangeIterator) {
-					erg *= ((RangeIterator) parameters.get(i))
-							.getNumberOfValues();
-				}
-			}
-			return erg;
-		} else {
-			return 1;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#isRanged()
-	 */
-	public boolean isRanged() {
-		if (ranged) {
-			return getNumberOfValues() > 1;
-		} else {
-			return false;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#valuesToString()
-	 */
-	public String valuesToString() {
-		String erg = null;
-		for (int i = 0; i < parameters.size(); i++) {
-			if (ranged && parameters.get(i) instanceof RangeIterator) {
-				if (erg == null) {
-					erg = ((RangeIterator) parameters.get(i)).valuesToString();
-				} else {
-					erg += " x "
-							+ ((RangeIterator) parameters.get(i))
-									.valuesToString();
-				}
-			} else {
-				if (erg == null) {
-					erg = "[" + parameters.get(i).getValue().toString() + "]";
-				} else {
-					erg += " x [" + parameters.get(i).getValue().toString()
-							+ "]";
-				}
-			}
-		}
-		return erg;
-	}
-
-	/**
-	 * Replaces all {@link Parameter}s in this {@link ParameterSet} by their
-	 * equivalents implementing the {@link Rangeable} interface.
-	 * 
-	 * @throws Exception
-	 *             if these instances could not be created
-	 * 
-	 * @see ParameterSet#makeRanged()
-	 */
-	protected void replaceParametersWithRangedInstance() throws Exception {
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i) instanceof Rangeable) {
-				Rangeable r = (Rangeable) parameters.get(i);
-				if (r.isRangeable()) {
-					parameters.set(i, r.getRangedInstance());
-				}
-			}
-		}
 	}
 
 	/*
@@ -609,29 +357,9 @@ public abstract class ParameterSet implements Storable, Cloneable,
 		} else {
 			XMLParser.appendObjectWithTags(buf, null, "set");
 		}
-		XMLParser.appendObjectWithTags(buf, ranged, "ranged");
-		XMLParser.appendObjectWithTags(buf, id, "id");
 		XMLParser.addTags(buf, "parameterSet");
 
 		return buf;
-	}
-
-	/**
-	 * Simplifies all {@link Parameter}s in this {@link ParameterSet}.
-	 * 
-	 * @see Parameter#simplify()
-	 */
-	public void simplify() {
-		if (parameters == null) {
-			return;
-		}
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i) instanceof CollectionParameter) {
-				parameters.get(i).simplify();
-			} else if (parameters.get(i).getValue() instanceof ParameterSet) {
-				((ParameterSet) parameters.get(i).getValue()).simplify();
-			}
-		}
 	}
 
 	/**
@@ -641,10 +369,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	 * @see Parameter#reset()
 	 */
 	public void reset() {
-		/*
-		 * if( parameters == null ) { return; } for( int i = 0; i <
-		 * parameters.size(); i++ ) { parameters.get( i ).reset(); }
-		 */
 		parameters = null;
 	}
 
@@ -672,104 +396,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 				parameters.add( (Parameter) XMLParser.extractObjectForTags( buf, "parameter" ) );
 			}
 		}
-		StringBuffer help = XMLParser.extractForTag(representation, "ranged");
-		if (help == null) {
-			ranged = false;
-		} else {
-			ranged = Boolean.parseBoolean(help.toString());
-		}
-		id = XMLParser.extractObjectForTags(representation, "id", long.class );
-		propagateId(id, this, false);
-		recieveId();
-	}
-
-	/**
-	 * Searches for all {@link Parameter#neededReferenceId}s in the hierarchy
-	 * below this {@link ParameterSet} and sets the corresponding
-	 * {@link Parameter#neededReference}s.
-	 */
-	protected void recieveId() {
-		if (parameters != null) {
-			for(int i=0;i<parameters.size();i++) {
-				Parameter par = parameters.get( i );
-				Long neededId = par.getNeededReferenceId();
-				if (neededId != null) {
-					par.setNeededReference(findParameterSet(neededId, false));
-				}
-			}
-		}
-	}
-
-	private ParameterSet findParameterSet(long id, boolean fwd) {
-		if (id == this.id) {
-			return this;
-		} else {
-			if (!fwd && this.getParent() != null
-					&& this.getParent().getParent() != null) {
-				ParameterSet set = this.getParent().getParent()
-						.findParameterSet(id, false);
-				if (set != null) {
-					return set;
-				} else {
-					return null;
-				}
-			} else if (parameters != null) {
-				for(int i=0;i<this.parameters.size();i++) {
-					Parameter par = parameters.get( i );
-					if (par instanceof ParameterSetContainer) {
-						ParameterSet set = ((ParameterSetContainer) par)
-								.getValue().findParameterSet(id, true);
-						if (set != null) {
-							return set;
-						}
-					}
-				}
-			}
-
-			return null;
-		}
-	}
-
-	/**
-	 * Propagates the id of this {@link ParameterSet} to all {@link Parameter}s
-	 * above and below in the hierarchy.
-	 */
-	protected void propagateId() {
-		propagateId(id, this, false);
-	}
-
-	private boolean propagateId(long id, ParameterSet set, boolean fwd) {
-		if (!fwd && this.getParent() != null
-				&& this.getParent().getParent() != null) {
-			return this.getParent().getParent().propagateId(id, set, false);
-		} else if (parameters != null) {
-			for(int i=0;i<this.parameters.size();i++) {
-				Parameter par = this.parameters.get( i );
-				if (par.getNeededReferenceId() != null
-						&& par.getNeededReferenceId() == id) {
-					par.setNeededReference(set);
-					return true;
-				}
-				if (par instanceof ParameterSetContainer) {
-					boolean re = ((ParameterSetContainer) par).getValue()
-							.propagateId(id, set, true);
-					if (re) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		return false;
-	}
-
-	/**
-	 * Returns the id of this {@link ParameterSet}.
-	 * 
-	 * @return the id of the {@link ParameterSet}
-	 */
-	public long getId() {
-		return id;
 	}
 
 	/**

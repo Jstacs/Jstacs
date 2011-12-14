@@ -941,15 +941,6 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.parameters.Parameter#simplify()
-	 */
-	@Override
-	public void simplify() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.Parameter#reset()
 	 */
 	@Override
@@ -1006,27 +997,6 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 		return shallBeRanged != RangeType.NO;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getNeededReference()
-	 */
-	@Override
-	public ParameterSet getNeededReference() {
-		return rangedParameter.getNeededReference();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.parameters.Parameter#setNeededReference(de.jstacs.parameters
-	 * .ParameterSet)
-	 */
-	@Override
-	public void setNeededReference(ParameterSet reference) {
-		rangedParameter.setNeededReference(reference);
-	}
 
 	@Override
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
