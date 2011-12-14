@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 
 /**
  * This class implements an generic complementable discrete alphabet. The complement is determined in the constructor, where the user has to specify for each symbol the index of the complement symbol.
@@ -117,9 +118,14 @@ public class GenericComplementableDiscreteAlphabet extends
 		
 		/**
 		 * This constructor creates an empty parameter set the has to be filled before it can be used to create a {@link GenericComplementableDiscreteAlphabet}.
+		 * @throws DatatypeNotValidException 
 		 */
-		public GenericComplementableDiscreteAlphabetParameterSet() {
+		public GenericComplementableDiscreteAlphabetParameterSet() throws DatatypeNotValidException {
 			super( GenericComplementableDiscreteAlphabet.class );
+			parameters.add( new SimpleParameter( DataType.STRING,
+					"Values of the index for computings the reverse complement",
+					"",
+					true ) );
 		}
 		
 		/**
@@ -137,7 +143,6 @@ public class GenericComplementableDiscreteAlphabet extends
 		public GenericComplementableDiscreteAlphabetParameterSet( String[] alphabet, boolean caseInsensitive, int[] revComp ) throws Exception {
 			this();
 			
-			loadParameters();
 			String alphString = "" + alphabet[0], revString = "" + revComp[0];
 			for( int i = 1; i < alphabet.length; i++ ) {
 				alphString += " " + alphabet[i];
@@ -169,16 +174,5 @@ public class GenericComplementableDiscreteAlphabet extends
 			super( representation );
 		}
 
-		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			super.loadParameters();
-			parameters.add( new SimpleParameter( DataType.STRING,
-					"Values of the index for computings the reverse complement",
-					"",
-					true ) );
-		}
 	}
 }

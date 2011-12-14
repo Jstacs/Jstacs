@@ -85,13 +85,15 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	 * @param variableLength
 	 *            indicates whether the corresponding classifier can handle
 	 *            sequences of arbitrary length
+	 * @throws Exception if the parameters could not be loaded
 	 * 
 	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class,
 	 *      de.jstacs.data.AlphabetContainer.AlphabetContainerType, boolean, boolean)
 	 */
 	public ScoreClassifierParameterSet( Class<? extends ScoreClassifier> instanceClass, boolean simple, AlphabetContainerType type,
-										boolean variableLength ) {
+										boolean variableLength ) throws Exception {
 		super( ScoreClassifier.class, type, simple, variableLength );
+		addParameters();
 	}
 
 	/**
@@ -181,6 +183,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	public ScoreClassifierParameterSet( Class<? extends ScoreClassifier> instanceClass, AlphabetContainer alphabet, int length, byte algo,
 										AbstractTerminationCondition tc, double lineps, double startD, boolean free, KindOfParameter kind ) throws Exception {
 		super( instanceClass, alphabet, length, length == 0 );
+		addParameters();
 		parameters.get( 0 ).setValue( algorithmStrings[getIndex( algorithmStrings, algorithms, algo, false )] );
 		parameters.get( 1 ).setValue( tc.getCurrentParameterSet() );
 		parameters.get( 2 ).setValue( lineps );
@@ -189,12 +192,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 		parameters.get( 5 ).setValue( kind );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
+	private void addParameters() throws Exception {
 		parameters.add( new CollectionParameter( DataType.BYTE,
 				algorithmStrings,
 				algorithms,

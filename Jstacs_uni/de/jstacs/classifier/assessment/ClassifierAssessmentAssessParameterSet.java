@@ -25,6 +25,7 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.results.Result;
 
@@ -56,11 +57,24 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 * @throws UnsupportedOperationException
 	 *             if the {@link ClassifierAssessmentAssessParameterSet} could
 	 *             not be constructed or the parameters could not be loaded
+	 * @throws DatatypeNotValidException 
 	 * 
 	 * @see ParameterSet#ParameterSet()
 	 */
-	public ClassifierAssessmentAssessParameterSet() throws UnsupportedOperationException {
+	public ClassifierAssessmentAssessParameterSet() throws UnsupportedOperationException, DatatypeNotValidException {
 		super();
+		//0-subSequenceLength
+		this.parameters.add( new SimpleParameter( DataType.INT,
+				"elementLength",
+				"Defines the lengths of overlapping windows " + "of data, that should be used to train and test " + "classifiers/models.",
+				true ) );
+
+		//1-excpetionIfMPNotComputable
+		this.parameters.add( new SimpleParameter( DataType.BOOLEAN,
+				"exceptionIfMeasureParamaterNotComputable",
+				"True causes ClassiefierAssessment to throw " + "an error if measure-parameters should be computed "
+						+ "that are not computable for the given classifiers.",
+				true ) );
 	}
 
 	/**
@@ -101,17 +115,13 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 *            parameters that could not be computed.
 	 * @throws IllegalValueException
 	 *             is thrown in case of out-of-range or invalid given parameters
+	 * @throws DatatypeNotValidException 
+	 * @throws UnsupportedOperationException 
 	 * 
 	 * @see ParameterSet#ParameterSet()
 	 */
-	public ClassifierAssessmentAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable ) throws IllegalValueException {
-		super();
-		try {
-
-			this.loadParameters();
-
-		} catch ( Exception neverHappens ) {};
-
+	public ClassifierAssessmentAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable ) throws IllegalValueException, UnsupportedOperationException, DatatypeNotValidException {
+		this();
 		( this.parameters.get( 0 ) ).setValue( new Integer( elementLength ) );
 		( this.parameters.get( 1 ) ).setValue( new Boolean( exceptionIfMPNotComputable ) );
 	}
@@ -120,38 +130,6 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	//	member methods
 	//	**********************
 
-	/**
-	 * Initializes the list of {@link de.jstacs.parameters.Parameter}s in this
-	 * {@link ClassifierAssessmentAssessParameterSet}.
-	 * 
-	 * @see ParameterSet#initParameterList(int initCapacity)
-	 */
-	protected void initializeMyParametersArrayList() {
-		initParameterList( 2 );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-
-		this.initializeMyParametersArrayList();
-
-		//0-subSequenceLength
-		this.parameters.add( new SimpleParameter( DataType.INT,
-				"elementLength",
-				"Defines the lengths of overlapping windows " + "of data, that should be used to train and test " + "classifiers/models.",
-				true ) );
-
-		//1-excpetionIfMPNotComputable
-		this.parameters.add( new SimpleParameter( DataType.BOOLEAN,
-				"exceptionIfMeasureParamaterNotComputable",
-				"True causes ClassiefierAssessment to throw " + "an error if measure-parameters should be computed "
-						+ "that are not computable for the given classifiers.",
-				true ) );
-
-	}
 
 	/**
 	 * Returns the length of elements (sequences) defined by this

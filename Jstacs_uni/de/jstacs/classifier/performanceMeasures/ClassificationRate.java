@@ -72,9 +72,4 @@ public class ClassificationRate extends AbstractPerformanceMeasure implements Nu
 		return 0;
 	}
 
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
-	}
-
 }

@@ -186,8 +186,4 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 		}
 	}
 
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
-	}
 }

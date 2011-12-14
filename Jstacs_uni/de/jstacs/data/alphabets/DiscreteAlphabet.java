@@ -27,7 +27,11 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.Alphabet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.ParameterException;
+import de.jstacs.parameters.CollectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * Class for an alphabet that consists of arbitrary {@link String}s. For DNA
@@ -383,11 +387,26 @@ public class DiscreteAlphabet extends Alphabet {
 		
 		/**
 		 * Creates a new {@link DiscreteAlphabetParameterSet} with empty values.
+		 * @throws DatatypeNotValidException 
+		 * @throws ParameterException
 		 * 
 		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
 		 */
-		public DiscreteAlphabetParameterSet() {
+		public DiscreteAlphabetParameterSet() throws ParameterException {
 			this( DiscreteAlphabet.class );
+			parameters.add( new SimpleParameter( DataType.STRING,
+					"Values of the alphabet",
+					"The possible values of the discrete alphabet." + "If the alphabet consists of single characters, e.g. A, C, G, and T,"
+							+ " the values may be set as a single string, e.g. &quot;ACGT&quot;."
+							+ "If the alphabet consists of multi-character symbols, e.g. Gly, Asp, Ser,"
+							+ "the symbols must be separated by spaces.",
+					true ) );
+			parameters.add( new CollectionParameter( DataType.BOOLEAN,
+					new String[]{ "Case insensitive", "Case sensitive" },
+					new Boolean[]{ true, false },
+					"Case insensitive",
+					"Use the alphabet case insensitive",
+					true ) );
 		}
 
 		/**
@@ -407,7 +426,6 @@ public class DiscreteAlphabet extends Alphabet {
 		 */
 		public DiscreteAlphabetParameterSet( String[] alphabet, boolean caseInsensitive ) throws Exception {
 			this();
-			loadParameters();
 			String alphString = "" + alphabet[0];
 			for( int i = 1; i < alphabet.length; i++ ) {
 				alphString += " " + alphabet[i];
@@ -433,7 +451,6 @@ public class DiscreteAlphabet extends Alphabet {
 		 */
 		public DiscreteAlphabetParameterSet( char[] alphabet, boolean caseInsensitive ) throws Exception {
 			this();
-			loadParameters();
 			String alphString = "" + alphabet[0];
 			for( int i = 1; i < alphabet.length; i++ ) {
 				alphString += " " + alphabet[i];
@@ -461,27 +478,6 @@ public class DiscreteAlphabet extends Alphabet {
 		 */
 		public DiscreteAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {
 			super( representation );
-		}
-
-		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			parameters.add( new SimpleParameter( DataType.STRING,
-					"Values of the alphabet",
-					"The possible values of the discrete alphabet." + "If the alphabet consists of single characters, e.g. A, C, G, and T,"
-							+ " the values may be set as a single string, e.g. &quot;ACGT&quot;."
-							+ "If the alphabet consists of multi-character symbols, e.g. Gly, Asp, Ser,"
-							+ "the symbols must be separated by spaces.",
-					true ) );
-			parameters.add( new CollectionParameter( DataType.BOOLEAN,
-					new String[]{ "Case insensitive", "Case sensitive" },
-					new Boolean[]{ true, false },
-					"Case insensitive",
-					"Use the alphabet case insensitive",
-					true ) );
 		}
 
 		/* (non-Javadoc)

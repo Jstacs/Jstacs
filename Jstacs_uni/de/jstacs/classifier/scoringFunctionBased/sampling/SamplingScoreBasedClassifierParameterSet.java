@@ -34,7 +34,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  *
  */
 public abstract class SamplingScoreBasedClassifierParameterSet extends SequenceScoringParameterSet {
-
+	
 	/**
 	 * Create a new {@link SamplingScoreBasedClassifierParameterSet}.
 	 * @param instanceClass the class, which must be a subclass of {@link SamplingScoreBasedClassifier}
@@ -74,7 +74,15 @@ public abstract class SamplingScoreBasedClassifierParameterSet extends SequenceS
 	public SamplingScoreBasedClassifierParameterSet(Class<? extends SamplingScoreBasedClassifier> instanceClass, AlphabetContainer alphabet, int length, 
 			int numStarts, int testSamplings, int stationarySamplings, String outfilePrefix) throws Exception{
 		super( instanceClass, alphabet, length, length == 0 );
-		this.loadParameters();
+		
+		parameters.add( new SimpleParameter( DataType.INT, "Number of starts", "Number of parallel sampling starts", true ) );
+		parameters.add( new EnumParameter( SamplingScheme.class, "The sampling scheme", true, SamplingScheme.GROUPED.name() ));
+		parameters.add( new SimpleParameter( DataType.INT, "Test samplings", "The number of sampling steps between to burn-in tests", true, 100 ) );
+		parameters.add( new SimpleParameter( DataType.INT, "Stationary samplings", "The number of sampling steps in the stationary phase", true, 1000 ) );
+		parameters.add( new SimpleParameter( DataType.BOOLEAN, "Free parameters", "Use only free parameters", true, false ) );
+		parameters.add( new SimpleParameter( DataType.BOOLEAN, "Adapt variance", "Adapt the variance to the size of event spaces for each random variable", true, true ) );
+		parameters.add( new SimpleParameter( DataType.STRING, "Outfile prefix", "The prefix of the outfiles where the parameters are stored", true ) );
+		
 		this.getParameterAt( 0 ).setValue( numStarts );
 		this.getParameterAt( 2 ).setValue( testSamplings );
 		this.getParameterAt( 3 ).setValue( stationarySamplings );
@@ -83,18 +91,6 @@ public abstract class SamplingScoreBasedClassifierParameterSet extends SequenceS
 	
 	public SamplingScoreBasedClassifierParameterSet clone() throws CloneNotSupportedException{
 		return (SamplingScoreBasedClassifierParameterSet) super.clone();
-	}
-
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList( 10 );
-		parameters.add( new SimpleParameter( DataType.INT, "Number of starts", "Number of parallel sampling starts", true ) );
-		parameters.add( new EnumParameter( SamplingScheme.class, "The sampling scheme", true, SamplingScheme.GROUPED.name() ));
-		parameters.add( new SimpleParameter( DataType.INT, "Test samplings", "The number of sampling steps between to burn-in tests", true, 100 ) );
-		parameters.add( new SimpleParameter( DataType.INT, "Stationary samplings", "The number of sampling steps in the stationary phase", true, 1000 ) );
-		parameters.add( new SimpleParameter( DataType.BOOLEAN, "Free parameters", "Use only free parameters", true, false ) );
-		parameters.add( new SimpleParameter( DataType.BOOLEAN, "Adapt variance", "Adapt the variance to the size of event spaces for each random variable", true, true ) );
-		parameters.add( new SimpleParameter( DataType.STRING, "Outfile prefix", "The prefix of the outfiles where the parameters are stored", true ) );
 	}
 
 	/**

@@ -28,7 +28,9 @@ import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
@@ -56,11 +58,15 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * @throws UnsupportedOperationException
 	 *             if the {@link RepeatedSubSamplingAssessParameterSet} could
 	 *             not be constructed or the parameters could not be loaded
+	 * @throws CloneNotSupportedException 
+	 * @throws IllegalValueException 
+	 * @throws DatatypeNotValidException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public RepeatedSubSamplingAssessParameterSet() throws UnsupportedOperationException {
+	public RepeatedSubSamplingAssessParameterSet() throws UnsupportedOperationException, DatatypeNotValidException, IllegalValueException, CloneNotSupportedException {
 		super();
+		addParameters();
 	}
 
 	/**
@@ -115,14 +121,18 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * 
 	 * @throws IllegalValueException
 	 *             in case of out-of-range or invalid given parameters
+	 * @throws DatatypeNotValidException 
+	 * @throws UnsupportedOperationException 
+	 * @throws CloneNotSupportedException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 */
 	public RepeatedSubSamplingAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable, int repeats, int[] trainNumbers,
-													int[] testNumbers ) throws IllegalValueException {
+													int[] testNumbers ) throws IllegalValueException, UnsupportedOperationException, DatatypeNotValidException, CloneNotSupportedException {
 		super( elementLength, exceptionIfMPNotComputable );
-
+		addParameters();
+		
 		this.parameters.get( 2 ).setValue( new Integer( repeats ) );
 
 		ParameterSet[] tempPSA = new ParameterSet[trainNumbers.length];
@@ -146,43 +156,23 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * {@link SimpleParameter}. This {@link ParameterSet} is used as a part of
 	 * the {@link ExpandableParameterSet} that contains the test data for a
 	 * specific class.
+	 * @throws DatatypeNotValidException 
 	 */
-	private ParameterSet getParameterSetContainingASingleIntValue( int num, final String train_test ) throws IllegalValueException {
+	private ParameterSet getParameterSetContainingASingleIntValue( int num, final String train_test ) throws IllegalValueException, DatatypeNotValidException {
 
-		ParameterSet ret = new ParameterSet() {
-
-			@Override
-			protected void loadParameters() throws Exception {
-				initParameterList( 1 );
-				this.parameters.add( new SimpleParameter( DataType.INT,
+		ParameterSet ret = new SimpleParameterSet(new SimpleParameter( DataType.INT,
 						"number",
 						"Defines a number of elements of data used as " + train_test
 								+ " items (class-specific) during a SubSamplingAssessment",
 						true,
 						new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
-			}
-		};
 
 		ret.getParameterAt( 0 ).setValue( new Integer( num ) );
 
 		return ret;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#initializeMyParametersArrayList()
-	 */
-	@Override
-	protected void initializeMyParametersArrayList() {
-		initParameterList( 6 );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-
+	private void addParameters() throws DatatypeNotValidException, IllegalValueException, CloneNotSupportedException {
 		//2-k
 		this.parameters.add( new SimpleParameter( DataType.INT,
 				"repeats",

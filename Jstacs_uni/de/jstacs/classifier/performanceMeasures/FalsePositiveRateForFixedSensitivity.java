@@ -2,6 +2,7 @@ package de.jstacs.classifier.performanceMeasures;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
@@ -17,7 +18,12 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 	/**
 	 * Constructs a new instance of the performance measure {@link FalsePositiveRateForFixedSensitivity} with empty parameter values.
 	 */
-	public FalsePositiveRateForFixedSensitivity() {}
+	public FalsePositiveRateForFixedSensitivity() {
+		super();
+		try{
+			parameters.add( new SimpleParameter( DataType.DOUBLE, "Sensitivity", "The fixed sensitivity for the false positive rate.", true, new NumberValidator<Double>(0d,1d),0.95 ) );
+		}catch(ParameterException doesnothappen){}
+	}
 	
 	/**
 	 * Constructs a new instance of the performance measure {@link FalsePositiveRateForFixedSensitivity} with given <code>sensitivity</code>.
@@ -27,7 +33,7 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 	 * @throws Exception if the internal parameters can not be created or the value can not be set
 	 */
 	public FalsePositiveRateForFixedSensitivity(double sensitivity) throws Exception {
-		loadParameters();
+		this();
 		getParameterAt( 0 ).setValue( sensitivity );
 	}
 
@@ -70,10 +76,5 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 		return (NumericalResultSet) super.compute( classSpecificScores );
 	}
 
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList( 1 );
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "Sensitivity", "The fixed sensitivity for the false positive rate.", true, new NumberValidator<Double>(0d,1d) ) );
-	}
 
 }

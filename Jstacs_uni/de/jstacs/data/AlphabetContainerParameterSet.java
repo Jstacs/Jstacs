@@ -18,6 +18,7 @@
 
 package de.jstacs.data;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -35,6 +36,7 @@ import de.jstacs.parameters.CollectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.Parameter;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
@@ -61,14 +63,16 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 	 *            the type of the alphabet(s)
 	 * @param simple
 	 *            indicates if there shall be only a single {@link Alphabet}
+	 * @throws Exception 
 	 * 
 	 * @see AlphabetContainerType
 	 * @see InstanceParameterSet#InstanceParameterSet(Class)
 	 */
-	public AlphabetContainerParameterSet( AlphabetContainerType type, boolean simple ) {
+	public AlphabetContainerParameterSet( AlphabetContainerType type, boolean simple ) throws Exception {
 		super( AlphabetContainer.class );
 		this.type = type;
 		this.simple = simple;
+		addParameters();
 	}
 
 	/**
@@ -113,7 +117,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 			this.type = AlphabetContainerType.CONTINUOUS;
 		}
 		this.simple = true;
-		loadParameters();
+		addParameters();
 		if( type == AlphabetContainerType.CONTINUOUS ) {
 			this.parameters.get( 0 ).setValue( alph.getCurrentParameterSet() );
 		} else {
@@ -142,7 +146,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		super( AlphabetContainer.class );
 		this.simple = false;
 		this.type = AlphabetContainerType.determineType( alphabets );
-		loadParameters();
+		addParameters();
 		AlphabetArrayParameterSet pars = new AlphabetArrayParameterSet( alphabets, this.type );
 		parameters.get( 0 ).setValue( pars.getInstanceName() );
 		( (CollectionParameter)parameters.get( 0 ) ).getParametersInCollection()
@@ -171,7 +175,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		super( AlphabetContainer.class );
 		this.simple = false;
 		this.type = AlphabetContainerType.determineType( alphabets );
-		loadParameters();
+		addParameters();
 		SectionDefinedAlphabetParameterSet pars = new SectionDefinedAlphabetParameterSet( alphabets, indexes );
 		parameters.get( 0 ).setValue( pars.getInstanceName() );
 		( (CollectionParameter)parameters.get( 0 ) ).getParametersInCollection()
@@ -256,10 +260,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 	/* (non-Javadoc)
 	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
 	 */
-	@Override
-	protected void loadParameters() throws Exception {
-
-		initParameterList();
+	private void addParameters() throws Exception {
 		LinkedList<InstanceParameterSet> list = type.getInstanceParameterSets();
 		
 		ParameterSet[] ar = new ParameterSet[list.size()+(simple?0:2)];
@@ -353,8 +354,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 										true ) } ),
 				"Alphabet",
 				"Set the alphabet" );
-
-			this.template.getParameterAt( 1 ).setNeededReference( this );
+			SimpleParameter length = new SimpleParameter( DataType.INT, "Length", "The length of the array.", true );
+			length.setRangeable( false );
+			this.parameters.add( 0, length );
 			this.type = type;
 		}
 
@@ -378,7 +380,6 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		 */
 		public SectionDefinedAlphabetParameterSet( Alphabet[] alphabets, int[] indexes ) throws Exception {
 			this( AlphabetContainerType.determineType( alphabets ) );
-			loadParameters();
 			parameters.get( 0 ).setValue( indexes.length );
 			for( int i = 0; i < alphabets.length; i++ ) {
 				addParameterToSet();
@@ -430,19 +431,6 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ExpandableParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			SimpleParameter length = new SimpleParameter( DataType.INT, "Length", "The length of the array.", true );
-			length.setRangeable( false );
-			length.setNeededReference( this );
-			this.parameters.add( length );
-			super.loadParameters();
-		}
-
-		/* (non-Javadoc)
 		 * @see de.jstacs.parameters.ExpandableParameterSet#toXML()
 		 */
 		@Override
@@ -461,12 +449,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		public void fromXML( StringBuffer representation ) throws NonParsableException {
 			representation = XMLParser.extractForTag( representation, "sectionDefinedAlphabetParameterSet" );
 			super.fromXML( XMLParser.extractForTag( representation, "superParameters" ) );
-			if( this.parameters != null ) {
-				this.parameters.get( 0 ).setNeededReference( this );
-				for( int i = 1; i < this.parameters.size(); i++ ) {
-					( (ParameterSetContainer)this.parameters.get( i ) ).getValue().getParameterAt( 1 ).setNeededReference( this );
-				}
-			}
+			
 			type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
 		}
 
@@ -577,12 +560,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		public SectionDefinedAlphabetParameterSet clone() throws CloneNotSupportedException {
 			try {
 				SectionDefinedAlphabetParameterSet clone = (SectionDefinedAlphabetParameterSet)super.clone();
-				if( clone.parameters != null ) {
-					clone.parameters.get( 0 ).setNeededReference( clone );
-					for( int i = 1; i < clone.parameters.size(); i++ ) {
-						( (ParameterSetContainer)clone.parameters.get( i ) ).getValue().getParameterAt( 1 ).setNeededReference( clone );
-					}
-				}
+				
 				return clone;
 			} catch ( Exception e ) {
 				e.printStackTrace();
@@ -694,9 +672,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		 */
 		public AlphabetArrayParameterSet( Alphabet[] alphabets, AlphabetContainerType type ) throws Exception {
 			this( type );
-			loadParameters();
 			this.parameters.get( 0 ).setValue( alphabets.length );
-			loadParameters();
 			for( int i = 0; i < alphabets.length; i++ ) {
 				if( type == AlphabetContainerType.CONTINUOUS ) {
 					parameters.get( i + 1 ).setValue( alphabets[i].getCurrentParameterSet() );

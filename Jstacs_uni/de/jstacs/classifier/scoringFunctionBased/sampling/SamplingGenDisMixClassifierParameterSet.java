@@ -92,7 +92,8 @@ public class SamplingGenDisMixClassifierParameterSet extends SamplingScoreBasedC
 				freeParameters,
 				adaptVariance,
 				outfilePrefix );
-		this.getParameterAt( parameters.size()-1 ).setValue( threads );
+		parameters.add( new SimpleParameter( DataType.INT, "Threads", "The number of threads used for computation", true, new NumberValidator<Integer>( 1, 128 ),1 ) );
+		this.getParameterForName( "Threads" ).setValue( threads );
 	}
 
 	/**
@@ -123,12 +124,6 @@ public class SamplingGenDisMixClassifierParameterSet extends SamplingScoreBasedC
 	@Override
 	public String getInstanceName() {
 		return null;
-	}
-
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		parameters.add( new SimpleParameter( DataType.INT, "Threads", "The number of threads used for computation", true, new NumberValidator<Integer>( 1, 128 ),1 ) );
 	}
 	
 	/**

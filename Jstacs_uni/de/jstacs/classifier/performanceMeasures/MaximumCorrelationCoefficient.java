@@ -43,9 +43,4 @@ public class MaximumCorrelationCoefficient extends MaximumNumericalTwoClassMeasu
 	protected double getMeasure( double tp, double fp, double fn, double tn ) {
 		return ( tp * tn - fn * fp ) / Math.sqrt( ( tp + fn ) * ( tn + fp ) * ( tp + fp ) * ( tn + fn ) );
 	}
-
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
-	}
 }
