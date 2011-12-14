@@ -21,6 +21,7 @@ package de.jstacs.sampling;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -35,9 +36,13 @@ public class VarianceRatioBurnInTestParameterSet extends AbstractBurnInTestParam
 
 	/**
 	 * Creates a new {@link VarianceRatioBurnInTestParameterSet} with empty parameter values.
+	 * @throws ParameterException 
 	 */
-	public VarianceRatioBurnInTestParameterSet() {
+	public VarianceRatioBurnInTestParameterSet() throws ParameterException {
 		super( VarianceRatioBurnInTest.class );
+		parameters.add( new SimpleParameter( DataType.DOUBLE, "threshold", "the threshold value for testing the end of the burn-in phase" +
+				"with the Variance-Ratio burn-in test, the value has to be greater than 1 since the tested potential scale reduction" +
+				"factor R converges to 1", true, new NumberValidator<Double>( 1d, Double.MAX_VALUE ), 1.2 ) );	
 	}
 	
 	/**
@@ -70,13 +75,6 @@ public class VarianceRatioBurnInTestParameterSet extends AbstractBurnInTestParam
 	 */
 	public VarianceRatioBurnInTestParameterSet( StringBuffer representation ) throws NonParsableException {
 		super( representation );
-	}
-
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "threshold", "the threshold value for testing the end of the burn-in phase" +
-				"with the Variance-Ratio burn-in test, the value has to be greater than 1 since the tested potential scale reduction" +
-				"factor R converges to 1", true, new NumberValidator<Double>( 1d, Double.MAX_VALUE ), 1.2 ) );		
 	}
 	
 	/**

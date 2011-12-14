@@ -25,6 +25,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 
 /**
  * Class for a network structure of a
@@ -183,9 +184,12 @@ public class InhomogeneousMarkov extends Measure {
 		/**
 		 * Creates a new {@link InhomogeneousMarkovParameterSet} with empty
 		 * parameter values.
+		 * @throws DatatypeNotValidException 
 		 */
-		public InhomogeneousMarkovParameterSet() {
+		public InhomogeneousMarkovParameterSet() throws DatatypeNotValidException {
 			super(InhomogeneousMarkov.class);
+			this.parameters.add(new SimpleParameter(DataType.INT, "Order",
+					"The order of the Markov model.", true));
 		}
 
 		/**
@@ -199,8 +203,7 @@ public class InhomogeneousMarkov extends Measure {
 		 *             if the parameters could not be created or set
 		 */
 		public InhomogeneousMarkovParameterSet(int order) throws Exception {
-			super(InhomogeneousMarkov.class);
-			loadParameters();
+			this();
 			this.parameters.get(0).setValue(order);
 		}
 
@@ -248,18 +251,6 @@ public class InhomogeneousMarkov extends Measure {
 		 */
 		public int getOrder() {
 			return (Integer) parameters.get(0).getValue();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			this.parameters.add(new SimpleParameter(DataType.INT, "Order",
-					"The order of the Markov model.", true));
 		}
 
 	}
