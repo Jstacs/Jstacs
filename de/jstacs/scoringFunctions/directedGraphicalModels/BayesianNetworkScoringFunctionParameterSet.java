@@ -19,6 +19,8 @@
 
 package de.jstacs.scoringFunctions.directedGraphicalModels;
 
+import java.io.IOException;
+
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
@@ -29,6 +31,7 @@ import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.SubclassFinder;
 
@@ -85,10 +88,22 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 	/**
 	 * Creates a new {@link BayesianNetworkScoringFunctionParameterSet} with
 	 * empty parameter values.
+	 * @throws DatatypeNotValidException 
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public BayesianNetworkScoringFunctionParameterSet() {
+	public BayesianNetworkScoringFunctionParameterSet() throws DatatypeNotValidException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
 		super(BayesianNetworkScoringFunction.class,
 				AlphabetContainerType.DISCRETE, false);
+		parameters.add(new SimpleParameter(DataType.DOUBLE, "ESS",
+				"The equivalent sample size", true));
+		parameters.add(new SimpleParameter(DataType.BOOLEAN,
+				"Plug-in parameters", "Use plug-in parameters", true));
+		parameters.add(SubclassFinder.getCollection(Measure.class,
+				Measure.class.getPackage().getName(), "Structure measure",
+				"Choose a measure to determine the structure.", true));
 	}
 
 	/**
@@ -159,24 +174,6 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 	@Override
 	public String getInstanceName() {
 		return "Bayesian network scoring function";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-
-		initParameterList();
-		parameters.add(new SimpleParameter(DataType.DOUBLE, "ESS",
-				"The equivalent sample size", true));
-		parameters.add(new SimpleParameter(DataType.BOOLEAN,
-				"Plug-in parameters", "Use plug-in parameters", true));
-		parameters.add(SubclassFinder.getCollection(Measure.class,
-				Measure.class.getPackage().getName(), "Structure measure",
-				"Choose a measure to determine the structure.", true));
 	}
 
 }

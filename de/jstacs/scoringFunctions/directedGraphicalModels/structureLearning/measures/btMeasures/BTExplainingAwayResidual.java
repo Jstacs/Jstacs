@@ -26,6 +26,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 
 /**
@@ -181,9 +182,20 @@ public class BTExplainingAwayResidual extends Measure {
 		/**
 		 * Creates a new {@link BTExplainingAwayResidualParameterSet} with empty
 		 * parameter values.
+		 * @throws DatatypeNotValidException 
 		 */
-		public BTExplainingAwayResidualParameterSet() {
+		public BTExplainingAwayResidualParameterSet() throws DatatypeNotValidException {
 			super(BTExplainingAwayResidual.class);
+			this.parameters.add(new SimpleParameter(DataType.DOUBLE,
+					"Foreground ESS",
+					"The equivalent sample size for the foreground.", true));
+			this.parameters
+					.add(new SimpleParameter(
+							DataType.DOUBLE,
+							"Background ESS",
+							"The equivalent sample size for the background,"
+									+ " i.e. the background class or (in case of more than two classes) all non-foreground classes.",
+							true));
 		}
 
 		/**
@@ -200,8 +212,7 @@ public class BTExplainingAwayResidual extends Measure {
 		 */
 		public BTExplainingAwayResidualParameterSet(double[] ess)
 				throws Exception {
-			super(BTExplainingAwayResidual.class);
-			loadParameters();
+			this();
 			parameters.get(0).setValue(ess[0]);
 			parameters.get(1).setValue(ess[1]);
 		}
@@ -252,26 +263,6 @@ public class BTExplainingAwayResidual extends Measure {
 		@Override
 		public String getInstanceName() {
 			return "Build a Bayesian tree using explaining away residual as structure measure.";
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			this.parameters.add(new SimpleParameter(DataType.DOUBLE,
-					"Foreground ESS",
-					"The equivalent sample size for the foreground.", true));
-			this.parameters
-					.add(new SimpleParameter(
-							DataType.DOUBLE,
-							"Background ESS",
-							"The equivalent sample size for the background,"
-									+ " i.e. the background class or (in case of more than two classes) all non-foreground classes.",
-							true));
 		}
 
 	}

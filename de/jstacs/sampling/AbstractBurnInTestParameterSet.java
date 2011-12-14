@@ -23,6 +23,7 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -42,9 +43,11 @@ public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSe
 	 *            the class to be instantiated
 	 *            
 	 * @throws IllegalArgumentException if <code>instanceClass</code> is <code>null</code>
+	 * @throws DatatypeNotValidException 
 	 */
-	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass ) throws IllegalArgumentException {
+	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass ) throws IllegalArgumentException, DatatypeNotValidException {
 		super( instanceClass );
+		parameters.add( new SimpleParameter( DataType.INT, "starts", "the number of Gibbs Sampling starts", true, new NumberValidator<Integer>( 3, Integer.MAX_VALUE ) ) );
 	}
 	
 	/**
@@ -61,8 +64,7 @@ public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSe
 	 * @throws Exception forwarded from {@link #loadParameters()} 
 	 */
 	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass, int starts ) throws IllegalArgumentException, IllegalValueException, Exception {
-		super( instanceClass );
-		loadParameters();
+		this(instanceClass);
 		parameters.get( 0 ).setValue( starts );
 	}
 	
@@ -80,11 +82,6 @@ public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSe
 	 */
 	protected AbstractBurnInTestParameterSet( StringBuffer representation ) throws NonParsableException {
 		super( representation );
-	}
-
-	protected void loadParameters() throws Exception {
-		initParameterList();
-		parameters.add( new SimpleParameter( DataType.INT, "starts", "the number of Gibbs Sampling starts", true, new NumberValidator<Integer>( 3, Integer.MAX_VALUE ) ) );		
 	}
 	
 	/**

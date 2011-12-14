@@ -28,7 +28,9 @@ import de.jstacs.data.DataSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.InstanceParameterSet;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.btMeasures.BTMutualInformation;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.btMeasures.BTMutualInformation.DataSource;
@@ -195,9 +197,28 @@ public class PMMMutualInformation extends Measure {
 		/**
 		 * Creates a new {@link PMMMutualInformationParameterSet} with empty
 		 * parameter values.
+		 * @throws ParameterException 
 		 */
-		public PMMMutualInformationParameterSet() {
+		public PMMMutualInformationParameterSet() throws ParameterException {
 			super(BTMutualInformation.class);
+			this.parameters.add(new SimpleParameter(DataType.DOUBLE,
+					"Foreground ESS",
+					"The equivalent sample size for the foreground.", true));
+			this.parameters
+					.add(new SimpleParameter(
+							DataType.DOUBLE,
+							"Background ESS",
+							"The equivalent sample size for the background,"
+									+ " i.e. the background class or (in case of more than two classes) all non-foreground classes.",
+							true));
+			this.parameters.add(new EnumParameter(DataSource.class,
+					"The data used to compute mutual information.", true));
+			this.parameters
+					.add(new SimpleParameter(
+							DataType.BYTE,
+							"Order",
+							"The order of the permuted Markov model. Only 1 or 2 allowed.",
+							true));
 		}
 
 		/**
@@ -216,8 +237,7 @@ public class PMMMutualInformation extends Measure {
 		 */
 		public PMMMutualInformationParameterSet(byte order, DataSource clazz,
 				double[] ess) throws Exception {
-			super(BTMutualInformation.class);
-			loadParameters();
+			this();
 			parameters.get(0).setValue(ess[0]);
 			parameters.get(1).setValue(ess[1]);
 			parameters.get(2).setValue(clazz);
@@ -281,32 +301,6 @@ public class PMMMutualInformation extends Measure {
 		@Override
 		public String getInstanceName() {
 			return "Build a permuted Markov model using mutual information as structure measure.";
-		}
-
-		/* (non-Javadoc)
-		 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-		 */
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			this.parameters.add(new SimpleParameter(DataType.DOUBLE,
-					"Foreground ESS",
-					"The equivalent sample size for the foreground.", true));
-			this.parameters
-					.add(new SimpleParameter(
-							DataType.DOUBLE,
-							"Background ESS",
-							"The equivalent sample size for the background,"
-									+ " i.e. the background class or (in case of more than two classes) all non-foreground classes.",
-							true));
-			this.parameters.add(new EnumParameter(DataSource.class,
-					"The data used to compute mutual information.", true));
-			this.parameters
-					.add(new SimpleParameter(
-							DataType.BYTE,
-							"Order",
-							"The order of the permuted Markov model. Only 1 or 2 allowed.",
-							true));
 		}
 
 	}
