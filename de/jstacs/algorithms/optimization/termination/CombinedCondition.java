@@ -148,11 +148,11 @@ public class CombinedCondition extends AbstractTerminationCondition {
 					true
 				)
 			);
-			/*parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.", 
+			parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.", 
 					new ExpandableParameterSet( new SimpleParameterSet(
 							SubclassFinder.getCollection( AbstractTerminationCondition.class, "de.jstacs", "Termination condition", "Select a termination condition.", true ) )
 							, "Termination conditions", "Add termination conditions to the set of conditions." )
-			) );*/
+			) );
 		}
 		
 		/**
