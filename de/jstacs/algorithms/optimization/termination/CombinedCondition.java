@@ -19,6 +19,8 @@
 
 package de.jstacs.algorithms.optimization.termination;
 
+import java.io.IOException;
+
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
@@ -27,6 +29,7 @@ import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.utils.SubclassFinder;
 import de.jstacs.utils.Time;
@@ -130,9 +133,26 @@ public class CombinedCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
+		 * @throws DatatypeNotValidException 
+		 * @throws IOException 
+		 * @throws ClassNotFoundException 
+		 * @throws IllegalAccessException 
+		 * @throws InstantiationException 
+		 * @throws CloneNotSupportedException 
 		 */
-		public CombinedConditionParameterSet() {
+		public CombinedConditionParameterSet() throws DatatypeNotValidException, CloneNotSupportedException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
 			super( CombinedCondition.class );
+			parameters.add( new SimpleParameter( DataType.INT,
+					"threshold",
+					"the number of conditions that has to be fulfilled for stopping the algorithm",
+					true
+				)
+			);
+			/*parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.", 
+					new ExpandableParameterSet( new SimpleParameterSet(
+							SubclassFinder.getCollection( AbstractTerminationCondition.class, "de.jstacs", "Termination condition", "Select a termination condition.", true ) )
+							, "Termination conditions", "Add termination conditions to the set of conditions." )
+			) );*/
 		}
 		
 		/**
@@ -180,20 +200,5 @@ public class CombinedCondition extends AbstractTerminationCondition {
 			return "CombinedConditionParameterSet";
 		}
 
-		@Override
-		protected void loadParameters() throws Exception {
-			initParameterList();
-			parameters.add( new SimpleParameter( DataType.INT,
-					"threshold",
-					"the number of conditions that has to be fulfilled for stopping the algorithm",
-					true
-				)
-			);
-			parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.", 
-					new ExpandableParameterSet( new SimpleParameterSet(
-							SubclassFinder.getCollection( AbstractTerminationCondition.class, "de.jstacs", "Termination condition", "Select a termination condition.", true ) )
-							, "Termination conditions", "Add termination conditions to the set of conditions." )
-			) );
-		}
 	}
 }
