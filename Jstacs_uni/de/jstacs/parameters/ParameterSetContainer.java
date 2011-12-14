@@ -65,6 +65,26 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 		this.parameterClass = this.parameters.getClass();
 		this.errorMessage = null;
 	}
+	
+	/**
+	 * Creates an new {@link ParameterSetContainer} out of the class
+	 * of a {@link ParameterSet}.
+	 * 
+	 * @param name
+	 *            the name of the {@link ParameterSetContainer}
+	 * @param comment
+	 *            a comment on the {@link ParameterSetContainer}
+	 * @param content
+	 *            the content of the {@link ParameterSetContainer} (the
+	 *            contained {@link ParameterSet})
+	 */
+	public ParameterSetContainer(String name, String comment,
+			Class<? extends ParameterSet> contentClazz) {
+		super( name, comment, DataType.PARAMETERSET );
+		this.comment = comment;
+		this.parameterClass = contentClazz;
+		this.errorMessage = null;
+	}
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -224,6 +244,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 		if(parameters == null){
 			try{
 				parameters = parameterClass.newInstance();
+				parameters.setParent( this );
 			}catch(Exception e){
 				RuntimeException ex = new RuntimeException( e );
 				ex.setStackTrace( e.getStackTrace() );
