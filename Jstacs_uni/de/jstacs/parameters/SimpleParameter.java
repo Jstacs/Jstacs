@@ -492,16 +492,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.parameters.Parameter#simplify()
-	 */
-	@Override
-	public void simplify() {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.Parameter#reset()
 	 */
 	@Override

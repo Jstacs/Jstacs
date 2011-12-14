@@ -21,6 +21,7 @@ package de.jstacs.models.discrete.homogeneous.parameters;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.models.discrete.homogeneous.HomogeneousMM;
+import de.jstacs.parameters.ParameterException;
 
 /**
  * This class implements a container for all parameters of a homogeneous Markov

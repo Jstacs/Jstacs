@@ -25,6 +25,7 @@ import de.jstacs.models.discrete.inhomogeneous.BayesianNetworkModel;
 import de.jstacs.models.discrete.inhomogeneous.StructureLearner.LearningType;
 import de.jstacs.models.discrete.inhomogeneous.StructureLearner.ModelType;
 import de.jstacs.parameters.EnumParameter;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
@@ -66,6 +67,7 @@ public class BayesianNetworkModelParameterSet extends IDGMParameterSet {
 	 */
 	public BayesianNetworkModelParameterSet() {
 		super( BayesianNetworkModel.class );
+		addParameters();
 	}
 
 	/**
@@ -107,24 +109,23 @@ public class BayesianNetworkModelParameterSet extends IDGMParameterSet {
 	public BayesianNetworkModelParameterSet( AlphabetContainer alphabet, int length, double ess, String description, ModelType model,
 												byte order, LearningType method ) throws Exception {
 		super( BayesianNetworkModel.class, alphabet, length, ess, description );
+		addParameters();
 		parameters.get( 2 ).setValue( model );
 		parameters.get( 3 ).setValue( order );
 		parameters.get( 4 ).setValue( method );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.models.discrete.DGMParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		parameters.add( new EnumParameter( ModelType.class, "the standard model that should be learned", true ) );
-		parameters.add( new SimpleParameter( DataType.BYTE,
-				"Markov order",
-				"the used markov order is the number of used dependencies for (each) random variable",
-				true,
-				new NumberValidator<Byte>( (byte)0, Byte.MAX_VALUE ) ) );
-		parameters.add( new EnumParameter( LearningType.class, "the learning method for the parameters of the model", true ) );
+	private void addParameters() {
+		try {
+			parameters.add( new EnumParameter( ModelType.class, "the standard model that should be learned", true ) );
+
+			parameters.add( new SimpleParameter( DataType.BYTE,
+					"Markov order",
+					"the used markov order is the number of used dependencies for (each) random variable",
+					true,
+					new NumberValidator<Byte>( (byte)0, Byte.MAX_VALUE ) ) );
+			parameters.add( new EnumParameter( LearningType.class, "the learning method for the parameters of the model", true ) );
+		} catch ( ParameterException doesnothappen ) { }
 	}
 
 	/**

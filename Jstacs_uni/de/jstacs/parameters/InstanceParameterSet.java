@@ -47,12 +47,8 @@ public abstract class InstanceParameterSet extends ParameterSet {
 	 * 
 	 * @param instanceClass
 	 *            the class to be instantiated
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if <code>instanceClass</code> is null
 	 */
-	public InstanceParameterSet(Class instanceClass)
-			throws IllegalArgumentException {
+	public InstanceParameterSet(Class instanceClass) {
 		super();
 		if (instanceClass == null) {
 			throw new IllegalArgumentException(

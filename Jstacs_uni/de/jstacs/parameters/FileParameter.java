@@ -230,16 +230,6 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.parameters.Parameter#simplify()
-	 */
-	@Override
-	public void simplify() {
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.Parameter#setValue(java.lang.Object)
 	 */
 	@Override

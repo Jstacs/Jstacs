@@ -34,10 +34,10 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class ParameterSetContainer extends Parameter implements Rangeable,
-		RangeIterator, GalaxyConvertible {
+public class ParameterSetContainer extends Parameter implements GalaxyConvertible {
 
 	private ParameterSet parameters;
+	private Class<? extends ParameterSet> parameterClass;
 
 	/**
 	 * The message of the last error or <code>null</code> if no error occurred.
@@ -62,6 +62,7 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 		this.comment = comment;
 		this.parameters = content;
 		this.parameters.setParent(this);
+		this.parameterClass = this.parameters.getClass();
 		this.errorMessage = null;
 	}
 
@@ -112,7 +113,7 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	 */
 	@Override
 	public boolean checkValue(Object value) {
-		return (value == null || this.parameters.getClass().isInstance( value  ) );
+		return (value == null || this.parameterClass.isInstance( value ) || this.parameters.getClass().isInstance( value  ) );
 	}
 
 	/*
@@ -138,6 +139,9 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	 */
 	@Override
 	public ParameterSet getValue() {
+		if(parameters == null){
+			loadParameters();
+		}
 		return parameters;
 	}
 
@@ -178,17 +182,11 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	 */
 	@Override
 	public String getErrorMessage() {
-		return parameters.getErrorMessage();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#simplify()
-	 */
-	@Override
-	public void simplify() {
-		parameters.simplify();
+		if(parameters == null){
+			return null;
+		}else{
+			return parameters.getErrorMessage();
+		}
 	}
 
 	/*
@@ -198,7 +196,9 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 	 */
 	@Override
 	public void reset() {
-		parameters.reset();
+		if(parameters != null){
+			parameters.reset();
+		}
 	}
 
 	/*
@@ -220,6 +220,19 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 		return "parameterSetContainer";
 	}
 
+	private void loadParameters() {
+		if(parameters == null){
+			try{
+				parameters = parameterClass.newInstance();
+			}catch(Exception e){
+				RuntimeException ex = new RuntimeException( e );
+				ex.setStackTrace( e.getStackTrace() );
+				throw ex;
+			}
+			parameters.setParent(this);
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see de.jstacs.parameters.Parameter#appendFurtherInfos(java.lang.StringBuffer)
@@ -229,7 +242,11 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 		super.appendFurtherInfos( buf );
 		
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
-		XMLParser.appendObjectWithTags(buf, parameters, "parameters");
+		if(parameters == null){
+			XMLParser.appendObjectWithTags(buf, parameterClass, "parameterClass");
+		}else{
+			XMLParser.appendObjectWithTags(buf, parameters, "parameters");
+		}
 	}
 
 	/*
@@ -242,76 +259,19 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 		
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
 		parameters = XMLParser.extractObjectForTags( representation, "parameters", ParameterSet.class );
-		parameters.setParent(this);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Rangeable#isRangeable()
-	 */
-	public boolean isRangeable() {
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Rangeable#getRangedInstance()
-	 */
-	public Parameter getRangedInstance() throws Exception {
-		this.parameters.makeRanged();
-		return this;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#next()
-	 */
-	public boolean next() throws ParameterException {
-		return parameters.next();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#resetToFirst()
-	 */
-	public void resetToFirst() {
-		parameters.resetToFirst();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#isRanged()
-	 */
-	public boolean isRanged() {
-		return parameters.isRanged();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#getNumberOfValues()
-	 */
-	public int getNumberOfValues() {
-		return parameters.getNumberOfValues();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#valuesToString()
-	 */
-	public String valuesToString() {
-		// return name;
-		return "(" + parameters.valuesToString() + ")";
+		if(parameters == null){
+			this.parameterClass = XMLParser.extractObjectForTags( representation, "parameterClass", Class.class );
+		}else{
+			this.parameterClass = parameters.getClass();
+			parameters.setParent(this);
+		}
 	}
 
 	@Override
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+		if(parameters == null){
+			loadParameters();
+		}
 		StringBuffer pars = new StringBuffer();
 		((GalaxyConvertible)parameters).toGalaxy( namePrefix, configPrefix, depth+1, pars, configBuffer );
 		String color = GalaxyAdaptor.getColor( depth );
@@ -328,6 +288,9 @@ public class ParameterSetContainer extends Parameter implements Rangeable,
 
 	@Override
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
+		if(parameters == null){
+			loadParameters();
+		}
 		((GalaxyConvertible)parameters).fromGalaxy( namePrefix, command );	
 	}
 	

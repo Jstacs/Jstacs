@@ -23,8 +23,10 @@ import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainerParameterSet;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -73,6 +75,7 @@ public abstract class DGMParameterSet extends SequenceScoringParameterSet {
 	 */
 	protected DGMParameterSet( Class<? extends DiscreteGraphicalModel> instanceClass, boolean simple, boolean variableLength ) {
 		super( instanceClass, AlphabetContainerType.DISCRETE, simple, variableLength );
+		addParameters();
 	}
 
 	/**
@@ -128,29 +131,26 @@ public abstract class DGMParameterSet extends SequenceScoringParameterSet {
 	private DGMParameterSet( Class<? extends DiscreteGraphicalModel> instanceClass, AlphabetContainer alphabet, int length,
 								boolean variableLength, double ess, String description ) throws Exception {
 		super( instanceClass, alphabet, length, variableLength );
-		loadParameters();
+		addParameters();
 		setEss( ess );
 		if( description != null ) {
 			parameters.get( 1 ).setValue( description );
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		initParameterList();
-		parameters.add( new SimpleParameter( DataType.DOUBLE,
-				"ESS",
-				"the equivalent sample size",
-				true,
-				new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
-		parameters.add( new SimpleParameter( DataType.STRING,
-				"description",
-				"a textual description or comment for the model",
-				false,
-				"none" ) );
+	private void addParameters(){
+		try{
+			parameters.add( new SimpleParameter( DataType.DOUBLE,
+					"ESS",
+					"the equivalent sample size",
+					true,
+					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			parameters.add( new SimpleParameter( DataType.STRING,
+					"description",
+					"a textual description or comment for the model",
+					false,
+					"none" ) );
+			}catch(ParameterException doesnothappen){ }
 	}
 
 	/* (non-Javadoc)

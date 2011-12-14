@@ -72,12 +72,4 @@ public class SimpleParameterSet extends ParameterSet{
             parameters.get( i ).reset();
         }
     }
-	
-	/* (non-Javadoc)
-	 * @see de.jstacs.parameters.ParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() {
-				
-	}
 }

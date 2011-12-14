@@ -44,27 +44,10 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 
 	/**
-	 * In cases, when the validity of some {@link ParameterSet} depends on the
-	 * value of this {@link Parameter}, this variable holds a reference to that
-	 * {@link ParameterSet}.
-	 */
-	protected ParameterSet neededReference;
-
-	/**
-	 * In addition to the reference, the id of the {@link ParameterSet} is
-	 * saved, which assists reconstruction from XML.
-	 * 
-	 * @see Parameter#neededReference
-	 */
-	protected Long neededReferenceId;
-
-	/**
 	 * If this {@link Parameter} is enclosed in a {@link ParameterSet}, this
 	 * variable holds a reference to that {@link ParameterSet}.
 	 */
 	protected ParameterSet parent;
-
-	private long id;
 
 	/**
 	 * The main constructor which takes the main information of a {@link Parameter} and generates an internal ID.
@@ -80,7 +63,6 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	 */
 	public Parameter( String name, String comment, DataType type ) {
 		super( name, comment, type );
-		id = System.currentTimeMillis() + this.hashCode();
 	}
 	
 	/**
@@ -100,14 +82,6 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 		super( xml );
 	}
 
-	/**
-	 * Returns the id of this {@link Parameter}.
-	 * 
-	 * @return the id of this {@link Parameter}
-	 */
-	public long getId() {
-		return id;
-	}
 
 	/**
 	 * Returns <code>true</code> if the {@link Parameter} is required,
@@ -152,45 +126,6 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	public abstract boolean hasDefaultOrIsSet();
 
 	/**
-	 * Returns a reference to a {@link ParameterSet} whose
-	 * {@link ParameterSet#hasDefaultOrIsSet()}-method depends on the value of
-	 * this {@link Parameter}. If no such {@link ParameterSet} exists,
-	 * <code>null</code> is returned.
-	 * 
-	 * @return the reference to the {@link ParameterSet}
-	 * 
-	 * @see ParameterSet#hasDefaultOrIsSet()
-	 */
-	public ParameterSet getNeededReference() {
-		return neededReference;
-	}
-
-	/**
-	 * Returns the id of the {@link ParameterSet} that would be returned by
-	 * {@link Parameter#getNeededReference()}.
-	 * 
-	 * @return the id of the {@link ParameterSet}
-	 * 
-	 * @see Parameter#getNeededReference()
-	 */
-	public Long getNeededReferenceId() {
-		return neededReferenceId;
-	}
-
-	/**
-	 * Sets an internal reference to a {@link ParameterSet} whose validity
-	 * depends on the value of this {@link Parameter}.
-	 * 
-	 * @param reference
-	 *            to the {@link ParameterSet} depending on the value of this
-	 *            {@link Parameter}
-	 */
-	public void setNeededReference(ParameterSet reference) {
-		this.neededReference = reference;
-		this.neededReferenceId = reference.getId();
-	}
-
-	/**
 	 * Returns <code>true</code> if the parameter was set by the user,
 	 * <code>false</code> otherwise.
 	 * 
@@ -217,13 +152,6 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	public abstract String getErrorMessage();
 
 	/**
-	 * Simplifies the {@link Parameter} and its contents to the relevant
-	 * information. This could be e.g. to reset the contents of those values of
-	 * a {@link CollectionParameter} that are not selected.
-	 */
-	public abstract void simplify();
-
-	/**
 	 * Resets the parameter and its contents to the default values or
 	 * <code>null</code> if no defaults are given.
 	 */
@@ -237,7 +165,6 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	@Override
 	public Parameter clone() throws CloneNotSupportedException {
 		Parameter clone = (Parameter) super.clone();
-		clone.neededReference = null;
 		clone.parent = null;
 		return clone;
 	}
@@ -282,12 +209,7 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	 */
 	@Override
 	protected void extractFurtherInfos(StringBuffer source) throws NonParsableException {
-		this.id = XMLParser.extractObjectForTags(source, "id", long.class );
-		try {
-			this.neededReferenceId = XMLParser.extractObjectForTags(source, "neededReferenceId", long.class );
-		} catch (NonParsableException e) {
-			this.neededReferenceId = null;
-		}
+		
 	}
 
 	/*
@@ -296,10 +218,7 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	 */
 	@Override
 	protected void appendFurtherInfos( StringBuffer buf ) {
-		XMLParser.appendObjectWithTags(buf, id, "id");
-		if (neededReference != null) {
-			XMLParser.appendObjectWithTags(buf, neededReferenceId, "neededReferenceId");
-		}
+		
 	}
 
 }

@@ -24,6 +24,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -67,6 +68,7 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 * This is the empty constructor that can be used to fill the parameters after creation.
 	 */
 	public NumericalHMMTrainingParameterSet() {
+		addParameters();
 	}
 
 	/**
@@ -83,6 +85,7 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 */
 	public NumericalHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc, int threads, byte algorithm, double lineEps, double startDist ) throws Exception {
 		super( starts, tc, threads );
+		addParameters();
 		parameters.get( 3 ).setValue(algorithmStrings[getIndex( algorithmStrings, algorithms, algorithm, false )] );
 		parameters.get( 4 ).setValue( lineEps );
 		parameters.get( 5 ).setValue( startDist );
@@ -103,24 +106,26 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 		super( xml );
 	}
 	
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		parameters.add( new CollectionParameter( DataType.BYTE,
-				algorithmStrings,
-				algorithms,
-				"algorithm",
-				"the algorithm that should be used for numerical optimization",
-				true ) );
-		parameters.add( new SimpleParameter( DataType.DOUBLE,
-				"line epsilon",
-				"the threshold for stopping the line search in the numerical training",
-				true,
-				new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
-		parameters.add( new SimpleParameter( DataType.DOUBLE,
-				"start distance",
-				"the start distance for the line search in the numerical training",
-				true,
-				new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+	private void addParameters(){
+		try {
+			parameters.add( new CollectionParameter( DataType.BYTE,
+					algorithmStrings,
+					algorithms,
+					"algorithm",
+					"the algorithm that should be used for numerical optimization",
+					true ) );
+
+			parameters.add( new SimpleParameter( DataType.DOUBLE,
+					"line epsilon",
+					"the threshold for stopping the line search in the numerical training",
+					true,
+					new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+			parameters.add( new SimpleParameter( DataType.DOUBLE,
+					"start distance",
+					"the start distance for the line search in the numerical training",
+					true,
+					new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+		} catch ( ParameterException doesnothappen ) { } 
 	}
 	
 	/**

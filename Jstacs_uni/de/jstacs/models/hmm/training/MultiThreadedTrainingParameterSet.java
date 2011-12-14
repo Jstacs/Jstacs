@@ -21,6 +21,7 @@ package de.jstacs.models.hmm.training;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -35,7 +36,9 @@ public abstract class MultiThreadedTrainingParameterSet extends MaxHMMTrainingPa
 	/**
 	 * This is the empty constructor that can be used to fill the parameters after creation.
 	 */
-	protected MultiThreadedTrainingParameterSet() {}
+	protected MultiThreadedTrainingParameterSet() {
+		addParameters();
+	}
 
 	/**
 	 * This constructor can be used to create an instance with specified parameters.
@@ -48,7 +51,8 @@ public abstract class MultiThreadedTrainingParameterSet extends MaxHMMTrainingPa
 	 */
 	protected MultiThreadedTrainingParameterSet(int starts, AbstractTerminationCondition tc, int threads) throws Exception {
 		super(starts, tc);
-		parameters.get(2).setDefault( threads );
+		addParameters();
+		getParameterForName( "Threads" ).setDefault( threads );
 	}
 
 	/**
@@ -66,14 +70,10 @@ public abstract class MultiThreadedTrainingParameterSet extends MaxHMMTrainingPa
 		super(xml);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.models.hmm.training.MaxHMMTrainingParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		parameters.add( new SimpleParameter( DataType.INT, "Threads", "the number of threads that should be used during optimization", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ) );
+	private void addParameters(){
+		try {
+			parameters.add( new SimpleParameter( DataType.INT, "Threads", "the number of threads that should be used during optimization", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ) );
+		} catch ( ParameterException doesnothappen ) { }
 	}
 	
 	/**

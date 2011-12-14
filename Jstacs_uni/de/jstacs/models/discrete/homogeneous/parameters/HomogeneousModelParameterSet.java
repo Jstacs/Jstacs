@@ -24,7 +24,9 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainerParameterSet;
 import de.jstacs.models.discrete.DGMParameterSet;
 import de.jstacs.models.discrete.homogeneous.HomogeneousModel;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.validation.NumberValidator;
 
 /**
@@ -62,13 +64,19 @@ public abstract class HomogeneousModelParameterSet extends DGMParameterSet {
 	 * 
 	 * @param instanceClass
 	 *            the (sub-)class
-	 * 
 	 * @see de.jstacs.models.discrete.homogeneous.HomogeneousMM
 	 * @see HomogeneousModel
 	 * @see DGMParameterSet#DGMParameterSet(Class, boolean, boolean)
 	 */
 	protected HomogeneousModelParameterSet( Class<? extends HomogeneousModel> instanceClass ) {
 		super( instanceClass, true, true );
+		try {
+			parameters.add( new SimpleParameter( DataType.BYTE,
+					"order",
+					"the order of the model specifies the number of used ancestors of a random variable that are used to determine its propability",
+					true,
+					new NumberValidator<Byte>( (byte)0, Byte.MAX_VALUE ) ) );
+		} catch ( DatatypeNotValidException doesnothappen ) { }
 	}
 
 	/**
@@ -97,20 +105,12 @@ public abstract class HomogeneousModelParameterSet extends DGMParameterSet {
 	protected HomogeneousModelParameterSet( Class<? extends HomogeneousModel> instanceClass, AlphabetContainer alphabet, double ess,
 											String description, byte order ) throws Exception {
 		super( instanceClass, alphabet, ess, description );
-		parameters.get( 2 ).setValue( new Byte( order ) );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.models.discrete.DGMParameterSet#loadParameters()
-	 */
-	@Override
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
 		parameters.add( new SimpleParameter( DataType.BYTE,
 				"order",
 				"the order of the model specifies the number of used ancestors of a random variable that are used to determine its propability",
 				true,
 				new NumberValidator<Byte>( (byte)0, Byte.MAX_VALUE ) ) );
+		parameters.get( 2 ).setValue( new Byte( order ) );
 	}
 
 	/* (non-Javadoc)

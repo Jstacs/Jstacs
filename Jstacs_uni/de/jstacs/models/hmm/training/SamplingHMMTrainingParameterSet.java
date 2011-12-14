@@ -42,6 +42,7 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 	 */
 	public SamplingHMMTrainingParameterSet() {
 		super();
+		addParameters();
 	}	
 
 	/**
@@ -56,6 +57,7 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 	 */
 	public SamplingHMMTrainingParameterSet( int starts, int stepsPerIteration, int stationarySteps, AbstractBurnInTestParameterSet burnInTestParameters ) throws IllegalValueException {
 		super( starts );
+		addParameters();
 		getParameterAt( 1 ).setValue( stepsPerIteration );
 		getParameterAt( 2 ).setValue( stationarySteps );
 		parameters.get( 3 ).setValue( burnInTestParameters );
@@ -76,30 +78,34 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 		super( xml );
 	}
 	
-	protected void loadParameters() throws Exception {
-		super.loadParameters();
-		
-		parameters.add( new SimpleParameter( DataType.INT,
-				"stepsPerIteration",
-				"the number of steps during one iteration",
-				true,
-				new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
-		
-		parameters.add( new SimpleParameter( DataType.INT,
-				"steps",
-				"the total number of steps after burn-in",
-				true,
-				new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );	
+	private void addParameters() {
+		try{
+			parameters.add( new SimpleParameter( DataType.INT,
+					"stepsPerIteration",
+					"the number of steps during one iteration",
+					true,
+					new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
 
-		parameters.add(
-				SubclassFinder.getCollection(
-						AbstractBurnInTest.class,
-						AbstractBurnInTest.class.getPackage().getName(),//TODO more general?
-						"Burn in test parameters",
-						"the parameters used to create a burn in test",
-						true
-				)
-		);
+			parameters.add( new SimpleParameter( DataType.INT,
+					"steps",
+					"the total number of steps after burn-in",
+					true,
+					new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );	
+
+			parameters.add(
+					SubclassFinder.getCollection(
+							AbstractBurnInTest.class,
+							AbstractBurnInTest.class.getPackage().getName(),//TODO more general?
+							"Burn in test parameters",
+							"the parameters used to create a burn in test",
+							true
+					)
+			);
+		}catch(Exception hopefullydoesnothappen){
+			RuntimeException ex = new RuntimeException( hopefullydoesnothappen );
+			ex.setStackTrace( hopefullydoesnothappen.getStackTrace() );
+			throw ex;
+		}
 	}
 
 	/**

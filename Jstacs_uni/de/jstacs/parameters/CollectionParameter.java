@@ -679,29 +679,11 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.parameters.Parameter#simplify()
-	 */
-	@Override
-	public void simplify() {
-		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
-			if (i != selected
-					&& parameters.getParameterAt(i).getValue() instanceof ParameterSet) {
-				parameters.getParameterAt(i).reset();
-			} else {
-				parameters.getParameterAt(i).simplify();
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.Parameter#reset()
 	 */
 	@Override
 	public void reset() {
 		selected = defaultSelected;
-		simplify();
 	}
 
 	/*
@@ -784,7 +766,7 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		MultiSelectionCollectionParameter par = new MultiSelectionCollectionParameter(
 				this.parameters.clone(), selected, new boolean[parameters
 						.getNumberOfParameters()], false, getName(),
-				getComment(), required, datatype, errorMessage, 0, true);
+				getComment(), required, datatype, errorMessage, 0 );
 		return par;
 	}
 	

@@ -23,6 +23,7 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -31,12 +32,16 @@ import de.jstacs.parameters.validation.NumberValidator;
  * 
  * @author Jens Keilwagen
  */
-public class HMMTrainingParameterSet extends ParameterSet {
+public abstract class HMMTrainingParameterSet extends ParameterSet {
 
 	/**
 	 * This is the empty constructor that can be used to fill the parameters after creation.
 	 */
 	protected HMMTrainingParameterSet() {
+		super();
+		try {
+			parameters.add( new SimpleParameter( DataType.INT, "starts", "the number of different starts of HMM training", true, new NumberValidator<Integer>(1,Integer.MAX_VALUE)) );
+		} catch ( DatatypeNotValidException doesnothappen ) { }
 	}
 	
 	/**
@@ -47,6 +52,7 @@ public class HMMTrainingParameterSet extends ParameterSet {
 	 * @throws IllegalValueException if the parameter can not be set
 	 */
 	protected HMMTrainingParameterSet( int starts ) throws IllegalValueException {
+		this();
 		getParameterAt( 0 ).setValue( starts );
 	}
 
@@ -63,12 +69,6 @@ public class HMMTrainingParameterSet extends ParameterSet {
 	 */
 	protected HMMTrainingParameterSet( StringBuffer xml ) throws NonParsableException {
 		super( xml );
-	}
-	
-	@Override
-	protected void loadParameters() throws Exception {
-		parameters = new ParameterList();
-		parameters.add( new SimpleParameter( DataType.INT, "starts", "the number of different starts of HMM training", true, new NumberValidator<Integer>(1,Integer.MAX_VALUE)) );
 	}
 
 	/**

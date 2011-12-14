@@ -40,7 +40,6 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 	private boolean[] selected;
 	private boolean[] defaultSelected;
 	private int current;
-	private boolean ranged;
 
 	/**
 	 * Constructor for a {@link MultiSelectionCollectionParameter}. The first
@@ -243,16 +242,12 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 			boolean[] selected, boolean[] defaultSelected,
 			boolean userSelected, String name, String comment,
 			boolean required, DataType datatype, String errorMessage,
-			int current, boolean makeRanged) throws Exception {
+			int current) throws Exception {
 		super(options, 0, 0, userSelected, name, comment, required, datatype,
 				errorMessage, false);
 		this.selected = selected.clone();
 		this.defaultSelected = defaultSelected.clone();
 		this.current = current;
-		this.ranged = makeRanged;
-		if (ranged) {
-			this.parameters.makeRanged();
-		}
 	}
 
 	/*
@@ -536,30 +531,11 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#simplify()
-	 */
-	@Override
-	public void simplify() {
-		for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
-			if (!selected[i]
-					&& parameters.getParameterAt(i).getValue() instanceof ParameterSet) {
-				parameters.getParameterAt(i).reset();
-			} else {
-				parameters.getParameterAt(i).simplify();
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.CollectionParameter#reset()
 	 */
 	@Override
 	public void reset() {
 		selected = defaultSelected.clone();
-		simplify();
-
 	}
 
 	/*
