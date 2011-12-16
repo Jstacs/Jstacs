@@ -19,7 +19,6 @@
 
 package de.jstacs.parameters;
 
-import java.util.Collection;
 import java.util.HashSet;
 
 import de.jstacs.DataType;
@@ -62,7 +61,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	protected String errorMessage;
 
 	/**
-	 * Indicates if this {@link CollectionParameter} shall be rangeable
+	 * Indicates if this {@link AbstractCollectionParameter} shall be rangeable
 	 */
 	private boolean rangeable;
 
@@ -72,7 +71,6 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 		this.required = required;
 		this.userSelected = false;
 		this.rangeable = true;
-		init();
 	}
 	
 	protected abstract void init();
@@ -94,7 +92,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * @param comment
 	 *            a comment on the parameter
 	 * @param required
-	 *            <code>true</code> if this {@link CollectionParameter} is
+	 *            <code>true</code> if this {@link AbstractCollectionParameter} is
 	 *            required, <code>false</code> otherwise
 	 * 
 	 * @throws InconsistentCollectionException
@@ -135,7 +133,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * @param comment
 	 *            a comment on the parameter
 	 * @param required
-	 *            <code>true</code> if the {@link CollectionParameter} is
+	 *            <code>true</code> if the {@link AbstractCollectionParameter} is
 	 *            required, <code>false</code> otherwise
 	 * 
 	 * @throws InconsistentCollectionException
@@ -154,8 +152,8 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 			boolean required) throws InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		this(datatype, name, comment, required);
 
-		if (keys.length != values.length || (comments != null && keys.length != comments.length)) {
-			throw new InconsistentCollectionException( "You have to define the same number of keys and values for a CollectionParameter!");
+		if ( !(values instanceof Parameter[]) && (keys == null || keys.length != values.length || (comments != null && keys.length != comments.length)) ) {
+			throw new InconsistentCollectionException( "You have to define the same number of keys and values for a AbstractCollectionParameter!");
 		}
 
 		createParameterSet(values, keys, comments);
@@ -201,7 +199,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Restores an instance of {@link CollectionParameter} from a XML
+	 * Restores an instance of {@link AbstractCollectionParameter} from a XML
 	 * representation.
 	 * 
 	 * @param representation
@@ -242,9 +240,9 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 		Parameter[] pars = new Parameter[values.length];
 		HashSet<String> hash = new HashSet<String>();
 		for (int i = 0; i < pars.length; i++) {
-			/*if( values[i] instanceof ParameterSetContainer ) {
-				pars[i] = (ParameterSetContainer) values[i];
-			} else*/ if( values[i] instanceof ParameterSet ) {
+			if( values[i] instanceof Parameter ) {
+				pars[i] = (Parameter) values[i];
+			} else if( values[i] instanceof ParameterSet ) {
 				pars[i] = new ParameterSetContainer( (ParameterSet) values[i] );
 			} else if( values[i] instanceof Class && ParameterSet.class.isAssignableFrom( (Class) values[i] )  ) {
 				pars[i] = new ParameterSetContainer( (Class<? extends ParameterSet>) values[i] );
@@ -269,6 +267,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 		}
 
 		parameters = new SimpleParameterSet(pars);
+		init();
 	}
 	
 	/*
@@ -300,14 +299,12 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	}
 
 	/**
-	 * Returns <code>true</code>, if this {@link CollectionParameter} has a
+	 * Returns <code>true</code>, if this {@link AbstractCollectionParameter} has a
 	 * default value.
 	 * 
-	 * @return if this {@link CollectionParameter} has a default value
+	 * @return if this {@link AbstractCollectionParameter} has a default value
 	 * 
-	 * @see CollectionParameter#CollectionParameter(ParameterSet, int, int,
-	 *      boolean, String, String, boolean, DataType, String, boolean)
-	 * @see CollectionParameter#setDefault(Object)
+	 * @see #setDefault(Object)
 	 */
 	public abstract boolean hasDefault();
 
@@ -363,14 +360,11 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 			val2 = ParameterSet.getName( (ParameterSet)value );
 		} else if( value instanceof Class && ParameterSet.class.isAssignableFrom( (Class) value )  ) {
 			val2 = ParameterSet.getName( (Class<? extends ParameterSet>)value );
-		}  else if( value instanceof Number  ) {
-			val2 = value.toString();
+		} else if( value instanceof Parameter ) {
+			val2 = ((Parameter)value).getName();
 		}
 		
-		if (!(val2 instanceof String)) {
-			errorMessage = "The value is not in the set of defined values." + value;
-			return -1;
-		} else {
+		if ( val2 instanceof String ) {
 			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
 				if (parameters.getParameterAt(i).getName().equals(val2)) {
 					errorMessage = null;
@@ -384,10 +378,10 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 
 	/**
 	 * Returns <code>true</code> if the key specified by <code>value</code> is
-	 * in the set of keys of this {@link CollectionParameter}.
+	 * in the set of keys of this {@link AbstractCollectionParameter}.
 	 * 
 	 * @return <code>true</code> if the key specified by <code>value</code> is
-	 *         in the set of keys of this {@link CollectionParameter},
+	 *         in the set of keys of this {@link AbstractCollectionParameter},
 	 *         <code>false</code> otherwise
 	 */
 	@Override
@@ -531,13 +525,17 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * 
 	 * @see de.jstacs.parameters.Rangeable#getRangedInstance()
 	 */
-	public Parameter getRangedInstance() throws Exception {
-		boolean[] selected = new boolean[parameters.getNumberOfParameters()];
-		selected[0] = true;
-		MultiSelectionCollectionParameter par = new MultiSelectionCollectionParameter(
-				this.parameters.clone(), selected, new boolean[parameters
-						.getNumberOfParameters()], false, getName(),
-				getComment(), required, datatype, errorMessage, 0 );
+	@Override
+	public MultiSelectionParameter getRangedInstance() throws Exception {
+		//boolean[] selected = new boolean[parameters.getNumberOfParameters()];
+		//selected[0] = true;
+		Parameter[] p = new Parameter[parameters.getNumberOfParameters()];
+		for( int i = 0; i < p.length; i++ ) {
+			p[i] = parameters.getParameterAt(i);
+		}
+		MultiSelectionParameter par = 
+			new MultiSelectionParameter( datatype, null, p, null, getName(), getComment(), required );
+		// new MultiSelectionParameter( this.parameters.clone(), selected, new boolean[parameters.getNumberOfParameters()], false, getName(), getComment(), required, datatype, errorMessage, 0 );
 		return par;
 	}
 	
@@ -579,5 +577,5 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 		}
 		
 		descBuffer.append( buf );
-	}	
+	}
 }
