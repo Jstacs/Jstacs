@@ -26,7 +26,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
-import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SequenceScoringParameterSet;
@@ -79,10 +79,10 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 		parameters.get(1).setValue(plugInParameters);
 		InstanceParameterSet struct = structureMeasure.getCurrentParameterSet();
 		parameters.get(2).setValue(struct.getInstanceName());
-		((ParameterSetContainer) ((CollectionParameter) parameters.get(2))
+		((ParameterSetContainer) ((SelectionParameter) parameters.get(2))
 				.getParametersInCollection()
 				.getParameterAt(
-						((CollectionParameter) parameters.get(2)).getSelected()))
+						((SelectionParameter) parameters.get(2)).getSelected()))
 				.setValue(struct);
 	}
 

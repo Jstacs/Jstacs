@@ -19,6 +19,8 @@
 
 package de.jstacs.parameters;
 
+import java.util.Collection;
+
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -33,24 +35,14 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @see de.jstacs.parameters.ParameterSet
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  */
-public class CollectionParameter extends Parameter implements Rangeable, GalaxyConvertible {
+public abstract class AbstractCollectionParameter extends Parameter implements Rangeable, GalaxyConvertible {
 
 	/**
 	 * The internal {@link ParameterSet} that holds the possible values
 	 */
 	protected ParameterSet parameters;
-
-	/**
-	 * The number of the currently selected value in <code>parameters</code>
-	 */
-	private int selected;
-
-	/**
-	 * The number of the option selected by default
-	 */
-	private int defaultSelected;
 
 	/**
 	 * <code>true</code> if the user has selected an item
@@ -73,71 +65,19 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 */
 	private boolean rangeable;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#clone()
-	 */
-	@Override
-	public CollectionParameter clone() throws CloneNotSupportedException {
-		CollectionParameter clone = (CollectionParameter) super.clone();
-		clone.parameters = parameters == null ? null : parameters.clone();
-		return clone;
-	}
-
 	// default constructor
-	private CollectionParameter(DataType datatype, String name, String comment, boolean required) {
+	private AbstractCollectionParameter( DataType datatype, String name, String comment, boolean required ) {
 		super( name, comment, datatype );
 		this.required = required;
 		this.userSelected = false;
 		this.rangeable = true;
-		this.defaultSelected = -1;
-		this.selected = 0;
+		init();
 	}
+	
+	protected abstract void init();
 
 	/**
-	 * Creates a new {@link CollectionParameter} from the necessary field. This
-	 * constructor should be used to clone a current instance.
-	 * 
-	 * @param options
-	 *            the options of the {@link CollectionParameter}
-	 * @param selected
-	 *            the currently selected value
-	 * @param defaultSelected
-	 *            the value selected by default
-	 * @param userSelected
-	 *            <code>true</code> if the current value was selected by the
-	 *            user, <code>false</code> otherwise
-	 * @param name
-	 *            the name of the parameter
-	 * @param comment
-	 *            a comment on the parameter
-	 * @param required
-	 *            <code>true</code> if this {@link CollectionParameter} is
-	 *            required, <code>false</code> otherwise
-	 * @param datatype
-	 *            the data type of the parameters in the collection
-	 * @param errorMessage
-	 *            the error message of the last error or <code>null</code>
-	 * @param rangeable
-	 *            <code>true</code> if the current instance is rangeable
-	 */
-	protected CollectionParameter(ParameterSet options, int selected,
-			int defaultSelected, boolean userSelected, String name,
-			String comment, boolean required, DataType datatype,
-			String errorMessage, boolean rangeable) {
-		super( name, comment, datatype );
-		this.parameters = options;
-		this.selected = selected;
-		this.defaultSelected = defaultSelected;
-		this.userSelected = userSelected;
-		this.required = required;
-		this.errorMessage = errorMessage;
-		this.rangeable = rangeable;
-	}
-
-	/**
-	 * Constructor for a {@link CollectionParameter}.
+	 * Constructor for a {@link AbstractCollectionParameter} of {@link SimpleParameter}s.
 	 * 
 	 * @param datatype
 	 *            the data type of the parameters in the collection
@@ -166,18 +106,17 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 * @throws DatatypeNotValidException
 	 *             if the <code>datatype</code> is not one of the allowed values
 	 * 
-	 * @see CollectionParameter#CollectionParameter(DataType, String[],
-	 *      Object[], String[], String, String, boolean)
+	 * @see #AbstractCollectionParameter(DataType, String[], Object[], String[], String, String, boolean)
+	 * @see SimpleParameter
 	 */
-	public CollectionParameter(DataType datatype, String[] keys,
-			Object[] values, String name, String comment, boolean required)
+	public AbstractCollectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
 			throws InconsistentCollectionException, IllegalValueException,
 			DatatypeNotValidException {
-		this(datatype, keys, values, null, name, comment, required);
+		this( datatype, keys, values, null, name, comment, required );
 	}
 
 	/**
-	 * Constructor for a {@link CollectionParameter}.
+	 * Constructor for a {@link AbstractCollectionParameter}.
 	 * 
 	 * @param datatype
 	 *            the data type of the parameters in the collection
@@ -208,27 +147,23 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 * @throws DatatypeNotValidException
 	 *             if the <code>datatype</code> is not one of the allowed values
 	 * 
-	 * @see CollectionParameter#createParameterSet(Object[], String[], String[])
+	 * @see #createParameterSet(Object[], String[], String[])
 	 */
-	public CollectionParameter(DataType datatype, String[] keys,
-			Object[] values, String[] comments, String name, String comment,
-			boolean required) throws InconsistentCollectionException,
-			IllegalValueException, DatatypeNotValidException {
+	public AbstractCollectionParameter(DataType datatype, String[] keys, Object[] values, String[] comments, String name, String comment,
+			boolean required) throws InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		this(datatype, name, comment, required);
 
-		if (keys.length != values.length
-				|| (comments != null && keys.length != comments.length)) {
-			throw new InconsistentCollectionException(
-					"You have to define the same number of keys and values for a CollectionParameter!");
+		if (keys.length != values.length || (comments != null && keys.length != comments.length)) {
+			throw new InconsistentCollectionException( "You have to define the same number of keys and values for a CollectionParameter!");
 		}
 
 		createParameterSet(values, keys, comments);
 	}
 
 	/**
-	 * Constructor for a {@link CollectionParameter} from an array of
+	 * Constructor for a {@link AbstractCollectionParameter} from an array of
 	 * {@link ParameterSet}s. This constructor can be used to easily construct a
-	 * {@link CollectionParameter} that lets the user select from a list of
+	 * {@link AbstractCollectionParameter} that lets the user select from a list of
 	 * possible options that all require an own set of {@link Parameter}s to be
 	 * instantiated.
 	 * 
@@ -247,44 +182,36 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 *            <code>true</code> if the parameter is required,
 	 *            <code>false</code> otherwise
 	 * 
-	 * @see CollectionParameter#createParameterSet(Object[], String[], String[])
+	 * @see #createParameterSet(Object[], String[], String[])
+	 * @see ParameterSet#getName(ParameterSet)
+	 * @see ParameterSet#getComment(ParameterSet)
 	 */
-	public CollectionParameter(ParameterSet[] values, String[] keys,
-			String[] comments, String name, String comment, boolean required) {
+	public AbstractCollectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException {
 		this(DataType.PARAMETERSET, name, comment, required);
-		try {
-			createParameterSet(values, keys, comments);
-		} catch (Exception doesnothappen) {
-			doesnothappen.printStackTrace();
-		}
+		//XXX try catch?
+		createParameterSet(values, null, null);
 	}
 
-	/**
-	 * Constructor for a {@link CollectionParameter} from an array of
-	 * {@link ParameterSet}s. This constructor can be used to easily construct a
-	 * {@link CollectionParameter} that lets the user select from a list of
-	 * possible options that all require an own set of {@link Parameter}s to be
-	 * instantiated.
-	 * 
-	 * @param values
-	 *            the array of {@link ParameterSet}s
-	 * @param name
-	 *            the name of the parameter
-	 * @param comment
-	 *            a comment on the parameter
-	 * @param required
-	 *            <code>true</code> if the parameter is required,
-	 *            <code>false</code> otherwise
-	 * 
-	 * @see CollectionParameter#createParameterSet(Object[], String[], String[])
-	 */
-	public CollectionParameter(InstanceParameterSet[] values, String name,
-			String comment, boolean required) {
+	public AbstractCollectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException {
 		this(DataType.PARAMETERSET, name, comment, required);
-		try {
-			createParameterSet(values, null, null);
-		} catch (Exception doesnothappen) {
-		}
+		//XXX try catch?
+		createParameterSet(values, null, null);
+	}
+	
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Restores an instance of {@link CollectionParameter} from a XML
+	 * representation.
+	 * 
+	 * @param representation
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link StringBuffer} <code>representation</code> could
+	 *             not be parsed
+	 */
+	public AbstractCollectionParameter(StringBuffer representation) throws NonParsableException {
+		super(representation);
 	}
 
 	/**
@@ -309,48 +236,44 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 *             primitive data types, {@link String} or
 	 *             {@link DataType#PARAMETERSET}
 	 */
-	protected void createParameterSet(Object[] values, String[] keys,
-			String[] comments) throws DatatypeNotValidException,
-			IllegalValueException {
+	@SuppressWarnings("unchecked")
+	protected void createParameterSet(Object[] values, String[] keys, String[] comments) throws DatatypeNotValidException, IllegalValueException {
 		Parameter[] pars = new Parameter[values.length];
-		InstanceParameterSet p;
-		String c, k;
 		for (int i = 0; i < pars.length; i++) {
-
-			if (values[i] instanceof InstanceParameterSet) {
-				p = (InstanceParameterSet) values[i];
-				if (keys == null || keys[i] == null) {
-					k = p.getInstanceName();
-				} else {
-					k = keys[i];
-				}
-				if (comments == null) {
-					c = p.getInstanceComment();
-				} else {
-					c = comments[i];
-				}
-				pars[i] = new ParameterSetContainer(k, c, p);
+			/*if( values[i] instanceof ParameterSetContainer ) {
+				pars[i] = (ParameterSetContainer) values[i];
+			} else*/ if( values[i] instanceof ParameterSet ) {
+				pars[i] = new ParameterSetContainer( (ParameterSet) values[i] );
+			} else if( values[i] instanceof Class && ParameterSet.class.isAssignableFrom( (Class) values[i] )  ) {
+				pars[i] = new ParameterSetContainer( (Class<? extends ParameterSet>) values[i] );
 			} else {
 				if (keys == null || keys[i] == null) {
-					throw new IllegalArgumentException(
-							"You have to state the key for entity " + i);
+					throw new IllegalArgumentException( "You have to state the key for entity " + i);
 				}
+				String c;
 				if (comments != null) {
 					c = comments[i];
 				} else {
 					c = "";
 				}
-				if (values[i] instanceof ParameterSet) {
-					pars[i] = new ParameterSetContainer(keys[i], c,
-							(ParameterSet) values[i]);
-				} else {
-					pars[i] = new SimpleParameter(datatype, keys[i], c, false);
-					pars[i].setValue(values[i]);
-				}
+				pars[i] = new SimpleParameter(datatype, keys[i], c, false);
+				pars[i].setValue(values[i]);
 			}
 		}
 
 		parameters = new SimpleParameterSet(pars);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.jstacs.parameters.Parameter#clone()
+	 */
+	@Override
+	public AbstractCollectionParameter clone() throws CloneNotSupportedException {
+		AbstractCollectionParameter clone = (AbstractCollectionParameter) super.clone();
+		clone.parameters = parameters == null ? null : parameters.clone();
+		return clone;
 	}
 
 	/*
@@ -379,33 +302,7 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 *      boolean, String, String, boolean, DataType, String, boolean)
 	 * @see CollectionParameter#setDefault(Object)
 	 */
-	public boolean hasDefault() {
-		return defaultSelected > -1;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#hasDefaultOrIsSet()
-	 */
-	@Override
-	public boolean hasDefaultOrIsSet() {
-		if (getValue() instanceof ParameterSet) {
-			if (!((ParameterSet) getValue()).hasDefaultOrIsSet()) {
-				if (((ParameterSet) getValue()).getErrorMessage() != null) {
-					errorMessage = "Selected value has the following error: "
-							+ ((ParameterSet) getValue()).getErrorMessage();
-				}
-				return false;
-			} else {
-				return true;
-			}
-		} else if (isSet() || selected == defaultSelected) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+	public abstract boolean hasDefault();
 
 	/*
 	 * (non-Javadoc)
@@ -417,21 +314,7 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		return isUserSelected();
 	}
 
-	/**
-	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Restores an instance of {@link CollectionParameter} from a XML
-	 * representation.
-	 * 
-	 * @param representation
-	 *            the XML representation as {@link StringBuffer}
-	 * 
-	 * @throws NonParsableException
-	 *             if the {@link StringBuffer} <code>representation</code> could
-	 *             not be parsed
-	 */
-	public CollectionParameter(StringBuffer representation) throws NonParsableException {
-		super(representation);
-	}
+
 
 	/**
 	 * Returns the possible values in this collection.
@@ -461,6 +344,36 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	public boolean isRangeable() {
 		return rangeable;
 	}
+	
+	@SuppressWarnings("unchecked")
+	protected int check(Object value) {
+		if (value == null) {
+			return -1;
+		}
+		
+		Object val2 = value;
+		if( value instanceof ParameterSet ) {
+			val2 = ParameterSet.getName( (ParameterSet)value );
+		} else if( value instanceof Class && ParameterSet.class.isAssignableFrom( (Class) value )  ) {
+			val2 = ParameterSet.getName( (Class<? extends ParameterSet>)value );
+		}  else if( value instanceof Number  ) {
+			val2 = value.toString();
+		}
+		
+		if (!(val2 instanceof String)) {
+			errorMessage = "The value is not in the set of defined values." + value;
+			return -1;
+		} else {
+			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
+				if (parameters.getParameterAt(i).getName().equals(val2)) {
+					errorMessage = null;
+					return i;
+				}
+			}
+		}
+		errorMessage = "The value is not in the set of defined values: " + value + ".";
+		return -1;
+	}
 
 	/**
 	 * Returns <code>true</code> if the key specified by <code>value</code> is
@@ -472,24 +385,7 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 */
 	@Override
 	public boolean checkValue(Object value) {
-		if (value == null) {
-			return false;
-		}
-		if (!(value instanceof String)) {
-			errorMessage = "The value is not in the set of defined values (and not even a String)."
-					+ value;
-			return false;
-		} else {
-			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
-				if (parameters.getParameterAt(i).getName().equals(value)) {
-					errorMessage = null;
-					return true;
-				}
-			}
-		}
-		errorMessage = "The value is not in the set of defined values: "
-				+ value + ".";
-		return false;
+		return check(value) >= 0 ;
 	}
 
 	/*
@@ -500,15 +396,6 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	@Override
 	public String getErrorMessage() {
 		return errorMessage;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
-	 */
-	@Override
-	public String getXMLTag() {
-		return "collectionParameter";
 	}
 	
 	/*
@@ -522,21 +409,7 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, userSelected, "userSelected");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
-		XMLParser.appendObjectWithTags(buf, selected, "selected");
-		XMLParser.appendObjectWithTags(buf, defaultSelected, "defaultSelected");
 		XMLParser.appendObjectWithTags(buf, rangeable, "rangeable");
-		appendCollection(buf);
-	}
-
-	/**
-	 * Appends the internal {@link ParameterSet} in its XML representation (
-	 * {@link ParameterSet#toXML()}) to the {@link StringBuffer}
-	 * <code>buf</code>.
-	 * 
-	 * @param buf
-	 *            the {@link StringBuffer} this method appends to
-	 */
-	protected void appendCollection(StringBuffer buf) {
 		XMLParser.appendObjectWithTags(buf, parameters, "collection");
 	}
 
@@ -551,31 +424,13 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		required = XMLParser.extractObjectForTags(representation, "required", boolean.class );
 		userSelected = XMLParser.extractObjectForTags(representation, "userSelected", boolean.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
-		selected = XMLParser.extractObjectForTags(representation, "selected", int.class );
-		defaultSelected = XMLParser.extractObjectForTags(representation, "defaultSelected", int.class );
 		StringBuffer help = XMLParser.extractForTag(representation, "rangeable");
 		if (help == null) {
 			rangeable = false;
 		} else {
 			rangeable = Boolean.parseBoolean(help.toString());
 		}
-		extractCollection(representation);
-	}
-
-	/**
-	 * Extracts the internal {@link ParameterSet} from its XML representation (
-	 * {@link ParameterSet#toXML()}). Reverse method to
-	 * {@link CollectionParameter#appendCollection(StringBuffer)}.
-	 * 
-	 * @param buf
-	 *            the {@link StringBuffer} containing the XML representation
-	 * 
-	 * @throws NonParsableException
-	 *             if the XML code could not be parsed
-	 */
-	protected void extractCollection(StringBuffer buf)
-			throws NonParsableException {
-		parameters = new SimpleParameterSet(XMLParser.extractForTag(buf,"collection"));
+		parameters = new SimpleParameterSet(XMLParser.extractForTag(representation,"collection"));
 	}
 
 	/*
@@ -598,27 +453,7 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 * @return <code>true</code> if the option at position <code>idx</code> is
 	 *         selected, <code>false</code> otherwise
 	 */
-	public boolean isSelected(int idx) {
-		return idx == selected;
-	}
-	
-	/**
-	 * Returns the index of the selected value.
-	 * 
-	 * @return the index of the selected value
-	 */
-	public int getSelected() {
-		return selected;
-	}
-
-	/**
-	 * Returns the index of the default selected value.
-	 * 
-	 * @return the index of the default selected value
-	 */
-	protected int getDefault() {
-		return defaultSelected;
-	}
+	public abstract boolean isSelected(int idx);
 
 	/**
 	 * Returns <code>true</code> if the value was selected by the user.
@@ -629,77 +464,6 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		return userSelected;
 	}
 
-	/**
-	 * Sets the selected value to the one that is specified by the key
-	 * <code>value</code>.
-	 * 
-	 * @param value
-	 *            the key of the desired value
-	 */
-	@Override
-	public void setValue(Object value) throws IllegalValueException {
-		if (value == null) {
-			return;
-		}
-		Object val2 = value instanceof InstanceParameterSet ? ((InstanceParameterSet)value).getInstanceName() : value;
-		if (checkValue(val2)) {
-			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
-				if (parameters.getParameterAt(i).getName().equals(val2)) {
-					selected = i;
-					userSelected = true;
-					break;
-				}
-			}
-			if( value != val2 ) {
-				parameters.getParameterAt( selected ).setValue( value );
-			}
-		} else {
-			String s = "", sep= "";
-			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
-				s += sep + parameters.getParameterAt(i).getName();
-				sep=", ";
-			}
-			throw new IllegalValueException("Value (" + val2 + ") not in Collection (" + s + ")!");
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#setDefault(java.lang.Object)
-	 */
-	@Override
-	public void setDefault(Object defaultValue) throws IllegalValueException {
-		setValue(defaultValue);
-		defaultSelected = selected;
-		userSelected = false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#reset()
-	 */
-	@Override
-	public void reset() {
-		selected = defaultSelected;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#getValue()
-	 */
-	@Override
-	public Object getValue() {
-		if (selected < parameters.getNumberOfParameters()) {
-			return parameters.getParameterAt(selected).getValue();
-		} else {
-			return null;
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -707,14 +471,14 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 	 */
 	@Override
 	public boolean equals(Object o2) {
-		if (o2 instanceof CollectionParameter) {
-			ParameterSet parSet2 = ((CollectionParameter) o2)
+		if (o2 instanceof AbstractCollectionParameter) {
+			ParameterSet parSet2 = ((AbstractCollectionParameter) o2)
 					.getParametersInCollection();
 			if (parSet2.getNumberOfParameters() != parameters
 					.getNumberOfParameters()) {
 				return false;
 			} else {
-				if (!(((CollectionParameter) o2).getName().equals(name) && ((CollectionParameter) o2)
+				if (!(((AbstractCollectionParameter) o2).getName().equals(name) && ((AbstractCollectionParameter) o2)
 						.getComment().equals(comment))) {
 					return false;
 				}
@@ -770,21 +534,6 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		return par;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		String s = parameters.getParameterAt( 0 ).getName();//.getValue().toString();
-		for( int i = 1; i < parameters.getNumberOfParameters(); i++ ) {
-			s += ", " +  parameters.getParameterAt( i ).getName();//.getValue().toString();
-		}
-		return name + " (" + comment
-			+ ", range={" + s + "}" 
-			+ (defaultSelected>=0?", default = " + parameters.getParameterAt(defaultSelected).getValue():"")
-			+ (required ? "" : ", OPTIONAL" )
-			+ ")\t= " + getValue();
-	}
 
 	@Override
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
@@ -823,20 +572,5 @@ public class CollectionParameter extends Parameter implements Rangeable, GalaxyC
 		}
 		
 		descBuffer.append( buf );
-	}
-
-	@Override
-	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
-		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
-		
-		String selected = XMLParser.extractForTag( command, namePrefix ).toString();
-		this.setValue( selected );
-		if(this.getValue() instanceof GalaxyConvertible){
-			((GalaxyConvertible)this.getValue()).fromGalaxy( namePrefix+"_opt"+getSelected(), command );
-		}
-	}
-	
-	
-	
-	
+	}	
 }

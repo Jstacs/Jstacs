@@ -23,7 +23,7 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
-import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
@@ -108,7 +108,7 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	
 	private void addParameters(){
 		try {
-			parameters.add( new CollectionParameter( DataType.BYTE,
+			parameters.add( new SelectionParameter( DataType.BYTE,
 					algorithmStrings,
 					algorithms,
 					"algorithm",

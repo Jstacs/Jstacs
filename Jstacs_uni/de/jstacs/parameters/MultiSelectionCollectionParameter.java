@@ -34,13 +34,19 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * 
  * @see CollectionParameter
  */
-public class MultiSelectionCollectionParameter extends CollectionParameter
-		implements RangeIterator {
+public class MultiSelectionCollectionParameter extends AbstractCollectionParameter implements RangeIterator {
 
 	private boolean[] selected;
 	private boolean[] defaultSelected;
 	private int current;
 
+	@Override
+	protected void init() {
+		selected = new boolean[keys.length];
+		defaultSelected = selected.clone();
+		setValue(new String[] { keys[0] });
+	}
+	
 	/**
 	 * Constructor for a {@link MultiSelectionCollectionParameter}. The first
 	 * option in the selection is selected by default.
@@ -72,10 +78,8 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 	 * @throws DatatypeNotValidException
 	 *             if the <code>datatype</code> is not one of the allowed values
 	 */
-	public MultiSelectionCollectionParameter(DataType datatype, String[] keys,
-			Object[] values, String name, String comment, boolean required)
-			throws InconsistentCollectionException, IllegalValueException,
-			DatatypeNotValidException {
+	public MultiSelectionCollectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
+			throws InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		super(datatype, keys, values, name, comment, required);
 		selected = new boolean[keys.length];
 		defaultSelected = selected.clone();
@@ -199,8 +203,7 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 	 *             if the {@link StringBuffer} <code>representation</code> could
 	 *             not be parsed
 	 */
-	public MultiSelectionCollectionParameter(StringBuffer representation)
-			throws NonParsableException {
+	public MultiSelectionCollectionParameter(StringBuffer representation) throws NonParsableException {
 		super(representation);
 	}
 
@@ -256,10 +259,8 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 	 * @see de.jstacs.parameters.CollectionParameter#clone()
 	 */
 	@Override
-	public MultiSelectionCollectionParameter clone()
-			throws CloneNotSupportedException {
-		MultiSelectionCollectionParameter clone = (MultiSelectionCollectionParameter) super
-				.clone();
+	public MultiSelectionCollectionParameter clone() throws CloneNotSupportedException {
+		MultiSelectionCollectionParameter clone = (MultiSelectionCollectionParameter) super.clone();
 		clone.defaultSelected = defaultSelected.clone();
 		clone.selected = selected.clone();
 		return clone;
@@ -388,11 +389,8 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 	}
 
 	/*
-	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#getSelected()
 	 */
-	@Override
 	public int getSelected() {
 		return current;
 	}
@@ -682,4 +680,9 @@ public class MultiSelectionCollectionParameter extends CollectionParameter
 		return getNumberOfValues() > 1;
 	}
 
+	@Override
+	public boolean hasDefault() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

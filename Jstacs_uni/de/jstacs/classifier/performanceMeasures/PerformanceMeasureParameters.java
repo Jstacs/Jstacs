@@ -3,7 +3,7 @@ package de.jstacs.classifier.performanceMeasures;
 import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
@@ -60,7 +60,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 		this( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, false ), measures );
 	}
 
-	private static ParameterSet[] getParameterSets(int numClasses, CollectionParameter collection, AbstractPerformanceMeasure... measures) throws Exception {
+	private static ParameterSet[] getParameterSets(int numClasses, SelectionParameter collection, AbstractPerformanceMeasure... measures) throws Exception {
 		ParameterSet template = new SimpleParameterSet( collection );
 		ParameterSet[] pars = new ParameterSet[measures == null || measures.length== 0 ? 1 : measures.length];
 		pars[0] = template;
@@ -72,15 +72,15 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 			if( i != 0 ) {
 				pars[i] = template.clone();
 			}
-			((CollectionParameter)pars[i].getParameterAt( 0 )).setValue( measures[i].getName() );
-			ParameterSet coll = ((CollectionParameter)pars[i].getParameterAt( 0 )).getParametersInCollection();
-			ParameterSetContainer cont = (ParameterSetContainer)coll.getParameterAt( ((CollectionParameter)pars[i].getParameterAt( 0 )).getSelected() );
+			((SelectionParameter)pars[i].getParameterAt( 0 )).setValue( measures[i].getName() );
+			ParameterSet coll = ((SelectionParameter)pars[i].getParameterAt( 0 )).getParametersInCollection();
+			ParameterSetContainer cont = (ParameterSetContainer)coll.getParameterAt( ((SelectionParameter)pars[i].getParameterAt( 0 )).getSelected() );
 			cont.setValue( measures[i] );
 		}
 		return pars;
 	}
 	
-	protected PerformanceMeasureParameters( int numClasses, CollectionParameter collection, AbstractPerformanceMeasure... measures ) throws Exception {
+	protected PerformanceMeasureParameters( int numClasses, SelectionParameter collection, AbstractPerformanceMeasure... measures ) throws Exception {
 		super( getParameterSets(numClasses, collection, measures), "Performance measures", "Performance measures for evaluating a classifier of "+numClasses+" classes" );
 	}	
 	
@@ -119,7 +119,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 	
 	protected void setMeasure( AbstractPerformanceMeasure measure ) throws IllegalValueException {
 		ParameterSetContainer cont = (ParameterSetContainer)this.parameters.get( this.parameters.size()-1 );
-		CollectionParameter cp = (CollectionParameter)cont.getValue().getParameterAt( 0 );
+		SelectionParameter cp = (SelectionParameter)cont.getValue().getParameterAt( 0 );
 		cp.setValue( measure.getName() );
 		cont = (ParameterSetContainer)cp.getParametersInCollection().getParameterAt( cp.getSelected() );
 		cont.setValue( measure );
@@ -127,7 +127,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 
 	public AbstractPerformanceMeasure removeMeasure(int index){
 		ParameterSetContainer cont = (ParameterSetContainer) this.parameters.remove( index );
-		CollectionParameter cp = (CollectionParameter)cont.getValue().getParameterAt( 0 );
+		SelectionParameter cp = (SelectionParameter)cont.getValue().getParameterAt( 0 );
 		return (AbstractPerformanceMeasure)cp.getValue();
 	}
 	
@@ -159,7 +159,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 		AbstractPerformanceMeasure[] measures = new AbstractPerformanceMeasure[parameters.size()];
 		for(int i=0;i<measures.length;i++){
 			ParameterSetContainer cont = (ParameterSetContainer) this.parameters.get( i );
-			CollectionParameter cp = (CollectionParameter)cont.getValue().getParameterAt( 0 );
+			SelectionParameter cp = (SelectionParameter)cont.getValue().getParameterAt( 0 );
 			measures[i] = (AbstractPerformanceMeasure)cp.getValue();
 		}
 		return measures;

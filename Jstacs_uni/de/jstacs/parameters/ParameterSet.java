@@ -36,8 +36,24 @@ import de.jstacs.io.XMLParser;
  * 
  * @author Jan Grau
  */
-public abstract class ParameterSet implements Storable, Cloneable,
-		GalaxyConvertible {
+public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvertible {
+	
+	//XXX
+	public static String getName( Class<? extends ParameterSet> c ) {
+		return c.getSimpleName();
+	}
+	
+	public static String getComment( Class<? extends ParameterSet> c ) {
+		return "";
+	}
+	
+	public static String getName( ParameterSet p ) {
+		return getName( p.getClass() );
+	}
+	
+	public static String getComment( ParameterSet p ) {
+		return getComment( p.getClass() );
+	}
 	
 	/**
 	 * This method tries to find the correct name ({@link String}) for your
@@ -387,7 +403,6 @@ public abstract class ParameterSet implements Storable, Cloneable,
 	protected void fromXML(StringBuffer representation)
 			throws NonParsableException {
 		representation = XMLParser.extractForTag(representation, "parameterSet");	
-		
 		StringBuffer buf = XMLParser.extractForTag(representation, "set");
 		if (!buf.toString().equalsIgnoreCase("null")) {
 			int numPars = XMLParser.extractObjectForTags(buf, "numberOfParameters", int.class );
