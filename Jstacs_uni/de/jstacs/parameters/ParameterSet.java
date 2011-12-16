@@ -436,7 +436,6 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 
 	
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
-		StringBuffer xml = new StringBuffer();
 		for(int i=0;i<getNumberOfParameters();i++){
 			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer );
 			descBuffer.append( "\n" );
@@ -449,6 +448,33 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 		for(int i=0;i<getNumberOfParameters();i++){
 			((GalaxyConvertible)getParameterAt( i )).fromGalaxy( namePrefix+"_ps", command );
 		}
+	}
+	
+	/**
+	 * This method checks whether the given {@link ParameterSet} is comparable to the current instance, i.e. whether
+	 * the {@link Class} and the number of parameters are identical, and the individual {@link Parameter}s are comparable.
+	 * 
+	 * In other words, the method returns <code>true</code> if the {@link ParameterSet}s only differ in their specific raw values.
+	 * 
+	 * @param p the {@link ParameterSet} for the comparison
+	 * 
+	 * @return <code>true</code> if the {@link ParameterSet}s only differ in their values, otherwise <code>false</code>
+	 * 
+	 * @see Object#getClass()
+	 * @see #getNumberOfParameters()
+	 * @see Parameter#isComparable(Parameter)
+	 */
+	public boolean isComparable( ParameterSet p ){
+		boolean res = getClass().equals(p.getClass());
+		if( res ) {
+			int n = getNumberOfParameters(), i = 0;
+			res = n == p.getNumberOfParameters();
+			while( res && i < n && getParameterAt(i).isComparable( p.getParameterAt(i) ) ) {
+				i++;
+			}
+			return res && i < n;
+		}
+		return res;
 	}
 	
 	/**
@@ -492,7 +518,5 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 			}
 			super.add( p );
 		}
-		
 	}
-
 }
