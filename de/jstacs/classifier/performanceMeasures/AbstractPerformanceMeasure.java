@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.SubclassFinder;
@@ -98,7 +98,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	 * 
 	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
 	 */
-	public static CollectionParameter getCollectionOfAllMeasures(int numClasses, boolean numerical) throws Exception {
+	public static SelectionParameter getCollectionOfAllMeasures(int numClasses, boolean numerical) throws Exception {
 		LinkedList<Class<? extends AbstractPerformanceMeasure>> list = SubclassFinder.findInstantiableSubclasses( AbstractPerformanceMeasure.class, "de.jstacs" );
 		Iterator<Class<? extends AbstractPerformanceMeasure>> it = list.iterator();
 		LinkedList<AbstractPerformanceMeasure> found = new LinkedList<AbstractPerformanceMeasure>();
@@ -116,15 +116,6 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 			}
 		}
 		
-		AbstractPerformanceMeasure[] ps = found.toArray( new AbstractPerformanceMeasure[0] );
-		String[] keys = new String[ps.length];
-		String[] comments = new String[ps.length];
-		for(int i=0;i<ps.length;i++){
-			keys[i] = ps[i].getName();
-			comments[i] = "A performance measure that computes "+keys[i]+".";
-		}
-		
-		CollectionParameter cp = new CollectionParameter( ps, keys, comments, "Performance Measures", "Performance measures that can be computed for "+(numClasses == 0 ? "any number of" : numClasses)+" classes.", true );
-		return cp;
+		return new SelectionParameter( "Performance Measures", "Performance measures that can be computed for "+(numClasses == 0 ? "any number of" : numClasses)+" classes.", true, found.toArray( new AbstractPerformanceMeasure[0] ) );
 	}	
 }

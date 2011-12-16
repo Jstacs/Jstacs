@@ -188,6 +188,8 @@ public final class XMLParser {
 			} else {
 				if( k.isEnum() ) {
 					appendObjectWithTagsAndAttributes( xml, ((Enum)s).name(), ENUM, null, false );
+				} else if( s instanceof Class ) {
+					appendObjectWithTagsAndAttributes( xml, ((Class)s).getName(), ENUM/*TODO*/, null, false );
 				} else if( simpleParsable.contains( k ) ) {
 					xml.append( s instanceof String ? escape((String) s) : s );
 				} else if( Storable.class.isInstance( s ) ) {
@@ -638,6 +640,12 @@ public final class XMLParser {
 					throw getNonParsableException( "You must provide a constructor " + k.getName() + "(StringBuffer).", e );
 				} catch ( Exception e ) {
 					throw getNonParsableException( "problem at " + k.getName() + ": " + e.getClass().getSimpleName() + ": " + e.getCause().toString()+"\n"+Arrays.toString( e.getCause().getStackTrace() ).replaceAll( "(,|\\[|\\])", "\n-- " )+"]]", e );
+				}
+			} else if( k == Class.class ) {
+				try {
+					erg = (T) Class.forName( extractObjectAndAttributesForTags( ex, ENUM/*TODO*/, null, null, String.class, null, null, null ) );
+				} catch ( ClassNotFoundException e ) {
+					throw getNonParsableException( "Could not find the specified class.", e );
 				}
 			} else {
 				throw new NonParsableException( "Could not parse the object with tag \"" + tag + "\" and class \"" + k + "\"." );

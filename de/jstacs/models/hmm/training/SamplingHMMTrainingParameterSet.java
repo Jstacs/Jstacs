@@ -94,7 +94,7 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 
 			parameters.add(
 					SubclassFinder.getCollection(
-							AbstractBurnInTest.class,
+							AbstractBurnInTestParameterSet.class,
 							AbstractBurnInTest.class.getPackage().getName(),//TODO more general?
 							"Burn in test parameters",
 							"the parameters used to create a burn in test",

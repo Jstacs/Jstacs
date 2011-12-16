@@ -35,8 +35,13 @@ import java.util.jar.JarFile;
 
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.io.RegExFilenameFilter;
-import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.AbstractCollectionParameter;
 import de.jstacs.parameters.InstanceParameterSet;
+import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.SelectionParameter;
+import de.jstacs.parameters.AbstractCollectionParameter.InconsistentCollectionException;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * Utility-class with static methods to
@@ -356,11 +361,16 @@ public class SubclassFinder {
 	 * @see SubclassFinder#filterBySuperclass(Class, LinkedList)
 	 * @see #getInstanceParameterSets(Class, String)
 	 */
-	public static <T> CollectionParameter getCollection( Class<T> clazz, String startPackage, String name, String comment, boolean required ) throws InstantiationException,
-			IllegalAccessException,
-			ClassNotFoundException,
-			IOException {
-		return new CollectionParameter( getInstanceParameterSets(clazz, startPackage).toArray( new InstanceParameterSet[0] ), name, comment, required );
+	@SuppressWarnings("unchecked")
+	public static <T> SelectionParameter getCollection( Class<? extends ParameterSet> clazz, String startPackage, String name, String comment, boolean required ) throws InstantiationException,
+			IllegalAccessException,	ClassNotFoundException,	IOException, AbstractCollectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
+		LinkedList<?> list = SubclassFinder.findInstantiableSubclasses( clazz, startPackage );
+		Class<? extends ParameterSet>[] classes = new Class[list.size()];
+		Iterator<?> it = list.iterator();
+		for( int i = 0; i < classes.length; i++ ){
+			classes[i] = (Class<? extends ParameterSet>)it.next();
+		}
+		return new SelectionParameter( name, comment, required, classes );
 	}
 	
 	/**

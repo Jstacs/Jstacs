@@ -45,6 +45,20 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	protected String errorMessage;
 
 	/**
+	 * Creates an new {@link ParameterSetContainer} out of a {@link ParameterSet}.
+	 * 
+	 * @param p
+	 *            the content of the {@link ParameterSetContainer} (the
+	 *            contained {@link ParameterSet})
+	 *            
+	 * @see ParameterSet#getName(ParameterSet)
+	 * @see ParameterSet#getComment(ParameterSet)          
+	 */
+	public ParameterSetContainer( ParameterSet p ) {
+		this( ParameterSet.getName(p), ParameterSet.getName(p), p );
+	}
+	
+	/**
 	 * Creates an new {@link ParameterSetContainer} out of a
 	 * {@link ParameterSet}.
 	 * 
@@ -56,12 +70,26 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 *            the content of the {@link ParameterSetContainer} (the
 	 *            contained {@link ParameterSet})
 	 */
-	public ParameterSetContainer(String name, String comment,
-			ParameterSet content) {
+	public ParameterSetContainer(String name, String comment, ParameterSet content) {
 		this( name, comment, content.getClass() );
 		this.parameters = content;
 		this.parameters.setParent(this);
 	}
+	
+	/**
+	 * Creates an new {@link ParameterSetContainer} out of the class
+	 * of a {@link ParameterSet}.
+	 * 
+	 * @param contentClazz
+	 *            the class of the contained {@link ParameterSet}
+	 *            
+	 * @see ParameterSet#getName(Class)
+	 * @see ParameterSet#getComment(Class)
+	 */
+	public ParameterSetContainer( Class<? extends ParameterSet> contentClazz) {
+		this( ParameterSet.getName(contentClazz), ParameterSet.getName(contentClazz), contentClazz );
+	}
+
 	
 	/**
 	 * Creates an new {@link ParameterSetContainer} out of the class
@@ -74,8 +102,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 * @param contentClazz
 	 *            the class of the contained {@link ParameterSet}
 	 */
-	public ParameterSetContainer(String name, String comment,
-			Class<? extends ParameterSet> contentClazz) {
+	public ParameterSetContainer(String name, String comment, Class<? extends ParameterSet> contentClazz) {
 		super( name, comment, DataType.PARAMETERSET );
 		this.parameterClass = contentClazz;
 		this.errorMessage = null;
@@ -274,10 +301,10 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 		super.appendFurtherInfos( representation );
 		
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
-		parameters = XMLParser.extractObjectForTags( representation, "parameters", ParameterSet.class );
-		if(parameters == null){
+		if( !XMLParser.hasTag(representation, "parameters", null, null) ){
 			this.parameterClass = XMLParser.extractObjectForTags( representation, "parameterClass", Class.class );
 		}else{
+			parameters = XMLParser.extractObjectForTags( representation, "parameters", ParameterSet.class );
 			this.parameterClass = parameters.getClass();
 			parameters.setParent(this);
 		}

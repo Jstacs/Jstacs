@@ -211,7 +211,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 *             possible values of the {@link CollectionParameter} was not
 	 *             legal
 	 */
-	public static CollectionParameter getCollectionOfScales()
+	public static SelectionParameter getCollectionOfScales()
 			throws ParameterException {
 
 		return new EnumParameter(Scale.class,

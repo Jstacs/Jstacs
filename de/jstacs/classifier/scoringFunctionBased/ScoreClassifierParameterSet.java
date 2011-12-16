@@ -23,11 +23,12 @@ import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition.AbstractTerminationConditionParameterSet;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
-import de.jstacs.parameters.CollectionParameter;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SequenceScoringParameterSet;
@@ -193,7 +194,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 	}
 
 	private void addParameters() throws Exception {
-		parameters.add( new CollectionParameter( DataType.BYTE,
+		parameters.add( new SelectionParameter( DataType.BYTE,
 				algorithmStrings,
 				algorithms,
 				"algorithm",
@@ -201,7 +202,7 @@ public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 				true ) );
 		parameters.add(
 				SubclassFinder.getCollection(
-						AbstractTerminationCondition.class,
+						AbstractTerminationConditionParameterSet.class,
 						AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
 						"termination condition",
 						"the terminantion condition for stopping the training algorithm",

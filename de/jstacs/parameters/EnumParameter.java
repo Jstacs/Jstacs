@@ -33,7 +33,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * 
  * @author Jens Keilwagen
  */
-public class EnumParameter extends CollectionParameter {
+public class EnumParameter extends SelectionParameter {
 	private Class<? extends Enum> enumInstance;
 	private Enum[] enumConstants;
 
@@ -118,12 +118,12 @@ public class EnumParameter extends CollectionParameter {
 	 * StringBuffer)
 	 */
 	@Override
-	protected void appendCollection(StringBuffer buf) {
-		XMLParser.appendObjectWithTags(buf, super.getValue().toString(),
-				"selectedEnum");
+	protected void appendFurtherInfos(StringBuffer buf) {
+		super.appendFurtherInfos(buf);
+		
+		XMLParser.appendObjectWithTags(buf, super.getValue().toString(), "selectedEnum");
 		if (hasDefault()) {
-			XMLParser.appendObjectWithTags(buf, parameters.getParameterAt(
-					getDefault()).getValue().toString(), "defaultSelectedEnum");
+			XMLParser.appendObjectWithTags(buf, parameters.getParameterAt(getDefault()).getValue().toString(), "defaultSelectedEnum");
 		}
 		XMLParser.appendObjectWithTags(buf, enumInstance.getName(), "enumName");
 	}
@@ -136,16 +136,13 @@ public class EnumParameter extends CollectionParameter {
 	 * StringBuffer)
 	 */
 	@Override
-	protected void extractCollection(StringBuffer buf)
-			throws NonParsableException {
+	protected void extractFurtherInfos(StringBuffer buf) throws NonParsableException {
+		super.extractFurtherInfos(buf);
 		try {
-			enumInstance = (Class<? extends Enum>) Class.forName(XMLParser
-					.extractObjectForTags(buf, "enumName", String.class ));// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-			enumConstants = enumInstance.getEnumConstants();
-			createParameterSet(getKeys(enumInstance), getKeys(enumInstance),
-					null);
+			enumInstance = (Class<? extends Enum>) Class.forName(XMLParser.extractObjectForTags(buf, "enumName", String.class ));			enumConstants = enumInstance.getEnumConstants();
+			createParameterSet(getKeys(enumInstance), getKeys(enumInstance), null);
 			if (hasDefault()) {
-				setDefault(XMLParser.extractObjectForTags(buf, "defaultSelectedEnum", String.class ));// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+				setDefault(XMLParser.extractObjectForTags(buf, "defaultSelectedEnum", String.class ));
 			}
 			setValue(XMLParser.extractObjectForTags(buf, "selectedEnum", String.class ));
 		} catch (Exception e) {

@@ -20,6 +20,7 @@ package de.jstacs.models.hmm.training;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition.AbstractTerminationConditionParameterSet;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.models.hmm.HMMTrainingParameterSet;
 import de.jstacs.parameters.InstanceParameterSet;
@@ -74,7 +75,7 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 		try{
 			parameters.add(
 					SubclassFinder.getCollection(
-							AbstractTerminationCondition.class,
+							AbstractTerminationConditionParameterSet.class,
 							AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
 							"termination condition",
 							"the terminantion condition for stopping the training algorithm",

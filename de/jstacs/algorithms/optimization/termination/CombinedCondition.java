@@ -29,7 +29,9 @@ import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.AbstractCollectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.utils.SubclassFinder;
 import de.jstacs.utils.Time;
@@ -140,7 +142,7 @@ public class CombinedCondition extends AbstractTerminationCondition {
 		 * @throws InstantiationException 
 		 * @throws CloneNotSupportedException 
 		 */
-		public CombinedConditionParameterSet() throws DatatypeNotValidException, CloneNotSupportedException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
+		public CombinedConditionParameterSet() throws DatatypeNotValidException, CloneNotSupportedException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException, InconsistentCollectionException, IllegalValueException {
 			super( CombinedCondition.class );
 			parameters.add( new SimpleParameter( DataType.INT,
 					"threshold",
@@ -150,7 +152,7 @@ public class CombinedCondition extends AbstractTerminationCondition {
 			);
 			parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.", 
 					new ExpandableParameterSet( new SimpleParameterSet(
-							SubclassFinder.getCollection( AbstractTerminationCondition.class, "de.jstacs", "Termination condition", "Select a termination condition.", true ) )
+							SubclassFinder.getCollection( AbstractTerminationConditionParameterSet.class, "de.jstacs", "Termination condition", "Select a termination condition.", true ) )
 							, "Termination conditions", "Add termination conditions to the set of conditions." )
 			) );
 		}

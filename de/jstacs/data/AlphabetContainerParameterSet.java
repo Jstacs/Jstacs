@@ -18,7 +18,6 @@
 
 package de.jstacs.data;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -32,13 +31,12 @@ import de.jstacs.data.alphabets.DNAAlphabet.DNAAlphabetParameterSet;
 import de.jstacs.data.alphabets.DiscreteAlphabet.DiscreteAlphabetParameterSet;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ArrayParameterSet;
-import de.jstacs.parameters.CollectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.Parameter;
-import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 
@@ -122,9 +120,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 			this.parameters.get( 0 ).setValue( alph.getCurrentParameterSet() );
 		} else {
 			InstanceParameterSet ap = alph.getCurrentParameterSet();
-			this.parameters.get( 0 ).setValue( ap.getInstanceName() );
-			( (CollectionParameter)this.parameters.get( 0 ) ).getParametersInCollection()
-					.getParameterAt( ( (CollectionParameter)this.parameters.get( 0 ) ).getSelected() )
+			this.parameters.get( 0 ).setValue( ap );
+			( (SelectionParameter)this.parameters.get( 0 ) ).getParametersInCollection()
+					.getParameterAt( ( (SelectionParameter)this.parameters.get( 0 ) ).getSelected() )
 					.setValue( ap );
 		}
 	}
@@ -148,9 +146,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		this.type = AlphabetContainerType.determineType( alphabets );
 		addParameters();
 		AlphabetArrayParameterSet pars = new AlphabetArrayParameterSet( alphabets, this.type );
-		parameters.get( 0 ).setValue( pars.getInstanceName() );
-		( (CollectionParameter)parameters.get( 0 ) ).getParametersInCollection()
-				.getParameterAt( ( (CollectionParameter)parameters.get( 0 ) ).getSelected() )
+		parameters.get( 0 ).setValue( pars );
+		( (SelectionParameter)parameters.get( 0 ) ).getParametersInCollection()
+				.getParameterAt( ( (SelectionParameter)parameters.get( 0 ) ).getSelected() )
 				.setValue( pars );
 	}
 
@@ -177,9 +175,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		this.type = AlphabetContainerType.determineType( alphabets );
 		addParameters();
 		SectionDefinedAlphabetParameterSet pars = new SectionDefinedAlphabetParameterSet( alphabets, indexes );
-		parameters.get( 0 ).setValue( pars.getInstanceName() );
-		( (CollectionParameter)parameters.get( 0 ) ).getParametersInCollection()
-				.getParameterAt( ( (CollectionParameter)parameters.get( 0 ) ).getSelected() )
+		parameters.get( 0 ).setValue( pars );
+		( (SelectionParameter)parameters.get( 0 ) ).getParametersInCollection()
+				.getParameterAt( ( (SelectionParameter)parameters.get( 0 ) ).getSelected() )
 				.setValue( pars );
 	}
 
@@ -265,23 +263,16 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		
 		ParameterSet[] ar = new ParameterSet[list.size()+(simple?0:2)];
 		list.toArray( ar );
-		String[] name = new String[ar.length];
-		String[] comment = new String[ar.length];
 		
 		if( !simple ) {
 			AlphabetArrayParameterSet arrayParameters = new AlphabetArrayParameterSet( type );
 			SectionDefinedAlphabetParameterSet sectionParameters = new SectionDefinedAlphabetParameterSet( type );
 			
 			ar[list.size()] = arrayParameters;
-			name[list.size()] = arrayParameters.getInstanceName();
-			comment[list.size()] = arrayParameters.getInstanceComment();
-			
 			ar[list.size()+1] = sectionParameters;
-			name[list.size()+1] = sectionParameters.getInstanceName();
-			comment[list.size()+1] = sectionParameters.getInstanceComment();
 		}
 
-		parameters.add( new CollectionParameter( ar, name, comment, "Alphabet",
+		parameters.add( new SelectionParameter( "Alphabet",
 					simple ? (
 							type==AlphabetContainerType.DISCRETE ? "Select a discrete alphabet" :
 								type==AlphabetContainerType.CONTINUOUS ? "Set the continuous alphabet" :
@@ -291,7 +282,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 								type==AlphabetContainerType.CONTINUOUS ? "Set the continuous alphabets" :
 									"Select the alphabets"
 					),
-					true ) );
+					true, ar ) );
 	}
 
 	/* (non-Javadoc)
@@ -343,10 +334,8 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 										"Set the parameters of the alphabet.",
 										new ContinuousAlphabet.ContinuousAlphabetParameterSet() )
 						: //discrete || both
-							new CollectionParameter( type.getInstanceParameterSets().toArray(new InstanceParameterSet[0]),
-										"Type of alphabet",
-										"Select the type of the alphabet",
-										true )
+							new SelectionParameter( "Type of alphabet", "Select the type of the alphabet",
+										true, type.getInstanceParameterSets().toArray(new InstanceParameterSet[0]) )
 							),
 					new SimpleParameter( DataType.STRING,
 										"Section",
@@ -392,9 +381,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 					temp.getParameterAt( 0 ).setValue( alphabets[i].getCurrentParameterSet() );
 				} else {
 					InstanceParameterSet ap = alphabets[i].getCurrentParameterSet();
-					temp.getParameterAt( 0 ).setValue( ap.getInstanceName() );
-					( (CollectionParameter)temp.getParameterAt( 0 ) ).getParametersInCollection()
-							.getParameterAt( ( (CollectionParameter)temp.getParameterAt( 0 ) ).getSelected() )
+					temp.getParameterAt( 0 ).setValue( ap );
+					( (SelectionParameter)temp.getParameterAt( 0 ) ).getParametersInCollection()
+							.getParameterAt( ( (SelectionParameter)temp.getParameterAt( 0 ) ).getSelected() )
 							.setValue( ap );
 				}
 				StringBuffer sections = new StringBuffer();
@@ -624,10 +613,8 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 					? //continuous
 							new ContinuousAlphabet.ContinuousAlphabetParameterSet()
 					: //discrete || both
-						new SimpleParameterSet( new Parameter[]{ new CollectionParameter( type.getInstanceParameterSets().toArray(new InstanceParameterSet[0]),
-																						"Type of alphabet",
-																						"Select the type of the alphabet",
-																						true )
+						new SimpleParameterSet( new Parameter[]{ new SelectionParameter( "Type of alphabet", "Select the type of the alphabet",
+																						true, type.getInstanceParameterSets().toArray(new InstanceParameterSet[0]) )
 												} )
 
 			),
@@ -678,9 +665,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 					parameters.get( i + 1 ).setValue( alphabets[i].getCurrentParameterSet() );
 				} else {
 					InstanceParameterSet ap = alphabets[i].getCurrentParameterSet();
-					( (ParameterSet)parameters.get( i + 1 ).getValue() ).getParameterAt( 0 ).setValue( ap.getInstanceName() );
-					( (CollectionParameter)( (ParameterSet)parameters.get( i + 1 ).getValue() ).getParameterAt( 0 ) ).getParametersInCollection()
-							.getParameterAt( ( (CollectionParameter)( (ParameterSet)parameters.get( i + 1 ).getValue() ).getParameterAt( 0 ) ).getSelected() )
+					( (ParameterSet)parameters.get( i + 1 ).getValue() ).getParameterAt( 0 ).setValue( ap );
+					( (SelectionParameter)( (ParameterSet)parameters.get( i + 1 ).getValue() ).getParameterAt( 0 ) ).getParametersInCollection()
+							.getParameterAt( ( (SelectionParameter)( (ParameterSet)parameters.get( i + 1 ).getValue() ).getParameterAt( 0 ) ).getSelected() )
 							.setValue( ap );
 				}
 			}

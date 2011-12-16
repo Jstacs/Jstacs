@@ -26,12 +26,9 @@ import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.Alphabet;
 import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.CollectionParameter;
 import de.jstacs.parameters.ParameterException;
-import de.jstacs.parameters.CollectionParameter.InconsistentCollectionException;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * Class for an alphabet that consists of arbitrary {@link String}s. For DNA
@@ -401,7 +398,7 @@ public class DiscreteAlphabet extends Alphabet {
 							+ "If the alphabet consists of multi-character symbols, e.g. Gly, Asp, Ser,"
 							+ "the symbols must be separated by spaces.",
 					true ) );
-			parameters.add( new CollectionParameter( DataType.BOOLEAN,
+			parameters.add( new SelectionParameter( DataType.BOOLEAN,
 					new String[]{ "Case insensitive", "Case sensitive" },
 					new Boolean[]{ true, false },
 					"Case insensitive",
