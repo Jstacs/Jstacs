@@ -243,9 +243,17 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 			if( values[i] instanceof Parameter ) {
 				pars[i] = (Parameter) values[i];
 			} else if( values[i] instanceof ParameterSet ) {
-				pars[i] = new ParameterSetContainer( (ParameterSet) values[i] );
+				if( keys == null || keys[i] == null ) {
+					pars[i] = new ParameterSetContainer( (ParameterSet) values[i] );
+				} else {
+					pars[i] = new ParameterSetContainer( keys[i], comments==null ? null : comments[i], (ParameterSet) values[i] );
+				}
 			} else if( values[i] instanceof Class && ParameterSet.class.isAssignableFrom( (Class) values[i] )  ) {
-				pars[i] = new ParameterSetContainer( (Class<? extends ParameterSet>) values[i] );
+				if( keys == null || keys[i] == null ) {
+					pars[i] = new ParameterSetContainer( (Class<? extends ParameterSet>) values[i] );
+				} else {
+					pars[i] = new ParameterSetContainer( keys[i], comments==null ? null : comments[i], (Class<? extends ParameterSet>) values[i] );
+				}
 			} else {
 				if (keys == null || keys[i] == null) {
 					throw new IllegalArgumentException( "You have to state the key for entity " + i);
