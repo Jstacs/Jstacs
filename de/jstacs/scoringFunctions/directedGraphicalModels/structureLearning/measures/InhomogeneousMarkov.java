@@ -22,8 +22,6 @@ package de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.mea
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
-import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 
@@ -38,10 +36,6 @@ import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
  * @author Jan Grau
  */
 public class InhomogeneousMarkov extends Measure {
-
-	private int order;
-	private InhomogeneousMarkovParameterSet parameters;
-
 	/**
 	 * Creates the structure of an inhomogeneous Markov model of order
 	 * <code>order</code>.
@@ -49,8 +43,8 @@ public class InhomogeneousMarkov extends Measure {
 	 * @param order
 	 *            the order
 	 */
-	public InhomogeneousMarkov(int order) {
-		this.order = order;
+	public InhomogeneousMarkov(int order) throws Exception {
+		this( new InhomogeneousMarkovParameterSet( order ) );
 	}
 
 	/**
@@ -60,9 +54,8 @@ public class InhomogeneousMarkov extends Measure {
 	 * @param parameters
 	 *            the corresponding parameters
 	 */
-	public InhomogeneousMarkov(InhomogeneousMarkovParameterSet parameters) {
-		this(parameters.getOrder());
-		this.parameters = parameters;
+	public InhomogeneousMarkov(InhomogeneousMarkovParameterSet parameters) throws CloneNotSupportedException {
+		super( parameters );
 	}
 
 	/**
@@ -77,8 +70,7 @@ public class InhomogeneousMarkov extends Measure {
 	 *             if the XML code could not be parsed
 	 */
 	public InhomogeneousMarkov(StringBuffer buf) throws NonParsableException {
-		buf = XMLParser.extractForTag(buf, "inhomogeneousMarkov");
-		this.order = XMLParser.extractObjectForTags(buf, "order", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		super( buf );
 	}
 
 	/**
@@ -87,7 +79,7 @@ public class InhomogeneousMarkov extends Measure {
 	 * @return the order
 	 */
 	public int getOrder() {
-		return order;
+		return ((InhomogeneousMarkovParameterSet)parameters).getOrder();
 	}
 
 	/*
@@ -111,7 +103,7 @@ public class InhomogeneousMarkov extends Measure {
 	 */
 	@Override
 	public String getInstanceName() {
-		return "Inhomogeneous Markov model of order " + order;
+		return "Inhomogeneous Markov model of order " + getOrder();
 	}
 
 	/*
@@ -126,6 +118,7 @@ public class InhomogeneousMarkov extends Measure {
 	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
 		int[][] parents = new int[length][];
+		int order = getOrder();
 		for (int i = 0; i < parents.length; i++) {
 			parents[i] = new int[(order < i ? order : i) + 1];
 			for (int j = i; j >= i - order && j >= 0; j--) {
@@ -149,27 +142,11 @@ public class InhomogeneousMarkov extends Measure {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure#getXMLTag()
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags(buf, order, "order");
-		XMLParser.addTags(buf, "inhomogeneousMarkov");
-		return buf;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
-	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception {
-		if (parameters != null) {
-			return parameters;
-		} else {
-			return new InhomogeneousMarkovParameterSet(order);
-		}
+	@Override
+	public String getXMLTag() {
+		return "inhomogeneousMarkov";
 	}
 
 	/**
@@ -178,8 +155,7 @@ public class InhomogeneousMarkov extends Measure {
 	 * 
 	 * @author Jan Grau
 	 */
-	public static class InhomogeneousMarkovParameterSet extends
-			InstanceParameterSet {
+	public static class InhomogeneousMarkovParameterSet extends MeasureParameterSet {
 
 		/**
 		 * Creates a new {@link InhomogeneousMarkovParameterSet} with empty

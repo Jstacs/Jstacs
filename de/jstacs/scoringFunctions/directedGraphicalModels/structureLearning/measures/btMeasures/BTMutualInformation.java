@@ -23,12 +23,9 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.data.DataSet;
-import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.EnumParameter;
-import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 
 /**
@@ -41,10 +38,6 @@ import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.meas
  * @author Jan Grau
  */
 public class BTMutualInformation extends Measure {
-
-	private BTMutualInformationParameterSet parameters;
-	private DataSource clazz;
-	private double[] ess;
 
 	/**
 	 * {@link Enum} defining the possible sources of data to compute the mutual
@@ -81,9 +74,7 @@ public class BTMutualInformation extends Measure {
 	 *             if the XML code could not be parsed
 	 */
 	public BTMutualInformation(StringBuffer buf) throws NonParsableException {
-		buf = XMLParser.extractForTag(buf, "btMutualInformation");
-		clazz = XMLParser.extractObjectForTags(buf, "clazz", DataSource.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		ess = XMLParser.extractObjectForTags(buf, "ess", double[].class );
+		super( buf );
 	}
 
 	/**
@@ -95,9 +86,8 @@ public class BTMutualInformation extends Measure {
 	 * @param ess
 	 *            the equivalent sample sizes for both classes
 	 */
-	public BTMutualInformation(DataSource clazz, double[] ess) {
-		this.clazz = clazz;
-		this.ess = ess.clone();
+	public BTMutualInformation(DataSource clazz, double[] ess) throws CloneNotSupportedException, Exception {
+		this( new BTMutualInformationParameterSet( clazz, ess ) );
 	}
 
 	/**
@@ -107,23 +97,8 @@ public class BTMutualInformation extends Measure {
 	 * @param parameters
 	 *            the corresponding parameters
 	 */
-	public BTMutualInformation(BTMutualInformationParameterSet parameters) {
-		this(parameters.getClazz(), parameters.getEss());
-		this.parameters = parameters;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.
-	 * measures.Measure#clone()
-	 */
-	@Override
-	public BTMutualInformation clone() throws CloneNotSupportedException {
-		BTMutualInformation clone = (BTMutualInformation) super.clone();
-		clone.ess = ess.clone();
-		return clone;
+	public BTMutualInformation(BTMutualInformationParameterSet parameters) throws CloneNotSupportedException {
+		super( parameters );
 	}
 
 	/*
@@ -135,6 +110,7 @@ public class BTMutualInformation extends Measure {
 	 */
 	@Override
 	public String getInstanceName() {
+		DataSource clazz = ((BTMutualInformationParameterSet)parameters).getClazz();
 		String str = "Bayesian tree with mutual information of";
 		if (clazz == DataSource.FG) {
 			return str + " foreground";
@@ -159,6 +135,11 @@ public class BTMutualInformation extends Measure {
 		DataSet data = null;
 		double[] weights = null;
 		double ess2 = 0;
+		
+		BTMutualInformationParameterSet ps = (BTMutualInformationParameterSet) parameters;
+		DataSource clazz = ps.getClazz();
+		double[] ess = ps.getEss();
+		
 		if (clazz == DataSource.FG) {
 			data = fg;
 			weights = weightsFg;
@@ -195,28 +176,11 @@ public class BTMutualInformation extends Measure {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure#getXMLTag()
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags(buf, clazz, "clazz");
-		XMLParser.appendObjectWithTags(buf, ess, "ess");
-		XMLParser.addTags(buf, "btMutualInformation");
-		return buf;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
-	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception {
-		if (parameters != null) {
-			return parameters;
-		} else {
-			return new BTMutualInformationParameterSet(clazz, ess);
-		}
+	@Override
+	public String getXMLTag() {
+		return "btMutualInformation";
 	}
 
 	/**
@@ -225,8 +189,7 @@ public class BTMutualInformation extends Measure {
 	 * 
 	 * @author Jan Grau
 	 */
-	public static class BTMutualInformationParameterSet extends
-			InstanceParameterSet {
+	public static class BTMutualInformationParameterSet extends MeasureParameterSet {
 
 		/**
 		 * Creates a new {@link BTMutualInformationParameterSet} with empty

@@ -25,10 +25,9 @@ import de.jstacs.algorithms.graphs.DAG;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.DataSet;
-import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 
 /**
@@ -39,11 +38,6 @@ import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.meas
  * @author Jan Grau
  */
 public class PMMExplainingAwayResidual extends Measure {
-
-	private PMMExplainingAwayResidualParameterSet parameters;
-	private byte order;
-	private double[] ess;
-
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
 	 * Recreates a {@link PMMExplainingAwayResidual} from its XML representation
@@ -55,11 +49,8 @@ public class PMMExplainingAwayResidual extends Measure {
 	 * @throws NonParsableException
 	 *             if the XML code could not be parsed
 	 */
-	public PMMExplainingAwayResidual(StringBuffer buf)
-			throws NonParsableException {
-		buf = XMLParser.extractForTag(buf, "pmmExplainingAwayResidual");
-		order = XMLParser.extractObjectForTags(buf, "order", byte.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		ess = XMLParser.extractObjectForTags(buf, "ess", double[].class );
+	public PMMExplainingAwayResidual(StringBuffer buf) throws NonParsableException {
+		super( buf );
 	}
 
 	/**
@@ -75,11 +66,7 @@ public class PMMExplainingAwayResidual extends Measure {
 	 *             if the order is not <code>1</code> or <code>2</code>
 	 */
 	public PMMExplainingAwayResidual(byte order, double[] ess) throws Exception {
-		if (order < 1 || order > 2) {
-			throw new Exception("Only order 1 and 2 allowed (yet).");
-		}
-		this.ess = ess;
-		this.order = order;
+		this( new PMMExplainingAwayResidualParameterSet( order, ess ) );
 	}
 
 	/**
@@ -92,25 +79,8 @@ public class PMMExplainingAwayResidual extends Measure {
 	 * @throws Exception
 	 *             if the order is not <code>1</code> or <code>2</code>
 	 */
-	public PMMExplainingAwayResidual(
-			PMMExplainingAwayResidualParameterSet parameters) throws Exception {
-		this(parameters.getOrder(), parameters.getEss());
-		this.parameters = parameters;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.
-	 * measures.Measure#clone()
-	 */
-	@Override
-	public PMMExplainingAwayResidual clone() throws CloneNotSupportedException {
-		PMMExplainingAwayResidual clone = (PMMExplainingAwayResidual) super
-				.clone();
-		clone.ess = ess.clone();
-		return clone;
+	public PMMExplainingAwayResidual( PMMExplainingAwayResidualParameterSet parameters) throws Exception {
+		super( parameters );
 	}
 
 	/*
@@ -122,7 +92,7 @@ public class PMMExplainingAwayResidual extends Measure {
 	 */
 	@Override
 	public String getInstanceName() {
-		return "Permuted Markov model of order " + order
+		return "Permuted Markov model of order " + ((PMMExplainingAwayResidualParameterSet)parameters).getOrder()
 				+ " with explaining away residual";
 	}
 
@@ -137,7 +107,9 @@ public class PMMExplainingAwayResidual extends Measure {
 	@Override
 	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
-
+		byte order = ((PMMExplainingAwayResidualParameterSet)parameters).getOrder();
+		double[] ess = ((PMMExplainingAwayResidualParameterSet)parameters).getEss();
+		
 		Tensor t = new SymmetricTensor(length, order);
 
 		double nFg = sum(weightsFg) + ess[0];
@@ -157,28 +129,11 @@ public class PMMExplainingAwayResidual extends Measure {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure#getXMLTag()
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags(buf, order, "order");
-		XMLParser.appendObjectWithTags(buf, ess, "ess");
-		XMLParser.addTags(buf, "pmmExplainingAwayResidual");
-		return buf;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
-	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception {
-		if (parameters != null) {
-			return parameters;
-		} else {
-			return new PMMExplainingAwayResidualParameterSet(order, ess);
-		}
+	@Override
+	public String getXMLTag() {
+		return "pmmExplainingAwayResidual";
 	}
 
 	/**
@@ -187,8 +142,7 @@ public class PMMExplainingAwayResidual extends Measure {
 	 * 
 	 * @author Jan Grau
 	 */
-	public static class PMMExplainingAwayResidualParameterSet extends
-			InstanceParameterSet {
+	public static class PMMExplainingAwayResidualParameterSet extends MeasureParameterSet {
 
 		/**
 		 * Creates a new {@link PMMExplainingAwayResidualParameterSet} with
@@ -212,7 +166,8 @@ public class PMMExplainingAwayResidual extends Measure {
 							DataType.BYTE,
 							"Order",
 							"The order of the permuted Markov model. Only 1 or 2 allowed.",
-							true));
+							true,
+							new NumberValidator<Byte>((byte)1,(byte)2)));
 		}
 
 		/**
