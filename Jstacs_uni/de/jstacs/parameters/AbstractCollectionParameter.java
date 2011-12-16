@@ -20,6 +20,7 @@
 package de.jstacs.parameters;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
@@ -186,13 +187,13 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * @see ParameterSet#getName(ParameterSet)
 	 * @see ParameterSet#getComment(ParameterSet)
 	 */
-	public AbstractCollectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException {
+	public AbstractCollectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		this(DataType.PARAMETERSET, name, comment, required);
 		//XXX try catch?
 		createParameterSet(values, null, null);
 	}
 
-	public AbstractCollectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException {
+	public AbstractCollectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		this(DataType.PARAMETERSET, name, comment, required);
 		//XXX try catch?
 		createParameterSet(values, null, null);
@@ -237,8 +238,9 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 *             {@link DataType#PARAMETERSET}
 	 */
 	@SuppressWarnings("unchecked")
-	protected void createParameterSet(Object[] values, String[] keys, String[] comments) throws DatatypeNotValidException, IllegalValueException {
+	protected void createParameterSet(Object[] values, String[] keys, String[] comments) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		Parameter[] pars = new Parameter[values.length];
+		HashSet<String> hash = new HashSet<String>();
 		for (int i = 0; i < pars.length; i++) {
 			/*if( values[i] instanceof ParameterSetContainer ) {
 				pars[i] = (ParameterSetContainer) values[i];
@@ -258,6 +260,11 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 				}
 				pars[i] = new SimpleParameter(datatype, keys[i], c, false);
 				pars[i].setValue(values[i]);
+			}
+			if( !hash.contains( pars[i].getName() ) ) {
+				hash.add( pars[i].getName() );
+			} else {
+				throw new InconsistentCollectionException( "The key \"" + pars[i].getName() +"\" is used multiple times." );
 			}
 		}
 
@@ -497,7 +504,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	}
 
 	/**
-	 * This exception is thrown if the {@link CollectionParameter} is
+	 * This exception is thrown if the {@link AbstractCollectionParameter} is
 	 * inconsistent for some reason.
 	 * 
 	 * @author Jan Grau
