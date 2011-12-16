@@ -22,8 +22,6 @@ package de.jstacs.parameters;
 import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.Storable;
-import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
@@ -66,7 +64,7 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	}
 	
 	/**
-	 * The standard constructor for the interface {@link Storable}. Creates a
+	 * The standard constructor for the interface {@link de.jstacs.Storable}. Creates a
 	 * new {@link Parameter} out of its XML representation.
 	 * 
 	 * @param xml
@@ -75,7 +73,7 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	 * @throws NonParsableException
 	 *             if the XML representation is not parsable
 	 * 
-	 * @see Storable
+	 * @see de.jstacs.Storable
 	 * @see #extractFurtherInfos(StringBuffer)
 	 */
 	public Parameter( StringBuffer xml ) throws NonParsableException {

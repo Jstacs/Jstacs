@@ -19,12 +19,10 @@
 
 package de.jstacs.parameters;
 
-import java.util.Collection;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.AbstractCollectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.utils.galaxy.GalaxyAdaptor;
