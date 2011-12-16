@@ -45,11 +45,6 @@ import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.meas
  */
 public class PMMMutualInformation extends Measure {
 
-	private PMMMutualInformationParameterSet parameters;
-	private DataSource clazz;
-	private byte order;
-	private double[] ess;
-
 	/**
 	 * Creates a new {@link PMMMutualInformation} of order <code>order</code>.
 	 * 
@@ -62,12 +57,7 @@ public class PMMMutualInformation extends Measure {
 	 */
 	public PMMMutualInformation(byte order, DataSource clazz, double[] ess)
 			throws Exception {
-		if (order < 1 || order > 2) {
-			throw new Exception("Only order 1 and 2 allowed (yet).");
-		}
-		this.order = order;
-		this.ess = ess;
-		this.clazz = clazz;
+		this( new PMMMutualInformationParameterSet( order, clazz, ess ) );
 
 	}
 
@@ -81,8 +71,7 @@ public class PMMMutualInformation extends Measure {
 	 */
 	public PMMMutualInformation(PMMMutualInformationParameterSet parameters)
 			throws Exception {
-		this(parameters.getOrder(), parameters.getClazz(), parameters.getEss());
-		this.parameters = parameters;
+		super( parameters );
 	}
 
 	/**
@@ -95,20 +84,11 @@ public class PMMMutualInformation extends Measure {
 	 * @throws NonParsableException if the XML code could not be parsed
 	 */
 	public PMMMutualInformation(StringBuffer buf) throws NonParsableException {
-		buf = XMLParser.extractForTag(buf, "pmmMutualInformation");
-		order = XMLParser.extractObjectForTags(buf, "order", byte.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		clazz = XMLParser.extractObjectForTags(buf, "clazz", DataSource.class );
-		ess = XMLParser.extractObjectForTags(buf, "ess", double[].class );
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure#clone()
-	 */
-	@Override
-	public PMMMutualInformation clone() throws CloneNotSupportedException {
-		PMMMutualInformation clone = (PMMMutualInformation) super.clone();
-		clone.ess = ess.clone();
-		return clone;
+		super( buf );
+	}	
+	
+	public String getXMLTag() {
+		return "pmmMutualInformation";
 	}
 
 	/* (non-Javadoc)
@@ -116,11 +96,11 @@ public class PMMMutualInformation extends Measure {
 	 */
 	@Override
 	public String getInstanceName() {
-		String str = "Permuted Markov model of order " + order
-				+ " with mutual information of";
-		if (clazz == DataSource.FG) {
+		PMMMutualInformationParameterSet ps = (PMMMutualInformationParameterSet) parameters;
+		String str = "Permuted Markov model of order " + ps.getOrder() + " with mutual information of";
+		if (ps.getClazz() == DataSource.FG) {
 			return str + " foreground";
-		} else if (clazz == DataSource.BG) {
+		} else if (ps.getClazz() == DataSource.BG) {
 			return str + " background";
 		} else {
 			return str + " foreground and background";
@@ -136,6 +116,11 @@ public class PMMMutualInformation extends Measure {
 		DataSet data = null;
 		double[] weights = null;
 		double ess2 = 0;
+		PMMMutualInformationParameterSet ps = (PMMMutualInformationParameterSet) parameters;
+		DataSource clazz = ps.getClazz();
+		double[] ess = ps.getEss();
+		byte order = ps.getOrder();
+			
 		if (clazz == DataSource.FG) {
 			data = fg;
 			weights = weightsFg;
@@ -162,29 +147,6 @@ public class PMMMutualInformation extends Measure {
 		return toParents(o, order);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.Storable#toXML()
-	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags(buf, order, "order");
-		XMLParser.appendObjectWithTags(buf, clazz, "clazz");
-		XMLParser.appendObjectWithTags(buf, ess, "ess");
-		XMLParser.addTags(buf, "pmmMutualInformation");
-		return buf;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
-	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception {
-		if (parameters != null) {
-			return parameters;
-		} else {
-			return new PMMMutualInformationParameterSet(order, clazz, ess);
-		}
-	}
-
 	/**
 	 * Class for the parameters of a {@link PMMMutualInformation} structure
 	 * {@link Measure}.
@@ -192,7 +154,7 @@ public class PMMMutualInformation extends Measure {
 	 * @author Jan Grau
 	 */
 	public static class PMMMutualInformationParameterSet extends
-			InstanceParameterSet {
+			MeasureParameterSet {
 
 		/**
 		 * Creates a new {@link PMMMutualInformationParameterSet} with empty
@@ -302,7 +264,5 @@ public class PMMMutualInformation extends Measure {
 		public String getInstanceName() {
 			return "Build a permuted Markov model using mutual information as structure measure.";
 		}
-
 	}
-
 }

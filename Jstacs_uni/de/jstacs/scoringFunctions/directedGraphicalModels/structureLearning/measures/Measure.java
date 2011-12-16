@@ -20,11 +20,14 @@
 package de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures;
 
 import de.jstacs.InstantiableFromParameterSet;
+import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
+import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.InstanceParameterSet;
 
 /**
  * Class for structure measures that derive an optimal structure with respect to
@@ -32,9 +35,38 @@ import de.jstacs.data.Sequence;
  * 
  * @author Jan Grau
  */
-public abstract class Measure implements Cloneable, Storable,
-		InstantiableFromParameterSet {
+public abstract class Measure implements Cloneable, Storable, InstantiableFromParameterSet {
+	
+	protected MeasureParameterSet parameters;
+	
+	protected Measure( StringBuffer xml ) throws NonParsableException {
+		xml = XMLParser.extractForTag( xml, getXMLTag() );
+		parameters = XMLParser.extractObjectForTags( xml, "parameters", MeasureParameterSet.class );
+	}
+	
+	protected Measure( MeasureParameterSet parameters ) throws CloneNotSupportedException {
+		this.parameters = (MeasureParameterSet) parameters.clone();
+	}
 
+	public abstract String getXMLTag();
+	
+	/* (non-Javadoc)
+	 * @see de.jstacs.Storable#toXML()
+	 */
+	public StringBuffer toXML() {
+		StringBuffer buf = new StringBuffer();
+		XMLParser.appendObjectWithTags(buf, parameters, "parameters");
+		XMLParser.addTags(buf, getXMLTag() );
+		return buf;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
+	 */
+	public final InstanceParameterSet getCurrentParameterSet() throws Exception {
+		return parameters;
+	}
+	
 	/**
 	 * Returns the name of the {@link Measure} and possibly some additional
 	 * information about the current instance.
@@ -667,5 +699,30 @@ public abstract class Measure implements Cloneable, Storable,
 	 */
 	public boolean isShiftable() {
 		return false;
+	}
+	
+	/**
+	 * This class is the super class of any {@link de.jstacs.parameters.ParameterSet} that can be used to instantiate a {@link Measure}.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	public static abstract class MeasureParameterSet extends InstanceParameterSet {
+
+		protected MeasureParameterSet( Class<? extends Measure> clazz ) {
+			super( clazz );
+		}
+		
+		/**
+		 * The standard constructor for the interface {@link de.jstacs.Storable}.
+		 * Recreates a {@link MeasureParameterSet} from its XML representation as
+		 * returned by {@link #toXML()}.
+		 * 
+		 * @param buf  the XML representation as {@link StringBuffer}
+		 * 
+		 * @throws NonParsableException if the XML code could not be parsed
+		 */
+		protected MeasureParameterSet( StringBuffer xml ) throws NonParsableException {
+			super( xml );
+		}
 	}
 }

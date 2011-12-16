@@ -23,8 +23,6 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.data.DataSet;
-import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
@@ -40,17 +38,14 @@ import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.meas
  */
 public class BTExplainingAwayResidual extends Measure {
 
-	private BTExplainingAwayResidualParameterSet parameters;
-	private double[] ess;
-
 	/**
 	 * Creates a new explaining away residual Bayesian tree {@link Measure}.
 	 * 
 	 * @param ess
 	 *            the equivalent sample sizes (ess) for the classes
 	 */
-	public BTExplainingAwayResidual(double[] ess) {
-		this.ess = ess;
+	public BTExplainingAwayResidual(double[] ess) throws CloneNotSupportedException, Exception {
+		this( new BTExplainingAwayResidualParameterSet( ess ) );
 	}
 
 	/**
@@ -60,10 +55,8 @@ public class BTExplainingAwayResidual extends Measure {
 	 * @param parameters
 	 *            the corresponding parameters
 	 */
-	public BTExplainingAwayResidual(
-			BTExplainingAwayResidualParameterSet parameters) {
-		this(parameters.getEss());
-		this.parameters = parameters;
+	public BTExplainingAwayResidual( BTExplainingAwayResidualParameterSet parameters) throws CloneNotSupportedException {
+		super( parameters );
 	}
 
 	/**
@@ -77,27 +70,9 @@ public class BTExplainingAwayResidual extends Measure {
 	 * @throws NonParsableException
 	 *             if the XML code could not be parsed
 	 */
-	public BTExplainingAwayResidual(StringBuffer buf)
-			throws NonParsableException {
-		buf = XMLParser.extractForTag(buf, "btExplainingAwayResidual");
-		ess = XMLParser.extractObjectForTags(buf, "ess", double[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+	public BTExplainingAwayResidual(StringBuffer buf) throws NonParsableException {
+		super( buf );
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.
-	 * measures.Measure#clone()
-	 */
-	@Override
-	public BTExplainingAwayResidual clone() throws CloneNotSupportedException {
-		BTExplainingAwayResidual clone = (BTExplainingAwayResidual) super
-				.clone();
-		clone.ess = ess.clone();
-		return clone;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -122,6 +97,8 @@ public class BTExplainingAwayResidual extends Measure {
 	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,
 			double[] weightsBg, int length) throws Exception {
 
+		double[] ess = ((BTExplainingAwayResidualParameterSet)parameters).getEss();
+		
 		double[][][][] statFg = getStatistics(fg, weightsFg, length, ess[0]);
 		double[][][][] statBg = getStatistics(bg, weightsBg, length, ess[1]);
 		double nFg = sum(weightsFg) + ess[0];
@@ -147,27 +124,11 @@ public class BTExplainingAwayResidual extends Measure {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.Storable#toXML()
+	 * @see de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure#getXMLTag()
 	 */
-	public StringBuffer toXML() {
-		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags(buf, ess, "ess");
-		XMLParser.addTags(buf, "btExplainingAwayResidual");
-		return buf;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
-	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception {
-		if (parameters != null) {
-			return parameters;
-		} else {
-			return new BTExplainingAwayResidualParameterSet(ess);
-		}
+	@Override
+	public String getXMLTag() {
+		return "btExplainingAwayResidual";
 	}
 
 	/**
@@ -176,8 +137,7 @@ public class BTExplainingAwayResidual extends Measure {
 	 * 
 	 * @author Jan Grau
 	 */
-	public static class BTExplainingAwayResidualParameterSet extends
-			InstanceParameterSet {
+	public static class BTExplainingAwayResidualParameterSet extends MeasureParameterSet {
 
 		/**
 		 * Creates a new {@link BTExplainingAwayResidualParameterSet} with empty
