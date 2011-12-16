@@ -55,7 +55,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 * @see ParameterSet#getComment(ParameterSet)          
 	 */
 	public ParameterSetContainer( ParameterSet p ) {
-		this( ParameterSet.getName(p), ParameterSet.getName(p), p );
+		this( ParameterSet.getName(p), ParameterSet.getComment(p), p );
 	}
 	
 	/**
@@ -87,7 +87,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 * @see ParameterSet#getComment(Class)
 	 */
 	public ParameterSetContainer( Class<? extends ParameterSet> contentClazz) {
-		this( ParameterSet.getName(contentClazz), ParameterSet.getName(contentClazz), contentClazz );
+		this( ParameterSet.getName(contentClazz), ParameterSet.getComment(contentClazz), contentClazz );
 	}
 
 	
@@ -155,7 +155,10 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	 */
 	@Override
 	public boolean checkValue(Object value) {
-		return (value == null || this.parameterClass.isInstance( value ) || this.parameters.getClass().isInstance( value  ) );
+		if( value == null || !(value instanceof ParameterSet) ) {
+			return false;
+		}
+		return (this.parameterClass.isInstance( value ) || ( parameters==null || parameters.isComparable( (ParameterSet) value ) ) );
 	}
 
 	/*

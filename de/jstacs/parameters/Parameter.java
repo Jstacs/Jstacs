@@ -218,5 +218,31 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	protected void appendFurtherInfos( StringBuffer buf ) {
 		
 	}
-
+	
+	/**
+	 * This method checks whether the given {@link Parameter} is comparable to the current instance, i.e. whether
+	 * the {@link Class}, the {@link DataType}, the name and the comment are identical. If necessary, all these
+	 * characteristics are checked recursively.  
+	 * 
+	 * In other words, the method returns <code>true</code> if the parameters only differ in their specific raw values.
+	 * 
+	 * @param p the {@link Parameter} for the comparison
+	 * 
+	 * @return <code>true</code> if the parameters only differ in their values, otherwise <code>false</code>
+	 * 
+	 * @see Object#getClass()
+	 * @see #getDatatype()
+	 * @see #getName()
+	 * @see #getComment()
+	 * @see DataType#PARAMETERSET
+	 * @see ParameterSet#isComparable(ParameterSet)
+	 */
+	public boolean isComparable( Parameter p ) {
+		boolean res = getClass().equals(p.getClass()) && getDatatype() == p.getDatatype() && getName().equals(p.getName()) && getComment().equals( p.getComment() );
+		if( res && getDatatype() == DataType.PARAMETERSET ) {
+			return ((ParameterSet)getValue()).isComparable( (ParameterSet) p.getValue() );
+		} else {
+			return res;
+		}
+	}
 }
