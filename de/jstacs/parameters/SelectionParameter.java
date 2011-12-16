@@ -24,6 +24,7 @@ import java.util.Collection;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.AbstractCollectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.utils.galaxy.GalaxyAdaptor;
@@ -149,11 +150,11 @@ public class SelectionParameter extends AbstractCollectionParameter implements R
 	 * 
 	 * @see AbstractCollectionParameter#createParameterSet(Object[], String[], String[])
 	 */
-	public SelectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException {
+	public SelectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		super( name, comment, required, values );
 	}
 	
-	public SelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException {
+	public SelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		super( name, comment, required, values );
 	}
 	
