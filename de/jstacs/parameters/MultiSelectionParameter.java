@@ -286,9 +286,11 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 			Arrays.fill( selected, false );
 			for( i = 0; i < idx.length; i++ ) {
 				selected[idx[i]] = true;
-				if( o[i] instanceof Parameter ) {
-					//TODO okay?
-					parameters.getParameterAt( idx[i] ).setValue( ((Parameter)o[i]).getValue() );
+				//TODO okay?
+				if( o[i] instanceof ParameterSetContainer ) {
+					parameters.getParameterAt( idx[i] ).setValue( ((ParameterSetContainer)o[i]).getValue() );
+				} else if( o[i] instanceof ParameterSet ) {
+					parameters.getParameterAt( idx[i] ).setValue( o[i] );
 				}
 			}
 			userSelected = true;
