@@ -298,7 +298,12 @@ public class SelectionParameter extends AbstractCollectionParameter implements R
 		} else {
 			selected = i;
 			userSelected = true;
-			parameters.getParameterAt( selected ).setValue( value );
+			//TODO okay?
+			if( value instanceof ParameterSetContainer ) {
+				parameters.getParameterAt( selected ).setValue( ((ParameterSetContainer)value).getValue() );
+			} else if( value instanceof ParameterSet ) {
+				parameters.getParameterAt( selected ).setValue( value );
+			}
 		}
 	}
 
