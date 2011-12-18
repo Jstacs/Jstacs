@@ -95,6 +95,8 @@ public class DataSet implements Iterable<Sequence>{
 	 * @see DataSet#partition(PartitionMethod, double...)
 	 * @see DataSet#partition(int, PartitionMethod)
 	 * @see DataSet#partition(double, PartitionMethod, int)
+	 * @see DataSet#partition(double[], de.jstacs.data.DataSet.PartitionMethod, double...)
+	 * @see DataSet#partition(double[], int, de.jstacs.data.DataSet.PartitionMethod)
 	 */
 	public static enum PartitionMethod {
 		/**
@@ -111,6 +113,10 @@ public class DataSet implements Iterable<Sequence>{
 		
 		/**
 		 * This value indicates that the {@link DataSet} will be split by weights of the sequences.
+		 * If this is not possible (e.g. <code>weights == null</code>), it works like {@link #PARTITION_BY_NUMBER_OF_ELEMENTS}.
+		 * 
+		 * @see DataSet#partition(double[], de.jstacs.data.DataSet.PartitionMethod, double...)
+		 * @see DataSet#partition(double[], int, de.jstacs.data.DataSet.PartitionMethod)
 		 */
 		PARTITION_BY_WEIGHTS;
 	}
