@@ -36,7 +36,7 @@ import de.jstacs.Storable;
  * <code>add</code> are for encoding, while methods with prefix
  * <code>extract</code> are for decoding.
  * 
- * Supported type include:
+ * Supported types include:
  * <ul>
  * <li> {@link Boolean}</li>
  * <li> {@link Byte} </li>
@@ -50,6 +50,7 @@ import de.jstacs.Storable;
  * <li> {@link Short} </li>
  * <li> {@link Storable} </li>
  * <li> {@link String} </li>
+ * <li> arrays of primitives (<code>int</code>, <code>double</code>, <code>char</code>, ...)
  * <li> and any arrays containing only instances of these types. </li>
  * </ul>
  * 
