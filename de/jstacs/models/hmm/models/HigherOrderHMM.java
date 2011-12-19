@@ -224,12 +224,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @throws NonParsableException if the information could not be reconstructed out of the {@link StringBuffer} <code>xml</code>
 	 */
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {
-		try{
-			skipInit = XMLParser.extractObjectForTags( xml, "skipInit",boolean.class );
-		}catch(NonParsableException ex){
-			skipInit = false;//TODO
-		}
-		System.gc();
+		skipInit = XMLParser.extractObjectForTags( xml, "skipInit",boolean.class );
 	}	
 	
 	public HigherOrderHMM clone() throws CloneNotSupportedException {
@@ -879,7 +874,6 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 
 	public final byte getMaximalMarkovOrder() throws UnsupportedOperationException {
-		// TODO Auto-generated method stub
 		return Byte.MAX_VALUE;
 	}
 	
@@ -923,14 +917,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		}
 	}
 	
-	public DataSet emitDataSet(int numberOfSequences, int... seqLength)
-		throws NotTrainedException, Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public NumericalResultSet getNumericalCharacteristics() throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
