@@ -94,7 +94,7 @@ public abstract class SeparateLogPrior extends LogPrior implements Cloneable {
 	 */
 	public SeparateLogPrior( StringBuffer xml ) throws NonParsableException {
 		StringBuffer content = XMLParser.extractForTag( xml, this.getClass().getSimpleName() );
-		vars = XMLParser.extractObjectForTags( content, "variances", double[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		vars = XMLParser.extractObjectForTags( content, "variances", double[].class );
 		classVars = XMLParser.extractObjectForTags( content, "classVariances", double[].class );
 		classMus = XMLParser.extractObjectForTags( content, "classMeans", double[].class );
 		unset();

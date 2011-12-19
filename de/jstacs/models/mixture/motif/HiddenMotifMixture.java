@@ -217,8 +217,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureModel implements
 	 */
 	@Override
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {
-		posPrior = XMLParser.extractObjectForTags( xml, "posPrior", PositionPrior.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-
+		posPrior = XMLParser.extractObjectForTags( xml, "posPrior", PositionPrior.class );
 		posPrior.setMotifLength( getMotifLength( 0 ) );
 	}
 

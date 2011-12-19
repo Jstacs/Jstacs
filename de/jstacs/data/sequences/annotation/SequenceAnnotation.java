@@ -256,7 +256,7 @@ public class SequenceAnnotation extends ResultSet {
 	protected void fromXML( StringBuffer source ) throws NonParsableException {
 		source = XMLParser.extractForTag( source, "sequenceAnnotation" );
 		super.fromXML( XMLParser.extractForTag( source, "results" ) );
-		type = XMLParser.extractObjectForTags( source, "type", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		type = XMLParser.extractObjectForTags( source, "type", String.class );
 	}
 
 	/* (non-Javadoc)

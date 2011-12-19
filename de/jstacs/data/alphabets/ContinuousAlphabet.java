@@ -154,7 +154,7 @@ public class ContinuousAlphabet extends Alphabet {
 	 */
 	public ContinuousAlphabet( StringBuffer xml ) throws NonParsableException {
 		StringBuffer help = XMLParser.extractForTag( xml, XML_TAG );
-		min = XMLParser.extractObjectForTags( help, "MIN", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		min = XMLParser.extractObjectForTags( help, "MIN", double.class );
 		max = XMLParser.extractObjectForTags( help, "MAX", double.class );
 		Object o = XMLParser.extractObjectForTags( help, "allowNaN", boolean.class );
 		if(o != null){

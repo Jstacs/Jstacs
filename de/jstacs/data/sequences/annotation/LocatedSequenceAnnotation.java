@@ -168,7 +168,7 @@ public class LocatedSequenceAnnotation extends SequenceAnnotation {
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "locatedSequenceAnnotation" );
 		super.fromXML( XMLParser.extractForTag( representation, "annotation" ) );
-		position = XMLParser.extractObjectForTags( representation, "position", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		position = XMLParser.extractObjectForTags( representation, "position", int.class );
 	}
 
 	/* (non-Javadoc)

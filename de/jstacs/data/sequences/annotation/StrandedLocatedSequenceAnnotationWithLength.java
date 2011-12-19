@@ -236,7 +236,7 @@ public class StrandedLocatedSequenceAnnotationWithLength extends LocatedSequence
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "strandedAnnotation" );
 		super.fromXML( XMLParser.extractForTag( representation, "locatedSequenceAnnotationWithLength" ) );
-		strandedness = XMLParser.extractObjectForTags( representation, "strandedness", Strand.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		strandedness = XMLParser.extractObjectForTags( representation, "strandedness", Strand.class );
 	}
 
 	/* (non-Javadoc)

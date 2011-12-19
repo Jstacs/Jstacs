@@ -101,7 +101,7 @@ public abstract class Constraint implements Storable {
 	 */
 	protected Constraint( StringBuffer xml ) throws NonParsableException {
 		StringBuffer erg = XMLParser.extractForTag( xml, getXMLTag() );
-		usedPositions = XMLParser.extractObjectForTags( erg, "usedPositions", int[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		usedPositions = XMLParser.extractObjectForTags( erg, "usedPositions", int[].class );
 		counts = XMLParser.extractObjectForTags( erg, "counts", double[].class );
 		freq = XMLParser.extractObjectForTags( erg, "freq", double[].class );
 		extractAdditionalInfo( erg );

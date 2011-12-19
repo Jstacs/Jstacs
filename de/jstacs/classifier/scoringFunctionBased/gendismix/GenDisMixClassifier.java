@@ -280,32 +280,14 @@ public class GenDisMixClassifier extends ScoreClassifier
 
 	protected void extractFurtherClassifierInfosFromXML( StringBuffer xml ) throws NonParsableException
 	{
-		//TODO to be removed
-		xml = new StringBuffer( xml.toString().replaceAll( "de.jstacs.classifier.scoringFunctionBased.cll.CLLClassifier", GenDisMixClassifier.class.getName() ) );
 		super.extractFurtherClassifierInfosFromXML( xml );
 	
-		double[] help;
-		if( xml.indexOf( "beta" ) > 0 ) {
-			help = XMLParser.extractObjectForTags( xml, "beta", double[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		} else {
-			//TODO remove soon
-			System.out.println( "Warning loading old weighting." );
-			if( xml.indexOf( "alpha" ) > 0 ) {
-				help = XMLParser.extractObjectForTags( xml, "alpha", double[].class );
-				double slot = help[0];
-				help[0] = help[1];
-				help[1] = slot;
-			} else {
-				help = LearningPrinciple.getBeta( LearningPrinciple.MSP );
-			}
-		}
-		
-		beta = LearningPrinciple.checkWeights( help );
+		beta = LearningPrinciple.checkWeights( XMLParser.extractObjectForTags( xml, "beta", double[].class ) );
 		
 		StringBuffer pr = XMLParser.extractForTag( xml, "prior" );
 		if( pr != null )
 		{
-			String className = XMLParser.extractObjectForTags( pr, "className", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			String className = XMLParser.extractObjectForTags( pr, "className", String.class );
 			try
 			{
 				prior = (LogPrior) Class.forName( className ).getConstructor( new Class[]{ StringBuffer.class } ).newInstance( pr );

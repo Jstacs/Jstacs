@@ -361,7 +361,7 @@ public class CompositeModel extends AbstractModel {
 			throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag(representation, XML_TAG);
 		alphabets = new AlphabetContainer(xml);
-		length = XMLParser.extractObjectForTags(xml, "sequencelength", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		length = XMLParser.extractObjectForTags(xml, "sequencelength", int.class );
 		lengths = XMLParser.extractObjectForTags(xml, "lengths", int[][].class );
 		starts = XMLParser.extractObjectForTags(xml, "starts", int[][].class );
 		models = XMLParser.extractObjectForTags( xml, "models", AbstractModel[].class );
