@@ -111,8 +111,13 @@ public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 
 	@Override
 	protected Sequence flatCloneWithoutAnnotation() {
-		// TODO Auto-generated method stub: XXX JAN?
-		return null;
+		try{
+			MappedDiscreteSequence clone = new MappedDiscreteSequence( originalAlphabetContainer, null, transformation.clone() );
+			clone.original = this.original;
+			return clone;
+		}catch(WrongAlphabetException doesnothappen){
+			throw new RuntimeException( doesnothappen );
+		}
 	}
 
 	@Override
