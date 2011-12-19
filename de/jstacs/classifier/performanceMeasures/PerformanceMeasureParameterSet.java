@@ -16,7 +16,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class PerformanceMeasureParameters extends ExpandableParameterSet {
+public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -29,7 +29,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 	 *             if the {@link PerformanceMeasureParameters} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
-	public PerformanceMeasureParameters( StringBuffer xml ) throws NonParsableException {
+	public PerformanceMeasureParameterSet( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
 	
@@ -40,7 +40,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 	 * 
 	 * @see #PerformanceMeasureParameters(int)
 	 */
-	public PerformanceMeasureParameters() throws Exception {
+	public PerformanceMeasureParameterSet() throws Exception {
 		this( 2 );
 	}
 	
@@ -55,7 +55,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
 	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, AbstractPerformanceMeasure...)
 	 */
-	public PerformanceMeasureParameters( int numClasses ) throws Exception {
+	public PerformanceMeasureParameterSet( int numClasses ) throws Exception {
 		this( numClasses, new AbstractPerformanceMeasure[0] );
 	}
 
@@ -72,7 +72,7 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, CollectionParameter, AbstractPerformanceMeasure... )
 	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
 	 */
-	public PerformanceMeasureParameters( int numClasses, AbstractPerformanceMeasure... measures ) throws Exception {
+	public PerformanceMeasureParameterSet( int numClasses, AbstractPerformanceMeasure... measures ) throws Exception {
 		this( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, false ), measures );
 	}
 
@@ -96,20 +96,20 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 		return pars;
 	}
 	
-	protected PerformanceMeasureParameters( int numClasses, SelectionParameter collection, AbstractPerformanceMeasure... measures ) throws Exception {
+	protected PerformanceMeasureParameterSet( int numClasses, SelectionParameter collection, AbstractPerformanceMeasure... measures ) throws Exception {
 		super( getParameterSets(numClasses, collection, measures), "Performance measures", "Performance measures for evaluating a classifier of "+numClasses+" classes" );
 	}	
 	
-	public static NumericalPerformanceMeasureParameters createFilledParameters() throws Exception {
-		return (NumericalPerformanceMeasureParameters) createFilledParameters( true, 0.999, 0.95, 0.95, 1 ); 
+	public static NumericalPerformanceMeasureParameterSet createFilledParameters() throws Exception {
+		return (NumericalPerformanceMeasureParameterSet) createFilledParameters( true, 0.999, 0.95, 0.95, 1 ); 
 	}
 	
-	public static PerformanceMeasureParameters createFilledParameters( boolean numerical, double spForSn, double snForFPR, double snForPPV, double beta ) throws Exception {
-		PerformanceMeasureParameters res;
+	public static PerformanceMeasureParameterSet createFilledParameters( boolean numerical, double spForSn, double snForFPR, double snForPPV, double beta ) throws Exception {
+		PerformanceMeasureParameterSet res;
 		if( numerical ) {
-			res = new NumericalPerformanceMeasureParameters( 2 );
+			res = new NumericalPerformanceMeasureParameterSet( 2 );
 		} else {
-			res = new PerformanceMeasureParameters( 2 );
+			res = new PerformanceMeasureParameterSet( 2 );
 		}
 		res.setMeasure( new ClassificationRate() );
 		res.addMeasure( new SensitivityForFixedSpecificity( spForSn ) );

@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
-import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
@@ -213,7 +213,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
 	@SuppressWarnings( "unchecked" )
-	public final ResultSet evaluate( PerformanceMeasureParameters params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
+	public final ResultSet evaluate( PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
 		LinkedList list = new LinkedList();
 		boolean isNumeric = getResults( list, s, params, exceptionIfNotComputeable );
 		if( isNumeric ) {
@@ -246,7 +246,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @see Result
 	 */
 	@SuppressWarnings( "unchecked" )
-	protected boolean getResults( LinkedList list, DataSet[] s, de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}

@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.PartitionMethod;
@@ -351,7 +351,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * 
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
 		KFoldCrossValidationAssessParameterSet tempAssessPS = null;
@@ -401,7 +401,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	private void evaluate( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU, DataSet[]... splitData ) throws Exception {
+	private void evaluate( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU, DataSet[]... splitData ) throws Exception {
 		int subSeqL = caaps.getElementLength();
 		boolean exceptionIfMPNotComputable = caaps.getExceptionIfMPNotComputable();
 
@@ -466,7 +466,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 
-	public ListResult assessWithPredefinedSplits( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU,
+	public ListResult assessWithPredefinedSplits( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU,
 			DataSet[]... splitData ) throws Exception {
 		int clazz = myAbstractClassifier[0].getNumberOfClasses();
 		if( splitData.length != clazz ) {

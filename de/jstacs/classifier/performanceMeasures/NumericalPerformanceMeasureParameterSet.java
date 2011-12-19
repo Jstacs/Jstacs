@@ -8,7 +8,7 @@ import de.jstacs.NonParsableException;
  * 
  * @author Jens Keilwagen
  */
-public class NumericalPerformanceMeasureParameters extends PerformanceMeasureParameters {
+public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureParameterSet {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -21,7 +21,7 @@ public class NumericalPerformanceMeasureParameters extends PerformanceMeasurePar
 	 *             if the {@link NumericalPerformanceMeasureParameters} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
-	public NumericalPerformanceMeasureParameters( StringBuffer xml ) throws NonParsableException {
+	public NumericalPerformanceMeasureParameterSet( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
 	
@@ -37,7 +37,7 @@ public class NumericalPerformanceMeasureParameters extends PerformanceMeasurePar
 	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
 	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, de.jstacs.parameters.CollectionParameter, AbstractPerformanceMeasure...)
 	 */
-	public NumericalPerformanceMeasureParameters( int numClasses ) throws Exception {
+	public NumericalPerformanceMeasureParameterSet( int numClasses ) throws Exception {
 		super( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, true ), new AbstractPerformanceMeasure[0] );
 	}
 	
@@ -48,7 +48,7 @@ public class NumericalPerformanceMeasureParameters extends PerformanceMeasurePar
 	 * 
 	 * @see #NumericalPerformanceMeasureParameters(int)
 	 */
-	public NumericalPerformanceMeasureParameters() throws Exception {
+	public NumericalPerformanceMeasureParameterSet() throws Exception {
 		this( 2 );
 	}
 }

@@ -29,7 +29,7 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifier.performanceMeasures.PRCurve;
-import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifier.performanceMeasures.ROCCurve;
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
@@ -202,7 +202,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameters params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
 			return super.getResults( list, s, params, exceptionIfNotComputeable );
 		} else {
