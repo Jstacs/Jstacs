@@ -101,8 +101,10 @@ public class AnnotatedEntityList<T extends AnnotatedEntity> {
 	 * to the list. If <code>entities</code> contains {@link AnnotatedEntity}s with duplicate names,
 	 * or an {@link AnnotatedEntity} with identical name already exists in the list,
 	 * an {@link IllegalArgumentException} is thrown.
+	 * 
 	 * @param entities the added {@link AnnotatedEntity}
 	 */
+	@SuppressWarnings("unchecked")
 	public void addAll(Collection<? extends T> entities){
 		Iterator<? extends T> it = entities.iterator();
 		while(it.hasNext()){
