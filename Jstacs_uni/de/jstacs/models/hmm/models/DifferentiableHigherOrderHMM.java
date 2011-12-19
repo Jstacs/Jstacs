@@ -150,13 +150,9 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	@Override
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {
 		super.extractFurtherInformation( xml );
-		try{
-			ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
-			score = XMLParser.extractObjectForTags( xml, "score", Type.class );
-		}catch(NonParsableException e){//TODO remove
-			ess = 16;
-			score = Type.LIKELIHOOD;
-		}
+		ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
+		score = XMLParser.extractObjectForTags( xml, "score", Type.class );
+
 	}
 
 	protected void createHelperVariables(int thread) {
