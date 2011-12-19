@@ -90,19 +90,13 @@ public class ParameterTree implements Cloneable, Storable {
 	 */
 	public ParameterTree(StringBuffer source)
 			throws NonParsableException {
-		try {
-			source = XMLParser.extractForTag(source, "parameterTree");
-			pos = XMLParser.extractObjectForTags(source, "pos", int.class );
-			contextPoss = XMLParser.extractObjectForTags(source, "contextPoss", int[].class );
-			root = new TreeElement(XMLParser.extractForTag(source, "root"));
-			this.alphabet = null;
-			this.firstParent = XMLParser.extractObjectForTags(source, "firstParent", int.class );
-			this.firstChildren = XMLParser.extractObjectForTags(source, "firstChildren", int[].class );
-		} catch (NonParsableException e) {
-			e.printStackTrace();//TODO Jan?
-			throw e;
-		}
-
+		source = XMLParser.extractForTag(source, "parameterTree");
+		pos = XMLParser.extractObjectForTags(source, "pos", int.class );
+		contextPoss = XMLParser.extractObjectForTags(source, "contextPoss", int[].class );
+		root = new TreeElement(XMLParser.extractForTag(source, "root"));
+		this.alphabet = null;
+		this.firstParent = XMLParser.extractObjectForTags(source, "firstParent", int.class );
+		this.firstChildren = XMLParser.extractObjectForTags(source, "firstChildren", int[].class );
 	}
 
 	void setAlphabet(AlphabetContainer alphabet){
@@ -887,32 +881,10 @@ public class ParameterTree implements Cloneable, Storable {
 			contNum = XMLParser.extractObjectForTags(representation, "contNum", int.class );
 			contextPos = XMLParser.extractObjectForTags(representation, "contextPos", int.class );
 			
-			//XXX not possible since inner class
 			children = XMLParser.extractObjectAndAttributesForTags( representation, "children", null, null, TreeElement[].class, ParameterTree.class, ParameterTree.this );
-			/*
-			StringBuffer temp = XMLParser.extractForTag(representation,"children");
-			if (temp.toString().equals("null")) {
-				children = null;
-			} else {
-				XMLParser.addTags(temp, "children");
-				String[] childRep = XMLParser.extractObjectForTags(temp, "children", String[].class );
-				children = new TreeElement[childRep.length];
-				for (int i = 0; i < childRep.length; i++) {
-					children[i] = new TreeElement(new StringBuffer(childRep[i]));
-				}
-			}
-			*/
 			
 			pars = XMLParser.extractObjectForTags(representation, "pars", Parameter[].class );
-			/*
-			temp = XMLParser.extractForTag(representation, "pars");
-			if (temp.toString().equals("null")) {
-				pars = null;
-			} else {
-				XMLParser.addTags(temp, "pars");
-				pars = XMLParser.extractObjectForTags(temp, "pars", Parameter[].class );
-			}
-			*/
+
 			if (pars != null) {
 				symT = new Double[pars.length];
 				fullNormalizer = null;
@@ -1214,7 +1186,6 @@ public class ParameterTree implements Cloneable, Storable {
 			}
 		}
 
-		// TODO check next 3 methods
 		private void findAndFill(double[][] fillEmptyWith, int contextLength) {
 			fill(fillEmptyWith, 0, 1, contextLength);
 		}
