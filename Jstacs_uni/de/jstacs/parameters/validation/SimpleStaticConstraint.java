@@ -167,14 +167,12 @@ public class SimpleStaticConstraint implements Constraint {
 	 */
 	public StringBuffer toXML() {
 		StringBuffer buf = new StringBuffer();
-		XMLParser.appendObjectWithTags(buf, reference.getClass().getName(),
-				"className");
-		XMLParser.appendObjectWithTags(buf, reference.toString(), "value");
-		XMLParser.addTags(buf, "reference");
-		XMLParser.appendObjectWithTags(buf, comparisonOperator,
-				"comparisonOperator");
-		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
-		XMLParser.addTags(buf, "simpleStaticConstraint");
+		XMLParser.appendObjectWithTags( buf, reference.getClass().getName(),	"className" );
+		XMLParser.appendObjectWithTags( buf, reference.toString(), "value");
+		XMLParser.addTags( buf, "reference" );
+		XMLParser.appendObjectWithTags( buf, comparisonOperator, "comparisonOperator" );
+		XMLParser.appendObjectWithTags( buf, errorMessage, "errorMessage" );
+		XMLParser.addTags( buf, "simpleStaticConstraint" );
 		return buf;
 	}
 
@@ -201,7 +199,7 @@ public class SimpleStaticConstraint implements Constraint {
 		} catch (Exception e) {
 			throw new NonParsableException(e.getMessage());
 		}
-		comparisonOperator = XMLParser.extractObjectForTags(representation, "comparisonOperator", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		comparisonOperator = XMLParser.extractObjectForTags(representation, "comparisonOperator", int.class );
 		errorMessage = XMLParser.extractObjectForTags(representation, "errorMessage", String.class );
 	}
 

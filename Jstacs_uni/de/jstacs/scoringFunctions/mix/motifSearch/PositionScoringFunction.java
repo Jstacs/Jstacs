@@ -235,7 +235,7 @@ public abstract class PositionScoringFunction extends AbstractNormalizableScorin
 	
 	protected void fromXML( StringBuffer xml ) throws NonParsableException
 	{
-		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		internal = XMLParser.extractObjectForTags( xml, "internal", int[].class );
 	}

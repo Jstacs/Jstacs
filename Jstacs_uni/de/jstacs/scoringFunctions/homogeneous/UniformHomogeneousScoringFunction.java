@@ -166,10 +166,9 @@ public class UniformHomogeneousScoringFunction extends HomogeneousScoringFunctio
 	 */
 	@Override
 	protected void fromXML(StringBuffer xml) throws NonParsableException {
-		StringBuffer b = XMLParser.extractForTag(xml, getClass()
-				.getSimpleName());
-		length = XMLParser.extractObjectForTags(b, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		StringBuffer b = XMLParser.extractForTag(xml, getClass().getSimpleName());
+		length = XMLParser.extractObjectForTags(b, "length", int.class );
+		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );
 		ess = XMLParser.extractObjectForTags(b, "ess", double.class );
 		computeLogP();
 	}

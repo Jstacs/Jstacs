@@ -83,7 +83,7 @@ public class DataSetResult extends Result {
 	 */
 	@Override
 	protected void extractFurtherInfos( StringBuffer rep ) throws NonParsableException {
-		AlphabetContainer cont = XMLParser.extractObjectForTags(rep, "alphabet", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		AlphabetContainer cont = XMLParser.extractObjectForTags(rep, "alphabet", AlphabetContainer.class );
 		String sampleAnn = XMLParser.extractObjectForTags(rep, "dataSetAnnotation", String.class );
 		String seqs = XMLParser.extractObjectForTags(rep, "data", String.class );
 		StringExtractor ex = new StringExtractor(seqs, 100, "");

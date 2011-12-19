@@ -594,7 +594,7 @@ public class BayesianNetworkScoringFunction extends
 	protected void fromXML(StringBuffer source) throws NonParsableException {
 		source = XMLParser.extractForTag(source, "bayesianNetworkSF");
 		alphabets = XMLParser.extractObjectForTags(source, "alphabets", AlphabetContainer.class);
-		length = XMLParser.extractObjectForTags(source, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		length = XMLParser.extractObjectForTags(source, "length", int.class );
 		trees = XMLParser.extractObjectForTags(source, "trees", ParameterTree[].class );
 		if (trees.length == 0) {
 			trees = null;
@@ -617,28 +617,20 @@ public class BayesianNetworkScoringFunction extends
 				}
 			}
 		}
-		isTrained = XMLParser.extractObjectForTags(source, "isTrained", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		isTrained = XMLParser.extractObjectForTags(source, "isTrained", boolean.class );
 		ess = XMLParser.extractObjectForTags(source, "ess", double.class );
 
 		numFreePars = XMLParser.extractObjectForTags(source, "numFreePars", Integer.class );
-		/*
-		String numFreeParsTemp = XMLParser.extractObjectForTags(source, "numFreePars", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		if (numFreeParsTemp.equals("null")) {
-			numFreePars = null;
-		} else {
-			numFreePars = Integer.parseInt(numFreeParsTemp);
-		}
-		*/
 		nums = XMLParser.extractObjectForTags(source, "nums", int[].class );
 		if (nums.length == 0) {
 			nums = null;
 		}
 		structureMeasure = XMLParser.extractObjectForTags(source, "structureMeasure", Measure.class );
-		order = XMLParser.extractObjectForTags(source, "order", int[][].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		order = XMLParser.extractObjectForTags(source, "order", int[][].class );
 		if (order.length == 0) {
 			order = null;
 		}
-		plugInParameters = XMLParser.extractObjectForTags(source, "plugInParameters", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		plugInParameters = XMLParser.extractObjectForTags(source, "plugInParameters", boolean.class );
 		roots = XMLParser.extractObjectForTags(source, "roots", int[].class );
 		if (roots.length == 0) {
 			roots = null;

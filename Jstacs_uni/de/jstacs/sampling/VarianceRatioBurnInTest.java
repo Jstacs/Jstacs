@@ -93,8 +93,7 @@ public class VarianceRatioBurnInTest extends AbstractBurnInTest {
 	@Override
 	protected void setFurtherInformation( StringBuffer xml ) throws NonParsableException {
 
-		threshold = XMLParser.extractObjectForTags( xml, "threshold", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-
+		threshold = XMLParser.extractObjectForTags( xml, "threshold", double.class );
 	}
 
 	/* (non-Javadoc)

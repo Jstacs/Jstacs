@@ -272,7 +272,7 @@ public class SkewNormalLikeScoringFunction extends DurationScoringFunction
 	{
 		StringBuffer xml = XMLParser.extractForTag( rep, getInstanceName() );
 		super.fromXML(xml);
-		trainMean = XMLParser.extractObjectForTags( xml, "trainMean", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		trainMean = XMLParser.extractObjectForTags( xml, "trainMean", boolean.class );
 		trainPrecision = XMLParser.extractObjectForTags( xml, "trainPrecision", boolean.class );
 		trainSkew = XMLParser.extractObjectForTags( xml, "trainSkew", boolean.class );
 		setParameters( XMLParser.extractObjectForTags( xml, "par0", double.class ), XMLParser.extractObjectForTags( xml, "par1", double.class ), XMLParser.extractObjectForTags( xml, "par2", double.class ) );

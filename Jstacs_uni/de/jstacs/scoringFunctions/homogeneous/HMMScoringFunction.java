@@ -528,10 +528,9 @@ public class HMMScoringFunction extends HomogeneousScoringFunction {
 	 */
 	@Override
 	protected void fromXML(StringBuffer xml) throws NonParsableException {
-		StringBuffer b = XMLParser.extractForTag(xml, getClass()
-				.getSimpleName());
-		length = XMLParser.extractObjectForTags(b, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		StringBuffer b = XMLParser.extractForTag(xml, getClass().getSimpleName());
+		length = XMLParser.extractObjectForTags(b, "length", int.class );
+		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );
 		order = XMLParser.extractObjectForTags(b, "order", int.class );
 		createArrays();
 		classEss = XMLParser.extractObjectForTags(b, "classEss", double.class );

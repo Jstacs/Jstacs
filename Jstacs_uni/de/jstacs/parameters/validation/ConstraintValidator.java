@@ -155,12 +155,11 @@ public class ConstraintValidator implements ParameterValidator {
 	 */
 	public void fromXML(StringBuffer representation)
 			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation,
-				"referenceValidator");
-		errorMessage = XMLParser.extractObjectForTags(representation, "errorMessage", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		int size = XMLParser.extractObjectForTags(representation, "size", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		representation = XMLParser.extractForTag( representation, "referenceValidator" );
+		errorMessage = XMLParser.extractObjectForTags( representation, "errorMessage", String.class );
+		int size = XMLParser.extractObjectForTags( representation, "size", int.class );
 		constraints = new LinkedList<Constraint>();
-		representation = XMLParser.extractForTag(representation, "constraints");
+		representation = XMLParser.extractForTag( representation, "constraints" );
 		for (int i = 0; i < size; i++) {
 			constraints.add(XMLParser.extractObjectForTags( representation, "constraint", Constraint.class ));
 		}

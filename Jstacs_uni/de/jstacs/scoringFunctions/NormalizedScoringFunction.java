@@ -172,7 +172,7 @@ public final class NormalizedScoringFunction extends AbstractNormalizableScoring
 	protected void fromXML( StringBuffer xml ) throws NonParsableException
 	{
 		StringBuffer b = XMLParser.extractForTag( xml, getClass().getSimpleName() );
-		nsf = XMLParser.extractObjectForTags( b, "function", NormalizableScoringFunction.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		nsf = XMLParser.extractObjectForTags( b, "function", NormalizableScoringFunction.class );
 		alphabets = nsf.getAlphabetContainer();
 		length = nsf.getLength();
 		starts = XMLParser.extractObjectForTags( b, "starts", int.class );

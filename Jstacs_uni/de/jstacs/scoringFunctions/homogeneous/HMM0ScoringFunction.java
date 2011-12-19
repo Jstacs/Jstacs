@@ -290,17 +290,17 @@ public class HMM0ScoringFunction extends HomogeneousScoringFunction {
 	protected void fromXML(StringBuffer xml) throws NonParsableException {
 		StringBuffer b = XMLParser.extractForTag(xml, getClass()
 				.getSimpleName());
-		length = XMLParser.extractObjectForTags(b, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		length = XMLParser.extractObjectForTags(b, "length", int.class );
+		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );
 		ess = XMLParser.extractObjectForTags(b, "ess", double.class );
 		sumOfHyperParams = XMLParser.extractObjectForTags(b, "sumOfHyperParams", double.class );
 		params = XMLParser.extractObjectForTags(b, "params", MEMConstraint.class );
 		plugIn = XMLParser.extractObjectForTags(b, "plugIn", boolean.class );
 		optimize = XMLParser.extractObjectForTags(b, "optimize", boolean.class );
 		setFreeParams(XMLParser.extractObjectForTags(b, "freeParams", boolean.class ));
-		for (int i = 0; i < params.getNumberOfSpecificConstraints(); norm += params
-				.getExpLambda(i++))
-			;
+		for (int i = 0; i < params.getNumberOfSpecificConstraints(); i++) {
+			norm += params.getExpLambda(i);
+		}
 		computeConstantsOfLogPrior();
 	}
 

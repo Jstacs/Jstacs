@@ -377,8 +377,7 @@ public class MixtureDuration extends DurationScoringFunction {
 	{
 		StringBuffer xml = XMLParser.extractForTag( rep, XML_TAG );
 		super.fromXML(xml);
-		function = XMLParser.extractObjectForTags( xml, "components", DurationScoringFunction[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		hiddenParams = XMLParser.extractObjectForTags( xml, "hiddenParams", double[].class );
+		function = XMLParser.extractObjectForTags( xml, "components", DurationScoringFunction[].class );		hiddenParams = XMLParser.extractObjectForTags( xml, "hiddenParams", double[].class );
 		starts = XMLParser.extractObjectForTags( xml, "starts", int.class );
 
 		scores = new double[function.length];
