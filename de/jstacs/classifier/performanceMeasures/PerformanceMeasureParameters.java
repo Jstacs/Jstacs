@@ -11,6 +11,11 @@ import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 
+/**
+ * This class implements a container of {@link AbstractPerformanceMeasure}s that can be used in {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, de.jstacs.data.DataSet...)}.
+ * 
+ * @author Jens Keilwagen, Jan Grau
+ */
 public class PerformanceMeasureParameters extends ExpandableParameterSet {
 
 	/**
@@ -26,6 +31,17 @@ public class PerformanceMeasureParameters extends ExpandableParameterSet {
 	 */
 	public PerformanceMeasureParameters( StringBuffer xml ) throws NonParsableException {
 		super( xml );
+	}
+	
+	/**
+	 * Constructs a new {@link PerformanceMeasureParameters} that can be used for binary classifiers.
+	 *  
+	 * @throws Exception if something went wrong
+	 * 
+	 * @see #PerformanceMeasureParameters(int)
+	 */
+	public PerformanceMeasureParameters() throws Exception {
+		this( 2 );
 	}
 	
 	/**

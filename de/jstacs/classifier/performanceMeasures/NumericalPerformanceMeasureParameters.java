@@ -3,7 +3,7 @@ package de.jstacs.classifier.performanceMeasures;
 import de.jstacs.NonParsableException;
 
 /**
- * This class implements a container for {@link NumericalPerformanceMeasure}s that can be used in an repeated assessment,
+ * This class implements a container for {@link NumericalPerformanceMeasure}s that can be used, for instance, in an repeated assessment,
  * (cf. {@link de.jstacs.classifier.assessment.ClassifierAssessment}).
  * 
  * @author Jens Keilwagen
@@ -39,5 +39,16 @@ public class NumericalPerformanceMeasureParameters extends PerformanceMeasurePar
 	 */
 	public NumericalPerformanceMeasureParameters( int numClasses ) throws Exception {
 		super( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, true ), new AbstractPerformanceMeasure[0] );
+	}
+	
+	/**
+	 * Constructs a new {@link NumericalPerformanceMeasureParameters} that can be used for binary classifiers.
+	 * 
+	 * @throws Exception if something went wrong
+	 * 
+	 * @see #NumericalPerformanceMeasureParameters(int)
+	 */
+	public NumericalPerformanceMeasureParameters() throws Exception {
+		this( 2 );
 	}
 }

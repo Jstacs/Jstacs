@@ -42,7 +42,7 @@ import de.jstacs.utils.SubclassFinder;
  * 
  * @author Jens Keilwagen
  */
-public class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
+public abstract class ScoreClassifierParameterSet extends SequenceScoringParameterSet {
 
 	private static final String[] algorithmStrings = new String[]{	"steepest descent",
 																	"conjugate gradients (F., R.)",

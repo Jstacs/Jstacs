@@ -72,6 +72,18 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		this.simple = simple;
 		addParameters();
 	}
+	
+	/**
+	 * Creates a new {@link AlphabetContainerParameterSet} of a
+	 * complex {@link AlphabetContainer} with <code>type</code> {@link AlphabetContainerType#BOTH}.
+	 * 
+	 * @throws Exception 
+	 * 
+	 * @see {@link #AlphabetContainerParameterSet(AlphabetContainerType, boolean)}
+	 */
+	public AlphabetContainerParameterSet() throws Exception {
+		this( AlphabetContainerType.BOTH, false );
+	}
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -348,6 +360,18 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 			this.parameters.add( 0, length );
 			this.type = type;
 		}
+		
+		/**
+		 * Creates a new {@link SectionDefinedAlphabetParameterSet} for a set of
+		 * discrete and continuous {@link Alphabet}s.
+		 * 
+		 * @throws Exception
+		 *             if the {@link SectionDefinedAlphabetParameterSet} could
+		 *             not be created
+		 */
+		public SectionDefinedAlphabetParameterSet() throws Exception {
+			this( AlphabetContainerType.BOTH );
+		}
 
 		/**
 		 * Creates a new {@link SectionDefinedAlphabetParameterSet} from an
@@ -620,6 +644,17 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 			),
 					"Alphabet",
 					"Set the alphabet" );
+		}
+		
+		/**
+		 * Creates a new {@link AlphabetArrayParameterSet} with <code>type</code> {@link de.jstacs.data.AlphabetContainer.AlphabetContainerType#BOTH}.
+		 * 
+		 * @throws Exception
+		 *             if the {@link AlphabetArrayParameterSet} could not be
+		 *             created
+		 */
+		public AlphabetArrayParameterSet() throws Exception {
+			this( AlphabetContainerType.BOTH );
 		}
 
 		/**
