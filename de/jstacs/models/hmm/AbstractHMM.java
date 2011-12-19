@@ -304,7 +304,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		setThreads();
 		
 		transition = new Transition[threads];
-		transition[0] = ((Transition) XMLParser.extractObjectForTags( xml, "transition" ));//TODO
+		transition[0] = ((Transition) XMLParser.extractObjectForTags( xml, "transition" ));
 		for(int i=1;i<threads;i++){
 			try {
 				transition[i] = transition[0].clone();
@@ -317,7 +317,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		emissionIdx = XMLParser.extractObjectForTags( xml, "emissionIdx", int[].class );
 		forward = XMLParser.extractObjectForTags( xml, "strand", boolean[].class );
 		emission = new Emission[threads][];
-		emission[0] = (XMLParser.extractObjectForTags( xml, "emission", Emission[].class ));//TODO
+		emission[0] = (XMLParser.extractObjectForTags( xml, "emission", Emission[].class ));
 		for(int i=1;i<emission.length;i++){
 			try {
 				emission[i] = ArrayHandler.clone(emission[0]);
