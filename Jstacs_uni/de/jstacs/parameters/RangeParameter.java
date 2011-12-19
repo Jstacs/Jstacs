@@ -448,10 +448,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 * Sets the values of this {@link RangeParameter} as a range of values,
 	 * specified by a start value, a last value, a number of steps between these
 	 * values (without the last value) and a scale in that the values between
-	 * the first and the last value are chosen. This range must be one of
-	 * <code>LOGSCALE, INVERSELOGSCALE, LINSCALE, EXPSCALE,
-	 * LOGSCALE2, INVERSELOGSCALE2, LOGSCALE10</code> or
-	 * <code>INVERSELOGSCALE10</code>.
+	 * the first and the last value are chosen. This scale must be one of
+	 * those listed in {@link Scale}.
 	 * 
 	 * @param startValue
 	 *            the first value of the range
@@ -504,7 +502,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 					}
 				}
 			} else {
-				// TODO check ... ???
+				// TODO check ... ??? what ??? (see l. 475)
 				stepSize = (StrictMath.exp(end) - StrictMath.exp(start))
 						/ (double) steps;
 				for (int i = 1; i < steps; i++) {
@@ -819,8 +817,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 * 
 	 * @see RangeType
 	 */
-	//TODO Jan private, remove or change to "reset"() { shallBeRanged = RangeType.NO; values=null; }"?
-	public void setShallBeRanged(RangeType shallBeRanged) throws Exception {
+	private void setShallBeRanged(RangeType shallBeRanged) throws Exception {
 		if (shallBeRanged == RangeType.NO || shallBeRanged == RangeType.LIST
 				|| shallBeRanged == RangeType.RANGE) {
 			this.shallBeRanged = shallBeRanged;
