@@ -169,7 +169,8 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 
 	/**
 	 * Sets the default value of the {@link Parameter} to
-	 * <code>defaultValue</code>.
+	 * <code>defaultValue</code>. This method also sets the current
+	 * value of this {@link Parameter} to the default.
 	 * 
 	 * @param defaultValue
 	 *            the default value

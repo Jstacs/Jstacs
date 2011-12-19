@@ -258,13 +258,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 				if (keys == null || keys[i] == null) {
 					throw new IllegalArgumentException( "You have to state the key for entity " + i);
 				}
-				String c;
-				if (comments != null) {
-					c = comments[i];
-				} else {
-					c = "";
-				}
-				pars[i] = new SimpleParameter(datatype, keys[i], c, false);
+				pars[i] = new SimpleParameter(datatype, keys[i], comments==null ? null : comments[i] , false);
 				pars[i].setValue(values[i]);
 			}
 			if( !hash.contains( pars[i].getName() ) ) {
@@ -379,6 +373,13 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 					return i;
 				}
 			}
+			for(int i=0;i<parameters.getNumberOfParameters(); i++){
+				Parameter par = parameters.getParameterAt( i );
+				if(par instanceof ParameterSetContainer && val2.equals( ParameterSet.getName( ((ParameterSetContainer)par).getValue() ))){
+					errorMessage = null;
+					return i;
+				}
+			}
 		}
 		errorMessage = "The value is not in the set of defined values: " + value + ".";
 		return -1;
@@ -472,6 +473,22 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	public boolean isUserSelected() {
 		return userSelected;
 	}
+	
+	/**
+	 * Sets the default value of this {@link AbstractCollectionParameter} to
+	 * <code>defaultValue</code>. This method also sets the current
+	 * value of this {@link AbstractCollectionParameter} to the default
+	 * and resets it such that {@link AbstractCollectionParameter#isUserSelected()}
+	 * returns <code>false</code>.
+	 * 
+	 * @param defaultValue
+	 *            the default value
+	 * 
+	 * @throws Exception
+	 *             if the default value is not an appropriate value for this
+	 *             {@link Parameter}
+	 */
+	public abstract void setDefault(Object defaultValue) throws Exception;
 
 	/*
 	 * (non-Javadoc)
