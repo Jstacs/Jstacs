@@ -43,7 +43,7 @@ public class DNADataSet extends DataSet {
 		}		
 	}
 	
-	private static AlphabetContainer DNA_ALPHABETCONTAINER;//TODO final Jan
+	private static AlphabetContainer DNA_ALPHABETCONTAINER;
 	
 	/**
 	 * Creates a new sample of DNA sequence from a FASTA file with file name <code>fName</code>.
@@ -67,7 +67,7 @@ public class DNADataSet extends DataSet {
 	 * @see DNADataSet#DNADataSet(String, char)
 	 */
 	public DNADataSet( String fName ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
-		this( fName, SparseStringExtractor.FASTA );//TODO Jan
+		this( fName, SparseStringExtractor.FASTA );
 	}
 	
 	/**

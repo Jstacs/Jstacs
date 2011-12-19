@@ -942,11 +942,10 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		if( isDiscreteAt( pos ) ) {
 			return (int)val;
 		} else {
-			// TODO NaNs
 			if(Double.isNaN( val )){
 				throw new RuntimeException( "NaNs cannot be discretized" );
 			}
-			// TODO make it better (!?!, better discritisation)
+			// TODO make it better (!?!, better discretisation)
 			return (int)( val - getAlphabetAt( pos ).getMin() );
 		}
 	}
