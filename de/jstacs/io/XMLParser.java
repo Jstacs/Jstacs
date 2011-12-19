@@ -36,6 +36,23 @@ import de.jstacs.Storable;
  * <code>add</code> are for encoding, while methods with prefix
  * <code>extract</code> are for decoding.
  * 
+ * Supported type include:
+ * <ul>
+ * <li> {@link Boolean}</li>
+ * <li> {@link Byte} </li>
+ * <li> {@link Character} </li>
+ * <li> {@link Class} </li>
+ * <li> {@link Double} </li>
+ * <li> {@link Enum} </li>
+ * <li> {@link Float} </li>
+ * <li> {@link Integer} </li>
+ * <li> {@link Long} </li>
+ * <li> {@link Short} </li>
+ * <li> {@link Storable} </li>
+ * <li> {@link String} </li>
+ * <li> and any arrays containing only instances of these types. </li>
+ * </ul>
+ * 
  * @author Jan Grau, Jens Keilwagen
  */
 public final class XMLParser {
