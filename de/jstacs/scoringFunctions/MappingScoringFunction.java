@@ -156,7 +156,7 @@ public final class MappingScoringFunction extends AbstractNormalizableScoringFun
 	}
 
 	public int getSizeOfEventSpaceForRandomVariablesOfParameter( int index ) {
-		throw new RuntimeException();// TODO
+		return nsf.getSizeOfEventSpaceForRandomVariablesOfParameter( index );
 	}
 
 	public double[] getCurrentParameterValues() throws Exception {
