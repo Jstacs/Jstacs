@@ -186,7 +186,7 @@ public class LocatedSequenceAnnotationWithLength extends LocatedSequenceAnnotati
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "locatedSequenceAnnotationWithLength" );
 		super.fromXML( XMLParser.extractForTag( representation, "locatedSequenceAnnotation" ) );
-		length = XMLParser.extractObjectForTags( representation, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		length = XMLParser.extractObjectForTags( representation, "length", int.class );
 	}
 
 	/* (non-Javadoc)

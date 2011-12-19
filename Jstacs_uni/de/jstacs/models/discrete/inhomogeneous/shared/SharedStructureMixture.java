@@ -327,7 +327,7 @@ public class SharedStructureMixture extends MixtureModel {
 	@Override
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( representation, XML_TAG );
-		modelType = XMLParser.extractObjectForTags( xml, "model", ModelType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		modelType = XMLParser.extractObjectForTags( xml, "model", ModelType.class );
 		order = XMLParser.extractObjectForTags( xml, "order", byte.class );
 		method = XMLParser.extractObjectForTags( xml, "method", LearningType.class );
 		sl = new StructureLearner( getAlphabetContainer(), getLength() );

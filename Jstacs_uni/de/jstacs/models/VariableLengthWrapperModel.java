@@ -81,7 +81,7 @@ public class VariableLengthWrapperModel extends AbstractModel {
 	@Override
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		StringBuffer content = XMLParser.extractForTag( xml, getInstanceName() );
-		m = XMLParser.extractObjectForTags( content, "model", Model.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		m = XMLParser.extractObjectForTags( content, "model", Model.class );
 		alphabets = m.getAlphabetContainer();
 		length = m.getLength();
 	}

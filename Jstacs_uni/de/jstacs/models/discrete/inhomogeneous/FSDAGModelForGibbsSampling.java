@@ -289,7 +289,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGModel implements GibbsSampl
 	@Override
 	protected void setFurtherModelInfos( StringBuffer xml ) throws NonParsableException {
 		super.setFurtherModelInfos( xml );
-		if( XMLParser.extractObjectForTags( xml, "hasParameters", boolean.class ) ) {// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		if( XMLParser.extractObjectForTags( xml, "hasParameters", boolean.class ) ) {
 			counter = XMLParser.extractObjectForTags( xml, "counter", int[].class );
 			paramsFile = new File[counter.length];
 			try {

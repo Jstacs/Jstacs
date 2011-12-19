@@ -144,7 +144,7 @@ public abstract class DiscreteGraphicalModel extends AbstractModel implements In
 	protected final void fromXML( StringBuffer representation ) throws NonParsableException {
 		StringBuffer erg = XMLParser.extractForTag( representation, getXMLTag() );
 		try {
-			set( XMLParser.extractObjectForTags( erg, "ParameterSet", DGMParameterSet.class ), XMLParser.extractObjectForTags( erg, "trained", boolean.class ) );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			set( XMLParser.extractObjectForTags( erg, "ParameterSet", DGMParameterSet.class ), XMLParser.extractObjectForTags( erg, "trained", boolean.class ) );
 		} catch ( CloneNotSupportedException e ) {
 			NonParsableException n = new NonParsableException( e.getMessage() );
 			n.setStackTrace( e.getStackTrace() );

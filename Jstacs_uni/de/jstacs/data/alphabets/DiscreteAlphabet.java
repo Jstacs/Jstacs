@@ -79,7 +79,7 @@ public class DiscreteAlphabet extends Alphabet {
 	public DiscreteAlphabet( StringBuffer representation ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( representation, XML_TAG );
 		try {
-			init( XMLParser.extractObjectForTags( xml, "symbols", String[].class ), XMLParser.extractObjectForTags( xml, "caseInsensitive", boolean.class ) );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			init( XMLParser.extractObjectForTags( xml, "symbols", String[].class ), XMLParser.extractObjectForTags( xml, "caseInsensitive", boolean.class ) );
 		} catch ( Exception e ) {
 			NonParsableException n = new NonParsableException( e.getMessage() );
 			n.setStackTrace( e.getStackTrace() );

@@ -299,7 +299,7 @@ public class InhCondProb extends InhConstraint {
 	@Override
 	protected void extractAdditionalInfo( StringBuffer xml ) throws NonParsableException {
 		super.extractAdditionalInfo( xml );
-		conditional = XMLParser.extractObjectForTags( xml, "conditional", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		conditional = XMLParser.extractObjectForTags( xml, "conditional", boolean.class );
 		lnFreq( 0, freq.length );
 	}
 

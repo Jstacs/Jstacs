@@ -1696,7 +1696,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	@Override
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( representation, getClass().getSimpleName() );
-		length = XMLParser.extractObjectForTags( xml, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		dimension = XMLParser.extractObjectForTags( xml, "dimension", int.class );
 		starts = XMLParser.extractObjectForTags( xml, "starts", int.class );
 		estimateComponentProbs = XMLParser.extractObjectForTags( xml, "estimateComponentProbs", boolean.class );
@@ -1733,7 +1733,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 							null,
 							Parameterization.LAMBDA,
 							//Gibbs Sampling
-							XMLParser.extractObjectForTags( xml, "initialIteration", int.class ),// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+							XMLParser.extractObjectForTags( xml, "initialIteration", int.class ),
 							XMLParser.extractObjectForTags( xml, "stationaryIteration", int.class ),
 							XMLParser.extractObjectForTags( xml, "burnInTest", BurnInTest.class ) );
 					if( XMLParser.extractObjectForTags( xml, "hasParameterFiles", boolean.class ) ) {
@@ -1769,7 +1769,7 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 			throw n;
 		}
 
-		best = XMLParser.extractObjectForTags( xml, "best", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		best = XMLParser.extractObjectForTags( xml, "best", double.class );
 		alphabets = model[0].getAlphabetContainer();
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
 		extractFurtherInformation( xml );

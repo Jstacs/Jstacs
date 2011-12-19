@@ -497,7 +497,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 */
 	@Override
 	protected void extractFurtherClassifierInfosFromXML( StringBuffer xml ) throws NonParsableException {
-		classWeights = XMLParser.extractObjectForTags( xml, "classWeights", double[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		classWeights = XMLParser.extractObjectForTags( xml, "classWeights", double[].class );
 	}
 
 	/**

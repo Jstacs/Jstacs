@@ -59,7 +59,7 @@ public class SimpleGaussianSumLogPrior extends LogPrior {
 	 */
 	public SimpleGaussianSumLogPrior( StringBuffer xml ) throws NonParsableException {
 		StringBuffer content = XMLParser.extractForTag( xml, "SimpleGaussianProductPrior" );
-		sigmaSq = XMLParser.extractObjectForTags( content, "sigmaSquared", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		sigmaSq = XMLParser.extractObjectForTags( content, "sigmaSquared", double.class );
 	}
 
 	/* (non-Javadoc)

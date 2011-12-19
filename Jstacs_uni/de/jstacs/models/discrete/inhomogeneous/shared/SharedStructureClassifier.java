@@ -149,7 +149,7 @@ public class SharedStructureClassifier extends ModelBasedClassifier {
 	@Override
 	protected void extractFurtherClassifierInfosFromXML( StringBuffer xml ) throws NonParsableException {
 		super.extractFurtherClassifierInfosFromXML( xml );
-		model = XMLParser.extractObjectForTags( xml, "model", ModelType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		model = XMLParser.extractObjectForTags( xml, "model", ModelType.class );
 		order = XMLParser.extractObjectForTags( xml, "order", byte.class );
 		method = XMLParser.extractObjectForTags( xml, "method", LearningType.class );
 		sl = new StructureLearner( getAlphabetContainer(), getLength() );

@@ -374,7 +374,7 @@ public abstract class DAGModel extends InhomogeneousDGM {
 	@Override
 	protected void setFurtherModelInfos( StringBuffer xml ) throws NonParsableException {
 		if( trained ) {
-			constraints = XMLParser.extractObjectForTags( xml, "conditionalProb", InhCondProb[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			constraints = XMLParser.extractObjectForTags( xml, "conditionalProb", InhCondProb[].class );
 		}
 	}
 }

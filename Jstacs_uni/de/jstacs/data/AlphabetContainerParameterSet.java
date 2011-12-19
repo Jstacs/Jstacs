@@ -246,7 +246,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "alphabetContainerParameterSet" );
 		super.fromXML( XMLParser.extractForTag( representation, "superParameters" ) );
-		type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );
 		simple = XMLParser.extractObjectForTags( representation, "simple", boolean.class );
 	}
 
@@ -462,8 +462,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		public void fromXML( StringBuffer representation ) throws NonParsableException {
 			representation = XMLParser.extractForTag( representation, "sectionDefinedAlphabetParameterSet" );
 			super.fromXML( XMLParser.extractForTag( representation, "superParameters" ) );
-			
-			type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );
 		}
 
 		/* (non-Javadoc)
@@ -740,7 +739,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 		public void fromXML( StringBuffer representation ) throws NonParsableException {
 			representation = XMLParser.extractForTag( representation, "alphabetArrayParameterSet" );
 			super.fromXML( XMLParser.extractForTag( representation, "superParameters" ) );
-			type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			type = XMLParser.extractObjectForTags( representation, "type", AlphabetContainerType.class );
 		}
 
 		/**
