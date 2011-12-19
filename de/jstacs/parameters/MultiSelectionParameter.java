@@ -26,6 +26,8 @@ import de.jstacs.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.utils.IntList;
+import de.jstacs.utils.galaxy.GalaxyAdaptor;
 
 /**
  * Class for a {@link Parameter} that provides a collection of possible values.
@@ -46,14 +48,13 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 	protected void init() {
 		int n = parameters.getNumberOfParameters();
 		selected = new boolean[n];
-		defaultSelected = selected.clone();//XXX default = nix
+		defaultSelected = selected.clone();
 		try {
 			setValue( parameters.getParameterAt(0).getName() );
 		} catch (IllegalValueException doesNotHappen) {
 			doesNotHappen.printStackTrace();
 		}
-		
-		//TODO implicit current = 0;
+		current = -1;
 	}
 	
 	/**
@@ -286,7 +287,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 			Arrays.fill( selected, false );
 			for( i = 0; i < idx.length; i++ ) {
 				selected[idx[i]] = true;
-				//TODO okay?
+
 				if( o[i] instanceof ParameterSetContainer ) {
 					parameters.getParameterAt( idx[i] ).setValue( ((ParameterSetContainer)o[i]).getValue() );
 				} else if( o[i] instanceof ParameterSet ) {
@@ -297,9 +298,18 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 		}
 	}
 
-	//TODO Javadoc, ... noch unklar für mich, da ich return-type int[] erwarte
-	public int getSelected() {
-		return current;
+	/**
+	 * Returns the indexes of the selected options.
+	 * @return the indexes of the selected options.
+	 */
+	public int[] getSelected() {
+		IntList li = new IntList();
+		for(int i=0;i<selected.length;i++){
+			if(selected[i]){
+				li.add( i );
+			}
+		}
+		return li.toArray();
 	}
 
 	/**
@@ -393,11 +403,8 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 		for (int i = 0; i < selected.length; i++) {
 			if (selected[i]) {
 				numSelected++;
-				//TODO JAN
 				if (!parameters.getParameterAt(i).hasDefaultOrIsSet()) {
-					System.out.println("parameter "
-							+ parameters.getParameterAt(i).getName()
-							+ " not set!!");
+					errorMessage = "Parameter "+ parameters.getParameterAt(i).getName() + " not set.";
 					return false;
 				}
 			}
@@ -419,16 +426,30 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 		selected = defaultSelected.clone();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.parameters.CollectionParameter#setDefault(java.lang.Object)
-	 */
+	
 	@Override
 	public void setDefault(Object defaultValue) throws IllegalValueException {
 		setValue(defaultValue);
 		System.arraycopy( selected, 0, defaultSelected, 0, selected.length );
+		userSelected = false;
+	}
+	
+	/**
+	 * Sets the default selection of this {@link MultiSelectionParameter} to
+	 * <code>defaultSelection</code>. This method also sets the current
+	 * selection of this {@link MultiSelectionParameter} to the default
+	 * and resets it such that {@link AbstractCollectionParameter#isUserSelected()}
+	 * returns <code>false</code>.
+	 * 
+	 * @param defaultSelection
+	 *            the new default selection
+	 */
+	public void setDefaultSelected(int[] defaultSelection){
+		Arrays.fill( defaultSelected, false );
+		for(int i=0;i<defaultSelection.length;i++){
+			defaultSelected[defaultSelection[i]] = true;
+		}
+		System.arraycopy( defaultSelected, 0, selected, 0, selected.length );
 		userSelected = false;
 	}
 
@@ -577,8 +598,14 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 	}
 
 	@Override
-	public void fromGalaxy(String namePrefix, StringBuffer command) throws Exception {
-		// TODO JAN: code siehe SelectionParameter, Problem-Methode "public int getSelected()"
+	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
+		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		
+		String selected = XMLParser.extractForTag( command, namePrefix ).toString();
+		this.setValue( selected );
+		if(this.getValue() instanceof GalaxyConvertible){
+			//TODO change as soon as Galaxy supports multiple selections in ifs
+			((GalaxyConvertible)this.getValue()).fromGalaxy( namePrefix+"_opt"+getSelected()[0], command );
+		}
 	}
 }

@@ -298,7 +298,7 @@ public class SelectionParameter extends AbstractCollectionParameter implements R
 		} else {
 			selected = i;
 			userSelected = true;
-			//TODO okay?
+
 			if( value instanceof ParameterSetContainer ) {
 				parameters.getParameterAt( selected ).setValue( ((ParameterSetContainer)value).getValue() );
 			} else if( value instanceof ParameterSet ) {
@@ -307,11 +307,6 @@ public class SelectionParameter extends AbstractCollectionParameter implements R
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Parameter#setDefault(java.lang.Object)
-	 */
 	@Override
 	public void setDefault(Object defaultValue) throws IllegalValueException {
 		setValue(defaultValue);
