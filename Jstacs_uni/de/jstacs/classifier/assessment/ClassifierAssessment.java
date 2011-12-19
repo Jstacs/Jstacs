@@ -25,7 +25,7 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
-import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.ArrayHandler;
@@ -565,7 +565,7 @@ public abstract class ClassifierAssessment {
 	 * 
 	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		return assess( mp, assessPS, null, s );
@@ -630,7 +630,7 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		if( pU == null ) {
@@ -699,7 +699,7 @@ public abstract class ClassifierAssessment {
 	 *             forwarded from training/testing of classifiers/models
 	 * 
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet[][]... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet[][]... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		if( pU == null ) {
@@ -848,7 +848,7 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             that occurred during training or using classifiers/models
 	 */
-	protected abstract void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s,
+	protected abstract void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s,
 			ProgressUpdater pU ) throws IllegalArgumentException, Exception;
 
 	/**
@@ -924,7 +924,7 @@ public abstract class ClassifierAssessment {
 	 * 
 	 * @see AbstractClassifier#evaluate(de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters, boolean, DataSet...)
 	 */
-	protected void test( NumericalPerformanceMeasureParameters mp, boolean exception, DataSet... testS ) throws IllegalValueException,
+	protected void test( NumericalPerformanceMeasureParameterSet mp, boolean exception, DataSet... testS ) throws IllegalValueException,
 			InconsistentResultNumberException,
 			AdditionImpossibleException,
 			Exception {

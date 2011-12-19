@@ -21,7 +21,7 @@ package de.jstacs.classifier.assessment;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.models.Model;
@@ -343,7 +343,7 @@ public class RepeatedHoldOutExperiment extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameters mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
 		RepeatedHoldOutAssessParameterSet tempAssessPS = null;

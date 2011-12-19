@@ -200,6 +200,7 @@ public abstract class ScoreClassifierParameterSet extends SequenceScoringParamet
 				"algorithm",
 				"the algorithm that should be used for numerical optimization",
 				true ) );
+		parameters.get(0).setDefault( algorithms[4] );
 		parameters.add(
 				SubclassFinder.getCollection(
 						AbstractTerminationConditionParameterSet.class,
@@ -209,24 +210,27 @@ public abstract class ScoreClassifierParameterSet extends SequenceScoringParamet
 						true
 				)
 		);
+		parameters.get(0).setDefault( SmallDifferenceOfFunctionEvaluationsCondition.class );
 		parameters.add( new SimpleParameter( DataType.DOUBLE,
 				"line epsilon",
 				"the threshold for stopping the line search in the numerical training",
 				true,
-				new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+				new NumberValidator<Double>( 0d, Double.MAX_VALUE ),
+				1E-9 ) );
 		parameters.add( new SimpleParameter( DataType.DOUBLE,
 				"start distance",
 				"the start distance for the line search in the numerical training",
 				true,
-				new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+				new NumberValidator<Double>( 0d, Double.MAX_VALUE ),
+				1 ) );
 		parameters.add( new SimpleParameter( DataType.BOOLEAN,
 				"free parameters",
 				"Indicates whether only the free parameters or all parameters should be used.",
 				true,
-				new Boolean( true ) ) );
+				new Boolean( false ) ) );
 		parameters.add( new EnumParameter( KindOfParameter.class,
 				"Indicates whether special plugIn parameters or the zero vector should be used as start parameters. For non-concave problems it is highly recommended to use plugIn parameters.",
-				true ) );
+				true, KindOfParameter.PLUGIN.name() ) );
 	}
 
 	/**

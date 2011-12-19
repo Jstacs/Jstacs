@@ -21,9 +21,8 @@ package de.jstacs.algorithms.optimization.termination;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.utils.Time;
 
@@ -102,15 +101,19 @@ public class SmallDifferenceOfFunctionEvaluationsCondition extends AbstractTermi
 
 		/**
 		 * This constructor creates an empty parameter set.
-		 * @throws DatatypeNotValidException 
 		 */
-		public SmallDifferenceOfFunctionEvaluationsConditionParameterSet() throws DatatypeNotValidException {
+		public SmallDifferenceOfFunctionEvaluationsConditionParameterSet() {
 			super( SmallDifferenceOfFunctionEvaluationsCondition.class );
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"epsilon",
-					"the epsilon for the difference of function evaluations used for deciding whether to stop the algorithm or not",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			try {
+				parameters.add( new SimpleParameter( DataType.DOUBLE,
+						"epsilon",
+						"the epsilon for the difference of function evaluations used for deciding whether to stop the algorithm or not",
+						true,
+						new NumberValidator<Double>( 0d, Double.MAX_VALUE ),
+						1E-6 ) );
+			} catch( ParameterException doesNotHappen ) {
+				throw new RuntimeException( doesNotHappen.getMessage() );
+			}
 		}
 		
 		/**
@@ -134,11 +137,9 @@ public class SmallDifferenceOfFunctionEvaluationsCondition extends AbstractTermi
 		 * 
 		 * @param eps the epsilon for the difference of function evaluations
 		 * 
-		 * @throws IllegalArgumentException if parameter can not be set
-		 * @throws IllegalValueException if parameter can not be set
-		 * @throws DatatypeNotValidException 
+		 * @throws ParameterException if parameter can not be set
 		 */
-		public SmallDifferenceOfFunctionEvaluationsConditionParameterSet( double eps ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
+		public SmallDifferenceOfFunctionEvaluationsConditionParameterSet( double eps ) throws ParameterException {
 			this();
 			this.getParameterAt( 0 ).setValue( eps );
 		}
