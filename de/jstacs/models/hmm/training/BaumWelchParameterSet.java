@@ -67,9 +67,7 @@ public class BaumWelchParameterSet extends MultiThreadedTrainingParameterSet {
 		try {
 			return super.hasDefaultOrIsSet() && getTerminantionCondition().isSimple();
 		} catch (NotInstantiableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+			throw new RuntimeException( e );
 		}
 	}
 }
