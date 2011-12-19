@@ -56,7 +56,7 @@ public class HomogeneousMarkovModel extends AbstractModel {
 		//extract our XML-code
 		xml = XMLParser.extractForTag( xml, "homogeneousMarkovModel" );
 		//extract all the variables using XMLParser
-		alphabets = XMLParser.extractObjectForTags( xml, "alphabets", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		alphabets = XMLParser.extractObjectForTags( xml, "alphabets", AlphabetContainer.class );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		logProbs = XMLParser.extractObjectForTags( xml, "logProbs", double[].class );
 		isTrained = XMLParser.extractObjectForTags( xml, "isTrained", boolean.class );
