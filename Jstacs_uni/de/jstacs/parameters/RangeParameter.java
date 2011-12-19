@@ -819,6 +819,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	 * 
 	 * @see RangeType
 	 */
+	//TODO Jan private, remove or change to "reset"() { shallBeRanged = RangeType.NO; values=null; }"?
 	public void setShallBeRanged(RangeType shallBeRanged) throws Exception {
 		if (shallBeRanged == RangeType.NO || shallBeRanged == RangeType.LIST
 				|| shallBeRanged == RangeType.RANGE) {
@@ -901,13 +902,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 		super.appendFurtherInfos( buf );
 		
 		XMLParser.appendObjectWithTags(buf, rangedParameter, "rangedParameter");
-		if (values != null) {
-			StringBuffer buf2 = new StringBuffer();
-			XMLParser.appendObjectWithTags(buf2, values, "vals");
-			XMLParser.appendObjectWithTags(buf, buf2.toString(), "values");
-		} else {
-			XMLParser.appendObjectWithTags(buf, null, "values");
-		}
+		XMLParser.appendObjectWithTags(buf, values, "values");
 		XMLParser.appendObjectWithTags(buf, current, "current");
 		XMLParser.appendObjectWithTags(buf, isSet, "isSet");
 		XMLParser.appendObjectWithTags(buf, shallBeRanged, "shallBeRanged");
@@ -925,12 +920,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	protected void extractFurtherInfos( StringBuffer buf ) throws NonParsableException {
 		super.extractFurtherInfos( buf );
 		rangedParameter = XMLParser.extractObjectForTags(buf,"rangedParameter", SimpleParameter.class);
-		StringBuffer buf2 = XMLParser.extractForTag(buf, "values");
-		if (buf2.toString().equals("null")) {
-			values = null;
-		} else {
-			values = (Object[]) XMLParser.extractObjectForTags(buf2, "vals");
-		}
+		values = (Object[]) XMLParser.extractObjectForTags(buf, "values");
 		current = XMLParser.extractObjectForTags(buf, "current", int.class );
 		isSet = XMLParser.extractObjectForTags(buf, "isSet", boolean.class );
 		shallBeRanged = XMLParser.extractObjectForTags(buf, "shallBeRanged", RangeType.class );
