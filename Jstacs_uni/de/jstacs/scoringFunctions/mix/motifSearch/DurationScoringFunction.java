@@ -127,9 +127,7 @@ public abstract class DurationScoringFunction extends PositionScoringFunction
 
 	public int getSizeOfEventSpaceForRandomVariablesOfParameter(int index)
 	{
-		// TODO Auto-generated method stub
-		// return 0;
-		throw new RuntimeException( "???" );
+		return 1;
 	}
 
 	public final double getESS()
