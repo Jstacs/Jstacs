@@ -279,14 +279,12 @@ public class ExpandableParameterSet extends ParameterSet {
 	@Override
 	protected void fromXML(StringBuffer representation)
 			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation,
-				"expandableParameterSet");
-		super.fromXML(XMLParser
-				.extractForTag(representation, "superParameters"));
-		template = XMLParser.extractObjectForTags( representation, "template", ParameterSet.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		nameTemplate = XMLParser.extractObjectForTags(representation, "nameTemplate", String.class );
-		commentTemplate = XMLParser.extractObjectForTags(representation, "commentTemplate", String.class );
-		initCount = XMLParser.extractObjectForTags(representation, "initCount", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		representation = XMLParser.extractForTag( representation, "expandableParameterSet" );
+		super.fromXML( XMLParser.extractForTag( representation, "superParameters") );
+		template = XMLParser.extractObjectForTags( representation, "template", ParameterSet.class );
+		nameTemplate = XMLParser.extractObjectForTags( representation, "nameTemplate", String.class );
+		commentTemplate = XMLParser.extractObjectForTags( representation, "commentTemplate", String.class );
+		initCount = XMLParser.extractObjectForTags( representation, "initCount", int.class );
 	}
 
 	@Override

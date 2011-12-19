@@ -162,7 +162,7 @@ public class ListResult extends Result {
 	@Override
 	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		try {
-			annotation = XMLParser.extractObjectForTags( representation, "annotation", ResultSet.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			annotation = XMLParser.extractObjectForTags( representation, "annotation", ResultSet.class );
 		} catch (NonParsableException e) {
 			annotation = null;
 		}

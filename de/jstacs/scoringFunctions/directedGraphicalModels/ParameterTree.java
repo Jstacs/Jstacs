@@ -92,14 +92,14 @@ public class ParameterTree implements Cloneable, Storable {
 			throws NonParsableException {
 		try {
 			source = XMLParser.extractForTag(source, "parameterTree");
-			pos = XMLParser.extractObjectForTags(source, "pos", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			pos = XMLParser.extractObjectForTags(source, "pos", int.class );
 			contextPoss = XMLParser.extractObjectForTags(source, "contextPoss", int[].class );
 			root = new TreeElement(XMLParser.extractForTag(source, "root"));
 			this.alphabet = null;
 			this.firstParent = XMLParser.extractObjectForTags(source, "firstParent", int.class );
-			this.firstChildren = XMLParser.extractObjectForTags(source, "firstChildren", int[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			this.firstChildren = XMLParser.extractObjectForTags(source, "firstChildren", int[].class );
 		} catch (NonParsableException e) {
-			e.printStackTrace();
+			e.printStackTrace();//TODO Jan?
 			throw e;
 		}
 
@@ -884,8 +884,8 @@ public class ParameterTree implements Cloneable, Storable {
 				throws NonParsableException {
 			representation = XMLParser.extractForTag(representation,
 					"treeElement");
-			contNum = XMLParser.extractObjectForTags(representation, "contNum", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-			contextPos = XMLParser.extractObjectForTags(representation, "contextPos", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			contNum = XMLParser.extractObjectForTags(representation, "contNum", int.class );
+			contextPos = XMLParser.extractObjectForTags(representation, "contextPos", int.class );
 			
 			//XXX not possible since inner class
 			children = XMLParser.extractObjectAndAttributesForTags( representation, "children", null, null, TreeElement[].class, ParameterTree.class, ParameterTree.this );
@@ -910,7 +910,7 @@ public class ParameterTree implements Cloneable, Storable {
 				pars = null;
 			} else {
 				XMLParser.addTags(temp, "pars");
-				pars = XMLParser.extractObjectForTags(temp, "pars", Parameter[].class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+				pars = XMLParser.extractObjectForTags(temp, "pars", Parameter[].class );
 			}
 			*/
 			if (pars != null) {

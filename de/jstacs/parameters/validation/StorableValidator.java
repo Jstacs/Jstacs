@@ -178,7 +178,7 @@ public class StorableValidator implements ParameterValidator {
 
 			try {
 				buf = XMLParser.extractForTag(buf, "object");
-				String className = XMLParser.extractObjectForTags(buf, "className", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+				String className = XMLParser.extractObjectForTags(buf, "className", String.class );
 				Class c = Class.forName(className);
 				if (clazz.isAssignableFrom(c)) {
 					boolean modelTrained = false;
@@ -255,8 +255,8 @@ public class StorableValidator implements ParameterValidator {
 			throws NonParsableException {
 		representation = XMLParser.extractForTag(representation,
 				"TrainedValidator");
-		errorMessage = XMLParser.extractObjectForTags(representation, "errorMessage", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		trained = XMLParser.extractObjectForTags(representation, "trained", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		errorMessage = XMLParser.extractObjectForTags(representation, "errorMessage", String.class );
+		trained = XMLParser.extractObjectForTags(representation, "trained", boolean.class );
 		try {
 			clazz = Class.forName(XMLParser.extractObjectForTags(representation, "class", String.class ));
 		} catch (Exception e) {

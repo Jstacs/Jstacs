@@ -160,10 +160,10 @@ public class Parameter implements Storable, Cloneable {
 	 */
 	public Parameter(StringBuffer representation) throws NonParsableException {
 		representation = XMLParser.extractForTag(representation, "parameter");
-		value = XMLParser.extractObjectForTags(representation, "value", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		value = XMLParser.extractObjectForTags(representation, "value", double.class );
 		expValue = Math.exp(value);
 		index = XMLParser.extractObjectForTags(representation, "index", int.class );
-		pseudoCount = XMLParser.extractObjectForTags(representation, "pseudoCount", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		pseudoCount = XMLParser.extractObjectForTags(representation, "pseudoCount", double.class );
 		symbol = XMLParser.extractObjectForTags(representation, "symbol", byte.class );
 		position = XMLParser.extractObjectForTags(representation, "position", int.class );
 		context = XMLParser.extractObjectForTags(representation, "context", int[][].class );

@@ -276,11 +276,10 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	@Override
 	protected void fromXML(StringBuffer representation)
 			throws NonParsableException {
-		representation = XMLParser.extractForTag(representation,
-				"sequenceScoringParameterSet");
-		super.fromXML(XMLParser.extractForTag(representation, "superParameters"));
-		variableLength = XMLParser.extractObjectForTags(representation, "variableLength", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		StringBuffer alphStringB = XMLParser.extractForTag(representation, "alphabet");
+		representation = XMLParser.extractForTag( representation, "sequenceScoringParameterSet" );
+		super.fromXML(XMLParser.extractForTag( representation, "superParameters" ));
+		variableLength = XMLParser.extractObjectForTags( representation, "variableLength", boolean.class );
+		StringBuffer alphStringB = XMLParser.extractForTag( representation, "alphabet" );
 		if (alphStringB == null) {
 			alphabet = null;
 		} else {

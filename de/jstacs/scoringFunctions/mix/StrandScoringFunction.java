@@ -435,7 +435,7 @@ public class StrandScoringFunction extends AbstractMixtureScoringFunction implem
 
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException
 	{
-		forwardPartOfESS = XMLParser.extractObjectForTags( xml, "forwardPartOfESS", double.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		forwardPartOfESS = XMLParser.extractObjectForTags( xml, "forwardPartOfESS", double.class );
 		initMethod = XMLParser.extractObjectForTags( xml, "initMethod", InitMethod.class );
 	}
 	

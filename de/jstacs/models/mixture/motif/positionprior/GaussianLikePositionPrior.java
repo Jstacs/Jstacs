@@ -133,7 +133,7 @@ public class GaussianLikePositionPrior extends PositionPrior {
 	 */
 	@Override
 	protected void extractAdditionalInformation( StringBuffer xml ) throws NonParsableException {
-		length = XMLParser.extractObjectForTags( xml, "length", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		max = XMLParser.extractObjectForTags( xml, "max", double.class );
 		prec = XMLParser.extractObjectForTags( xml, "prec", double.class );
 	}

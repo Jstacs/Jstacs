@@ -83,7 +83,7 @@ public final class DoubleList implements Storable, Cloneable {
 	 */
 	public DoubleList( StringBuffer rep ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( rep, getClass().getSimpleName() );
-		size = XMLParser.extractObjectForTags( xml, "size", int.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		size = XMLParser.extractObjectForTags( xml, "size", int.class );
 		array = new double[size];
 		Map<String,String> filter = new TreeMap<String, String>();
 		for( int i = 0; i < size; i++ ) { 

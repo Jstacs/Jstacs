@@ -659,7 +659,7 @@ public class HiddenMotifsMixture extends AbstractMixtureScoringFunction implemen
 
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException
 	{
-		type = XMLParser.extractObjectForTags( xml, "type", boolean.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		type = XMLParser.extractObjectForTags( xml, "type", boolean.class );
 		plugInBg = XMLParser.extractObjectForTags( xml, "plugInBg", boolean.class );
 	}
 	

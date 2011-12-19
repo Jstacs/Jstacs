@@ -177,8 +177,8 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 		super.fromXML(XMLParser.extractForTag(representation,
 				"superRepresentation"));
 		lengthName = XMLParser
-				.extractObjectForTags(representation, "lengthName", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
-		lengthComment = XMLParser.extractObjectForTags(representation, "lengthComment", String.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+				.extractObjectForTags(representation, "lengthName", String.class );
+		lengthComment = XMLParser.extractObjectForTags(representation, "lengthComment", String.class );
 		allowedLengths = XMLParser.extractObjectForTags(representation, "allowedLengths", NumberValidator.class );
 	}
 

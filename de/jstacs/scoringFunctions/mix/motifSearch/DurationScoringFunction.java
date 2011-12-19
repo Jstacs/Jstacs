@@ -110,7 +110,7 @@ public abstract class DurationScoringFunction extends PositionScoringFunction
 	{
 		StringBuffer b = XMLParser.extractForTag( xml, XML_TAG );
 		super.fromXML(b);
-		setMinMax( XMLParser.extractObjectForTags( b, "min", int.class ), XMLParser.extractObjectForTags( b, "max", int.class ) );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		setMinMax( XMLParser.extractObjectForTags( b, "min", int.class ), XMLParser.extractObjectForTags( b, "max", int.class ) );
 		ess = XMLParser.extractObjectForTags( b, "ess", double.class );
 	}
 

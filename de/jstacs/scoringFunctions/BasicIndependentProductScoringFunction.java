@@ -27,8 +27,6 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
-import de.jstacs.results.NumericalResultSet;
-import de.jstacs.results.ResultSet;
 import de.jstacs.scoringFunctions.homogeneous.HomogeneousScoringFunction;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -349,7 +347,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 */
 	protected void fromXML( StringBuffer rep ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( rep, getInstanceName() );
-		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		score = XMLParser.extractObjectForTags( xml, "ScoringFunctions", ScoringFunction[].class );
 		set( XMLParser.extractObjectForTags( xml, "index", int[].class ),
@@ -358,7 +356,7 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 		try {
 			plugIn = XMLParser.extractObjectForTags( xml, "plugIn", boolean.class );
 		} catch( Exception e ) {
-			plugIn = true;//TODO
+			plugIn = true;
 		}
 		extractFurtherInformation( xml );
 		setParamsStarts();

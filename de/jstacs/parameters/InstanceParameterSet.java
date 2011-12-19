@@ -141,7 +141,7 @@ public abstract class InstanceParameterSet extends ParameterSet {
 		representation = XMLParser.extractForTag( representation, "instanceParameterSet" );
 		super.fromXML( XMLParser.extractForTag( representation, "superParameterSet" ) );
 		try {
-			instanceClass = Class.forName(XMLParser.extractObjectForTags( representation, "instanceClass", String.class ) );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+			instanceClass = Class.forName(XMLParser.extractObjectForTags( representation, "instanceClass", String.class ) );
 		} catch (ClassNotFoundException e) {
 			throw new NonParsableException(e.getMessage());
 		}

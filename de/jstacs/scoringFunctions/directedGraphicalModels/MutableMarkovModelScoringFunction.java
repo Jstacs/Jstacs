@@ -113,7 +113,7 @@ public class MutableMarkovModelScoringFunction extends BayesianNetworkScoringFun
 	
 	protected void fromXML(StringBuffer source) throws NonParsableException {
 		StringBuffer sb = XMLParser.extractForTag( source, XML_TAG );
-		lengthPenalty = XMLParser.extractObjectForTags( sb, "lengthPenalty", DurationScoringFunction.class );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		lengthPenalty = XMLParser.extractObjectForTags( sb, "lengthPenalty", DurationScoringFunction.class );
 		super.fromXML( sb );
 	}
 	

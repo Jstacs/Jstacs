@@ -55,7 +55,7 @@ public abstract class PositionPrior implements Storable, Cloneable {
 	protected PositionPrior( StringBuffer rep ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( rep, getInstanceName() );
 		extractAdditionalInformation( xml );
-		setMotifLength( XMLParser.extractObjectForTags( xml, "motifLength", int.class ) );// TODO XMLP14CONV This and (possibly) the following lines have been converted automatically
+		setMotifLength( XMLParser.extractObjectForTags( xml, "motifLength", int.class ) );
 	}
 
 	/* (non-Javadoc)
