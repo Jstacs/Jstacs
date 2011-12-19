@@ -270,7 +270,7 @@ public class GenDisMixClassifier extends ScoreClassifier
 		{
 			StringBuffer pr = new StringBuffer( 1000 );
 			pr.append( "<prior>\n" );
-			XMLParser.appendObjectWithTags( pr, prior.getClass().getName(), "className" );
+			XMLParser.appendObjectWithTags( pr, prior.getClass(), "class" );
 			pr.append( prior.toXML() );
 			pr.append( "\t</prior>\n" );
 			xml.append( pr );
@@ -287,20 +287,20 @@ public class GenDisMixClassifier extends ScoreClassifier
 		StringBuffer pr = XMLParser.extractForTag( xml, "prior" );
 		if( pr != null )
 		{
-			String className = XMLParser.extractObjectForTags( pr, "className", String.class );
+			Class clazz = XMLParser.extractObjectForTags( pr, "class", Class.class );
 			try
 			{
-				prior = (LogPrior) Class.forName( className ).getConstructor( new Class[]{ StringBuffer.class } ).newInstance( pr );
+				prior = (LogPrior) clazz.getConstructor( new Class[]{ StringBuffer.class } ).newInstance( pr );
 			}
 			catch( NoSuchMethodException e )
 			{
-				NonParsableException n = new NonParsableException( "You must provide a constructor " + className + "(StringBuffer)." );
+				NonParsableException n = new NonParsableException( "You must provide a constructor " + clazz.getSimpleName() + "(StringBuffer)." );
 				n.setStackTrace( e.getStackTrace() );
 				throw n;
 			}
 			catch( Exception e )
 			{
-				NonParsableException n = new NonParsableException( "problem at " + className + ": " + e.getMessage() );
+				NonParsableException n = new NonParsableException( "problem at " + clazz.getSimpleName() + ": " + e.getMessage() );
 				n.setStackTrace( e.getStackTrace() );
 				throw n;
 			}

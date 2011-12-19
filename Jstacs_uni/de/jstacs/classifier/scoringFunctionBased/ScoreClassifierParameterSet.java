@@ -24,6 +24,7 @@ import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition.AbstractTerminationConditionParameterSet;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition.SmallDifferenceOfFunctionEvaluationsConditionParameterSet;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
@@ -200,7 +201,7 @@ public abstract class ScoreClassifierParameterSet extends SequenceScoringParamet
 				"algorithm",
 				"the algorithm that should be used for numerical optimization",
 				true ) );
-		parameters.get(0).setDefault( algorithms[4] );
+		parameters.get(0).setDefault( algorithmStrings[4] );
 		parameters.add(
 				SubclassFinder.getCollection(
 						AbstractTerminationConditionParameterSet.class,
@@ -210,7 +211,7 @@ public abstract class ScoreClassifierParameterSet extends SequenceScoringParamet
 						true
 				)
 		);
-		parameters.get(0).setDefault( SmallDifferenceOfFunctionEvaluationsCondition.class );
+		parameters.get(1).setDefault( SmallDifferenceOfFunctionEvaluationsConditionParameterSet.class );
 		parameters.add( new SimpleParameter( DataType.DOUBLE,
 				"line epsilon",
 				"the threshold for stopping the line search in the numerical training",
@@ -222,7 +223,7 @@ public abstract class ScoreClassifierParameterSet extends SequenceScoringParamet
 				"the start distance for the line search in the numerical training",
 				true,
 				new NumberValidator<Double>( 0d, Double.MAX_VALUE ),
-				1 ) );
+				1d ) );
 		parameters.add( new SimpleParameter( DataType.BOOLEAN,
 				"free parameters",
 				"Indicates whether only the free parameters or all parameters should be used.",

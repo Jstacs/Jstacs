@@ -125,7 +125,7 @@ public abstract class InstanceParameterSet extends ParameterSet {
 	public StringBuffer toXML() {
 		StringBuffer buf = super.toXML();
 		XMLParser.addTags(buf, "superParameterSet");
-		XMLParser.appendObjectWithTags(buf, instanceClass.getName(),"instanceClass");
+		XMLParser.appendObjectWithTags(buf, instanceClass,"instanceClass");
 		XMLParser.addTags(buf, "instanceParameterSet");
 		return buf;
 	}
@@ -140,10 +140,6 @@ public abstract class InstanceParameterSet extends ParameterSet {
 			throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "instanceParameterSet" );
 		super.fromXML( XMLParser.extractForTag( representation, "superParameterSet" ) );
-		try {
-			instanceClass = Class.forName(XMLParser.extractObjectForTags( representation, "instanceClass", String.class ) );
-		} catch (ClassNotFoundException e) {
-			throw new NonParsableException(e.getMessage());
-		}
+		instanceClass = XMLParser.extractObjectForTags( representation, "instanceClass", Class.class );
 	}
 }

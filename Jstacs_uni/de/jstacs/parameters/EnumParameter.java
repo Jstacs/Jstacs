@@ -125,7 +125,7 @@ public class EnumParameter extends SelectionParameter {
 		if (hasDefault()) {
 			XMLParser.appendObjectWithTags(buf, parameters.getParameterAt(getDefault()).getValue().toString(), "defaultSelectedEnum");
 		}
-		XMLParser.appendObjectWithTags(buf, enumInstance.getName(), "enumName");
+		XMLParser.appendObjectWithTags(buf, enumConstants[0].getClass(), "enumName");
 	}
 
 	/*
@@ -139,7 +139,8 @@ public class EnumParameter extends SelectionParameter {
 	protected void extractFurtherInfos(StringBuffer buf) throws NonParsableException {
 		super.extractFurtherInfos(buf);
 		try {
-			enumInstance = (Class<? extends Enum>) Class.forName(XMLParser.extractObjectForTags(buf, "enumName", String.class ));			enumConstants = enumInstance.getEnumConstants();
+			enumInstance = (Class<? extends Enum>) XMLParser.extractObjectForTags(buf, "enumName" );
+			enumConstants = enumInstance.getEnumConstants();
 			createParameterSet(getKeys(enumInstance), getKeys(enumInstance), null);
 			if (hasDefault()) {
 				setDefault(XMLParser.extractObjectForTags(buf, "defaultSelectedEnum", String.class ));
