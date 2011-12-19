@@ -19,12 +19,15 @@
 
 package de.jstacs.scoringFunctions.mix;
 
+import java.util.Arrays;
+
 import de.jstacs.NonParsableException;
 import de.jstacs.data.Sequence;
 import de.jstacs.scoringFunctions.VariableLengthScoringFunction;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.ToolBox;
 
 
 /**
@@ -123,7 +126,17 @@ public class VariableLengthMixtureScoringFunction extends MixtureScoringFunction
 	}
 
 	public void setStatisticForHyperparameters( int[] length, double[] weight ) throws Exception {
-		// TODO Auto-generated method stub
-		throw new RuntimeException( "not implemented yet" );
+		double[] w = new double[getNumberOfComponents()];
+		for( int i = 0; i < w.length; i++ ) {
+			w[i] = getHyperparameterForHiddenParameter( i );
+		}
+		Normalisation.sumNormalisation( w );
+		double[] nw = new double[weight.length];
+		for( int i = 0; i < function.length; i++ ) {
+			for( int j = 0; j < nw.length; j++ ) {
+				nw[j] = weight[j] * w[i];
+			}
+			( (VariableLengthScoringFunction)function[i] ).setStatisticForHyperparameters( length, nw );
+		}
 	}
 }
