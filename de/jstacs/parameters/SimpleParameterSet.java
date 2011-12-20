@@ -22,8 +22,7 @@ package de.jstacs.parameters;
 import de.jstacs.NonParsableException;
 
 /**
- * Class for a {@link ParameterSet} that is constructed from an array of {@link Parameter}s
- * and thus does nothing in the method {@link #loadParameters()}.
+ * Class for a {@link ParameterSet} that is constructed from an array of {@link Parameter}s.
  * 
  * @author Jan Grau
  */

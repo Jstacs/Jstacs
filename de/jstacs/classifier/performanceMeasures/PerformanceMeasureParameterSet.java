@@ -12,7 +12,8 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 
 /**
- * This class implements a container of {@link AbstractPerformanceMeasure}s that can be used in {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, de.jstacs.data.DataSet...)}.
+ * This class implements a container of {@link AbstractPerformanceMeasure}s that can be used
+ * in {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
  * 
  * @author Jens Keilwagen, Jan Grau
  */
@@ -20,13 +21,13 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Constructs a {@link PerformanceMeasureParameters} out of an XML representation.
+	 * Constructs a {@link PerformanceMeasureParameterSet} out of an XML representation.
 	 * 
 	 * @param xml
 	 *            the XML representation as {@link StringBuffer}
 	 * 
 	 * @throws NonParsableException
-	 *             if the {@link PerformanceMeasureParameters} could not be reconstructed out of
+	 *             if the {@link PerformanceMeasureParameterSet} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
 	public PerformanceMeasureParameterSet( StringBuffer xml ) throws NonParsableException {
@@ -34,18 +35,18 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	}
 	
 	/**
-	 * Constructs a new {@link PerformanceMeasureParameters} that can be used for binary classifiers.
+	 * Constructs a new {@link PerformanceMeasureParameterSet} that can be used for binary classifiers.
 	 *  
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see #PerformanceMeasureParameters(int)
+	 * @see #PerformanceMeasureParameterSet(int)
 	 */
 	public PerformanceMeasureParameterSet() throws Exception {
 		this( 2 );
 	}
 	
 	/**
-	 * Constructs a new {@link PerformanceMeasureParameters} that can be used for classifiers that
+	 * Constructs a new {@link PerformanceMeasureParameterSet} that can be used for classifiers that
 	 * handle the given number of classes.
 	 * 
 	 * @param numClasses the number of classes
@@ -53,14 +54,14 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	 * @throws Exception if something went wrong
 	 * 
 	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
-	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, AbstractPerformanceMeasure...)
+	 * @see PerformanceMeasureParameterSet#PerformanceMeasureParameterSet(int, AbstractPerformanceMeasure...)
 	 */
 	public PerformanceMeasureParameterSet( int numClasses ) throws Exception {
 		this( numClasses, new AbstractPerformanceMeasure[0] );
 	}
 
 	/**
-	 * Constructs a new {@link PerformanceMeasureParameters} that can be used for classifiers that
+	 * Constructs a new {@link PerformanceMeasureParameterSet} that can be used for classifiers that
 	 * handle the given number of classes. The instance contains the given performance measures.
 	 * 
 	 * @param numClasses the number of classes
@@ -69,7 +70,7 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	 * @throws Exception if something went wrong
 	 * 
 	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
-	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, CollectionParameter, AbstractPerformanceMeasure... )
+	 * @see PerformanceMeasureParameterSet#PerformanceMeasureParameterSet(int, SelectionParameter, AbstractPerformanceMeasure... )
 	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
 	 */
 	public PerformanceMeasureParameterSet( int numClasses, AbstractPerformanceMeasure... measures ) throws Exception {

@@ -41,8 +41,8 @@ import de.jstacs.results.Result;
  * It is recommended to extend this class for each subclass of
  * {@link ClassifierAssessment}.
  * 
- * @see ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, de.jstacs.data.DataSet...)
- * @see ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater, de.jstacs.data.DataSet...)
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, de.jstacs.data.DataSet...)
+ * @see ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, de.jstacs.utils.ProgressUpdater, de.jstacs.data.DataSet...)
  * 
  * @author Andre Gohr (bioinf (nospam:.) ag (nospam:@) googlemail (nospam:.)
  *         com)

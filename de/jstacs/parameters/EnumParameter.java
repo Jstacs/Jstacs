@@ -25,7 +25,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
- * This class implements a {@link CollectionParameter} based on an {@link Enum}.
+ * This class implements a {@link SelectionParameter} based on an {@link Enum}.
  * Internally it is based on {@link String}s, i.e. the names of the {@link Enum}
  * constants. The methods {@link #setDefault(Object)} and
  * {@link #setValue(Object)} can be used with {@link String}s or with the

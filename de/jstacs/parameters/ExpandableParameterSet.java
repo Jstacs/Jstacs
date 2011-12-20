@@ -59,8 +59,6 @@ public class ExpandableParameterSet extends ParameterSet {
 	 * templates for the {@link ParameterSet} in each element of the array, the
 	 * name and the comment that are displayed for the
 	 * {@link ParameterSetContainer}s enclosing the {@link ParameterSet}s.
-	 * Initially, the method {@link #loadParameters()} creates one copy of the
-	 * template.
 	 * 
 	 * @param template
 	 *            the template of the {@link ParameterSet}
@@ -80,9 +78,7 @@ public class ExpandableParameterSet extends ParameterSet {
 	 * can be instantiated using this {@link ExpandableParameterSet} and
 	 * templates for the {@link ParameterSet} in each element of the array, the
 	 * name and the comment that are displayed for the
-	 * {@link ParameterSetContainer}s enclosing the {@link ParameterSet}s. Using
-	 * this constructor, the method {@link #loadParameters()} initially creates
-	 * <code>initCount</code> copies of the template.
+	 * {@link ParameterSetContainer}s enclosing the {@link ParameterSet}s.
 	 * 
 	 * @param template
 	 *            the template of the {@link ParameterSet}

@@ -552,7 +552,7 @@ public abstract class ClassifierAssessment {
 	 * @return a {@link ListResult} that contains the results (mean and standard
 	 *         errors) of user specified performance measures. These performance
 	 *         measures are user specified via the given
-	 *         {@link NumericalPerformanceMeasureParameters}.
+	 *         {@link NumericalPerformanceMeasureParameterSet}.
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of the right type
@@ -563,7 +563,7 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
 	 * 
-	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, DataSet...)
+	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
 	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
@@ -620,7 +620,7 @@ public abstract class ClassifierAssessment {
 	 * @return a {@link ListResult} that contains the results (mean and standard
 	 *         errors) of user specified performance measures. These performance
 	 *         measures are user specified via the given
-	 *         {@link NumericalPerformanceMeasureParameters}.
+	 *         {@link NumericalPerformanceMeasureParameterSet}.
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
@@ -669,7 +669,7 @@ public abstract class ClassifierAssessment {
 	 *            sample. Analog <code>s[iter][1]</code> contains the test
 	 *            samples. The order of the samples is important. For further
 	 *            details see comment of method
-	 *            {@link #assess(NumericalPerformanceMeasureParameters, ClassifierAssessmentAssessParameterSet, DataSet...)}
+	 *            {@link #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)}
 	 *            .<br>
 	 *            The user is responsible to take care or not to take care of
 	 *            the given test and training dataset to be not overlapping.
@@ -688,7 +688,7 @@ public abstract class ClassifierAssessment {
 	 * @return a {@link ListResult} that contains the results (mean and standard
 	 *         errors) of user specified performance measures. These performance
 	 *         measures are user specified via the given
-	 *         {@link NumericalPerformanceMeasureParameters}.
+	 *         {@link NumericalPerformanceMeasureParameterSet}.
 	 * @throws IllegalArgumentException
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
@@ -922,7 +922,7 @@ public abstract class ClassifierAssessment {
 	 *             <code>testS.length!=this.myAbstractClassifier
 	 *             [0].getNumberOfClasses()</code>)
 	 * 
-	 * @see AbstractClassifier#evaluate(de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameters, boolean, DataSet...)
+	 * @see AbstractClassifier#evaluate(de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet, boolean, DataSet...)
 	 */
 	protected void test( NumericalPerformanceMeasureParameterSet mp, boolean exception, DataSet... testS ) throws IllegalValueException,
 			InconsistentResultNumberException,
