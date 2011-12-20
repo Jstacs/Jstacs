@@ -92,7 +92,7 @@ public class BTMutualInformation extends Measure {
 
 	/**
 	 * Creates a new {@link BTMutualInformation} from the corresponding
-	 * {@link InstanceParameterSet} <code>parameters</code>.
+	 * {@link de.jstacs.parameters.InstanceParameterSet} <code>parameters</code>.
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters

@@ -23,6 +23,7 @@ import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 
 /**
@@ -36,13 +37,18 @@ public class VarianceRatioBurnInTestParameterSet extends AbstractBurnInTestParam
 
 	/**
 	 * Creates a new {@link VarianceRatioBurnInTestParameterSet} with empty parameter values.
-	 * @throws ParameterException 
+	 * 
+	 * @throws IllegalArgumentException if <code>instanceClass</code> is <code>null</code> 
 	 */
-	public VarianceRatioBurnInTestParameterSet() throws ParameterException {
+	public VarianceRatioBurnInTestParameterSet() throws IllegalArgumentException {
 		super( VarianceRatioBurnInTest.class );
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "threshold", "the threshold value for testing the end of the burn-in phase" +
-				"with the Variance-Ratio burn-in test, the value has to be greater than 1 since the tested potential scale reduction" +
-				"factor R converges to 1", true, new NumberValidator<Double>( 1d, Double.MAX_VALUE ), 1.2 ) );	
+		try {
+			parameters.add( new SimpleParameter( DataType.DOUBLE, "threshold", "the threshold value for testing the end of the burn-in phase" +
+					"with the Variance-Ratio burn-in test, the value has to be greater than 1 since the tested potential scale reduction" +
+					"factor R converges to 1", true, new NumberValidator<Double>( 1d, Double.MAX_VALUE ), 1.2 ) );
+		} catch ( ParameterException doesNotHappen ) {
+			throw new RuntimeException( doesNotHappen );
+		}	
 	}
 	
 	/**
@@ -54,9 +60,10 @@ public class VarianceRatioBurnInTestParameterSet extends AbstractBurnInTestParam
 	 * @param t
 	 *            the threshold for determining the end of the burn-in phase
 	 *            
-	 * @throws Exception forwarded from {@link #loadParameters()} 
+	 * @throws IllegalArgumentException if <code>instanceClass</code> is <code>null</code>
+	 * @throws IllegalValueException if <code>t</code> can not be set
 	 */
-	public VarianceRatioBurnInTestParameterSet( int starts, double t ) throws Exception {
+	public VarianceRatioBurnInTestParameterSet( int starts, double t ) throws IllegalArgumentException, IllegalValueException {
 		super( VarianceRatioBurnInTest.class, starts );
 		parameters.get( 1 ).setValue( t );
 	}

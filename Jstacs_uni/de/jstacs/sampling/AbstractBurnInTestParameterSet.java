@@ -43,11 +43,14 @@ public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSe
 	 *            the class to be instantiated
 	 *            
 	 * @throws IllegalArgumentException if <code>instanceClass</code> is <code>null</code>
-	 * @throws DatatypeNotValidException 
 	 */
-	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass ) throws IllegalArgumentException, DatatypeNotValidException {
+	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass ) throws IllegalArgumentException {
 		super( instanceClass );
-		parameters.add( new SimpleParameter( DataType.INT, "starts", "the number of Gibbs Sampling starts", true, new NumberValidator<Integer>( 3, Integer.MAX_VALUE ) ) );
+		try {
+			parameters.add( new SimpleParameter( DataType.INT, "starts", "the number of Gibbs Sampling starts", true, new NumberValidator<Integer>( 3, Integer.MAX_VALUE ) ) );
+		} catch (DatatypeNotValidException doesNotHappen) {
+			throw new RuntimeException( doesNotHappen );
+		}
 	}
 	
 	/**
@@ -61,9 +64,8 @@ public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSe
 	 *            
 	 * @throws IllegalArgumentException if <code>instanceClass</code> is <code>null</code>
 	 * @throws IllegalValueException if <code>starts</code> can not be set
-	 * @throws Exception forwarded from {@link #loadParameters()} 
 	 */
-	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass, int starts ) throws IllegalArgumentException, IllegalValueException, Exception {
+	protected AbstractBurnInTestParameterSet( Class<? extends AbstractBurnInTest> instanceClass, int starts ) throws IllegalArgumentException, IllegalValueException {
 		this(instanceClass);
 		parameters.get( 0 ).setValue( starts );
 	}

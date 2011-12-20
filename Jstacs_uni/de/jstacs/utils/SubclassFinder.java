@@ -54,8 +54,8 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * <li>filter a set of classes by inheritance from a super-class</li>
  * <li>obtain the class of an {@link InstanceParameterSet} that can be used to
  * instantiate a sub-class of {@link InstantiableFromParameterSet}.</li>
- * <li>obtain a {@link CollectionParameter} using all possible
- * {@link InstanceParameterSet}s (for classes that are a subclass of a specified
+ * <li>obtain a {@link SelectionParameter} using all possible
+ * {@link ParameterSet}s (for classes that are a subclass of a specified
  * superclass) as elements</li>
  * </ul>
  * 
@@ -319,7 +319,7 @@ public class SubclassFinder {
 	}
 
 	/**
-	 * This method creates an {@link CollectionParameter} that contains
+	 * This method creates an {@link SelectionParameter} that contains
 	 * {@link de.jstacs.parameters.InstanceParameterSet} for each possible
 	 * class. The classes are specified by
 	 * {@link SubclassFinder#findInstantiableSubclasses(Class, String)} and
@@ -327,19 +327,19 @@ public class SubclassFinder {
 	 * 
 	 * @param <T>
 	 *            The class to use the sub-classes in the
-	 *            {@link CollectionParameter}
+	 *            {@link SelectionParameter}
 	 * @param clazz
 	 *            the {@link Class} object for <code>T</code>
 	 * @param startPackage
 	 *            the package under which to start the search
 	 * @param name
-	 *            the name of the {@link CollectionParameter}
+	 *            the name of the {@link SelectionParameter}
 	 * @param comment
-	 *            the comment for the {@link CollectionParameter}
+	 *            the comment for the {@link SelectionParameter}
 	 * @param required
-	 *            whether the {@link CollectionParameter} is required
+	 *            whether the {@link SelectionParameter} is required
 	 * 
-	 * @return a {@link CollectionParameter} that contains
+	 * @return a {@link SelectionParameter} that contains
 	 *         {@link de.jstacs.parameters.InstanceParameterSet} for each
 	 *         possible class.
 	 * 
@@ -381,7 +381,7 @@ public class SubclassFinder {
 	 * 
 	 * @param <T>
 	 *            The class to use the sub-classes in the
-	 *            {@link CollectionParameter}
+	 *            {@link SelectionParameter}
 	 * @param clazz
 	 *            the {@link Class} object for <code>T</code>
 	 * @param startPackage
