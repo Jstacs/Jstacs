@@ -368,8 +368,6 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 * information to the XML representation.
 	 * 
 	 * @return the further information as XML code in a {@link StringBuffer}
-	 * 
-	 * @see AbstractMixtureScoringFunction#extractFurtherInformation(StringBuffer)
 	 */
 	protected StringBuffer getFurtherInformation() {
 		return new StringBuffer( 1 );
@@ -385,8 +383,6 @@ public class BasicIndependentProductScoringFunction extends AbstractScoringFunct
 	 * 
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} could not be parsed
-	 * 
-	 * @see AbstractMixtureScoringFunction#getFurtherInformation()
 	 */
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {}
 

@@ -50,7 +50,7 @@ public class BTExplainingAwayResidual extends Measure {
 
 	/**
 	 * Creates a new {@link BTExplainingAwayResidual} from the corresponding
-	 * {@link InstanceParameterSet} <code>parameters</code>.
+	 * {@link de.jstacs.parameters.InstanceParameterSet} <code>parameters</code>.
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters

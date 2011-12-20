@@ -25,12 +25,9 @@ import de.jstacs.algorithms.graphs.DAG;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.DataSet;
-import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.EnumParameter;
-import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.btMeasures.BTMutualInformation;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.btMeasures.BTMutualInformation.DataSource;
@@ -63,7 +60,7 @@ public class PMMMutualInformation extends Measure {
 
 	/**
 	 * Creates a new {@link PMMMutualInformation} from the corresponding
-	 * {@link InstanceParameterSet} <code>parameters</code>.
+	 * {@link de.jstacs.parameters.InstanceParameterSet} <code>parameters</code>.
 	 * 
 	 * @param parameters  the corresponding parameters
 	 * 

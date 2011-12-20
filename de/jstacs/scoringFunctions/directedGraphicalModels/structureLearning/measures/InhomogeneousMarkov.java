@@ -49,7 +49,7 @@ public class InhomogeneousMarkov extends Measure {
 
 	/**
 	 * Creates a new {@link InhomogeneousMarkov} from the corresponding
-	 * {@link InstanceParameterSet} <code>parameters</code>.
+	 * {@link de.jstacs.parameters.InstanceParameterSet} <code>parameters</code>.
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters
@@ -150,7 +150,7 @@ public class InhomogeneousMarkov extends Measure {
 	}
 
 	/**
-	 * Class for an {@link InstanceParameterSet} that defines the parameters of
+	 * Class for an {@link de.jstacs.parameters.InstanceParameterSet} that defines the parameters of
 	 * an {@link InhomogeneousMarkov} structure {@link Measure}.
 	 * 
 	 * @author Jan Grau

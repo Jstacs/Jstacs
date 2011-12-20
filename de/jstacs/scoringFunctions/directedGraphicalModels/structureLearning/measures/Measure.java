@@ -717,7 +717,7 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 		 * Recreates a {@link MeasureParameterSet} from its XML representation as
 		 * returned by {@link #toXML()}.
 		 * 
-		 * @param buf  the XML representation as {@link StringBuffer}
+		 * @param xml  the XML representation as {@link StringBuffer}
 		 * 
 		 * @throws NonParsableException if the XML code could not be parsed
 		 */

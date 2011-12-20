@@ -58,8 +58,7 @@ public class NumericalResult extends SimpleResult {
 	 * @param result
 	 *            the result itself
 	 */
-	NumericalResult(DataType datatype, String name, String comment,
-			Comparable result) {
+	protected NumericalResult(DataType datatype, String name, String comment, Comparable result) {
 		super(name, comment, datatype);
 		try {
 			setResult(result);
