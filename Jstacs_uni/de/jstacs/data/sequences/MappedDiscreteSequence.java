@@ -27,14 +27,14 @@ import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
 
 /**
- * This class allows to map a discrete {@link de.jstacs.data.Sequence} to an new {@link Sequence} using some {@link DiscreteAlphabetMapping}s.
+ * This class allows to map a discrete {@link de.jstacs.data.Sequence} to an new {@link de.jstacs.data.Sequence} using some {@link DiscreteAlphabetMapping}s.
  * 
  * @author Jens Keilwagen
  */
 public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 
 	/**
-	 * The original {@link Sequence}.
+	 * The original {@link de.jstacs.data.Sequence}.
 	 */
 	protected SimpleDiscreteSequence original;
 	
@@ -44,7 +44,7 @@ public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 	protected AlphabetContainer originalAlphabetContainer;
 	
 	/**
-	 * The {@link DiscreteAlphabetMapping}s used for mapping the original {@link Sequence}.
+	 * The {@link DiscreteAlphabetMapping}s used for mapping the original {@link de.jstacs.data.Sequence}.
 	 */
 	protected DiscreteAlphabetMapping[] transformation;
 	
@@ -73,7 +73,7 @@ public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 	}
 	
 	/**
-	 * This method allows to create an empty {@link MappedDiscreteSequence}. That is a {@link MappedDiscreteSequence} that contains no original {@link Sequence}.
+	 * This method allows to create an empty {@link MappedDiscreteSequence}. That is a {@link MappedDiscreteSequence} that contains no original {@link de.jstacs.data.Sequence}.
 	 * 
 	 * @param originalAlphabetContainer the original {@link AlphabetContainer}
 	 * @param seqAn the {@link SequenceAnnotation}s for the {@link MappedDiscreteSequence}
@@ -91,9 +91,9 @@ public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 	}
 	
 	/**
-	 * This method allows to create a {@link MappedDiscreteSequence} from a given {@link Sequence} and some given {@link DiscreteAlphabetMapping}s.
+	 * This method allows to create a {@link MappedDiscreteSequence} from a given {@link de.jstacs.data.Sequence} and some given {@link DiscreteAlphabetMapping}s.
 	 * 
-	 * @param original the original {@link Sequence}
+	 * @param original the original {@link de.jstacs.data.Sequence}
 	 * @param transformation the {@link DiscreteAlphabetMapping} defining the mapping
 	 * 
 	 * @throws WrongAlphabetException if the mapped {@link AlphabetContainer} is not discrete (should never happen)
@@ -125,21 +125,21 @@ public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 	}
 	
 	/**
-	 * This method returns the logarithm of the number of original {@link Sequence}s that yield the same mapped {@link Sequence}.
+	 * This method returns the logarithm of the number of original {@link de.jstacs.data.Sequence}s that yield the same mapped {@link de.jstacs.data.Sequence}.
 	 * 
-	 * @return the logarithm of the number of original {@link Sequence}s that yield the same mapped {@link Sequence}
+	 * @return the logarithm of the number of original {@link de.jstacs.data.Sequence}s that yield the same mapped {@link de.jstacs.data.Sequence}
 	 */
 	public double getLogNumberOfPossibleOriginalSequences() {
 		return getLogNumberOfPossibleOriginalSequences( 0, getLength() );
 	}
 
 	/**
-	 * This method returns the logarithm of the number of original {@link Sequence}s that yield the same mapped {@link Sequence}.
+	 * This method returns the logarithm of the number of original {@link de.jstacs.data.Sequence}s that yield the same mapped {@link de.jstacs.data.Sequence}.
 	 *
 	 * @param start the start position (inclusive)
 	 * @param end the end position (exclusive)
 	 * 
-	 * @return the logarithm of the number of original {@link Sequence}s that yield the same mapped {@link Sequence}
+	 * @return the logarithm of the number of original {@link de.jstacs.data.Sequence}s that yield the same mapped {@link de.jstacs.data.Sequence}
 	 */
 	public double getLogNumberOfPossibleOriginalSequences( int start, int end ) {
 		double res = 0;

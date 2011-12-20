@@ -12,13 +12,13 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Constructs a {@link NumericalPerformanceMeasureParameters} out of an XML representation.
+	 * Constructs a {@link NumericalPerformanceMeasureParameterSet} out of an XML representation.
 	 * 
 	 * @param xml
 	 *            the XML representation as {@link StringBuffer}
 	 * 
 	 * @throws NonParsableException
-	 *             if the {@link NumericalPerformanceMeasureParameters} could not be reconstructed out of
+	 *             if the {@link NumericalPerformanceMeasureParameterSet} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
 	public NumericalPerformanceMeasureParameterSet( StringBuffer xml ) throws NonParsableException {
@@ -26,7 +26,7 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 	}
 	
 	/**
-	 * Constructs a new {@link NumericalPerformanceMeasureParameters} that can be used for classifiers that
+	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} that can be used for classifiers that
 	 * handle the given number of classes.
 	 * 
 	 * @param numClasses the number of classes
@@ -35,18 +35,18 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 	 * 
 	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
 	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
-	 * @see PerformanceMeasureParameters#PerformanceMeasureParameters(int, de.jstacs.parameters.CollectionParameter, AbstractPerformanceMeasure...)
+	 * @see PerformanceMeasureParameterSet#PerformanceMeasureParameterSet(int, de.jstacs.parameters.SelectionParameter, AbstractPerformanceMeasure...)
 	 */
 	public NumericalPerformanceMeasureParameterSet( int numClasses ) throws Exception {
 		super( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, true ), new AbstractPerformanceMeasure[0] );
 	}
 	
 	/**
-	 * Constructs a new {@link NumericalPerformanceMeasureParameters} that can be used for binary classifiers.
+	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} that can be used for binary classifiers.
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
-	 * @see #NumericalPerformanceMeasureParameters(int)
+	 * @see #NumericalPerformanceMeasureParameterSet(int)
 	 */
 	public NumericalPerformanceMeasureParameterSet() throws Exception {
 		this( 2 );

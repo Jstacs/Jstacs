@@ -40,10 +40,7 @@ public abstract class InstanceParameterSet extends ParameterSet {
 
 	/**
 	 * Constructs an {@link InstanceParameterSet} from the class that can be
-	 * instantiated using this {@link InstanceParameterSet}. The set of
-	 * parameters is loaded by the {@link ParameterSet#loadParameters()}-method
-	 * if this {@link InstanceParameterSet} is expected to be filled with
-	 * values.
+	 * instantiated using this {@link InstanceParameterSet}. 
 	 * 
 	 * @param instanceClass
 	 *            the class to be instantiated
@@ -51,8 +48,7 @@ public abstract class InstanceParameterSet extends ParameterSet {
 	public InstanceParameterSet(Class instanceClass) {
 		super();
 		if (instanceClass == null) {
-			throw new IllegalArgumentException(
-					"The instanceClass can not be null.");
+			throw new IllegalArgumentException(	"The instanceClass can not be null." );
 		}
 		this.instanceClass = instanceClass;
 	}

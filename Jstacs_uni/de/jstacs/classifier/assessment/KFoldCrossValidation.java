@@ -346,8 +346,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see ClassifierAssessment#evaluateClassifier(NumericalPerformanceMeasureParameters,
-	 *      ClassifierAssessmentAssessParameterSet, DataSet[], ProgressUpdater)
+	 * @see ClassifierAssessment#evaluateClassifier(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet[], ProgressUpdater)
 	 * 
 	 */
 	@Override

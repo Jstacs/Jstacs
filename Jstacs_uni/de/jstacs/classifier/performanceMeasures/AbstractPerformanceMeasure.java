@@ -12,13 +12,13 @@ import de.jstacs.utils.SubclassFinder;
 /**
  * This class is the abstract super class of any performance measure used to evaluate
  * an {@link de.jstacs.classifier.AbstractClassifier}. It is recommended to use the method
- * {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameters, boolean, de.jstacs.data.DataSet...)}
+ * {@link de.jstacs.classifier.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}
  * for evaluating the performance of any classifier.
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
  * @see de.jstacs.classifier.AbstractClassifier
- * @see PerformanceMeasureParameters
+ * @see PerformanceMeasureParameterSet
  */
 public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	
@@ -84,15 +84,15 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	public abstract int getAllowedNumberOfClasses();
 	
 	/**
-	 * This method creates an instance of an {@link CollectionParameter} that can be used to create
-	 * an instance of {@link PerformanceMeasureParameters} of {@link NumericalPerformanceMeasureParameters}.
+	 * This method creates an instance of an {@link SelectionParameter} that can be used to create
+	 * an instance of {@link PerformanceMeasureParameterSet} or {@link NumericalPerformanceMeasureParameterSet}.
 	 * 
 	 * @param numClasses the number of classes
 	 * @param numerical 
 	 * 		a switch indicating whether all performance measures or only those implementing
 	 * 		{@link NumericalPerformanceMeasure} shall be contained in the returned
-	 * 		{@link CollectionParameter} 
-	 * @return a {@link CollectionParameter} that can be used to create an instance of {@link PerformanceMeasureParameters} of {@link NumericalPerformanceMeasureParameters}
+	 * 		{@link SelectionParameter} 
+	 * @return a {@link SelectionParameter} that can be used to create an instance of {@link PerformanceMeasureParameterSet} or {@link NumericalPerformanceMeasureParameterSet}
 	 * 
 	 * @throws Exception if something went wrong, e.g. missing empty constructor of any performance measure.
 	 * 

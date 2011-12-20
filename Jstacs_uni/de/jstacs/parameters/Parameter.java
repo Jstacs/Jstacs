@@ -48,7 +48,7 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	protected ParameterSet parent;
 
 	/**
-	 * The main constructor which takes the main information of a {@link Parameter} and generates an internal ID.
+	 * The main constructor which takes the main information of a {@link Parameter}.
 	 * 
 	 * @param name
 	 *            the name of the result
@@ -56,8 +56,6 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	 *            the comment for the result
 	 * @param type
 	 *            the data type of the result
-	 *            
-	 * @see #getId()
 	 */
 	public Parameter( String name, String comment, DataType type ) {
 		super( name, comment, type );

@@ -201,21 +201,18 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 	}
 
 	/**
-	 * Returns a {@link CollectionParameter} that allows the user to choose
+	 * Returns a {@link EnumParameter} that allows the user to choose
 	 * between different scales.
 	 * 
-	 * @return the {@link CollectionParameter}
+	 * @return the {@link EnumParameter}
 	 * 
 	 * @throws ParameterException
-	 *             if the {@link CollectionParameter} could, or if one of the
-	 *             possible values of the {@link CollectionParameter} was not
+	 *             if the {@link EnumParameter} could, or if one of the
+	 *             possible values of the {@link SelectionParameter} was not
 	 *             legal
 	 */
-	public static SelectionParameter getCollectionOfScales()
-			throws ParameterException {
-
-		return new EnumParameter(Scale.class,
-				"The possible scales for a range of parameter values", true);
+	public static EnumParameter getCollectionOfScales() throws ParameterException {
+		return new EnumParameter(Scale.class, "The possible scales for a range of parameter values", true);
 	}
 
 	/**

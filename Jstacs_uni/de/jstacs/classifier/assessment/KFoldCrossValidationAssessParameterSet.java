@@ -97,7 +97,7 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 *            be assessed are able to classify
 	 * @param exceptionIfMPNotComputable
 	 *            a {@link KFoldCrossValidationAssessParameterSet} is used in combination
-	 *            with a {@link de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters}-object
+	 *            with a {@link de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet}-object
 	 *            to call <code>assess( ... )</code>-methods of
 	 *            {@link KFoldCrossValidation}s, if
 	 *            <code>exceptionIfMPNotComputable==true</code> an

@@ -207,10 +207,10 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * 
 	 * @see NumericalResultSet
 	 * @see ResultSet
-	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameters, boolean)
+	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameterSet, boolean)
 	 * 
 	 * @see de.jstacs.classifier.assessment.ClassifierAssessment
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, DataSet...)
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#assess(de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
 	@SuppressWarnings( "unchecked" )
 	public final ResultSet evaluate( PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
@@ -241,7 +241,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see #evaluate(PerformanceMeasureParameters, boolean, DataSet...)
+	 * @see #evaluate(PerformanceMeasureParameterSet, boolean, DataSet...)
 	 * @see NumericalResult
 	 * @see Result
 	 */
@@ -281,7 +281,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * 
 	 * @throws Exception if the scores can not be computed
 	 * 
-	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameters, boolean)
+	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameterSet, boolean)
 	 */
 	protected double[][][] getMultiClassScores( DataSet[] s ) throws Exception {
 		double[][][] scores = new double[getNumberOfClasses()][][];

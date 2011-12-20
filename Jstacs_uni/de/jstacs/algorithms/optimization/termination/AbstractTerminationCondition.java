@@ -117,10 +117,7 @@ public abstract class AbstractTerminationCondition implements TerminationConditi
 		
 		/**
 		 * Constructs an {@link AbstractTerminationConditionParameterSet} from the class that can be
-		 * instantiated using this {@link AbstractTerminationConditionParameterSet}. The set of
-		 * parameters is loaded by the {@link de.jstacs.parameters.ParameterSet#loadParameters()}-method
-		 * if this {@link AbstractTerminationConditionParameterSet} is expected to be filled with
-		 * values.
+		 * instantiated using this {@link AbstractTerminationConditionParameterSet}.
 		 * 
 		 * @param instanceClass
 		 *            the class to be instantiated

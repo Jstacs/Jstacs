@@ -74,7 +74,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	 * @throws IllegalArgumentException
 	 *             if no match could be found
 	 * 
-	 * @see CollectionParameter
+	 * @see AbstractCollectionParameter
 	 */
 	public static int getIndex(String[] names, Object[] values,
 			Comparable current, boolean hasAlternative)
@@ -112,10 +112,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	protected ParameterSetContainer parent;
 
 	/**
-	 * Constructs a new {@link ParameterSet} with empty parameter values. The
-	 * set of parameters is loaded by the method {@link #loadParameters()} as
-	 * soon as one of the accession methods, e.g.
-	 * {@link #getNumberOfParameters()}, is called.
+	 * Constructs a new {@link ParameterSet} with empty parameter values.
 	 */
 	public ParameterSet() {
 		initParameterList();
@@ -182,6 +179,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	 * 
 	 * @return the state of the parameters (loaded or not)
 	 */
+	//TODO remove?
 	public boolean parametersLoaded() {
 		return (parameters != null);
 	}
@@ -313,8 +311,9 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	}
 
 	/**
-	 * Returns the names of all {@link Parameter}s in this {@link ParameterList}
-	 * @return
+	 * Returns the names of all {@link Parameter}s in this {@link ParameterSet}.
+	 * 
+	 * @return an array containing the names of all {@link Parameter}s in this {@link ParameterSet}
 	 */
 	public String[] getAllParameterNames(){
 		return parameters.getNames();
@@ -336,7 +335,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	 * Returns the {@link Parameter} at position <code>i</code>.
 	 * 
 	 * @param i
-	 *            the position in the {@link ParameterList}
+	 *            the position in the {@link ParameterSet}
 	 * 
 	 * @return the {@link Parameter} at position <code>i</code>
 	 */
