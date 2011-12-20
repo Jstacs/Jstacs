@@ -37,7 +37,7 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public abstract class AbstractCollectionParameter extends Parameter implements Rangeable, GalaxyConvertible {
+public abstract class AbstractSelectionParameter extends Parameter implements Rangeable, GalaxyConvertible {
 
 	/**
 	 * The internal {@link ParameterSet} that holds the possible values
@@ -66,14 +66,12 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	private boolean rangeable;
 
 	// default constructor
-	private AbstractCollectionParameter( DataType datatype, String name, String comment, boolean required ) {
+	private AbstractSelectionParameter( DataType datatype, String name, String comment, boolean required ) {
 		super( name, comment, datatype );
 		this.required = required;
 		this.userSelected = false;
 		this.rangeable = true;
 	}
-	
-	protected abstract void init();
 
 	/**
 	 * Constructor for a {@link AbstractCollectionParameter} of {@link SimpleParameter}s.
@@ -108,7 +106,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * @see #AbstractCollectionParameter(DataType, String[], Object[], String[], String, String, boolean)
 	 * @see SimpleParameter
 	 */
-	public AbstractCollectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
+	public AbstractSelectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
 			throws InconsistentCollectionException, IllegalValueException,
 			DatatypeNotValidException {
 		this( datatype, keys, values, null, name, comment, required );
@@ -148,7 +146,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * 
 	 * @see #createParameterSet(Object[], String[], String[])
 	 */
-	public AbstractCollectionParameter(DataType datatype, String[] keys, Object[] values, String[] comments, String name, String comment,
+	public AbstractSelectionParameter(DataType datatype, String[] keys, Object[] values, String[] comments, String name, String comment,
 			boolean required) throws InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		this(datatype, name, comment, required);
 
@@ -168,11 +166,6 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * 
 	 * @param values
 	 *            the array of {@link ParameterSet}s
-	 * @param keys
-	 *            the keys/names of the values in the collection, this is the
-	 *            name the user will see in the user interface
-	 * @param comments
-	 *            the comments on the possible values
 	 * @param name
 	 *            the name of the parameter
 	 * @param comment
@@ -185,13 +178,13 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * @see ParameterSet#getName(ParameterSet)
 	 * @see ParameterSet#getComment(ParameterSet)
 	 */
-	public AbstractCollectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	public AbstractSelectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		this(DataType.PARAMETERSET, name, comment, required);
 		//XXX try catch?
 		createParameterSet(values, null, null);
 	}
 
-	public AbstractCollectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	public AbstractSelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		this(DataType.PARAMETERSET, name, comment, required);
 		//XXX try catch?
 		createParameterSet(values, null, null);
@@ -209,7 +202,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 *             if the {@link StringBuffer} <code>representation</code> could
 	 *             not be parsed
 	 */
-	public AbstractCollectionParameter(StringBuffer representation) throws NonParsableException {
+	public AbstractSelectionParameter(StringBuffer representation) throws NonParsableException {
 		super(representation);
 	}
 
@@ -269,7 +262,11 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 		}
 
 		parameters = new SimpleParameterSet(pars);
-		init();
+		try {
+			setDefault( pars[0] );
+		} catch (Exception doesNotHappen) {
+			throw new RuntimeException( doesNotHappen );
+		}
 	}
 	
 	/*
@@ -278,8 +275,8 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 * @see de.jstacs.parameters.Parameter#clone()
 	 */
 	@Override
-	public AbstractCollectionParameter clone() throws CloneNotSupportedException {
-		AbstractCollectionParameter clone = (AbstractCollectionParameter) super.clone();
+	public AbstractSelectionParameter clone() throws CloneNotSupportedException {
+		AbstractSelectionParameter clone = (AbstractSelectionParameter) super.clone();
 		clone.parameters = parameters == null ? null : parameters.clone();
 		return clone;
 	}
@@ -369,13 +366,6 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 		if ( val2 instanceof String ) {
 			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
 				if (parameters.getParameterAt(i).getName().equals(val2)) {
-					errorMessage = null;
-					return i;
-				}
-			}
-			for(int i=0;i<parameters.getNumberOfParameters(); i++){
-				Parameter par = parameters.getParameterAt( i );
-				if(par instanceof ParameterSetContainer && val2.equals( ParameterSet.getName( ((ParameterSetContainer)par).getValue() ))){
 					errorMessage = null;
 					return i;
 				}
@@ -473,7 +463,7 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	public boolean isUserSelected() {
 		return userSelected;
 	}
-	
+
 	/**
 	 * Sets the default value of this {@link AbstractCollectionParameter} to
 	 * <code>defaultValue</code>. This method also sets the current
@@ -497,14 +487,14 @@ public abstract class AbstractCollectionParameter extends Parameter implements R
 	 */
 	@Override
 	public boolean equals(Object o2) {
-		if (o2 instanceof AbstractCollectionParameter) {
-			ParameterSet parSet2 = ((AbstractCollectionParameter) o2)
+		if (o2 instanceof AbstractSelectionParameter) {
+			ParameterSet parSet2 = ((AbstractSelectionParameter) o2)
 					.getParametersInCollection();
 			if (parSet2.getNumberOfParameters() != parameters
 					.getNumberOfParameters()) {
 				return false;
 			} else {
-				if (!(((AbstractCollectionParameter) o2).getName().equals(name) && ((AbstractCollectionParameter) o2)
+				if (!(((AbstractSelectionParameter) o2).getName().equals(name) && ((AbstractSelectionParameter) o2)
 						.getComment().equals(comment))) {
 					return false;
 				}

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -520,7 +521,7 @@ public class HMMFactory {
 		
 		Pair<TransitionElement[], double[]> p = propagateESS( ess, list );
 		
-		DifferentiableEmission[] em = getEmissions( emList, p.getSecondElement(), con, conditionInitProbs );
+		DifferentiableEmission[] em = getEmissions( nameList, emList, p.getSecondElement(), con, conditionInitProbs );
 		
 		return getHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, em, p.getFirstElement(), ess, likelihood );
 		//return new DifferentiableHigherOrderHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, em, likelihood, ess, p.getFirstElement() );
@@ -567,32 +568,40 @@ public class HMMFactory {
 		return initFromTo;
 	}
 	
-	private static DifferentiableEmission[] getEmissions(AbstractList<Class<? extends DifferentiableEmission>> emList, double[] ess, AlphabetContainer con, double[][] conditionInitAPrioriProbs) throws Exception{
+	private static DifferentiableEmission[] getEmissions(AbstractList<String> nameList, AbstractList<Class<? extends DifferentiableEmission>> emList, double[] ess, AlphabetContainer con, double[][] conditionInitAPrioriProbs) throws Exception{
 		DifferentiableEmission[] em = new DifferentiableEmission[emList.size()];
 		Iterator<Class<? extends DifferentiableEmission>> it = emList.iterator();
+		Iterator<String> n = nameList.iterator();
 		int i=0;
 		int refIdx = 0;
 		while( it.hasNext() ) {
 			Class<? extends DifferentiableEmission> cl = it.next();
+			String name = n.next(), shape;
 			if(cl == SilentEmission.class){
 				em[i] = new SilentEmission();
-			}else if(cl == DiscreteEmission.class){
-				em[i] = new DiscreteEmission( con, ess[i] );
-				((DiscreteEmission)em[i]).setShape( "diamond" );
-			}else if(cl == ReferenceSequenceDiscreteEmission.class){
-				if(conditionInitAPrioriProbs != null){
-					double[][] conditionInitHyperpars = ArrayHandler.clone( conditionInitAPrioriProbs );
-					for(int j=0;j<conditionInitHyperpars.length;j++){
-						for(int k=0;k<conditionInitHyperpars[j].length;k++){
-							conditionInitHyperpars[j][k] *= ess[i];
+			}else if( AbstractConditionalDiscreteEmission.class.isAssignableFrom( cl ) ) {
+				if(cl == ReferenceSequenceDiscreteEmission.class){
+					if(conditionInitAPrioriProbs != null){
+						double[][] conditionInitHyperpars = ArrayHandler.clone( conditionInitAPrioriProbs );
+						for(int j=0;j<conditionInitHyperpars.length;j++){
+							for(int k=0;k<conditionInitHyperpars[j].length;k++){
+								conditionInitHyperpars[j][k] *= ess[i];
+							}
 						}
+						em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i], conditionInitHyperpars );
+					}else{
+						em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i] );
 					}
-					em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i], conditionInitHyperpars );
-				}else{
-					em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i] );
+					refIdx++;
+				} else {
+					em[i] = cl.getConstructor( AlphabetContainer.class, double.class ).newInstance( con, ess[i] );
 				}
-				((ReferenceSequenceDiscreteEmission)em[i]).setShape( "rect" );
-				refIdx++;
+				if( name.charAt(0) == 'M' ) {
+					shape = "rect";
+				} else {
+					shape = "diamond";
+				}
+				((AbstractConditionalDiscreteEmission)em[i]).setShape( shape );
 			}else{ 
 				Constructor<? extends DifferentiableEmission>[] cons = (Constructor<? extends DifferentiableEmission>[])cl.getConstructors();
 				for(int j=0;em[i] == null && j<cons.length;j++){
@@ -994,5 +1003,22 @@ public class HMMFactory {
 			return str;
 		}
 	}
-	
+
+	/**
+	 * This method returns a {@link HashMap} that can be used in
+	 * {@link AbstractHMM#getGraphvizRepresentation(java.text.NumberFormat, de.jstacs.data.DataSet, double[], HashMap)}
+	 * to create a Graphviz representation of the {@link AbstractHMM}
+	 * 
+	 * @return a {@link HashMap} that can be used to create a Graphviz representation
+	 * 
+	 * @see AbstractHMM#getGraphvizRepresentation(java.text.NumberFormat, de.jstacs.data.DataSet, double[], HashMap)
+	 */
+	public static HashMap<String,String> getHashMap() {
+		HashMap<String, String> hash = new HashMap<String, String>();
+		hash.put("J.*", "min" );
+		hash.put("[EFIS].*", "same");
+		hash.put("M.*", "same");
+		hash.put("D.*", "max" );
+		return hash;
+	}
 }

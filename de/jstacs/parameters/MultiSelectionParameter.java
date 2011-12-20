@@ -36,26 +36,13 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
- * @see CollectionParameter
+ * @see AbstractCollectionParameter
  */
-public class MultiSelectionParameter extends AbstractCollectionParameter implements RangeIterator {
+public class MultiSelectionParameter extends AbstractSelectionParameter implements RangeIterator {
 
 	private boolean[] selected;
 	private boolean[] defaultSelected;
 	private int current;
-
-	@Override
-	protected void init() {
-		int n = parameters.getNumberOfParameters();
-		selected = new boolean[n];
-		defaultSelected = selected.clone();
-		try {
-			setValue( parameters.getParameterAt(0).getName() );
-		} catch (IllegalValueException doesNotHappen) {
-			doesNotHappen.printStackTrace();
-		}
-		current = -1;
-	}
 	
 	/**
 	 * Constructor for a {@link MultiSelectionParameter}. The first
@@ -173,8 +160,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#clone()
+	 * @see de.jstacs.parameters.AbstractSelectionParameter#clone()
 	 */
 	@Override
 	public MultiSelectionParameter clone() throws CloneNotSupportedException {
@@ -249,9 +235,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.jstacs.parameters.CollectionParameter#checkValue(java.lang.Object)
+	 * @see de.jstacs.parameters.AbstractSelectionParameter#checkValue(java.lang.Object)
 	 */
 	@Override
 	public boolean checkValue(Object value) {
@@ -267,8 +251,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#setValue(java.lang.Object)
+	 * @see de.jstacs.parameters.Parameter#setValue(java.lang.Object)
 	 */
 	@Override
 	public void setValue(Object value) throws IllegalValueException {
@@ -380,8 +363,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#getValue()
+	 * @see de.jstacs.AnnotatedEntity#getValue()
 	 */
 	@Override
 	public Object getValue() {
@@ -394,8 +376,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#hasDefaultOrIsSet()
+	 * @see de.jstacs.parameters.Parameter#hasDefaultOrIsSet()
 	 */
 	@Override
 	public boolean hasDefaultOrIsSet() {
@@ -418,17 +399,23 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.CollectionParameter#reset()
+	 * @see de.jstacs.parameters.Parameter#reset()
 	 */
 	@Override
 	public void reset() {
 		selected = defaultSelected.clone();
 	}
 
-	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.parameters.AbstractSelectionParameter#setDefault(java.lang.Object)
+	 */
 	@Override
 	public void setDefault(Object defaultValue) throws IllegalValueException {
+		if( selected == null ) {
+			selected = new boolean[parameters.getNumberOfParameters()];
+			defaultSelected = selected.clone();
+		}
 		setValue(defaultValue);
 		System.arraycopy( selected, 0, defaultSelected, 0, selected.length );
 		userSelected = false;
@@ -455,7 +442,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.parameters.CollectionParameter#getXMLTag()
+	 * @see de.jstacs.AnnotatedEntity#getXMLTag()
 	 */
 	@Override
 	public String getXMLTag() {
@@ -464,7 +451,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.parameters.CollectionParameter#appendFurtherInfos(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.AbstractSelectionParameter#appendFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
 	protected void appendFurtherInfos( StringBuffer sup ) {
@@ -477,7 +464,7 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.parameters.CollectionParameter#extractFurtherInfos(java.lang.StringBuffer)
+	 * @see de.jstacs.parameters.AbstractSelectionParameter#extractFurtherInfos(java.lang.StringBuffer)
 	 */
 	@Override
 	protected void extractFurtherInfos(StringBuffer representation) throws NonParsableException {
@@ -490,7 +477,6 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.RangeIterator#next()
 	 */
 	public boolean next() throws ParameterException {
@@ -511,7 +497,6 @@ public class MultiSelectionParameter extends AbstractCollectionParameter impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see de.jstacs.parameters.RangeIterator#resetToFirst()
 	 */
 	public void resetToFirst() {

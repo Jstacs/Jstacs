@@ -36,7 +36,7 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau
  */
-public class SelectionParameter extends AbstractCollectionParameter implements Rangeable, GalaxyConvertible {
+public class SelectionParameter extends AbstractSelectionParameter implements Rangeable, GalaxyConvertible {
 
 	/**
 	 * The number of the currently selected value in <code>parameters</code>
@@ -86,7 +86,7 @@ public class SelectionParameter extends AbstractCollectionParameter implements R
 	 * @see AbstractCollectionParameter#AbstractCollectionParameter(DataType, String[], Object[], String[], String, String, boolean)
 	 */
 	public SelectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
-			throws AbstractCollectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
+			throws AbstractSelectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		this(datatype, keys, values, null, name, comment, required);
 	}
 
@@ -125,7 +125,7 @@ public class SelectionParameter extends AbstractCollectionParameter implements R
 	 * @see AbstractCollectionParameter#createParameterSet(Object[], String[], String[])
 	 */
 	public SelectionParameter(DataType datatype, String[] keys, Object[] values, String[] comments, String name, String comment,
-			boolean required) throws AbstractCollectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
+			boolean required) throws AbstractSelectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		super( datatype, keys, values, comments, name, comment, required );
 	}
 

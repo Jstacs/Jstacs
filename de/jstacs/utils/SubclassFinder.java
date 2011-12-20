@@ -35,11 +35,10 @@ import java.util.jar.JarFile;
 
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.io.RegExFilenameFilter;
-import de.jstacs.parameters.AbstractCollectionParameter;
+import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
-import de.jstacs.parameters.AbstractCollectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
@@ -70,6 +69,20 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  */
 public class SubclassFinder {
 
+	/**
+	 * This field can be set to include a path into the search performed in {@link #findSubclasses(Class, String)}
+	 * thereby enabling to find self-implemented classes not included in the Jstacs class hierarchy.  
+	 * The default value of this field is <code>null</code>.
+	 * 
+	 * <br><br>
+	 * 
+	 * <b>
+	 * Please use this field very careful, i.e., after setting a specific value and calling 
+	 * {@link #findSubclasses(Class, String)} it is highly recommended to reset the value. If this is not done, preceeding searches might take longer.
+	 * </b>
+	 */
+	public static String includePath = null;
+	
 	/**
 	 * Returns all sub-classes of <code>T</code> that can be instantiated, i.e.
 	 * are neither an interface nor abstract, and that are located in a package
@@ -177,19 +190,25 @@ public class SubclassFinder {
 	 *             is thrown if the classes are searched for in a jar file, but
 	 *             that file could not be accessed or read
 	 */
-	public static <T> LinkedList<Class<? extends T>> findSubclasses( Class<T> clazz, String startPackage ) throws ClassNotFoundException,
-			IOException {
+	public static <T> LinkedList<Class<? extends T>> findSubclasses( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException {
+		LinkedList<Class<? extends T>> list = new LinkedList<Class<? extends T>>();
+		
+		find( clazz, startPackage, list );
+		find( clazz, includePath, list );
 
+		return list;
+	}
+	
+	private static <T> void find( Class<T> clazz, String startPackage, LinkedList<Class<? extends T>> list ) throws ClassNotFoundException, IOException {
+		if( startPackage == null )  {
+			return;
+		}
 		String name = startPackage;
 		if( !name.startsWith( "/" ) ) {
 			name = "/" + name;
 		}
 		name = name.replace( ".", "/" );
-
 		URL[] urls = getResources( name );
-		
-		LinkedList<Class<? extends T>> list = new LinkedList<Class<? extends T>>();
-		
 		for(URL url : urls){
 			
 			if( url != null ) {
@@ -225,7 +244,6 @@ public class SubclassFinder {
 				}
 			}
 		}
-		return list;
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -362,8 +380,8 @@ public class SubclassFinder {
 	 * @see #getInstanceParameterSets(Class, String)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> SelectionParameter getCollection( Class<? extends ParameterSet> clazz, String startPackage, String name, String comment, boolean required ) throws InstantiationException,
-			IllegalAccessException,	ClassNotFoundException,	IOException, AbstractCollectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
+	public static <T> SelectionParameter getSelectionParameter( Class<? extends ParameterSet> clazz, String startPackage, String name, String comment, boolean required ) throws InstantiationException,
+			IllegalAccessException,	ClassNotFoundException,	IOException, AbstractSelectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
 		LinkedList<?> list = SubclassFinder.findInstantiableSubclasses( clazz, startPackage );
 		Class<? extends ParameterSet>[] classes = new Class[list.size()];
 		Iterator<?> it = list.iterator();

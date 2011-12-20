@@ -132,8 +132,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 				InstantiationException, IllegalAccessException, ParameterException {
 			LinkedList<InstanceParameterSet> list = new LinkedList<InstanceParameterSet>();
 			if (this != CONTINUOUS) {
-				list.addAll(SubclassFinder.getInstanceParameterSets(
-						DiscreteAlphabet.class, "de.jstacs.data"));
+				list.addAll(SubclassFinder.getInstanceParameterSets( DiscreteAlphabet.class, DiscreteAlphabet.class.getPackage().getName() ));
 			}
 			if (this != DISCRETE) {
 				list.add(new ContinuousAlphabet.ContinuousAlphabetParameterSet());

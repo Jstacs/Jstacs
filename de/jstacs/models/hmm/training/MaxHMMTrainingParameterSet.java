@@ -74,9 +74,9 @@ public abstract class MaxHMMTrainingParameterSet extends HMMTrainingParameterSet
 	private void addParameters() {
 		try{
 			parameters.add(
-					SubclassFinder.getCollection(
+					SubclassFinder.getSelectionParameter(
 							AbstractTerminationConditionParameterSet.class,
-							AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
+							AbstractTerminationCondition.class.getPackage().getName(),
 							"termination condition",
 							"the terminantion condition for stopping the training algorithm",
 							true

@@ -158,14 +158,7 @@ public class EnumParameter extends SelectionParameter {
 	 */
 	@Override
 	public Enum getValue() {
-		//TODO return enumConstants[getSelected()];
-		// TODO return ...valueOf( (String) super.getValue() );
-		int idx = 0;
-		Object v = super.getValue();
-		while (!enumConstants[idx].name().equals(v)) {
-			idx++;
-		}
-		return enumConstants[idx];
+		return enumConstants[getSelected()];
 	}
 
 	/*
