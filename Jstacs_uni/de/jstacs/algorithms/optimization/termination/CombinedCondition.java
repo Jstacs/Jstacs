@@ -29,7 +29,7 @@ import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.AbstractCollectionParameter.InconsistentCollectionException;
+import de.jstacs.parameters.AbstractSelectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
@@ -150,9 +150,9 @@ public class CombinedCondition extends AbstractTerminationCondition {
 					true
 				)
 			);
-			parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.", 
+			parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.",
 					new ExpandableParameterSet( new SimpleParameterSet(
-							SubclassFinder.getCollection( AbstractTerminationConditionParameterSet.class, "de.jstacs", "Termination condition", "Select a termination condition.", true ) )
+							SubclassFinder.getSelectionParameter( AbstractTerminationConditionParameterSet.class, AbstractTerminationConditionParameterSet.class.getPackage().getName(), "Termination condition", "Select a termination condition.", true ) )
 							, "Termination conditions", "Add termination conditions to the set of conditions." )
 			) );
 		}

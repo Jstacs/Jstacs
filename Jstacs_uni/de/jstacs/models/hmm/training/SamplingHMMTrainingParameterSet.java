@@ -93,9 +93,9 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 					new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );	
 
 			parameters.add(
-					SubclassFinder.getCollection(
+					SubclassFinder.getSelectionParameter(
 							AbstractBurnInTestParameterSet.class,
-							AbstractBurnInTest.class.getPackage().getName(),//TODO more general?
+							AbstractBurnInTest.class.getPackage().getName(),
 							"Burn in test parameters",
 							"the parameters used to create a burn in test",
 							true

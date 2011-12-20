@@ -99,7 +99,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	 * @see de.jstacs.classifier.AbstractClassifier#getNumberOfClasses()
 	 */
 	public static SelectionParameter getCollectionOfAllMeasures(int numClasses, boolean numerical) throws Exception {
-		LinkedList<Class<? extends AbstractPerformanceMeasure>> list = SubclassFinder.findInstantiableSubclasses( AbstractPerformanceMeasure.class, "de.jstacs" );
+		LinkedList<Class<? extends AbstractPerformanceMeasure>> list = SubclassFinder.findInstantiableSubclasses( AbstractPerformanceMeasure.class, AbstractPerformanceMeasure.class.getPackage().getName() );
 		Iterator<Class<? extends AbstractPerformanceMeasure>> it = list.iterator();
 		LinkedList<AbstractPerformanceMeasure> found = new LinkedList<AbstractPerformanceMeasure>();
 		while(it.hasNext()){

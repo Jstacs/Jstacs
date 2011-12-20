@@ -97,13 +97,10 @@ public class BayesianNetworkScoringFunctionParameterSet extends
 	}
 
 	private void addParameters() throws Exception {
-		parameters.add(new SimpleParameter(DataType.DOUBLE, "ESS",
-				"The equivalent sample size", true));
-		parameters.add(new SimpleParameter(DataType.BOOLEAN,
-				"Plug-in parameters", "Use plug-in parameters", true));
-		parameters.add(SubclassFinder.getCollection(MeasureParameterSet.class,
-				Measure.class.getPackage().getName(), "Structure measure",
-				"Choose a measure to determine the structure.", true));
+		parameters.add(new SimpleParameter(DataType.DOUBLE, "ESS", "The equivalent sample size", true));
+		parameters.add(new SimpleParameter(DataType.BOOLEAN, "Plug-in parameters", "Use plug-in parameters", true));
+		parameters.add(SubclassFinder.getSelectionParameter(MeasureParameterSet.class, Measure.class.getPackage().getName(), 
+				"Structure measure", "Choose a measure to determine the structure.", true));
 	}
 	
 	/**

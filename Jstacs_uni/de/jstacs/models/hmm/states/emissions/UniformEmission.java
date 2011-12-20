@@ -84,7 +84,7 @@ public class UniformEmission implements
 			}
 			res += "90";
 		} else {
-			res += "\"box\"";
+			res += "\"diamond\"";
 		}
 		return res;
 	}

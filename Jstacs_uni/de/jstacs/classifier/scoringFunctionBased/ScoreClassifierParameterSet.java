@@ -203,9 +203,9 @@ public abstract class ScoreClassifierParameterSet extends SequenceScoringParamet
 				true ) );
 		parameters.get(0).setDefault( algorithmStrings[4] );
 		parameters.add(
-				SubclassFinder.getCollection(
+				SubclassFinder.getSelectionParameter(
 						AbstractTerminationConditionParameterSet.class,
-						AbstractTerminationCondition.class.getPackage().getName(),//TODO more general?
+						AbstractTerminationCondition.class.getPackage().getName(),
 						"termination condition",
 						"the terminantion condition for stopping the training algorithm",
 						true
