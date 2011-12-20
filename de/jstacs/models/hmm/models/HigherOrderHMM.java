@@ -1112,9 +1112,9 @@ public class HigherOrderHMM extends AbstractHMM {
 			for( int i = start; i < end; i++){
 				n+= data.getElementAt(i).getLength();
 			}
-			System.out.println( idx + "\t" + n );
+			System.out.println( idx + "\t" + start + "\t" + end + "\t" + n );
 			System.out.flush();
-			*/
+			/**/
 			this.weights = weights;
 			
 			this.state = WorkerState.WAIT;
