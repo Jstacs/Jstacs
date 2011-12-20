@@ -921,8 +921,7 @@ public class BayesianNetworkScoringFunction extends
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getSizeOfEventSpaceForRandomVariablesOfParameter(int)
+	 * @see de.jstacs.scoringFunctions.NormalizableScoringFunction#getSizeOfEventSpaceForRandomVariablesOfParameter(int)
 	 */
 	public int getSizeOfEventSpaceForRandomVariablesOfParameter(int index) {
 		Parameter par = parameters[nums[index]];
