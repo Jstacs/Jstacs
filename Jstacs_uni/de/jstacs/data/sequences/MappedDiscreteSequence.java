@@ -22,13 +22,12 @@ package de.jstacs.data.sequences;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.Alphabet;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabetMapping;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
 
 /**
- * This class allows to map a discrete {@link Sequence} to an new {@link Sequence} using some {@link DiscreteAlphabetMapping}s.
+ * This class allows to map a discrete {@link de.jstacs.data.Sequence} to an new {@link Sequence} using some {@link DiscreteAlphabetMapping}s.
  * 
  * @author Jens Keilwagen
  */
@@ -110,9 +109,9 @@ public class MappedDiscreteSequence extends SimpleDiscreteSequence {
 	}
 
 	@Override
-	protected Sequence flatCloneWithoutAnnotation() {
+	protected MappedDiscreteSequence flatCloneWithoutAnnotation() {
 		try{
-			MappedDiscreteSequence clone = new MappedDiscreteSequence( originalAlphabetContainer, null, transformation.clone() );
+			MappedDiscreteSequence clone = new MappedDiscreteSequence( originalAlphabetContainer, null, transformation );
 			clone.original = this.original;
 			return clone;
 		}catch(WrongAlphabetException doesnothappen){

@@ -125,7 +125,7 @@ public class EnumParameter extends SelectionParameter {
 		if (hasDefault()) {
 			XMLParser.appendObjectWithTags(buf, parameters.getParameterAt(getDefault()).getValue().toString(), "defaultSelectedEnum");
 		}
-		XMLParser.appendObjectWithTags(buf, enumConstants[0].getClass(), "enumName");
+		XMLParser.appendObjectWithTags(buf, enumInstance, "enumName");
 	}
 
 	/*
@@ -158,6 +158,7 @@ public class EnumParameter extends SelectionParameter {
 	 */
 	@Override
 	public Enum getValue() {
+		//TODO return enumConstants[getSelected()];
 		// TODO return ...valueOf( (String) super.getValue() );
 		int idx = 0;
 		Object v = super.getValue();
