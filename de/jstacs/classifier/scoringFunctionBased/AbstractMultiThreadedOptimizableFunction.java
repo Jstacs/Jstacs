@@ -247,47 +247,25 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		while( true )
 		{
 			i = 0;
-			//synchronized( this )
-			{
-				//System.out.println("main: I've the lock");
-				while( i < worker.length && worker[i].isWaiting() )
-				{
-					if( worker[i].exception ) {
-						exception = true;
-						t = i;
-					}
-					i++;
+			while( i < worker.length && worker[i].isWaiting() ){
+				if( worker[i].exception ) {
+					exception = true;
+					t = i;
 				}
-				if( i == worker.length )
-				{
-					if( exception ) {
-						stopThreads();
-						throw new RuntimeException( "Terminate program, since at leat thread " + t + " throws an exception." );
-					} else {
-						//System.out.println( "raus" );
-						break;
-					}
+				i++;
+			}
+			if( i == worker.length ){
+				if( exception ) {
+					stopThreads();
+					throw new RuntimeException( "Terminate program, since at least thread " + t + " throws an exception." );
+				} else {
+					break;
 				}
-				else
-				{
-
-					try
-					{
-
-						//System.out.println( "Waiting for worker thread... " + i+ " "+worker[i].isWaiting() );
-						//synchronized( this )
-						{
-							wait();
-						}
-						//System.out.println( "Got a notification or interrupt." );
-					}
-					catch( InterruptedException e )
-					{
-						// If we have received an interrupt it's time to shutdown.
-						//Thread.currentThread().isInterrupted();
-					}
-
+			}else{
+				try{
+					wait();
 				}
+				catch( InterruptedException e ) { }
 			}
 		}
 	}
@@ -386,13 +364,9 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		public synchronized void run()
 		{
 			exception = false;
-			while( task != WorkerTask.STOP )
-			{
-				if( task != WorkerTask.WAIT )
-				{
-					try
-					{
-						//System.out.println("worker "+index+" task "+task);
+			while( task != WorkerTask.STOP ){
+				if( task != WorkerTask.WAIT ){
+					try{
 						switch( task )
 						{
 							case SET_PARAMETERS:
@@ -405,28 +379,18 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 								evaluateGradientOfFunction( index, startClass, startSeq, endClass, endSeq );
 								break;
 						}
-					}
-					catch( Exception e )
-					{
+					}catch( Exception e ){
 						exception = true;
 						e.printStackTrace();
 					}
-					synchronized( AbstractMultiThreadedOptimizableFunction.this )
-					{
+					synchronized ( AbstractMultiThreadedOptimizableFunction.this ) {
 						task = WorkerTask.WAIT;
 						AbstractMultiThreadedOptimizableFunction.this.notify();
 					}
-				}
-				else
-				{
-					try
-					{
-					//	synchronized( this ) 
-						{
-							wait();
-						}
-					}
-					catch( InterruptedException e ){}
+				} else {
+					try {
+						wait();
+					} catch( InterruptedException e ){}
 				}
 			}
 		}
@@ -436,9 +400,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		 * 
 		 * @param task the task
 		 */
-		public synchronized void setTask( WorkerTask task )
-		{
-			//System.out.println("worker "+index+" old: "+this.task+", new: "+task);
+		public synchronized void setTask( WorkerTask task ){
 			this.task = task;
 			notify();
 		}
@@ -450,8 +412,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		 * 
 		 * @see WorkerTask#WAIT
 		 */
-		public boolean isWaiting()
-		{
+		public boolean isWaiting(){
 			return task == WorkerTask.WAIT;
 		}
 	}
