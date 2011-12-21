@@ -37,7 +37,6 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.AbstractModel;
 import de.jstacs.models.hmm.states.emissions.Emission;
-import de.jstacs.models.hmm.states.emissions.SilentEmission;
 import de.jstacs.models.hmm.training.MultiThreadedTrainingParameterSet;
 import de.jstacs.models.hmm.transitions.BasicHigherOrderTransition;
 import de.jstacs.models.hmm.transitions.HigherOrderTransition;
