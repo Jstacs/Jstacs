@@ -172,12 +172,12 @@ public final class ArrayHandler {
 	 * @see Cloneable
 	 */
 	@SuppressWarnings( "unchecked" )
-	public static <T extends Cloneable> T[] clone( T... t ) throws CloneNotSupportedException {
+	public static <T extends Cloneable> T[] clone( final T... t ) throws CloneNotSupportedException {
 		return (T[]) deepClone( t );
 	}
 	
 	@SuppressWarnings( "unchecked" )
-	private static Object deepClone( Object s ) throws CloneNotSupportedException{
+	private static Object deepClone( final Object s ) throws CloneNotSupportedException{
 		Object res = null;
 		if( s != null ) {
 			Class k = s.getClass();
