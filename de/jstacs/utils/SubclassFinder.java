@@ -26,8 +26,8 @@ import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.AbstractList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.jar.JarEntry;
@@ -191,15 +191,15 @@ public class SubclassFinder {
 	 *             that file could not be accessed or read
 	 */
 	public static <T> LinkedList<Class<? extends T>> findSubclasses( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException {
-		LinkedList<Class<? extends T>> list = new LinkedList<Class<? extends T>>();
+		HashSet<Class<? extends T>> hash = new HashSet<Class<? extends T>>();
 		
-		find( clazz, startPackage, list );
-		find( clazz, includePath, list );
+		find( clazz, startPackage, hash );
+		find( clazz, includePath, hash );
 
-		return list;
+		return new LinkedList<Class<? extends T>>( hash );
 	}
 	
-	private static <T> void find( Class<T> clazz, String startPackage, LinkedList<Class<? extends T>> list ) throws ClassNotFoundException, IOException {
+	private static <T> void find( Class<T> clazz, String startPackage, HashSet<Class<? extends T>> list ) throws ClassNotFoundException, IOException {
 		if( startPackage == null )  {
 			return;
 		}
@@ -247,7 +247,7 @@ public class SubclassFinder {
 	}
 
 	@SuppressWarnings( "unchecked" )
-	private static <T> void add( Class<T> clazz, AbstractList<Class<? extends T>> list, String className ) {
+	private static <T> void add( Class<T> clazz, HashSet<Class<? extends T>> list, String className ) {
 		try {
 			Class c = Class.forName( className );
 			if( clazz.isAssignableFrom( c ) ) {
