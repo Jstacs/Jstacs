@@ -65,7 +65,7 @@ public class ViterbiParameterSet extends MultiThreadedTrainingParameterSet {
 	
 	public boolean hasDefaultOrIsSet() {
 		try {
-			return super.hasDefaultOrIsSet() && getTerminantionCondition().isSimple();
+			return super.hasDefaultOrIsSet() && getTerminationCondition().isSimple();
 		} catch (NotInstantiableException e) {
 			throw new RuntimeException( e );
 		}
