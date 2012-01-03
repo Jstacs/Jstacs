@@ -296,7 +296,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	public void train( DataSet data, double[] weights ) throws Exception {
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
 			NumericalHMMTrainingParameterSet params = (NumericalHMMTrainingParameterSet) trainingParameter;
-			NormalizableScoringFunctionModel model = new NormalizableScoringFunctionModel( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminantionCondition(), params.getLineEps(), params.getStartDistance() );
+			NormalizableScoringFunctionModel model = new NormalizableScoringFunctionModel( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance() );
 			model.setOutputStream( sostream );
 			model.train( data, weights );
 			

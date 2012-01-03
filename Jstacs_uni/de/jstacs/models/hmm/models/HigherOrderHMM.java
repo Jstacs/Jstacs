@@ -674,7 +674,7 @@ public class HigherOrderHMM extends AbstractHMM {
 			double best = Double.NEGATIVE_INFINITY;
 					
 			int numberOfStarts = trainingParameter.getNumberOfStarts();
-			AbstractTerminationCondition tc = ((MaxHMMTrainingParameterSet) trainingParameter).getTerminantionCondition();
+			AbstractTerminationCondition tc = ((MaxHMMTrainingParameterSet) trainingParameter).getTerminationCondition();
 			
 			if( workers == null || workers.length != threads ) {
 				if( workers != null ) {
