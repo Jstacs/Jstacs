@@ -26,6 +26,8 @@ import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -388,7 +390,21 @@ public class SubclassFinder {
 		for( int i = 0; i < classes.length; i++ ){
 			classes[i] = (Class<? extends ParameterSet>)it.next();
 		}
+		Arrays.sort( classes, ClassNameComparator.DEFAULT );
 		return new SelectionParameter( name, comment, required, classes );
+	}
+	
+	private static class ClassNameComparator implements Comparator<Class> {
+
+		public static ClassNameComparator DEFAULT = new ClassNameComparator();
+		
+		private ClassNameComparator(){}
+		
+		@Override
+		public int compare(Class o1, Class o2) {
+			return o1.getSimpleName().compareTo( o2.getSimpleName() );
+		}
+		//TODO
 	}
 	
 	/**
