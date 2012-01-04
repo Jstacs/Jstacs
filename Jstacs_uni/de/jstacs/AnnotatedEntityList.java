@@ -148,7 +148,12 @@ public class AnnotatedEntityList<T extends AnnotatedEntity> {
 	 * @see AnnotatedEntity#getName()
 	 */
 	public String[] getNames(){
-		return entities.keySet().toArray( new String[0] );
+		String[] names = new String[entityList.size()];
+		for( int i = 0; i < names.length; i++ ) {
+			names[i] = entityList.get(i).getName();
+		}
+		return names; //sorted
+		//return entities.keySet().toArray( new String[0] );//not sorted
 	}
 	
 	/**
