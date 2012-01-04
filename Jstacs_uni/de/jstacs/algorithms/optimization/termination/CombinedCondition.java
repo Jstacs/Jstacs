@@ -32,6 +32,7 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.AbstractSelectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.utils.SubclassFinder;
 import de.jstacs.utils.Time;
@@ -147,7 +148,8 @@ public class CombinedCondition extends AbstractTerminationCondition {
 			parameters.add( new SimpleParameter( DataType.INT,
 					"threshold",
 					"the number of conditions that has to be fulfilled for stopping the algorithm",
-					true
+					true,
+					new NumberValidator<Integer>(0,Integer.MAX_VALUE)
 				)
 			);
 			parameters.add( new ParameterSetContainer( "Termination conditions", "The set of termination conditions that shall be combined.",
