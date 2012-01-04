@@ -104,7 +104,7 @@ public abstract class AbstractTerminationCondition implements TerminationConditi
 	 * (non-Javadoc)
 	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
 	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception {
+	public AbstractTerminationConditionParameterSet getCurrentParameterSet() throws Exception {
 		return (AbstractTerminationConditionParameterSet) parameter.clone();
 	}
 	
