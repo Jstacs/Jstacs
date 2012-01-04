@@ -199,7 +199,7 @@ public class SubclassFinder {
 		return new LinkedList<Class<? extends T>>( hash );
 	}
 	
-	private static <T> void find( Class<T> clazz, String startPackage, HashSet<Class<? extends T>> list ) throws ClassNotFoundException, IOException {
+	private static <T> void find( Class<T> clazz, String startPackage, HashSet<Class<? extends T>> hash ) throws ClassNotFoundException, IOException {
 		if( startPackage == null )  {
 			return;
 		}
@@ -219,9 +219,9 @@ public class SubclassFinder {
 					for( int i = 0; i < files.length; i++ ) {
 						if( files[i].isDirectory() ) {
 							//System.out.println(startPackage+"."+files[i].getName());
-							list.addAll( findSubclasses( clazz, startPackage + "." + files[i].getName() ) );
+							find( clazz, startPackage + "." + files[i].getName(), hash );
 						} else if( files[i].isFile() && files[i].getName().endsWith( ".class" ) ) {
-							add( clazz, list, startPackage + "." + files[i].getName().substring( 0, files[i].getName().lastIndexOf( "." ) ) );
+							add( clazz, hash, startPackage + "." + files[i].getName().substring( 0, files[i].getName().lastIndexOf( "." ) ) );
 						}
 					}
 				} else {
@@ -237,7 +237,7 @@ public class SubclassFinder {
 							if( classname.startsWith( "/" ) ) {
 								classname.substring( 1 );
 							}
-							add( clazz, list, classname.replace( "/", "." ) );
+							add( clazz, hash, classname.replace( "/", "." ) );
 						}
 						
 					}
