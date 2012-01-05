@@ -16,8 +16,7 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen
  */
-public class UniformEmission implements
-		DifferentiableEmission {
+public class UniformEmission implements DifferentiableEmission {
 
 	private AlphabetContainer con;
 	private double logP;
@@ -138,5 +137,12 @@ public class UniformEmission implements
 	@Override
 	public int setParameterOffset(int offset) {
 		return offset;
+	}
+	
+	@Override
+	public void setParameters(Emission t) throws IllegalArgumentException {
+		if( !t.getClass().equals( getClass() ) || ((UniformEmission)t).logP != this.logP ) {
+			throw new IllegalArgumentException( "The transitions are not comparable." );
+		}		
 	}
 }

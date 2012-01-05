@@ -594,6 +594,17 @@ public class BasicHigherOrderTransition implements TrainableTransition {
     	return absorbing;
     }
     
+	@Override
+	public void setParameters(Transition t) throws IllegalArgumentException {
+		if( !t.getClass().equals( getClass() ) ) {
+			throw new IllegalArgumentException( "The transitions are not comparable." );
+		}
+		BasicHigherOrderTransition tt = (BasicHigherOrderTransition) t;
+		for( int i = 0; i < transitions.length; i++ ) {
+			transitions[i].setParameters( tt.transitions[i] );
+		}		
+	}
+    
 	/**
 	 * This class declares the probability distribution for a given context, i.e. it contains all possible
 	 * transition and the corresponding probabilities for a given set offset previously visited states. 
@@ -666,7 +677,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		public AbstractTransitionElement( int[] context, int[] states, double[] hyperParameters ){
 			this( context, states, hyperParameters, null );
 		}
-		
+
 		/**
 		 * This is the main constructor creating a new instance with given context, descendant states, and hyper parameters.
 		 * 
@@ -1241,6 +1252,14 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			} else {
 				return false;
 			}
+		}
+		
+		public void setParameters( AbstractTransitionElement t ) throws IllegalArgumentException {
+			if( !t.getClass().equals( getClass() ) || t.parameters.length != parameters.length ) {
+				throw new IllegalArgumentException( "The transition elements are not comparable." );
+			}
+			System.arraycopy( t.parameters, 0, parameters, 0, t.parameters.length );
+			precompute();
 		}
 	}
 }

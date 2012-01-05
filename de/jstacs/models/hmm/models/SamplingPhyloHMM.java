@@ -57,7 +57,7 @@ public class SamplingPhyloHMM extends SamplingHigherOrderHMM {
 
     @Override
     public String getInstanceName() {
-        return "PhyloHMM(" + transition[0].getMaximalMarkovOrder() + ")";
+        return "PhyloHMM(" + transition.getMaximalMarkovOrder() + ")";
     }
 
     @Override
@@ -88,10 +88,10 @@ public class SamplingPhyloHMM extends SamplingHigherOrderHMM {
 
     private double getLogProposalPosteriorFromStatistic() {
 
-        double logPosterior  = ((SamplingTransition)transition[0]).getLogPosteriorFromStatistic();
+        double logPosterior  = ((SamplingTransition)transition).getLogPosteriorFromStatistic();
 
         for( int e = 0; e < emission.length; e++ ) {
-            logPosterior += ((PhyloDiscreteEmission)emission[0][e]).getLogProposalPosteriorFromStatistic();
+            logPosterior += ((PhyloDiscreteEmission)emission[e]).getLogProposalPosteriorFromStatistic();
 	}
         return logPosterior;
     }

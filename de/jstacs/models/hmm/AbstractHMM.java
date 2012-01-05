@@ -63,7 +63,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * The (hidden) states of the HMM.
 	 */
-	protected State[][] states;
+	protected State[] states;//TODO dimension
 
 	//for the states
 	/**
@@ -84,24 +84,24 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * The emissions used in the states.
 	 */
-	protected Emission[][] emission;
+	protected Emission[] emission;//TODO dimension
 	
 	/**
 	 * The transitions between all (hidden) states of the HMM.
 	 */
-	protected Transition[] transition;
+	protected Transition transition;//TODO dimension
 	
 	/**
 	 * matrix for all forward-computed variables;
 	 * fwdMatrix[l][c] = log P(x_1,...,x_l,(s_{l-order+1},...,s_l)=c | parameter)
 	 */
-	protected double[][][] fwdMatrix;
+	protected double[][] fwdMatrix;//TODO dimension
 	
 	/**
 	 * matrix for all backward-computed variables;
 	 * bwdMatrix[l][c] = log P(x_{l+1},...,x_L | (s_{l-order+1},...,s_l)=c , parameter)
 	 */
-	protected double[][][] bwdMatrix;
+	protected double[][] bwdMatrix;//TODO dimension
 	
 	/**
 	 * The {@link de.jstacs.parameters.ParameterSet} containing all {@link de.jstacs.parameters.Parameter}s for the training of the HMM.
@@ -183,12 +183,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 			throw new IllegalArgumentException();
 		}
 		
-		this.emission = new Emission[threads][];
-		for(int i=0;i<threads;i++){
-			this.emission[i] = ArrayHandler.clone(emission);
-		}
-		this.fwdMatrix = new double[threads][][];
-		this.bwdMatrix = new double[threads][][];
+		this.emission = ArrayHandler.clone(emission);
 	}
 	
 	private void setThreads() {
@@ -236,13 +231,12 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @throws Exception if the transition can not handle the current states
 	 */
 	protected void initTransition( AbstractTransitionElement... te ) throws Exception {
-		boolean[] isSilent = new boolean[states[0].length];
-		for( int i = 0; i < states[0].length; i++ ) {
-			isSilent[i] = states[0][i].isSilent();
+		boolean[] isSilent = new boolean[states.length];
+		for( int i = 0; i < states.length; i++ ) {
+			isSilent[i] = states[i].isSilent();
 		}
-		transition = new Transition[threads];
 		if( te instanceof TransitionElement[] ) {
-			transition[0] = new HigherOrderTransition( isSilent, (TransitionElement[]) te );
+			transition = new HigherOrderTransition( isSilent, (TransitionElement[]) te );
 		} else {
 			int t = 0;
 			TransitionElement[] help = new TransitionElement[te.length];
@@ -254,13 +248,10 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 				}
 			}
 			if( t == te.length ) {
-				transition[0] = new HigherOrderTransition( isSilent, help );
+				transition = new HigherOrderTransition( isSilent, help );
 			} else {
-				transition[0] = new BasicHigherOrderTransition( isSilent, te );
+				transition = new BasicHigherOrderTransition( isSilent, te );
 			}
-		}
-		for(int i=1;i<threads;i++){
-			transition[i] = transition[0].clone();
 		}
 	}
 	
@@ -277,12 +268,12 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags( xml, trainingParameter, "trainingParameter" );
-		XMLParser.appendObjectWithTags( xml, transition[0], "transition" );
+		XMLParser.appendObjectWithTags( xml, transition, "transition" );
 		
 		XMLParser.appendObjectWithTags( xml, name, "name" );
 		XMLParser.appendObjectWithTags( xml, emissionIdx, "emissionIdx" );
 		XMLParser.appendObjectWithTags( xml, forward, "strand" );
-		XMLParser.appendObjectWithTags( xml, emission[0], "emission" );
+		XMLParser.appendObjectWithTags( xml, emission, "emission" );
 		
 		appendFurtherInformation( xml );
 		XMLParser.addTags( xml, getXMLTag() );
@@ -302,41 +293,23 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		trainingParameter = (HMMTrainingParameterSet) XMLParser.extractObjectForTags( xml, "trainingParameter" );
 		setThreads();
 		
-		transition = new Transition[threads];
-		transition[0] = ((Transition) XMLParser.extractObjectForTags( xml, "transition" ));
-		for(int i=1;i<threads;i++){
-			try {
-				transition[i] = transition[0].clone();
-			} catch ( CloneNotSupportedException e ) {
-				throw new NonParsableException( e.getMessage() );
-			}
-		}
+		transition = ((Transition) XMLParser.extractObjectForTags( xml, "transition" ));
 		
 		name = XMLParser.extractObjectForTags( xml, "name", String[].class );
 		emissionIdx = XMLParser.extractObjectForTags( xml, "emissionIdx", int[].class );
 		forward = XMLParser.extractObjectForTags( xml, "strand", boolean[].class );
-		emission = new Emission[threads][];
-		emission[0] = (XMLParser.extractObjectForTags( xml, "emission", Emission[].class ));
-		for(int i=1;i<emission.length;i++){
-			try {
-				emission[i] = ArrayHandler.clone(emission[0]);
-			} catch ( CloneNotSupportedException e ) {
-				throw new NonParsableException( e.getMessage() );
-			}
-		}
+		emission = (XMLParser.extractObjectForTags( xml, "emission", Emission[].class ));
 		
 		extractFurtherInformation( xml );
 		
 		try {
-			alphabets = getAlphabetContainer( emission[0] );
+			alphabets = getAlphabetContainer( emission );
 		} catch (WrongAlphabetException e) {
 			NonParsableException npe = new NonParsableException( e.getMessage() );
 			throw npe;
 		}
 		createStates();
 		determineFinalStates();
-		this.fwdMatrix = new double[threads][][];
-		this.bwdMatrix = new double[threads][][];
 	}
 	
 	/**
@@ -365,7 +338,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		clone.emissionIdx = emissionIdx.clone();
 		clone.forward = forward.clone();
 		clone.emission = ArrayHandler.clone( emission );
-		clone.transition = ArrayHandler.clone( transition );
+		clone.transition = transition.clone();
 		clone.fwdMatrix = ArrayHandler.clone( fwdMatrix );
 		clone.bwdMatrix = ArrayHandler.clone( bwdMatrix );
 		clone.trainingParameter = (HMMTrainingParameterSet) trainingParameter.clone();
@@ -384,26 +357,24 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * This method fills the forward-matrix for a given sequence.
 	 * 
-	 * @param thread the index of the thread that calls this method
 	 * @param startPos the start position (inclusive) in the sequence
 	 * @param endPos the end position (inclusive) in the sequence
 	 * @param seq the sequence
 	 * 
 	 * @throws Exception if some error occurs during the computation 
 	 */
-	protected abstract void fillFwdMatrix( int thread, int startPos, int endPos, Sequence seq ) throws Exception;
+	protected abstract void fillFwdMatrix( int startPos, int endPos, Sequence seq ) throws Exception;
 	
 	/**
 	 * This method fills the backward-matrix for a given sequence.
 	 * 
-	 * @param thread the index of the thread that calls this method
 	 * @param startPos the start position (inclusive) in the sequence
 	 * @param endPos the end position (inclusive) in the sequence
 	 * @param seq the sequence
 	 * 
 	 * @throws Exception if some error occurs during the computation
 	 */
-	protected abstract void fillBwdMatrix( int thread, int startPos, int endPos, Sequence seq ) throws Exception;
+	protected abstract void fillBwdMatrix( int startPos, int endPos, Sequence seq ) throws Exception;
 	
 	/**
 	 * The {@link String} for the start node used in Graphviz annotation.
@@ -479,19 +450,19 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 				maxFreq = ToolBox.max( freq );
 			} catch (Exception e) {
 				e.printStackTrace();
-				freq = new double[states[0].length];
+				freq = new double[states.length];
 				maxFreq = 0;
 			}
 		}else{
-			freq = new double[states[0].length];
+			freq = new double[states.length];
 			Arrays.fill( freq, -1 );
 			maxFreq = -1;
 		}
 		StringBuffer sb = new StringBuffer();
 		sb.append( "digraph G {\n\trankdir="+(rankPatterns != null ? "TB" : "LR")+"\n\n" );
 		sb.append( "\t" + START_NODE + "[shape=point];\n\n" );
-		for( int s = 0; s < states[0].length; s++ ) {
-			sb.append( "\t"+s+"[" + states[0][s].getGraphvizNodeOptions( freq[s], maxFreq, nf ) + ",color=" + (finalState[s]?"red":"black")+ "];\n" );
+		for( int s = 0; s < states.length; s++ ) {
+			sb.append( "\t"+s+"[" + states[s].getGraphvizNodeOptions( freq[s], maxFreq, nf ) + ",color=" + (finalState[s]?"red":"black")+ "];\n" );
 		}
 		
 		if(rankPatterns != null){
@@ -531,13 +502,13 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		}
 		
 		sb.append( "\n" );
-		sb.append( transition[0].getGraphizNetworkRepresentation( nf, null, data!=null ) );
+		sb.append( transition.getGraphizNetworkRepresentation( nf, null, data!=null ) );
 		sb.append( "}" );
 		return sb.toString();
 	}
 	
 	private double[] getStateFreq( DataSet data, double[] weight ) throws Exception {
-		double[] res = new double[states[0].length];
+		double[] res = new double[states.length];
 		if( data != null ) {			
 			double w = 1, sum = 0;
 			double[][] current = createMatrixForStatePosterior( 0, data.getMaximalElementLength()-1 );
@@ -548,11 +519,11 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 					w = weight[i];
 				}
 				sum += w;
-				for( int s = 0; s < states[0].length; s++ ) {
+				for( int s = 0; s < states.length; s++ ) {
 					res[s] += w*Math.exp(Normalisation.getLogSum( current[s] ));
 				}				
 			}
-			for( int s = 0; s < states[0].length; s++ ) {
+			for( int s = 0; s < states.length; s++ ) {
 				res[s] /= sum;
 			}
 		}
@@ -571,7 +542,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @see #fillLogStatePosteriorMatrix(double[][], int, int, Sequence, boolean)
 	 */
 	protected double[][] createMatrixForStatePosterior( int startPos, int endPos ) {
-		return new double[states[0].length][endPos-startPos+1+1];
+		return new double[states.length][endPos-startPos+1+1];
 	}
 	
 	/**
@@ -756,32 +727,30 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	
 	/**
 	 * This method instantiates all helper variables that are need inside the model for instance for filling forward and backward matrix, ...
-	 * @param thread the index of the thread for which the helper variables are instantiated
 	 */
-	protected abstract void createHelperVariables(int thread);
+	protected abstract void createHelperVariables();
 	
 	/**
 	* This method invokes the method {@link #createHelperVariables(int)} and provides the matrix with given type. Type 0 stands for {@link AbstractHMM#fwdMatrix}, and type 1 stands for {@link AbstractHMM#bwdMatrix}.
 	*
 	* @param type the type of the matrix
 	* @param length the maximal sequence length
-	* @param thread the index of the thread for which the matrix is instantiated
 	*/
-	protected void provideMatrix( int type, int length, int thread ) {
-		createHelperVariables(thread);
+	protected void provideMatrix( int type, int length ) {
+		createHelperVariables();
 		length++;//because of silent states
 		double[][] matrix;
 		switch( type ) {
-			case 0: matrix = fwdMatrix[thread]; break;
-			case 1: matrix = bwdMatrix[thread]; break;
+			case 0: matrix = fwdMatrix; break;
+			case 1: matrix = bwdMatrix; break;
 			default:
 				 throw new IllegalArgumentException( "unknown matrix type" );
 		}
 		if( matrix == null || matrix.length < length ) {
 			matrix = new double[length][];
-			int maxOrder = transition[thread].getMaximalMarkovOrder(), dim = -1, l = 0;
+			int maxOrder = transition.getMaximalMarkovOrder(), dim = -1, l = 0;
 			for( l = 0; l <= maxOrder && l < length; l++ ) {
-				dim = transition[thread].getNumberOfIndexes( l );
+				dim = transition.getNumberOfIndexes( l );
 				matrix[l] = new double[dim];
 			}
 			while( l < length ) {
@@ -792,8 +761,8 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 			Arrays.fill( matrix[l], Double.NEGATIVE_INFINITY );
 		}
 		switch( type ) {
-			case 0: fwdMatrix[thread] = matrix; break;
-			case 1: bwdMatrix[thread] = matrix; break;
+			case 0: fwdMatrix = matrix; break;
+			case 1: bwdMatrix = matrix; break;
 		}
 	}
 	
@@ -803,7 +772,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @return the number of the states
 	 */
 	public int getNumberOfStates() {
-		return states[0].length;
+		return states.length;
 	}
 	
 	/*
@@ -856,16 +825,12 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @throws Exception if the model has no parameters (for instance if it is not trained)
 	 */
 	protected double logProb( int startpos, int endpos, Sequence sequence ) throws Exception {
-		return logProb(0, startpos, endpos, sequence);
-	}	
-	
-	protected double logProb( int thread, int startpos, int endpos, Sequence sequence ) throws Exception {
 		try {
-			fillBwdMatrix(thread,startpos, endpos, sequence);
+			fillBwdMatrix(startpos, endpos, sequence);
 		} catch( Exception e ) {
 			throw getRunTimeException( e );
 		}
-		return bwdMatrix[thread][0][0];
+		return bwdMatrix[0][0];
 	}
 	
 	/*
@@ -906,7 +871,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	 * @see #finalState
 	 */
 	protected void determineFinalStates() {
-		finalState = transition[0].isAbsoring();
+		finalState = transition.isAbsoring();
 		int i = 0;
 		while( i < finalState.length && !finalState[i] ){
 			i++;
@@ -914,7 +879,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 		
 		if( i == finalState.length ) {
 			for( i = 0; i < finalState.length; i++ ) {
-				finalState[i] = !states[0][i].isSilent(); 
+				finalState[i] = !states[i].isSilent(); 
 			}
 		}
 	}
@@ -946,10 +911,10 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	}
 	
 	public String toString() {
-		String res = "Transition:\n-----------\n" + transition[0].toString( name ); 
+		String res = "Transition:\n-----------\n" + transition.toString( name ); 
 		res += "\nStates:\n-------\n";
-		for( int e = 0; e < states[0].length; e++ ) {
-			res += states[0][e] + "\n";
+		for( int e = 0; e < states.length; e++ ) {
+			res += states[e] + "\n";
 		}		
 		return res;
 	}

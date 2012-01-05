@@ -206,4 +206,6 @@ public interface Transition extends Cloneable, Storable {
 	 * @return a {@link String} representation of the {@link Transition} using the given names of the states
 	 */
 	public String toString( String[] stateNames );
+	
+	public void setParameters( Transition t ) throws IllegalArgumentException;
 }
