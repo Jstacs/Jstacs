@@ -18,6 +18,9 @@
 
 package de.jstacs.utils;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
  * This interface is the framework for stopping the time of anything.
  * 
@@ -43,5 +46,27 @@ public abstract class Time {
 	 * Restarts the time stopping.
 	 */
 	public abstract void reset();
+	
+	/**
+	 * This method tries to return a {@link UserTime} instance, if not possible (due to native code) it returns a {@link RealTime} instance.
+	 * 
+	 * @param out a stream that allows to write a warning if a {@link RealTime} instance is returned; can be <code>null</code>
+	 * 
+	 * @return a {@link UserTime} or {@link RealTime} instance
+	 * 
+	 * @throws IOException forwarded from {@link OutputStream#write(byte[])} 
+	 */
+	public static Time getTimeInstance( OutputStream out ) throws IOException {
+		Time t = null;
+		try {
+			t = new UserTime();
+		} catch ( Error err ) {
+			if( out != null ) {
+				out.write( ("Warning: Could not load UserTime. Using RealTime instead.\n").getBytes() );
+			}
+			t = new RealTime();
+		}
+		return t;
+	}
 
 }
