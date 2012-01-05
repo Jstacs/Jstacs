@@ -35,6 +35,8 @@ import de.jstacs.DataType;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.Optimizer;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
@@ -43,11 +45,11 @@ import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.DataSet;
+import de.jstacs.data.DataSetKMerEnumerator;
 import de.jstacs.data.DiscreteSequenceEnumerator;
-import de.jstacs.data.EmptySampleException;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.RecyclableSequenceEnumerator;
-import de.jstacs.data.Sample;
-import de.jstacs.data.SampleKMerEnumerator;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DNAAlphabet;
@@ -107,18 +109,18 @@ public class Dispom {
 	}
 
 	// does a heuristic initialization
-	private static void doHeuristic( Sample data[], double[][] dataWeights, double aprioriMean, int length, boolean bothStrands, int maximalMismatches, int candidates, OptimizableFunction f, double weight, NormalizableScoringFunction[] score, SafeOutputStream out, int motifID ) throws Exception {
+	private static void doHeuristic( DataSet data[], double[][] dataWeights, double aprioriMean, int length, boolean bothStrands, int maximalMismatches, int candidates, OptimizableFunction f, double weight, NormalizableScoringFunction[] score, SafeOutputStream out, int motifID ) throws Exception {
 		out.writeln( "heuristic:" );
 		//make a statistic over all k-mers near the a priori mean
-		Sample[] selected;
+		DataSet[] selected;
 		int start = (int) Math.max( aprioriMean - 250, 0 );
 		int end = (int) Math.min( aprioriMean + 250, data[0].getElementLength() );
 		if( start == 0 && end == data[0].getElementLength() ) {
 			selected = data;
 		} else {
-			selected = new Sample[data.length];
+			selected = new DataSet[data.length];
 			for( int i = 0; i < data.length; i++ ) {
-				selected[i] = data[i].getInfixSample( start, end-start );
+				selected[i] = data[i].getInfixDataSet( start, end-start );
 			}
 		}
 		Hashtable<Sequence, BitSet[]> hash = KMereStatistic.getKmereSequenceStatistic( length, bothStrands, 1, data );
@@ -150,7 +152,7 @@ public class Dispom {
 		Sequence seq, rc, cand;
 		ArrayList<Sequence> currentSeqs = new ArrayList<Sequence>(), ignore = new ArrayList<Sequence>();
 		DoubleList weights = new DoubleList();
-		Sample[] bestSample = new Sample[1], currentSample = new Sample[1];
+		DataSet[] bestSample = new DataSet[1], currentSample = new DataSet[1];
 		double[][] bestWeights = new double[1][], currentWeights = new double[1][];
 		double val, bestVal = Double.NEGATIVE_INFINITY;
 		int[] classIndex = {0}, motifIndex = {motifID};
@@ -198,7 +200,7 @@ public class Dispom {
 						//System.out.println( cand + "\t" + ( (b[0].cardinality()/nFg - b[1].cardinality()/nBg) / current.getWeight() ) );
 					}
 				}
-				currentSample[0] = new Sample( "heuristc sample " + anz, currentSeqs.toArray( new Sequence[0] ) );
+				currentSample[0] = new DataSet( "heuristc sample " + anz, currentSeqs.toArray( new Sequence[0] ) );
 				weights.multiply( 0, weights.length(), weight/s );
 				currentWeights[0] = weights.toArray();
 				MutableMotifDiscovererToolbox.initMotif( 0, classIndex, motifIndex, currentSample, currentWeights, adjust, mmd, len, data, dataWeights );
@@ -228,8 +230,8 @@ public class Dispom {
 	        DispomParameterSet.STARTS, DispomParameterSet.XML_PATH, DispomParameterSet.P_VALUE
 	        }; 
 	
-	private static Sample getSample( AlphabetContainer con, String fileName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptySampleException, WrongLengthException, IOException {
-		return new Sample( con, 
+	private static DataSet getSample( AlphabetContainer con, String fileName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
+		return new DataSet( con, 
 				//new LimitedStringExtractor(
 					//new InfixStringExtractor(//TODO
 							new SparseStringExtractor( fileName, ignore ) 
@@ -270,7 +272,7 @@ public class Dispom {
 			anz = 2;
 		}
 		
-		Sample[] data = new Sample[anz];
+		DataSet[] data = new DataSet[anz];
 		data[0] = getSample( con, home + File.separatorChar + params.getValueFromTag( DispomParameterSet.FG, String.class ), ignore );	
 		if( anz > 1 ) {
 			if( params.isSet( DispomParameterSet.BG ) ) {
@@ -280,11 +282,11 @@ public class Dispom {
 				for( int n = 0; n < seqs.length; n++ ) {
 					seqs[n] = new PermutedSequence( seqs[n] );
 				}
-				data[1] = new Sample( "permuted foreground sequences", seqs );
+				data[1] = new DataSet( "permuted foreground sequences", seqs );
 			}
 			
 			//eliminate intersection
-			Sample s = Sample.diff( data[1], data[0] );
+			DataSet s = DataSet.diff( data[1], data[0] );
 			if( s.getNumberOfElements() < data[1].getNumberOfElements() ) {
 				System.out.println( "removed " + (data[1].getNumberOfElements()-s.getNumberOfElements()) + " sequences from background file" );
 				data[1] = s;
@@ -322,9 +324,10 @@ public class Dispom {
 		HomogeneousScoringFunction flanking = getHomSF( con, flOrder, essNonMotif, sl );
 		
 		int threads = params.getValueFromTag( DispomParameterSet.THREADS, Integer.class );
-		double eps = 1E-7, lineps = 1E-10, startD = 1;
+		double epsilon = 1E-7, lineps = 1E-10, startD = 1;
+		AbstractTerminationCondition eps = new SmallDifferenceOfFunctionEvaluationsCondition( epsilon );
 		byte algo = Optimizer.QUASI_NEWTON_BFGS;
-		SafeOutputStream stream = new SafeOutputStream( System.out );//TODO
+		SafeOutputStream stream = SafeOutputStream.getSafeOutputStream( System.out );//TODO
 		LogGenDisMixFunction objective, initObjective;
 		double[] beta = LearningPrinciple.getBeta( key );
 		boolean adjust = params.getValueFromTag( DispomParameterSet.ADJUST_LENGTH, Boolean.class );
@@ -407,12 +410,12 @@ public class Dispom {
 				ComparableElement<double[], Double>[] pars = MutableMotifDiscovererToolbox.getSortedInitialParameters( current, initMeth, initObjective, Integer.parseInt( v ), stream, 0 );
 				objective.setParams( pars[pars.length-1].getElement() );
 			} else if( initMethod.startsWith( "specific=" ) ) {
-				Sample[] spec = new Sample[1];
+				DataSet[] spec = new DataSet[1];
 				double[][] w = new double[1][];
 				if( new File( v ).exists() ) {
-					spec[0] = new Sample( con, new SparseStringExtractor( v, ignore ) );
+					spec[0] = new DataSet( con, new SparseStringExtractor( v, ignore ) );
 				} else {
-					spec[0] = new Sample( "one sequence", Sequence.create( con, v.trim() ) );
+					spec[0] = new DataSet( "one sequence", Sequence.create( con, v.trim() ) );
 					w[0] = new double[]{ defaultWeight };
 				}
 				MutableMotifDiscovererToolbox.initMotif( 0, new int[]{0}, new int[]{0}, spec, w, new boolean[]{true}, new MutableMotifDiscoverer[]{(MutableMotifDiscoverer) current[0]}, new int[]{motifL}, data, weights );
@@ -424,7 +427,7 @@ public class Dispom {
 						if( initMethod.startsWith( "enum-all=" ) ) {
 							enumeration = new DiscreteSequenceEnumerator(con, k, bothStrands );
 						} else if( initMethod.startsWith( "enum-data=" ) ) {
-							enumeration = new SampleKMerEnumerator( data[0], k, bothStrands );
+							enumeration = new DataSetKMerEnumerator( data[0], k, bothStrands );
 						} else{
 							throw new IllegalArgumentException( "Initialization method not correctly set." );
 						}
@@ -453,7 +456,7 @@ public class Dispom {
 			}
 		}
 		// save classifier
-		GenDisMixClassifierParameterSet cps = new GenDisMixClassifierParameterSet( con, sl, algo, eps, lineps, startD, free, KindOfParameter.PLUGIN, true, threads );
+		GenDisMixClassifierParameterSet cps = new GenDisMixClassifierParameterSet( con, sl, algo, epsilon, lineps, startD, free, KindOfParameter.PLUGIN, true, threads );
 		GenDisMixClassifier cl = new GenDisMixClassifier( cps, new CompositeLogPrior(), best[0][0], beta, bestNSF );
 		cl.setClassWeights( false, best[1] );
 		StringBuffer sb = new StringBuffer( 100000 );
@@ -498,7 +501,7 @@ public class Dispom {
 						} else {
 							adjusted = site;
 						}
-						System.out.println( i + "\t" + ma[j].getPosition() + "\t" + ma[j].getStrandedness() + "\t" + site + "\t" + adjusted + "\t" + ma[j].getAnnotations()[1].getResult() );
+						System.out.println( i + "\t" + ma[j].getPosition() + "\t" + ma[j].getStrandedness() + "\t" + site + "\t" + adjusted + "\t" + ma[j].getAnnotations()[1].getValue() );
 						list.add( adjusted );						
 					}
 				}
@@ -508,7 +511,7 @@ public class Dispom {
 			if( list.size() > 0 ) {
 				System.out.println();
 				System.out.println( "PFM:" );
-				pfm = PFMComparator.getPFM( new Sample( "sites", list.toArray( new Sequence[0] ) ) );
+				pfm = PFMComparator.getPFM( new DataSet( "sites", list.toArray( new Sequence[0] ) ) );
 				for( int l = 0; l < pfm.length; l++ ) {
 					System.out.print( l );
 					for( int a = 0; a < pfm[l].length; a++ ) {

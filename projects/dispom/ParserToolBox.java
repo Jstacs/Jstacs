@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.EmptySampleException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.EmptyDataSetException;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
@@ -51,7 +51,7 @@ import de.jstacs.utils.ComparableElement;
  */
 public class ParserToolBox {
 
-	public static Sample annotateWithMoAnResults( Sample data, boolean addAnnot, File... files ) throws Exception{
+	public static DataSet annotateWithMoAnResults( DataSet data, boolean addAnnot, File... files ) throws Exception{
 		
 		AbstractStringExtractor best = null;
 		double bestScore = Double.NEGATIVE_INFINITY;
@@ -75,7 +75,7 @@ public class ParserToolBox {
 		}
 	}
 	
-	public static Sample annotateWithMoAnResults( Sample data, boolean addAnnot, AbstractStringExtractor moAn ) throws Exception {
+	public static DataSet annotateWithMoAnResults( DataSet data, boolean addAnnot, AbstractStringExtractor moAn ) throws Exception {
 
 		Sequence[] moAnSeqs = new Sequence[data.getNumberOfElements()];
 		
@@ -103,17 +103,17 @@ public class ParserToolBox {
 			num++;
 		}
 		
-		return new Sample("Sample annotated by MoAn",moAnSeqs);
+		return new DataSet("Sample annotated by MoAn",moAnSeqs);
 		
 	}
 	
-	public static Sample annotateBestCoBindResults(Sample data, String cobindFileName) throws Exception {
+	public static DataSet annotateBestCoBindResults(DataSet data, String cobindFileName) throws Exception {
 		StringExtractor cobind = new StringExtractor( new File(cobindFileName), 100,'&' );
 		
 		double best = Double.NEGATIVE_INFINITY;
-		Sample bestS = null;
+		DataSet bestS = null;
 		while(cobind.hasMoreElements()){
-			ComparableElement<Sample, Double> el = annotateSingleCoBindResults( data, cobind );
+			ComparableElement<DataSet, Double> el = annotateSingleCoBindResults( data, cobind );
 			if(el.getWeight() > best){
 				best = el.getWeight();
 				bestS = el.getElement();
@@ -123,7 +123,7 @@ public class ParserToolBox {
 		return bestS;		
 	}
 	
-	public static ComparableElement<Sample, Double> annotateSingleCoBindResults(Sample data, StringExtractor cobind) throws EmptySampleException, WrongAlphabetException{
+	public static ComparableElement<DataSet, Double> annotateSingleCoBindResults(DataSet data, StringExtractor cobind) throws EmptyDataSetException, WrongAlphabetException{
 		
 		Sequence[] cobindSeqs = new Sequence[data.getNumberOfElements()];
 		
@@ -175,10 +175,10 @@ public class ParserToolBox {
 				cobindSeqs[idx] = cobindSeqs[idx].annotate( true, new MotifAnnotation( "motif"+num, pos, sp[5].length(), strand, new NumericalResult("score","score of element",score) ) );	
 			}
 		}
-		return new ComparableElement<Sample, Double>( new Sample("Sample annotated by Co-Bind",cobindSeqs), annScore );
+		return new ComparableElement<DataSet, Double>( new DataSet("Sample annotated by Co-Bind",cobindSeqs), annScore );
 	}
 	
-	public static Sample annotateWithCisModuleResults( Sample data, boolean addAnnot, String cismodFileName ) throws Exception {
+	public static DataSet annotateWithCisModuleResults( DataSet data, boolean addAnnot, String cismodFileName ) throws Exception {
 		StringExtractor cismod = new StringExtractor( new File(cismodFileName), 100 );
 		
 		Sequence[] cismodSeqs = new Sequence[data.getNumberOfElements()];
@@ -228,11 +228,11 @@ public class ParserToolBox {
 			}
 		}
 		
-		return new Sample( "Sample annotated by CisModule", cismodSeqs );
+		return new DataSet( "Sample annotated by CisModule", cismodSeqs );
 		
 	}
 	
-	public static Sample annotateWithGibbsSamplerResults( Sample data, boolean addAnnot, String gibbsFileName ) throws FileNotFoundException, IOException, IllegalArgumentException, EmptySampleException, WrongAlphabetException{
+	public static DataSet annotateWithGibbsSamplerResults( DataSet data, boolean addAnnot, String gibbsFileName ) throws FileNotFoundException, IOException, IllegalArgumentException, EmptyDataSetException, WrongAlphabetException{
 		
 		StringExtractor gibbs = new StringExtractor(new File(gibbsFileName),100);
 		
@@ -277,11 +277,11 @@ public class ParserToolBox {
 				gibbsSeqs[i] = data.getElementAt( i );
 			}
 		}
-		return new Sample("gibbsSampler",gibbsSeqs);
+		return new DataSet("gibbsSampler",gibbsSeqs);
 	}
 	
 	
-	public static Sample annotateWithMemeResults( Sample data, boolean addAnnot, String memeFileName ) throws IllegalArgumentException, EmptySampleException, FileNotFoundException, IOException, WrongAlphabetException{
+	public static DataSet annotateWithMemeResults( DataSet data, boolean addAnnot, String memeFileName ) throws IllegalArgumentException, EmptyDataSetException, FileNotFoundException, IOException, WrongAlphabetException{
 		StringExtractor meme = new StringExtractor(new File(memeFileName),100);
 		
 		Sequence[] memeSeqs = new Sequence[data.getNumberOfElements()];
@@ -342,12 +342,12 @@ public class ParserToolBox {
 			}
 		}
 		
-		Sample memeSample = new Sample("meme",memeSeqs);
+		DataSet memeSample = new DataSet("meme",memeSeqs);
 		
 		return memeSample;
 	}
 	
-	public static Sample annotateWithDemeResults( Sample data, boolean addAnnot, String demeFileName ) throws IllegalArgumentException, EmptySampleException, FileNotFoundException, IOException, WrongAlphabetException{
+	public static DataSet annotateWithDemeResults( DataSet data, boolean addAnnot, String demeFileName ) throws IllegalArgumentException, EmptyDataSetException, FileNotFoundException, IOException, WrongAlphabetException{
 		StringExtractor deme = new StringExtractor(new File(demeFileName),100,'$');
 		
 		Sequence[] demeSeqs = new Sequence[data.getNumberOfElements()];
@@ -384,13 +384,13 @@ public class ParserToolBox {
 			}
 		}
 		
-		Sample demeSample = new Sample("deme",demeSeqs);
+		DataSet demeSample = new DataSet("deme",demeSeqs);
 		
 		return demeSample;
 	}
 	
 	
-	public static Sample annotateWithImprobizerResults( Sample data, boolean addAnnot, String improbFileName, int improbLength) throws IllegalArgumentException, EmptySampleException, FileNotFoundException, IOException, WrongAlphabetException{
+	public static DataSet annotateWithImprobizerResults( DataSet data, boolean addAnnot, String improbFileName, int improbLength) throws IllegalArgumentException, EmptyDataSetException, FileNotFoundException, IOException, WrongAlphabetException{
 		StringExtractor imp = new StringExtractor(new File(improbFileName),100);
 		
 		Sequence[] impSeqs = new Sequence[data.getNumberOfElements()];
@@ -452,7 +452,7 @@ public class ParserToolBox {
 			}
 		}
 		
-		Sample impSample = new Sample("improbizer",impSeqs);
+		DataSet impSample = new DataSet("improbizer",impSeqs);
 		
 		return impSample;
 	}
@@ -467,7 +467,7 @@ public class ParserToolBox {
 	
 	
 	//TODO skip first lines
-	public static Sample annotateWithWeederResults( Sample data, boolean addAnnot, String weederFileName) throws FileNotFoundException, IOException, IllegalArgumentException, EmptySampleException, WrongAlphabetException{
+	public static DataSet annotateWithWeederResults( DataSet data, boolean addAnnot, String weederFileName) throws FileNotFoundException, IOException, IllegalArgumentException, EmptyDataSetException, WrongAlphabetException{
 		StringExtractor weed = new StringExtractor(new File(weederFileName),100);
 		
 		int i=0;
@@ -548,7 +548,7 @@ public class ParserToolBox {
 			}
 		}
 		
-		Sample weederSample = new Sample("weeder",weedSeqs);
+		DataSet weederSample = new DataSet("weeder",weedSeqs);
 		
 		return weederSample;
 	}
@@ -557,7 +557,7 @@ public class ParserToolBox {
 
 	private static final String AGLAM_ANCHOR = "Anchors are given as:";
 
-	public static Sample annotateWithAGlamResults( Sample data, boolean addAnnot, String ouputFileName, String motifName, boolean evalues ) throws Exception {
+	public static DataSet annotateWithAGlamResults( DataSet data, boolean addAnnot, String ouputFileName, String motifName, boolean evalues ) throws Exception {
 		Sequence[] seqs = data.getAllElements();
 		boolean[] add = new boolean[seqs.length];
 		Arrays.fill( add, addAnnot );
@@ -628,14 +628,14 @@ public class ParserToolBox {
 			}
 		}
 		r.close();
-		return new Sample( "data with annotation from A-GLAM", seqs );
+		return new DataSet( "data with annotation from A-GLAM", seqs );
 	}
 
 	private static final String DME_MOTIF = "AC";
 
 	private static final String DME_BINDINGSITE = "BS";
 
-	public static Sample annotateWithDMEResults( Sample data, boolean addAnnot, String ouputFileName, int index ) throws Exception {
+	public static DataSet annotateWithDMEResults( DataSet data, boolean addAnnot, String ouputFileName, int index ) throws Exception {
 		Sequence[] seqs = data.getAllElements();
 		boolean[] add = new boolean[seqs.length];
 		Arrays.fill( add, addAnnot );
@@ -681,11 +681,11 @@ public class ParserToolBox {
 				add[idx] = true;
 			} while( ( line = r.readLine() ) != null && line.startsWith( DME_BINDINGSITE ) );
 			r.close();
-			return new Sample( "data with annotation from DME", seqs );
+			return new DataSet( "data with annotation from DME", seqs );
 		}
 	}
 	
-	public static Sample annotateWithAmadeusResults( Sample data, boolean addAnnot, String targetFile, int motifIndex, int length ) throws Exception {
+	public static DataSet annotateWithAmadeusResults( DataSet data, boolean addAnnot, String targetFile, int motifIndex, int length ) throws Exception {
 		Sequence[] seqs = data.getAllElements();
 		boolean[] add = new boolean[seqs.length];
 		Arrays.fill( add, addAnnot );
@@ -740,7 +740,7 @@ public class ParserToolBox {
 			}
 		}
 
-		return new Sample( "data with annotation from Amadeus", seqs );
+		return new DataSet( "data with annotation from Amadeus", seqs );
 	}
 }
 

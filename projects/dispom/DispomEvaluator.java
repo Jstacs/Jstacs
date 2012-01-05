@@ -27,10 +27,9 @@ import java.util.Comparator;
 import java.util.AbstractMap.SimpleEntry;
 
 import projects.dispom.PFMComparator.NormalizedEuclideanDistance;
-import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
@@ -38,7 +37,6 @@ import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWith
 import de.jstacs.io.FileManager;
 import de.jstacs.io.RegExFilenameFilter;
 import de.jstacs.io.SparseStringExtractor;
-import de.jstacs.motifDiscovery.MotifDiscoveryAssessment;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
 import de.jstacs.scoringFunctions.NormalizableScoringFunction;
@@ -227,14 +225,14 @@ public class DispomEvaluator {
 				SignificantMotifOccurrencesFinder smof;
 				File bg = new File( fName[1] );
 				if( bg.exists() ) {
-					smof = new SignificantMotifOccurrencesFinder( md, new Sample( md.getAlphabetContainer(), new SparseStringExtractor( fName[1], ignore ) ), null, sign );
+					smof = new SignificantMotifOccurrencesFinder( md, new DataSet( md.getAlphabetContainer(), new SparseStringExtractor( fName[1], ignore ) ), null, sign );
 				} else {
 					smof = new SignificantMotifOccurrencesFinder( md, RandomSeqType.PERMUTED, true, 1000, sign );
 				}
-				Sample data = new Sample( md.getAlphabetContainer(), new SparseStringExtractor( fName[0], ignore ) );
+				DataSet data = new DataSet( md.getAlphabetContainer(), new SparseStringExtractor( fName[0], ignore ) );
 				//System.out.println( data.getNumberOfElements() + "\tlength=" + data.getElementLength() );
 				//System.out.println( md.getLength() );
-				Sample motifs = smof.getBindingSites( data, m );
+				DataSet motifs = smof.getBindingSites( data, m );
 				if( motifs != null ) {
 					System.out.println( "(" + motifs.getNumberOfElements() + " BS vs. " + (bg.exists()?"bg":"permuted") + ", " + sign + ")" );
 					pwm[m] = PFMComparator.getPFM( motifs );
@@ -294,7 +292,7 @@ public class DispomEvaluator {
 		return current;
 	}
 	
-	private static Sample addPosition( Sample data, String posFileName, int length ) throws Exception
+	private static DataSet addPosition( DataSet data, String posFileName, int length ) throws Exception
 	{
 		BufferedReader r = new BufferedReader( new FileReader( posFileName ) );
 		String line;
@@ -309,7 +307,7 @@ public class DispomEvaluator {
 			}
 		}
 		r.close();
-		return new Sample( "annotated " + data.getAnnotation(), seqs );
+		return new DataSet( "annotated " + data.getAnnotation(), seqs );
 	}
 }
 

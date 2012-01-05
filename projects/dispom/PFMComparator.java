@@ -30,7 +30,7 @@ import java.util.AbstractMap.SimpleEntry;
 
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.utils.ComparableElement;
@@ -95,7 +95,7 @@ public class PFMComparator {
 	 * 
 	 * @return an array containing the counts
 	 */
-	public static double[] getCounts( Sample ... data ) {
+	public static double[] getCounts( DataSet ... data ) {
 		double[] counts = new double[(int)data[0].getAlphabetContainer().getAlphabetLengthAt( 0 )];
 		Sequence seq;
 		for( int d = 0; d < data.length; d++ ) {
@@ -126,13 +126,13 @@ public class PFMComparator {
 	}
 	
 	/**
-	 * This method creates a PFM from a {@link Sample} of {@link Sequence}s.
+	 * This method creates a PFM from a {@link DataSet} of {@link Sequence}s.
 	 * 
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * 
 	 * @return the PFM
 	 */
-	public static double[][] getPFM( Sample data ) {
+	public static double[][] getPFM( DataSet data ) {
 		if( data == null ) {
 			return null;
 		} else {
@@ -153,14 +153,14 @@ public class PFMComparator {
 	}
 	
 	/**
-	 * This method creates a PFM from a {@link Sample} of {@link Sequence}s.
+	 * This method creates a PFM from a {@link DataSet} of {@link Sequence}s.
 	 * 
-	 * @param data the {@link Sample}
+	 * @param data the {@link DataSet}
 	 * @param weights the weights on the sequences in <code>data</code>
 	 * 
 	 * @return the PFM
 	 */
-	public static double[][] getPFM( Sample data, double[] weights ) {
+	public static double[][] getPFM( DataSet data, double[] weights ) {
 		if( data == null ) {
 			return null;
 		} else {

@@ -30,16 +30,14 @@ import javax.naming.OperationNotSupportedException;
 import projects.dispom.PFMComparator.PFMDistance;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
-import de.jstacs.classifier.MeasureParameters.Measure;
 import de.jstacs.classifier.scoringFunctionBased.ScoreClassifier;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.DNASample;
-import de.jstacs.data.EmptySampleException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DNADataSet;
+import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
@@ -52,6 +50,7 @@ import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoveryAssessment;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.results.ResultSet;
+import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.scoringFunctions.mix.motifSearch.DurationScoringFunction;
 import de.jstacs.scoringFunctions.mix.motifSearch.HiddenMotifsMixture;
 import de.jstacs.utils.ComparableElement;
@@ -130,16 +129,16 @@ public class DiscoveryComparator {
 		Discoverer d;
 		double[][] pwm;
 		HiddenMotifsMixture md;
-		Sample truth;
+		DataSet truth;
 		double aucPR;
 		int pch;
 		
-		private DiscoveryResult( Discoverer d, Sample truth, Sample data, boolean remove, String... strings ) throws Exception {
+		private DiscoveryResult( Discoverer d, DataSet truth, DataSet data, boolean remove, String... strings ) throws Exception {
 			this.d = d;
 			pch = d.used;
 			d.used();
 			this.truth = truth;
-			Sample pred = null;
+			DataSet pred = null;
 			SignificantMotifOccurrencesFinder smof = null;
 			//load complete predictions
 			switch( d ) {
@@ -191,7 +190,7 @@ public class DiscoveryComparator {
 					}
 					md = (HiddenMotifsMixture) cl.getScoringFunction( 0 );
 
-					smof = new SignificantMotifOccurrencesFinder( md, new DNASample(strings[1],AbstractStringExtractor.USUALLY), null, Double.parseDouble( strings[2] ) );
+					smof = new SignificantMotifOccurrencesFinder( md, new DNADataSet(strings[1],AbstractStringExtractor.USUALLY), null, Double.parseDouble( strings[2] ) );
 					//smof = new SignificantMotifOccurrencesFinder(md,RandomSeqType.PERMUTED,1000,sign);
 					
 					pred = smof.annotateMotif( data, 0 );				
@@ -400,7 +399,7 @@ public class DiscoveryComparator {
 		}
 	}
 	
-	private static Sample addPosition( Sample data, String posFileName, String revcomFileName, int length ) throws Exception
+	private static DataSet addPosition( DataSet data, String posFileName, String revcomFileName, int length ) throws Exception
 	{
 		BufferedReader r = new BufferedReader( new FileReader( posFileName ) );
 		BufferedReader rr = new BufferedReader( new FileReader( revcomFileName ) );
@@ -419,7 +418,7 @@ public class DiscoveryComparator {
 		}
 		r.close();
 		rr.close();
-		return new Sample( "annotated " + data.getAnnotation(), seqs );
+		return new DataSet( "annotated " + data.getAnnotation(), seqs );
 	}
 	
 	private static ComparableElement<Boolean, Double> getMeanDivergence( double[] bg, double[][] pwm, double[][] pwmRefFw, double[][] pwmRefRev, PFMDistance dist ){
@@ -456,7 +455,7 @@ public class DiscoveryComparator {
 		return newPwm;
 	}
 	
-	private static void plotPositionalDistribution( REnvironment r, String file, HiddenMotifsMixture mix, Sample truth) throws Exception{
+	private static void plotPositionalDistribution( REnvironment r, String file, HiddenMotifsMixture mix, DataSet truth) throws Exception{
 		r.createVector( "pos", getPositions( truth, motifName ) );
 		DurationScoringFunction dsf = (DurationScoringFunction) mix.getFunction( 1 );
 		String plotcmd = dsf.toString()+"\n" +
@@ -477,18 +476,18 @@ public class DiscoveryComparator {
 		r.plotToPDF( "library(seqLogo);seqLogo(pwm);",8,3, file, true );
 	}
 	
-	private static double[][] getPWM( Sample data, String motifName, boolean rc ) throws Exception{
+	private static double[][] getPWM( DataSet data, String motifName, boolean rc ) throws Exception{
 		try{
-			Sample ex = exciseSites( data, motifName, rc );
+			DataSet ex = exciseSites( data, motifName, rc );
 
 			return PFMComparator.getPFM( ex );
 			
-		}catch(EmptySampleException ex){
+		}catch(EmptyDataSetException ex){
 			return new double[0][0];
 		}
 	}
 	
-	private static int[] getPositions( Sample data, String motifName ){
+	private static int[] getPositions( DataSet data, String motifName ){
 		IntList list = new IntList();
 		
 		for(Sequence seq : data){
@@ -503,7 +502,7 @@ public class DiscoveryComparator {
 		return list.toArray();
 	}
 	
-	private static Sample exciseSites( Sample data, String motifName, boolean rc ) throws EmptySampleException, WrongAlphabetException, OperationNotSupportedException{
+	private static DataSet exciseSites( DataSet data, String motifName, boolean rc ) throws EmptyDataSetException, WrongAlphabetException, OperationNotSupportedException{
 		LinkedList<Sequence> seqs = new LinkedList<Sequence>();
 		
 		for(Sequence seq : data){
@@ -519,7 +518,7 @@ public class DiscoveryComparator {
 				}
 			}
 		}
-		return new Sample("excised sites",seqs.toArray( new Sequence[0] ));
+		return new DataSet("excised sites",seqs.toArray( new Sequence[0] ));
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -557,9 +556,9 @@ public class DiscoveryComparator {
 						boolean givenLength = gl==1;
 						System.out.println("##################################################################################");
 						System.out.println("data/" + DATATYPE +prefix+".sites_"+org+".txt_e.txt_"+inf+".txt");
-						Sample data = new Sample( con, new SparseStringExtractor( HOME + "data/artificial/"+prefix+".sites_"+org+".txt_e.txt_"+inf+".txt" ) );
+						DataSet data = new DataSet( con, new SparseStringExtractor( HOME + "data/artificial/"+prefix+".sites_"+org+".txt_e.txt_"+inf+".txt" ) );
 						System.out.println(HOME + "/data/" + DATATYPE + "/pos_"+prefix+".sites_"+org+".txt_e.txt_"+inf+".txt");
-						Sample truth = addPosition( data, HOME + "/data/" + DATATYPE + "/pos_"+prefix+".sites_"+org+".txt_e.txt_"+inf+".txt_new.txt",
+						DataSet truth = addPosition( data, HOME + "/data/" + DATATYPE + "/pos_"+prefix+".sites_"+org+".txt_e.txt_"+inf+".txt_new.txt",
 								HOME + "/data/" + DATATYPE + "/revcom_"+prefix+".sites_"+org+".txt_e.txt.txt", length );
 						
 						double[] bg = PFMComparator.getCounts( truth );

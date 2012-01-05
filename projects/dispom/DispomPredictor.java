@@ -28,8 +28,8 @@ import de.jstacs.DataType;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptySampleException;
-import de.jstacs.data.Sample;
+import de.jstacs.data.EmptyDataSetException;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DNAAlphabet;
@@ -62,8 +62,8 @@ public class DispomPredictor {
 	                                       DispomPredictorParameterSet.XML_PATH,DispomPredictorParameterSet.P_VALUE,DispomPredictorParameterSet.ONEHIST
 	        }; 
 	
-	private static Sample getSample( AlphabetContainer con, String fileName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptySampleException, WrongLengthException, IOException {
-		return new Sample( con, 
+	private static DataSet getSample( AlphabetContainer con, String fileName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
+		return new DataSet( con, 
 				new SparseStringExtractor( fileName, ignore ) 
 		);
 	}
@@ -99,7 +99,7 @@ public class DispomPredictor {
 			anz = 2;
 		}
 		
-		Sample[] data = new Sample[anz];
+		DataSet[] data = new DataSet[anz];
 		data[0] = getSample( con, home + File.separatorChar + params.getValueFromTag( DispomPredictorParameterSet.FG, String.class ), ignore );	
 		if( anz > 1 ) {
 			data[1] = getSample( con, home + File.separatorChar + params.getValueFromTag( DispomPredictorParameterSet.BG, String.class ), ignore );				
@@ -141,7 +141,7 @@ public class DispomPredictor {
 			for( int n = 0; n < seqs.length; n++ ) {
 				seqs[n] = new PermutedSequence( data[0].getElementAt( r.nextInt( numFg ) ) );
 			}
-			Sample bg = new Sample("permuted",seqs);
+			DataSet bg = new DataSet("permuted",seqs);
 			smof = new SignificantMotifOccurrencesFinder( (MotifDiscoverer) bestNSF[0], bg, null, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );
 		} else {
 			smof = new SignificantMotifOccurrencesFinder( (MotifDiscoverer) bestNSF[0], RandomSeqType.PERMUTED, false, 1000, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );
@@ -165,11 +165,11 @@ public class DispomPredictor {
 						list.add( site );
 					}
 					
-					System.out.println( i + "\t" + ma[j].getPosition() + "\t" + ma[j].getStrandedness() + "\t" + site + "\t" + ma[j].getAnnotations()[1].getResult() );
+					System.out.println( i + "\t" + ma[j].getPosition() + "\t" + ma[j].getStrandedness() + "\t" + site + "\t" + ma[j].getAnnotations()[1].getValue() );
 				}
 			}
 		}
-		double[][] pfm = getPFM( new Sample("",list.toArray(new Sequence[0])) );
+		double[][] pfm = getPFM( new DataSet("",list.toArray(new Sequence[0])) );
 		System.out.println( "------------------------------------------------------------------------");
 		System.out.println("Position frequency matrix of sites: ");
 		for(int i=0;i<pfm.length;i++){
@@ -200,7 +200,7 @@ public class DispomPredictor {
 		}
 	}
 	
-	public static double[][] getPFM( Sample data ) {
+	public static double[][] getPFM( DataSet data ) {
 		if( data == null ) {
 			return null;
 		} else {
