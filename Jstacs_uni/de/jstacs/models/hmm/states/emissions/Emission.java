@@ -7,6 +7,7 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.Sequence;
+import de.jstacs.models.hmm.Transition;
 
 /**
  * This interface declares all method for an emission of a state.
@@ -96,5 +97,6 @@ public interface Emission extends Storable, Cloneable {
 	 * @return the label
 	 */
 	public String getNodeLabel(double weight, String name, NumberFormat nf);
-	
+
+	public void setParameters( Emission t ) throws IllegalArgumentException;
 }

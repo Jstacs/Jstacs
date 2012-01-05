@@ -963,4 +963,16 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	private File createFile() throws IOException {
 		return File.createTempFile( "samplingDEmission-", ".dat", null );
 	}
+	
+	@Override
+	public void setParameters(Emission t) throws IllegalArgumentException {
+		if( !t.getClass().equals( getClass() ) || ((AbstractConditionalDiscreteEmission)t).params.length != params.length ) {//TODO more?
+			throw new IllegalArgumentException( "The transitions are not comparable." );
+		}
+		AbstractConditionalDiscreteEmission tt = (AbstractConditionalDiscreteEmission) t;
+		for( int i = 0; i < params.length; i++ ) {
+			System.arraycopy( tt.params[i], 0, params[i], 0, tt.params[i].length );
+		}
+		precompute();
+	}
 }

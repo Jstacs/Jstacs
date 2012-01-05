@@ -226,5 +226,14 @@ public final class MixtureEmission implements Emission {
 	}
 	
 	
-	
+	@Override
+	public void setParameters(Emission t) throws IllegalArgumentException {
+		if( !t.getClass().equals( getClass() ) ) {
+			throw new IllegalArgumentException( "The emissions are not comparable." );
+		}
+		MixtureEmission tt = (MixtureEmission) t;
+		for( int i = 0; i < emission.length; i++ ) {
+			emission[i].setParameters( tt.emission[i] );
+		}		
+	}
 }

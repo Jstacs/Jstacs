@@ -27,7 +27,6 @@ import de.jstacs.NotTrainedException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
-import de.jstacs.models.hmm.State;
 import de.jstacs.models.hmm.states.SamplingState;
 import de.jstacs.models.hmm.states.SimpleSamplingState;
 import de.jstacs.models.hmm.states.emissions.SamplingEmission;
@@ -109,10 +108,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
 	
     @Override
     protected void createStates() {
-    	this.states = new State[1][];
-        this.states[0] = new SimpleSamplingState[emissionIdx.length];
+    	this.states = new SimpleSamplingState[emissionIdx.length];
         for( int i = 0; i < emissionIdx.length; i++ ) {
-                this.states[0][i] = new SimpleSamplingState( (SamplingEmission)emission[0][emissionIdx[i]], name[i], forward[i] );
+                this.states[i] = new SimpleSamplingState( (SamplingEmission)emission[emissionIdx[i]], name[i], forward[i] );
         }
     }
 
@@ -122,9 +120,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @throws IOException if the parameters could not be written
      */
     protected void acceptParameters() throws IOException {
-    ((SamplingTransition) transition[0]).acceptParameters();
-    for( int e = 0; e < emission[0].length; e++ ) {
-            ((SamplingEmission)emission[0][e]).acceptParameters();
+    ((SamplingTransition) transition).acceptParameters();
+    for( int e = 0; e < emission.length; e++ ) {
+            ((SamplingEmission)emission[e]).acceptParameters();
     }
     }
 	
@@ -134,9 +132,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @throws Exception if the parameters could not be drawn
      */
     protected void drawFromStatistics() throws Exception {
-            ((SamplingTransition) transition[0]).drawParametersFromStatistic();
-            for( int e = 0; e < emission[0].length; e++ ) {
-                    ((SamplingEmission)emission[0][e]).drawParametersFromStatistic();
+            ((SamplingTransition) transition).drawParametersFromStatistic();
+            for( int e = 0; e < emission.length; e++ ) {
+                    ((SamplingEmission)emission[e]).drawParametersFromStatistic();
             }
     }
 
@@ -153,24 +151,24 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
     protected double gibbsSampling( int startPos, int endPos, double weight, Sequence seq ) throws Exception {
             samplePath( path, startPos, endPos, seq );
             addToStatistics( startPos, weight, seq, path );
-            return bwdMatrix[0][0][0];
+            return bwdMatrix[0][0];
     }
 
     private void addToStatistics( int startPos, double weight, Sequence seq, IntList p ) throws Exception{
 		int l = 0, layer = 0, state;
-		container[0][1] = 0;
+		container[1] = 0;
 
 		while( l < p.length() ) {
 			state = p.get( l );
 			
-			int childIdx = transition[0].getChildIdx( layer, container[0][1], state );
+			int childIdx = transition.getChildIdx( layer, container[1], state );
 			if( childIdx < 0 ) {
 				throw new IllegalArgumentException( "Impossible path" );
 			}
-			((SamplingState)states[0][state]).addToStatistic( startPos, startPos, weight, seq ); //emission
-			((SamplingTransition)transition[0]).addToStatistic( layer, container[0][1], childIdx, weight, seq, startPos ); //transition
-			transition[0].fillTransitionInformation( layer, container[0][1], childIdx, container[0] );
-			if( container[0][2] == 1 ) {
+			((SamplingState)states[state]).addToStatistic( startPos, startPos, weight, seq ); //emission
+			((SamplingTransition)transition).addToStatistic( layer, container[1], childIdx, weight, seq, startPos ); //transition
+			transition.fillTransitionInformation( layer, container[1], childIdx, container );
+			if( container[2] == 1 ) {
 				startPos++;
 				layer++;
 			}
@@ -179,9 +177,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
     }
 
     private double getLogGammaScoreForCurrentStatistics() {
-        double score = ((TransitionWithSufficientStatistic)transition[0]).getLogGammaScoreFromStatistic();
-        for(int state = 0; state < states[0].length; state++) {
-            score += ((SamplingState)states[0][state]).getLogGammaScoreForCurrentStatistic();
+        double score = ((TransitionWithSufficientStatistic)transition).getLogGammaScoreFromStatistic();
+        for(int state = 0; state < states.length; state++) {
+            score += ((SamplingState)states[state]).getLogGammaScoreForCurrentStatistic();
         }
         return score;
     }
@@ -204,9 +202,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
 
         //preparation
         burnInTest.setCurrentSamplingIndex(sampling);
-        ((SamplingTransition)transition[0]).extendSampling( sampling, append );
-        for( int e = 0; e < emission[0].length; e++ ) {
-                ((SamplingEmission)emission[0][e]).extendSampling( sampling, append );
+        ((SamplingTransition)transition).extendSampling( sampling, append );
+        for( int e = 0; e < emission.length; e++ ) {
+                ((SamplingEmission)emission[e]).extendSampling( sampling, append );
         }
         sostream.writeln( sampling + " ----------------------------------------" );
 
@@ -276,9 +274,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
                 gibbsSamplingStep( start, numberOfSteps, append, data, weights );
         }
 
-        ((SamplingTransition)transition[0]).samplingStopped();
-        for( int e = 0; e < emission[0].length; e++ ) {
-                ((SamplingEmission)emission[0][e]).samplingStopped();
+        ((SamplingTransition)transition).samplingStopped();
+        for( int e = 0; e < emission.length; e++ ) {
+                ((SamplingEmission)emission[e]).samplingStopped();
         }
 
         hasSampled = true;
@@ -286,7 +284,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
 	
     @Override
     public String getInstanceName() {
-            return "Sampling HMM(" + transition[0].getMaximalMarkovOrder() + ")";
+            return "Sampling HMM(" + transition.getMaximalMarkovOrder() + ")";
     }
 	
     @Override
@@ -334,9 +332,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      *             if there is a problem with parsing the parameters
      */
     protected boolean parseParameterSet( int sampling, int idx ) throws Exception {
-            boolean parsed = ((SamplingTransition) transition[0]).parseParameterSet(sampling, idx);
-            for( int e = 0; e < emission[0].length; e++ ) {
-                    parsed &= ((SamplingEmission)emission[0][e]).parseParameterSet(sampling, idx);
+            boolean parsed = ((SamplingTransition) transition).parseParameterSet(sampling, idx);
+            for( int e = 0; e < emission.length; e++ ) {
+                    parsed &= ((SamplingEmission)emission[e]).parseParameterSet(sampling, idx);
             }
             return parsed;
     }
@@ -348,9 +346,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      * @throws Exception if the parameters could not be parsed
      */
     protected boolean parseNextParameterSet() throws Exception {
-            boolean parsed = ((SamplingTransition) transition[0]).parseNextParameterSet();
-            for( int e = 0; e < emission[0].length; e++ ) {
-                    parsed &= ((SamplingEmission)emission[0][e]).parseNextParameterSet();
+            boolean parsed = ((SamplingTransition) transition).parseNextParameterSet();
+            for( int e = 0; e < emission.length; e++ ) {
+                    parsed &= ((SamplingEmission)emission[e]).parseNextParameterSet();
             }
             return parsed;
     }
@@ -391,9 +389,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
    		//GIBBS-SAMPLING INIT
     	burnInTest = ((SamplingHMMTrainingParameterSet)trainingParameter).getBurnInTest();
 		burnInTest.resetAllValues();
-		((SamplingTransition)transition[0]).initForSampling(numberOfStarts);
-		for( int e = 0; e < emission[0].length; e++ ) {
-		        ((SamplingEmission)emission[0][e]).initForSampling(numberOfStarts);
+		((SamplingTransition)transition).initForSampling(numberOfStarts);
+		for( int e = 0; e < emission.length; e++ ) {
+		        ((SamplingEmission)emission[e]).initForSampling(numberOfStarts);
 		}
 		furtherInits(data, weights);
     }
@@ -415,7 +413,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
         double[][] tmp = createMatrixForStatePosterior( startPos, endPos );
         int numSamples = 0;
 
-        for( int s = 0; s < states[0].length; s++ ) {
+        for( int s = 0; s < states.length; s++ ) {
             Arrays.fill(statePosterior[s], Double.NEGATIVE_INFINITY);
         }
 
@@ -426,7 +424,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
 		
                 while( furtherParam ) {   
                     fillLogStatePosteriorMatrix( tmp, startPos, endPos, seq, true );
-                    for( int s = 0; s < states[0].length; s++ ) {
+                    for( int s = 0; s < states.length; s++ ) {
                          for( int l = 0; l < statePosterior[s].length; l++ ) {
                              statePosterior[s][l] = Normalisation.getLogSum( statePosterior[s][l], tmp[s][l] );
                          }
@@ -437,7 +435,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
             }
         	
         	double d = Math.log( numSamples );
-            for( int s = 0; s < states[0].length; s++ ) {
+            for( int s = 0; s < states.length; s++ ) {
                  for( int l = 0; l < statePosterior[s].length; l++ ) {
                       statePosterior[s][l] -= d;
                  }
@@ -534,7 +532,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
                     
                     	resetStatistics();
                     	path.clear();                    	
-                        score = viterbi( 0, path, startPos, endPos, 0, seq );
+                        score = viterbi( path, startPos, endPos, 0, seq );
                         addToStatistics( startPos, 1d, seq, path );
 
                         score = (compute == ViterbiComputation.MAX || compute == ViterbiComputation.MAX_AND_SAMPLING) 
@@ -598,10 +596,10 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
      */
     protected double getLogPosteriorFromStatistic() {
 
-        double logPosterior  = ((SamplingTransition)transition[0]).getLogPosteriorFromStatistic();
+        double logPosterior  = ((SamplingTransition)transition).getLogPosteriorFromStatistic();
 
-        for(int state = 0; state < states[0].length; state++) {
-            logPosterior += ((SimpleSamplingState)states[0][state]).getLogPosteriorFromStatistic();
+        for(int state = 0; state < states.length; state++) {
+            logPosterior += ((SimpleSamplingState)states[state]).getLogPosteriorFromStatistic();
         }
 
         return logPosterior;

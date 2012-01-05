@@ -185,6 +185,7 @@ public class GaussianEmission implements DifferentiableEmission {
 		mu = params[offset];
 		logPrecision = params[offset+1];
 		precision = Math.exp( logPrecision );
+		precompute();
 	}
 
 	
@@ -344,7 +345,16 @@ public class GaussianEmission implements DifferentiableEmission {
 		return 0;
 	}
 	
-	
-	
+	@Override
+	public void setParameters(Emission t) throws IllegalArgumentException {
+		if( !t.getClass().equals( getClass() ) ) {
+			throw new IllegalArgumentException( "The transitions are not comparable." );
+		}
+		GaussianEmission tt = (GaussianEmission) t;
+		mu = tt.mu;
+		logPrecision = tt.logPrecision;
+		precision = tt.precision;
+		logNorm = tt.logNorm;
+	}
 	
 }
