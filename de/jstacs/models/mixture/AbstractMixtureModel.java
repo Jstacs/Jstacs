@@ -56,10 +56,8 @@ import de.jstacs.sampling.BurnInTest;
 import de.jstacs.sampling.GibbsSamplingModel;
 import de.jstacs.sampling.SamplingComponent;
 import de.jstacs.utils.Normalisation;
-import de.jstacs.utils.RealTime;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.Time;
-import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
 import de.jstacs.utils.random.FastDirichletMRGParams;
@@ -818,15 +816,6 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 	 *             if something went wrong
 	 */
 	protected abstract double[][] doFirstIteration( double[] dataWeights, MultivariateRandomGenerator m, MRGParams[] params ) throws Exception;
-
-	/**
-	 * This method returns an instance of {@link Time} that is used for the {@link TerminationCondition} in the EM.
-	 * 
-	 * @return an instance of {@link Time} that is used during the EM
-	 */
-	protected Time getTime() {
-		return new RealTime();
-	}
 	
 	/**
 	 * This method will run the train algorithm for the current model on the
@@ -864,11 +853,11 @@ public abstract class AbstractMixtureModel extends AbstractModel {
 		if( seqweights == null ) {
 			seqweights = createSeqWeightsArray();
 		}
-		Time t = getTime();
 		double pr = getLogPriorTerm(), L_old = Double.NEGATIVE_INFINITY, L_new = getNewWeights( dataWeights, w, seqweights );
-		sostream.write( i + "\t" + L_new + "\t " + pr + "\t" );
+		sostream.write( i + "\t" + 0 + "\t" + L_new + "\t " + pr + "\t" );
 		L_new += pr;
 		sostream.writeln( L_new + "\t" + ( L_new - L_old ) );
+		Time t = Time.getTimeInstance(sostream);
 		while( tc.doNextIteration(i, L_old, L_new, null, null, Double.NaN, t) ) {
 			getNewParameters( ++i, seqweights, w );
 			L_old = L_new;

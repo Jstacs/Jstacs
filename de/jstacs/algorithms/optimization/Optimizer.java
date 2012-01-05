@@ -1296,15 +1296,7 @@ public class Optimizer {
 			TerminationException,
 			IOException,
 			EvaluationException {
-		out = SafeOutputStream.getSafeOutputStream( out );
-		Time t = null;
-		try {
-			t = new UserTime();
-		} catch ( Error err ) {
-			out.write( ("Warning: Could not load UserTime. Using RealTime instead.\n").getBytes() );
-			t = new RealTime();
-		}
-		return optimize( algorithm, f, currentValues, terminationMode, linEps, startDistance, out, t );
+		return optimize( algorithm, f, currentValues, terminationMode, linEps, startDistance, SafeOutputStream.getSafeOutputStream( out ), Time.getTimeInstance( out ) );
 	}
 
 	/**
