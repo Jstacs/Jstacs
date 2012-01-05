@@ -256,6 +256,9 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 			}
 			if( i == worker.length ){
 				if( exception ) {
+					for( i = 0; i < worker.length; i++ ) {
+						worker[i].interrupt();
+					}
 					stopThreads();
 					throw new RuntimeException( "Terminate program, since at least thread " + t + " throws an exception." );
 				} else {
