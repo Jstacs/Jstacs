@@ -24,7 +24,7 @@ import java.io.FileReader;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.io.StringExtractor;
@@ -72,7 +72,7 @@ public class MotifAdjuster
 			AlphabetContainer con = new AlphabetContainer( new DNAAlphabet() );
 
 			char ignore = args[1].charAt( 0 );
-			Sample s = new Sample( con, new StringExtractor( new File( args[0] ), 200, ignore ) );
+			DataSet s = new DataSet( con, new StringExtractor( new File( args[0] ), 200, ignore ) );
 
 			if( s.getElementLength() == 0 )
 			{
