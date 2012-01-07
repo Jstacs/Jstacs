@@ -58,6 +58,8 @@ import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.InfixStringExtractor;
+import de.jstacs.io.LimitedStringExtractor;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.KMereStatistic;
@@ -224,7 +226,7 @@ public class Dispom {
 	        DispomParameterSet.HOME, DispomParameterSet.IGNORE_CHAR, DispomParameterSet.FG,	DispomParameterSet.BG,
 	        DispomParameterSet.POSITION_DISTR, DispomParameterSet.MEAN, DispomParameterSet.SD,
 	        DispomParameterSet.MOTIFS, DispomParameterSet.LENGTH, DispomParameterSet.FLANKING_ORDER, DispomParameterSet.MOTIF_ORDER,
-	        DispomParameterSet.BOTH_STRANDS, DispomParameterSet.INITIALIZE,
+	        DispomParameterSet.FORWARD_STRAND, DispomParameterSet.INITIALIZE,
 	        DispomParameterSet.ADJUST_LENGTH, DispomParameterSet.HEURISTIC,
 	        DispomParameterSet.LEARNING_PRINCIPLE_KEY, DispomParameterSet.THREADS,	        
 	        DispomParameterSet.STARTS, DispomParameterSet.XML_PATH, DispomParameterSet.P_VALUE
@@ -232,11 +234,11 @@ public class Dispom {
 	
 	private static DataSet getSample( AlphabetContainer con, String fileName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
 		return new DataSet( con, 
-				//new LimitedStringExtractor(
-					//new InfixStringExtractor(//TODO
+				new LimitedStringExtractor(
+					new InfixStringExtractor(//TODO
 							new SparseStringExtractor( fileName, ignore ) 
-					//, 1000, 50)
-				//, 200 )
+					, 900, 100)
+				, 100 )
 		);
 	}
 	
@@ -337,9 +339,14 @@ public class Dispom {
 		//System.out.println( motifPenalty );
 		System.out.println();
 		NormalizableScoringFunction motif = new MutableMarkovModelScoringFunction( con, motifL, essMotif, true, new InhomogeneousMarkov(fgOrder), motifPenalty );
-		boolean bothStrands = params.getValueFromTag( DispomParameterSet.BOTH_STRANDS, Boolean.class );
+		Double forwardStrand = params.getValueFromTag( DispomParameterSet.FORWARD_STRAND, Double.class );
+		boolean bothStrands = forwardStrand == null || forwardStrand < 1;
 		if( bothStrands ) {
-			motif = new StrandScoringFunction( motif, 0.5, starts, true, InitMethod.INIT_FORWARD_STRAND );
+			if( forwardStrand == null ) {
+				motif = new StrandScoringFunction( motif, 0.5, starts, true, InitMethod.INIT_FORWARD_STRAND );
+			} else {
+				motif = new StrandScoringFunction( motif, starts, true, InitMethod.INIT_FORWARD_STRAND, forwardStrand );
+			}
 		}
 		motif.initializeFunctionRandomly( free );
 		motif = new NormalizedScoringFunction( motif, 1 );
@@ -553,7 +560,7 @@ class DispomParameterSet extends ParameterSet {
 	public static final String LENGTH = "length";
 	public static final String FLANKING_ORDER = "flankOrder";
 	public static final String MOTIF_ORDER = "motifOrder";
-	public static final String BOTH_STRANDS = "bothStrands";
+	public static final String FORWARD_STRAND = "forwardStrand";
 	public static final String INITIALIZE = "init";
 	public static final String XML_PATH = "xml";
 	public static final String ADJUST_LENGTH = "adjust";
@@ -565,10 +572,6 @@ class DispomParameterSet extends ParameterSet {
 	public static final String HEURISTIC = "maxPos";
 	public static final String STARTS = "starts";
 	
-	public DispomParameterSet() throws Exception {
-		super();
-	}
-
 	/*
 	 * 0 home
 	 * 1 ignore
@@ -591,8 +594,9 @@ class DispomParameterSet extends ParameterSet {
 	 * 18 maxPos
 	 * 19 starts
 	 */
-	protected void loadParameters() throws Exception {
-		parameters = new ParameterList( 16 );
+	public DispomParameterSet() throws Exception {
+		super();
+
 		parameters.add( new SimpleParameter( DataType.STRING, "home directory", "the path to the data directory", true, "./" ) );
 		parameters.add( new SimpleParameter( DataType.CHAR, "the ignore char for the data files", "the char that is used to mask comment lines in data files, e.g., '>' in a FASTA-file", true, '>' ) );
 		parameters.add( new SimpleParameter( DataType.STRING, "foreground file", "the file name of the foreground data file (the file containing sequences which are expected to contain binding sites of a common motif)", true ) );
@@ -605,7 +609,7 @@ class DispomParameterSet extends ParameterSet {
 		parameters.add( new SimpleParameter( DataType.INT, "initial motif length", "the motif length that is used at the beginning", true, new NumberValidator<Integer>(1,50), 15 ) );
 		parameters.add( new SimpleParameter( DataType.INT, "Markov order for flanking models", "the Markov order of the model for the flanking sequence and the background sequence", true, new NumberValidator<Integer>(-1,5), 0 ) );
 		parameters.add( new SimpleParameter( DataType.INT, "Markov order for motif model", "the Markov order of the motif model", true, new NumberValidator<Integer>(0,3), 0 ) );
-		parameters.add( new SimpleParameter( DataType.BOOLEAN, "both strands", "a switch whether to use both strands or not", true, true ) );
+		parameters.add( new SimpleParameter( DataType.DOUBLE, "forward strand", "the probability for finding the binding sites on the forward strand, if not set this probability is inferred from the data", false, new NumberValidator<Double>(0d,1d) ) );
 		parameters.add( new SimpleParameter( DataType.STRING, "initialization method", "the method that is used for initialization, one of 'best-random=<number>', 'best-random-plugin=<number>', 'best-random-motif=<number>', 'enum-all=<length>', 'enum-data=<length>', 'heuristic=<number>', and 'specific=<sequence or file of sequences>'", true ) );
 		
 		parameters.add( new SimpleParameter( DataType.BOOLEAN, "adjust motif length", "a switch whether to adjust the motif length, i.e., either to shrink or expand", true, true ) );
