@@ -31,6 +31,8 @@ import projects.dispom.PFMComparator.PFMDistance;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
+import de.jstacs.classifier.performanceMeasures.PRCurve;
+import de.jstacs.classifier.performanceMeasures.ROCCurve;
 import de.jstacs.classifier.scoringFunctionBased.ScoreClassifier;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
@@ -122,6 +124,9 @@ public class DiscoveryComparator {
 	}
 	
 	private static class DiscoveryResult {
+		private static PRCurve prCurve = new PRCurve();
+		private static ROCCurve rocCurve = new ROCCurve();
+		
 		ResultSet rs;
 		DoubleTableResult pr;
 		DoubleTableResult roc;
@@ -204,7 +209,7 @@ public class DiscoveryComparator {
 			} else {
 				description = strings[0];
 			}
-			rs = MotifDiscoveryAssessment.assess( truth, pred, 5 ).getResult()[0];
+			rs = MotifDiscoveryAssessment.assess( truth, pred, 5 ).getValue()[0];
 			
 			if(rs.getNumberOfResults() > 0){
 				//curves
@@ -217,34 +222,35 @@ public class DiscoveryComparator {
 					scores = MotifDiscoveryAssessment.getSortedScoresForMotifAndFlanking( truth, pred, motifName );
 				}
 				
-				ArrayList<double[]> listOfDoubles = new ArrayList<double[]>();
-				aucPR = ScoreBasedPerformanceMeasureDefinitions.getAUC_PR( scores[0], scores[1], listOfDoubles );
-				System.out.println( getName() + "\t" + aucPR );
-				Iterator<double[]> it;
-				double[] temp;
-				if( remove ) {
-					it = listOfDoubles.iterator();
-					while(it.hasNext()){
-						temp = it.next();
-						if(temp[0] > (Double) rs.getResultAt( 0 ).getResult()){
-							it.remove();
-						}
-					}
-				}
-				pr = new DoubleTableResult( Measure.PrecisionRecallCurve.getNameString(), Measure.PrecisionRecallCurve.getCommentString(), listOfDoubles );
+				LinkedList<double[]> listOfDoubles = new LinkedList<double[]>();
 				
-				listOfDoubles.clear();
-				ScoreBasedPerformanceMeasureDefinitions.getAUC_ROC( scores[0], scores[1], listOfDoubles );
+				ResultSet curve = prCurve.compute( scores[0], scores[1] ); 
+				aucPR = (Double) curve.getResultForName( "AUC-PR" ).getValue();
+				System.out.println( getName() + "\t" + aucPR );
+				pr = (DoubleTableResult) curve.getResultForName( "PR curve" ).getValue();
 				if( remove ) {
-					it = listOfDoubles.iterator();
-					while(it.hasNext()){
-						temp = it.next();
-						if(temp[1] > (Double) rs.getResultAt( 0 ).getResult()){
-							it.remove();
+					double[][] temp = pr.getValue();
+					for( int i = 0; i < temp.length; i++ ) {
+						if(temp[i][0] <= (Double) rs.getResultAt( 0 ).getValue()){
+							listOfDoubles.add( temp[i] );
 						}
 					}
+					pr = new DoubleTableResult( pr.getName(), pr.getComment(), listOfDoubles );
 				}
-				roc = new DoubleTableResult( Measure.ReceiverOperatingCharacteristicCurve.getNameString(), Measure.ReceiverOperatingCharacteristicCurve.getCommentString(), listOfDoubles );
+			
+				curve = rocCurve.compute( scores[0], scores[1] );
+				roc = (DoubleTableResult) curve.getResultForName( "ROC curve" ).getValue();
+				if( remove ) {
+					listOfDoubles.clear();
+					double[][] temp = pr.getValue();
+					for( int i = 0; i < temp.length; i++ ) {
+						if(temp[i][0] <= (Double) rs.getResultAt( 0 ).getValue()){
+							listOfDoubles.add( temp[i] );
+						}
+					}
+					roc = new DoubleTableResult( roc.getName(), roc.getComment(), listOfDoubles );
+				}
+				
 				/*
 				//filter strong binding sites
 				switch( d ) {
@@ -359,7 +365,7 @@ public class DiscoveryComparator {
 		}
 		
 		public double getValue( int index ) {
-			return (Double) rs.getResultAt( index ).getResult();
+			return (Double) rs.getResultAt( index ).getValue();
 		}
 		
 		public DoubleTableResult getPrCurve(){
@@ -382,7 +388,7 @@ public class DiscoveryComparator {
 			StringBuffer sb = new StringBuffer(300);
 			sb.append( d.name() + "\t" );
 			for( int i = 0; i < rs.getNumberOfResults(); i++ ) {
-				sb.append( rs.getResultAt(i).getResult() + "\t" );
+				sb.append( rs.getResultAt(i).getValue() + "\t" );
 			}
 			sb.append( description );
 			return sb.toString();
