@@ -3,20 +3,18 @@ package supplementary.codeExamples;
 import java.io.PrintWriter;
 
 import de.jstacs.algorithms.optimization.Optimizer;
-import de.jstacs.classifier.AbstractScoreBasedClassifier;
-import de.jstacs.classifier.ConfusionMatrix;
-import de.jstacs.classifier.MeasureParameters;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
-import de.jstacs.classifier.MeasureParameters.Measure;
 import de.jstacs.classifier.assessment.RepeatedHoldOutAssessParameterSet;
 import de.jstacs.classifier.assessment.RepeatedHoldOutExperiment;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
-import de.jstacs.data.DNASample;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DNADataSet;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.models.Model;
 import de.jstacs.models.VariableLengthWrapperModel;
@@ -50,8 +48,8 @@ public class MiMBExample {
 		/* read data */
 		
 		//read foreground and background data set form FastA-files
-		Sample fgData = new DNASample(home+"foreground.fa");
-		Sample bgData = new DNASample(home+"background.fa");
+		DataSet fgData = new DNADataSet(home+"foreground.fa");
+		DataSet bgData = new DNADataSet(home+"background.fa");
 		
 		/* generative part */
 		
@@ -135,52 +133,20 @@ public class MiMBExample {
 		/* performance measures */
 		
 		//partition data
-		Sample[] fgSplit = bisect( fgData, fgData.getElementLength() );
-		Sample[] bgSplit = bisect( bgData, fgData.getElementLength() );
+		DataSet[] fgSplit = bisect( fgData, fgData.getElementLength() );
+		DataSet[] bgSplit = bisect( bgData, fgData.getElementLength() );
 
-		Sample fgTest = fgSplit[1];
-		Sample bgTest = bgSplit[1];
+		DataSet fgTest = fgSplit[1];
+		DataSet bgTest = bgSplit[1];
 		
 		//train the generative classifier
 		cl.train( fgSplit[0], bgSplit[0] );
 		
-		//fill a confusion matrix
-		ConfusionMatrix confMatrix = cl.test( fgTest, bgTest );
-		
-		//read the entries of the table
-		double tp = confMatrix.getCountsFor(0, 0);
-		double fn = confMatrix.getCountsFor(1, 0);
-		double tn = confMatrix.getCountsFor(1, 1);
-		double fp = confMatrix.getCountsFor(0, 1);
-		
-		double p = tp+fn;
-		double barp = tp+fp;
-		double n = tn+fp;
-		double barn = tn+fn;
-		
-		System.out.println("TP = "+tp+"\t\tFP = "+fp+"\t\tbarp = "+barp+"\n" +
-				"FN = "+fn+"\t\tTN = "+tn+"\t\tbarn = "+barn+"\n" +
-				"p = "+p+"\t\tn = "+n+"\t\tN' = "+(n+p));
-		
-		//compute the measures
-		double sn = tp/p;
-		double ppv = tp/barp;
-		double fpr = fp/n;
-		double sp = tn/n;
-		double cr = (tp+tn)/(n+p);
-		
-		System.out.println("cr = "+cr+"\nSn = "+sn+"\nppv = "+ppv+"\nSp = "+sp+"\nfpr = "+fpr+"\n");
-		
 		//define the measures that shall be evaluated
-		MeasureParameters mp = new MeasureParameters(
-				true,//evaluate all performance measures
-				0.999,//use specificity of 0.999 to measure the sensitivity
-				0.95,//use sensitivity of 0.95 to measure the false positive rate 
-				0.95//use sensitivity of 0.95 to measure the positive predictive value
-		);
+		PerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
 		
 		//evaluates the classifier
-		ResultSet rs = cl.evaluateAll(
+		ResultSet rs = cl.evaluate(
 				mp,//defines the measures that will be evaluated
 				true,//allows to throw an exception if a measure can not be computed
 				fgTest,//the test data for the foreground class
@@ -189,8 +155,8 @@ public class MiMBExample {
 		System.out.println(rs); 
 
 		//plot ROC and PR curve
-		DoubleTableResult roc = (DoubleTableResult)rs.getResultAt( rs.findColumn( Measure.ReceiverOperatingCharacteristicCurve.getNameString() ) );
-		DoubleTableResult pr = (DoubleTableResult)rs.getResultAt( rs.findColumn( Measure.PrecisionRecallCurve.getNameString() ) );
+		DoubleTableResult roc = (DoubleTableResult)rs.getResultAt( rs.findColumn( "ROC curve" ) );
+		DoubleTableResult pr = (DoubleTableResult)rs.getResultAt( rs.findColumn( "PR curve" ) );
 		
 		REnvironment re = null;
 		//you need to have a Rserve running
@@ -201,12 +167,10 @@ public class MiMBExample {
 					""//password
 				);
 			
-			String snfpr = "points( " + fpr + ", " + sn + ", col=" + 1 	+ ", pch=" +4 + ", cex=2, lwd=3 );\n";
-			String ppvsn = "points( " + sn + ", " + ppv + ", col=" + 1 	+ ", pch=" +4 + ", cex=2, lwd=3 );\n";
 			re.voidEval( "p<-palette();p[8]<-\"gray66\";palette(p);" );
 			
-			re.plotToPDF( DoubleTableResult.getPlotCommands( re, null, new int[]{8}, roc ).toString()+"\n"+snfpr,4,4.5, home+"roc.pdf",true);
-			re.plotToPDF( DoubleTableResult.getPlotCommands( re, null, new int[]{8}, pr ).toString()+"\n"+ppvsn, 4,4.5, home+"pr.pdf",true);
+			re.plotToPDF( DoubleTableResult.getPlotCommands( re, null, new int[]{8}, roc ).toString(),4,4.5, home+"roc.pdf",true);
+			re.plotToPDF( DoubleTableResult.getPlotCommands( re, null, new int[]{8}, pr ).toString(), 4,4.5, home+"pr.pdf",true);
 		} catch( Exception e ) {
 			System.out.println( "could not plot the curves" );
 		} finally {
@@ -219,16 +183,11 @@ public class MiMBExample {
 		/* hold-out sampling */
 		
 		//define the measures that shall be evaluated
-		mp = new MeasureParameters(
-				false,//only evaluate numerical performance measures
-				0.999,//use specificity of 0.999 to measure the sensitivity
-				0.95,//use sensitivity of 0.95 to measure the false positive rate 
-				0.95//use sensitivity of 0.95 to measure the positive predictive value
-		);
+		mp = PerformanceMeasureParameterSet.createFilledParameters();
 		
 		//create the parameters for the hold-out sampling
 		RepeatedHoldOutAssessParameterSet parsA = new RepeatedHoldOutAssessParameterSet(
-			Sample.PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS,//defines the way of splitting the data
+			DataSet.PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS,//defines the way of splitting the data
 			fgData.getElementLength(), //defines the length of the elements in the test data set
 			true,//a switch that decides whether to throw an exception if a performance measure can not be evaluated
 			1000,//the number of samplings
@@ -239,7 +198,7 @@ public class MiMBExample {
 		RepeatedHoldOutExperiment exp = new RepeatedHoldOutExperiment(cl,cll); 
 		//does the experiment a stores the results in a ListResult
 		ListResult lr = exp.assess(
-				mp,//the measures that will be computed
+				(NumericalPerformanceMeasureParameterSet) mp,//the measures that will be computed
 				parsA,//the parameters for the experiment
 				fgData,//the foreground data
 				bgData//the background data
@@ -254,7 +213,7 @@ public class MiMBExample {
 		cll.train( fgData, bgData );
 		
 		//load data for prediction
-		Sample promoters = new DNASample(home+"human_promoters.fa");
+		DataSet promoters = new DNADataSet(home+"human_promoters.fa");
 		
 		//find best possible binding site
 		int si=0,id=0;
@@ -299,22 +258,22 @@ public class MiMBExample {
 	}
 	
 	//method for obtaining reproduceably the same split of some given data
-	private static Sample[] bisect(Sample data, int l) throws Exception {
+	private static DataSet[] bisect(DataSet data, int l) throws Exception {
 		int mid = data.getNumberOfElements()/2;
-		return new Sample[]{
-				getSubSample(data, 0, mid, "train",l),
-				getSubSample(data, mid, data.getNumberOfElements(), "test",l)
+		return new DataSet[]{
+				getSubDataSet(data, 0, mid, "train",l),
+				getSubDataSet(data, mid, data.getNumberOfElements(), "test",l)
 		};
 	}
 	
 	//creates a sample from a specific part of the data
-	private static Sample getSubSample( Sample data, int start, int end, String annotation, int l ) throws Exception {
+	private static DataSet getSubDataSet( DataSet data, int start, int end, String annotation, int l ) throws Exception {
 		//copy the sequences into an array
 		Sequence[] seqs = new Sequence[end-start];
 		for(int i=0;i<seqs.length;i++){
 			seqs[i] = data.getElementAt( i+start );
 		}
-		return new Sample( new Sample( annotation, seqs ), l );
+		return new DataSet( new DataSet( annotation, seqs ), l );
 	}
 	
 	//prints a separator
