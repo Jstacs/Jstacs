@@ -25,11 +25,13 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
-import de.jstacs.classifier.MeasureParameters.Measure;
-import de.jstacs.classifier.ScoreBasedPerformanceMeasureDefinitions.ThresholdMeasurePair;
+import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.io.FileManager;
+import de.jstacs.results.Result;
+import de.jstacs.results.ResultSet;
+import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.REnvironment;
 
@@ -74,11 +76,7 @@ public class Classification {
 	 * @throws Exception
 	 *             if the performance measures could not be computed
 	 * 
-	 * @see ScoreBasedPerformanceMeasureDefinitions#getSensitivityForSpecificity(double[], double[], double)
-	 * @see ScoreBasedPerformanceMeasureDefinitions#getFPRForSensitivity(double[], double[], double)
-	 * @see ScoreBasedPerformanceMeasureDefinitions#getPPVForSensitivity(double[], double[], double)
-	 * @see ScoreBasedPerformanceMeasureDefinitions#getAUC_ROC(double[], double[], java.util.AbstractList)
-	 * @see ScoreBasedPerformanceMeasureDefinitions#getAUC_PR(double[], double[], java.util.AbstractList)
+	 * @see PerformanceMeasureParameterSet
 	 */
 	public static void main( String[] args ) throws Exception {
 		double[] fg = getSortedValues( args[0] );
@@ -86,11 +84,9 @@ public class Classification {
 		
 		boolean plot = args.length > 2;
 		REnvironment r = null;
-		LinkedList<double[]> list = null;
 		DoubleTableResult dtr;
 		try{
 			if( plot ) {
-				list = new LinkedList<double[]>();
 				switch( args.length ) {
 					case 3:
 						//server
@@ -104,26 +100,28 @@ public class Classification {
 						System.out.println( "You have to specify the server and optionally username and login." );
 				}
 			}
-	
-			ThresholdMeasurePair tmp = ScoreBasedPerformanceMeasureDefinitions.getSensitivityForSpecificity( fg, bg, 0.999 );
-			System.out.println( "Sn (with Sp=99.9%) =\t" + tmp.getMeasure() + "\tthreshold =\t" + tmp.getThreshold() );
-			tmp = ScoreBasedPerformanceMeasureDefinitions.getFPRForSensitivity( fg, bg, 0.95 );
-			System.out.println( "FPR (with Sn=95%) =\t" + tmp.getMeasure() + "\tthreshold =\t" + tmp.getThreshold() );
-			tmp = ScoreBasedPerformanceMeasureDefinitions.getPPVForSensitivity( fg, bg, 0.95 );
-			System.out.println( "PPV with Sn=95%\t" + tmp.getMeasure() + "\tthreshold =\t" + tmp.getThreshold() );
-			System.out.println( "AUC_ROC\t" + ScoreBasedPerformanceMeasureDefinitions.getAUC_ROC( fg, bg, list ) );
-			if( plot ) {
-				dtr = new DoubleTableResult("ROC","",list);
-				list.clear();
-				r.plotToPDF( DoubleTableResult.getPlotCommands( r, Measure.ReceiverOperatingCharacteristicCurve.getNameString(), dtr ).toString(), "./ROC-curve.pdf", true );
-				FileManager.writeFile( new File("ROC.xml"), dtr.toXML() );
-			}
-			System.out.println( "AUC_PR\t" + ScoreBasedPerformanceMeasureDefinitions.getAUC_PR( fg, bg, list ) );
-			if( plot ) {
-				dtr = new DoubleTableResult("PR","",list);
-				list.clear();
-				r.plotToPDF( DoubleTableResult.getPlotCommands( r, Measure.PrecisionRecallCurve.getNameString(), dtr ).toString(), "./PR-curve.pdf", true );
-				FileManager.writeFile( new File("PRC.xml"), dtr.toXML() );
+			
+			PerformanceMeasureParameterSet performance = PerformanceMeasureParameterSet.createFilledParameters( plot, 0.999, 0.95, 0.95, 1 );
+			boolean isNumeric = true;
+			AbstractPerformanceMeasure[] m = performance.getAllMeasures();
+			ResultSet rs;
+			Result res;
+			for( AbstractPerformanceMeasure current : m ) {
+				rs = current.compute( fg, bg );
+				if( rs != null ) {
+					System.out.println( rs );
+					if( plot ) {
+						for( int i = 0; i < rs.getNumberOfResults(); i++ ) {
+							res = rs.getResultAt(i);
+							if( res instanceof DoubleTableResult ) {
+								dtr = (DoubleTableResult) res;
+								String name = dtr.getName().replaceAll( " ", "-" );
+								r.plotToPDF( DoubleTableResult.getPlotCommands( r, dtr.getName(), dtr ).toString(), "./"+name+".pdf", true );
+								FileManager.writeFile( new File("./"+name+".xml"), dtr.toXML() );
+							}
+						}
+					}
+				}
 			}
 		} catch( Exception e ) {
 			e.printStackTrace();

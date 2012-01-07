@@ -30,27 +30,29 @@ import org.rosuda.REngine.REXP;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
-import de.jstacs.classifier.MeasureParameters;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
-import de.jstacs.classifier.MeasureParameters.Measure;
-import de.jstacs.classifier.assessment.KFoldCVAssessParameterSet;
 import de.jstacs.classifier.assessment.KFoldCrossValidation;
+import de.jstacs.classifier.assessment.KFoldCrossValidationAssessParameterSet;
 import de.jstacs.classifier.modelBased.ModelBasedClassifier;
+import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
+import de.jstacs.classifier.performanceMeasures.PRCurve;
+import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
+import de.jstacs.classifier.performanceMeasures.ROCCurve;
 import de.jstacs.classifier.scoringFunctionBased.AbstractMultiThreadedOptimizableFunction;
 import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.DNASample;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DNADataSet;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.data.Sample.PartitionMethod;
+import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
-import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.data.alphabets.GenericComplementableDiscreteAlphabet;
 import de.jstacs.data.bioJava.BioJavaAdapter;
 import de.jstacs.data.bioJava.SimpleSequenceIterator;
@@ -69,6 +71,7 @@ import de.jstacs.results.ResultSet;
 import de.jstacs.scoringFunctions.NormalizableScoringFunction;
 import de.jstacs.scoringFunctions.directedGraphicalModels.BayesianNetworkScoringFunction;
 import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
+import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.scoringFunctions.mix.MixtureScoringFunction;
 import de.jstacs.utils.REnvironment;
 
@@ -135,9 +138,9 @@ public class CodeExampleTest {
 	
 	public static void parameterLearning_MCL_and_MSP( String[] args ) throws Exception {
 		//read FastA-files
-		Sample[] data = {
-		         new DNASample( args[0] ),
-		         new DNASample( args[1] )
+		DataSet[] data = {
+		         new DNADataSet( args[0] ),
+		         new DNADataSet( args[1] )
 		};
 		AlphabetContainer container = data[0].getAlphabetContainer();
 		
@@ -169,7 +172,7 @@ public class CodeExampleTest {
 		}
 		
 		//e.g., evaluate (normally done on a test data set)
-		MeasureParameters mp = new MeasureParameters( false, 0.95, 0.999, 0.999 );
+		PerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters();
 		for( int i = 0; i < cl.length; i++ ){
 			System.out.println( cl[i].evaluate( mp, true, data ) );
 		}			
@@ -177,9 +180,9 @@ public class CodeExampleTest {
 	
 	public static void parameterLearning_genDisMix( String[] args ) throws Exception {
 		//read FastA-files
-		Sample[] data = {
-		         new DNASample( args[0] ),
-		         new DNASample( args[1] )
+		DataSet[] data = {
+		         new DNADataSet( args[0] ),
+		         new DNADataSet( args[1] )
 		};
 		AlphabetContainer container = data[0].getAlphabetContainer();
 		int length = data[0].getElementLength();
@@ -224,7 +227,7 @@ public class CodeExampleTest {
 		}
 		
 		//e.g., evaluate (normally done on a test data set)
-		MeasureParameters mp = new MeasureParameters( false, 0.95, 0.999, 0.999 );
+		PerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters();
 		for( i = 0; i < cl.length; i++ ){
 			System.out.println( cl[i].evaluate( mp, true, data ) );
 		}			
@@ -239,30 +242,27 @@ public class CodeExampleTest {
 		//create new classifier from read StringBuffer containing XML-code
 		ModelBasedClassifier trainedClassifier = new ModelBasedClassifier(buf2);	
 
-		//create a Sample for each class from the input data, using the DNA alphabet
-		Sample[] test = new Sample[2];
-		test[0] = new DNASample( args[0] );
+		//create a DataSet for each class from the input data, using the DNA alphabet
+		DataSet[] test = new DataSet[2];
+		test[0] = new DNADataSet( args[0] );
 		
 		//the length of our input sequences
 		int length = test[0].getElementLength();
 
-		test[1] = new Sample( new DNASample( args[1] ), length );
+		test[1] = new DataSet( new DNADataSet( args[1] ), length );
 		
 		 
-		Measure[] m = { Measure.ReceiverOperatingCharacteristicCurve, Measure.PrecisionRecallCurve };
-		MeasureParameters mp = new MeasureParameters( true );
-		for( Measure s : m ) {
-			mp.setSelected( s, true );
-		}
-		ResultSet rs = trainedClassifier.evaluateAll( mp, true, test );
+		AbstractPerformanceMeasure[] m = { new PRCurve(), new ROCCurve() };
+		PerformanceMeasureParameterSet mp = new PerformanceMeasureParameterSet( 2, m );
+		ResultSet rs = trainedClassifier.evaluate( mp, true, test );
 		 
 		REnvironment r = null;
 		try {
 			r = new REnvironment( server, login, password );
-			for( Measure s : m )  {
-				DoubleTableResult dtr = (DoubleTableResult) rs.getResultAt( rs.findColumn( s.getNameString() ) );
+			for( AbstractPerformanceMeasure s : m )  {
+				DoubleTableResult dtr = (DoubleTableResult) rs.getResultAt( 1 );
 				ImageResult ir = DoubleTableResult.plot( r, dtr );
-				REnvironment.showImage( s.getNameString(), ir.getResult() );
+				REnvironment.showImage( dtr.getName(), ir.getValue() );
 			}
 		} catch( Exception e ) {
 			e.printStackTrace();
@@ -316,14 +316,14 @@ public class CodeExampleTest {
 	}
 	
 	public static void crossValidation(String[] args) throws Exception {
-		//create a Sample for each class from the input data, using the DNA alphabet
-		Sample[] data = new Sample[2];
-		data[0] = new DNASample( args[0] );
+		//create a DataSet for each class from the input data, using the DNA alphabet
+		DataSet[] data = new DataSet[2];
+		data[0] = new DNADataSet( args[0] );
 		
 		//the length of our input sequences
 		int length = data[0].getElementLength();
 
-		data[1] = new Sample( new DNASample( args[1] ), length );
+		data[1] = new DataSet( new DNADataSet( args[1] ), length );
 		 
 		AlphabetContainer container = data[0].getAlphabetContainer();
 		
@@ -403,23 +403,23 @@ public class CodeExampleTest {
 		KFoldCrossValidation cv = new KFoldCrossValidation( classifiers );
 		 
 		//we use a specificity of 0.999 to compute the sensitivity and a sensitivity of 0.95 to compute FPR and PPV
-		MeasureParameters mp = new MeasureParameters(false, 0.999, 0.95, 0.95);
+		NumericalPerformanceMeasureParameterSet mp = (NumericalPerformanceMeasureParameterSet) PerformanceMeasureParameterSet.createFilledParameters();
 		//we do a 10-fold cross validation and partition the data by means of the number of symbols
-		KFoldCVAssessParameterSet cvpars = new KFoldCVAssessParameterSet(PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, length, true, 2);
+		KFoldCrossValidationAssessParameterSet cvpars = new KFoldCrossValidationAssessParameterSet(PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, length, true, 2);
 		 
 		//compute the result of the cross validation and print them to System.out
 		System.out.println( cv.assess( mp, cvpars, data ) );
 	}
 	
 	public static void saveModel(String[] args) throws Exception {
-		//create a Sample for each class from the input data, using the DNA alphabet
-		Sample[] data = new Sample[2];
-		data[0] = new DNASample( args[0] );
+		//create a DataSet for each class from the input data, using the DNA alphabet
+		DataSet[] data = new DataSet[2];
+		data[0] = new DNADataSet( args[0] );
 		
 		//the length of our input sequences
 		int length = data[0].getElementLength();
 
-		data[1] = new Sample( new DNASample( args[1] ), length );
+		data[1] = new DataSet( new DNADataSet( args[1] ), length );
 		 
 		//create a new PWM
 		BayesianNetworkModel pwm = new BayesianNetworkModel( new BayesianNetworkModelParameterSet(
@@ -455,18 +455,18 @@ public class CodeExampleTest {
 	
 	public static void trainClassifier(String[] args) throws Exception{
 				 
-		//create a Sample for each class from the input data, using the DNA alphabet
-		Sample[] data = new Sample[2];
-		data[0] = new DNASample( args[0] );
+		//create a DataSet for each class from the input data, using the DNA alphabet
+		DataSet[] data = new DataSet[2];
+		data[0] = new DNADataSet( args[0] );
 		
 		//the length of our input sequences
 		int length = data[0].getElementLength();
 
-		data[1] = new Sample( new DNASample( args[1] ), length );
+		data[1] = new DataSet( new DNADataSet( args[1] ), length );
 
 		
 		//sequences that will be classified
-		Sample toClassify = new DNASample( args[2] );
+		DataSet toClassify = new DNADataSet( args[2] );
 		 
 		//create a new PWM
 		BayesianNetworkModel pwm = new BayesianNetworkModel( new BayesianNetworkModelParameterSet(
@@ -495,16 +495,16 @@ public class CodeExampleTest {
 	
 	public static void loadData() throws Exception {
 		//load DNA sequences in FastA-format
-		Sample data = new DNASample( home+"myfile.fa" ); 
+		DataSet data = new DNADataSet( home+"myfile.fa" ); 
 		
 		//create a DNA-alphabet
 		AlphabetContainer container = new AlphabetContainer( new DNAAlphabet() );
 		
-		//create a Sample using the alphabet from above in FastA-format
-		data = new Sample( container, new SparseStringExtractor( home+"myfile.fa", StringExtractor.FASTA ));
+		//create a DataSet using the alphabet from above in FastA-format
+		data = new DataSet( container, new SparseStringExtractor( home+"myfile.fa", StringExtractor.FASTA ));
 		
-		//create a Sample using the alphabet from above
-		data = new Sample( container, new SparseStringExtractor( home+"myfile.txt" ));
+		//create a DataSet using the alphabet from above
+		data = new DataSet( container, new SparseStringExtractor( home+"myfile.txt" ));
 		
 		//defining the ids, we want to obtain from NCBI Genbank:
 		GenbankRichSequenceDB db = new GenbankRichSequenceDB();
@@ -514,7 +514,7 @@ public class CodeExampleTest {
 				db.getRichSequence( "NC_000932.1" )
 				);
 		 
-		//conversion to Jstacs Sample
-		data = BioJavaAdapter.sequenceIteratorToSample( it, null );
+		//conversion to Jstacs DataSet
+		data = BioJavaAdapter.sequenceIteratorToDataSet( it, null );
 	}
 }

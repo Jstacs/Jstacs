@@ -20,10 +20,12 @@ package supplementary.codeExamples;
 
 import java.util.Arrays;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+
 import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sample;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.models.AbstractModel;
@@ -35,7 +37,6 @@ import de.jstacs.results.NumericalResultSet;
 public class HomogeneousMarkovModel extends AbstractModel {
  
 	private double[] logProbs;//array for the parameters, i.e. the probabilities for each symbol
-	private boolean isTrained;//stores if the model has been trained
  
 	public HomogeneousMarkovModel( AlphabetContainer alphabets ) throws Exception {
 		super( alphabets, 0 ); //we have a homogeneous Model, hence the length is set to 0
@@ -45,12 +46,12 @@ public class HomogeneousMarkovModel extends AbstractModel {
 		}
 		//initialize parameter array
 		this.logProbs = new double[(int) alphabets.getAlphabetLengthAt( 0 )];
-		isTrained = false; //we have not trained the model, yet
+		Arrays.fill( logProbs, -Math.log(logProbs.length) );
 	}
  
 	public HomogeneousMarkovModel( StringBuffer stringBuff ) throws NonParsableException { 
-            super( stringBuff ); 
-        }
+        super( stringBuff ); 
+    }
  
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		//extract our XML-code
@@ -59,7 +60,6 @@ public class HomogeneousMarkovModel extends AbstractModel {
 		alphabets = XMLParser.extractObjectForTags( xml, "alphabets", AlphabetContainer.class );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		logProbs = XMLParser.extractObjectForTags( xml, "logProbs", double[].class );
-		isTrained = XMLParser.extractObjectForTags( xml, "isTrained", boolean.class );
 	}
  
 	public StringBuffer toXML() {
@@ -68,7 +68,6 @@ public class HomogeneousMarkovModel extends AbstractModel {
 		XMLParser.appendObjectWithTags( buf, alphabets, "alphabets" );
 		XMLParser.appendObjectWithTags( buf, length, "length" );
 		XMLParser.appendObjectWithTags( buf, logProbs, "logProbs" );
-		XMLParser.appendObjectWithTags( buf, isTrained, "isTrained" );
 		//add our own tag
 		XMLParser.addTags( buf, "homogeneousMarkovModel" );
 		return buf;
@@ -99,15 +98,11 @@ public class HomogeneousMarkovModel extends AbstractModel {
 		return seqLogProb;
 	}
  
-	public double getProbFor( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, Exception {
-		return Math.exp( getLogProbFor(sequence, startpos, endpos) );
-	}
+	public boolean isInitialized() {
+        return true; 
+    }
  
-	public boolean isTrained() { 
-            return isTrained; 
-        }
- 
-	public void train( Sample data, double[] weights ) throws Exception {
+	public void train( DataSet data, double[] weights ) throws Exception {
 		//reset the parameter array
 		Arrays.fill( logProbs, 0.0 );
 		//default sequence weight
@@ -131,8 +126,5 @@ public class HomogeneousMarkovModel extends AbstractModel {
 		for(int i=0;i<logProbs.length;i++){ norm += logProbs[i]; }
 		//normalize probs to obtain proper probabilities
 		for(int i=0;i<logProbs.length;i++){ logProbs[i] = Math.log( logProbs[i]/norm ); }
-		//now the model is trained
-		isTrained = true;
-	}
- 
+	} 
 }
