@@ -122,7 +122,7 @@ public class BioJavaAdapter {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static DataSet sequenceIteratorToSample( SequenceIterator it, FeatureFilter filter ) throws Exception {
+	public static DataSet sequenceIteratorToDataSet( SequenceIterator it, FeatureFilter filter ) throws Exception {
 		LinkedList<Sequence> parsed = new LinkedList<Sequence>();
 		org.biojava.bio.seq.Sequence current = it.nextSequence();
 		org.biojava.bio.symbol.Alphabet abcCurrent, bioAbc = current.getAlphabet();
@@ -349,7 +349,7 @@ public class BioJavaAdapter {
 	 * @throws BioException
 	 *             if forwarded from BioJava
 	 */
-	public static SequenceIterator sampleToSequenceIterator( DataSet sample, boolean flat ) throws WrongAlphabetException, BioException {
+	public static SequenceIterator dataSetToSequenceIterator( DataSet sample, boolean flat ) throws WrongAlphabetException, BioException {
 		LinkedList<org.biojava.bio.seq.Sequence> bjSeqs = new LinkedList<org.biojava.bio.seq.Sequence>();
 
 		AlphabetContainer cont = sample.getAlphabetContainer();
