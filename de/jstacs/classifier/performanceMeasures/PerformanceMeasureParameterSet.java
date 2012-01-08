@@ -136,10 +136,8 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	
 	protected void setMeasure( AbstractPerformanceMeasure measure ) throws IllegalValueException {
 		ParameterSetContainer cont = (ParameterSetContainer)this.parameters.get( this.parameters.size()-1 );
-		SelectionParameter cp = (SelectionParameter)cont.getValue().getParameterAt( 0 );
-		cp.setValue( PerformanceMeasureParameterSet.getName( measure ) );
-		cont = (ParameterSetContainer)cp.getParametersInCollection().getParameterAt( cp.getSelected() );
-		cont.setValue( measure );
+		SelectionParameter sel = (SelectionParameter)cont.getValue().getParameterAt( 0 );
+		sel.setValue( measure );
 	}
 
 	public AbstractPerformanceMeasure removeMeasure(int index){
