@@ -78,38 +78,38 @@ public class HigherOrderHMM extends AbstractHMM {
 	/**
 	 * Helper variable = only for internal use. This array is used for {@link Transition#fillTransitionInformation(int, int, int, int[])}.
 	 */
-	protected int[] container;//TODO dimension
+	protected int[] container;
 	/**
 	 * Helper variable = only for internal use. This array is used for compute the emissions at each position of a sequence only once,
 	 * which might be beneficial for higher order models.
 	 * 
 	 * @see HigherOrderHMM#emission
 	 */
-	protected double[] logEmission;//TODO dimension
+	protected double[] logEmission;
 	
 	/**
 	 * Helper variable = only for internal use. This array is used to compute the forward matrix. It stores intermediate results.
 	 * 
 	 * #see {@link #numberOfSummands}
 	 */
-	private double[][][] forwardIntermediate;//TODO dimension
+	private double[][][] forwardIntermediate;
 
 	/**
 	 * Helper variable = only for internal use. This array is used to compute the backward matrix. It stores intermediate results.
 	 * 
 	 * #see {@link #numberOfSummands}
 	 */
-	protected double[] backwardIntermediate;//TODO dimension
+	protected double[] backwardIntermediate;
 	
 	/**
 	 * Helper variable = only for internal use. This array is used to compute the forward and backward matrix. It stores the number of intermediate results.
 	 */
-	protected int[][] numberOfSummands;//TODO dimension
+	protected int[][] numberOfSummands;
 	
 	/**
 	 * Helper variable = only for internal use. This field is used in the method {@link #samplePath(IntList, int, int, Sequence)}.
 	 */
-	protected IntList stateList;//TODO dimension
+	protected IntList stateList;
 	protected boolean skipInit;
 	
 	/**
@@ -645,8 +645,8 @@ public class HigherOrderHMM extends AbstractHMM {
 			int numberOfStarts = trainingParameter.getNumberOfStarts();
 			AbstractTerminationCondition tc = ((MaxHMMTrainingParameterSet) trainingParameter).getTerminationCondition();
 			
-			Training t = new Training( threads, this );
-			t.setDataSet( data, weights );
+			Compute compute = new Compute( threads, this );
+			compute.setDataSet( data, weights );
 			
 			Time time = Time.getTimeInstance( sostream );
 			for( int it, start = 0; start < numberOfStarts; start++ ) {
@@ -654,7 +654,7 @@ public class HigherOrderHMM extends AbstractHMM {
 				//init
 				if(!skipInit){
 					initialize( data, weights );
-					t.setParameters();
+					compute.setParameters();
 				}
 				
 				//iterate
@@ -663,11 +663,11 @@ public class HigherOrderHMM extends AbstractHMM {
 				time.reset();
 				do {
 					old_value = new_value;
-					new_value = getLogPriorTerm() + t.oneIteration();
+					new_value = getLogPriorTerm() + compute.oneIteration();
 										
 					sostream.writeln( it++ + "\t" + time.getElapsedTime() + "\t" + new_value + "\t" + (new_value - old_value) );
 					if( tc.doNextIteration( it, old_value, new_value, null, null, Double.NaN, time) ) {
-						t.estimateFromStatistics();
+						compute.estimateFromStatistics();
 					} else {
 						break;
 					}					
@@ -688,7 +688,7 @@ public class HigherOrderHMM extends AbstractHMM {
 				transition = bestTransition;
 				createStates();
 			}
-			t.stopThreads();
+			compute.stopThreads();
 		}
 	}
 	
@@ -771,14 +771,14 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 	
 	@Override
-	public synchronized double[] getLogScoreFor(DataSet data) throws Exception {
+	public double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] logProb = new double[data.getNumberOfElements()];
 		getLogScoreFor(data, logProb);
 		return logProb;
 	}
 
 	@Override
-	public synchronized void getLogScoreFor(DataSet data, double[] res) throws Exception {
+	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if( !data.getAlphabetContainer().checkConsistency(getAlphabetContainer()) ) {
 			throw new WrongAlphabetException( "The AlphabetContainer of the sample and the model do not match." );
 		}
@@ -948,9 +948,9 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 	/**/
 	
-	private static class Training {
+	private static class Compute {
 		private static enum WorkerState{
-			COMPUTE,
+			TRAIN,
 			WAIT,
 			STOP
 		}
@@ -980,7 +980,7 @@ public class HigherOrderHMM extends AbstractHMM {
 				this.score = 0;
 				this.data = data;
 				
-				/*XXX remove
+				/*
 				int n = 0;
 				for( int i = start; i < end; i++){
 					n+= data.getElementAt(i).getLength();
@@ -1019,10 +1019,10 @@ public class HigherOrderHMM extends AbstractHMM {
 							exception = true;
 							e.printStackTrace();
 						}
-						synchronized( Training.this )
+						synchronized( Compute.this )
 						{
 							state = WorkerState.WAIT;
-							Training.this.notify();
+							Compute.this.notify();
 						}
 					}
 				}
@@ -1037,7 +1037,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		TrainableTransition[] transition;
 		Emission[] emission;
 		
-		public Training( int threads, HigherOrderHMM hmm ) throws CloneNotSupportedException {
+		public Compute( int threads, HigherOrderHMM hmm ) throws CloneNotSupportedException {
 			workers = new WorkerThread[threads];
 			workers[0] = new WorkerThread(0,hmm);
 			for( int i = 1 ; i < threads; i++ ) {
@@ -1103,7 +1103,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		private double oneIteration() {
 			for(int i=0;i<workers.length;i++){
 				workers[i].hmm.resetStatistics();
-				workers[i].setState( WorkerState.COMPUTE );
+				workers[i].setState( WorkerState.TRAIN );
 			}
 			waitUntilWorkersFinished();
 			double res = 0;

@@ -63,7 +63,7 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * The (hidden) states of the HMM.
 	 */
-	protected State[] states;//TODO dimension
+	protected State[] states;
 
 	//for the states
 	/**
@@ -84,24 +84,24 @@ public abstract class AbstractHMM extends AbstractModel implements Cloneable, St
 	/**
 	 * The emissions used in the states.
 	 */
-	protected Emission[] emission;//TODO dimension
+	protected Emission[] emission;
 	
 	/**
 	 * The transitions between all (hidden) states of the HMM.
 	 */
-	protected Transition transition;//TODO dimension
+	protected Transition transition;
 	
 	/**
 	 * matrix for all forward-computed variables;
 	 * fwdMatrix[l][c] = log P(x_1,...,x_l,(s_{l-order+1},...,s_l)=c | parameter)
 	 */
-	protected double[][] fwdMatrix;//TODO dimension
+	protected double[][] fwdMatrix;
 	
 	/**
 	 * matrix for all backward-computed variables;
 	 * bwdMatrix[l][c] = log P(x_{l+1},...,x_L | (s_{l-order+1},...,s_l)=c , parameter)
 	 */
-	protected double[][] bwdMatrix;//TODO dimension
+	protected double[][] bwdMatrix;
 	
 	/**
 	 * The {@link de.jstacs.parameters.ParameterSet} containing all {@link de.jstacs.parameters.Parameter}s for the training of the HMM.
