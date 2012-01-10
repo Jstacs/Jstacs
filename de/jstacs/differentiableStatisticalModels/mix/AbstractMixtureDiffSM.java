@@ -28,7 +28,7 @@ import de.jstacs.differentiableStatisticalModels.AbstractDifferentiableStatistic
 import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.differentiableStatisticalModels.NormalizedDiffSM;
 import de.jstacs.differentiableStatisticalModels.SamplingDifferentiableStatisticalModel;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.DurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.DurationDiffSM;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
