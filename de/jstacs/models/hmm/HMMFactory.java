@@ -162,7 +162,7 @@ public class HMMFactory {
 		hyperParams = new double[states.length];
 		double e = ess/hyperParams.length;
 		Arrays.fill( hyperParams, e );
-		list.add( new PseudoTransitionElement( null, states, hyperParams, true ) );
+		list.add( new PseudoTransitionElement( null, states, hyperParams ) );
 		
 		//main
 		states = new int[numStates+1];
@@ -174,7 +174,7 @@ public class HMMFactory {
 		Arrays.fill( hyperParams, e );
 		for( int i = 0; i < numStates; i++ ) {
 			hyperParams[i] = selfTranistionPart*ess;
-			list.add( new PseudoTransitionElement( new int[]{i}, states, hyperParams, true ) );
+			list.add( new PseudoTransitionElement( new int[]{i}, states, hyperParams ) );
 			hyperParams[i] = e;			
 		}
 		
@@ -183,7 +183,7 @@ public class HMMFactory {
 		states[numStates] = numStates-1;
 		emission[numStates] = new SilentEmission();
 		
-		Pair<TransitionElement[], double[]> p = propagateESS(ess, list);
+		Pair<double[][], double[]> p = propagateESS(ess, list);
 		double[] stateEss = p.getSecondElement(); 
 		for( int i = 0; i < numStates; i++ ) {
 			name[i] = "" + i;
@@ -193,7 +193,7 @@ public class HMMFactory {
 				emission[i] = new DiscreteEmission( con, stateEss[i] );
 			}
 		}
-		return getHMM( pars, name, null, null, emission, p.getFirstElement(), ess, false );
+		return getHMM( pars, name, null, null, emission, createTransition( p.getFirstElement(), list ), ess, false );
 	}
 	
 	/**
@@ -434,7 +434,7 @@ public class HMMFactory {
 			for( int k = 0; k < i; k++ ) {
 				context[k]=order+k;
 			}
-			list.add( new PseudoTransitionElement( context, new int[]{order+i}, new double[]{ess}, true ) );
+			list.add( new PseudoTransitionElement( context, new int[]{order+i}, new double[]{ess} ) );
 			startContext[i] = order+i;
 		}		
 
@@ -464,7 +464,7 @@ public class HMMFactory {
 				
 		if(joiningStates>0){
 			int e = emList.size();
-			list.add( new PseudoTransitionElement( endContext, new int[]{e-1, e}, new double[]{ess/2.0,ess/2.0}, true ) );
+			list.add( new PseudoTransitionElement( endContext, new int[]{e-1, e}, new double[]{ess/2.0,ess/2.0} ) );
 			
 			for( int i = 0; i < joiningStates; i++ ) {
 				nameList.add( "J" + i );
@@ -493,7 +493,7 @@ public class HMMFactory {
 				}
 				for( int k = 0; k < possible[j].size(); k++ ) {
 					myContext = possible[j].get(k);
-					list.add( new PseudoTransitionElement( myContext, children, hyperParams, true ) );
+					list.add( new PseudoTransitionElement( myContext, children, hyperParams ) );
 					for( int l = 0; l < children.length; l++ ) {
 						int[] next = myContext.clone();
 						System.arraycopy( next, 1, next, 0, order-1 );
@@ -510,21 +510,20 @@ public class HMMFactory {
 			for( int k = 0; k < extra.size(); k++ ) {
 				myContext = extra.get(k).clone();
 				for( int i = 0; i < order-1; i++ ) {
-					list.add( new PseudoTransitionElement( myContext, new int[]{order+i+1}, new double[]{ess}, true ) );
+					list.add( new PseudoTransitionElement( myContext, new int[]{order+i+1}, new double[]{ess} ) );
 					System.arraycopy( myContext, 1, myContext, 0, order-1 );
 					myContext[order-1] = order+i+1;
 				}	
 			}
 		} else {
-			list.add( new PseudoTransitionElement( endContext, new int[]{emList.size()-1}, new double[]{ess}, true ) );
+			list.add( new PseudoTransitionElement( endContext, new int[]{emList.size()-1}, new double[]{ess} ) );
 		}
 		
-		Pair<TransitionElement[], double[]> p = propagateESS( ess, list );
+		Pair<double[][], double[]> p = propagateESS( ess, list );
 		
-		DifferentiableEmission[] em = getEmissions( nameList, emList, p.getSecondElement(), con, conditionInitProbs );
-		
-		return getHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, em, p.getFirstElement(), ess, likelihood );
-		//return new DifferentiableHigherOrderHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, em, likelihood, ess, p.getFirstElement() );
+		return getHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, 
+				getEmissions( nameList, emList, p.getSecondElement(), con, conditionInitProbs ),
+				createTransition( p.getFirstElement(), list ), ess, likelihood );
 	}
 	
 	private static class ContextContainer extends ArrayList<int[]> {
@@ -655,9 +654,9 @@ public class HMMFactory {
 		}
 		//create PTE
 		if( Double.isNaN( initFromTo[0][1] ) ) {
-			list.add( new PseudoTransitionElement( context, new int[]{emList.size()-2, emList.size()-1}, new double[]{0.5, 0.5}, false )  );
+			list.add( new PseudoTransitionElement( context, new int[]{emList.size()-2, emList.size()-1}, new double[]{0.5, 0.5} )  );
 		} else {
-			list.add( new PseudoTransitionElement( context, new int[]{emList.size()-2}, new double[]{1}, false )  );
+			list.add( new PseudoTransitionElement( context, new int[]{emList.size()-2}, new double[]{1} )  );
 		}
 		
 		
@@ -734,7 +733,7 @@ public class HMMFactory {
 			}
 			
 			if( children.length() > 0 ) {
-				allTE.add( new PseudoTransitionElement( current, children.toArray(), hyper.toArray(), true, weights.toArray() ) );
+				allTE.add( new PseudoTransitionElement( current, children.toArray(), hyper.toArray(), weights.toArray() ) );
 			}
 			
 			next = current.clone();
@@ -831,7 +830,17 @@ public class HMMFactory {
 		return a;
 	}
 	
-	private static Pair<TransitionElement[], double[]> propagateESS( double ess, ArrayList<PseudoTransitionElement> list ) {
+	public static TransitionElement[] createTransition( double[][] hyperParams, ArrayList<PseudoTransitionElement> list ) {
+		TransitionElement[] t = new TransitionElement[list.size()];
+		for( int i = 0; i < list.size(); i++ ) {
+			PseudoTransitionElement current = list.get(i);
+			t[i] = new TransitionElement( current.context, current.states, current.prob, current.weights );
+		}
+		return t;
+	}
+		
+	//propagates the ess for an HMM with absorbing states
+	public static Pair<double[][], double[]> propagateESS( double ess, ArrayList<PseudoTransitionElement> list ) {
 		
 		//prepare
 		int maxOrder = 0, max = 0, startIdx = -1;
@@ -884,7 +893,7 @@ public class HMMFactory {
 						te.child[child] = 0;
 					} else {
 						te.child[child] = list.size();
-						list.add( new PseudoTransitionElement( nextContext, null, null, true ) );
+						list.add( new PseudoTransitionElement( nextContext, null, null ) );
 					}
 				}
 			}
@@ -938,11 +947,15 @@ public class HMMFactory {
 		} while( sum > eps );
 		
 		//build results
-		TransitionElement[] t = new TransitionElement[list.size()];
+		double[][] t = new double[list.size()][];
 		double[] stateESS = new double[max+1];
 		for( int i = 0; i < list.size(); i++ ) {
 			PseudoTransitionElement current = list.get(i);
-			t[i] = new TransitionElement( current.context, current.states, current.prob, current.weights );
+			t[i] = new double[current.prob.length];
+			
+			for( int j = 0; j < t[i].length; j++ ) {
+				t[i][j] =  cumulatedHyper[i] * current.prob[j];
+			}
 			
 			if( current.context.length > 0 ) {
 				stateESS[current.context[current.context.length-1]] += cumulatedHyper[i];
@@ -951,31 +964,34 @@ public class HMMFactory {
 		
 		//System.out.println( Arrays.toString(stateESS) );
 				
-		return new Pair<TransitionElement[], double[]>( t, stateESS );
+		return new Pair<double[][], double[]>( t, stateESS );
 	}
 	
 	
-	private static class PseudoTransitionElement {
-		int[] context;
-		int[] states;
-		int[] child;
-		double[] prob, weights;
+	/**
+	 * This class is used as place holder for a later {@link AbstractTransitionElement}. It is used in the factory
+	 * and can be used externally for using the method {@link HMMFactory#propagateESS(double, ArrayList)}.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	public static class PseudoTransitionElement {
+		private int[] context;
+		private int[] states;
+		private int[] child;
+		private double[] prob, weights;
 		
-		PseudoTransitionElement( int[] context, int[] states, double[] prob, boolean normalize ) {
-			this( context, states, prob, normalize, null );
+		public PseudoTransitionElement( int[] context, int[] states, double[] posScore ) {
+			this( context, states, posScore, null );
 		}
 		
-		PseudoTransitionElement( int[] context, int[] states, double[] prob, boolean normalize, double[] weights ) {
+		public PseudoTransitionElement( int[] context, int[] states, double[] posScore, double[] weights ) {
 			this.context = context == null ? new int[0] : context.clone();
 			this.states = states == null ? new int[0] : states.clone();
-			if( prob == null ) {
-				this.prob = new double[this.states.length];
+			this.prob = new double[this.states.length];
+			if( posScore == null ) {
 				Arrays.fill( this.prob, 1d / this.states.length );
 			} else {
-				this.prob = prob.clone();
-				if(normalize){
-					Normalisation.sumNormalisation( this.prob );
-				}
+				Normalisation.sumNormalisation( posScore, this.prob, 0 );
 			}
 			if( weights == null ) {
 				this.weights = new double[this.states.length];
