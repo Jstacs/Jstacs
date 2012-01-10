@@ -27,6 +27,7 @@ import de.jstacs.NotTrainedException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
+import de.jstacs.differentiableSequenceScores.IndependentProductDiffSS;
 import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousDiffSM;
 import de.jstacs.differentiableStatisticalModels.mix.AbstractMixtureDiffSM;
 import de.jstacs.io.XMLParser;
@@ -49,7 +50,7 @@ import de.jstacs.utils.Normalisation;
  * 
  * @author Jens Keilwagen
  */
-public class IndependentProductDiffSM extends BasicIndependentProductDiffSM implements DifferentiableStatisticalModel, MutableMotifDiscoverer
+public class IndependentProductDiffSM extends IndependentProductDiffSS implements DifferentiableStatisticalModel, MutableMotifDiscoverer
 {
 	private int[] motifs, componentsUntilNow;
 	 /**
@@ -99,7 +100,7 @@ public class IndependentProductDiffSM extends BasicIndependentProductDiffSM impl
 	 */
 	public IndependentProductDiffSM( double ess, boolean plugIn, DifferentiableStatisticalModel... functions ) throws CloneNotSupportedException,
 																						IllegalArgumentException, WrongAlphabetException {
-		this( ess, plugIn, functions, BasicIndependentProductDiffSM.getLengthArray( functions ) );
+		this( ess, plugIn, functions, IndependentProductDiffSS.getLengthArray( functions ) );
 	}
 
 	/**

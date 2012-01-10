@@ -17,7 +17,7 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.differentiableStatisticalModels;
+package de.jstacs.differentiableSequenceScores;
 
 import de.jstacs.SequenceScore;
 import de.jstacs.data.DataSet;

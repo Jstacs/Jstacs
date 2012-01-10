@@ -17,7 +17,7 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.differentiableStatisticalModels;
+package de.jstacs.differentiableSequenceScores;
 
 import java.util.Random;
 
@@ -28,6 +28,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
