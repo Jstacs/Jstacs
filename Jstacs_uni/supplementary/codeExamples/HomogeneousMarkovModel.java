@@ -28,19 +28,19 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
-import de.jstacs.models.AbstractModel;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.trainableStatisticalModels.AbstractTrainSM;
  
  
  
-public class HomogeneousMarkovModel extends AbstractModel {
+public class HomogeneousMarkovModel extends AbstractTrainSM {
  
 	private double[] logProbs;//array for the parameters, i.e. the probabilities for each symbol
  
 	public HomogeneousMarkovModel( AlphabetContainer alphabets ) throws Exception {
-		super( alphabets, 0 ); //we have a homogeneous Model, hence the length is set to 0
-		//a homogeneous Model can only handle simple alphabets
+		super( alphabets, 0 ); //we have a homogeneous TrainableStatisticalModel, hence the length is set to 0
+		//a homogeneous TrainableStatisticalModel can only handle simple alphabets
 		if(! (alphabets.isSimple() && alphabets.isDiscrete()) ){
 			throw new Exception("Only simple and discrete alphabets allowed");
 		}

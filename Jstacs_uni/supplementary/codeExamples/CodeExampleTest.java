@@ -33,19 +33,19 @@ import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.classifier.assessment.KFoldCrossValidation;
 import de.jstacs.classifier.assessment.KFoldCrossValidationAssessParameterSet;
-import de.jstacs.classifier.modelBased.ModelBasedClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.AbstractMultiThreadedOptimizableFunction;
+import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
+import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifier.differentiableSequenceScoreBased.msp.MSPClassifier;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.classifier.performanceMeasures.PRCurve;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifier.performanceMeasures.ROCCurve;
-import de.jstacs.classifier.scoringFunctionBased.AbstractMultiThreadedOptimizableFunction;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierParameterSet;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
-import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
-import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
+import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
@@ -56,23 +56,23 @@ import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.GenericComplementableDiscreteAlphabet;
 import de.jstacs.data.bioJava.BioJavaAdapter;
 import de.jstacs.data.bioJava.SimpleSequenceIterator;
+import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSM;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.Measure;
+import de.jstacs.differentiableStatisticalModels.mix.MixtureDiffSM;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.StringExtractor;
-import de.jstacs.models.Model;
-import de.jstacs.models.discrete.inhomogeneous.BayesianNetworkModel;
-import de.jstacs.models.discrete.inhomogeneous.StructureLearner.LearningType;
-import de.jstacs.models.discrete.inhomogeneous.StructureLearner.ModelType;
-import de.jstacs.models.discrete.inhomogeneous.parameters.BayesianNetworkModelParameterSet;
-import de.jstacs.models.mixture.MixtureModel;
-import de.jstacs.models.mixture.AbstractMixtureModel.Parameterization;
 import de.jstacs.results.ImageResult;
 import de.jstacs.results.ResultSet;
-import de.jstacs.scoringFunctions.NormalizableScoringFunction;
-import de.jstacs.scoringFunctions.directedGraphicalModels.BayesianNetworkScoringFunction;
-import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
-import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
-import de.jstacs.scoringFunctions.mix.MixtureScoringFunction;
+import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.BayesianNetworkTrainSM;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.LearningType;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.ModelType;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
+import de.jstacs.trainableStatisticalModels.mixture.MixtureTrainSM;
+import de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization;
 import de.jstacs.utils.REnvironment;
 
 
@@ -146,9 +146,9 @@ public class CodeExampleTest {
 		
 		//equivalent sample size =^= ESS
 		double essFg = 4, essBg = 4;
-		//create ScoringFunction, here PWM
-		NormalizableScoringFunction pwmFg = new BayesianNetworkScoringFunction( container, data[0].getElementLength(), essFg, true, new InhomogeneousMarkov(0) );
-		NormalizableScoringFunction pwmBg = new BayesianNetworkScoringFunction( container, data[1].getElementLength(), essBg, true, new InhomogeneousMarkov(0) );
+		//create DifferentiableSequenceScore, here PWM
+		DifferentiableStatisticalModel pwmFg = new BayesianNetworkDiffSM( container, data[0].getElementLength(), essFg, true, new InhomogeneousMarkov(0) );
+		DifferentiableStatisticalModel pwmBg = new BayesianNetworkDiffSM( container, data[1].getElementLength(), essBg, true, new InhomogeneousMarkov(0) );
 		
 		//create parameters of the classifier
 		int threads = AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors();
@@ -189,9 +189,9 @@ public class CodeExampleTest {
 		
 		//equivalent sample size =^= ESS
 		double essFg = 4, essBg = 4;
-		//create ScoringFunction, here PWM
-		NormalizableScoringFunction pwmFg = new BayesianNetworkScoringFunction( container, length, essFg, true, new InhomogeneousMarkov(0) );
-		NormalizableScoringFunction pwmBg = new BayesianNetworkScoringFunction( container, length, essBg, true, new InhomogeneousMarkov(0) );
+		//create DifferentiableSequenceScore, here PWM
+		DifferentiableStatisticalModel pwmFg = new BayesianNetworkDiffSM( container, length, essFg, true, new InhomogeneousMarkov(0) );
+		DifferentiableStatisticalModel pwmBg = new BayesianNetworkDiffSM( container, length, essBg, true, new InhomogeneousMarkov(0) );
 		
 		//create parameters of the classifier
 		GenDisMixClassifierParameterSet cps = new GenDisMixClassifierParameterSet(
@@ -240,7 +240,7 @@ public class CodeExampleTest {
 		StringBuffer buf2 = FileManager.readFile( new File(home+"myClassifier.xml") );
 		 
 		//create new classifier from read StringBuffer containing XML-code
-		ModelBasedClassifier trainedClassifier = new ModelBasedClassifier(buf2);	
+		TrainSMBasedClassifier trainedClassifier = new TrainSMBasedClassifier(buf2);	
 
 		//create a DataSet for each class from the input data, using the DNA alphabet
 		DataSet[] test = new DataSet[2];
@@ -328,7 +328,7 @@ public class CodeExampleTest {
 		AlphabetContainer container = data[0].getAlphabetContainer();
 		
 		//create a new PWM
-		BayesianNetworkModel pwm = new BayesianNetworkModel( new BayesianNetworkModelParameterSet(
+		BayesianNetworkTrainSM pwm = new BayesianNetworkTrainSM( new BayesianNetworkTrainSMParameterSet(
 				//the alphabet and the length of the model:
 				container, length, 
 				//the equivalent sample size to compute hyper-parameters
@@ -341,11 +341,11 @@ public class CodeExampleTest {
 				LearningType.ML_OR_MAP ) );
 		 
 		//create a new mixture model using 2 PWMs
-		MixtureModel mixPwms = new MixtureModel(
+		MixtureTrainSM mixPwms = new MixtureTrainSM(
 				//the length of the mixture model
 				length, 
 				//the two components, which are PWMs
-				new Model[]{pwm,pwm},
+				new TrainableStatisticalModel[]{pwm,pwm},
 				//the number of starts of the EM
 				10,
 				//the equivalent sample sizes
@@ -359,11 +359,11 @@ public class CodeExampleTest {
 				Parameterization.LAMBDA);
 		 
 		//create a new inhomogeneous Markov model of order 3
-		BayesianNetworkModel mm = new BayesianNetworkModel( 
-				new BayesianNetworkModelParameterSet( container, length, 256, "my iMM(3)", ModelType.IMM, (byte) 3, LearningType.ML_OR_MAP ) );
+		BayesianNetworkTrainSM mm = new BayesianNetworkTrainSM( 
+				new BayesianNetworkTrainSMParameterSet( container, length, 256, "my iMM(3)", ModelType.IMM, (byte) 3, LearningType.ML_OR_MAP ) );
 		 
 		//create a new PWM scoring function
-		BayesianNetworkScoringFunction dPwm = new BayesianNetworkScoringFunction(
+		BayesianNetworkDiffSM dPwm = new BayesianNetworkDiffSM(
 				//the alphabet and the length of the scoring function
 				container, length, 
 				//the equivalent sample size for the plug-in parameters
@@ -374,7 +374,7 @@ public class CodeExampleTest {
 				new InhomogeneousMarkov(0));
 		 
 		//create a new mixture scoring function
-		MixtureScoringFunction dMixPwms = new MixtureScoringFunction(
+		MixtureDiffSM dMixPwms = new MixtureDiffSM(
 				//the number of starts
 				2,
 				//we use plug-in parameters
@@ -383,13 +383,13 @@ public class CodeExampleTest {
 				dPwm,dPwm);
 		 
 		//create a new scoring function that is an inhomogeneous Markov model of order 3
-		BayesianNetworkScoringFunction dMm = new BayesianNetworkScoringFunction(container, length, 4, true, new InhomogeneousMarkov(3));
+		BayesianNetworkDiffSM dMm = new BayesianNetworkDiffSM(container, length, 4, true, new InhomogeneousMarkov(3));
 		 
 		//create the classifiers
 		int threads = AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors();
 		AbstractScoreBasedClassifier[] classifiers = new AbstractScoreBasedClassifier[]{
 									   //model based with mixture model and Markov model
-									   new ModelBasedClassifier( mixPwms, mm ),
+									   new TrainSMBasedClassifier( mixPwms, mm ),
 									   //conditional likelihood based classifier
 									   new MSPClassifier( new GenDisMixClassifierParameterSet(container, length, 
 											   //method for optimizing the conditional likelihood and 
@@ -422,7 +422,7 @@ public class CodeExampleTest {
 		data[1] = new DataSet( new DNADataSet( args[1] ), length );
 		 
 		//create a new PWM
-		BayesianNetworkModel pwm = new BayesianNetworkModel( new BayesianNetworkModelParameterSet(
+		BayesianNetworkTrainSM pwm = new BayesianNetworkTrainSM( new BayesianNetworkTrainSMParameterSet(
 				//the alphabet and the length of the model:
 				data[0].getAlphabetContainer(), length, 
 				//the equivalent sample size to compute hyper-parameters
@@ -435,7 +435,7 @@ public class CodeExampleTest {
 				LearningType.ML_OR_MAP ) );
 		 
 		//create a new classifier
-		ModelBasedClassifier classifier = new ModelBasedClassifier( pwm, pwm );
+		TrainSMBasedClassifier classifier = new TrainSMBasedClassifier( pwm, pwm );
 		 
 		//train the classifier
 		classifier.train( data );
@@ -450,7 +450,7 @@ public class CodeExampleTest {
 		StringBuffer buf2 = FileManager.readFile( new File(home+"myClassifier.xml") );
 		 
 		//create new classifier from read StringBuffer containing XML-code
-		ModelBasedClassifier loaded = new ModelBasedClassifier(buf2);
+		TrainSMBasedClassifier loaded = new TrainSMBasedClassifier(buf2);
 	}
 	
 	public static void trainClassifier(String[] args) throws Exception{
@@ -469,7 +469,7 @@ public class CodeExampleTest {
 		DataSet toClassify = new DNADataSet( args[2] );
 		 
 		//create a new PWM
-		BayesianNetworkModel pwm = new BayesianNetworkModel( new BayesianNetworkModelParameterSet(
+		BayesianNetworkTrainSM pwm = new BayesianNetworkTrainSM( new BayesianNetworkTrainSMParameterSet(
 				//the alphabet and the length of the model:
 				data[0].getAlphabetContainer(), length, 
 				//the equivalent sample size to compute hyper-parameters
@@ -482,7 +482,7 @@ public class CodeExampleTest {
 				LearningType.ML_OR_MAP ) );
 		 
 		//create a classifier with a PWM in the foreground and a PWM in the background
-		ModelBasedClassifier classifier = new ModelBasedClassifier( pwm, pwm );
+		TrainSMBasedClassifier classifier = new TrainSMBasedClassifier( pwm, pwm );
 		 
 		//train the classifier
 		classifier.train( data );

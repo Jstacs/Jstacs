@@ -6,27 +6,27 @@ import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.classifier.assessment.RepeatedHoldOutAssessParameterSet;
 import de.jstacs.classifier.assessment.RepeatedHoldOutExperiment;
-import de.jstacs.classifier.modelBased.ModelBasedClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
+import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifier.differentiableSequenceScoreBased.msp.MSPClassifier;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierParameterSet;
-import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
-import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
+import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.models.Model;
-import de.jstacs.models.VariableLengthWrapperModel;
-import de.jstacs.models.discrete.inhomogeneous.BayesianNetworkModel;
-import de.jstacs.models.discrete.inhomogeneous.StructureLearner.LearningType;
-import de.jstacs.models.discrete.inhomogeneous.StructureLearner.ModelType;
-import de.jstacs.models.discrete.inhomogeneous.parameters.BayesianNetworkModelParameterSet;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSM;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSMParameterSet;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.ResultSet;
-import de.jstacs.scoringFunctions.directedGraphicalModels.BayesianNetworkScoringFunction;
-import de.jstacs.scoringFunctions.directedGraphicalModels.BayesianNetworkScoringFunctionParameterSet;
-import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
+import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
+import de.jstacs.trainableStatisticalModels.VariableLengthWrapperTrainSM;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.BayesianNetworkTrainSM;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.LearningType;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.ModelType;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
 import de.jstacs.utils.REnvironment;
 
 
@@ -54,7 +54,7 @@ public class MiMBExample {
 		/* generative part */
 		
 		//create set of parameters for foreground model
-		BayesianNetworkModelParameterSet pars = new BayesianNetworkModelParameterSet(
+		BayesianNetworkTrainSMParameterSet pars = new BayesianNetworkTrainSMParameterSet(
 				fgData.getAlphabetContainer(),//used alphabets
 				fgData.getElementLength(),//element length == sequence length of each sequence in the sample
 				4,//ESS == equivalent sample size (has to be non-negative)
@@ -64,10 +64,10 @@ public class MiMBExample {
 				LearningType.ML_OR_MAP//how to learn the parameters, depends on ESS; for ESS=0 it is ML otherwise MAP
 		);
 		//create foreground model from these parameters
-		Model fgModel = new BayesianNetworkModel(pars);
+		TrainableStatisticalModel fgModel = new BayesianNetworkTrainSM(pars);
 		
 		//analogously, create the background model
-		BayesianNetworkModelParameterSet pars2 = new BayesianNetworkModelParameterSet(
+		BayesianNetworkTrainSMParameterSet pars2 = new BayesianNetworkTrainSMParameterSet(
 				fgData.getAlphabetContainer(),
 				fgData.getElementLength(),
 				1024,
@@ -76,18 +76,18 @@ public class MiMBExample {
 				(byte)0,
 				LearningType.ML_OR_MAP
 		);		
-		Model bgModel = new BayesianNetworkModel(pars2);
-		bgModel = new VariableLengthWrapperModel(bgModel);
+		TrainableStatisticalModel bgModel = new BayesianNetworkTrainSM(pars2);
+		bgModel = new VariableLengthWrapperTrainSM(bgModel);
 		
 		//create generative classifier from the models defined before
-		ModelBasedClassifier cl = new ModelBasedClassifier(fgModel, bgModel);	
+		TrainSMBasedClassifier cl = new TrainSMBasedClassifier(fgModel, bgModel);	
 		
 		cl.train( fgData, bgData );
 		
 		/* discriminative part */
 		
 		//create set of parameters for foreground scoring function
-		BayesianNetworkScoringFunctionParameterSet parsD = new BayesianNetworkScoringFunctionParameterSet(
+		BayesianNetworkDiffSMParameterSet parsD = new BayesianNetworkDiffSMParameterSet(
 				fgData.getAlphabetContainer(),//used alphabets
 				fgData.getElementLength(),//element length == sequence length of each sequence in the sample
 				4,//ESS == equivalent sample size (has to be non-negative)
@@ -95,16 +95,16 @@ public class MiMBExample {
 				new InhomogeneousMarkov(0) //the statistical model, here an IMM(0) == PWM
 		);
 		//create foreground scoring function from these parameters
-		BayesianNetworkScoringFunction fgFun = new BayesianNetworkScoringFunction(parsD);
+		BayesianNetworkDiffSM fgFun = new BayesianNetworkDiffSM(parsD);
 		
 		//analogously, create the background scoring function
-		BayesianNetworkScoringFunctionParameterSet parsDbg = new BayesianNetworkScoringFunctionParameterSet(
+		BayesianNetworkDiffSMParameterSet parsDbg = new BayesianNetworkDiffSMParameterSet(
 				fgData.getAlphabetContainer(),
 				fgData.getElementLength(),
 				1024,
 				true,
 				new InhomogeneousMarkov(0));
-		BayesianNetworkScoringFunction bgFun = new BayesianNetworkScoringFunction(parsDbg);
+		BayesianNetworkDiffSM bgFun = new BayesianNetworkDiffSM(parsDbg);
 		
 		//create set of parameter for the discriminative classifier
 		GenDisMixClassifierParameterSet clPars = new GenDisMixClassifierParameterSet(
