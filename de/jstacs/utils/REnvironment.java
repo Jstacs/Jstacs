@@ -25,8 +25,9 @@ import java.awt.MediaTracker;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -636,8 +637,14 @@ public class REnvironment {
 				plot( eval( "try( bitmap( file = \"" + serverFileName + "\", type=\"" + type + "\", taa=4, gaa=4, pointsize=12 ) )" ), pltcmd, file );
 			}
 		}
-		BufferedImage i = ImageIO.read( new BufferedInputStream( new ByteArrayInputStream( RUtils.getBytesFromFileOnServer( serverFileName,
-				c ) ) ) );
+		ByteArrayOutputStream bais = new ByteArrayOutputStream();
+		BufferedOutputStream out = new BufferedOutputStream( bais );
+		RUtils.copyFileFromServer(serverFileName, out, c);
+		out.flush();
+		ByteArrayInputStream in = new ByteArrayInputStream( bais.toByteArray() );
+		BufferedImage i = ImageIO.read( in );
+		out.close();
+		in.close();
 		filesOnTheServer.add( serverFileName );
 		return i;
 	}

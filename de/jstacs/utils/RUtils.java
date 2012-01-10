@@ -18,13 +18,14 @@
 
 package de.jstacs.utils;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -153,57 +154,22 @@ public class RUtils {
 	 * 
 	 * @throws Exception
 	 *             if the file could not be copied
-	 * 
-	 * @see RUtils#getBytesFromFileOnServer(String, RConnection)
 	 */
 	public static int copyFileFromServer( String sourcePath, String targetPath, RConnection c ) throws Exception {
-		byte[] b = getBytesFromFileOnServer( sourcePath, c );
-		BufferedWriter bw = new BufferedWriter( new FileWriter( new File( targetPath ) ), b.length );
-		bw.write( new String( b ) );
-		bw.close();
-		return b.length;
+		BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream( targetPath ) );
+		int code = copyFileFromServer( sourcePath, out, c );
+		out.close();
+		return code;
 	}
-
-	/**
-	 * This method returns the content of a file on the server as
-	 * <code>byte</code> array.
-	 * 
-	 * @param sourcePath
-	 *            the source path name
-	 * @param c
-	 *            the connection to R
-	 * 
-	 * @return a <code>byte</code> array with the content of
-	 *         <code>sourcePath</code>
-	 * 
-	 * @throws Exception
-	 *             if the content of the source could not be copied to the
-	 *             <code>byte</code> array
-	 */
-	protected static byte[] getBytesFromFileOnServer( String sourcePath, RConnection c ) throws Exception {
+	
+	public static int copyFileFromServer( String sourcePath, OutputStream out, RConnection c ) throws Exception {
 		RFileInputStream is = c.openFile( sourcePath );
-		Vector<byte[]> buffers = new Vector<byte[]>();
-		int bufSize = 65536, n, imgPos = 0;
-		byte[] b, buf = new byte[bufSize];
-		while( ( n = is.read( buf ) ) == bufSize ) {
-			buffers.addElement( buf );
-			buf = new byte[bufSize];
-			imgPos++;
+		int bufSize = 65536, n, code = 0;
+		byte[] buf = new byte[bufSize];
+		while( ( n = is.read( buf ) ) > -1 ) {
+			out.write( buf, 0, n );
+			code+=n;
 		}
-		imgPos *= bufSize;
-		if( n > 0 && n < bufSize ) {
-			imgPos += n;
-		}
-
-		// now let's join all the chunks into one, big array ...
-		byte[] code = new byte[imgPos];
-		imgPos = 0;
-		for( Enumeration<byte[]> e = buffers.elements(); e.hasMoreElements(); ) {
-			b = e.nextElement();
-			System.arraycopy( b, 0, code, imgPos, bufSize );
-			imgPos += bufSize;
-		}
-		if( n > 0 ) System.arraycopy( buf, 0, code, imgPos, n );
 		return code;
 	}
 
