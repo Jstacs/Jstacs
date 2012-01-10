@@ -21,7 +21,7 @@ package de.jstacs.classifier.differentiableSequenceScoreBased.logPrior;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.optimization.DifferentiableFunction;
 import de.jstacs.algorithms.optimization.EvaluationException;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 
 /**
  * The abstract class for any log-prior used e.g. for maximum supervised

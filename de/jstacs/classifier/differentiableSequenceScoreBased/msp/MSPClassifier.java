@@ -24,7 +24,7 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMix
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 
 /**
  * This class implements a classifier that allows the training via MCL or MSP principle.

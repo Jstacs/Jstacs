@@ -26,7 +26,7 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimiza
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.utils.Normalisation;
 

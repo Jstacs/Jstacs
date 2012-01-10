@@ -19,7 +19,7 @@
 package de.jstacs.classifier.differentiableSequenceScoreBased.logPrior;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.XMLParser;
 
