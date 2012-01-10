@@ -24,8 +24,6 @@ import de.jstacs.data.Sequence;
 /**
  * This interface defines the function {@latex.inline $f(\\underline{x})$} for sequence {@latex.inline $\\underline{x}$} which can be used in {@link LogisticDiffSS}.
  * 
- * used in {@link LogisticDiffSS}.
- * 
  * @author Jens Keilwagen
  * 
  * @see LogisticDiffSS
