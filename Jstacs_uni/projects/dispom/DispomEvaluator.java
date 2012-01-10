@@ -38,7 +38,7 @@ import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.differentiableStatisticalModels.NormalizedDiffSM;
 import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSM;
 import de.jstacs.differentiableStatisticalModels.mix.StrandDiffSM;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.HiddenMotifsMixture;
+import de.jstacs.differentiableStatisticalModels.mix.motif.ExtendedZOOPSDiffSM;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.RegExFilenameFilter;
 import de.jstacs.io.SparseStringExtractor;
@@ -183,7 +183,7 @@ public class DispomEvaluator {
 	
 	private static double infos( REnvironment r, String home, File f, boolean show, ArrayList<SimpleEntry<String, double[][]>> list, String[] fName, char ignore, double sign, String suffix ) throws Exception {		
 		GenDisMixClassifier cl = new GenDisMixClassifier( FileManager.readFile( f ) );
-		HiddenMotifsMixture md = (HiddenMotifsMixture) cl.getScoringFunction( 0 );
+		ExtendedZOOPSDiffSM md = (ExtendedZOOPSDiffSM) cl.getScoringFunction( 0 );
 		if( show ) {
 			System.out.println();
 			System.out.println( md );

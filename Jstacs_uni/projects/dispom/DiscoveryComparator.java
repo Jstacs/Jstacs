@@ -46,8 +46,8 @@ import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
 import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.Measure;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.DurationDiffSM;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.HiddenMotifsMixture;
+import de.jstacs.differentiableStatisticalModels.mix.motif.DurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.ExtendedZOOPSDiffSM;
 import de.jstacs.io.AbstractStringExtractor;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.RegExFilenameFilter;
@@ -133,7 +133,7 @@ public class DiscoveryComparator {
 		String description;
 		Discoverer d;
 		double[][] pwm;
-		HiddenMotifsMixture md;
+		ExtendedZOOPSDiffSM md;
 		DataSet truth;
 		double aucPR;
 		int pch;
@@ -193,7 +193,7 @@ public class DiscoveryComparator {
 					}catch(NonParsableException e){
 						cl = new GenDisMixClassifier( FileManager.readFile( f ) );
 					}
-					md = (HiddenMotifsMixture) cl.getScoringFunction( 0 );
+					md = (ExtendedZOOPSDiffSM) cl.getScoringFunction( 0 );
 
 					smof = new SignificantMotifOccurrencesFinder( md, new DNADataSet(strings[1],AbstractStringExtractor.USUALLY), null, Double.parseDouble( strings[2] ) );
 					//smof = new SignificantMotifOccurrencesFinder(md,RandomSeqType.PERMUTED,1000,sign);
@@ -461,7 +461,7 @@ public class DiscoveryComparator {
 		return newPwm;
 	}
 	
-	private static void plotPositionalDistribution( REnvironment r, String file, HiddenMotifsMixture mix, DataSet truth) throws Exception{
+	private static void plotPositionalDistribution( REnvironment r, String file, ExtendedZOOPSDiffSM mix, DataSet truth) throws Exception{
 		r.createVector( "pos", getPositions( truth, motifName ) );
 		DurationDiffSM dsf = (DurationDiffSM) mix.getFunction( 1 );
 		String plotcmd = dsf.toString()+"\n" +
@@ -782,7 +782,7 @@ public class DiscoveryComparator {
 								
 								plotSeqLogo( r, HOME+"results/" + DATATYPE + "seqLogos/seqLogo-"+f.name.replaceAll( "[\\._\\s]", "-" )+"-"+prefix.replaceAll( "[\\._\\s]", "-" )+"-"+infix+"-givenLength-"+givenLength+".pdf", fw >= dists.length/2d? pwm : PFMComparator.getReverseComplement((DNAAlphabet)con.getAlphabetAt(0), pwm) );
 								
-								plotPositionalDistribution( r, HOME+"results/" + DATATYPE + "positionalDistribution/pos-"+f.name.replaceAll( "[\\._\\s]", "-" )+"-"+prefix.replaceAll( "[\\._\\s]", "-" )+"-"+infix+"-givenLength-"+givenLength+".pdf", (HiddenMotifsMixture) md, truth );
+								plotPositionalDistribution( r, HOME+"results/" + DATATYPE + "positionalDistribution/pos-"+f.name.replaceAll( "[\\._\\s]", "-" )+"-"+prefix.replaceAll( "[\\._\\s]", "-" )+"-"+infix+"-givenLength-"+givenLength+".pdf", (ExtendedZOOPSDiffSM) md, truth );
 								
 								System.out.println("DiPoMM: " + auc);
 								dtrPR.add( new DoubleTableResult( Measure.PrecisionRecallCurve.getNameString(), Measure.PrecisionRecallCurve.getCommentString(), listOfDoublesPR ) );
