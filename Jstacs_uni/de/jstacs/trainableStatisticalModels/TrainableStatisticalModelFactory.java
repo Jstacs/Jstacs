@@ -33,7 +33,7 @@ import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.FS
 import de.jstacs.trainableStatisticalModels.mixture.MixtureTrainSM;
 import de.jstacs.trainableStatisticalModels.mixture.StrandTrainSM;
 import de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization;
-import de.jstacs.trainableStatisticalModels.mixture.motif.SingleHiddenMotifMixture;
+import de.jstacs.trainableStatisticalModels.mixture.motif.ZOOPSTrainSM;
 
 
 /**
@@ -178,7 +178,7 @@ public class TrainableStatisticalModelFactory {
 	 * 
 	 * @throws Exception if the model can not be created correctly
 	 */
-	public static SingleHiddenMotifMixture createZOOPS( TrainableStatisticalModel motif, TrainableStatisticalModel bg, double[] hyper, boolean trainOnlyMotifModel ) throws Exception {
-		return new SingleHiddenMotifMixture( motif, bg, trainOnlyMotifModel, 10, hyper, null, 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), Parameterization.LAMBDA );
+	public static ZOOPSTrainSM createZOOPS( TrainableStatisticalModel motif, TrainableStatisticalModel bg, double[] hyper, boolean trainOnlyMotifModel ) throws Exception {
+		return new ZOOPSTrainSM( motif, bg, trainOnlyMotifModel, 10, hyper, null, 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), Parameterization.LAMBDA );
 	}
 }
