@@ -37,13 +37,13 @@ import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifierParameterSet;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.LearningPrinciple;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.LogGenDisMixFunction;
-import de.jstacs.classifier.scoringFunctionBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction;
+import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
+import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSetKMerEnumerator;
@@ -56,6 +56,20 @@ import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
+import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
+import de.jstacs.differentiableStatisticalModels.NormalizedDiffSM;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.MarkovModelDiffSM;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
+import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousDiffSM;
+import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousMMDiffSM;
+import de.jstacs.differentiableStatisticalModels.homogeneous.UniformHomogeneousDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.StrandDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.StrandDiffSM.InitMethod;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.DurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.HiddenMotifsMixture;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.MixtureDurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.SkewNormalLikeDurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.UniformDurationDiffSM;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.InfixStringExtractor;
@@ -76,20 +90,6 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetTagger;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
-import de.jstacs.scoringFunctions.NormalizableScoringFunction;
-import de.jstacs.scoringFunctions.NormalizedScoringFunction;
-import de.jstacs.scoringFunctions.directedGraphicalModels.MutableMarkovModelScoringFunction;
-import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
-import de.jstacs.scoringFunctions.homogeneous.HMMScoringFunction;
-import de.jstacs.scoringFunctions.homogeneous.HomogeneousScoringFunction;
-import de.jstacs.scoringFunctions.homogeneous.UniformHomogeneousScoringFunction;
-import de.jstacs.scoringFunctions.mix.StrandScoringFunction;
-import de.jstacs.scoringFunctions.mix.StrandScoringFunction.InitMethod;
-import de.jstacs.scoringFunctions.mix.motifSearch.DurationScoringFunction;
-import de.jstacs.scoringFunctions.mix.motifSearch.HiddenMotifsMixture;
-import de.jstacs.scoringFunctions.mix.motifSearch.MixtureDuration;
-import de.jstacs.scoringFunctions.mix.motifSearch.SkewNormalLikeScoringFunction;
-import de.jstacs.scoringFunctions.mix.motifSearch.UniformDurationScoringFunction;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.SafeOutputStream;
@@ -102,16 +102,16 @@ import de.jstacs.utils.SafeOutputStream;
 public class Dispom {
 	
 	// creates a new homogeneous model	
-	private static HomogeneousScoringFunction getHomSF( AlphabetContainer con, int order, double ess, int length ) throws Exception {
+	private static HomogeneousDiffSM getHomSF( AlphabetContainer con, int order, double ess, int length ) throws Exception {
 		if( order >= 0 ) {
-			return new HMMScoringFunction( con, order, ess, length );
+			return new HomogeneousMMDiffSM( con, order, ess, length );
 		} else {
-			return new UniformHomogeneousScoringFunction( con, ess );
+			return new UniformHomogeneousDiffSM( con, ess );
 		}		
 	}
 
 	// does a heuristic initialization
-	private static void doHeuristic( DataSet data[], double[][] dataWeights, double aprioriMean, int length, boolean bothStrands, int maximalMismatches, int candidates, OptimizableFunction f, double weight, NormalizableScoringFunction[] score, SafeOutputStream out, int motifID ) throws Exception {
+	private static void doHeuristic( DataSet data[], double[][] dataWeights, double aprioriMean, int length, boolean bothStrands, int maximalMismatches, int candidates, OptimizableFunction f, double weight, DifferentiableStatisticalModel[] score, SafeOutputStream out, int motifID ) throws Exception {
 		out.writeln( "heuristic:" );
 		//make a statistic over all k-mers near the a priori mean
 		DataSet[] selected;
@@ -313,7 +313,7 @@ public class Dispom {
 		double essMotif = 4, essNonMotif = 1, f;
 		boolean free = false;
 
-		NormalizableScoringFunction[] score = new NormalizableScoringFunction[anz];
+		DifferentiableStatisticalModel[] score = new DifferentiableStatisticalModel[anz];
 		int n0 = data[0].getNumberOfElements(), n1 = data[1].getNumberOfElements(); 
 		if( n0 >= n1 ) {
 			f = Math.round(n0/(double)n1);
@@ -323,7 +323,7 @@ public class Dispom {
 		if( anz > 1 ) {
 			score[1] = getHomSF( con, flOrder, f*(essMotif + motifs*essNonMotif), sl );
 		}
-		HomogeneousScoringFunction flanking = getHomSF( con, flOrder, essNonMotif, sl );
+		HomogeneousDiffSM flanking = getHomSF( con, flOrder, essNonMotif, sl );
 		
 		int threads = params.getValueFromTag( DispomParameterSet.THREADS, Integer.class );
 		double epsilon = 1E-7, lineps = 1E-10, startD = 1;
@@ -335,35 +335,35 @@ public class Dispom {
 		boolean adjust = params.getValueFromTag( DispomParameterSet.ADJUST_LENGTH, Boolean.class );
 		
 		// create scoring function with hidden motif
-		SkewNormalLikeScoringFunction motifPenalty = new SkewNormalLikeScoringFunction( 1, 50, -1.5, -2.5, 4.2 );
+		SkewNormalLikeDurationDiffSM motifPenalty = new SkewNormalLikeDurationDiffSM( 1, 50, -1.5, -2.5, 4.2 );
 		//System.out.println( motifPenalty );
 		System.out.println();
-		NormalizableScoringFunction motif = new MutableMarkovModelScoringFunction( con, motifL, essMotif, true, new InhomogeneousMarkov(fgOrder), motifPenalty );
+		DifferentiableStatisticalModel motif = new MarkovModelDiffSM( con, motifL, essMotif, true, new InhomogeneousMarkov(fgOrder), motifPenalty );
 		Double forwardStrand = params.getValueFromTag( DispomParameterSet.FORWARD_STRAND, Double.class );
 		boolean bothStrands = forwardStrand == null || forwardStrand < 1;
 		if( bothStrands ) {
 			if( forwardStrand == null ) {
-				motif = new StrandScoringFunction( motif, 0.5, starts, true, InitMethod.INIT_FORWARD_STRAND );
+				motif = new StrandDiffSM( motif, 0.5, starts, true, InitMethod.INIT_FORWARD_STRAND );
 			} else {
-				motif = new StrandScoringFunction( motif, starts, true, InitMethod.INIT_FORWARD_STRAND, forwardStrand );
+				motif = new StrandDiffSM( motif, starts, true, InitMethod.INIT_FORWARD_STRAND, forwardStrand );
 			}
 		}
 		motif.initializeFunctionRandomly( free );
-		motif = new NormalizedScoringFunction( motif, 1 );
+		motif = new NormalizedDiffSM( motif, 1 );
 		
-		DurationScoringFunction pos = null;
+		DurationDiffSM pos = null;
 		double seqs = 1, sd = params.getValueFromTag( DispomParameterSet.SD, Double.class ), skewSd = 1, mu = params.getValueFromTag( DispomParameterSet.MEAN, Double.class );
 		switch( params.getValueFromTag( DispomParameterSet.POSITION_DISTR, PositionDistribution.class ) ) {
 			case UNIFORM:
-				pos = new UniformDurationScoringFunction( 0, sl-motifL, essMotif );
+				pos = new UniformDurationDiffSM( 0, sl-motifL, essMotif );
 				break;
 			case SKEW_NORMAL:
-				pos = new SkewNormalLikeScoringFunction( 0, sl-motifL, true, mu, 500, true, seqs/2d, seqs/2d*(sd*sd), true, 0, skewSd, starts);
+				pos = new SkewNormalLikeDurationDiffSM( 0, sl-motifL, true, mu, 500, true, seqs/2d, seqs/2d*(sd*sd), true, 0, skewSd, starts);
 				break;
 			case MIXTURE:
-				pos = new MixtureDuration( starts,
-					new UniformDurationScoringFunction( 0, sl-motifL, essMotif-seqs ),
-					new SkewNormalLikeScoringFunction( 0, sl-motifL, true, mu, 500, true, seqs/2d, seqs/2d*(sd*sd), true, 0, skewSd, starts) );
+				pos = new MixtureDurationDiffSM( starts,
+					new UniformDurationDiffSM( 0, sl-motifL, essMotif-seqs ),
+					new SkewNormalLikeDurationDiffSM( 0, sl-motifL, true, mu, 500, true, seqs/2d, seqs/2d*(sd*sd), true, 0, skewSd, starts) );
 				break;
 		}
 		HiddenMotifsMixture fg;
@@ -391,7 +391,7 @@ public class Dispom {
 		objective = new LogGenDisMixFunction( threads, score, data, weights, new CompositeLogPrior(), beta, true, free );
 		
 		//repeated starts
-		NormalizableScoringFunction[] current, bestNSF = null;
+		DifferentiableStatisticalModel[] current, bestNSF = null;
 		for( int r = 0; r < restarts; r++ ) {
 			System.out.println( "start " + r + " -------------------------------------------------" );
 			current = ArrayHandler.clone( score );		

@@ -27,23 +27,23 @@ import java.util.Comparator;
 import java.util.AbstractMap.SimpleEntry;
 
 import projects.dispom.PFMComparator.NormalizedEuclideanDistance;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
+import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
+import de.jstacs.differentiableStatisticalModels.NormalizedDiffSM;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.StrandDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.HiddenMotifsMixture;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.RegExFilenameFilter;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
-import de.jstacs.scoringFunctions.NormalizableScoringFunction;
-import de.jstacs.scoringFunctions.NormalizedScoringFunction;
-import de.jstacs.scoringFunctions.directedGraphicalModels.BayesianNetworkScoringFunction;
-import de.jstacs.scoringFunctions.mix.StrandScoringFunction;
-import de.jstacs.scoringFunctions.mix.motifSearch.HiddenMotifsMixture;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.REnvironment;
@@ -193,14 +193,14 @@ public class DispomEvaluator {
 		System.out.print( f.getName() + "\t" + current );
 		double[][][] pwm = new double[md.getNumberOfMotifs()][][];
 		for( int m = 0; m < pwm.length; m++ ) {
-			NormalizableScoringFunction nsf = md.getFunction( 2*m );
-			StrandScoringFunction strand;
-			if( nsf instanceof NormalizedScoringFunction ) {
-				strand = (StrandScoringFunction) ((NormalizedScoringFunction) nsf).getFunction();
+			DifferentiableStatisticalModel nsf = md.getFunction( 2*m );
+			StrandDiffSM strand;
+			if( nsf instanceof NormalizedDiffSM ) {
+				strand = (StrandDiffSM) ((NormalizedDiffSM) nsf).getFunction();
 			} else {
-				strand = (StrandScoringFunction) nsf;
+				strand = (StrandDiffSM) nsf;
 			}
-			BayesianNetworkScoringFunction motif = (BayesianNetworkScoringFunction) strand.getFunction( 0 );
+			BayesianNetworkDiffSM motif = (BayesianNetworkDiffSM) strand.getFunction( 0 );
 			pwm[m] = motif.getPWM();
 			System.out.print( "\t" + md.getMotifLength(m) + "\t" + getConsensus( cl.getAlphabetContainer(), pwm[m] ) );
 		}
