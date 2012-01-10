@@ -360,27 +360,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	}
 
 	public void initializeFunctionRandomly() {
-		DiMRGParams p;
-		for(int i=0;i<probs.length;i++){
-				double ess = 0;
-				for(int j=0;j<initHyperParams[i].length;j++){
-					ess += initHyperParams[i][j];
-				}
-				if( ess == 0 ) {
-					p = new FastDirichletMRGParams(1d);
-				}else{
-					p = new DirichletMRGParams( initHyperParams[i] );
-				}	
-				DirichletMRG.DEFAULT_INSTANCE.generate( probs[i], 0, probs[i].length, p );
-
-		}
-		
-		Arrays.fill( logNorm, 0 );
-		for( int i = 0; i < params.length; i++ ) {
-			for(int j=0;j<params[i].length;j++) {
-				params[i][j] = Math.log( probs[i][j] );
-			}
-		}
+		drawParameters( initHyperParams, true );
 	}
 
 
@@ -640,14 +620,28 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		return offset;
 	}
 	
-    public void drawParametersFromStatistic()  throws Exception {
+	private void drawParameters( double[][] hyper, boolean uniformBackup ) {
+		double ess;
+		DiMRGParams p;
     	for(int j=0;j<probs.length;j++){
-    		DirichletMRG.DEFAULT_INSTANCE.generate( probs[j], 0, statistic[j].length, new DirichletMRGParams( statistic[j] ) );
-    		for( int i = 0; i < statistic[j].length; i++ ) {
-    			params[j][i] = Math.log(probs[j][i]);
+    		ess = 0;
+    		if( uniformBackup ) {
+				for(int i=0;i<hyper[j].length;i++){
+					ess += hyper[j][i];
+				}
     		}
-    		logNorm[j] = 0;
+			if( uniformBackup && ess == 0 ) {
+				p = new FastDirichletMRGParams(1d);
+			}else{
+				p = new DirichletMRGParams( hyper[j] );
+			}	
+    		DirichletMRG.DEFAULT_INSTANCE.generateLog( params[j], 0, hyper[j].length, p );
     	}
+    	precompute();
+	}
+	
+    public void drawParametersFromStatistic() {
+    	drawParameters( statistic, false );
 	}
 
     public double getLogGammaScoreFromStatistic() {

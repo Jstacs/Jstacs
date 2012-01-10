@@ -1105,10 +1105,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 				} else {
 					par = new DirichletMRGParams( statistic );
 				}
-				DirichletMRG.DEFAULT_INSTANCE.generate(parameters, 0, parameters.length, par);
-				for( int i = 0; i < parameters.length; i++ ) {
-					parameters[i] = Math.log( parameters[i] );
-				}
+				DirichletMRG.DEFAULT_INSTANCE.generateLog(parameters, 0, parameters.length, par);
 			} else {
 				Arrays.fill( parameters, 0 );
 			}
