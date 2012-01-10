@@ -28,16 +28,16 @@ import de.jstacs.results.ResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public interface SequenceScoringFunction extends Cloneable, Storable {
+public interface SequenceScore extends Cloneable, Storable {
 	/**
-	 * Creates a clone (deep copy) of the current {@link SequenceScoringFunction} instance.
+	 * Creates a clone (deep copy) of the current {@link SequenceScore} instance.
 	 * 
 	 * @return the cloned instance
 	 * 
 	 * @throws CloneNotSupportedException
 	 *             if something went wrong while cloning
 	 */
-	public SequenceScoringFunction clone() throws CloneNotSupportedException;
+	public SequenceScore clone() throws CloneNotSupportedException;
 	
 	/**
 	 * Returns the container of alphabets that were used when constructing the instance.
