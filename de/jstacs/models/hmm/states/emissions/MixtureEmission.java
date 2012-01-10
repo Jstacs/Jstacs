@@ -114,7 +114,7 @@ public final class MixtureEmission implements Emission {
 		for(int i=0;i<emissions.length;i++){
 			if(emissions[i] != this){
 				for(int j=0;j<statistic.length;j++){
-					statistic[j] += ((MixtureEmission)emissions[i]).statistic[j] - ((MixtureEmission)emissions[i]).hyper[j];
+					statistic[j] += ((MixtureEmission)emissions[i]).statistic[j];
 				}
 			}
 		}
@@ -142,6 +142,7 @@ public final class MixtureEmission implements Emission {
 		double sum = 0;
 		for( int e = 0; e < emission.length; e++ ) {
 			emission[e].estimateFromStatistic();
+			statistic[e] += hyper[e];
 			sum += statistic[e];
 		}
 		sum = Math.log( sum );
@@ -190,10 +191,9 @@ public final class MixtureEmission implements Emission {
 			throw new IllegalArgumentException();
 		}
 		
-		DirichletMRG.DEFAULT_INSTANCE.generate( help, 0, emission.length, p );
+		DirichletMRG.DEFAULT_INSTANCE.generateLog( logProb, 0, emission.length, p );
 		for( int e = 0; e < emission.length; e++ ) {
 			emission[e].initializeFunctionRandomly();
-			logProb[e] = Math.log( help[e] );
 		}
 	}
 
@@ -201,7 +201,6 @@ public final class MixtureEmission implements Emission {
 	public void resetStatistic() {
 		for( int e = 0; e < emission.length; e++ ) {
 			emission[e].resetStatistic();
-			statistic[e] = hyper[e];
 		}
 	}
 
