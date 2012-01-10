@@ -33,11 +33,11 @@ import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEv
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
 import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.data.RecyclableSequenceEnumerator;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.RecyclableSequenceEnumerator;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
