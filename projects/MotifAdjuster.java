@@ -28,19 +28,19 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.io.StringExtractor;
-import de.jstacs.models.AbstractModel;
-import de.jstacs.models.discrete.homogeneous.HomogeneousMM;
-import de.jstacs.models.discrete.homogeneous.parameters.HomMMParameterSet;
-import de.jstacs.models.discrete.inhomogeneous.BayesianNetworkModel;
-import de.jstacs.models.discrete.inhomogeneous.StructureLearner.LearningType;
-import de.jstacs.models.discrete.inhomogeneous.StructureLearner.ModelType;
-import de.jstacs.models.discrete.inhomogeneous.parameters.BayesianNetworkModelParameterSet;
-import de.jstacs.models.mixture.StrandModel;
-import de.jstacs.models.mixture.AbstractMixtureModel.Parameterization;
-import de.jstacs.models.mixture.motif.SingleHiddenMotifMixture;
-import de.jstacs.models.mixture.motif.positionprior.GaussianLikePositionPrior;
-import de.jstacs.models.mixture.motif.positionprior.PositionPrior;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
+import de.jstacs.trainableStatisticalModels.AbstractTrainSM;
+import de.jstacs.trainableStatisticalModels.discrete.homogeneous.HomogeneousMM;
+import de.jstacs.trainableStatisticalModels.discrete.homogeneous.parameters.HomMMParameterSet;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.BayesianNetworkTrainSM;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.LearningType;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.ModelType;
+import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
+import de.jstacs.trainableStatisticalModels.mixture.StrandTrainSM;
+import de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization;
+import de.jstacs.trainableStatisticalModels.mixture.motif.SingleHiddenMotifMixture;
+import de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.GaussianLikePositionPrior;
+import de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior;
 
 /**
  * This class provides a main that is used for the MotifAdjuster .
@@ -92,20 +92,20 @@ public class MotifAdjuster
 				double sigma = Double.parseDouble( args[7] );
 				double pBg = Double.parseDouble( args[8] ), pwmESS = (1d-pBg)*ess, strandHyper=pwmESS/2d;
 				
-				BayesianNetworkModelParameterSet p = new BayesianNetworkModelParameterSet( con, sl, pwmESS, "foreground model", ModelType.IMM, fgOrder, LearningType.ML_OR_MAP );
-				AbstractModel motifModel;
+				BayesianNetworkTrainSMParameterSet p = new BayesianNetworkTrainSMParameterSet( con, sl, pwmESS, "foreground model", ModelType.IMM, fgOrder, LearningType.ML_OR_MAP );
+				AbstractTrainSM motifModel;
 				TerminationCondition stop = new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 );
 				if( bothStrands )
 				{
-					motifModel = new StrandModel( new BayesianNetworkModel( p ), 1, new double[]{ strandHyper, strandHyper }, 1, stop, Parameterization.LAMBDA );
-					((StrandModel) motifModel).setOutputStream( null );
+					motifModel = new StrandTrainSM( new BayesianNetworkTrainSM( p ), 1, new double[]{ strandHyper, strandHyper }, 1, stop, Parameterization.LAMBDA );
+					((StrandTrainSM) motifModel).setOutputStream( null );
 				}
 				else
 				{
-					motifModel = new BayesianNetworkModel( p );
+					motifModel = new BayesianNetworkTrainSM( p );
 				}
 
-				AbstractModel backgroundModel = new HomogeneousMM( new HomMMParameterSet( con, (s.getElementLength() - (1d-pBg)*sl) * ess, null, (byte) 0 ) );
+				AbstractTrainSM backgroundModel = new HomogeneousMM( new HomMMParameterSet( con, (s.getElementLength() - (1d-pBg)*sl) * ess, null, (byte) 0 ) );
 
 				// here you can alter the prior
 				PositionPrior pr = new GaussianLikePositionPrior( l, max, sigma );
@@ -131,14 +131,14 @@ public class MotifAdjuster
 				System.out.println( "models: " );
 
 				System.out.println( em );
-				motifModel = (AbstractModel) em.getModel( 0 );
+				motifModel = (AbstractTrainSM) em.getModel( 0 );
 
 				Sequence seq;
 				int start;
-				StrandModel strand = null;
+				StrandTrainSM strand = null;
 				if( bothStrands )
 				{
-					strand = (StrandModel) motifModel;
+					strand = (StrandTrainSM) motifModel;
 				}
 				String annot, line;
 				System.out.println( "results for " + s.getNumberOfElements() + " sites" );

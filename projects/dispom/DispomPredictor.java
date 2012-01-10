@@ -26,7 +26,7 @@ import java.util.Random;
 
 import de.jstacs.DataType;
 import de.jstacs.WrongAlphabetException;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
@@ -36,6 +36,7 @@ import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
+import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.SparseStringExtractor;
@@ -47,7 +48,6 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetTagger;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
-import de.jstacs.scoringFunctions.NormalizableScoringFunction;
 
 /**
  * Discriminative de-novo position distribution and motif finder.
@@ -121,7 +121,7 @@ public class DispomPredictor {
 		}
 		//restore classifier
 		GenDisMixClassifier cl = new GenDisMixClassifier( XMLParser.extractForTag( FileManager.readFile( new File(fName) ),"classifier")  );
-		NormalizableScoringFunction[] bestNSF = ArrayHandler.cast( NormalizableScoringFunction.class, cl.getScoringFunctions() );
+		DifferentiableStatisticalModel[] bestNSF = ArrayHandler.cast( DifferentiableStatisticalModel.class, cl.getScoringFunctions() );
 
 		// show
 		System.out.println("_________________________________");

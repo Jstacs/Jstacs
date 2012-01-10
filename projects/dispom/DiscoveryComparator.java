@@ -31,11 +31,11 @@ import projects.dispom.PFMComparator.PFMDistance;
 import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
+import de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifier.differentiableSequenceScoreBased.msp.MSPClassifier;
 import de.jstacs.classifier.performanceMeasures.PRCurve;
 import de.jstacs.classifier.performanceMeasures.ROCCurve;
-import de.jstacs.classifier.scoringFunctionBased.ScoreClassifier;
-import de.jstacs.classifier.scoringFunctionBased.gendismix.GenDisMixClassifier;
-import de.jstacs.classifier.scoringFunctionBased.msp.MSPClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
@@ -45,6 +45,9 @@ import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
+import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.Measure;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.DurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motifSearch.HiddenMotifsMixture;
 import de.jstacs.io.AbstractStringExtractor;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.RegExFilenameFilter;
@@ -52,9 +55,6 @@ import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoveryAssessment;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.results.ResultSet;
-import de.jstacs.scoringFunctions.directedGraphicalModels.structureLearning.measures.Measure;
-import de.jstacs.scoringFunctions.mix.motifSearch.DurationScoringFunction;
-import de.jstacs.scoringFunctions.mix.motifSearch.HiddenMotifsMixture;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.REnvironment;
@@ -463,7 +463,7 @@ public class DiscoveryComparator {
 	
 	private static void plotPositionalDistribution( REnvironment r, String file, HiddenMotifsMixture mix, DataSet truth) throws Exception{
 		r.createVector( "pos", getPositions( truth, motifName ) );
-		DurationScoringFunction dsf = (DurationScoringFunction) mix.getFunction( 1 );
+		DurationDiffSM dsf = (DurationDiffSM) mix.getFunction( 1 );
 		String plotcmd = dsf.toString()+"\n" +
 				"par(mar=c(5,6,0,0),cex.lab=2,cex.axis=2);\n" +
 				"hist(pos,xlab=\"Position\", ylab=\"\",main=\"\", xlim=c(min(l),max(l)),freq=F,breaks=seq(0,500,by=20),col=gray(0.8),axes=F);\n" +
