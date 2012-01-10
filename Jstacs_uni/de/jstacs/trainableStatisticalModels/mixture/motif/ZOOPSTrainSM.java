@@ -54,7 +54,7 @@ import de.jstacs.utils.random.MultivariateRandomGenerator;
  * 
  * @author Jens Keilwagen
  */
-public class SingleHiddenMotifMixture extends HiddenMotifMixture {
+public class ZOOPSTrainSM extends HiddenMotifMixture {
 
 	private int[] refBgSample;
 	private boolean trainOnlyMotifModel;
@@ -66,7 +66,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	protected byte bgMaxMarkovOrder;
 
 	/**
-	 * Creates a new {@link SingleHiddenMotifMixture}. This constructor can be
+	 * Creates a new {@link ZOOPSTrainSM}. This constructor can be
 	 * used for any algorithm since it takes all necessary values as parameters.
 	 * 
 	 * @param motif
@@ -165,7 +165,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	 * @throws WrongAlphabetException
 	 *             if the <code>models</code> can not be cloned
 	 */
-	protected SingleHiddenMotifMixture( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double[] componentHyperParams,
+	protected ZOOPSTrainSM( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double[] componentHyperParams,
 										double[] weights, PositionPrior posPrior, Algorithm algorithm, double alpha, TerminationCondition tc,
 										Parameterization parametrization, int initialIteration, int stationaryIteration,
 										BurnInTest burnInTest ) throws CloneNotSupportedException, IllegalArgumentException,
@@ -191,7 +191,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	}
 
 	/**
-	 * Creates a new {@link SingleHiddenMotifMixture} using EM and estimating
+	 * Creates a new {@link ZOOPSTrainSM} using EM and estimating
 	 * the probability for finding a motif.
 	 * 
 	 * @param motif
@@ -257,10 +257,10 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see SingleHiddenMotifMixture#SingleHiddenMotifMixture(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)
+	 * @see ZOOPSTrainSM#SingleHiddenMotifMixture(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)
 	 * @see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm#EM
 	 */
-	public SingleHiddenMotifMixture( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double[] componentHyperParams,
+	public ZOOPSTrainSM( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double[] componentHyperParams,
 										PositionPrior posPrior, double alpha, TerminationCondition tc, Parameterization parametrization )
 																															throws CloneNotSupportedException,
 																															IllegalArgumentException,
@@ -282,7 +282,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	}
 
 	/**
-	 * Creates a new {@link SingleHiddenMotifMixture} using EM and fixed
+	 * Creates a new {@link ZOOPSTrainSM} using EM and fixed
 	 * probability for finding a motif.
 	 * 
 	 * @param motif
@@ -338,10 +338,10 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see SingleHiddenMotifMixture#SingleHiddenMotifMixture(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)     
+	 * @see ZOOPSTrainSM#SingleHiddenMotifMixture(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)     
 	 * @see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm#EM
 	 */
-	public SingleHiddenMotifMixture( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double motifProb,
+	public ZOOPSTrainSM( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double motifProb,
 										PositionPrior posPrior, double alpha, TerminationCondition tc, Parameterization parametrization )
 																															throws CloneNotSupportedException,
 																															IllegalArgumentException,
@@ -364,7 +364,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link SingleHiddenMotifMixture} out of its XML
+	 * Creates a new {@link ZOOPSTrainSM} out of its XML
 	 * representation.
 	 * 
 	 * @param xml
@@ -373,7 +373,7 @@ public class SingleHiddenMotifMixture extends HiddenMotifMixture {
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} can not be parsed
 	 */
-	public SingleHiddenMotifMixture( StringBuffer xml ) throws NonParsableException {
+	public ZOOPSTrainSM( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 		bgMaxMarkovOrder = model[1].getMaximalMarkovOrder();
 		int i = 1;
