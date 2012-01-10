@@ -77,9 +77,9 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 	 * Creates a new {@link AlphabetContainerParameterSet} of a
 	 * complex {@link AlphabetContainer} with <code>type</code> {@link AlphabetContainerType#BOTH}.
 	 * 
-	 * @throws Exception 
+	 * @throws Exception if the {@link ParameterSet} could not be created
 	 * 
-	 * @see {@link #AlphabetContainerParameterSet(AlphabetContainerType, boolean)}
+	 * @see AlphabetContainerParameterSet#AlphabetContainerParameterSet(AlphabetContainerType, boolean)
 	 */
 	public AlphabetContainerParameterSet() throws Exception {
 		this( AlphabetContainerType.BOTH, false );

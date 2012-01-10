@@ -36,7 +36,7 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
- * @see AbstractCollectionParameter
+ * @see AbstractSelectionParameter
  */
 public class MultiSelectionParameter extends AbstractSelectionParameter implements RangeIterator {
 
@@ -425,7 +425,7 @@ public class MultiSelectionParameter extends AbstractSelectionParameter implemen
 	 * Sets the default selection of this {@link MultiSelectionParameter} to
 	 * <code>defaultSelection</code>. This method also sets the current
 	 * selection of this {@link MultiSelectionParameter} to the default
-	 * and resets it such that {@link AbstractCollectionParameter#isUserSelected()}
+	 * and resets it such that {@link AbstractSelectionParameter#isUserSelected()}
 	 * returns <code>false</code>.
 	 * 
 	 * @param defaultSelection

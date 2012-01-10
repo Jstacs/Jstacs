@@ -184,8 +184,8 @@ public class BNDiffSMParameter implements Storable, Cloneable {
 	 * 
 	 * @return the pseudocount
 	 * 
-	 * @see BNDiffSMParameter#Parameter(int, byte, int, double, boolean)
-	 * @see BNDiffSMParameter#Parameter(int, byte, int, int[][], double, boolean)
+	 * @see BNDiffSMParameter#BNDiffSMParameter(int, byte, int, double, boolean)
+	 * @see BNDiffSMParameter#BNDiffSMParameter(int, byte, int, int[][], double, boolean)
 	 */
 	public double getPseudoCount() {
 		return pseudoCount;
@@ -371,8 +371,8 @@ public class BNDiffSMParameter implements Storable, Cloneable {
 	 * 
 	 * @return the position of this parameter this parameter is responsible for
 	 * 
-	 * @see BNDiffSMParameter#Parameter(int, byte, int, double, boolean)
-	 * @see BNDiffSMParameter#Parameter(int, byte, int, int[][], double, boolean)
+	 * @see BNDiffSMParameter#BNDiffSMParameter(int, byte, int, double, boolean)
+	 * @see BNDiffSMParameter#BNDiffSMParameter(int, byte, int, int[][], double, boolean)
 	 */
 	public int getPosition() {
 		return position;
@@ -383,8 +383,8 @@ public class BNDiffSMParameter implements Storable, Cloneable {
 	 * 
 	 * @return the index of this parameter in the list of all parameters
 	 * 
-	 * @see BNDiffSMParameter#Parameter(int, byte, int, double, boolean)
-	 * @see BNDiffSMParameter#Parameter(int, byte, int, int[][], double, boolean)
+	 * @see BNDiffSMParameter#BNDiffSMParameter(int, byte, int, double, boolean)
+	 * @see BNDiffSMParameter#BNDiffSMParameter(int, byte, int, int[][], double, boolean)
 	 */
 	public int getIndex() {
 		return index;

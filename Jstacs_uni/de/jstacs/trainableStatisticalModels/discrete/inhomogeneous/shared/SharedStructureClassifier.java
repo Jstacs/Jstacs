@@ -73,7 +73,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	 * 
 	 * @see ModelType
 	 * @see LearningType
-	 * @see TrainSMBasedClassifier#ModelBasedClassifier(boolean,de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[])
+	 * @see TrainSMBasedClassifier#TrainSMBasedClassifier(boolean,de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[])
 	 */
 	public SharedStructureClassifier( int length, ModelType model, byte order, LearningType method, FSDAGTrainSM... models )
 																															throws IllegalArgumentException,
@@ -103,7 +103,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see TrainSMBasedClassifier#ModelBasedClassifier(StringBuffer)
+	 * @see TrainSMBasedClassifier#TrainSMBasedClassifier(StringBuffer)
 	 */
 	public SharedStructureClassifier( StringBuffer xml ) throws NonParsableException {
 		super( xml );

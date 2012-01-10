@@ -57,7 +57,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 	 *            indicates whether the initial parameters for an optimization
 	 *            should be related to the data or randomly drawn
 	 * @param component
-	 *            the {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s
+	 *            the {@link DifferentiableStatisticalModel}s
 	 * 
 	 * @throws CloneNotSupportedException
 	 *             if an element of <code>component</code> could not be cloned

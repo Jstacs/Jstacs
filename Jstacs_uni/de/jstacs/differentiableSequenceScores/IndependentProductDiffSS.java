@@ -113,7 +113,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters are used for parts that are instance of {@link HomogeneousDiffSM}
 	 * @param functions
 	 *            the components, i.e. the given series of independent
-	 *            {@link DifferentiableStatisticalModel}s
+	 *            {@link DifferentiableSequenceScore}s
 	 *             
 	 * @throws CloneNotSupportedException
 	 *             if at least one element of <code>functions</code> could not
@@ -121,7 +121,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 * @throws WrongAlphabetException
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement.
 	 *             
-	 * @see IndependentProductDiffSS#BasicIndependentProductScoringFunction(boolean, DifferentiableSequenceScore[], int[])
+	 * @see IndependentProductDiffSS#IndependentProductDiffSS(boolean, DifferentiableSequenceScore[], int[])
 	 */
 	public IndependentProductDiffSS( double ess, boolean plugIn, DifferentiableSequenceScore... functions ) throws CloneNotSupportedException, WrongAlphabetException {
 		this( plugIn, functions, getLengthArray( functions ) );
@@ -144,7 +144,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 * @throws WrongAlphabetException
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement.
 	 * 
-	 * @see IndependentProductDiffSS#BasicIndependentProductScoringFunction(boolean, DifferentiableSequenceScore[], int[], int[], boolean[])
+	 * @see IndependentProductDiffSS#IndependentProductDiffSS(boolean, DifferentiableSequenceScore[], int[], int[], boolean[])
 	 */
 	public IndependentProductDiffSS( boolean plugIn, DifferentiableSequenceScore[] functions, int[] length ) throws CloneNotSupportedException, WrongAlphabetException {
 		this( plugIn, functions, null, length, null );

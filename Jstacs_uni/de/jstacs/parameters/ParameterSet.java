@@ -57,7 +57,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	
 	/**
 	 * This method tries to find the correct name ({@link String}) for your
-	 * choice. This method is useful if you handle {@link CollectionParameter}s.
+	 * choice. This method is useful if you handle {@link AbstractSelectionParameter}s.
 	 * 
 	 * @param names
 	 *            the names
@@ -74,7 +74,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	 * @throws IllegalArgumentException
 	 *             if no match could be found
 	 * 
-	 * @see AbstractCollectionParameter
+	 * @see AbstractSelectionParameter
 	 */
 	public static int getIndex(String[] names, Object[] values,
 			Comparable current, boolean hasAlternative)
@@ -175,7 +175,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	
 	/**
 	 * Returns <code>true</code> if the parameters of this {@link ParameterSet}
-	 * have already been loaded using {@link #loadParameters()}.
+	 * have been loaded.
 	 * 
 	 * @return the state of the parameters (loaded or not)
 	 */

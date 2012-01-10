@@ -47,7 +47,7 @@ public abstract class AbstractVariableLengthDiffSM extends
 	 *            the {@link AlphabetContainer} of this
 	 *            {@link VariableLengthDiffSM}
 	 * 
-	 * @see AbstractVariableLengthDiffSM#AbstractVariableLengthScoringFunction(AlphabetContainer,
+	 * @see AbstractVariableLengthDiffSM#AbstractVariableLengthDiffSM(AlphabetContainer,
 	 *      int)
 	 */
 	protected AbstractVariableLengthDiffSM(AlphabetContainer alphabets) {

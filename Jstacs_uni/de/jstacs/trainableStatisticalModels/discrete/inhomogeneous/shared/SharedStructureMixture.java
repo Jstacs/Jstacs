@@ -218,7 +218,7 @@ public class SharedStructureMixture extends MixtureTrainSM {
 	 *             if the models can not be cloned
 	 * 
 	 * @see ModelType
-	 * @see MixtureTrainSM#MixtureModel(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
+	 * @see MixtureTrainSM#MixtureTrainSM(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
 	 *      boolean, double[], double[], de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, TerminationCondition,
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int,
 	 *      de.jstacs.sampling.BurnInTest)
@@ -262,7 +262,7 @@ public class SharedStructureMixture extends MixtureTrainSM {
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see MixtureTrainSM#MixtureModel(StringBuffer)
+	 * @see MixtureTrainSM#MixtureTrainSM(StringBuffer)
 	 */
 	public SharedStructureMixture( StringBuffer xml ) throws NonParsableException {
 		super( xml );

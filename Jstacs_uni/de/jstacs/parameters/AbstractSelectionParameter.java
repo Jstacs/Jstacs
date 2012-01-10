@@ -61,7 +61,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	protected String errorMessage;
 
 	/**
-	 * Indicates if this {@link AbstractCollectionParameter} shall be rangeable
+	 * Indicates if this {@link AbstractSelectionParameter} shall be rangeable
 	 */
 	private boolean rangeable;
 
@@ -74,7 +74,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	}
 
 	/**
-	 * Constructor for a {@link AbstractCollectionParameter} of {@link SimpleParameter}s.
+	 * Constructor for a {@link AbstractSelectionParameter} of {@link SimpleParameter}s.
 	 * 
 	 * @param datatype
 	 *            the data type of the parameters in the collection
@@ -90,7 +90,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	 * @param comment
 	 *            a comment on the parameter
 	 * @param required
-	 *            <code>true</code> if this {@link AbstractCollectionParameter} is
+	 *            <code>true</code> if this {@link AbstractSelectionParameter} is
 	 *            required, <code>false</code> otherwise
 	 * 
 	 * @throws InconsistentCollectionException
@@ -103,7 +103,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	 * @throws DatatypeNotValidException
 	 *             if the <code>datatype</code> is not one of the allowed values
 	 * 
-	 * @see #AbstractCollectionParameter(DataType, String[], Object[], String[], String, String, boolean)
+	 * @see #AbstractSelectionParameter(DataType, String[], Object[], String[], String, String, boolean)
 	 * @see SimpleParameter
 	 */
 	public AbstractSelectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
@@ -113,7 +113,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	}
 
 	/**
-	 * Constructor for a {@link AbstractCollectionParameter}.
+	 * Constructor for a {@link AbstractSelectionParameter}.
 	 * 
 	 * @param datatype
 	 *            the data type of the parameters in the collection
@@ -131,7 +131,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	 * @param comment
 	 *            a comment on the parameter
 	 * @param required
-	 *            <code>true</code> if the {@link AbstractCollectionParameter} is
+	 *            <code>true</code> if the {@link AbstractSelectionParameter} is
 	 *            required, <code>false</code> otherwise
 	 * 
 	 * @throws InconsistentCollectionException
@@ -151,16 +151,16 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		this(datatype, name, comment, required);
 
 		if ( !(values instanceof Parameter[]) && (keys == null || keys.length != values.length || (comments != null && keys.length != comments.length)) ) {
-			throw new InconsistentCollectionException( "You have to define the same number of keys and values for a AbstractCollectionParameter!");
+			throw new InconsistentCollectionException( "You have to define the same number of keys and values for a AbstractSelectionParameter!");
 		}
 
 		createParameterSet(values, keys, comments);
 	}
 
 	/**
-	 * Constructor for a {@link AbstractCollectionParameter} from an array of
+	 * Constructor for a {@link AbstractSelectionParameter} from an array of
 	 * {@link ParameterSet}s. This constructor can be used to easily construct a
-	 * {@link AbstractCollectionParameter} that lets the user select from a list of
+	 * {@link AbstractSelectionParameter} that lets the user select from a list of
 	 * possible options that all require an own set of {@link Parameter}s to be
 	 * instantiated.
 	 * 
@@ -192,7 +192,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Restores an instance of {@link AbstractCollectionParameter} from a XML
+	 * Restores an instance of {@link AbstractSelectionParameter} from a XML
 	 * representation.
 	 * 
 	 * @param representation
@@ -298,10 +298,10 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	}
 
 	/**
-	 * Returns <code>true</code>, if this {@link AbstractCollectionParameter} has a
+	 * Returns <code>true</code>, if this {@link AbstractSelectionParameter} has a
 	 * default value.
 	 * 
-	 * @return if this {@link AbstractCollectionParameter} has a default value
+	 * @return if this {@link AbstractSelectionParameter} has a default value
 	 * 
 	 * @see #setDefault(Object)
 	 */
@@ -377,10 +377,10 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 
 	/**
 	 * Returns <code>true</code> if the key specified by <code>value</code> is
-	 * in the set of keys of this {@link AbstractCollectionParameter}.
+	 * in the set of keys of this {@link AbstractSelectionParameter}.
 	 * 
 	 * @return <code>true</code> if the key specified by <code>value</code> is
-	 *         in the set of keys of this {@link AbstractCollectionParameter},
+	 *         in the set of keys of this {@link AbstractSelectionParameter},
 	 *         <code>false</code> otherwise
 	 */
 	@Override
@@ -465,10 +465,10 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	}
 
 	/**
-	 * Sets the default value of this {@link AbstractCollectionParameter} to
+	 * Sets the default value of this {@link AbstractSelectionParameter} to
 	 * <code>defaultValue</code>. This method also sets the current
-	 * value of this {@link AbstractCollectionParameter} to the default
-	 * and resets it such that {@link AbstractCollectionParameter#isUserSelected()}
+	 * value of this {@link AbstractSelectionParameter} to the default
+	 * and resets it such that {@link AbstractSelectionParameter#isUserSelected()}
 	 * returns <code>false</code>.
 	 * 
 	 * @param defaultValue
@@ -513,7 +513,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	}
 
 	/**
-	 * This exception is thrown if the {@link AbstractCollectionParameter} is
+	 * This exception is thrown if the {@link AbstractSelectionParameter} is
 	 * inconsistent for some reason.
 	 * 
 	 * @author Jan Grau

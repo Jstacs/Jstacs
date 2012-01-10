@@ -68,7 +68,7 @@ public abstract class InhomogeneousDGTrainSM extends DiscreteGraphicalTrainSM {
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 * 
-	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalModel(DGTrainSMParameterSet)
+	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalTrainSM(DGTrainSMParameterSet)
 	 */
 	public InhomogeneousDGTrainSM( IDGTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException, NonParsableException {
 		super( params );
@@ -87,7 +87,7 @@ public abstract class InhomogeneousDGTrainSM extends DiscreteGraphicalTrainSM {
 	 *             not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalModel(StringBuffer)
+	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalTrainSM(StringBuffer)
 	 */
 	public InhomogeneousDGTrainSM( StringBuffer representation ) throws NonParsableException {
 		super( representation );

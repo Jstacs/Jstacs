@@ -62,7 +62,7 @@ public abstract class DiscreteGraphicalTrainSM extends AbstractTrainSM implement
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 * 
-	 * @see AbstractTrainSM#AbstractModel(de.jstacs.data.AlphabetContainer, int)
+	 * @see AbstractTrainSM#AbstractTrainSM(de.jstacs.data.AlphabetContainer, int)
 	 */
 	public DiscreteGraphicalTrainSM( DGTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException,
 															NonParsableException {
@@ -84,7 +84,7 @@ public abstract class DiscreteGraphicalTrainSM extends AbstractTrainSM implement
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see AbstractTrainSM#AbstractModel(StringBuffer)
+	 * @see AbstractTrainSM#AbstractTrainSM(StringBuffer)
 	 */
 	public DiscreteGraphicalTrainSM( StringBuffer representation ) throws NonParsableException {
 		super( representation );

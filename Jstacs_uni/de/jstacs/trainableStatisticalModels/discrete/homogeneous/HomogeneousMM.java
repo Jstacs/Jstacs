@@ -60,7 +60,7 @@ public class HomogeneousMM extends HomogeneousTrainSM {
 	 *             if the parameter set is not parsable
 	 * 
 	 * @see HomMMParameterSet
-	 * @see HomogeneousTrainSM#HomogeneousModel(de.jstacs.trainableStatisticalModels.discrete.homogeneous.parameters.HomogeneousTrainSMParameterSet)
+	 * @see HomogeneousTrainSM#HomogeneousTrainSM(de.jstacs.trainableStatisticalModels.discrete.homogeneous.parameters.HomogeneousTrainSMParameterSet)
 	 */
 	public HomogeneousMM( HomMMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException, NonParsableException {
 		super( params );

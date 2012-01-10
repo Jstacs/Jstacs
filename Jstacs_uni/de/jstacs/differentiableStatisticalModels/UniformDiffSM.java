@@ -30,7 +30,7 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
 /**
- * This {@link DifferentiableSequenceScore} does nothing. So it is possible to save
+ * This {@link DifferentiableStatisticalModel} does nothing. So it is possible to save
  * parameters in an optimization.
  * 
  * @author Jens Keilwagen, Jan Grau

@@ -56,7 +56,7 @@ public class BayesianNetworkTrainSM extends DAGTrainSM {
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 * 
-	 * @see DAGTrainSM#DAGModel(de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.IDGTrainSMParameterSet)
+	 * @see DAGTrainSM#DAGTrainSM(de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.IDGTrainSMParameterSet)
 	 */
 	public BayesianNetworkTrainSM( BayesianNetworkTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException,
 																			NonParsableException {
@@ -76,7 +76,7 @@ public class BayesianNetworkTrainSM extends DAGTrainSM {
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see DAGTrainSM#DAGModel(StringBuffer)
+	 * @see DAGTrainSM#DAGTrainSM(StringBuffer)
 	 */
 	public BayesianNetworkTrainSM( StringBuffer representation ) throws NonParsableException {
 		super( representation );

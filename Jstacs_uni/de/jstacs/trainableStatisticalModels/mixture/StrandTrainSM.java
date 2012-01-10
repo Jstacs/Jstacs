@@ -237,7 +237,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see StrandTrainSM#StrandModel(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
+	 * @see StrandTrainSM#StrandTrainSM(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
 	 *      double[], double,
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,
@@ -309,7 +309,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see StrandTrainSM#StrandModel(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
+	 * @see StrandTrainSM#StrandTrainSM(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
 	 *      double[], double,
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,
@@ -383,7 +383,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see StrandTrainSM#StrandModel(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
+	 * @see StrandTrainSM#StrandTrainSM(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
 	 *      double[], double,
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,
@@ -455,7 +455,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see StrandTrainSM#StrandModel(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
+	 * @see StrandTrainSM#StrandTrainSM(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, int, boolean,
 	 *      double[], double,
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,

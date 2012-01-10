@@ -51,7 +51,7 @@ public abstract class HomogeneousTrainSMParameterSet extends DGTrainSMParameterS
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see DGTrainSMParameterSet#DGMParameterSet(StringBuffer)
+	 * @see DGTrainSMParameterSet#DGTrainSMParameterSet(StringBuffer)
 	 */
 	protected HomogeneousTrainSMParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
@@ -66,7 +66,7 @@ public abstract class HomogeneousTrainSMParameterSet extends DGTrainSMParameterS
 	 *            the (sub-)class
 	 * @see de.jstacs.trainableStatisticalModels.discrete.homogeneous.HomogeneousMM
 	 * @see HomogeneousTrainSM
-	 * @see DGTrainSMParameterSet#DGMParameterSet(Class, boolean, boolean)
+	 * @see DGTrainSMParameterSet#DGTrainSMParameterSet(Class, boolean, boolean)
 	 */
 	protected HomogeneousTrainSMParameterSet( Class<? extends HomogeneousTrainSM> instanceClass ) {
 		super( instanceClass, true, true );
@@ -99,7 +99,7 @@ public abstract class HomogeneousTrainSMParameterSet extends DGTrainSMParameterS
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see DGTrainSMParameterSet#DGMParameterSet(Class, AlphabetContainer, double,
+	 * @see DGTrainSMParameterSet#DGTrainSMParameterSet(Class, AlphabetContainer, double,
 	 *      String)
 	 */
 	protected HomogeneousTrainSMParameterSet( Class<? extends HomogeneousTrainSM> instanceClass, AlphabetContainer alphabet, double ess,
