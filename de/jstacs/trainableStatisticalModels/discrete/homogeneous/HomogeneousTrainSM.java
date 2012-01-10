@@ -68,7 +68,7 @@ public abstract class HomogeneousTrainSM extends DiscreteGraphicalTrainSM {
 	 *             if the parameter set is not parsable
 	 * 
 	 * @see HomogeneousTrainSMParameterSet
-	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalModel(DGTrainSMParameterSet)
+	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalTrainSM(DGTrainSMParameterSet)
 	 */
 	public HomogeneousTrainSM( HomogeneousTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException,
 																	NonParsableException {
@@ -88,7 +88,7 @@ public abstract class HomogeneousTrainSM extends DiscreteGraphicalTrainSM {
 	 *             not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalModel(StringBuffer)
+	 * @see DiscreteGraphicalTrainSM#DiscreteGraphicalTrainSM(StringBuffer)
 	 */
 	public HomogeneousTrainSM( StringBuffer stringBuff ) throws NonParsableException {
 		super( stringBuff );
@@ -385,7 +385,7 @@ public abstract class HomogeneousTrainSM extends DiscreteGraphicalTrainSM {
 		 * @param old
 		 *            the old instance to be cloned
 		 * 
-		 * @see HomogeneousTrainSM.HomCondProb#HomogeneousModel.HomCondProb(int[],int) HomogeneousTrainSM.HomCondProb#HomCondProb(int[],int) 
+		 * @see HomogeneousTrainSM.HomCondProb#HomogeneousTrainSM.HomCondProb(int[],int) HomogeneousTrainSM.HomCondProb#HomCondProb(int[],int) 
 		 */
 		public HomCondProb( HomCondProb old ) {
 			this( old.usedPositions, old.freq.length );

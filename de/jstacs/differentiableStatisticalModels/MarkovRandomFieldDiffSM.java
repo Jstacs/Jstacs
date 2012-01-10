@@ -66,7 +66,7 @@ public final class MarkovRandomFieldDiffSM extends
 	 *            the constraints that are used for the model, see
 	 *            {@link ConstraintManager#extract(int, String)}
 	 * 
-	 * @see MarkovRandomFieldDiffSM#MRFScoringFunction(AlphabetContainer, int,
+	 * @see MarkovRandomFieldDiffSM#MarkovRandomFieldDiffSM(AlphabetContainer, int,
 	 *      double, String)
 	 */
 	public MarkovRandomFieldDiffSM(AlphabetContainer alphabets, int length,

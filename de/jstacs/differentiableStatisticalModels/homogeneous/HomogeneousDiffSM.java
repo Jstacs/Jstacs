@@ -25,7 +25,7 @@ import de.jstacs.differentiableStatisticalModels.AbstractVariableLengthDiffSM;
 import de.jstacs.differentiableStatisticalModels.SamplingDifferentiableStatisticalModel;
 
 /**
- * This is the main class for all homogeneous {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s.
+ * This is the main class for all homogeneous {@link de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore}s.
  * 
  * @author Jens Keilwagen
  */

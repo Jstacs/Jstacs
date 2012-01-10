@@ -52,7 +52,7 @@ public class BayesianNetworkTrainSMParameterSet extends IDGTrainSMParameterSet {
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see IDGTrainSMParameterSet#IDGMParameterSet(StringBuffer)
+	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(StringBuffer)
 	 */
 	public BayesianNetworkTrainSMParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
@@ -63,7 +63,7 @@ public class BayesianNetworkTrainSMParameterSet extends IDGTrainSMParameterSet {
 	 * {@link BayesianNetworkTrainSMParameterSet} for a
 	 * {@link BayesianNetworkTrainSM}.
 	 * 
-	 * @see IDGTrainSMParameterSet#IDGMParameterSet(Class)
+	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(Class)
 	 */
 	public BayesianNetworkTrainSMParameterSet() {
 		super( BayesianNetworkTrainSM.class );
@@ -103,7 +103,7 @@ public class BayesianNetworkTrainSMParameterSet extends IDGTrainSMParameterSet {
 	 * @see LearningType
 	 * @see LearningType#ML_OR_MAP
 	 * @see LearningType#BMA
-	 * @see IDGTrainSMParameterSet#IDGMParameterSet(Class, AlphabetContainer, int,
+	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String)
 	 */
 	public BayesianNetworkTrainSMParameterSet( AlphabetContainer alphabet, int length, double ess, String description, ModelType model,

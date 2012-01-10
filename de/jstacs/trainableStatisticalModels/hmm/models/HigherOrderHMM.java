@@ -128,7 +128,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 *  <li>the states can not be handled by the transition
 	 *  </ul>
 	 * 
-	 * @see #HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], AbstractTransitionElement...)
+	 * @see HigherOrderHMM#HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], AbstractTransitionElement[])
 	 */
 	public HigherOrderHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
 		this( trainingParameterSet, name, null, null, emission, te );

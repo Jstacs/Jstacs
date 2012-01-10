@@ -146,7 +146,7 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} could not be parsed
 	 * 
-	 * @see AbstractDifferentiableSequenceScore#AbstractScoringFunction(StringBuffer)
+	 * @see AbstractDifferentiableSequenceScore#AbstractDifferentiableSequenceScore(StringBuffer)
 	 */
 	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
 

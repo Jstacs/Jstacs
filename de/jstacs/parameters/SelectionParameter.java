@@ -83,7 +83,7 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 	 * @throws DatatypeNotValidException
 	 *             if the <code>datatype</code> is not one of the allowed values
 	 * 
-	 * @see AbstractCollectionParameter#AbstractCollectionParameter(DataType, String[], Object[], String[], String, String, boolean)
+	 * @see AbstractSelectionParameter#AbstractSelectionParameter(DataType, String[], Object[], String[], String, String, boolean)
 	 */
 	public SelectionParameter(DataType datatype, String[] keys, Object[] values, String name, String comment, boolean required)
 			throws AbstractSelectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
@@ -122,7 +122,7 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 	 * @throws DatatypeNotValidException
 	 *             if the <code>datatype</code> is not one of the allowed values
 	 * 
-	 * @see AbstractCollectionParameter#createParameterSet(Object[], String[], String[])
+	 * @see AbstractSelectionParameter#createParameterSet(Object[], String[], String[])
 	 */
 	public SelectionParameter(DataType datatype, String[] keys, Object[] values, String[] comments, String name, String comment,
 			boolean required) throws AbstractSelectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
@@ -146,7 +146,7 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 	 *            <code>true</code> if the parameter is required,
 	 *            <code>false</code> otherwise
 	 * 
-	 * @see AbstractCollectionParameter#createParameterSet(Object[], String[], String[])
+	 * @see AbstractSelectionParameter#createParameterSet(Object[], String[], String[])
 	 */
 	public SelectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
 		super( name, comment, required, values );
@@ -178,7 +178,7 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 	 * 
 	 * @return if this {@link SelectionParameter} has a default value
 	 * 
-	 * @see AbstractCollectionParameter#setDefault(Object)
+	 * @see AbstractSelectionParameter#setDefault(Object)
 	 */
 	public boolean hasDefault() {
 		return defaultSelected > -1;

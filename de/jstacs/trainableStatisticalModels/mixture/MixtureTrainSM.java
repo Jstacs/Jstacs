@@ -233,7 +233,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see MixtureTrainSM#MixtureModel(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
+	 * @see MixtureTrainSM#MixtureTrainSM(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
 	 *      boolean, double[], double[],
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,
@@ -307,7 +307,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see MixtureTrainSM#MixtureModel(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
+	 * @see MixtureTrainSM#MixtureTrainSM(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
 	 *      boolean, double[], double[],
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,
@@ -382,7 +382,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see MixtureTrainSM#MixtureModel(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
+	 * @see MixtureTrainSM#MixtureTrainSM(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
 	 *      boolean, double[], double[],
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,
@@ -459,7 +459,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see MixtureTrainSM#MixtureModel(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
+	 * @see MixtureTrainSM#MixtureTrainSM(int, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[], int,
 	 *      boolean, double[], double[],
 	 *      de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double,
 	 *      TerminationCondition,

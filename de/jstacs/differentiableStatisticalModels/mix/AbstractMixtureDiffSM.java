@@ -81,7 +81,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 
 	/**
 	 * This array contains the internal
-	 * {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s that are used to
+	 * {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}s that are used to
 	 * determine the score.
 	 */
 	protected DifferentiableStatisticalModel[] function;
@@ -167,7 +167,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 *            indicates whether the initial parameters for an optimization
 	 *            should be related to the data or randomly drawn
 	 * @param function
-	 *            the {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s
+	 *            the {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}s
 	 * 
 	 * @throws CloneNotSupportedException
 	 *             if an element of <code>function</code> could not be cloned
@@ -432,14 +432,14 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 
 	/**
 	 * Returns a deep copy of all internal used
-	 * {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s.
+	 * {@link DifferentiableStatisticalModel}s.
 	 * 
 	 * @return a deep copy of all internal used
-	 *         {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s
+	 *         {@link DifferentiableStatisticalModel}s
 	 * 
 	 * @throws CloneNotSupportedException
 	 *             if one element of the internal used
-	 *             {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}s could not
+	 *             {@link DifferentiableStatisticalModel}s could not
 	 *             be cloned
 	 */
 	public DifferentiableStatisticalModel[] getScoringFunctions() throws CloneNotSupportedException {
@@ -487,7 +487,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 * @throws Exception
 	 *             if the initialization could not be done
 	 * 
-	 * @see de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore#initializeFunction(int,
+	 * @see de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore#initializeFunction(int,
 	 *      boolean, DataSet[], double[][])
 	 */
 	protected abstract void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception;
@@ -811,7 +811,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 * @param add
 	 *            a switch for adding hyperparameters to the statistic
 	 * 
-	 * @see de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore#initializeFunction(int,
+	 * @see DifferentiableStatisticalModel#initializeFunction(int,
 	 *      boolean, DataSet[], double[][])
 	 */
 	protected void computeHiddenParameter( double[] statistic, boolean add ) {

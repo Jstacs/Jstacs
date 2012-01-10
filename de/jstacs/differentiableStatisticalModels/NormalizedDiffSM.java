@@ -77,7 +77,7 @@ public final class NormalizedDiffSM extends AbstractDifferentiableStatisticalMod
 	 * @param nsf
 	 *            the function to be used internal
 	 * @param starts
-	 *            the number of recommended starts ({@link DifferentiableSequenceScore#getNumberOfRecommendedStarts()})
+	 *            the number of recommended starts ({@link de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore#getNumberOfRecommendedStarts()})
 	 * @throws Exception is <code>nsf</code> could not be cloned or some error occurred during computation of some values
 	 * 
 	 */

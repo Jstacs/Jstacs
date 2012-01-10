@@ -969,7 +969,7 @@ public class HMMFactory {
 	
 	
 	/**
-	 * This class is used as place holder for a later {@link AbstractTransitionElement}. It is used in the factory
+	 * This class is used as place holder for a later {@link de.jstacs.trainableStatisticalModels.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement}. It is used in the factory
 	 * and can be used externally for using the method {@link HMMFactory#propagateESS(double, ArrayList)}.
 	 * 
 	 * @author Jens Keilwagen

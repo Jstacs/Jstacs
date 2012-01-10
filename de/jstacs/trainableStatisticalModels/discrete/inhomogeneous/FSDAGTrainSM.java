@@ -52,7 +52,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 * 
-	 * @see DAGTrainSM#DAGModel(de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.IDGTrainSMParameterSet)
+	 * @see DAGTrainSM#DAGTrainSM(de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.IDGTrainSMParameterSet)
 	 */
 	public FSDAGTrainSM( FSDAGMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException, NonParsableException {
 		super( params );
@@ -71,7 +71,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	 *             parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see DAGTrainSM#DAGModel(StringBuffer)
+	 * @see DAGTrainSM#DAGTrainSM(StringBuffer)
 	 */
 	public FSDAGTrainSM( StringBuffer xml ) throws NonParsableException {
 		super( xml );

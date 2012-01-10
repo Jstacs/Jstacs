@@ -77,7 +77,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 *            the start distance for the line search
 	 * @param free
 	 *            the switch for using only the free or all parameters in a
-	 *            {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}
+	 *            {@link de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore}
 	 * @param kind
 	 *            indicates the kind of class parameter initialization
 	 * @param norm
@@ -118,7 +118,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 *            the start distance for the line search
 	 * @param free
 	 *            the switch for using only the free or all parameters in a
-	 *            {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}
+	 *            {@link de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore}
 	 * @param kind
 	 *            indicates the kind of class parameter initialization
 	 * @param norm

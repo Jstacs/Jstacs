@@ -48,7 +48,7 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 *             not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see IDGTrainSMParameterSet#IDGMParameterSet(StringBuffer)
+	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(StringBuffer)
 	 */
 	public FSDAGMParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
@@ -106,7 +106,7 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 * 
 	 * @see de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.FSDAGTrainSM
 	 * @see de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.FSDAGModelForGibbsSampling
-	 * @see IDGTrainSMParameterSet#IDGMParameterSet(Class)
+	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(Class)
 	 */
 	protected FSDAGMParameterSet( Class<? extends FSDAGTrainSM> clazz ) {
 		super( clazz );
@@ -148,7 +148,7 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 *             if something went wrong
 	 * 
 	 * @see FSDAGMParameterSet#encode(int[][])
-	 * @see IDGTrainSMParameterSet#IDGMParameterSet(Class, AlphabetContainer, int,
+	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String)
 	 */
 	protected FSDAGMParameterSet( Class<? extends FSDAGTrainSM> clazz, AlphabetContainer alphabet, int length, double ess,

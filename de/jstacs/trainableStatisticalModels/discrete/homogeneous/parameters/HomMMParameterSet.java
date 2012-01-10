@@ -44,7 +44,7 @@ public class HomMMParameterSet extends HomogeneousTrainSMParameterSet {
 	 *             not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see HomogeneousTrainSMParameterSet#HomogeneousModelParameterSet(StringBuffer)
+	 * @see HomogeneousTrainSMParameterSet#HomogeneousTrainSMParameterSet(StringBuffer)
 	 */
 	public HomMMParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
@@ -74,7 +74,7 @@ public class HomMMParameterSet extends HomogeneousTrainSMParameterSet {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see HomogeneousTrainSMParameterSet#HomogeneousModelParameterSet(Class,
+	 * @see HomogeneousTrainSMParameterSet#HomogeneousTrainSMParameterSet(Class,
 	 *      AlphabetContainer, double, String, byte)
 	 */
 	public HomMMParameterSet( AlphabetContainer alphabet, double ess, String description, byte order ) throws Exception {

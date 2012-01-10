@@ -78,7 +78,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * {@link IndependentProductDiffSM} from a given series of
 	 * independent {@link DifferentiableStatisticalModel}s. The length that is
 	 * modeled by each component is determined by
-	 * {@link DifferentiableSequenceScore#getLength()}. So the length should not be 0.
+	 * {@link DifferentiableStatisticalModel#getLength()}. So the length should not be 0.
 	 * 
 	 * @param ess
 	 * 			  the equivalent sample size
@@ -96,7 +96,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * @throws WrongAlphabetException
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement.
 	 *             
-	 * @see IndependentProductDiffSM#IndependentProductScoringFunction(double, boolean, DifferentiableStatisticalModel[], int[])
+	 * @see IndependentProductDiffSM#IndependentProductDiffSM(double, boolean, DifferentiableStatisticalModel[], int[])
 	 */
 	public IndependentProductDiffSM( double ess, boolean plugIn, DifferentiableStatisticalModel... functions ) throws CloneNotSupportedException,
 																						IllegalArgumentException, WrongAlphabetException {
@@ -125,7 +125,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * @throws WrongAlphabetException
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement.
 	 * 
-	 * @see IndependentProductDiffSM#IndependentProductScoringFunction(double, boolean, DifferentiableStatisticalModel[], int[], int[], boolean[])
+	 * @see IndependentProductDiffSM#IndependentProductDiffSM(double, boolean, DifferentiableStatisticalModel[], int[], int[], boolean[])
 	 */
 	public IndependentProductDiffSM( double ess, boolean plugIn, DifferentiableStatisticalModel[] functions, int[] length ) throws CloneNotSupportedException,
 																										IllegalArgumentException, WrongAlphabetException {

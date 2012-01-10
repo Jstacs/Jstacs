@@ -131,7 +131,7 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 	 * @throws ClassDimensionException
 	 *             if the number of classes is below 2
 	 * 
-	 * @see TrainSMBasedClassifier#ModelBasedClassifier(boolean, TrainableStatisticalModel...)
+	 * @see TrainSMBasedClassifier#TrainSMBasedClassifier(boolean, TrainableStatisticalModel...)
 	 */
 	public TrainSMBasedClassifier( TrainableStatisticalModel... models ) throws IllegalArgumentException, CloneNotSupportedException, ClassDimensionException {
 		this( true, models );

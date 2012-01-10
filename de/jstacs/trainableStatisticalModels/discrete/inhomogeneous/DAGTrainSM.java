@@ -61,7 +61,7 @@ public abstract class DAGTrainSM extends InhomogeneousDGTrainSM {
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 * 
-	 * @see InhomogeneousDGTrainSM#InhomogeneousDGM(IDGTrainSMParameterSet)
+	 * @see InhomogeneousDGTrainSM#InhomogeneousDGTrainSM(IDGTrainSMParameterSet)
 	 */
 	protected DAGTrainSM( IDGTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException, NonParsableException {
 		super( params );
@@ -80,7 +80,7 @@ public abstract class DAGTrainSM extends InhomogeneousDGTrainSM {
 	 *             parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see InhomogeneousDGTrainSM#InhomogeneousDGM(StringBuffer)
+	 * @see InhomogeneousDGTrainSM#InhomogeneousDGTrainSM(StringBuffer)
 	 */
 	protected DAGTrainSM( StringBuffer xml ) throws NonParsableException {
 		super( xml );

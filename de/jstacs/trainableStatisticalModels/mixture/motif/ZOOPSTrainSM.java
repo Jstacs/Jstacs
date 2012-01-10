@@ -257,7 +257,7 @@ public class ZOOPSTrainSM extends HiddenMotifMixture {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see ZOOPSTrainSM#SingleHiddenMotifMixture(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)
+	 * @see ZOOPSTrainSM#ZOOPSTrainSM(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)
 	 * @see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm#EM
 	 */
 	public ZOOPSTrainSM( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double[] componentHyperParams,
@@ -338,7 +338,7 @@ public class ZOOPSTrainSM extends HiddenMotifMixture {
 	 * @throws CloneNotSupportedException
 	 *             if the <code>models</code> can not be cloned
 	 * 
-	 * @see ZOOPSTrainSM#SingleHiddenMotifMixture(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)     
+	 * @see ZOOPSTrainSM#ZOOPSTrainSM(de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, de.jstacs.trainableStatisticalModels.TrainableStatisticalModel, boolean, int, double[], double[], de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior, de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm, double, de.jstacs.algorithms.optimization.termination.TerminationCondition,  de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)     
 	 * @see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm#EM
 	 */
 	public ZOOPSTrainSM( TrainableStatisticalModel motif, TrainableStatisticalModel bg, boolean trainOnlyMotifModel, int starts, double motifProb,

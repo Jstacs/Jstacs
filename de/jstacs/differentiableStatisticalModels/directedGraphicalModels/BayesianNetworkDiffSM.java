@@ -51,8 +51,8 @@ import de.jstacs.utils.IntList;
  * This scoring function can be used in any
  * {@link de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier}, e.g. in a
  * {@link de.jstacs.classifier.differentiableSequenceScoreBased.msp.MSPClassifier} to learn
- * the parameters of the {@link de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore}
- * using maximum conditional likelihood.
+ * the parameters of the {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}
+ * using maximum conditional likelihood or maximum supervised posterior.
  * 
  * @author Jan Grau
  */

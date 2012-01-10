@@ -731,7 +731,7 @@ public abstract class AbstractHMM extends AbstractTrainSM implements Cloneable, 
 	protected abstract void createHelperVariables();
 	
 	/**
-	* This method invokes the method {@link #createHelperVariables(int)} and provides the matrix with given type. Type 0 stands for {@link AbstractHMM#fwdMatrix}, and type 1 stands for {@link AbstractHMM#bwdMatrix}.
+	* This method invokes the method {@link #createHelperVariables()} and provides the matrix with given type. Type 0 stands for {@link AbstractHMM#fwdMatrix}, and type 1 stands for {@link AbstractHMM#bwdMatrix}.
 	*
 	* @param type the type of the matrix
 	* @param length the maximal sequence length

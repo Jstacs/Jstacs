@@ -312,7 +312,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	 *             if the {@link StringBuffer} is not parsable or the
 	 *             representation is conflicting
 	 * 
-	 * @see AbstractTrainSM#AbstractModel(StringBuffer)
+	 * @see AbstractTrainSM#AbstractTrainSM(StringBuffer)
 	 */
 	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
 

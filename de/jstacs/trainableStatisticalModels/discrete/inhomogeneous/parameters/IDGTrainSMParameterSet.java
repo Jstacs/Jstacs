@@ -46,7 +46,7 @@ public abstract class IDGTrainSMParameterSet extends DGTrainSMParameterSet {
 	 *             not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see DGTrainSMParameterSet#DGMParameterSet(StringBuffer)
+	 * @see DGTrainSMParameterSet#DGTrainSMParameterSet(StringBuffer)
 	 */
 	protected IDGTrainSMParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
@@ -59,7 +59,7 @@ public abstract class IDGTrainSMParameterSet extends DGTrainSMParameterSet {
 	 * @param instanceClass
 	 *            the instance class
 	 * 
-	 * @see DGTrainSMParameterSet#DGMParameterSet(Class, boolean, boolean)
+	 * @see DGTrainSMParameterSet#DGTrainSMParameterSet(Class, boolean, boolean)
 	 */
 	protected IDGTrainSMParameterSet( Class<? extends InhomogeneousDGTrainSM> instanceClass ) {
 		super( instanceClass, false, false );
