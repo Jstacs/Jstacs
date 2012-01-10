@@ -25,7 +25,7 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
