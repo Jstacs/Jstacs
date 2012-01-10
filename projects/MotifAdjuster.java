@@ -38,7 +38,7 @@ import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLear
 import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
 import de.jstacs.trainableStatisticalModels.mixture.StrandTrainSM;
 import de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization;
-import de.jstacs.trainableStatisticalModels.mixture.motif.SingleHiddenMotifMixture;
+import de.jstacs.trainableStatisticalModels.mixture.motif.ZOOPSTrainSM;
 import de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.GaussianLikePositionPrior;
 import de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior;
 
@@ -112,10 +112,10 @@ public class MotifAdjuster
 				System.out.println( "prior prop. to: exp( -(" + max + " - l)^2/(2 * " + sigma + "^2) )" );
 
 				
-				SingleHiddenMotifMixture em;
+				ZOOPSTrainSM em;
 				
-				em = new SingleHiddenMotifMixture( motifModel, backgroundModel, false, 10, 1d-pBg, pr, 1d, stop, Parameterization.LAMBDA );
-				//em = new SingleHiddenMotifMixture( motifModel, backgroundModel, false, 10, new double[]{4,1}, pr, 1d, stop, Parameterization.LAMBDA );
+				em = new ZOOPSTrainSM( motifModel, backgroundModel, false, 10, 1d-pBg, pr, 1d, stop, Parameterization.LAMBDA );
+				//em = new ZOOPSTrainSM( motifModel, backgroundModel, false, 10, new double[]{4,1}, pr, 1d, stop, Parameterization.LAMBDA );
 
 				if( Boolean.parseBoolean( args[6] ) )
 				{

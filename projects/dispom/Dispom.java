@@ -65,11 +65,11 @@ import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousMMDiffSM
 import de.jstacs.differentiableStatisticalModels.homogeneous.UniformHomogeneousDiffSM;
 import de.jstacs.differentiableStatisticalModels.mix.StrandDiffSM;
 import de.jstacs.differentiableStatisticalModels.mix.StrandDiffSM.InitMethod;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.DurationDiffSM;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.HiddenMotifsMixture;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.MixtureDurationDiffSM;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.SkewNormalLikeDurationDiffSM;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.UniformDurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.DurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.ExtendedZOOPSDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.MixtureDurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.SkewNormalLikeDurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.UniformDurationDiffSM;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.InfixStringExtractor;
@@ -366,13 +366,13 @@ public class Dispom {
 					new SkewNormalLikeDurationDiffSM( 0, sl-motifL, true, mu, 500, true, seqs/2d, seqs/2d*(sd*sd), true, 0, skewSd, starts) );
 				break;
 		}
-		HiddenMotifsMixture fg;
+		ExtendedZOOPSDiffSM fg;
 		if( motifs > 1 ) {
-			fg = new HiddenMotifsMixture( HiddenMotifsMixture.CONTAINS_SOMETIMES_A_MOTIF, sl, starts, true,	flanking, 
+			fg = new ExtendedZOOPSDiffSM( ExtendedZOOPSDiffSM.CONTAINS_SOMETIMES_A_MOTIF, sl, starts, true,	flanking, 
 					ArrayHandler.createArrayOf( motif, motifs ), ArrayHandler.createArrayOf( pos, motifs ), true );
 					
 		} else {		
-			fg = new HiddenMotifsMixture( HiddenMotifsMixture.CONTAINS_SOMETIMES_A_MOTIF, sl, starts, true,	flanking, motif, pos, true );
+			fg = new ExtendedZOOPSDiffSM( ExtendedZOOPSDiffSM.CONTAINS_SOMETIMES_A_MOTIF, sl, starts, true,	flanking, motif, pos, true );
 		}
 		score[0] = fg;
 		
