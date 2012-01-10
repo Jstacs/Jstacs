@@ -27,12 +27,12 @@ import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParam
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.PartitionMethod;
-import de.jstacs.models.Model;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
 import de.jstacs.utils.ProgressUpdater;
 
 /**
@@ -69,16 +69,16 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 
 	/**
 	 * Creates a new {@link KFoldCrossValidation} from an array of
-	 * {@link AbstractClassifier}s and a two-dimensional array of {@link Model}
+	 * {@link AbstractClassifier}s and a two-dimensional array of {@link TrainableStatisticalModel}
 	 * s, which are combined to additional classifiers. If
 	 * <code>buildClassifiersByCrossProduct</code> is <code>true</code>, the
-	 * cross-product of all {@link Model}s in <code>aMs</code> is built to
+	 * cross-product of all {@link TrainableStatisticalModel}s in <code>aMs</code> is built to
 	 * obtain these classifiers.
 	 * 
 	 * @param aCs
 	 *            the predefined classifiers
 	 * @param aMs
-	 *            the {@link Model}s that are used to build additional
+	 *            the {@link TrainableStatisticalModel}s that are used to build additional
 	 *            classifiers
 	 * @param buildClassifiersByCrossProduct
 	 *            Determines how classifiers are constructed using the given
@@ -111,9 +111,9 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      Model[][], boolean, boolean)
+	 *      TrainableStatisticalModel[][], boolean, boolean)
 	 */
-	protected KFoldCrossValidation( AbstractClassifier[] aCs, Model[][] aMs, boolean buildClassifiersByCrossProduct,
+	protected KFoldCrossValidation( AbstractClassifier[] aCs, TrainableStatisticalModel[][] aMs, boolean buildClassifiersByCrossProduct,
 									boolean checkAlphabetConsistencyAndLength ) throws IllegalArgumentException, WrongAlphabetException,
 																				CloneNotSupportedException, ClassDimensionException {
 		super( aCs, aMs, buildClassifiersByCrossProduct, checkAlphabetConsistencyAndLength );
@@ -160,9 +160,9 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	}
 
 	/**
-	 * Creates a new {@link KFoldCrossValidation} from a set of {@link Model}s.
+	 * Creates a new {@link KFoldCrossValidation} from a set of {@link TrainableStatisticalModel}s.
 	 * The argument <code>buildClassifiersByCrossProduct</code> determines how
-	 * these {@link Model}s are combined to classifiers.
+	 * these {@link TrainableStatisticalModel}s are combined to classifiers.
 	 * 
 	 * @param buildClassifiersByCrossProduct
 	 * <br>
@@ -216,9 +216,9 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 *             if there is something wrong with the class dimension of the
 	 *             classifier
 	 * 
-	 * @see ClassifierAssessment#ClassifierAssessment(boolean, Model[][])
+	 * @see ClassifierAssessment#ClassifierAssessment(boolean, TrainableStatisticalModel[][])
 	 */
-	public KFoldCrossValidation( boolean buildClassifiersByCrossProduct, Model[]... aMs ) throws IllegalArgumentException,
+	public KFoldCrossValidation( boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[]... aMs ) throws IllegalArgumentException,
 																							WrongAlphabetException,
 																							CloneNotSupportedException,
 																							ClassDimensionException {
@@ -228,14 +228,14 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	/**
 	 * This constructor allows to assess a collection of given
 	 * {@link AbstractClassifier}s and those constructed using the given
-	 * {@link de.jstacs.models.Model}s by a {@link KFoldCrossValidation}
+	 * {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel}s by a {@link KFoldCrossValidation}
 	 * . <br>
 	 * 
 	 * @param aCs
 	 *            contains some {@link AbstractClassifier}s that should be
 	 *            assessed in addition to the {@link AbstractClassifier}
 	 *            constructed using the given
-	 *            {@link de.jstacs.models.Model}s
+	 *            {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel}s
 	 * @param buildClassifiersByCrossProduct
 	 * <br>
 	 *            Determines how classifiers are constructed using the given
@@ -289,9 +289,9 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      boolean, Model[][])
+	 *      boolean, TrainableStatisticalModel[][])
 	 */
-	public KFoldCrossValidation( AbstractClassifier[] aCs, boolean buildClassifiersByCrossProduct, Model[]... aMs )
+	public KFoldCrossValidation( AbstractClassifier[] aCs, boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[]... aMs )
 																													throws IllegalArgumentException,
 																													WrongAlphabetException,
 																													CloneNotSupportedException,

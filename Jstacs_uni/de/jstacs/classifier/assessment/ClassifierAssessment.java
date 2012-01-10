@@ -24,12 +24,11 @@ import de.jstacs.NonParsableException;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.modelBased.ModelBasedClassifier;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
+import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.ArrayHandler;
-import de.jstacs.models.Model;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
@@ -39,6 +38,7 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.MeanResultSet.AdditionImpossibleException;
 import de.jstacs.results.MeanResultSet.InconsistentResultNumberException;
+import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
 import de.jstacs.utils.NullProgressUpdater;
 import de.jstacs.utils.ProgressUpdater;
 
@@ -66,9 +66,9 @@ public abstract class ClassifierAssessment {
 
 	AbstractClassifier[] NULL_AC_ARRAY = new AbstractClassifier[0];
 
-	Model[] NULL_AM_ARRAY = new Model[0];
+	TrainableStatisticalModel[] NULL_AM_ARRAY = new TrainableStatisticalModel[0];
 
-	Model[][] NULL_AM_2DARRAY = new Model[0][0];
+	TrainableStatisticalModel[][] NULL_AM_2DARRAY = new TrainableStatisticalModel[0][0];
 
 	// ***********************
 	// static methods
@@ -102,7 +102,7 @@ public abstract class ClassifierAssessment {
 	 * 
 	 * @return contains the constructed classifiers
 	 */
-	private static AbstractClassifier[] turnIntoClassifierArray( boolean buildClassifiersByCrossProduct, Model[][] aMs ) throws IllegalArgumentException,
+	private static AbstractClassifier[] turnIntoClassifierArray( boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[][] aMs ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			CloneNotSupportedException,
 			ClassDimensionException {
@@ -141,7 +141,7 @@ public abstract class ClassifierAssessment {
 		}// for-counter1
 
 		// create classifiers
-		Model[] m = new Model[aMs.length];
+		TrainableStatisticalModel[] m = new TrainableStatisticalModel[aMs.length];
 		ModelBasedAssessmentClassifier[] erg = null;
 
 		if( buildClassifiersByCrossProduct ) {
@@ -212,7 +212,7 @@ public abstract class ClassifierAssessment {
 	 * helpful to allow to train some models only once while evaluating them in
 	 * combination with other models.
 	 */
-	protected Model[][] myModel;
+	protected TrainableStatisticalModel[][] myModel;
 
 	/**
 	 * The temporary result set.
@@ -230,16 +230,16 @@ public abstract class ClassifierAssessment {
 
 	/**
 	 * Creates a new {@link ClassifierAssessment} from an array of
-	 * {@link AbstractClassifier}s and a two-dimensional array of {@link Model}
+	 * {@link AbstractClassifier}s and a two-dimensional array of {@link TrainableStatisticalModel}
 	 * s, which are combined to additional classifiers. If
 	 * <code>buildClassifiersByCrossProduct</code> is <code>true</code>, the
-	 * cross product of all {@link Model}s in <code>aMs</code> is built to
+	 * cross product of all {@link TrainableStatisticalModel}s in <code>aMs</code> is built to
 	 * obtain these classifiers.
 	 * 
 	 * @param aCs
 	 *            the predefined classifiers
 	 * @param aMs
-	 *            the {@link Model}s that are used to build additional
+	 *            the {@link TrainableStatisticalModel}s that are used to build additional
 	 *            classifiers
 	 * @param buildClassifiersByCrossProduct
 	 *            Determines how classifiers are constructed using the given
@@ -273,7 +273,7 @@ public abstract class ClassifierAssessment {
 	 *             if there is something wrong with the class dimension of the
 	 *             classifier
 	 */
-	protected ClassifierAssessment( AbstractClassifier[] aCs, Model[][] aMs, boolean buildClassifiersByCrossProduct,
+	protected ClassifierAssessment( AbstractClassifier[] aCs, TrainableStatisticalModel[][] aMs, boolean buildClassifiersByCrossProduct,
 									boolean checkAlphabetConsistencyAndLength ) throws IllegalArgumentException, WrongAlphabetException,
 																				CloneNotSupportedException, ClassDimensionException {
 
@@ -285,7 +285,7 @@ public abstract class ClassifierAssessment {
 			tempACs = NULL_AC_ARRAY;
 		} else {
 			// clone given Models
-			this.myModel = new Model[aMs.length][];
+			this.myModel = new TrainableStatisticalModel[aMs.length][];
 			for( int i = 0; i < this.myModel.length; i++ ) {
 				this.myModel[i] = ArrayHandler.clone( aMs[i] );
 			}
@@ -367,7 +367,7 @@ public abstract class ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      Model[][], boolean, boolean)
+	 *      TrainableStatisticalModel[][], boolean, boolean)
 	 */
 	public ClassifierAssessment( AbstractClassifier... aCs ) throws IllegalArgumentException, WrongAlphabetException,
 															CloneNotSupportedException, ClassDimensionException {
@@ -375,9 +375,9 @@ public abstract class ClassifierAssessment {
 	}
 
 	/**
-	 * Creates a new {@link ClassifierAssessment} from a set of {@link Model}s.
+	 * Creates a new {@link ClassifierAssessment} from a set of {@link TrainableStatisticalModel}s.
 	 * The argument <code>buildClassifiersByCrossProduct</code> determines how
-	 * these {@link Model}s are combined to classifiers.
+	 * these {@link TrainableStatisticalModel}s are combined to classifiers.
 	 * 
 	 * @param buildClassifiersByCrossProduct
 	 * <br>
@@ -432,9 +432,9 @@ public abstract class ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      Model[][], boolean, boolean)
+	 *      TrainableStatisticalModel[][], boolean, boolean)
 	 */
-	public ClassifierAssessment( boolean buildClassifiersByCrossProduct, Model[]... aMs ) throws IllegalArgumentException,
+	public ClassifierAssessment( boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[]... aMs ) throws IllegalArgumentException,
 																							WrongAlphabetException,
 																							CloneNotSupportedException,
 																							ClassDimensionException {
@@ -444,12 +444,12 @@ public abstract class ClassifierAssessment {
 	/**
 	 * This constructor allows to assess a collection of given
 	 * {@link AbstractClassifier}s and, in addition, classifiers that will be
-	 * constructed using the given {@link Model}s.
+	 * constructed using the given {@link TrainableStatisticalModel}s.
 	 * 
 	 * @param aCs
 	 *            contains some {@link AbstractClassifier}s that should be
 	 *            assessed in addition to the {@link AbstractClassifier}s
-	 *            constructed using the given {@link Model}s
+	 *            constructed using the given {@link TrainableStatisticalModel}s
 	 * @param buildClassifiersByCrossProduct
 	 *            Determines how classifiers are constructed using the given
 	 *            models. Suppose a k-class problem. In this case, each
@@ -501,9 +501,9 @@ public abstract class ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      Model[][], boolean, boolean)
+	 *      TrainableStatisticalModel[][], boolean, boolean)
 	 */
-	public ClassifierAssessment( AbstractClassifier[] aCs, boolean buildClassifiersByCrossProduct, Model[]... aMs )
+	public ClassifierAssessment( AbstractClassifier[] aCs, boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[]... aMs )
 																													throws IllegalArgumentException,
 																													WrongAlphabetException,
 																													CloneNotSupportedException,
@@ -945,7 +945,7 @@ public abstract class ClassifierAssessment {
 	 * The classifiers are either directly trained or via training of the local
 	 * models. The second option always is used if the
 	 * {@link ClassifierAssessment}-object was constructed using
-	 * {@link Model}s. <br>
+	 * {@link TrainableStatisticalModel}s. <br>
 	 * <br>
 	 * It should not be necessary to override this method in subclasses.
 	 * 
@@ -984,14 +984,14 @@ public abstract class ClassifierAssessment {
 
 	/**
 	 * Used only in {@link ClassifierAssessment} to allow the construction of
-	 * {@link ModelBasedClassifier} without cloning of the {@link Model}
+	 * {@link TrainSMBasedClassifier} without cloning of the {@link TrainableStatisticalModel}
 	 * s.
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	private static class ModelBasedAssessmentClassifier extends ModelBasedClassifier {
+	private static class ModelBasedAssessmentClassifier extends TrainSMBasedClassifier {
 
-		private ModelBasedAssessmentClassifier( Model... models ) throws IllegalArgumentException, CloneNotSupportedException,
+		private ModelBasedAssessmentClassifier( TrainableStatisticalModel... models ) throws IllegalArgumentException, CloneNotSupportedException,
 																	ClassDimensionException {
 			super( false, models );
 		}
@@ -1001,19 +1001,19 @@ public abstract class ClassifierAssessment {
 		}
 
 		/**
-		 * Returns an instance of {@link ModelBasedClassifier}, since cloning
+		 * Returns an instance of {@link TrainSMBasedClassifier}, since cloning
 		 * for this class does not make sense and complicates saving and loading
 		 * (the clone).
 		 * 
-		 * @return an instance of {@link ModelBasedClassifier}
+		 * @return an instance of {@link TrainSMBasedClassifier}
 		 * 
 		 * @throws CloneNotSupportedException
 		 *             if something went wrong while cloning
 		 */
 		@Override
-		public ModelBasedClassifier clone() throws CloneNotSupportedException {
+		public TrainSMBasedClassifier clone() throws CloneNotSupportedException {
 			try {
-				ModelBasedClassifier mbc = new ModelBasedClassifier( models );
+				TrainSMBasedClassifier mbc = new TrainSMBasedClassifier( models );
 				mbc.setClassWeights( false, this.getClassWeights() );
 				return mbc;
 			} catch ( ClassDimensionException cde ) {

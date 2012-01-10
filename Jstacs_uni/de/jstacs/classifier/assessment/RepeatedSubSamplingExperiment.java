@@ -23,7 +23,7 @@ import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.data.DataSet;
-import de.jstacs.models.Model;
+import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
 import de.jstacs.utils.ProgressUpdater;
 
 /**
@@ -63,16 +63,16 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 
 	/**
 	 * Creates a new {@link RepeatedSubSamplingExperiment} from an array of
-	 * {@link AbstractClassifier}s and a two-dimensional array of {@link Model}
+	 * {@link AbstractClassifier}s and a two-dimensional array of {@link TrainableStatisticalModel}
 	 * s, which are combined to additional classifiers. If
 	 * <code>buildClassifiersByCrossProduct</code> is <code>true</code>, the
-	 * cross-product of all {@link Model}s in <code>aMs</code> is built to
+	 * cross-product of all {@link TrainableStatisticalModel}s in <code>aMs</code> is built to
 	 * obtain these classifiers.
 	 * 
 	 * @param aCs
 	 *            the predefined classifiers
 	 * @param aMs
-	 *            the {@link Model}s that are used to build additional
+	 *            the {@link TrainableStatisticalModel}s that are used to build additional
 	 *            classifiers
 	 * @param buildClassifiersByCrossProduct
 	 *            Determines how classifiers are constructed using the given
@@ -106,9 +106,9 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      Model[][], boolean, boolean)
+	 *      TrainableStatisticalModel[][], boolean, boolean)
 	 */
-	protected RepeatedSubSamplingExperiment( AbstractClassifier[] aCs, Model[][] aMs, boolean buildClassifiersByCrossProduct,
+	protected RepeatedSubSamplingExperiment( AbstractClassifier[] aCs, TrainableStatisticalModel[][] aMs, boolean buildClassifiersByCrossProduct,
 												boolean checkAlphabetConsistencyAndLength ) throws IllegalArgumentException,
 																							WrongAlphabetException,
 																							CloneNotSupportedException,
@@ -158,8 +158,8 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 
 	/**
 	 * Creates a new {@link RepeatedSubSamplingExperiment} from a set of
-	 * {@link Model}s. The argument <code>buildClassifiersByCrossProduct</code>
-	 * determines how these {@link Model}s are combined to classifiers.
+	 * {@link TrainableStatisticalModel}s. The argument <code>buildClassifiersByCrossProduct</code>
+	 * determines how these {@link TrainableStatisticalModel}s are combined to classifiers.
 	 * 
 	 * @param buildClassifiersByCrossProduct
 	 * <br>
@@ -214,9 +214,9 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 	 *             if there is something wrong with the class dimension of the
 	 *             classifier
 	 * 
-	 * @see ClassifierAssessment#ClassifierAssessment(boolean, Model[][])
+	 * @see ClassifierAssessment#ClassifierAssessment(boolean, TrainableStatisticalModel[][])
 	 */
-	public RepeatedSubSamplingExperiment( boolean buildClassifiersByCrossProduct, Model[]... aMs ) throws IllegalArgumentException,
+	public RepeatedSubSamplingExperiment( boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[]... aMs ) throws IllegalArgumentException,
 																									WrongAlphabetException,
 																									CloneNotSupportedException,
 																									ClassDimensionException {
@@ -226,14 +226,14 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 	/**
 	 * This constructor allows to assess a collection of given
 	 * {@link AbstractClassifier}s and those constructed using the given
-	 * {@link de.jstacs.models.Model}s by a
+	 * {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel}s by a
 	 * {@link RepeatedSubSamplingExperiment}. <br>
 	 * 
 	 * @param aCs
 	 *            contains some {@link AbstractClassifier} that should be
 	 *            assessed in addition to the {@link AbstractClassifier}
 	 *            constructed using the given
-	 *            {@link de.jstacs.models.Model}s
+	 *            {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel}s
 	 * @param buildClassifiersByCrossProduct
 	 * <br>
 	 *            Determines how classifiers are constructed using the given
@@ -288,9 +288,9 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 	 *             classifier
 	 * 
 	 * @see ClassifierAssessment#ClassifierAssessment(AbstractClassifier[],
-	 *      boolean, Model[][])
+	 *      boolean, TrainableStatisticalModel[][])
 	 */
-	public RepeatedSubSamplingExperiment( AbstractClassifier[] aCs, boolean buildClassifiersByCrossProduct, Model[]... aMs )
+	public RepeatedSubSamplingExperiment( AbstractClassifier[] aCs, boolean buildClassifiersByCrossProduct, TrainableStatisticalModel[]... aMs )
 																															throws IllegalArgumentException,
 																															WrongAlphabetException,
 																															CloneNotSupportedException,
