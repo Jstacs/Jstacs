@@ -21,7 +21,7 @@ package de.jstacs.utils;
 
 import java.io.IOException;
 
-import de.jstacs.SequenceScoringFunction;
+import de.jstacs.SequenceScore;
 import de.jstacs.StatisticalModel;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
@@ -30,7 +30,7 @@ import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
-import de.jstacs.models.Model;
+import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
 
 /**
  * This class is useful for some test for any (discrete) models. It implements
@@ -41,7 +41,7 @@ import de.jstacs.models.Model;
  * 
  * @author Jens Keilwagen
  */
-public class ModelTester {
+public class StatisticalModelTester {
 	/**
 	 * Returns the Kullback-Leibler-divergence <code>D(p_m1||p_m2)</code>.
 	 * 
@@ -92,7 +92,7 @@ public class ModelTester {
 	 *            another discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link TrainableStatisticalModel#getLength()})
 	 * 
 	 * @return the difference of the Kullback-Leibler-divergence
 	 * 
@@ -269,14 +269,14 @@ public class ModelTester {
 	 *            the discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link SequenceScoringFunction#getLength()})
+	 *            has to be {@link SequenceScore#getLength()})
 	 * 
 	 * @return one most probable sequence
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static Sequence getMostProbableSequence(SequenceScoringFunction m, int length)
+	public static Sequence getMostProbableSequence(SequenceScore m, int length)
 			throws Exception {
 		SeqIterator s = new SeqIterator(m.getAlphabetContainer(), length);
 		Sequence current, seq = s.getSequence();
@@ -300,7 +300,7 @@ public class ModelTester {
 	 *            the discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link Model#getLength()})
+	 *            has to be {@link TrainableStatisticalModel#getLength()})
 	 * 
 	 * @return the Shannon entropy for a discrete model
 	 * 
