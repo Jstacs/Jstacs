@@ -1158,7 +1158,9 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 */
 		public void initializeRandomly() {
 			resetStatistic();
+			System.arraycopy( hyperParameters, 0, statistic, 0, statistic.length );
 			drawParametersFromStatistic();
+			resetStatistic();
 		}
 		
 		/**
