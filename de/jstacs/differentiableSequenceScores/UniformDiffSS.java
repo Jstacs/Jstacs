@@ -17,7 +17,7 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.differentiableStatisticalModels;
+package de.jstacs.differentiableSequenceScores;
 
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
@@ -33,24 +33,24 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class BasicUniformDiffSM extends AbstractDifferentiableSequenceScore {
+public class UniformDiffSS extends AbstractDifferentiableSequenceScore {
 	
 	/**
 	 * This is the main constructor that creates an instance of a
-	 * {@link BasicUniformDiffSM} that models each sequence uniformly.
+	 * {@link UniformDiffSS} that models each sequence uniformly.
 	 * 
 	 * @param alphabets
 	 *            the {@link AlphabetContainer}
 	 * @param length
 	 *            the length of the modeled sequences
 	 */
-	public BasicUniformDiffSM(AlphabetContainer alphabets, int length) {
+	public UniformDiffSS(AlphabetContainer alphabets, int length) {
 		super( alphabets, length );
 	}
 
 	/**
 	 * This is the constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link BasicUniformDiffSM} out of its XML
+	 * Creates a new {@link UniformDiffSS} out of its XML
 	 * representation as returned by {@link #fromXML(StringBuffer)}.
 	 * 
 	 * @param xml
@@ -59,7 +59,7 @@ public class BasicUniformDiffSM extends AbstractDifferentiableSequenceScore {
 	 * @throws NonParsableException
 	 *             if the XML representation could not be parsed
 	 */
-	public BasicUniformDiffSM(StringBuffer xml) throws NonParsableException {
+	public UniformDiffSS(StringBuffer xml) throws NonParsableException {
 		super( xml );
 	}
 	
@@ -121,7 +121,7 @@ public class BasicUniformDiffSM extends AbstractDifferentiableSequenceScore {
 	 * 
 	 * @return the further information as XML code in a {@link StringBuffer}
 	 * 
-	 * @see BasicUniformDiffSM#extractFurtherInformation(StringBuffer)
+	 * @see UniformDiffSS#extractFurtherInformation(StringBuffer)
 	 */
 	protected StringBuffer getFurtherInformation() {
 		return new StringBuffer( 1 );
@@ -151,7 +151,7 @@ public class BasicUniformDiffSM extends AbstractDifferentiableSequenceScore {
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} could not be parsed
 	 * 
-	 * @see BasicUniformDiffSM#getFurtherInformation()
+	 * @see UniformDiffSS#getFurtherInformation()
 	 */
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {}
 

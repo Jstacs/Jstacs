@@ -26,7 +26,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
-import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.differentiableStatisticalModels.NormalizedDiffSM;
 import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousDiffSM;

@@ -24,6 +24,7 @@ import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
+import de.jstacs.differentiableSequenceScores.UniformDiffSS;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -34,7 +35,7 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class UniformDiffSM extends BasicUniformDiffSM implements SamplingDifferentiableStatisticalModel {
+public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiableStatisticalModel {
 	private double ess, logP;
 
 	/**

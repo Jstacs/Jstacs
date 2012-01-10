@@ -23,8 +23,10 @@ import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.Sequence;
+import de.jstacs.differentiableSequenceScores.AbstractDifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 
 /**
  * This class is the main part of any {@link de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier}. It implements

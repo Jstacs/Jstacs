@@ -26,7 +26,7 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
-import de.jstacs.differentiableStatisticalModels.AbstractDifferentiableSequenceScore;
+import de.jstacs.differentiableSequenceScores.AbstractDifferentiableSequenceScore;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;

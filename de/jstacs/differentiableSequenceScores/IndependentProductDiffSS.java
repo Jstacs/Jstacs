@@ -16,7 +16,7 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.differentiableStatisticalModels;
+package de.jstacs.differentiableSequenceScores;
 
 import java.util.Arrays;
 
@@ -25,6 +25,7 @@ import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
+import de.jstacs.differentiableStatisticalModels.VariableLengthDiffSM;
 import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousDiffSM;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
@@ -34,10 +35,10 @@ import de.jstacs.utils.IntList;
 /**
  * This class enables the user to model parts of a sequence independent of each
  * other. For instance, the first part of the sequence is modeled by the first
- * {@link DifferentiableStatisticalModel} and has the length of the first
- * {@link DifferentiableStatisticalModel}, the second part starts directly after
- * the first part, is modeled by the second {@link DifferentiableStatisticalModel}
- * ... etc. It is also possible to use a {@link DifferentiableStatisticalModel} for
+ * {@link DifferentiableSequenceScore} and has the length of the first
+ * {@link DifferentiableSequenceScore}, the second part starts directly after
+ * the first part, is modeled by the second {@link DifferentiableSequenceScore}
+ * ... etc. It is also possible to use a {@link DifferentiableSequenceScore} for
  * more than one sequence part and in both orientations (if possible).
  * 
  * <br><br>
@@ -46,7 +47,7 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen
  */
-public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenceScore {
+public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScore {
 	
 	protected DifferentiableSequenceScore[] score;
 
@@ -104,7 +105,7 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 
 	/**
 	 * This constructor creates an instance of an
-	 * {@link BasicIndependentProductDiffSM} from a given series of
+	 * {@link IndependentProductDiffSS} from a given series of
 	 * independent {@link DifferentiableSequenceScore}s. The length that is
 	 * modeled by each component is determined by
 	 * {@link DifferentiableSequenceScore#getLength()}. So the length should not be 0.
@@ -120,15 +121,15 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * @throws WrongAlphabetException
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement.
 	 *             
-	 * @see BasicIndependentProductDiffSM#BasicIndependentProductScoringFunction(boolean, DifferentiableSequenceScore[], int[])
+	 * @see IndependentProductDiffSS#BasicIndependentProductScoringFunction(boolean, DifferentiableSequenceScore[], int[])
 	 */
-	public BasicIndependentProductDiffSM( double ess, boolean plugIn, DifferentiableSequenceScore... functions ) throws CloneNotSupportedException, WrongAlphabetException {
+	public IndependentProductDiffSS( double ess, boolean plugIn, DifferentiableSequenceScore... functions ) throws CloneNotSupportedException, WrongAlphabetException {
 		this( plugIn, functions, getLengthArray( functions ) );
 	}
 
 	/**
 	 * This constructor creates an instance of an
-	 * {@link BasicIndependentProductDiffSM} from given series of
+	 * {@link IndependentProductDiffSS} from given series of
 	 * independent {@link DifferentiableSequenceScore}s and lengths.
 	 * 
 	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters are used for parts that are instance of {@link HomogeneousDiffSM}
@@ -143,9 +144,9 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * @throws WrongAlphabetException
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement.
 	 * 
-	 * @see BasicIndependentProductDiffSM#BasicIndependentProductScoringFunction(boolean, DifferentiableSequenceScore[], int[], int[], boolean[])
+	 * @see IndependentProductDiffSS#BasicIndependentProductScoringFunction(boolean, DifferentiableSequenceScore[], int[], int[], boolean[])
 	 */
-	public BasicIndependentProductDiffSM( boolean plugIn, DifferentiableSequenceScore[] functions, int[] length ) throws CloneNotSupportedException, WrongAlphabetException {
+	public IndependentProductDiffSS( boolean plugIn, DifferentiableSequenceScore[] functions, int[] length ) throws CloneNotSupportedException, WrongAlphabetException {
 		this( plugIn, functions, null, length, null );
 	}
 
@@ -164,7 +165,7 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 *             if the user tries to use an alphabet for a reverse complement that can not be used for a reverse complement. 
 	 * 
 	 */
-	public BasicIndependentProductDiffSM( boolean plugIn, DifferentiableSequenceScore[] functions, int[] index, int[] length, boolean[] reverse ) throws CloneNotSupportedException, WrongAlphabetException {
+	public IndependentProductDiffSS( boolean plugIn, DifferentiableSequenceScore[] functions, int[] index, int[] length, boolean[] reverse ) throws CloneNotSupportedException, WrongAlphabetException {
 		super( getAlphabetContainer( functions, index, length, reverse ), sum( length ) );
 		this.plugIn = plugIn;
 		score = ArrayHandler.clone( functions );
@@ -174,7 +175,7 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 
 	/**
 	 * This is the constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link BasicIndependentProductDiffSM} out of a
+	 * Creates a new {@link IndependentProductDiffSS} out of a
 	 * {@link StringBuffer} as returned by {@link #toXML()}.
 	 * 
 	 * @param source
@@ -183,7 +184,7 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * @throws NonParsableException
 	 *             if the XML representation could not be parsed
 	 */
-	public BasicIndependentProductDiffSM( StringBuffer source ) throws NonParsableException {
+	public IndependentProductDiffSS( StringBuffer source ) throws NonParsableException {
 		super( source );
 	}
 
@@ -248,8 +249,8 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * (non-Javadoc)
 	 * @see de.jstacs.differentiableStatisticalModels.AbstractDifferentiableStatisticalModel#clone()
 	 */
-	public BasicIndependentProductDiffSM clone() throws CloneNotSupportedException {
-		BasicIndependentProductDiffSM clone = (BasicIndependentProductDiffSM)super.clone();
+	public IndependentProductDiffSS clone() throws CloneNotSupportedException {
+		IndependentProductDiffSS clone = (IndependentProductDiffSS)super.clone();
 		clone.score = ArrayHandler.clone( score );
 		clone.set( index, partialLength, reverse );
 		clone.params = null;
@@ -315,7 +316,7 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	}
 	
 	/**
-	 * This method creates the weights for {@link BasicIndependentProductDiffSM#extractSequenceParts(int, DataSet[], DataSet[])}.
+	 * This method creates the weights for {@link IndependentProductDiffSS#extractSequenceParts(int, DataSet[], DataSet[])}.
 	 * 
 	 * @param number the number how often the weights should be copied after each other.
 	 * @param weights the original weights
@@ -402,9 +403,9 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * 
 	 * @throws Exception if at least one {@link DifferentiableSequenceScore} could not be cloned
 	 * 
-	 * @see BasicIndependentProductDiffSM#getIndices()
-	 * @see BasicIndependentProductDiffSM#getPartialLengths()
-	 * @see BasicIndependentProductDiffSM#getReverseSwitches()
+	 * @see IndependentProductDiffSS#getIndices()
+	 * @see IndependentProductDiffSS#getPartialLengths()
+	 * @see IndependentProductDiffSS#getReverseSwitches()
 	 */
 	public DifferentiableSequenceScore[] getFunctions() throws Exception {
 		return ArrayHandler.clone( score );
@@ -415,9 +416,9 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * 
 	 * @return a deep copy of the internally used indices of the {@link DifferentiableSequenceScore} for the parts
 	 * 
-	 * @see BasicIndependentProductDiffSM#getFunctions()
-	 * @see BasicIndependentProductDiffSM#getPartialLengths()
-	 * @see BasicIndependentProductDiffSM#getReverseSwitches()
+	 * @see IndependentProductDiffSS#getFunctions()
+	 * @see IndependentProductDiffSS#getPartialLengths()
+	 * @see IndependentProductDiffSS#getReverseSwitches()
 	 */
 	public int[] getIndices() {
 		return index.clone();
@@ -428,9 +429,9 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * 
 	 * @return a deep copy of the internally used partial lengths of the parts
 	 * 
-	 * @see BasicIndependentProductDiffSM#getFunctions()
-	 * @see BasicIndependentProductDiffSM#getIndices()
-	 * @see BasicIndependentProductDiffSM#getReverseSwitches()
+	 * @see IndependentProductDiffSS#getFunctions()
+	 * @see IndependentProductDiffSS#getIndices()
+	 * @see IndependentProductDiffSS#getReverseSwitches()
 	 */
 	public int[] getPartialLengths() {
 		return partialLength.clone();
@@ -443,9 +444,9 @@ public class BasicIndependentProductDiffSM extends AbstractDifferentiableSequenc
 	 * @return a deep copy of the internally used switches for the parts whether to use the corresponding 
 	 * {@link DifferentiableSequenceScore} forward or as reverse complement
 	 * 
-	 * @see BasicIndependentProductDiffSM#getFunctions()
-	 * @see BasicIndependentProductDiffSM#getIndices()
-	 * @see BasicIndependentProductDiffSM#getPartialLengths()
+	 * @see IndependentProductDiffSS#getFunctions()
+	 * @see IndependentProductDiffSS#getIndices()
+	 * @see IndependentProductDiffSS#getPartialLengths()
 	 */
 	public boolean[] getReverseSwitches() {
 		return reverse.clone();

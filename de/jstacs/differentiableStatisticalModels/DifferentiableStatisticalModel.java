@@ -20,6 +20,7 @@
 package de.jstacs.differentiableStatisticalModels;
 
 import de.jstacs.StatisticalModel;
+import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
 
 /**
  * The interface for normalizable {@link DifferentiableSequenceScore}s.
