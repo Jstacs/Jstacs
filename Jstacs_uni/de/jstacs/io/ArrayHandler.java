@@ -89,12 +89,12 @@ public final class ArrayHandler {
 	 * Here is an example that demonstrates what can be done:<br>
 	 * <br>
 	 * <code>
-	 * Object[] o = { new UniformModel( alphabetContainer ), new UniformModel( alphabetContainer ) };<br>
-	 * AbstractModel[] a = (AbstractModel[]) ArrayHandler.cast( o );<br>
+	 * Object[] o = { new UniformTrainSM( alphabetContainer ), new UniformTrainSM( alphabetContainer ) };<br>
+	 * AbstractTrainSM[] a = (AbstractTrainSM[]) ArrayHandler.cast( o );<br>
 	 * </code> <br>
 	 * This should work fine, while<br>
 	 * 
-	 * <code>AbstractModel[] a = (AbstractModel[]) o;</code><br>
+	 * <code>AbstractTrainSM[] a = (AbstractTrainSM[]) o;</code><br>
 	 * 
 	 * will not.
 	 * 
@@ -122,12 +122,12 @@ public final class ArrayHandler {
 	 * Here is an example that demonstrates what can be done:<br>
 	 * <br>
 	 * <code>
-	 * Object[] o = { new UniformModel( alphabetContainer ), new UniformModel( alphabetContainer ) };<br>
-	 * AbstractModel[] a = ArrayHandler.cast( AbstractModel.class, o );<br>
+	 * Object[] o = { new UniformTrainSM( alphabetContainer ), new UniformTrainSM( alphabetContainer ) };<br>
+	 * AbstractTrainSM[] a = ArrayHandler.cast( AbstractTrainSM.class, o );<br>
 	 * </code> <br>
 	 * This should work fine, while<br>
 	 * 
-	 * <code>AbstractModel[] a = (AbstractModel[]) o;</code><br>
+	 * <code>AbstractTrainSM[] a = (AbstractTrainSM[]) o;</code><br>
 	 * 
 	 * will not.
 	 * 
