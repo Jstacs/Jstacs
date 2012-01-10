@@ -25,7 +25,7 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.differentiableStatisticalModels.SamplingDifferentiableStatisticalModel;
 import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
-import de.jstacs.differentiableStatisticalModels.mix.motifSearch.DurationDiffSM;
+import de.jstacs.differentiableStatisticalModels.mix.motif.DurationDiffSM;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.Mutable;
 
