@@ -70,7 +70,7 @@ public class VarianceRatioBurnInTest extends AbstractBurnInTest {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.AbstractBurnInTest#getXMLTag()
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.AbstractBurnInTest#getXMLTag()
 	 */
 	@Override
 	protected String getXMLTag() {
@@ -78,7 +78,7 @@ public class VarianceRatioBurnInTest extends AbstractBurnInTest {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.AbstractBurnInTest#getFurtherInformation()
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.AbstractBurnInTest#getFurtherInformation()
 	 */
 	@Override
 	protected StringBuffer getFurtherInformation() {
@@ -88,7 +88,7 @@ public class VarianceRatioBurnInTest extends AbstractBurnInTest {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.AbstractBurnInTest#setFurtherInformation(java.lang.StringBuffer)
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.AbstractBurnInTest#setFurtherInformation(java.lang.StringBuffer)
 	 */
 	@Override
 	protected void setFurtherInformation( StringBuffer xml ) throws NonParsableException {
@@ -97,7 +97,7 @@ public class VarianceRatioBurnInTest extends AbstractBurnInTest {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.BurnInTest#getInstanceName()
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#getInstanceName()
 	 */
 	public String getInstanceName() {
 		return "Variance-Ratio burn-in test of Gelman and Rubin for " + values.length + " different chains with threshold " + threshold;

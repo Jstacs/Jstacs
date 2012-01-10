@@ -32,14 +32,14 @@ import de.jstacs.parameters.validation.NumberValidator;
  * to construct an {@link Object} that implements
  * {@link de.jstacs.InstantiableFromParameterSet}. This parameter set handles the
  * {@link AlphabetContainer} and if necessary the length of a sequence, so it is
- * well suited as parameter set for {@link de.jstacs.models.AbstractModel} and
+ * well suited as parameter set for {@link de.jstacs.trainableStatisticalModels.AbstractTrainSM} and
  * {@link de.jstacs.classifier.AbstractClassifier}.
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
  * @see de.jstacs.InstantiableFromParameterSet
  * @see ParameterSet
- * @see de.jstacs.models.AbstractModel
+ * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM
  * @see de.jstacs.classifier.AbstractClassifier
  */
 public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
