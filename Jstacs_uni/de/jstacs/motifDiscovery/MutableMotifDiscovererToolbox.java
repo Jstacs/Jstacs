@@ -31,17 +31,17 @@ import de.jstacs.algorithms.optimization.termination.CombinedCondition;
 import de.jstacs.algorithms.optimization.termination.IterationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.scoringFunctionBased.SFBasedOptimizableFunction;
+import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
+import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.RecyclableSequenceEnumerator;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
+import de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore;
+import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
 import de.jstacs.motifDiscovery.history.History;
-import de.jstacs.scoringFunctions.NormalizableScoringFunction;
-import de.jstacs.scoringFunctions.ScoringFunction;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.SafeOutputStream;
 
@@ -55,7 +55,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	/**
 	 * This method allows to enumerate all possible seeds for a motif in the {@link MutableMotifDiscoverer} of a specific class.
 	 * 
-	 * @param funs the {@link ScoringFunction}s
+	 * @param funs the {@link DifferentiableSequenceScore}s
 	 * @param classIndex the index of the class 
 	 * @param motifIndex the index of the motif in the {@link MutableMotifDiscoverer}
 	 * @param rse an {@link RecyclableSequenceEnumerator} that contains {@link Sequence} objects tested for initialization of the motif <code>motifIndex</code>
@@ -63,13 +63,13 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param opt the objective function
 	 * @param out a stream that allows to write some output if necessary
 	 * 
-	 * @return the best {@link Sequence} with respect to the {@link SFBasedOptimizableFunction} 
+	 * @return the best {@link Sequence} with respect to the {@link DiffSSBasedOptimizableFunction} 
 	 * 
 	 * @throws Exception if something went wrong 
 	 * 
-	 * @see MutableMotifDiscovererToolbox#enumerate(ScoringFunction[], int[], int[], RecyclableSequenceEnumerator[], double, SFBasedOptimizableFunction, OutputStream)
+	 * @see MutableMotifDiscovererToolbox#enumerate(DifferentiableSequenceScore[], int[], int[], RecyclableSequenceEnumerator[], double, DiffSSBasedOptimizableFunction, OutputStream)
 	 */
-	public static Sequence enumerate( ScoringFunction[] funs, int classIndex, int motifIndex, RecyclableSequenceEnumerator rse, double weight, SFBasedOptimizableFunction opt, OutputStream out ) throws Exception
+	public static Sequence enumerate( DifferentiableSequenceScore[] funs, int classIndex, int motifIndex, RecyclableSequenceEnumerator rse, double weight, DiffSSBasedOptimizableFunction opt, OutputStream out ) throws Exception
 	{
 		return enumerate( funs, new int[]{classIndex}, new int[]{motifIndex}, new RecyclableSequenceEnumerator[]{rse}, weight, opt, out )[0];
 	}
@@ -77,7 +77,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	/**
 	 * This method allows to enumerate all possible seeds for a number of motifs in the {@link MutableMotifDiscoverer}s of a specific classes.
 	 * 
-	 * @param funs the {@link ScoringFunction}s
+	 * @param funs the {@link DifferentiableSequenceScore}s
 	 * @param classIndex the indices of the classes 
 	 * @param motifIndex the indices of the motif in the {@link MutableMotifDiscoverer}s
 	 * @param rse an array of {@link RecyclableSequenceEnumerator} that contains {@link Sequence} objects tested for initialization of the corresponding motif
@@ -85,11 +85,11 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param opt the objective function
 	 * @param out a stream that allows to write some output if necessary
 	 * 
-	 * @return an array containing the best {@link Sequence}s with respect to the {@link SFBasedOptimizableFunction} 
+	 * @return an array containing the best {@link Sequence}s with respect to the {@link DiffSSBasedOptimizableFunction} 
 	 * 
 	 * @throws Exception if something went wrong 
 	 */
-	public static Sequence[] enumerate( ScoringFunction[] funs, int[] classIndex, int[] motifIndex, RecyclableSequenceEnumerator[] rse, double weight, SFBasedOptimizableFunction opt, OutputStream out ) throws Exception
+	public static Sequence[] enumerate( DifferentiableSequenceScore[] funs, int[] classIndex, int[] motifIndex, RecyclableSequenceEnumerator[] rse, double weight, DiffSSBasedOptimizableFunction opt, OutputStream out ) throws Exception
 	{
 		DataSet[] data = opt.getData();
 		double[][] dataWeights = opt.getSequenceWeights();
@@ -205,14 +205,14 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	}
 	
 	/**
-	 * This enum defines some constants for the method {@link MutableMotifDiscovererToolbox#getSortedInitialParameters(ScoringFunction[], InitMethodForScoringFunction[], SFBasedOptimizableFunction, int, OutputStream, int)}.
-	 * These constants define how to initialize the {@link ScoringFunction}s. 
+	 * This enum defines some constants for the method {@link MutableMotifDiscovererToolbox#getSortedInitialParameters(DifferentiableSequenceScore[], InitMethodForScoringFunction[], DiffSSBasedOptimizableFunction, int, OutputStream, int)}.
+	 * These constants define how to initialize the {@link DifferentiableSequenceScore}s. 
 	 * 
 	 * @author Jens Keilwagen
 	 */
 	public static enum InitMethodForScoringFunction {
 		/**
-		 * This constants indicates that a {@link ScoringFunction} should be initialized using {@link ScoringFunction#initializeFunction(int, boolean, DataSet[], double[][])}.
+		 * This constants indicates that a {@link DifferentiableSequenceScore} should be initialized using {@link DifferentiableSequenceScore#initializeFunction(int, boolean, DataSet[], double[][])}.
 		 */
 		PLUG_IN,
 		/**
@@ -220,31 +220,31 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 		 */
 		MOTIF_RANDOMLY,
 		/**
-		 * This constants indicates that a {@link ScoringFunction} should be initialized using {@link ScoringFunction#initializeFunctionRandomly(boolean)}.
+		 * This constants indicates that a {@link DifferentiableSequenceScore} should be initialized using {@link DifferentiableSequenceScore#initializeFunctionRandomly(boolean)}.
 		 */
 		RANDOMLY,
 		/**
-		 * This constants indicates that a {@link ScoringFunction} should not be initialized, i.e. the instance is not changed and uses the current parameters.
+		 * This constants indicates that a {@link DifferentiableSequenceScore} should not be initialized, i.e. the instance is not changed and uses the current parameters.
 		 */
 		NOTHING;
 	}
 	
 	/**
-	 * This method allows to initialize the {@link ScoringFunction} using different {@link InitMethodForScoringFunction}. It returns an array of {@link ComparableElement}s that contain the parameters and the
+	 * This method allows to initialize the {@link DifferentiableSequenceScore} using different {@link InitMethodForScoringFunction}. It returns an array of {@link ComparableElement}s that contain the parameters and the
 	 * 
-	 * @param funs the {@link ScoringFunction}s
+	 * @param funs the {@link DifferentiableSequenceScore}s
 	 * @param init the specific {@link InitMethodForScoringFunction}, the entries correspond one to one to those of <code>fun</code>
 	 * @param opt the objective function
 	 * @param n the number of initializations
 	 * @param stream a stream that allows to write some output if necessary
 	 * @param optimizationSteps the number of initial steps that should be performed before evaluating the function
 	 * 
-	 * @return a sorted array containing {@link ComparableElement}s of parameter arrays and corresponding values of the {@link SFBasedOptimizableFunction}
+	 * @return a sorted array containing {@link ComparableElement}s of parameter arrays and corresponding values of the {@link DiffSSBasedOptimizableFunction}
 	 * 
 	 * @throws Exception if something went wrong
 	 */
 	@SuppressWarnings("unchecked")
-	public static ComparableElement<double[],Double>[] getSortedInitialParameters( ScoringFunction[] funs, InitMethodForScoringFunction[] init, SFBasedOptimizableFunction opt, int n, OutputStream stream, int optimizationSteps ) throws Exception
+	public static ComparableElement<double[],Double>[] getSortedInitialParameters( DifferentiableSequenceScore[] funs, InitMethodForScoringFunction[] init, DiffSSBasedOptimizableFunction opt, int n, OutputStream stream, int optimizationSteps ) throws Exception
 	{
 		SafeOutputStream info = SafeOutputStream.getSafeOutputStream(stream);
 		DataSet[] data = opt.getData();
@@ -313,7 +313,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @return an minimalNewLength-array for the given ScoringFunctions
 	 */
-	public static int[][] createMinimalNewLengthArray( ScoringFunction[] funs ) {
+	public static int[][] createMinimalNewLengthArray( DifferentiableSequenceScore[] funs ) {
 		int[][] minimalNewLength = new int[funs.length][];
 		MutableMotifDiscoverer disc;
 		for( int i, j = 0; j < funs.length; j++ )
@@ -341,7 +341,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws CloneNotSupportedException if the t<code>template</code> could not be cloned
 	 */
-	public static History[][] createHistoryArray( ScoringFunction[] funs, History template ) throws CloneNotSupportedException{
+	public static History[][] createHistoryArray( DifferentiableSequenceScore[] funs, History template ) throws CloneNotSupportedException{
 		History[][] history = new History[funs.length][];
 		for( int i, j = 0; j < funs.length; j++ )
 		{
@@ -383,8 +383,8 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	/**
 	 * This method tries to optimize the problem at hand as good as possible. If the optimization uses {@link MutableMotifDiscoverer}s it tries to perform modify operations as long as they seem to be promising.
 	 * 
-	 * @param funs the {@link ScoringFunction}s for scoring sequences
-	 * @param opt the {@link SFBasedOptimizableFunction}
+	 * @param funs the {@link DifferentiableSequenceScore}s for scoring sequences
+	 * @param opt the {@link DiffSSBasedOptimizableFunction}
 	 * @param algorithm used for the optimization
 	 * @param condition used for the optimization
 	 * @param linEps used for the optimization
@@ -400,17 +400,17 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @throws Exception if something went wrong while optimization
 	 *
 	 * @see MutableMotifDiscovererToolbox#clearHistoryArray(de.jstacs.motifDiscovery.history.History[][])
-	 * @see MutableMotifDiscovererToolbox#optimize(ScoringFunction[], SFBasedOptimizableFunction, byte, AbstractTerminationCondition, double, StartDistanceForecaster, SafeOutputStream, boolean, History[][], int[][], de.jstacs.classifier.scoringFunctionBased.OptimizableFunction.KindOfParameter, boolean)
+	 * @see MutableMotifDiscovererToolbox#optimize(DifferentiableSequenceScore[], DiffSSBasedOptimizableFunction, byte, AbstractTerminationCondition, double, StartDistanceForecaster, SafeOutputStream, boolean, History[][], int[][], de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter, boolean)
 	 */
-	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, AbstractTerminationCondition condition, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History template, KindOfParameter plugIn, boolean maxPos ) throws Exception {
+	public static double[][] optimize( DifferentiableSequenceScore[] funs, DiffSSBasedOptimizableFunction opt, byte algorithm, AbstractTerminationCondition condition, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History template, KindOfParameter plugIn, boolean maxPos ) throws Exception {
 		return optimize( funs, opt, algorithm, condition, linEps, startDistance, out, breakOnChanged, createHistoryArray( funs, template ), createMinimalNewLengthArray( funs ), plugIn, maxPos );
 	}
 	
 	/**
 	 * This method tries to optimize the problem at hand as good as possible. If the optimization uses {@link MutableMotifDiscoverer}s it tries to perform modify operations as long as they seem to be promising.
 	 * 
-	 * @param funs the {@link ScoringFunction}s for scoring sequences 
-	 * @param opt the {@link SFBasedOptimizableFunction}
+	 * @param funs the {@link DifferentiableSequenceScore}s for scoring sequences 
+	 * @param opt the {@link DiffSSBasedOptimizableFunction}
 	 * @param algorithm used for the optimization
 	 * @param condition used for the optimization
 	 * @param linEps used for the optimization
@@ -426,10 +426,10 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws Exception if something went wrong while optimization
 	 */
-	public static double[][] optimize( ScoringFunction[] funs, SFBasedOptimizableFunction opt, byte algorithm, AbstractTerminationCondition condition, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History[][] hist, int[][] minimalNewLength, KindOfParameter plugIn, boolean maxPos ) throws Exception {
+	public static double[][] optimize( DifferentiableSequenceScore[] funs, DiffSSBasedOptimizableFunction opt, byte algorithm, AbstractTerminationCondition condition, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, boolean breakOnChanged, History[][] hist, int[][] minimalNewLength, KindOfParameter plugIn, boolean maxPos ) throws Exception {
 		NegativeDifferentiableFunction neg = new NegativeDifferentiableFunction(opt);
 		int k;
-		ScoringFunction[] best = null;
+		DifferentiableSequenceScore[] best = null;
 		double[] params, classParams = null;
 		DataSet[] data = opt.getData();
 		double[][] weights = opt.getSequenceWeights();
@@ -461,13 +461,13 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	}
 		
 	/**
-	 * This method tries to make some heuristic step if at least one {@link ScoringFunction} is a {@link MutableMotifDiscoverer}.
+	 * This method tries to make some heuristic step if at least one {@link DifferentiableSequenceScore} is a {@link MutableMotifDiscoverer}.
 	 * These heuristic steps include shift, shrink, and expand as far as the user allows those operations by the {@link History} array.
 	 * 
-	 * @param funs the {@link ScoringFunction}s  for scoring sequences
+	 * @param funs the {@link DifferentiableSequenceScore}s  for scoring sequences
 	 * @param data array of {@link DataSet} containing the data for each class
 	 * @param weights the weights corresponding to the {@link Sequence}s in <code>data</code>
-	 * @param opt the {@link SFBasedOptimizableFunction}
+	 * @param opt the {@link DiffSSBasedOptimizableFunction}
 	 * @param neg the {@link NegativeDifferentiableFunction} used in the optimization
 	 * @param algorithm used for the optimization
 	 * @param linEps used for the optimization
@@ -482,19 +482,19 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @throws Exception if something went wrong
 	 */
-	public static boolean doHeuristicSteps( ScoringFunction[] funs, DataSet[] data, double[][] weights, SFBasedOptimizableFunction opt,
+	public static boolean doHeuristicSteps( DifferentiableSequenceScore[] funs, DataSet[] data, double[][] weights, DiffSSBasedOptimizableFunction opt,
 			DifferentiableFunction neg, byte algorithm, double linEps, StartDistanceForecaster startDistance, 
 			SafeOutputStream out, boolean breakOnChanged, History[][] hist, int[][] minimalNewLength, boolean maxPos ) throws Exception {
 		boolean changed = false, changedThisOne;
 		double normOld, normNew;
-		NormalizableScoringFunction nsf;
+		DifferentiableStatisticalModel nsf;
 		for( int k = 0; k < funs.length && !( changed && breakOnChanged ); k++ )
 		{
 			if( funs[k] instanceof MutableMotifDiscoverer  && ((MutableMotifDiscoverer)funs[k]).getNumberOfMotifs() > 0 )
 			{
 				out.writeln( "MutableMotifDiscoverer " + k + ":\n" + funs[k].toString() );
-				if( funs[k] instanceof NormalizableScoringFunction ) {
-					nsf = (NormalizableScoringFunction) funs[k];
+				if( funs[k] instanceof DifferentiableStatisticalModel ) {
+					nsf = (DifferentiableStatisticalModel) funs[k];
 					normOld = nsf.getLogNormalizationConstant();
 				} else {
 					nsf = null;
@@ -545,10 +545,10 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @param clazz the class index for which the Scoring function will be tested for modification
 	 * @param motif the motif index for which the Scoring function will be tested for modification
 	 * @param mmd the {@link MutableMotifDiscoverer} that will be tested
-	 * @param score the {@link ScoringFunction}s for scoring sequences
+	 * @param score the {@link DifferentiableSequenceScore}s for scoring sequences
 	 * @param data array of {@link DataSet} containing the data for each class
 	 * @param weights array of <code>double[]</code> containing the weights for the data of each class
-	 * @param opt the {@link SFBasedOptimizableFunction}
+	 * @param opt the {@link DiffSSBasedOptimizableFunction}
 	 * @param neg the {@link NegativeDifferentiableFunction} used in the optimization
 	 * @param algo used for the optimization
 	 * @param linEps used for the optimization
@@ -564,7 +564,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @see SignificantMotifOccurrencesFinder#getNumberOfBoundSequences(DataSet, double[], int)
 	 */
-	public static boolean findModification( int clazz, int motif, MutableMotifDiscoverer mmd, ScoringFunction[] score, DataSet[] data, double[][] weights, SFBasedOptimizableFunction opt, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, History hist, int minimalNewLength, boolean maxPos ) throws Exception {
+	public static boolean findModification( int clazz, int motif, MutableMotifDiscoverer mmd, DifferentiableSequenceScore[] score, DataSet[] data, double[][] weights, DiffSSBasedOptimizableFunction opt, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, SafeOutputStream out, History hist, int minimalNewLength, boolean maxPos ) throws Exception {
 		double[] params = opt.getParameters( KindOfParameter.LAST );
 		int len = mmd.getMotifLength( motif ) / 2;
 		DataSet[] my = {data[clazz], null};
@@ -628,7 +628,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	private static final SafeOutputStream DISCARD_OUT = SafeOutputStream.getSafeOutputStream( null );
 	private static final int NUMBER_OF_PERMUTATIONS = 1000;
 	
-	private static int heuristic( int clazz, int motif, int len, int direction, DataSet[] data, double[][] weights, SFBasedOptimizableFunction test, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, double[] params, ScoringFunction[] score, double pred, SafeOutputStream out, boolean maxPos ) throws Exception {
+	private static int heuristic( int clazz, int motif, int len, int direction, DataSet[] data, double[][] weights, DiffSSBasedOptimizableFunction test, DifferentiableFunction neg, byte algo, double linEps, StartDistanceForecaster startDistance, double[] params, DifferentiableSequenceScore[] score, double pred, SafeOutputStream out, boolean maxPos ) throws Exception {
 		test.setParams(params);
 		MutableMotifDiscoverer mmd = (MutableMotifDiscoverer) score[clazz];
 		//System.out.println( mmd );
@@ -645,13 +645,13 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 		int i;
 		for( i=1;i<=len;i++){
 			
-			if( score[clazz] instanceof NormalizableScoringFunction ) {
-				normOld = ((NormalizableScoringFunction) score[clazz]).getLogNormalizationConstant();
+			if( score[clazz] instanceof DifferentiableStatisticalModel ) {
+				normOld = ((DifferentiableStatisticalModel) score[clazz]).getLogNormalizationConstant();
 			}
 			if( mmd.modifyMotif( motif, i*dir1, i*dir2 ) ){
-				if( score[clazz] instanceof NormalizableScoringFunction ) {
+				if( score[clazz] instanceof DifferentiableStatisticalModel ) {
 					//set new class parameter
-					test.addTermToClassParameter( 0, normOld - ((NormalizableScoringFunction) score[clazz]).getLogNormalizationConstant() );
+					test.addTermToClassParameter( 0, normOld - ((DifferentiableStatisticalModel) score[clazz]).getLogNormalizationConstant() );
 				}
 				
 				test.reset();

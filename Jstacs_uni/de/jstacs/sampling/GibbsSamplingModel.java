@@ -22,7 +22,7 @@ package de.jstacs.sampling;
 import de.jstacs.data.DataSet;
 
 /**
- * This is the interface that any {@link de.jstacs.models.AbstractModel} has to implement if it
+ * This is the interface that any {@link de.jstacs.trainableStatisticalModels.AbstractTrainSM} has to implement if it
  * should be used in a sampling.
  * 
  * <br>
@@ -33,9 +33,9 @@ import de.jstacs.data.DataSet;
  * 
  * @author Berit Haldemann, Jens Keilwagen
  * 
- * @see de.jstacs.models.AbstractModel
- * @see de.jstacs.models.mixture.AbstractMixtureModel
- * @see de.jstacs.models.mixture.AbstractMixtureModel.Algorithm#GIBBS_SAMPLING
+ * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM
+ * @see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM
+ * @see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Algorithm#GIBBS_SAMPLING
  */
 public interface GibbsSamplingModel extends SamplingComponent {
 

@@ -71,22 +71,22 @@ public class SimpleBurnInTest implements BurnInTest {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.BurnInTest#setCurrentSamplingIndex(int)
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#setCurrentSamplingIndex(int)
 	 */
 	public void setCurrentSamplingIndex( int index ) {}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.BurnInTest#setValue(double)
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#setValue(double)
 	 */
 	public void setValue( double val ) {}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.BurnInTest#resetAllValues()
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#resetAllValues()
 	 */
 	public void resetAllValues() {}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.BurnInTest#getLengthOfBurnIn()
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#getLengthOfBurnIn()
 	 */
 	public int getLengthOfBurnIn() {
 		return burnInLength;
@@ -103,7 +103,7 @@ public class SimpleBurnInTest implements BurnInTest {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.models.mixture.gibbssampling.BurnInTest#getInstanceName()
+	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#getInstanceName()
 	 */
 	public String getInstanceName() {
 		return "simple burn in test (length=" + burnInLength + ")";

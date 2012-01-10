@@ -21,7 +21,7 @@ package de.jstacs.results;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
-import de.jstacs.SequenceScoringFunction;
+import de.jstacs.SequenceScore;
 import de.jstacs.Storable;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.io.XMLParser;
@@ -94,8 +94,8 @@ public class StorableResult extends Result {
 	 * @return if the model or classifier was trained or not
 	 */
 	public byte isInitialized() {
-		if (object instanceof SequenceScoringFunction) {
-			return ((SequenceScoringFunction) object).isInitialized() ? TRUE : FALSE;
+		if (object instanceof SequenceScore) {
+			return ((SequenceScore) object).isInitialized() ? TRUE : FALSE;
 		} else if (object instanceof AbstractClassifier) {
 			return ((AbstractClassifier) object).isInitialized() ? TRUE : FALSE;
 		} else {

@@ -31,9 +31,9 @@ import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
+import de.jstacs.differentiableStatisticalModels.homogeneous.HomogeneousMMDiffSM;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
 import de.jstacs.results.NumericalResult;
-import de.jstacs.scoringFunctions.homogeneous.HMMScoringFunction;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
@@ -207,7 +207,7 @@ public class SignificantMotifOccurrencesFinder {
 			case hMM4:
 			case hMM5:
 				int order = type.getOrder();
-				HMMScoringFunction hmm = new HMMScoringFunction(s.getAlphabetContainer(),order,0,new double[order+1],true,true,1);
+				HomogeneousMMDiffSM hmm = new HomogeneousMMDiffSM(s.getAlphabetContainer(),order,0,new double[order+1],true,true,1);
 				hmm.initializeFunction( 0, false, new DataSet[]{s}, null );
 				
 				if( order > 0 ) {
