@@ -5,12 +5,12 @@ import de.jstacs.data.Sequence;
 
 /**
  * This interface declares methods an statistical model.
- * If you like to train the model please have a look at {@link de.jstacs.models.Model},
- * if you like to use the model in some optimization (e.g. discriminative learning) have a look at {@link de.jstacs.scoringFunctions.NormalizableScoringFunction}.
+ * If you like to train the model please have a look at {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel},
+ * if you like to use the model in some optimization (e.g. discriminative learning) have a look at {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public interface StatisticalModel extends SequenceScoringFunction {
+public interface StatisticalModel extends SequenceScore {
 
 	/**
 	 * Returns the logarithm of the probability of (a part of) the given
