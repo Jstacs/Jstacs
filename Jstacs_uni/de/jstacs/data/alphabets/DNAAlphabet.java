@@ -27,7 +27,9 @@ import de.jstacs.NonParsableException;
  */
 public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 
-	public static DNAAlphabet get() {
+	public final static DNAAlphabet SINGELTON = get(); 
+	
+	private static DNAAlphabet get() {
 		DNAAlphabet res = null;
 		try {
 			res = new DNAAlphabet();
