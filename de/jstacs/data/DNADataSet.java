@@ -33,7 +33,7 @@ import de.jstacs.io.SparseStringExtractor;
  */
 public class DNADataSet extends DataSet {
 		
-	public static final AlphabetContainer DNA_ALPHABETCONTAINER = new AlphabetContainer( DNAAlphabet.get() );
+	public static final AlphabetContainer DNA_ALPHABETCONTAINER = new AlphabetContainer( DNAAlphabet.SINGELTON );
 	
 	/**
 	 * Creates a new sample of DNA sequence from a FASTA file with file name <code>fName</code>.
