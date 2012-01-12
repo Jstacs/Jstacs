@@ -22,6 +22,7 @@ import java.lang.reflect.Constructor;
 
 import de.jstacs.DataType;
 import de.jstacs.InstantiableFromParameterSet;
+import de.jstacs.Singleton;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterException;
@@ -290,6 +291,13 @@ public class ParameterSetParser {
 			}
 		}
 		if( construct == null ) {
+			if( Singleton.class.isAssignableFrom( instanceClass ) ) {
+				try {
+					return (InstantiableFromParameterSet) SingletonHandler.getSingelton( instanceClass );
+				} catch ( Exception e ) {
+					throw new NotInstantiableException( "You must provide a static field SINGELTON." );
+				}
+			}
 			throw new NotInstantiableException( "No appropriate constructor found." );
 		} else {
 			try {

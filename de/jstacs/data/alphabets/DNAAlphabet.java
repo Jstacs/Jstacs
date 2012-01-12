@@ -18,68 +18,25 @@
 
 package de.jstacs.data.alphabets;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.Singleton;
 
 /**
  * This class implements the discrete alphabet that is used for DNA.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
+public final class DNAAlphabet extends ComplementableDiscreteAlphabet implements Singleton {
 
-	public final static DNAAlphabet SINGELTON = get(); 
+	public final static DNAAlphabet SINGLETON = get(); 
 	
 	private static DNAAlphabet get() {
 		DNAAlphabet res = null;
 		try {
 			res = new DNAAlphabet();
 		} catch (Exception doesNotHappen) {
-			System.err.println( "Unexpected Error:" );
-			doesNotHappen.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException( doesNotHappen.getMessage() );
 		}
 		return res;
-	}
-	
-	
-	
-	/**
-	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link DNAAlphabet} out of its XML representation.
-	 * 
-	 * @param representation
-	 *            the XML representation as {@link StringBuffer}
-	 * 
-	 * @throws NonParsableException
-	 *             if the {@link DNAAlphabet} could not be reconstructed out of
-	 *             the XML representation (the {@link StringBuffer}
-	 *             <code>representation</code> could not be parsed)
-	 * 
-	 * @see ComplementableDiscreteAlphabet#ComplementableDiscreteAlphabet(StringBuffer)
-	 * @see de.jstacs.Storable
-	 */
-	public DNAAlphabet( StringBuffer representation ) throws NonParsableException {
-		super( representation );
-	}
-
-	/**
-	 * The constructor for the {@link de.jstacs.InstantiableFromParameterSet}
-	 * interface. Creates a new {@link DNAAlphabet} from a given parameter set.
-	 * 
-	 * @param parameters
-	 *            the given set of parameters
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if space or tab will be used as symbols
-	 * @throws DoubleSymbolException
-	 *             if one of the symbols occurred more than once
-	 * 
-	 * @see DNAAlphabet#DNAAlphabet()
-	 */
-
-	public DNAAlphabet( DNAAlphabetParameterSet parameters ) throws IllegalArgumentException, DoubleSymbolException {
-		this();
-		this.parameters = parameters;
 	}
 
 	/**
@@ -93,8 +50,9 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 	 * 
 	 * @see ComplementableDiscreteAlphabet#ComplementableDiscreteAlphabet(boolean, String...)
 	 */
-	public DNAAlphabet() throws DoubleSymbolException, IllegalArgumentException {
+	private DNAAlphabet() throws DoubleSymbolException, IllegalArgumentException {
 		super( true, DNAAlphabetParameterSet.DNA );
+		this.parameters = DNAAlphabetParameterSet.SINGLETON;
 	}
 
 	/* (non-Javadoc)
@@ -122,8 +80,20 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 	 * 
 	 * @author Jan Grau, Jens Keilwagen
 	 */
-	public static final class DNAAlphabetParameterSet extends AlphabetParameterSet {
+	public static final class DNAAlphabetParameterSet extends AlphabetParameterSet implements Singleton {
 
+		public final static DNAAlphabetParameterSet SINGLETON = get(); 
+		
+		private static DNAAlphabetParameterSet get() {
+			DNAAlphabetParameterSet res = null;
+			try {
+				res = new DNAAlphabetParameterSet();
+			} catch (Exception doesNotHappen) {
+				throw new RuntimeException( doesNotHappen.getMessage() );
+			}
+			return res;
+		}
+		
 		private static final String[] DNA = { "A", "C", "G", "T" };
 
 		/**
@@ -134,29 +104,8 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 		 * 
 		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
-		public DNAAlphabetParameterSet() throws Exception {
+		private DNAAlphabetParameterSet() throws Exception {
 			super( DNAAlphabet.class );
-		}
-
-		/**
-		 * The standard constructor for the interface {@link de.jstacs.Storable}
-		 * . Creates a new {@link DNAAlphabetParameterSet} out of its XML
-		 * representation.
-		 * 
-		 * @param representation
-		 *            the XML representation as {@link StringBuffer}
-		 * 
-		 * @throws NonParsableException
-		 *             if the {@link DNAAlphabetParameterSet} could not be
-		 *             reconstructed out of the XML representation (the
-		 *             {@link StringBuffer} <code>representation</code> could
-		 *             not be parsed)
-		 * 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
-		 * @see de.jstacs.Storable
-		 */
-		public DNAAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {
-			super( representation );
 		}
 
 		/* (non-Javadoc)

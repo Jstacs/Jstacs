@@ -255,7 +255,13 @@ public class SubclassFinder {
 			if( clazz.isAssignableFrom( c ) ) {
 				list.add( c );
 			}
-		} catch ( Exception e ) {} catch ( Error e ) {}
+		} catch( Throwable t ) {
+			/*
+			System.out.println( clazz + "\t" + className );
+			t.printStackTrace();
+			throw new RuntimeException( t.getMessage() );
+			*/
+		}
 	}
 	
 	private static URL[] getResources(String startPackage) throws MalformedURLException{

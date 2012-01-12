@@ -18,52 +18,25 @@
 
 package de.jstacs.data.alphabets;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.Singleton;
 
 /**
  * This class implements the discrete alphabet that is used for proteins (one letter code).
  * 
  * @author Jens Keilwagen
  */
-public final class ProteinAlphabet extends DiscreteAlphabet {
+public final class ProteinAlphabet extends DiscreteAlphabet implements Singleton {
 
-	/**
-	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link ProteinAlphabet} out of its XML representation.
-	 * 
-	 * @param representation
-	 *            the XML representation as {@link StringBuffer}
-	 * 
-	 * @throws NonParsableException
-	 *             if the {@link ProteinAlphabet} could not be reconstructed out of
-	 *             the XML representation (the {@link StringBuffer}
-	 *             <code>representation</code> could not be parsed)
-	 * 
-	 * @see DiscreteAlphabet#DiscreteAlphabet(StringBuffer)
-	 * @see de.jstacs.Storable
-	 */
-	public ProteinAlphabet( StringBuffer representation ) throws NonParsableException {
-		super( representation );
-	}
-
-	/**
-	 * The constructor for the {@link de.jstacs.InstantiableFromParameterSet}
-	 * interface. Creates a new {@link ProteinAlphabet} from a given parameter set.
-	 * 
-	 * @param parameters
-	 *            the given set of parameters
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if space or tab will be used as symbols
-	 * @throws DoubleSymbolException
-	 *             if one of the symbols occurred more than once
-	 * 
-	 * @see ProteinAlphabet#ProteinAlphabet()
-	 */
-
-	public ProteinAlphabet( ProteinAlphabetParameterSet parameters ) throws IllegalArgumentException, DoubleSymbolException {
-		this();
-		this.parameters = parameters;
+	public static final ProteinAlphabet SINGLETON = get();
+	
+	private static ProteinAlphabet get() {
+		ProteinAlphabet res = null;
+		try {
+			res = new ProteinAlphabet();
+		} catch (Exception doesNotHappen) {
+			throw new RuntimeException( doesNotHappen.getMessage() );
+		}
+		return res;
 	}
 
 	/**
@@ -77,8 +50,9 @@ public final class ProteinAlphabet extends DiscreteAlphabet {
 	 * 
 	 * @see DiscreteAlphabet#DiscreteAlphabet(boolean, String...)
 	 */
-	public ProteinAlphabet() throws DoubleSymbolException, IllegalArgumentException {
+	private ProteinAlphabet() throws DoubleSymbolException, IllegalArgumentException {
 		super( true, ProteinAlphabetParameterSet.AMINOACID );
+		this.parameters = ProteinAlphabetParameterSet.SINGLETON;
 	}
 
 
@@ -99,10 +73,22 @@ public final class ProteinAlphabet extends DiscreteAlphabet {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static final class ProteinAlphabetParameterSet extends AlphabetParameterSet {
+	public static final class ProteinAlphabetParameterSet extends AlphabetParameterSet implements Singleton {
 
+		public static final ProteinAlphabetParameterSet SINGLETON = get();
+		
 		private static final String[] AMINOACID = { "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V" };
 
+		private static ProteinAlphabetParameterSet get() {
+			ProteinAlphabetParameterSet res = null;
+			try {
+				res = new ProteinAlphabetParameterSet();
+			} catch (Exception doesNotHappen) {
+				throw new RuntimeException( doesNotHappen.getMessage() );
+			}
+			return res;
+		}
+		
 		/**
 		 * Creates a new {@link ProteinAlphabetParameterSet}.
 		 * 
@@ -111,29 +97,8 @@ public final class ProteinAlphabet extends DiscreteAlphabet {
 		 * 
 		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
-		public ProteinAlphabetParameterSet() throws Exception {
+		private ProteinAlphabetParameterSet() throws Exception {
 			super( ProteinAlphabet.class );
-		}
-
-		/**
-		 * The standard constructor for the interface {@link de.jstacs.Storable}
-		 * . Creates a new {@link ProteinAlphabetParameterSet} out of its XML
-		 * representation.
-		 * 
-		 * @param representation
-		 *            the XML representation as {@link StringBuffer}
-		 * 
-		 * @throws NonParsableException
-		 *             if the {@link ProteinAlphabetParameterSet} could not be
-		 *             reconstructed out of the XML representation (the
-		 *             {@link StringBuffer} <code>representation</code> could
-		 *             not be parsed)
-		 * 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
-		 * @see de.jstacs.Storable
-		 */
-		public ProteinAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {
-			super( representation );
 		}
 
 		/* (non-Javadoc)

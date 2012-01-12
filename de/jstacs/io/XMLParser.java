@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import de.jstacs.NonParsableException;
+import de.jstacs.Singleton;
 import de.jstacs.Storable;
 
 /**
@@ -48,6 +49,7 @@ import de.jstacs.Storable;
  * <li> {@link Integer} </li>
  * <li> {@link Long} </li>
  * <li> {@link Short} </li>
+ * <li> {@link Singleton} </li>
  * <li> {@link Storable} </li>
  * <li> {@link String} </li>
  * <li> arrays of primitives (<code>int</code>, <code>double</code>, <code>char</code>, ...)
@@ -208,6 +210,7 @@ public final class XMLParser {
 					appendObjectWithTagsAndAttributes( xml, ((Enum)s).name(), ENUM, null, false );
 				} else if( s instanceof Class ) {
 					appendObjectWithTagsAndAttributes( xml, ((Class)s).getName(), ENUM/*TODO*/, null, false );
+				} else if( s instanceof Singleton ) {
 				} else if( simpleParsable.contains( k ) ) {
 					xml.append( s instanceof String ? escape((String) s) : s );
 				} else if( Storable.class.isInstance( s ) ) {
@@ -646,6 +649,12 @@ public final class XMLParser {
 					};
 				}
 				erg = (T) cast( k, offset <= 0 ? ex.toString() : ex.substring( offset ) );
+			} else if( Singleton.class.isAssignableFrom(k)) {
+				try {
+					erg = (T) SingletonHandler.getSingelton( (Class<Singleton>) k );
+				} catch ( Exception e ) {
+					throw getNonParsableException( "You must provide a static field SINGELTON.", e );
+				}
 			} else if( Storable.class.isAssignableFrom(k)) {
 				//String old = ex.toString();
 				try {
@@ -654,7 +663,7 @@ public final class XMLParser {
 					} else {
 						erg = k.getConstructor( stringBufferClass ).newInstance( ex );
 					}
-				} catch ( NoSuchMethodException e ) {
+				} catch ( NoSuchMethodException e ) { 
 					throw getNonParsableException( "You must provide a constructor " + k.getName() + "(StringBuffer).", e );
 				} catch ( Exception e ) {
 					throw getNonParsableException( "problem at " + k.getName() + ": " + e.getClass().getSimpleName() + ": " + e.getCause().toString()+"\n"+Arrays.toString( e.getCause().getStackTrace() ).replaceAll( "(,|\\[|\\])", "\n-- " )+"]]", e );
