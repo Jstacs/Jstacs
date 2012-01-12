@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import de.jstacs.DataType;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.utils.ComparableElement;
 
@@ -156,7 +157,11 @@ public class ParameterSetTagger {
 	 * @see Parameter#setValue(Object)
 	 */
 	public void setValueFromTag( String tag, Object value ) throws IllegalValueException {
-		getParameterFromTag( tag ).setValue( value );
+		Parameter p = getParameterFromTag( tag );
+		if( p.getDatatype() != DataType.STRING && value instanceof String && ((String)value).length()==0 ) {
+			value = null;
+		}
+		p.setValue( value );
 	}
 	
 	/**
