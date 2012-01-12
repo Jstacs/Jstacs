@@ -311,140 +311,48 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	 */
 	@Override
 	public boolean checkValue(Object value) {
+		if( value == null ) {
+			return true;
+		}
 		if (validator == null) {
-			if (datatype == DataType.BOOLEAN) {
-				if (value instanceof Boolean || value instanceof String) {
-					errorMessage = null;
-					return true;
-				} else {
-					errorMessage = "The specified value is no boolean.";
+			boolean res;
+			try {
+				switch ( datatype ) {
+					case BOOLEAN: res = value instanceof Boolean || value instanceof String; break;
+					case CHAR: res = value instanceof Character	|| (value instanceof String && ((String) value).length() == 1); break;
+					case BYTE: res = value instanceof Byte || (value instanceof String && new Byte((String) value) != null ); break;
+					case SHORT: res= value instanceof Short || (value instanceof String && new Short((String) value) != null ); break;
+					case INT: res = value instanceof Integer || (value instanceof String && new Integer((String) value) != null ); break;
+					case LONG: res = value instanceof Long || (value instanceof String && new Long((String) value) != null ); break;
+					case FLOAT: res = value instanceof Float || (value instanceof String && new Float((String) value) != null );break;
+					case DOUBLE: res = value instanceof Double || (value instanceof String && new Double((String) value) != null ); break;
+					case STRING: res = value instanceof String; break;
+					default: res = false;
 				}
-			} else if (datatype == DataType.CHAR) {
-				if (value instanceof Character
-						|| (value instanceof String && ((String) value)
-								.length() == 1)) {
-					errorMessage = null;
-					return true;
-				} else {
-					errorMessage = "The specified value is no character or null.";
-				}
-			} else if (datatype == DataType.BYTE) {
-				if (value instanceof Byte) {
-					errorMessage = null;
-					return true;
-				} else if (value instanceof String) {
-					try {
-						Byte.parseByte((String) value);
-						errorMessage = null;
-						return true;
-					} catch (NumberFormatException e) {
-						errorMessage = "Specified value is not a byte.";
-						return false;
-					}
-				}
-			} else if (datatype == DataType.SHORT) {
-				if (value instanceof Short) {
-					errorMessage = null;
-					return true;
-				} else if (value instanceof String) {
-					try {
-						Short.parseShort((String) value);
-						errorMessage = null;
-						return true;
-					} catch (NumberFormatException e) {
-						errorMessage = "Specified value is not a short.";
-						return false;
-					}
-				}
-			} else if (datatype == DataType.INT) {
-				if (value instanceof Integer) {
-					errorMessage = null;
-					return true;
-				} else if (value instanceof String) {
-					try {
-						Integer.parseInt((String) value);
-						errorMessage = null;
-						return true;
-					} catch (NumberFormatException e) {
-						errorMessage = "Specified value is not an integer.";
-						return false;
-					}
-				}
-			} else if (datatype == DataType.LONG) {
-				if (value instanceof Long) {
-					errorMessage = null;
-					return true;
-				} else if (value instanceof String) {
-					try {
-						Long.parseLong((String) value);
-						errorMessage = null;
-						return true;
-					} catch (NumberFormatException e) {
-						errorMessage = "Specified value is not a long.";
-						return false;
-					}
-				}
-			} else if (datatype == DataType.FLOAT) {
-				if (value instanceof Float) {
-					errorMessage = null;
-					return true;
-				} else if (value instanceof String) {
-					try {
-						Float.parseFloat((String) value);
-						errorMessage = null;
-						return true;
-					} catch (NumberFormatException e) {
-						errorMessage = "Specified value is not a float.";
-						return false;
-					}
-				}
-			} else if (datatype == DataType.DOUBLE) {
-				if (value instanceof Double) {
-					errorMessage = null;
-					return true;
-				} else if (value instanceof String) {
-					try {
-						Double.parseDouble((String) value);
-						errorMessage = null;
-						return true;
-					} catch (NumberFormatException e) {
-						errorMessage = "Specified value is not a double.";
-						return false;
-					}
-				}
-			} else if (datatype == DataType.STRING && value instanceof String
-					&& (!required || ((String) value).length() > 0)) {
-				errorMessage = null;
-				return true;
+			} catch ( Exception e ) {
+				res = false;
 			}
-			if (value == null || value instanceof String
-					&& ((String) value).length() == 0) {
-				errorMessage = null;
+			if( res  ) {
+				errorMessage = "";
 			} else {
-				errorMessage = "Value is not of the expected format or null.";
+				errorMessage = "The specified value is no " + datatype + ".";
 			}
-			return false;
-
+			return res;
 		} else {
 			Object value2 = value;
 			if (value instanceof String) {
 				if (((String) value).length() > 0) {
 					try {
-						if (datatype == DataType.BYTE) {
-							value2 = new Byte((String) value);
-						} else if (datatype == DataType.SHORT) {
-							value2 = new Short((String) value);
-						} else if (datatype == DataType.INT) {
-							value2 = new Integer((String) value);
-						} else if (datatype == DataType.LONG) {
-							value2 = new Long((String) value);
-						} else if (datatype == DataType.FLOAT) {
-							value2 = new Float((String) value);
-						} else if (datatype == DataType.DOUBLE) {
-							value2 = new Double((String) value);
+						switch( datatype ) {
+							case BYTE: value2 = new Byte((String) value); break;
+							case SHORT: value2 = new Short((String) value); break;
+							case INT: value2 = new Integer((String) value); break;
+							case LONG: value2 = new Long((String) value); break;
+							case FLOAT: value2 = new Float((String) value); break;
+							case DOUBLE: value2 = new Double((String) value); break;
 						}
 					} catch (NumberFormatException e) {
-						errorMessage = "Value is not of the expected format or null.";
+						errorMessage = "Value is not of the expected format.";
 						return false;
 					}
 				} else {
@@ -515,7 +423,9 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	@Override
 	public void setValue(Object value2) throws IllegalValueException {
 		if (checkValue(value2)) {
-			if (value2 instanceof String && datatype != DataType.STRING) {
+			if( value2 == null ) {
+				value = null;	
+			} else if (value2 instanceof String && datatype != DataType.STRING) {
 				String s = (String) value2;
 				// System.out.println("s is: "+s+", datatype: "+datatype);
 				try {
