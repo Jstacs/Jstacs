@@ -21,10 +21,13 @@ package de.jstacs.data;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import de.jstacs.Singleton;
 import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.SparseStringExtractor;
+import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 
 /**
  * This class exist for convenience to allow the user an easy creation of {@link DataSet}s of DNA {@link Sequence}s.
@@ -32,8 +35,46 @@ import de.jstacs.io.SparseStringExtractor;
  * @author Jan Grau, Jens Keilwagen
  */
 public class DNADataSet extends DataSet {
+	
+	private static class DNAAlphabetContainer extends AlphabetContainer implements Singleton {
 		
-	public static final AlphabetContainer DNA_ALPHABETCONTAINER = new AlphabetContainer( DNAAlphabet.SINGELTON );
+		public static final DNAAlphabetContainer SINGLETON = get();
+		
+		private static DNAAlphabetContainer get() {
+			DNAAlphabetContainer res = null;
+			try {
+				res = new DNAAlphabetContainer();
+			} catch (Exception doesNotHappen) {
+				throw new RuntimeException( doesNotHappen.getMessage() );
+			}
+			return res;
+		}
+		
+		private DNAAlphabetContainer() throws IllegalArgumentException, NotInstantiableException, DoubleSymbolException {
+			super( DNAAlphabetContainerParameterSet.SINGLETON );
+		}
+		
+		private static class DNAAlphabetContainerParameterSet extends AlphabetContainerParameterSet implements Singleton {
+
+			public static final DNAAlphabetContainerParameterSet SINGLETON = get();
+			
+			private static DNAAlphabetContainerParameterSet get() {
+				DNAAlphabetContainerParameterSet res = null;
+				try {
+					res = new DNAAlphabetContainerParameterSet();
+				} catch (Exception doesNotHappen) {
+					throw new RuntimeException( doesNotHappen.getMessage() );
+				}
+				return res;
+			}
+			
+			private DNAAlphabetContainerParameterSet() throws Exception {
+				super( DNAAlphabet.SINGLETON );//TODO class
+			}
+		}
+	}
+	
+	public static final AlphabetContainer DNA_ALPHABETCONTAINER = DNAAlphabetContainer.SINGLETON;
 	
 	/**
 	 * Creates a new sample of DNA sequence from a FASTA file with file name <code>fName</code>.

@@ -118,7 +118,6 @@ public class DiscreteAlphabet extends Alphabet {
 		} catch ( CloneNotSupportedException e ) {
 			throw new IllegalArgumentException( e.getCause().getMessage() );
 		}
-
 	}
 
 	/* (non-Javadoc)

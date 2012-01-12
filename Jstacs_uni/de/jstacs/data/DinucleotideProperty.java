@@ -291,16 +291,7 @@ public enum DinucleotideProperty {
 	
 	public static final Smoothing NO_SMOOTHING = new NoSmoothing();
 	
-	private static DNAAlphabet dnaAlphabet = null;
 	private static final AlphabetContainer continuousAlphabet = new AlphabetContainer( new ContinuousAlphabet() );
-	
-	static{
-		
-		try {
-			dnaAlphabet = new DNAAlphabet();
-		} catch ( Exception e ) { }
-		
-	}
 
 	/**
 	 * This enum defines the types of dinucleotide properties.
@@ -383,7 +374,7 @@ public enum DinucleotideProperty {
 	}
 		
 	private double[] getProperty(Sequence original, double[] prop, Smoothing smoothing) throws WrongSequenceTypeException{
-		if(!original.getAlphabetContainer().isSimple() || !original.getAlphabetContainer().getAlphabetAt( 0 ).checkConsistency( dnaAlphabet )){
+		if(!original.getAlphabetContainer().isSimple() || !original.getAlphabetContainer().getAlphabetAt( 0 ).checkConsistency( DNAAlphabet.SINGLETON )){
 			throw new WrongSequenceTypeException();
 		}
 		int curr;

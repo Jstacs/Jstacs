@@ -132,7 +132,7 @@ public class BioJavaAdapter {
 			abcCurrent = (org.biojava.bio.symbol.Alphabet)l.get( i );
 			if( abcCurrent.getAlphabets().size() == 1 ) {
 				if( abcCurrent.getName().equals( "DNA" ) ) {
-					abc[i] = new DNAAlphabet();
+					abc[i] = DNAAlphabet.SINGLETON;
 				} else if( abcCurrent instanceof FiniteAlphabet ) {
 					FiniteAlphabet finAbc = (FiniteAlphabet)bioAbc;
 					SymbolTokenization t = finAbc.getTokenization( "default" );
