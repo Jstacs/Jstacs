@@ -32,18 +32,8 @@ import de.jstacs.io.SparseStringExtractor;
  * @author Jan Grau, Jens Keilwagen
  */
 public class DNADataSet extends DataSet {
-	
-	static {
-		try {
-			DNA_ALPHABETCONTAINER = new AlphabetContainer( new DNAAlphabet() );
-		} catch (Exception doesNotHappen) {
-			System.err.println( "Unexpected Error:" );
-			doesNotHappen.printStackTrace();
-			System.exit(1);
-		}		
-	}
-	
-	private static AlphabetContainer DNA_ALPHABETCONTAINER;
+		
+	public static final AlphabetContainer DNA_ALPHABETCONTAINER = new AlphabetContainer( DNAAlphabet.get() );
 	
 	/**
 	 * Creates a new sample of DNA sequence from a FASTA file with file name <code>fName</code>.

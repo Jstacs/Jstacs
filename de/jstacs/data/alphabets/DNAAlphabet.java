@@ -27,6 +27,20 @@ import de.jstacs.NonParsableException;
  */
 public final class DNAAlphabet extends ComplementableDiscreteAlphabet {
 
+	public static DNAAlphabet get() {
+		DNAAlphabet res = null;
+		try {
+			res = new DNAAlphabet();
+		} catch (Exception doesNotHappen) {
+			System.err.println( "Unexpected Error:" );
+			doesNotHappen.printStackTrace();
+			System.exit(1);
+		}
+		return res;
+	}
+	
+	
+	
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
 	 * Creates a new {@link DNAAlphabet} out of its XML representation.
