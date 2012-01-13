@@ -91,12 +91,6 @@ public abstract class ComplementableDiscreteAlphabet extends DiscreteAlphabet {
 		super( caseInsensitive, alphabet );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.data.alphabets.DiscreteAlphabet#getCurrentParameterSet()
-	 */
-	@Override
-	public abstract AlphabetParameterSet getCurrentParameterSet() throws Exception;
-
 	/**
 	 * This method returns the code of the symbol that is the complement of the
 	 * symbol encoded by <code>code</code>.
