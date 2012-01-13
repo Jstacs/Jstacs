@@ -27,6 +27,11 @@ import de.jstacs.Singleton;
  */
 public final class ProteinAlphabet extends DiscreteAlphabet implements Singleton {
 
+	/**
+	 * The only instance of this class.
+	 * 
+	 * @see Singleton
+	 */
 	public static final ProteinAlphabet SINGLETON = get();
 	
 	private static ProteinAlphabet get() {
@@ -75,6 +80,11 @@ public final class ProteinAlphabet extends DiscreteAlphabet implements Singleton
 	 */
 	public static final class ProteinAlphabetParameterSet extends AlphabetParameterSet implements Singleton {
 
+		/**
+		 * The only instance of this class.
+		 * 
+		 * @see Singleton
+		 */
 		public static final ProteinAlphabetParameterSet SINGLETON = get();
 		
 		private static final String[] AMINOACID = { "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V" };

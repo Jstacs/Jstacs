@@ -278,6 +278,9 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 */
 	private int[] index;
 
+	/**
+	 * The parameters for this instance.
+	 */
 	protected InstanceParameterSet<? extends AlphabetContainer> parameters;
 
 	private double l;

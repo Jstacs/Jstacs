@@ -402,7 +402,7 @@ public class SubclassFinder {
 	
 	private static class ClassNameComparator implements Comparator<Class> {
 
-		public static ClassNameComparator DEFAULT = new ClassNameComparator();
+		private static ClassNameComparator DEFAULT = new ClassNameComparator();
 		
 		private ClassNameComparator(){}
 		
@@ -410,7 +410,6 @@ public class SubclassFinder {
 		public int compare(Class o1, Class o2) {
 			return o1.getSimpleName().compareTo( o2.getSimpleName() );
 		}
-		//TODO
 	}
 	
 	/**

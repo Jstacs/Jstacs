@@ -48,11 +48,6 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 	 */
 	private int defaultSelected;
 
-	protected void init() {
-		this.defaultSelected = -1;
-		this.selected = 0;
-	}
-
 	/**
 	 * Constructor for a {@link SelectionParameter}.
 	 * 
