@@ -19,6 +19,9 @@
 package de.jstacs.data.alphabets;
 
 import de.jstacs.Singleton;
+import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.AlphabetContainerParameterSet;
+import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 
 /**
  * This class implements the discrete alphabet that is used for DNA.
@@ -61,18 +64,6 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet implements
 	@Override
 	public int getComplementaryCode( int code ) {
 		return 3 - code;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.data.alphabets.ComplementableDiscreteAlphabet#getCurrentParameterSet()
-	 */
-	@Override
-	public AlphabetParameterSet getCurrentParameterSet() throws Exception {
-		if( this.parameters == null ) {
-			return new DNAAlphabetParameterSet();
-		} else {
-			return this.parameters;
-		}
 	}
 
 	/**

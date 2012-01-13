@@ -278,7 +278,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 */
 	private int[] index;
 
-	private AlphabetContainerParameterSet parameters;
+	protected InstanceParameterSet<? extends AlphabetContainer> parameters;
 
 	private double l;
 
@@ -437,10 +437,10 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 * @throws NotInstantiableException
 	 *             if an instance could not be created
 	 */
-	public AlphabetContainer( AlphabetContainerParameterSet parameters ) throws IllegalArgumentException, DoubleSymbolException,
+	public AlphabetContainer( InstanceParameterSet<? extends AlphabetContainer> parameters ) throws IllegalArgumentException, DoubleSymbolException,
 																		NotInstantiableException {
 		try {
-			this.parameters = parameters.clone();
+			this.parameters = (InstanceParameterSet<? extends AlphabetContainer>) parameters.clone();
 			ParameterSet alphSet = (ParameterSet)parameters.getParameterAt( 0 ).getValue();
 			if( alphSet instanceof AlphabetParameterSet ) {
 				// index = null;
@@ -694,9 +694,9 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	/* (non-Javadoc)
 	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
 	 */
-	public AlphabetContainerParameterSet getCurrentParameterSet() throws Exception {
+	public InstanceParameterSet<? extends AlphabetContainer> getCurrentParameterSet() throws Exception {
 		if( parameters != null ) {
-			return parameters.clone();
+			return (InstanceParameterSet<AlphabetContainer>) parameters.clone();
 		} else {
 			if( isSimple() ) {
 				return new AlphabetContainerParameterSet( alphabet[0] );

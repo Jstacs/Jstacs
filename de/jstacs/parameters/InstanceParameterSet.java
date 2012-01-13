@@ -32,11 +32,11 @@ import de.jstacs.io.ParameterSetParser.NotInstantiableException;
  * @author Jan Grau, Jens Keilwagen
  * 
  */
-public abstract class InstanceParameterSet extends ParameterSet {
+public abstract class InstanceParameterSet<T> extends ParameterSet {
 	/**
 	 * The class that can be instantiated using this {@link ParameterSet}.
 	 */
-	private Class instanceClass;
+	private Class<? extends T> instanceClass;
 
 	/**
 	 * Constructs an {@link InstanceParameterSet} from the class that can be
@@ -45,7 +45,7 @@ public abstract class InstanceParameterSet extends ParameterSet {
 	 * @param instanceClass
 	 *            the class to be instantiated
 	 */
-	public InstanceParameterSet(Class instanceClass) {
+	public InstanceParameterSet(Class<? extends T> instanceClass) {
 		super();
 		if (instanceClass == null) {
 			throw new IllegalArgumentException(	"The instanceClass can not be null." );
@@ -76,7 +76,7 @@ public abstract class InstanceParameterSet extends ParameterSet {
 	 * 
 	 * @return the class of the instances
 	 */
-	public Class getInstanceClass() {
+	public Class<? extends T> getInstanceClass() {
 		return this.instanceClass;
 	}
 

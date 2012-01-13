@@ -45,7 +45,7 @@ import de.jstacs.parameters.SimpleParameterSet;
  * 
  * @author Jan Grau
  */
-public class AlphabetContainerParameterSet extends InstanceParameterSet {
+public class AlphabetContainerParameterSet extends InstanceParameterSet<AlphabetContainer> {
 
 	private AlphabetContainerType type;
 
@@ -153,7 +153,11 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet {
 	 * @see InstanceParameterSet#InstanceParameterSet(Class)
 	 */
 	public AlphabetContainerParameterSet( Alphabet[] alphabets ) throws Exception {
-		super( AlphabetContainer.class );
+		this( AlphabetContainer.class, alphabets );
+	}
+		
+	protected AlphabetContainerParameterSet( Class<? extends AlphabetContainer> instanceClass, Alphabet... alphabets ) throws Exception {
+		super( instanceClass );
 		this.simple = false;
 		this.type = AlphabetContainerType.determineType( alphabets );
 		addParameters();
