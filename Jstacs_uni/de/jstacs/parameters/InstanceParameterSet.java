@@ -32,7 +32,7 @@ import de.jstacs.io.ParameterSetParser.NotInstantiableException;
  * @author Jan Grau, Jens Keilwagen
  * 
  */
-public abstract class InstanceParameterSet<T> extends ParameterSet {
+public abstract class InstanceParameterSet<T extends InstantiableFromParameterSet> extends ParameterSet {
 	/**
 	 * The class that can be instantiated using this {@link ParameterSet}.
 	 */

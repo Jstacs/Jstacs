@@ -19,9 +19,6 @@
 package de.jstacs.data.alphabets;
 
 import de.jstacs.Singleton;
-import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.AlphabetContainerParameterSet;
-import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 
 /**
  * This class implements the discrete alphabet that is used for DNA.
@@ -30,6 +27,11 @@ import de.jstacs.io.ParameterSetParser.NotInstantiableException;
  */
 public final class DNAAlphabet extends ComplementableDiscreteAlphabet implements Singleton {
 
+	/**
+	 * The only instance of this class.
+	 * 
+	 * @see Singleton
+	 */
 	public final static DNAAlphabet SINGLETON = get(); 
 	
 	private static DNAAlphabet get() {
@@ -73,6 +75,11 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet implements
 	 */
 	public static final class DNAAlphabetParameterSet extends AlphabetParameterSet implements Singleton {
 
+		/**
+		 * The only instance of this class.
+		 * 
+		 * @see Singleton
+		 */
 		public final static DNAAlphabetParameterSet SINGLETON = get(); 
 		
 		private static DNAAlphabetParameterSet get() {

@@ -7,6 +7,11 @@ import de.jstacs.parameters.InstanceParameterSet;
 
 public final class DNAAlphabetContainer extends AlphabetContainer implements Singleton {
 	
+	/**
+	 * The only instance of this class.
+	 * 
+	 * @see Singleton
+	 */
 	public static final DNAAlphabetContainer SINGLETON = get();
 	
 	private static DNAAlphabetContainer get() {
@@ -26,6 +31,11 @@ public final class DNAAlphabetContainer extends AlphabetContainer implements Sin
 	
 	public final static class DNAAlphabetContainerParameterSet extends InstanceParameterSet<DNAAlphabetContainer> implements Singleton {
 
+		/**
+		 * The only instance of this class.
+		 * 
+		 * @see Singleton
+		 */
 		public static final DNAAlphabetContainerParameterSet SINGLETON = get();
 		
 		private static DNAAlphabetContainerParameterSet get() {
