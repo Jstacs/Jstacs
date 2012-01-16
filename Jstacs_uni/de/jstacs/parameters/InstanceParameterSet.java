@@ -91,8 +91,7 @@ public abstract class InstanceParameterSet<T extends InstantiableFromParameterSe
 	 * 
 	 * @see de.jstacs.io.ParameterSetParser
 	 */
-	public InstantiableFromParameterSet getInstance()
-			throws NotInstantiableException {
+	public T getInstance() throws NotInstantiableException {
 		return ParameterSetParser.getInstanceFromParameterSet(this);
 	}
 
@@ -132,8 +131,7 @@ public abstract class InstanceParameterSet<T extends InstantiableFromParameterSe
 	 * @see de.jstacs.parameters.ParameterSet#fromXML(java.lang.StringBuffer)
 	 */
 	@Override
-	protected void fromXML(StringBuffer representation)
-			throws NonParsableException {
+	protected void fromXML(StringBuffer representation) throws NonParsableException {
 		representation = XMLParser.extractForTag( representation, "instanceParameterSet" );
 		super.fromXML( XMLParser.extractForTag( representation, "superParameterSet" ) );
 		instanceClass = XMLParser.extractObjectForTags( representation, "instanceClass", Class.class );

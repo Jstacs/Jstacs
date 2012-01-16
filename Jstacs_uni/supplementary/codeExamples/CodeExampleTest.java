@@ -52,6 +52,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.GenericComplementableDiscreteAlphabet;
 import de.jstacs.data.bioJava.BioJavaAdapter;
@@ -498,7 +499,7 @@ public class CodeExampleTest {
 		DataSet data = new DNADataSet( home+"myfile.fa" ); 
 		
 		//create a DNA-alphabet
-		AlphabetContainer container = new AlphabetContainer( new DNAAlphabet() );
+		AlphabetContainer container = DNAAlphabetContainer.SINGLETON;
 		
 		//create a DataSet using the alphabet from above in FastA-format
 		data = new DataSet( container, new SparseStringExtractor( home+"myfile.fa", StringExtractor.FASTA ));

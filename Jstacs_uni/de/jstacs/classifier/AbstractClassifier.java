@@ -392,35 +392,6 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	public abstract boolean isInitialized();
 
 	/**
-	 * This method tries to set a new instance of an {@link AlphabetContainer}
-	 * for the current classifier. <br>
-	 * <b>This instance has to be consistent with the underlying instance of an
-	 * {@link AlphabetContainer}.</b>
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * This method can be very useful to save time.
-	 * 
-	 * @param abc
-	 *            the alphabets
-	 * 
-	 * @return <code>true</code> if the new {@link AlphabetContainer} could be
-	 *         set, <code>false</code> otherwise
-	 * 
-	 * @see AbstractClassifier#getAlphabetContainer()
-	 * @see AlphabetContainer#checkConsistency(AlphabetContainer)
-	 */
-	public boolean setNewAlphabetContainerInstance( AlphabetContainer abc ) {
-		if( abc.checkConsistency( alphabets ) ) {
-			alphabets = abc;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
 	 * Trains the {@link AbstractClassifier} object given the data as
 	 * {@link DataSet}s.<br>
 	 * This method should work non-incrementally. That means the result of the
@@ -438,7 +409,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 *            the data
 	 *            <ul>
 	 *            <li>either an array of {@link DataSet}s:
-	 *            <code>train( new Sample[]{s1,s2,s3})</code> or
+	 *            <code>train( new DataSet[]{s1,s2,s3})</code> or
 	 *            <li>an enumeration of {@link DataSet}s:
 	 *            <code>train(s1,s2,s3)</code>
 	 *            </ul>

@@ -36,7 +36,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import de.jstacs.InstantiableFromParameterSet;
+import de.jstacs.Singleton;
 import de.jstacs.io.RegExFilenameFilter;
+import de.jstacs.io.SingletonHandler;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSet;
@@ -163,11 +165,21 @@ public class SubclassFinder {
 		Constructor[] cons = clazz.getConstructors();
 		Class[] types = null;
 		LinkedList<Class<? extends InstanceParameterSet>> list = new LinkedList<Class<? extends InstanceParameterSet>>();
+		boolean add = false;
 		for( int i = 0; i < cons.length; i++ ) {
 			if( ( types = cons[i].getParameterTypes() ).length == 1 ) {
 				if( InstanceParameterSet.class.isAssignableFrom( types[0] ) ) {
 					list.add( types[0] );
+					add = true;
 				}
+			}
+		}
+		if( !add && Singleton.class.isAssignableFrom(clazz) ) {
+			try {
+				InstantiableFromParameterSet ifps = (InstantiableFromParameterSet)SingletonHandler.getSingelton((Class<? extends Singleton>) clazz);
+				list.add( ifps.getCurrentParameterSet().getClass() );
+			} catch ( Exception e ) {
+				throw new RuntimeException( e );
 			}
 		}
 		return list;
@@ -447,17 +459,27 @@ public class SubclassFinder {
 	 * @see SubclassFinder#findInstantiableSubclasses(Class, String)
 	 * @see SubclassFinder#filterBySuperclass(Class, LinkedList)
 	 */
-	public static <T> LinkedList<InstanceParameterSet> getInstanceParameterSets( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+	public static <T> LinkedList<InstanceParameterSet<? extends T>> getInstanceParameterSets( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
 		LinkedList<Class<? extends T>> classes = SubclassFinder.findInstantiableSubclasses( clazz, startPackage );
 		LinkedList<Class<? extends InstantiableFromParameterSet>> filteredClasses = SubclassFinder.filterBySuperclass( InstantiableFromParameterSet.class,
 				classes );
-		LinkedList<InstanceParameterSet> sets = new LinkedList<InstanceParameterSet>();
+		LinkedList<InstanceParameterSet<? extends T>> sets = new LinkedList<InstanceParameterSet<? extends T>>();
 		Iterator<Class<? extends InstantiableFromParameterSet>> it = filteredClasses.iterator();
 		Iterator<Class<? extends InstanceParameterSet>> psIt;
+		Class<? extends InstanceParameterSet> c;
 		while( it.hasNext() ) {
 			psIt = SubclassFinder.getParameterSetFor( it.next() ).iterator();
 			while( psIt.hasNext() ) {
-				sets.add( psIt.next().newInstance() );
+				c = psIt.next();
+				if( Singleton.class.isAssignableFrom(c) ) {
+					try {
+						sets.add( (InstanceParameterSet) SingletonHandler.getSingelton( (Class<? extends Singleton>) c ) );
+					} catch ( Exception e ) {
+						throw new RuntimeException( e );
+					}
+				} else {
+					sets.add( c.newInstance() );
+				}
 			}
 		}
 		return sets;

@@ -42,6 +42,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
@@ -374,7 +375,7 @@ public class DiscoveryComparator {
 		
 		//seqLogo, ...
 		public void createPlots( REnvironment r, boolean rc, String suffix ) throws Exception {
-			plotSeqLogo( r, HOME+"results/" + DATATYPE + "seqLogos/seqLogo-"+getName().replaceAll( "[\\._\\s]", "-" )+"-"+suffix+".pdf", rc? pwm : PFMComparator.getReverseComplement(new DNAAlphabet(), pwm) );
+			plotSeqLogo( r, HOME+"results/" + DATATYPE + "seqLogos/seqLogo-"+getName().replaceAll( "[\\._\\s]", "-" )+"-"+suffix+".pdf", rc? pwm : PFMComparator.getReverseComplement(DNAAlphabet.SINGLETON, pwm) );
 			if( d == Discoverer.Dispom ) {
 				plotPositionalDistribution( r, HOME+"results/" + DATATYPE + "positionalDistribution/pos-"+getName().replaceAll( "[\\._\\s]", "-" )+"-"+suffix+".pdf", md, truth );
 			}
@@ -554,7 +555,7 @@ public class DiscoveryComparator {
 				for(int in=0;in<infs.length;in++){
 					for(int gl=0;gl<2;gl++){
 						Discoverer.resetUsed();
-						AlphabetContainer con = new AlphabetContainer( new DNAAlphabet() );
+						AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
 						String prefix = prefixes[pr];
 						String org = orgs[pr];
 						String inf = infs[in], infix = inf + "";

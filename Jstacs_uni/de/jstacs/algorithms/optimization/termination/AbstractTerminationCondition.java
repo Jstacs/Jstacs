@@ -113,7 +113,7 @@ public abstract class AbstractTerminationCondition implements TerminationConditi
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static abstract class AbstractTerminationConditionParameterSet extends InstanceParameterSet {
+	public static abstract class AbstractTerminationConditionParameterSet extends InstanceParameterSet<AbstractTerminationCondition> {
 		
 		/**
 		 * Constructs an {@link AbstractTerminationConditionParameterSet} from the class that can be

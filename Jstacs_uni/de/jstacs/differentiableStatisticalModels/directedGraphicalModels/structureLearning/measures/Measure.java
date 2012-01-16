@@ -63,7 +63,7 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 	/* (non-Javadoc)
 	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
 	 */
-	public final InstanceParameterSet getCurrentParameterSet() throws Exception {
+	public final InstanceParameterSet<Measure> getCurrentParameterSet() throws Exception {
 		return parameters;
 	}
 	
@@ -706,7 +706,7 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static abstract class MeasureParameterSet extends InstanceParameterSet {
+	public static abstract class MeasureParameterSet extends InstanceParameterSet<Measure> {
 
 		protected MeasureParameterSet( Class<? extends Measure> clazz ) {
 			super( clazz );

@@ -246,21 +246,6 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#setNewAlphabetContainerInstance(de.jstacs.data.AlphabetContainer)
-	 */
-	@Override
-	public final boolean setNewAlphabetContainerInstance( AlphabetContainer abc ) {
-		if( super.setNewAlphabetContainerInstance( abc ) ) {
-			for( int i = 0; i < models.length; i++ ) {
-				models[i].setNewAlphabetContainerInstance( abc );
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/* (non-Javadoc)
 	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.Sample[], double[][])
 	 */
 	@Override
@@ -389,7 +374,7 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 		this.models = new TrainableStatisticalModel[models.length];
 		while( i < models.length ) {
 			l = models[i].getLength();
-			if( ( l != 0 && length != l ) || !models[i].setNewAlphabetContainerInstance( abc ) ) {
+			if( ( l != 0 && length != l ) || !models[i].getAlphabetContainer().checkConsistency( abc ) ) {
 				return -i;
 			}
 			if( clone ) {

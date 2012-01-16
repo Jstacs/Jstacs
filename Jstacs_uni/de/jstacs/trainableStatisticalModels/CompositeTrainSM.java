@@ -416,16 +416,4 @@ public class CompositeTrainSM extends AbstractTrainSM {
 		}
 		return erg;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#set(de.jstacs.data.AlphabetContainer)
-	 */
-	@Override
-	protected void set(AlphabetContainer abc) {
-		for (int i = 0; i < models.length; i++) {
-			models[i].setNewAlphabetContainerInstance(abc);
-		}
-	}
 }

@@ -172,6 +172,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 			this.parameters = (ParameterSet) value;
 			this.parameters.setParent(this);
 		} else {
+			System.out.println( value.getClass().getSimpleName() );
 			throw new IllegalValueException(
 					"Only parameter sets allowed for ParameterSetContainer!");
 		}

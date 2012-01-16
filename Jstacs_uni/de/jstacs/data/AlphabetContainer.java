@@ -281,7 +281,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	/**
 	 * The parameters for this instance.
 	 */
-	protected InstanceParameterSet<? extends AlphabetContainer> parameters;
+	protected AbstractAlphabetContainerParameterSet<?> parameters;
 
 	private double l;
 
@@ -440,10 +440,10 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 * @throws NotInstantiableException
 	 *             if an instance could not be created
 	 */
-	public AlphabetContainer( InstanceParameterSet<? extends AlphabetContainer> parameters ) throws IllegalArgumentException, DoubleSymbolException,
+	public AlphabetContainer( AlphabetContainerParameterSet parameters ) throws IllegalArgumentException, DoubleSymbolException,
 																		NotInstantiableException {
 		try {
-			this.parameters = (InstanceParameterSet<? extends AlphabetContainer>) parameters.clone();
+			this.parameters = parameters.clone();
 			ParameterSet alphSet = (ParameterSet)parameters.getParameterAt( 0 ).getValue();
 			if( alphSet instanceof AlphabetParameterSet ) {
 				// index = null;
@@ -697,9 +697,9 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	/* (non-Javadoc)
 	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
 	 */
-	public InstanceParameterSet<? extends AlphabetContainer> getCurrentParameterSet() throws Exception {
+	public AbstractAlphabetContainerParameterSet<? extends AlphabetContainer> getCurrentParameterSet() throws Exception {
 		if( parameters != null ) {
-			return (InstanceParameterSet<AlphabetContainer>) parameters.clone();
+			return parameters.clone();
 		} else {
 			if( isSimple() ) {
 				return new AlphabetContainerParameterSet( alphabet[0] );
@@ -1024,5 +1024,56 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 */
 	public int[] getIndexForAlphabets() {
 		return index == null ? null : index.clone();
+	}
+	
+	public static abstract class AbstractAlphabetContainerParameterSet<T extends AlphabetContainer> extends InstanceParameterSet<T> {
+
+		protected AbstractAlphabetContainerParameterSet( Class<? extends T> instanceClass ) {
+			super( instanceClass );
+		}
+		
+		protected AbstractAlphabetContainerParameterSet( StringBuffer xml ) throws NonParsableException {
+			super( xml );
+		}
+		
+		/**
+		 * Returns the length of the {@link AlphabetContainer} that can be instantiated using
+		 * this {@link ParameterSet}.
+		 * 
+		 * @return the length
+		 * 
+		 * @see AlphabetContainer#getPossibleLength()
+		 */
+		public abstract int getPossibleLength();
+
+		/**
+		 * Indicates if all positions use {@link DiscreteAlphabetParameterSet}, i.e.
+		 * if all {@link Alphabet}s of the corresponding {@link AlphabetContainer}
+		 * are discrete.
+		 * 
+		 * @return <code>true</code> if all positions are discrete,
+		 *         <code>false</code> otherwise
+		 *         
+		 * @see AlphabetContainer#isDiscrete()
+		 */
+		public abstract boolean isDiscrete();
+
+		/**
+		 * Indicates if all positions use the same {@link Alphabet}, i.e. if the
+		 * corresponding {@link AlphabetContainer} is simple.
+		 * 
+		 * @return <code>true</code> if all positions use the same {@link Alphabet},
+		 *         <code>false</code> otherwise
+		 */
+		public abstract boolean isSimple();
+		
+		/* (non-Javadoc)
+		 * @see de.jstacs.parameters.ParameterSet#clone()
+		 */
+		@SuppressWarnings("unchecked")
+		@Override
+		public AbstractAlphabetContainerParameterSet<T> clone() throws CloneNotSupportedException {
+			return (AbstractAlphabetContainerParameterSet<T>)super.clone();
+		}
 	}
 }

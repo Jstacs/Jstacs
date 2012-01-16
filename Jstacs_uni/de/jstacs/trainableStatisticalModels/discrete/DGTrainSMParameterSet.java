@@ -21,12 +21,11 @@ package de.jstacs.trainableStatisticalModels.discrete;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.AlphabetContainerParameterSet;
+import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 
@@ -36,7 +35,7 @@ import de.jstacs.parameters.validation.NumberValidator;
  * 
  * @author Jens Keilwagen
  */
-public abstract class DGTrainSMParameterSet extends SequenceScoringParameterSet {
+public abstract class DGTrainSMParameterSet<T extends DiscreteGraphicalTrainSM> extends SequenceScoringParameterSet<T> {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -73,7 +72,7 @@ public abstract class DGTrainSMParameterSet extends SequenceScoringParameterSet 
 	 * @see SequenceScoringParameterSet#SequenceScoringParameterSet(Class,
 	 *      AlphabetContainer.AlphabetContainerType, boolean, boolean)
 	 */
-	protected DGTrainSMParameterSet( Class<? extends DiscreteGraphicalTrainSM> instanceClass, boolean simple, boolean variableLength ) {
+	protected DGTrainSMParameterSet( Class<T> instanceClass, boolean simple, boolean variableLength ) {
 		super( instanceClass, AlphabetContainerType.DISCRETE, simple, variableLength );
 		addParameters();
 	}
@@ -97,7 +96,7 @@ public abstract class DGTrainSMParameterSet extends SequenceScoringParameterSet 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected DGTrainSMParameterSet( Class<? extends DiscreteGraphicalTrainSM> instanceClass, AlphabetContainer alphabet, double ess,
+	protected DGTrainSMParameterSet( Class<T> instanceClass, AlphabetContainer alphabet, double ess,
 								String description ) throws Exception {
 		this( instanceClass, alphabet, 0, true, ess, description );
 	}
@@ -123,12 +122,12 @@ public abstract class DGTrainSMParameterSet extends SequenceScoringParameterSet 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	protected DGTrainSMParameterSet( Class<? extends DiscreteGraphicalTrainSM> instanceClass, AlphabetContainer alphabet, int length, double ess,
+	protected DGTrainSMParameterSet( Class<T> instanceClass, AlphabetContainer alphabet, int length, double ess,
 								String description ) throws Exception {
 		this( instanceClass, alphabet, length, false, ess, description );
 	}
 
-	private DGTrainSMParameterSet( Class<? extends DiscreteGraphicalTrainSM> instanceClass, AlphabetContainer alphabet, int length,
+	private DGTrainSMParameterSet( Class<T> instanceClass, AlphabetContainer alphabet, int length,
 								boolean variableLength, double ess, String description ) throws Exception {
 		super( instanceClass, alphabet, length, variableLength );
 		addParameters();
@@ -159,8 +158,7 @@ public abstract class DGTrainSMParameterSet extends SequenceScoringParameterSet 
 	@Override
 	public boolean hasDefaultOrIsSet() {
 		if( super.hasDefaultOrIsSet() ) {
-			// return getAlphabet().isDiscrete();
-			return ( (AlphabetContainerParameterSet)alphabet.getValue() ).isDiscrete();
+			return ( (AbstractAlphabetContainerParameterSet)alphabet.getValue() ).isDiscrete();
 		} else {
 			return false;
 		}

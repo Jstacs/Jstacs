@@ -73,7 +73,7 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet implements
 	 * 
 	 * @author Jan Grau, Jens Keilwagen
 	 */
-	public static final class DNAAlphabetParameterSet extends AlphabetParameterSet implements Singleton {
+	public static final class DNAAlphabetParameterSet extends AlphabetParameterSet<DNAAlphabet> implements Singleton {
 
 		/**
 		 * The only instance of this class.

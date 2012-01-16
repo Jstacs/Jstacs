@@ -315,35 +315,4 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	 * @see AbstractTrainSM#AbstractTrainSM(StringBuffer)
 	 */
 	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
-
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.SequenceScore#setNewAlphabetContainerInstance(de.jstacs.data.AlphabetContainer)
-	 */
-	public final boolean setNewAlphabetContainerInstance(AlphabetContainer abc) {
-		if (abc.checkConsistency(alphabets)) {
-			set(abc);
-			alphabets = abc;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * This method should only be invoked by the method
-	 * {@link #setNewAlphabetContainerInstance(AlphabetContainer)} and <b>not be
-	 * made public</b>.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * It enables you to do more with the method
-	 * {@link #setNewAlphabetContainerInstance(AlphabetContainer)}, e.g. setting
-	 * a new {@link AlphabetContainer} instance for subcomponents.
-	 * 
-	 * @param abc
-	 *            the new instance
-	 */
-	protected void set(AlphabetContainer abc) {}
 }

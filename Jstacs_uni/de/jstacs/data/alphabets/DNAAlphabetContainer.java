@@ -3,7 +3,6 @@ package de.jstacs.data.alphabets;
 import de.jstacs.Singleton;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
-import de.jstacs.parameters.InstanceParameterSet;
 
 public final class DNAAlphabetContainer extends AlphabetContainer implements Singleton {
 	
@@ -29,7 +28,7 @@ public final class DNAAlphabetContainer extends AlphabetContainer implements Sin
 		parameters = DNAAlphabetContainerParameterSet.SINGLETON;
 	}
 	
-	public final static class DNAAlphabetContainerParameterSet extends InstanceParameterSet<DNAAlphabetContainer> implements Singleton {
+	public final static class DNAAlphabetContainerParameterSet extends AbstractAlphabetContainerParameterSet<DNAAlphabetContainer> implements Singleton {
 
 		/**
 		 * The only instance of this class.
@@ -63,8 +62,22 @@ public final class DNAAlphabetContainer extends AlphabetContainer implements Sin
 
 		@Override
 		public String getInstanceName() {
-			// TODO Auto-generated method stub
-			return null;
+			return "DNA alphabet container";
+		}
+
+		@Override
+		public int getPossibleLength() {
+			return 0;
+		}
+
+		@Override
+		public boolean isDiscrete() {
+			return true;
+		}
+
+		@Override
+		public boolean isSimple() {
+			return true;
 		}
 	}
 }

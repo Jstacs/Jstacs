@@ -555,7 +555,6 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
 	 */
 	public void train( DataSet data, double[] dataWeights ) throws Exception {
-		setNewAlphabetContainerInstance( data.getAlphabetContainer() );
 		sample = null;
 		System.gc();
 		setTrainData( data );
@@ -570,9 +569,6 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 				double[] p = weights.clone();
 				if( alternativeModel == null ) {
 					alternativeModel = ArrayHandler.clone( model );
-					for( i = 0; i < model.length; i++ ) {
-						alternativeModel[i].setNewAlphabetContainerInstance( alphabets );
-					}
 				}
 				for( i = 0; i < starts; i++ ) {
 					current = iterate( i, dataWeights, rg, params );
@@ -1778,16 +1774,6 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	 */
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#set(de.jstacs.data.AlphabetContainer)
-	 */
-	@Override
-	protected void set( AlphabetContainer abc ) {
-		for( int i = 0; i < model.length; i++ ) {
-			model[i].setNewAlphabetContainerInstance( abc );
-		}
-	}
-
 	/**
 	 * This method is used in the constructor and in the methods
 	 * {@link #clone()} and {@link #fromXML(StringBuffer)} to set all necessary
@@ -1803,7 +1789,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 		this.starts = starts;
 		AlphabetContainer abc = model[0].getAlphabetContainer();
 		for( ; i < model.length; i++ ) {
-			if( i != 0 && !model[i].setNewAlphabetContainerInstance( abc ) ) {
+			if( i != 0 && !model[i].getAlphabetContainer().checkConsistency( abc ) ) {
 				throw new WrongAlphabetException( "The models have to have the same alphabet like the AbstractMixtureTrainSM. Violated at position " + i
 													+ "." );
 			}

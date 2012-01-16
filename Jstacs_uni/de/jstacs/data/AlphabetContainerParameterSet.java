@@ -23,6 +23,7 @@ import java.util.LinkedList;
 
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
+import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
@@ -45,7 +46,7 @@ import de.jstacs.parameters.SimpleParameterSet;
  * 
  * @author Jan Grau
  */
-public class AlphabetContainerParameterSet extends InstanceParameterSet<AlphabetContainer> {
+public class AlphabetContainerParameterSet extends AbstractAlphabetContainerParameterSet<AlphabetContainer> {
 
 	private AlphabetContainerType type;
 
@@ -131,7 +132,7 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet<Alphabet
 		if( type == AlphabetContainerType.CONTINUOUS ) {
 			this.parameters.get( 0 ).setValue( alph.getCurrentParameterSet() );
 		} else {
-			InstanceParameterSet ap = alph.getCurrentParameterSet();
+			InstanceParameterSet<Alphabet> ap = alph.getCurrentParameterSet();
 			this.parameters.get( 0 ).setValue( ap );
 			( (SelectionParameter)this.parameters.get( 0 ) ).getParametersInCollection()
 					.getParameterAt( ( (SelectionParameter)this.parameters.get( 0 ) ).getSelected() )
@@ -197,16 +198,6 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet<Alphabet
 				.setValue( pars );
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.parameters.ParameterSet#clone()
-	 */
-	@Override
-	public AlphabetContainerParameterSet clone() throws CloneNotSupportedException {
-		AlphabetContainerParameterSet clone = (AlphabetContainerParameterSet)super.clone();
-
-		return clone;
-	}
-
 	/**
 	 * Indicates if all positions use {@link DiscreteAlphabetParameterSet}, i.e.
 	 * if all {@link Alphabet}s of the corresponding {@link AlphabetContainer}
@@ -219,13 +210,6 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet<Alphabet
 		return type == AlphabetContainerType.DISCRETE;
 	}
 
-	/**
-	 * Indicates if all positions use the same {@link Alphabet}, i.e. if the
-	 * corresponding {@link AlphabetContainer} is simple.
-	 * 
-	 * @return <code>true</code> if all positions use the same {@link Alphabet},
-	 *         <code>false</code> otherwise
-	 */
 	public boolean isSimple() {
 		return simple;
 	}
@@ -254,12 +238,6 @@ public class AlphabetContainerParameterSet extends InstanceParameterSet<Alphabet
 		simple = XMLParser.extractObjectForTags( representation, "simple", boolean.class );
 	}
 
-	/**
-	 * Returns the length of the {@link AlphabetContainer} that can be instantiated using
-	 * this {@link ParameterSet}.
-	 * 
-	 * @return the length
-	 */
 	public int getPossibleLength() {
 		Object o = parameters.get( 0 ).getValue();
 		if( o instanceof DNAAlphabetParameterSet || o instanceof DiscreteAlphabetParameterSet

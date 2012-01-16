@@ -34,7 +34,7 @@ import de.jstacs.parameters.validation.NumberValidator;
  * 
  * @author Jens Keilwagen
  */
-public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSet {
+public abstract class AbstractBurnInTestParameterSet extends InstanceParameterSet<AbstractBurnInTest> {
 
 	/**
 	 * Creates a new {@link AbstractBurnInTestParameterSet} with empty parameter values.

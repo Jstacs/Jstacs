@@ -53,6 +53,7 @@ import de.jstacs.data.RecyclableSequenceEnumerator;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
@@ -263,8 +264,7 @@ public class Dispom {
 		}
 		
 		//load data
-		DNAAlphabet dna = new DNAAlphabet();
-		AlphabetContainer con = new AlphabetContainer( dna );
+		AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
 		String home = params.getValueFromTag( DispomParameterSet.HOME, String.class );
 		char ignore = params.getValueFromTag( DispomParameterSet.IGNORE_CHAR, Character.class );
 
@@ -535,7 +535,7 @@ public class Dispom {
 				ArrayList<SimpleEntry<String, double[][]>> library = PFMComparator.readPFMsFromEMBL( transfac, Integer.MAX_VALUE );
 				
 				PFMDistance dist = new NormalizedEuclideanDistance();
-				ComparableElement<String, Double>[] ce = PFMComparator.find( dna, pfm, library, dist, 7, 2, true, 0.05 );
+				ComparableElement<String, Double>[] ce = PFMComparator.find( DNAAlphabet.SINGLETON, pfm, library, dist, 7, 2, true, 0.05 );
 				for( int i = 0; i < ce.length; i++ ) {
 					System.out.println( i + "\t" + ce[i].getWeight() + "\t" +ce[i].getElement() );
 				}

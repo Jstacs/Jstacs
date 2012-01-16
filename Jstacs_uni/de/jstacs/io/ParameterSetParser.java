@@ -255,7 +255,7 @@ public class ParameterSetParser {
 	 * @see InstanceParameterSet#getInstanceClass()
 	 * @see ParameterSetParser#getInstanceFromParameterSet(ParameterSet, Class)
 	 */
-	public static InstantiableFromParameterSet getInstanceFromParameterSet( InstanceParameterSet pars ) throws NotInstantiableException {
+	public static <T extends InstantiableFromParameterSet> T getInstanceFromParameterSet( InstanceParameterSet<T> pars ) throws NotInstantiableException {
 		return getInstanceFromParameterSet( pars, pars.getInstanceClass() );
 	}
 
@@ -276,7 +276,7 @@ public class ParameterSetParser {
 	 *             be found or cannot be instantiated from <code>pars</code>
 	 */
 	@SuppressWarnings( "unchecked" )
-	public static InstantiableFromParameterSet getInstanceFromParameterSet( ParameterSet pars, Class instanceClass ) throws NotInstantiableException {
+	public static <T extends InstantiableFromParameterSet> T getInstanceFromParameterSet( ParameterSet pars, Class<T> instanceClass ) throws NotInstantiableException {
 		if( instanceClass == null ) {
 			throw new NotInstantiableException( "An instance class must be specified." );
 		}
@@ -290,22 +290,25 @@ public class ParameterSetParser {
 				parClass = parClass.getSuperclass();
 			}
 		}
+		InstantiableFromParameterSet res;
 		if( construct == null ) {
 			if( Singleton.class.isAssignableFrom( instanceClass ) ) {
 				try {
-					return (InstantiableFromParameterSet) SingletonHandler.getSingelton( instanceClass );
+					res = (InstantiableFromParameterSet) SingletonHandler.getSingelton( (Class<? extends Singleton>) instanceClass );
 				} catch ( Exception e ) {
 					throw new NotInstantiableException( "You must provide a static field SINGELTON." );
 				}
+			} else {
+				throw new NotInstantiableException( "No appropriate constructor found for " + instanceClass );
 			}
-			throw new NotInstantiableException( "No appropriate constructor found." );
 		} else {
 			try {
-				return (InstantiableFromParameterSet)construct.newInstance( new Object[]{ pars } );
+				res = (InstantiableFromParameterSet)construct.newInstance( new Object[]{ pars } );
 			} catch ( Exception e ) {
 				throw new NotInstantiableException( e.getCause().getMessage() );
 			}
 		}
+		return (T) res;
 	}
 
 	/**
