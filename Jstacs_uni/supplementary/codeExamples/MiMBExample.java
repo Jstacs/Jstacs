@@ -16,17 +16,17 @@ import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSM;
-import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.BayesianNetworkDiffSMParameterSet;
-import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.ResultSet;
-import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
-import de.jstacs.trainableStatisticalModels.VariableLengthWrapperTrainSM;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.BayesianNetworkTrainSM;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.LearningType;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.ModelType;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSM;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.VariableLengthWrapperTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.BayesianNetworkTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.ModelType;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
 import de.jstacs.utils.REnvironment;
 
 

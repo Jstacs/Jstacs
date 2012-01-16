@@ -37,7 +37,6 @@ import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
-import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.SparseStringExtractor;
@@ -49,6 +48,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetTagger;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 
 /**
  * Discriminative de-novo position distribution and motif finder.

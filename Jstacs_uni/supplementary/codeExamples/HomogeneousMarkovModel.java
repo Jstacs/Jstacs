@@ -30,7 +30,7 @@ import de.jstacs.data.Sequence;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.trainableStatisticalModels.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
  
  
  

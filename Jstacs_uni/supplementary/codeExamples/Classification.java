@@ -28,10 +28,10 @@ import java.util.LinkedList;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
-import de.jstacs.differentiableStatisticalModels.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.io.FileManager;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.REnvironment;
 
