@@ -43,7 +43,6 @@ import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
-import de.jstacs.differentiableStatisticalModels.SamplingDifferentiableStatisticalModel;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.XMLParser;
@@ -52,6 +51,7 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.sampling.BurnInTest;
 import de.jstacs.sampling.SamplingComponent;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
 import de.jstacs.utils.Pair;
 
 /**
@@ -64,7 +64,7 @@ import de.jstacs.utils.Pair;
  * {@latex.ilb \\[ Q(\\vec{\\lambda}^{t}|\\vec{\\lambda}^{t-1}) = \\prod_{i} \\mathcal{N}(\\lambda_i^{t}|\\lambda_i^{t},\\sigma_i^2)\\]}
  * and {@latex.inline $\\sigma_i^2$} is the sampling variance for parameter {@latex.inline $\\lambda_i$}. The sampling variances are adapted to the
  * size of the event space of each parameter based on a class-dependent variance provided to the constructor. This adaption depends on the correct
- * implementation of {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)}. Let {@latex.inline $s_i$} be the size of the event space
+ * implementation of {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)}. Let {@latex.inline $s_i$} be the size of the event space
  * of the random variable of parameter {@latex.inline $\\lambda_i$}, and let {@latex.inline $\\sigma^{2}$} be the class-dependent variance for the {@link SamplingDifferentiableStatisticalModel}
  * that {@latex.inline $\\lambda_i$} is a parameter of. Then {@latex.inline $\\sigma_i:=\\sigma^{2}*s_i$}. If {@latex.inline $s_i=0$} then {@latex.inline $\\sigma_i:=\\sigma^{2}$}.
  * 

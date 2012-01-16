@@ -38,7 +38,7 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.MeanResultSet.AdditionImpossibleException;
 import de.jstacs.results.MeanResultSet.InconsistentResultNumberException;
-import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.utils.NullProgressUpdater;
 import de.jstacs.utils.ProgressUpdater;
 

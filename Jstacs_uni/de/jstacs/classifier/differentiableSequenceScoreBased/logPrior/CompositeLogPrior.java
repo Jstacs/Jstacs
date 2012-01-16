@@ -20,8 +20,8 @@ package de.jstacs.classifier.differentiableSequenceScoreBased.logPrior;
 
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
-import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.utils.Normalisation;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
 

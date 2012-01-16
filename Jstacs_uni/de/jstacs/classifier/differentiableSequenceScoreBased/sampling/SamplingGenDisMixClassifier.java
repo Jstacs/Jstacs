@@ -26,9 +26,9 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningP
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
-import de.jstacs.differentiableStatisticalModels.SamplingDifferentiableStatisticalModel;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sampling.BurnInTest;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
 
 /**
  * A classifier that samples its parameters from a {@link LogGenDisMixFunction} using the

@@ -24,17 +24,17 @@ import de.jstacs.algorithms.optimization.EvaluationException;
 
 /**
  * Class for a {@link LogPrior} that defines a Gaussian prior on the parameters
- * of a set of {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}s
+ * of a set of {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s
  * and a set of class parameters. The variances <code>v[i]</code> for a
  * parameter <code>i</code> of a
- * {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}
+ * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}
  * <code>fun[j]</code> are determined from the base variance <code>v[j]</code>
  * as<br />
  * <code>v[i] = v[j]*funs[j].getSizeOfEventSpaceForRandomVariablesOfParameter(j)</code>
  * . <br />
  * The variances for the class parameters are used as defined by the user. The
  * mean parameters are set to 0 for the parameters of the
- * {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}s and to the
+ * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s and to the
  * user-specified means for the class parameters.
  * 
  * @author Jan Grau, Jens Keilwagen
