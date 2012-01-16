@@ -99,7 +99,7 @@ public abstract class DAGTrainSM extends InhomogeneousDGTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#emitSample(int, int[])
+	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#emitDataSet(int, int[])
 	 */
 	@Override
 	public DataSet emitDataSet( int n, int... lengths ) throws NotTrainedException, Exception {

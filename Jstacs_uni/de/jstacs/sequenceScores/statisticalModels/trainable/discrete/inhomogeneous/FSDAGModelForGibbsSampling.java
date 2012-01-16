@@ -232,7 +232,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGTrainSM implements GibbsSam
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.DAGTrainSM#drawParameters(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.DAGTrainSM#drawParameters(de.jstacs.data.DataSet, double[])
 	 */
 	@Override
 	public void drawParameters( DataSet data, double[] weights ) throws Exception {
@@ -325,7 +325,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGTrainSM implements GibbsSam
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM#drawParameters(de.jstacs.data.Sample, double[], int[][])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM#drawParameters(de.jstacs.data.DataSet, double[], int[][])
 	 */
 	@Override
 	public void drawParameters( DataSet data, double[] weights, int[][] graph ) throws Exception {
@@ -336,7 +336,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGTrainSM implements GibbsSam
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM#train(de.jstacs.data.DataSet, double[])
 	 */
 	@Override
 	public void train( DataSet data, double[] weights ) throws Exception {
@@ -347,7 +347,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGTrainSM implements GibbsSam
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM#train(de.jstacs.data.Sample, double[], int[][])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM#train(de.jstacs.data.DataSet, double[], int[][])
 	 */
 	@Override
 	public void train( DataSet data, double[] weights, int[][] graph ) throws Exception {

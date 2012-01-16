@@ -105,7 +105,7 @@ public class PMMMutualInformation extends Measure {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure#getParents(de.jstacs.data.Sample, de.jstacs.data.Sample, double[], double[], int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure#getParents(de.jstacs.data.DataSet, de.jstacs.data.DataSet, double[], double[], int)
 	 */
 	@Override
 	public int[][] getParents(DataSet fg, DataSet bg, double[] weightsFg,

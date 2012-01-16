@@ -262,9 +262,9 @@ public final class KMereStatistic {
 	 *            forward strand <code>false</code>. If <code>true</code>
 	 *            for each <code>k</code>-mer only this <code>k</code>-mere
 	 *            or its reverse complement is contained in the returned
-	 *            WeightedSampleFactory.
+	 *            {@link de.jstacs.data.DataSet.WeightedDataSetFactory}.
 	 * 
-	 * @return a WeightedSampleFactory containing all <code>k</code>-mers and
+	 * @return a {@link de.jstacs.data.DataSet.WeightedDataSetFactory} containing all <code>k</code>-mers and
 	 *         their absolute frequencies in <code>data</code> respectively on
 	 *         one strand of the <code>data</code>
 	 * 
@@ -292,11 +292,11 @@ public final class KMereStatistic {
 	 *            forward strand <code>false</code>. If <code>true</code>
 	 *            for each <code>k</code>-mer only this <code>k</code>-mere
 	 *            or its reverse complement is contained in the returned
-	 *            WeightedSampleFactory.
+	 *            {@link de.jstacs.data.DataSet.WeightedDataSetFactory}.
 	 * @param sortOp
 	 * 			  the way how the result should be sorted
 	 * 
-	 * @return a WeightedSampleFactory containing all <code>k</code>-mers and
+	 * @return a {@link de.jstacs.data.DataSet.WeightedDataSetFactory} containing all <code>k</code>-mers and
 	 *         their absolute frequencies in <code>data</code> respectively on
 	 *         one strand of the <code>data</code>
 	 * 
@@ -335,7 +335,7 @@ public final class KMereStatistic {
 	 *            forward strand <code>false</code>. If <code>true</code>
 	 *            for each <code>k</code>-mer only this <code>k</code>-mere
 	 *            or its reverse complement is contained in the returned
-	 *            WeightedSampleFactory.
+	 *            {@link de.jstacs.data.DataSet.WeightedDataSetFactory}.
 	 * @param addIndex
 	 *            the maximal index for inserting new k-meres 
 	 * 
@@ -415,7 +415,7 @@ public final class KMereStatistic {
 	 *            forward strand <code>false</code>. If <code>true</code>
 	 *            for each <code>k</code>-mer only this <code>k</code>-mere
 	 *            or its reverse complement is contained in the returned
-	 *            WeightedSampleFactory.
+	 *            {@link de.jstacs.data.DataSet.WeightedDataSetFactory}.
 	 * @param maxMismatch
 	 *            the maximal number of mismatches
 	 * @param filter

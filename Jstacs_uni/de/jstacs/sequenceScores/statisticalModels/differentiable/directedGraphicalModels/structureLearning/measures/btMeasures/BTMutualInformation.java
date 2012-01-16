@@ -126,7 +126,7 @@ public class BTMutualInformation extends Measure {
 	 * 
 	 * @see
 	 * de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.
-	 * measures.Measure#getParents(de.jstacs.data.Sample, de.jstacs.data.Sample,
+	 * measures.Measure#getParents(de.jstacs.data.DataSet, de.jstacs.data.DataSet,
 	 * double[], double[], int)
 	 */
 	@Override

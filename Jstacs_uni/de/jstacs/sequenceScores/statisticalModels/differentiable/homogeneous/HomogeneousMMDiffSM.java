@@ -417,7 +417,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 * (non-Javadoc)
 	 * 
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int,
-	 * boolean, de.jstacs.data.Sample[], double[][])
+	 * boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	public void initializeFunction(int index, boolean freeParams,
 			DataSet[] data, double[][] weights) {
@@ -848,9 +848,9 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 * 
 	 * There are 2 different possibilities to create a {@link DataSet}:
 	 * <ol>
-	 * <li> <code>emitSample( int n, int l )</code> returns a {@link DataSet} with
+	 * <li> <code>emitDataSet( int n, int l )</code> returns a {@link DataSet} with
 	 * <code>n</code> sequences of length <code>l</code>.
-	 * <li> <code>emitSample( int n, int[] l )</code> should return a
+	 * <li> <code>emitDataSet( int n, int[] l )</code> should return a
 	 * {@link DataSet} with <code>n</code> sequences which have a sequence length
 	 * corresponding to the entry in the array.
 	 * </ol>

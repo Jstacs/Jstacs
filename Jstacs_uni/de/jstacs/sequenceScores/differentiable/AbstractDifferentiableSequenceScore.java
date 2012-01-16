@@ -235,7 +235,7 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.Sample)
+	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.DataSet)
 	 */
 	public double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] res = new double[data.getNumberOfElements()];
@@ -245,7 +245,7 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.DataSet, double[])
 	 */
 	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if (res.length != data.getNumberOfElements()) {

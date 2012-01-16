@@ -495,7 +495,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#setTrainData(de.jstacs.data.Sample)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#setTrainData(de.jstacs.data.DataSet)
 	 */
 	@Override
 	public void setTrainData( DataSet s ) throws Exception {
@@ -592,7 +592,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#emitSampleUsingCurrentParameterSet(int, int[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#emitDataSetUsingCurrentParameterSet(int, int[])
 	 */
 	@Override
 	protected Sequence[] emitDataSetUsingCurrentParameterSet( int n, int... lengths ) throws NotTrainedException, Exception {

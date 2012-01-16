@@ -202,7 +202,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 	 * (non-Javadoc)
 	 * 
 	 * @seede.jstacs.scoringFunctions.mix.AbstractMixtureScoringFunction#
-	 * initializeUsingPlugIn(int, boolean, de.jstacs.data.Sample[], double[][])
+	 * initializeUsingPlugIn(int, boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	protected void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {

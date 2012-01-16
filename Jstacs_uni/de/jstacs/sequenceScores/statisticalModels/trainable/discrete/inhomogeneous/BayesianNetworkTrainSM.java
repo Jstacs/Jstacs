@@ -110,7 +110,7 @@ public class BayesianNetworkTrainSM extends DAGTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet, double[])
 	 */
 	public void train( DataSet data, double[] weights ) throws Exception {
 		createConstraints( sl.getStructure( data, weights, getModel(), getMaximalMarkovOrder(), getMethod() ) );

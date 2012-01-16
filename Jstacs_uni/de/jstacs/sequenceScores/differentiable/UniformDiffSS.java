@@ -205,7 +205,7 @@ public class UniformDiffSS extends AbstractDifferentiableSequenceScore {
 	 * (non-Javadoc)
 	 * 
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int,
-	 * boolean, de.jstacs.data.Sample[], double[][])
+	 * boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	public void initializeFunction( int index, boolean meila, DataSet[] data, double[][] weights ) {
 		// does nothing

@@ -138,7 +138,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample)
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet)
 	 */
 	public void train(DataSet data) throws Exception {
 		train(data, null);
@@ -237,7 +237,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.Sample)
+	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.DataSet)
 	 */
 	public double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] res = new double[data.getNumberOfElements()];
@@ -247,7 +247,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.SequenceScore#getLogScoreFor(de.jstacs.data.DataSet, double[])
 	 */
 	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if (res.length != data.getNumberOfElements()) {
@@ -261,10 +261,10 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.StatisticalModel#emitSample(int, int[])
+	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int[])
 	 */
 	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
-		throw new Exception( "Standard implementation of emitSample used for "
+		throw new Exception( "Standard implementation of emitDataSet used for "
 						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
 	}
 

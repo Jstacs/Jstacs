@@ -415,7 +415,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#initializeMotif(int, de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#initializeMotif(int, de.jstacs.data.DataSet, double[])
 	 */
 	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception {
 		fillMotifIndexArray( motifIndex );
@@ -699,7 +699,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 */
 	@Override
 	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
-		throw new Exception( "Standard implementation of emitSample used for "
+		throw new Exception( "Standard implementation of emitDataSet used for "
 						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
 	}
 	

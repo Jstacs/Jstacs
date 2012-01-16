@@ -835,7 +835,7 @@ public abstract class AbstractHMM extends AbstractTrainSM implements Cloneable, 
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample)
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet)
 	 */
 	public void train(DataSet data) throws Exception {
 		train( data, null );

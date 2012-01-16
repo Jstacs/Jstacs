@@ -120,7 +120,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#train(de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#train(de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	public void train( DataSet[] data, double[][] weights ) throws IllegalArgumentException, Exception {
