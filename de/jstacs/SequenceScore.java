@@ -190,24 +190,4 @@ public interface SequenceScore extends Cloneable, Storable {
 	 *         otherwise
 	 */
 	public boolean isInitialized();
-	
-	/**
-	 * This method tries to set a new instance of an {@link AlphabetContainer}
-	 * for the current model. <b>This instance has to be consistent with the
-	 * underlying instance of an {@link AlphabetContainer}.</b>
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * This method can be very useful to save time.
-	 * 
-	 * @param abc
-	 *            the alphabets in an {@link AlphabetContainer}
-	 * 
-	 * @return <code>true</code> if the new instance could be set
-	 * 
-	 * @see #getAlphabetContainer()
-	 * @see AlphabetContainer#checkConsistency(AlphabetContainer)
-	 */
-	public boolean setNewAlphabetContainerInstance(AlphabetContainer abc);
 }

@@ -33,6 +33,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
@@ -89,8 +90,7 @@ public class DispomPredictor {
 		}
 		
 		//load data
-		DNAAlphabet dna = new DNAAlphabet();
-		AlphabetContainer con = new AlphabetContainer( dna );
+		AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
 		String home = params.getValueFromTag( DispomPredictorParameterSet.HOME, String.class );
 		char ignore = params.getValueFromTag( DispomPredictorParameterSet.IGNORE_CHAR, Character.class );
 
@@ -177,7 +177,7 @@ public class DispomPredictor {
 		}
 		System.out.println();
 		for(int j=0;j<pfm[0].length;j++){
-			System.out.print(dna.getSymbolAt( j ));
+			System.out.print(DNAAlphabet.SINGLETON.getSymbolAt( j ));
 			for(int i=0;i<pfm.length;i++){
 				System.out.print("\t"+pfm[i][j]);
 			}
@@ -192,7 +192,7 @@ public class DispomPredictor {
 		System.out.println();
 		double s = list.size();
 		for(int j=0;j<pfm[0].length;j++){
-			System.out.print(dna.getSymbolAt( j ));
+			System.out.print(DNAAlphabet.SINGLETON.getSymbolAt( j ));
 			for(int i=0;i<pfm.length;i++){
 				System.out.print("\t"+(pfm[i][j]/s));
 			}

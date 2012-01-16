@@ -20,8 +20,6 @@ package de.jstacs.trainableStatisticalModels;
 
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.io.ParameterSetParser.NotInstantiableException;
-import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.trainableStatisticalModels.discrete.homogeneous.HomogeneousMM;
 import de.jstacs.trainableStatisticalModels.discrete.homogeneous.parameters.HomMMParameterSet;
 import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.BayesianNetworkTrainSM;
@@ -44,10 +42,6 @@ import de.jstacs.trainableStatisticalModels.mixture.motif.ZOOPSTrainSM;
  * @author Jens Keilwagen
  */
 public class TrainableStatisticalModelFactory {
-
-	private static AbstractTrainSM getModelFromParameterSet( SequenceScoringParameterSet ps ) throws NotInstantiableException {
-		return (AbstractTrainSM) ps.getInstance();
-	}
 	
 	/**
 	 * This method returns a position weight matrix (PWM). A PWM assumes that all positions of a sequence are statistically independent.
@@ -62,12 +56,12 @@ public class TrainableStatisticalModelFactory {
 	 */
 	public static FSDAGTrainSM createPWM( AlphabetContainer con, int length, double ess ) throws Exception {
 		FSDAGMParameterSet ps = new FSDAGMParameterSet( con, length, ess, null, "" );
-		return (FSDAGTrainSM) getModelFromParameterSet( ps );
+		return (FSDAGTrainSM) ps.getInstance();
 	}
 	
 	private static BayesianNetworkTrainSM createBN( AlphabetContainer con, int length, double ess, ModelType type, byte order ) throws Exception {
 		BayesianNetworkTrainSMParameterSet ps = new BayesianNetworkTrainSMParameterSet( con, length, ess, null, type, order, LearningType.ML_OR_MAP );
-		return (BayesianNetworkTrainSM) getModelFromParameterSet( ps );
+		return (BayesianNetworkTrainSM) ps.getInstance();
 	}
 
 	/**
@@ -131,7 +125,7 @@ public class TrainableStatisticalModelFactory {
 	 */
 	public static HomogeneousMM createHomogeneousMarkovModel( AlphabetContainer con, double ess, byte order ) throws Exception {
 		HomMMParameterSet ps = new HomMMParameterSet( con, ess, null, order );
-		return (HomogeneousMM) getModelFromParameterSet( ps );
+		return (HomogeneousMM) ps.getInstance();
 	}
 	
 	/**

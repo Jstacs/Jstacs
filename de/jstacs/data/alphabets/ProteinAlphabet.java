@@ -60,25 +60,12 @@ public final class ProteinAlphabet extends DiscreteAlphabet implements Singleton
 		this.parameters = ProteinAlphabetParameterSet.SINGLETON;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.data.alphabets.ComplementableDiscreteAlphabet#getCurrentParameterSet()
-	 */
-	@Override
-	public AlphabetParameterSet getCurrentParameterSet() throws Exception {
-		if( this.parameters == null ) {
-			return new ProteinAlphabetParameterSet();
-		} else {
-			return this.parameters;
-		}
-	}
-
 	/**
 	 * The parameter set for a {@link ProteinAlphabet}.
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static final class ProteinAlphabetParameterSet extends AlphabetParameterSet implements Singleton {
+	public static final class ProteinAlphabetParameterSet extends AlphabetParameterSet<ProteinAlphabet> implements Singleton {
 
 		/**
 		 * The only instance of this class.

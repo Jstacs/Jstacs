@@ -210,7 +210,7 @@ public class DispomEvaluator {
 			int last = fName[0].lastIndexOf( "/" );
 			for( int m = 0; m < pwm.length; m++ ) {
 						
-				DNAAlphabet dna = new DNAAlphabet();
+				DNAAlphabet dna = DNAAlphabet.SINGLETON;
 				
 				//parameters
 				System.out.println( "parameter PWM" );

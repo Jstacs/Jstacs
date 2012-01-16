@@ -29,8 +29,7 @@ import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
  * 
  * @author Jens Keilwagen
  */
-public class GenericComplementableDiscreteAlphabet extends
-		ComplementableDiscreteAlphabet {
+public class GenericComplementableDiscreteAlphabet extends ComplementableDiscreteAlphabet {
 
 	private int[] comp;
 	

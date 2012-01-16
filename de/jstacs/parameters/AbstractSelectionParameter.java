@@ -265,6 +265,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		try {
 			setDefault( pars[0].getName() );
 		} catch (Exception doesNotHappen) {
+			System.out.println( pars[0] );
 			throw new RuntimeException( doesNotHappen );
 		}
 	}

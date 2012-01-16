@@ -73,7 +73,7 @@ public abstract class Alphabet implements Storable, InstantiableFromParameterSet
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static abstract class AlphabetParameterSet extends InstanceParameterSet {
+	public static abstract class AlphabetParameterSet<T extends Alphabet> extends InstanceParameterSet<T> {
 
 		/**
 		 * Creates a new {@link AlphabetParameterSet} from the class that can be
@@ -84,7 +84,7 @@ public abstract class Alphabet implements Storable, InstantiableFromParameterSet
 		 * 
 		 * @see InstanceParameterSet#InstanceParameterSet(Class)
 		 */
-		public AlphabetParameterSet( Class<? extends Alphabet> instanceClass ) {
+		public AlphabetParameterSet( Class<T> instanceClass ) {
 			super( instanceClass );
 		}
 

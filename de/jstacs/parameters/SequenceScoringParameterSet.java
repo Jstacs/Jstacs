@@ -19,13 +19,22 @@
 
 package de.jstacs.parameters;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import de.jstacs.DataType;
+import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.NonParsableException;
+import de.jstacs.Singleton;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainerParameterSet;
+import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.io.SingletonHandler;
 import de.jstacs.io.XMLParser;
+import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.validation.NumberValidator;
+import de.jstacs.utils.SubclassFinder;
 
 /**
  * Abstract class for a {@link ParameterSet} containing all parameters necessary
@@ -42,7 +51,7 @@ import de.jstacs.parameters.validation.NumberValidator;
  * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM
  * @see de.jstacs.classifier.AbstractClassifier
  */
-public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
+public abstract class SequenceScoringParameterSet<T extends InstantiableFromParameterSet> extends InstanceParameterSet<T> {
 
 	/**
 	 * The alphabet the model works on
@@ -74,7 +83,7 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	 * 
 	 * @see AlphabetContainerType
 	 */
-	public SequenceScoringParameterSet(Class instanceClass,
+	public SequenceScoringParameterSet(Class<T> instanceClass,
 			AlphabetContainerType type, boolean simple) {
 		this(instanceClass, type, simple, false);
 	}
@@ -97,14 +106,28 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	 * 
 	 * @see AlphabetContainerType
 	 */
-	public SequenceScoringParameterSet(Class instanceClass,
+	public SequenceScoringParameterSet(Class<T> instanceClass,
 			AlphabetContainerType type, boolean simple, boolean variableLength) {
 		super(instanceClass);
 		this.variableLength = variableLength;
 		try {
-			this.alphabet = new ParameterSetContainer("Alphabet",
-					"The alphabet the model works on",
-					new AlphabetContainerParameterSet(type, simple));
+			LinkedList<InstanceParameterSet<? extends AlphabetContainer>> list = SubclassFinder.getInstanceParameterSets(AlphabetContainer.class, AlphabetContainer.class.getPackage().getName() );
+			InstanceParameterSet[] ps = new InstanceParameterSet[list.size()];
+			Iterator<InstanceParameterSet<? extends AlphabetContainer>> it = list.iterator();
+			InstanceParameterSet p;
+			int i = 0;
+			while( it.hasNext() ) {
+				p = it.next();
+				if( Singleton.class.isAssignableFrom( p.getClass() ) ) {
+					ps[i] = p;
+				} else {
+					Class<? extends InstanceParameterSet> c = p.getClass();
+					ps[i] = c.getConstructor( AlphabetContainerType.class, boolean.class ).newInstance( type, simple );
+				}
+				i++;
+			}
+			this.alphabet = new SelectionParameter( "Alphabet", "The alphabet the model works on", true, ps );
+			
 			if (variableLength) {
 				this.length = new SimpleParameter(DataType.INT, "Length",
 						"The length of sequences the model can work on", true,
@@ -159,7 +182,7 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	 *             if the alphabets or the length are not in the expected range
 	 *             of values
 	 */
-	public SequenceScoringParameterSet(Class instanceClass,
+	public SequenceScoringParameterSet(Class<T> instanceClass,
 			AlphabetContainer alphabet, int length, boolean variableLength)
 			throws Exception {
 		this(instanceClass, alphabet.getType(), alphabet.isSimple(),
@@ -189,8 +212,7 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	 *             of values
 	 * 
 	 */
-	public SequenceScoringParameterSet(Class instanceClass,
-			AlphabetContainer alphabet) throws Exception {
+	public SequenceScoringParameterSet(Class<T> instanceClass, AlphabetContainer alphabet) throws Exception {
 		this(instanceClass, alphabet, 0, true);
 	}
 
@@ -209,8 +231,7 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 			// AlphabetContainer abc = getAlphabet();
 			int l = 0;
 			if (alphabet != null) {
-				l = ((AlphabetContainerParameterSet) alphabet.getValue())
-						.getPossibleLength();
+				l = ((AbstractAlphabetContainerParameterSet) alphabet.getValue()).getPossibleLength();
 			}
 			erg &= l == 0 || ((Integer) length.getValue()).intValue() == l;
 			if (!erg) {
@@ -239,12 +260,9 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	 */
 	public AlphabetContainer getAlphabetContainer() {
 		try {
-			AlphabetContainer cont = new AlphabetContainer(
-					(AlphabetContainerParameterSet) alphabet.getValue());
-			return cont;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			return ((AbstractAlphabetContainerParameterSet<?>) alphabet.getValue()).getInstance();
+		} catch (NotInstantiableException e) {
+			throw new RuntimeException( e );
 		}
 	}
 
@@ -279,12 +297,7 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 		representation = XMLParser.extractForTag( representation, "sequenceScoringParameterSet" );
 		super.fromXML(XMLParser.extractForTag( representation, "superParameters" ));
 		variableLength = XMLParser.extractObjectForTags( representation, "variableLength", boolean.class );
-		StringBuffer alphStringB = XMLParser.extractForTag( representation, "alphabet" );
-		if (alphStringB == null) {
-			alphabet = null;
-		} else {
-			alphabet = new ParameterSetContainer(alphStringB);
-		}
+		alphabet = (Parameter) XMLParser.extractObjectForTags( representation, "alphabet" );
 		length = new SimpleParameter(XMLParser.extractForTag(representation,"length"));
 	}
 
@@ -334,9 +347,7 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 		StringBuffer buf = super.toXML();
 		XMLParser.addTags( buf, "superParameters" );
 		XMLParser.appendObjectWithTags(buf, variableLength, "variableLength");
-		if (alphabet != null) {
-			XMLParser.appendObjectWithTags(buf, alphabet, "alphabet");
-		}
+		XMLParser.appendObjectWithTags(buf, alphabet, "alphabet");
 		XMLParser.appendObjectWithTags(buf, length, "length");
 		XMLParser.addTags(buf, "sequenceScoringParameterSet");
 
@@ -372,11 +383,10 @@ public abstract class SequenceScoringParameterSet extends InstanceParameterSet {
 	 * 
 	 * @see de.jstacs.parameters.ParameterSet#clone()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public SequenceScoringParameterSet clone()
-			throws CloneNotSupportedException {
-		SequenceScoringParameterSet res = (SequenceScoringParameterSet) super
-				.clone();
+	public SequenceScoringParameterSet<T> clone() throws CloneNotSupportedException {
+		SequenceScoringParameterSet<T> res = (SequenceScoringParameterSet<T>) super.clone();
 		res.alphabet = alphabet.clone();
 		res.length = length.clone();
 		return res;

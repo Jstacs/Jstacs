@@ -371,7 +371,7 @@ public class DiscreteAlphabet extends Alphabet {
 	 * @author Jan Grau
 	 */
 	public static class DiscreteAlphabetParameterSet extends AlphabetParameterSet {
-
+		
 		/**
 		 * This constructor should only be used for parameter sets that are intended to created subclasses of {@link DiscreteAlphabet}. 
 		 * 

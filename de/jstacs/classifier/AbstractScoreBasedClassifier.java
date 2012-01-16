@@ -408,7 +408,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		if( length != 0 && s.getElementLength() != length ) {
 			throw new IllegalArgumentException( "The sequences have not the correct length." );
 		}
-		if( !setNewAlphabetContainerInstance( s.getAlphabetContainer() ) ) {
+		if( !getAlphabetContainer().checkConsistency( s.getAlphabetContainer() ) ) {
 			throw new IllegalArgumentException( "The sequences are not defined over the correct alphabets." );
 		}
 	}

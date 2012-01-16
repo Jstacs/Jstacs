@@ -21,8 +21,7 @@ package de.jstacs.trainableStatisticalModels.discrete.homogeneous.parameters;
 import de.jstacs.DataType;
 import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.AlphabetContainerParameterSet;
-import de.jstacs.parameters.ParameterException;
+import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.validation.NumberValidator;
@@ -120,7 +119,7 @@ public abstract class HomogeneousTrainSMParameterSet extends DGTrainSMParameterS
 	public boolean hasDefaultOrIsSet() {
 		if( super.hasDefaultOrIsSet() ) {
 			//return getAlphabet().isSimple();
-			return ( (AlphabetContainerParameterSet)alphabet.getValue() ).isSimple();
+			return ( (AbstractAlphabetContainerParameterSet)alphabet.getValue() ).isSimple();
 		} else {
 			return false;
 		}
