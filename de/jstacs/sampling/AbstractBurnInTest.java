@@ -111,7 +111,7 @@ public abstract class AbstractBurnInTest implements BurnInTest, InstantiableFrom
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#resetAllValues()
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.gibbssampling.BurnInTest#resetAllValues()
 	 */
 	public final void resetAllValues() {
 		currentSamplingIndex = -1;
@@ -122,14 +122,14 @@ public abstract class AbstractBurnInTest implements BurnInTest, InstantiableFrom
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#setCurrentSamplingIndex(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.gibbssampling.BurnInTest#setCurrentSamplingIndex(int)
 	 */
 	public final void setCurrentSamplingIndex( int index ) {
 		currentSamplingIndex = index;
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#setValue(double)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.gibbssampling.BurnInTest#setValue(double)
 	 */
 	public final void setValue( double val ) {
 		values[currentSamplingIndex].add( val );
@@ -191,7 +191,7 @@ public abstract class AbstractBurnInTest implements BurnInTest, InstantiableFrom
 	protected abstract void setFurtherInformation( StringBuffer xml ) throws NonParsableException;
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.mixture.gibbssampling.BurnInTest#getLengthOfBurnIn()
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.gibbssampling.BurnInTest#getLengthOfBurnIn()
 	 */
 	public final int getLengthOfBurnIn() {
 		if( !computed ) {

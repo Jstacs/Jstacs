@@ -34,7 +34,7 @@ import de.jstacs.io.XMLParser;
 
 /**
  * {@link Result} that contains a {@link DataSet}. This {@link DataSet} e.g. may
- * have been created by {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)},
+ * have been created by {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)},
  * or maybe a {@link DataSet} that has been annotated in a classification.
  * 
  * @author Jan Grau
