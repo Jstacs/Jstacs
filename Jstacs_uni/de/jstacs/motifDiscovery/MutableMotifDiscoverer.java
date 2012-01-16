@@ -60,12 +60,12 @@ public interface MutableMotifDiscoverer extends MotifDiscoverer {
 	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception;
 	
 	/**
-	 * This method initializes the motif with index <code>motif</code> randomly using for instance {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel#initializeFunctionRandomly(boolean)}.
+	 * This method initializes the motif with index <code>motif</code> randomly using for instance {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#initializeFunctionRandomly(boolean)}.
 	 * Furthermore, if available, it also initializes the positional distribution.
 	 *  
 	 * @param motif the index of the motif
 	 * 
-	 * @throws Exception either if the index is wrong or if it is thrown by the method {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel#initializeFunctionRandomly(boolean)}
+	 * @throws Exception either if the index is wrong or if it is thrown by the method {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#initializeFunctionRandomly(boolean)}
 	 */
 	public void initializeMotifRandomly( int motif ) throws Exception;
 	

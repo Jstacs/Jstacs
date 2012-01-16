@@ -37,11 +37,11 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.RecyclableSequenceEnumerator;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
-import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
 import de.jstacs.motifDiscovery.history.History;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.SafeOutputStream;
 

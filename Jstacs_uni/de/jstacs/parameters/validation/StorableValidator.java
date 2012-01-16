@@ -24,12 +24,12 @@ import de.jstacs.Storable;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;
-import de.jstacs.trainableStatisticalModels.AbstractTrainSM;
-import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 
 /**
  * Class for a validator that validates instances and XML representations for
- * the correct class types (e.g. {@link de.jstacs.trainableStatisticalModels.AbstractTrainSM}).
+ * the correct class types (e.g. {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM}).
  * 
  * @author Jan Grau
  */
