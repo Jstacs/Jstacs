@@ -198,7 +198,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#getResults(de.jstacs.data.Sample[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
+	 * @see de.jstacs.classifier.AbstractClassifier#getResults(de.jstacs.data.DataSet[], de.jstacs.classifier.MeasureParameters, boolean, boolean)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
