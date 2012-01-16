@@ -104,7 +104,7 @@ public abstract class AbstractOptimizableFunction extends OptimizableFunction {
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction#setDataAndWeights(de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction#setDataAndWeights(de.jstacs.data.DataSet[], double[][])
 	 */
 	public void setDataAndWeights( DataSet[] data, double[][] weights ) throws IllegalArgumentException {
 		if( data.length != cl || weights == null || weights.length != cl ) {

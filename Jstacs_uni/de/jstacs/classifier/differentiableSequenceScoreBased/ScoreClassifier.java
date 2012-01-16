@@ -239,7 +239,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	public void train( DataSet[] data, double[][] weights ) throws Exception {

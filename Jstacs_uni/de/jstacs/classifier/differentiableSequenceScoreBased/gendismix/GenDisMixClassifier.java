@@ -213,7 +213,7 @@ public class GenDisMixClassifier extends ScoreClassifier
 			return new LogGenDisMixFunction( p.getNumberOfThreads(), score,
 				data, weights, prior, beta, p.shouldBeNormalized(), p.useOnlyFreeParameter() );
 		} else {
-			return new OneSampleLogGenDisMixFunction( p.getNumberOfThreads(), score,
+			return new OneDataSetLogGenDisMixFunction( p.getNumberOfThreads(), score,
 				data[0], weights, prior, beta, p.shouldBeNormalized(), p.useOnlyFreeParameter() );
 		}
 	}

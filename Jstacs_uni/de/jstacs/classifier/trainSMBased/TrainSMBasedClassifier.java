@@ -246,7 +246,7 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.classifier.AbstractClassifier#train(de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	public void train( DataSet[] s, double[][] weights ) throws Exception {
@@ -293,7 +293,7 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getScores(de.jstacs.data.Sample)
+	 * @see de.jstacs.classifier.AbstractScoreBasedClassifier#getScores(de.jstacs.data.DataSet)
 	 */
 	@Override
 	public double[] getScores( DataSet s ) throws Exception {
@@ -314,7 +314,7 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.AbstractClassifier#classify(de.jstacs.data.Sample)
+	 * @see de.jstacs.classifier.AbstractClassifier#classify(de.jstacs.data.DataSet)
 	 */
 	@Override
 	public byte[] classify( DataSet s ) throws Exception {

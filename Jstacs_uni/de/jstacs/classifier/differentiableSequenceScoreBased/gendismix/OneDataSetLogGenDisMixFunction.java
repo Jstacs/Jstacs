@@ -68,7 +68,7 @@ import de.jstacs.utils.Normalisation;
  * 
  * @author Jens Keilwagen
  */
-public class OneSampleLogGenDisMixFunction extends LogGenDisMixFunction
+public class OneDataSetLogGenDisMixFunction extends LogGenDisMixFunction
 {
 	/**
 	 * The constructor for creating an instance that can be used in an {@link de.jstacs.algorithms.optimization.Optimizer}.
@@ -89,7 +89,7 @@ public class OneSampleLogGenDisMixFunction extends LogGenDisMixFunction
 	 * @throws IllegalArgumentException
 	 *             if the number of threads is not positive, the number of classes or the dimension of the weights is not correct
 	 */
-	public OneSampleLogGenDisMixFunction( int threads, DifferentiableSequenceScore[] score, DataSet data, double[][] weights,
+	public OneDataSetLogGenDisMixFunction( int threads, DifferentiableSequenceScore[] score, DataSet data, double[][] weights,
 			LogPrior prior, double[] beta, boolean norm, boolean freeParams ) throws IllegalArgumentException
 	{
 		super(threads, score, new DataSet[]{data}, weights, prior, beta, norm, freeParams);
