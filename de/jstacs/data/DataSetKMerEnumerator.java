@@ -34,7 +34,7 @@ public class DataSetKMerEnumerator implements RecyclableSequenceEnumerator {
 	private HashSet<Sequence> current;
 	
 	/**
-	 * Constructs a new SampleKMerEnumerator from a {@link DataSet} <code>data</code> by extracting all k-mers.
+	 * Constructs a new DataSetKMerEnumerator from a {@link DataSet} <code>data</code> by extracting all k-mers.
 	 * @param data the data to extract the k-mers from
 	 * @param k the length of the k-mers
 	 * @param eliminateRevComp whether to ignore the reverse complement of already existing k-mers

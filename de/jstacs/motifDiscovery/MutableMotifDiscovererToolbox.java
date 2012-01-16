@@ -696,7 +696,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	}
 	
 	/*
-	private static boolean modifyOld( MutableMotifDiscoverer md, int clazz, int motif, Sample[] data, double[][] weights, History hist, int minimalNewLength, SafeOutputStream out ) throws Exception
+	private static boolean modifyOld( MutableMotifDiscoverer md, int clazz, int motif, DataSet[] data, double[][] weights, History hist, int minimalNewLength, SafeOutputStream out ) throws Exception
 	{
 		int[] notSignif = md.determineNotSignificantPositionsFor( motif, data, weights, clazz );
 		return modify( notSignif, md, clazz, motif, hist, minimalNewLength, out );

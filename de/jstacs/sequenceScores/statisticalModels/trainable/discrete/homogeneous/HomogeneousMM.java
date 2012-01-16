@@ -178,14 +178,14 @@ public class HomogeneousMM extends HomogeneousTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet, double[])
 	 */
 	public void train( DataSet data, double[] weights ) throws Exception {
 		train( new DataSet[]{ data }, new double[][]{ weights } );
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.HomogeneousTrainSM#train(de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.HomogeneousTrainSM#train(de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	public void train( DataSet[] data, double[][] weights ) throws Exception {
@@ -310,7 +310,7 @@ public class HomogeneousMM extends HomogeneousTrainSM {
 			throw new IllegalArgumentException( "The weights are not suitable for the data (wrong dimension)." );
 		}
 		if( !alphabets.checkConsistency( data.getAlphabetContainer() ) ) {
-			throw new WrongAlphabetException( "The alphabets of the model and the Sample are not suitable." );
+			throw new WrongAlphabetException( "The alphabets of the model and the DataSet are not suitable." );
 		}
 
 		// fill the constraints with the absolute frequency in the data

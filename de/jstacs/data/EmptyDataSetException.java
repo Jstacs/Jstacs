@@ -30,9 +30,9 @@ public class EmptyDataSetException extends Exception {
 
 	/**
 	 * This constructor creates an instance with default error message
-	 * (&quot;The created Sample is empty.&quot;).
+	 * (&quot;The created DataSet is empty.&quot;).
 	 */
 	public EmptyDataSetException() {
-		super( "The created Sample is empty." );
+		super( "The created DataSet is empty." );
 	}
 }

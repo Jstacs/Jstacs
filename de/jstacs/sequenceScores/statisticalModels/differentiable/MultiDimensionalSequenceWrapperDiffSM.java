@@ -206,7 +206,7 @@ public class MultiDimensionalSequenceWrapperDiffSM extends AbstractDifferentiabl
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int, boolean, de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int, boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {

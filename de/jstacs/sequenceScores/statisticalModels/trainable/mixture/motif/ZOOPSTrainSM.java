@@ -384,7 +384,7 @@ public class ZOOPSTrainSM extends HiddenMotifMixture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#setTrainData(de.jstacs.data.Sample)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#setTrainData(de.jstacs.data.DataSet)
 	 */
 	@Override
 	protected void setTrainData( DataSet data ) throws Exception {
@@ -749,14 +749,14 @@ public class ZOOPSTrainSM extends HiddenMotifMixture {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.HiddenMotifMixture#trainBgModel(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.HiddenMotifMixture#trainBgModel(de.jstacs.data.DataSet, double[])
 	 */
 	public void trainBgModel( DataSet data, double[] weights ) throws Exception {
 		model[1].train( data, weights );
 	}
 
 /*
-    public int getBestShift( Sample data, double[] dataWeights ) throws Exception {
+    public int getBestShift( DataSet data, double[] dataWeights ) throws Exception {
 //TODO remove
     	setTrainData( data );
     	System.out.println(this);

@@ -552,7 +552,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet, double[])
 	 */
 	public void train( DataSet data, double[] dataWeights ) throws Exception {
 		sample = null;
@@ -1176,7 +1176,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#getLogProbFor(de.jstacs.data.Sample)
+	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#getLogProbFor(de.jstacs.data.DataSet)
 	 */
 	@Override
 	public final double[] getLogScoreFor( DataSet data ) throws Exception {
@@ -1924,7 +1924,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#emitSample(int, int[])
+	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#emitDataSet(int, int[])
 	 */
 	@Override
 	public DataSet emitDataSet( int n, int... lengths ) throws Exception {

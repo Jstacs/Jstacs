@@ -176,7 +176,7 @@ public class UniformTrainSM extends AbstractTrainSM
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet, double[])
 	 */
 	@Deprecated
 	public void train( DataSet data, double[] weights ) throws IOException
@@ -185,7 +185,7 @@ public class UniformTrainSM extends AbstractTrainSM
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#emitSample(int, int[])
+	 * @see de.jstacs.trainableStatisticalModels.AbstractTrainSM#emitDataSet(int, int[])
 	 */
 	@Override
 	public DataSet emitDataSet( int n, int... lengths ) throws Exception

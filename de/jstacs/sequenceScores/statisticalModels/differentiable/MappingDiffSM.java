@@ -252,7 +252,7 @@ public final class MappingDiffSM extends AbstractDifferentiableStatisticalModel 
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#adjustHiddenParameters(int, de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#adjustHiddenParameters(int, de.jstacs.data.DataSet[], double[][])
 	 */
 	public void adjustHiddenParameters( int index, DataSet[] data, double[][] weights ) throws Exception {
 		if( nsf instanceof MutableMotifDiscoverer ) {
@@ -269,7 +269,7 @@ public final class MappingDiffSM extends AbstractDifferentiableStatisticalModel 
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#initializeMotif(int, de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.motifDiscovery.MutableMotifDiscoverer#initializeMotif(int, de.jstacs.data.DataSet, double[])
 	 */
 	public void initializeMotif( int motifIndex, DataSet data, double[] weights ) throws Exception {
 		if( nsf instanceof MutableMotifDiscoverer ) {

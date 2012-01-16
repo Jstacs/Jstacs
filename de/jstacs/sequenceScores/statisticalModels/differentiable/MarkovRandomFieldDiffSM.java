@@ -317,7 +317,7 @@ public final class MarkovRandomFieldDiffSM extends
 	 * (non-Javadoc)
 	 * 
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int,
-	 * boolean, de.jstacs.data.Sample[], double[][])
+	 * boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	public void initializeFunction(int index, boolean freeParams,
 			DataSet[] data, double[][] weights) throws Exception {

@@ -385,7 +385,7 @@ public class CompositeTrainSM extends AbstractTrainSM {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet, double[])
 	 */
 	public void train(DataSet data, double[] weights) throws Exception {
 		if (data.getElementLength() != length) {
@@ -394,10 +394,9 @@ public class CompositeTrainSM extends AbstractTrainSM {
 		}
 		for (int i = 0; i < models.length; i++) {
 			if (weights == null) {
-				models[i].train(data.getCompositeSample(starts[i], lengths[i]));
+				models[i].train(data.getCompositeDataSet(starts[i], lengths[i]));
 			} else {
-				models[i].train(data.getCompositeSample(starts[i], lengths[i]),
-						weights);
+				models[i].train(data.getCompositeDataSet(starts[i], lengths[i]), weights);
 			}
 		}
 	}

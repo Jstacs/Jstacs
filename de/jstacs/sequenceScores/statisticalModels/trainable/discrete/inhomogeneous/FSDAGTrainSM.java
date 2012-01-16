@@ -109,7 +109,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet, double[])
 	 */
 	public void train( DataSet data, double[] weights ) throws Exception {
 		estimateParameters( data, weights );

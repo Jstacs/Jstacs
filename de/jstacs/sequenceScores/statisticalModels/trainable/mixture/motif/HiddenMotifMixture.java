@@ -222,7 +222,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureTrainSM implemen
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#train(de.jstacs.data.Sample, double[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM#train(de.jstacs.data.DataSet, double[])
 	 */
 	@Override
 	public void train( DataSet data, double[] weights ) throws Exception {

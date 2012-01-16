@@ -260,7 +260,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int, boolean, de.jstacs.data.Sample[], double[][])
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int, boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		DataSet[] part = new DataSet[data.length];
@@ -284,7 +284,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 * 
 	 * @return the number how often the {@link DifferentiableSequenceScore} was used
 	 * 
-	 * @throws Exception if the Sample can not be created
+	 * @throws Exception if the {@link DataSet} can not be created
 	 */
 	public int extractSequenceParts( int scoringFunctionIndex, DataSet[] data, DataSet[] result ) throws Exception {
 		DataSet current;

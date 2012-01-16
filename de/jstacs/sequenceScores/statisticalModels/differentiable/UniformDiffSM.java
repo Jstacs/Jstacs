@@ -143,7 +143,7 @@ public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiab
 	 * (non-Javadoc)
 	 * 
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#initializeFunction(int,
-	 * boolean, de.jstacs.data.Sample[], double[][])
+	 * boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	public void initializeFunction(int index, boolean meila, DataSet[] data,
 			double[][] weights) {
@@ -262,7 +262,7 @@ public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiab
 	 */
 	@Override
 	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
-		throw new Exception( "Standard implementation of emitSample used for "
+		throw new Exception( "Standard implementation of emitDataSet used for "
 						+ getInstanceName()	+ ". You have to overwrite this method to use it in a proper way.");
 	}
 	

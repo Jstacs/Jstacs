@@ -157,7 +157,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @return the difference
 	 * 
 	 * @throws WrongAlphabetException
-	 *             if the {@link AlphabetContainer}s do not match, i.e., if the Samples are from different domains
+	 *             if the {@link AlphabetContainer}s do not match, i.e., if the {@link DataSet}s are from different domains
 	 * @throws EmptyDataSetException
 	 *             if the difference is empty
 	 */
@@ -911,7 +911,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * 
 	 * @see Sequence#getCompositeSequence(AlphabetContainer, int[], int[])
 	 */
-	public final DataSet getCompositeSample( int[] starts, int[] lengths ) throws IllegalArgumentException {
+	public final DataSet getCompositeDataSet( int[] starts, int[] lengths ) throws IllegalArgumentException {
 		AlphabetContainer abc = alphabetContainer.getCompositeContainer( starts, lengths );
 		Sequence[] n = new Sequence[getNumberOfElements()];
 		ElementEnumerator ei = new ElementEnumerator( this );
@@ -1041,7 +1041,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @throws OperationNotSupportedException if the {@link AlphabetContainer} of any of the {@link Sequence}s in this {@link DataSet}
 	 * 						is not complementable
 	 */
-	public DataSet getReverseComplementarySample() throws OperationNotSupportedException{
+	public DataSet getReverseComplementaryDataSet() throws OperationNotSupportedException{
 		Sequence[] rc = new Sequence[seqs.length];
 		for(int i=0;i<seqs.length;i++){
 			rc[i] = seqs[i].reverseComplement();
@@ -1229,7 +1229,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * 
 	 * @see AlphabetContainer#isSimple()
 	 */
-	public final boolean isSimpleSample() {
+	public final boolean isSimpleDataSet() {
 		return alphabetContainer.isSimple();
 	}
 
@@ -1241,7 +1241,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * 
 	 * @see AlphabetContainer#isDiscrete()
 	 */
-	public final boolean isDiscreteSample() {
+	public final boolean isDiscreteDataSet() {
 		return alphabetContainer.isDiscrete();
 	}
 
@@ -1288,7 +1288,7 @@ public class DataSet implements Iterable<Sequence>{
 	public DataSet[] partition( double p, PartitionMethod method, int subsequenceLength ) throws WrongLengthException,
 			UnsupportedOperationException,
 			EmptyDataSetException {
-		if( !isSimpleSample() && length != subsequenceLength ) {
+		if( !isSimpleDataSet() && length != subsequenceLength ) {
 			throw new UnsupportedOperationException( "The is method can only be used for simple samples." );
 		}
 		DataSet[] parts = partition( method, 1d - p, p );
@@ -1405,7 +1405,7 @@ public class DataSet implements Iterable<Sequence>{
 		if( i >= 0 ) {
 			anz[i] += (l-sumAnz);
 		}
-		return partitionSampleAndWeights( anz, method, sequenceWeights );
+		return partitionDataSetAndWeights( anz, method, sequenceWeights );
 	}
 
 	/**
@@ -1468,7 +1468,7 @@ public class DataSet implements Iterable<Sequence>{
 		return partition(sequenceWeights, method, percentage);
 	}
 
-	private Pair<DataSet[], double[][]> partitionSampleAndWeights( double[] anz, PartitionMethod method, double[] seqWeights ) throws EmptyDataSetException {
+	private Pair<DataSet[], double[][]> partitionDataSetAndWeights( double[] anz, PartitionMethod method, double[] seqWeights ) throws EmptyDataSetException {
 		int[] pos = new int[getNumberOfElements()], ends = new int[anz.length];
 		int last = pos.length, drawn, help, i = 0;
 		for( i = 0; i < last; i++ ) {
@@ -1687,7 +1687,7 @@ public class DataSet implements Iterable<Sequence>{
 			if( indexOfFirstSubseq != null ) {
 				throw new UnsupportedOperationException( "operation not supported since indexOfFirstSubseq != null" );
 			}
-			if( isSimpleSample() ) {
+			if( isSimpleDataSet() ) {
 				indexOfFirstSubseq = new int[seqs.length];
 				if( length == 0 ) {
 					int l, i = 0, all = 0;
@@ -1759,7 +1759,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * int[][] matrix = s.getSequenceAnnotationIndexMatrix( rowType, rowHash, columnType, columnHash )
 	 * 
 	 * if( matrix[i][j] < 0 ) {
-	 * 	System.out.println( "There is no Sequence in the Sample with this SequenceAnnotation combination");
+	 * 	System.out.println( "There is no Sequence in the DataSet with this SequenceAnnotation combination");
 	 * } else {
 	 * 	System.out.println( "This is the Sequence: " + s.getElementAt( matrix[i][j] ) );
 	 * }
@@ -1879,7 +1879,7 @@ public class DataSet implements Iterable<Sequence>{
 		}
 
 		public void remove() {
-			throw new UnsupportedOperationException("Samples are immutable");
+			throw new UnsupportedOperationException("DataSets are immutable");
 		}
 	}
 
@@ -2030,7 +2030,7 @@ public class DataSet implements Iterable<Sequence>{
 						add( ht, data[i], null, length );
 					}
 				} else {
-					throw new WrongAlphabetException( "The AlphabetContainer for all Sample has to be consistent." );
+					throw new WrongAlphabetException( "The AlphabetContainer for all DataSet has to be consistent." );
 				}
 			}
 			create( "all sequences" + ( length > 0 ? ( " of length " + length ) : "" ) + " that occur in " + DataSet.getAnnotation( data ),

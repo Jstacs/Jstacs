@@ -184,7 +184,7 @@ public class SignificantMotifOccurrencesFinder {
 	}
 
 	
-	private void createBgSample( DataSet s ) throws Exception {
+	private void createBgDataSet( DataSet s ) throws Exception {
 		switch( type ) {
 			case BACKGROUND:
 				//already existing
@@ -230,8 +230,8 @@ public class SignificantMotifOccurrencesFinder {
 		}
 	}
 	
-	private void createBgSample( Sequence seq ) throws Exception {
-		createBgSample( new DataSet( "", seq ) );
+	private void createBgDataSet( Sequence seq ) throws Exception {
+		createBgDataSet( new DataSet( "", seq ) );
 	}
 	
 	private double[][] getAllProfilesOfScoresFor(int motif, Sequence seq, int start) throws Exception{
@@ -293,7 +293,7 @@ public class SignificantMotifOccurrencesFinder {
 	
 	private void findSignificantMotifOccurrences(int motif, Sequence seq, int start, AbstractList<MotifAnnotation> annotation, int addMax, AbstractList<Sequence> sites, int addLeftSymbols, int addRightSymbols ) throws Exception {
 		if( !oneHistogram ) {
-			createBgSample( seq );
+			createBgDataSet( seq );
 			fillSortedScoresArray( motif, start );
 		}
 		 
@@ -673,7 +673,7 @@ public class SignificantMotifOccurrencesFinder {
 	
 	private double[] getValueForNucleotides(Sequence seq, int start, int motif, boolean addOnlyBest ) throws Exception{
 		if( !oneHistogram ) {
-			createBgSample( seq );
+			createBgDataSet( seq );
 			fillSortedScoresArray( motif, start );
 		}
 		
@@ -729,7 +729,7 @@ public class SignificantMotifOccurrencesFinder {
 		MotifAnnotation current;
 
 		if( oneHistogram ) {
-			createBgSample( data );
+			createBgDataSet( data );
 			fillSortedScoresArray( motif, startPos );
 		}
 		
