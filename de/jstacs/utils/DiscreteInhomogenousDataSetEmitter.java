@@ -22,11 +22,11 @@ package de.jstacs.utils;
 import java.util.Random;
 
 import de.jstacs.NotTrainedException;
-import de.jstacs.StatisticalModel;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.IntSequence;
+import de.jstacs.sequenceScores.StatisticalModel;
 
 /**
  * Emits {@link DataSet}s for discrete inhomogeneous models by a naive implementation.
