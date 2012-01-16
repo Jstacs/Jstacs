@@ -30,18 +30,18 @@ import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.io.StringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
-import de.jstacs.trainableStatisticalModels.AbstractTrainSM;
-import de.jstacs.trainableStatisticalModels.discrete.homogeneous.HomogeneousMM;
-import de.jstacs.trainableStatisticalModels.discrete.homogeneous.parameters.HomMMParameterSet;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.BayesianNetworkTrainSM;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.LearningType;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.StructureLearner.ModelType;
-import de.jstacs.trainableStatisticalModels.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
-import de.jstacs.trainableStatisticalModels.mixture.StrandTrainSM;
-import de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM.Parameterization;
-import de.jstacs.trainableStatisticalModels.mixture.motif.ZOOPSTrainSM;
-import de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.GaussianLikePositionPrior;
-import de.jstacs.trainableStatisticalModels.mixture.motif.positionprior.PositionPrior;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.HomogeneousMM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.parameters.HomMMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.BayesianNetworkTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.ModelType;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.StrandTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.ZOOPSTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.positionprior.GaussianLikePositionPrior;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.positionprior.PositionPrior;
 
 /**
  * This class provides a main that is used for the MotifAdjuster .
