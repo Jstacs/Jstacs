@@ -34,8 +34,6 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.data.Sequence;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
-import de.jstacs.differentiableStatisticalModels.AbstractDifferentiableStatisticalModel;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox;
@@ -43,6 +41,8 @@ import de.jstacs.motifDiscovery.history.History;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.utils.SafeOutputStream;
 
 /**

@@ -24,7 +24,7 @@ import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.utils.Normalisation;
 
 /**
@@ -64,7 +64,7 @@ import de.jstacs.utils.Normalisation;
  * <br>
  * <br>
  * 
- * It is very important for this class that the {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel#clone()} method works correctly, since each thread works on its own clones. 
+ * It is very important for this class that the {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#clone()} method works correctly, since each thread works on its own clones. 
  * 
  * @author Jens Keilwagen
  */
@@ -75,7 +75,7 @@ public class OneDataSetLogGenDisMixFunction extends LogGenDisMixFunction
 	 * 
 	 * @param threads the number of threads used for evaluating the function and determining the gradient of the function
 	 * @param score an array containing the {@link DifferentiableSequenceScore}s that are used for determining the sequences scores;
-	 * 			if the weight <code>beta[LearningPrinciple.LIKELIHOOD_INDEX]</code> is positive all elements of <code>score</code> have to be {@link de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel}
+	 * 			if the weight <code>beta[LearningPrinciple.LIKELIHOOD_INDEX]</code> is positive all elements of <code>score</code> have to be {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}
 	 * @param data the array of {@link DataSet}s containing the data that is needed to evaluate the function
 	 * @param weights the weights for each {@link Sequence} in each {@link DataSet} of  <code>data</code> 
 	 * @param prior the prior that is used for learning the parameters

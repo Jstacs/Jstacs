@@ -37,7 +37,7 @@ public class ArbitrarySequence extends Sequence<double[]> {
 	 * Creates a new {@link ArbitrarySequence} from an array of
 	 * <code>double</code>-encoded alphabet symbols. This constructor is
 	 * designed for the method
-	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
+	 * {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -51,7 +51,7 @@ public class ArbitrarySequence extends Sequence<double[]> {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>double</code>s
 	 * 
-	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
+	 * @see de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)
 	 * @see Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ArbitrarySequence( AlphabetContainer alphabetContainer, double[] content ) throws WrongAlphabetException,

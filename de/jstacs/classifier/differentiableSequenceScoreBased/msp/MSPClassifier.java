@@ -24,7 +24,7 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMix
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 
 /**
  * This class implements a classifier that allows the training via MCL or MSP principle.
@@ -93,7 +93,7 @@ public class MSPClassifier extends GenDisMixClassifier {
 	 * @throws CloneNotSupportedException
 	 *             if at least one {@link DifferentiableSequenceScore} could not be cloned
 	 * 
-	 * @see GenDisMixClassifier#GenDisMixClassifier(GenDisMixClassifierParameterSet, LogPrior, LearningPrinciple, de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel...)
+	 * @see GenDisMixClassifier#GenDisMixClassifier(GenDisMixClassifierParameterSet, LogPrior, LearningPrinciple, de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel...)
 	 * @see LearningPrinciple#MSP
 	 * @see MSPClassifier#setPrior(LogPrior)
 	 */

@@ -25,10 +25,10 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
-import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 
 /**
  * This class implements a classifier the optimizes the following function

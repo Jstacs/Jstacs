@@ -49,7 +49,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 * Creates a new {@link ArbitraryFloatSequence} from an array of
 	 * <code>float</code>-encoded alphabet symbols. This constructor is
 	 * designed for the method
-	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
+	 * {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -63,7 +63,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>float</code>s
 	 * 
-	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
+	 * @see de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)
 	 * @see Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ArbitraryFloatSequence( AlphabetContainer alphabetContainer, float[] content ) throws WrongAlphabetException,

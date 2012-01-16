@@ -821,7 +821,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * Creates a new {@link DataSet} from an array of {@link Sequence}s and a
 	 * given annotation.<br>
 	 * This constructor is specially designed for the method
-	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}
+	 * {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)}
 	 * 
 	 * @param annotation
 	 *            the annotation of the {@link DataSet}

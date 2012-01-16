@@ -36,7 +36,7 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
-import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 
 /**
  * This class is the main class for all model based classifiers. The score for

@@ -32,7 +32,7 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.trainableStatisticalModels.TrainableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.utils.ProgressUpdater;
 
 /**
@@ -228,14 +228,14 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	/**
 	 * This constructor allows to assess a collection of given
 	 * {@link AbstractClassifier}s and those constructed using the given
-	 * {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel}s by a {@link KFoldCrossValidation}
+	 * {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s by a {@link KFoldCrossValidation}
 	 * . <br>
 	 * 
 	 * @param aCs
 	 *            contains some {@link AbstractClassifier}s that should be
 	 *            assessed in addition to the {@link AbstractClassifier}
 	 *            constructed using the given
-	 *            {@link de.jstacs.trainableStatisticalModels.TrainableStatisticalModel}s
+	 *            {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s
 	 * @param buildClassifiersByCrossProduct
 	 * <br>
 	 *            Determines how classifiers are constructed using the given

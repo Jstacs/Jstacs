@@ -19,9 +19,9 @@
 package de.jstacs.classifier.differentiableSequenceScoreBased.logPrior;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.differentiableSequenceScores.DifferentiableSequenceScore;
-import de.jstacs.differentiableStatisticalModels.DifferentiableStatisticalModel;
 import de.jstacs.io.XMLParser;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 
 /**
  * Abstract class for priors that penalize each parameter value independently
@@ -101,7 +101,7 @@ public abstract class SeparateLogPrior extends LogPrior implements Cloneable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior#set(boolean, de.jstacs.differentiableStatisticalModels.DifferentiableSequenceScore[])
+	 * @see de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior#set(boolean, de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore[])
 	 */
 	@Override
 	public void set( boolean freeParameters, DifferentiableSequenceScore... funs ) throws Exception {

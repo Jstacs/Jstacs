@@ -46,7 +46,7 @@ import de.jstacs.utils.SubclassFinder;
 
 /**
  * The container for {@link Alphabet}s used in a {@link Sequence},
- * {@link DataSet}, {@link de.jstacs.trainableStatisticalModels.AbstractTrainSM} or ... . The container
+ * {@link DataSet}, {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM} or ... . The container
  * enables the user to have a different {@link Alphabet} at each position or at
  * least not the same {@link Alphabet} at all positions. This is impossible if
  * you use only instances of {@link Alphabet}. The container maps the given

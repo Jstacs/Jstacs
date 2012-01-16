@@ -37,7 +37,7 @@ public class ByteSequence extends SimpleDiscreteSequence {
 	/**
 	 * Creates a new {@link ByteSequence} from an array of <code>byte</code>-
 	 * encoded alphabet symbols. This constructor is designed for the method
-	 * {@link de.jstacs.StatisticalModel#emitDataSet(int, int...)}.
+	 * {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -51,7 +51,7 @@ public class ByteSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>byte</code>s
 	 * 
-	 * @see de.jstacs.StatisticalModel#emitDataSet(int, int...)
+	 * @see de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)
 	 * @see SimpleDiscreteSequence#SimpleDiscreteSequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ByteSequence( AlphabetContainer alphabetContainer, byte[] content ) throws WrongAlphabetException, WrongSequenceTypeException {
