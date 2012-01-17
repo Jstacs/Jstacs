@@ -281,7 +281,7 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#evaluateClassifier(de.jstacs.classifier.MeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, de.jstacs.data.Sample[], de.jstacs.utils.ProgressUpdater)
+	 * @see de.jstacs.classifier.assessment.ClassifierAssessment#evaluateClassifier(de.jstacs.classifier.MeasureParameters, de.jstacs.classifier.assessment.ClassifierAssessmentAssessParameterSet, de.jstacs.data.DataSet[], de.jstacs.utils.ProgressUpdater)
 	 */
 	@Override
 	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,

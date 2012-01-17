@@ -370,7 +370,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 			//im bg-Fall sollte das Sample aus den unterschiedlichen grossen Sequenzen bestehen
 			sInParts[i] = s[i++].partition( k, splitMethod ) );
 		} catch ( EmptyDataSetException e ) {
-			throw new IllegalArgumentException( "Given Sample s seems to contain to few elements " + "for a "
+			throw new IllegalArgumentException( "Given DataSet s seems to contain to few elements " + "for a "
 												+ k
 												+ "-fold crossvalidation since at least one empty subset occured "
 												+ "during splitting given data into "

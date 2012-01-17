@@ -2,6 +2,6 @@
 - GNU GPL 3 preamble
 - Javadoc anpassen
 - wohin interfaces/abstract classes? Ins Paket oder daneben?
-- Textsuche DataSet
+- Textsuche Sample
 - ParameterSet: getName und getComment 
 - rename classes: *SF*
