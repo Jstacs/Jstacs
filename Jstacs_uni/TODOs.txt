@@ -1,4 +1,5 @@
 - Alignment
+- GNU GPL 3 preabmble
 - Javadoc anpassen
 - wohin interfaces/abstract classes? Ins Paket oder daneben?
 - Textsuche DataSet

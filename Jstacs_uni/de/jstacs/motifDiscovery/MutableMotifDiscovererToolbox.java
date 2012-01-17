@@ -205,7 +205,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	}
 	
 	/**
-	 * This enum defines some constants for the method {@link MutableMotifDiscovererToolbox#getSortedInitialParameters(DifferentiableSequenceScore[], InitMethodForScoringFunction[], DiffSSBasedOptimizableFunction, int, OutputStream, int)}.
+	 * This enum defines some constants for the method {@link MutableMotifDiscovererToolbox#getSortedInitialParameters(DifferentiableSequenceScore[], InitMethodForDiffSM[], DiffSSBasedOptimizableFunction, int, OutputStream, int)}.
 	 * These constants define how to initialize the {@link DifferentiableSequenceScore}s. 
 	 * 
 	 * @author Jens Keilwagen
@@ -230,10 +230,10 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	}
 	
 	/**
-	 * This method allows to initialize the {@link DifferentiableSequenceScore} using different {@link InitMethodForScoringFunction}. It returns an array of {@link ComparableElement}s that contain the parameters and the
+	 * This method allows to initialize the {@link DifferentiableSequenceScore} using different {@link InitMethodForDiffSM}. It returns an array of {@link ComparableElement}s that contain the parameters and the
 	 * 
 	 * @param funs the {@link DifferentiableSequenceScore}s
-	 * @param init the specific {@link InitMethodForScoringFunction}, the entries correspond one to one to those of <code>fun</code>
+	 * @param init the specific {@link InitMethodForDiffSM}, the entries correspond one to one to those of <code>fun</code>
 	 * @param opt the objective function
 	 * @param n the number of initializations
 	 * @param stream a stream that allows to write some output if necessary
@@ -309,9 +309,9 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	/**
 	 * This method creates a minimalNewLength-array that can be used in an optimization.
 	 * 
-	 * @param funs the ScoringFunctions used in an optimization
+	 * @param funs the DiffSMs used in an optimization
 	 * 
-	 * @return an minimalNewLength-array for the given ScoringFunctions
+	 * @return an minimalNewLength-array for the given DiffSMs
 	 */
 	public static int[][] createMinimalNewLengthArray( DifferentiableSequenceScore[] funs ) {
 		int[][] minimalNewLength = new int[funs.length][];
@@ -334,10 +334,10 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	/**
 	 * This method creates a History-array that can be used in an optimization.
 	 * 
-	 * @param funs the ScoringFunctions used in an optimization
+	 * @param funs the DiffSMs used in an optimization
 	 * @param template the template history instance
 	 * 
-	 * @return an History-array for the given ScoringFunctions
+	 * @return an History-array for the given DiffSMs
 	 * 
 	 * @throws CloneNotSupportedException if the t<code>template</code> could not be cloned
 	 */

@@ -194,7 +194,7 @@ public class DiscoveryComparator {
 					}catch(NonParsableException e){
 						cl = new GenDisMixClassifier( FileManager.readFile( f ) );
 					}
-					md = (ExtendedZOOPSDiffSM) cl.getScoringFunction( 0 );
+					md = (ExtendedZOOPSDiffSM) cl.getDifferentiableSequenceScore( 0 );
 
 					smof = new SignificantMotifOccurrencesFinder( md, new DNADataSet(strings[1],AbstractStringExtractor.USUALLY), null, Double.parseDouble( strings[2] ) );
 					//smof = new SignificantMotifOccurrencesFinder(md,RandomSeqType.PERMUTED,1000,sign);

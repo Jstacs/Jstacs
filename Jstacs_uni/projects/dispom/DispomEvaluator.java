@@ -183,7 +183,7 @@ public class DispomEvaluator {
 	
 	private static double infos( REnvironment r, String home, File f, boolean show, ArrayList<SimpleEntry<String, double[][]>> list, String[] fName, char ignore, double sign, String suffix ) throws Exception {		
 		GenDisMixClassifier cl = new GenDisMixClassifier( FileManager.readFile( f ) );
-		ExtendedZOOPSDiffSM md = (ExtendedZOOPSDiffSM) cl.getScoringFunction( 0 );
+		ExtendedZOOPSDiffSM md = (ExtendedZOOPSDiffSM) cl.getDifferentiableSequenceScore( 0 );
 		if( show ) {
 			System.out.println();
 			System.out.println( md );

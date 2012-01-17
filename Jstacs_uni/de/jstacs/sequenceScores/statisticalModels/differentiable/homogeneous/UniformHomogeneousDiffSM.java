@@ -227,10 +227,9 @@ public class UniformHomogeneousDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * addGradientOfLogPriorTerm(double[], int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#addGradientOfLogPriorTerm(double[], int)
 	 */
+	@Override
 	public void addGradientOfLogPriorTerm(double[] grad, int start) {
 	}
 
@@ -267,9 +266,7 @@ public class UniformHomogeneousDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.homogeneous.HomogeneousScoringFunction#
-	 * getMaximalMarkovOrder()
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM#getMaximalMarkovOrder()
 	 */
 	@Override
 	public byte getMaximalMarkovOrder() {

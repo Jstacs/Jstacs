@@ -131,10 +131,9 @@ public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiab
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getLogNormalizationConstant()
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogNormalizationConstant()
 	 */
+	@Override
 	public double getLogNormalizationConstant() {
 		return 0;
 	}
@@ -152,20 +151,18 @@ public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiab
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getSizeOfEventSpaceForRandomVariablesOfParameter(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)
 	 */
+	@Override
 	public int getSizeOfEventSpaceForRandomVariablesOfParameter(int index) {
 		return 0;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getLogPartialNormalizationConstant(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogPartialNormalizationConstant(int)
 	 */
+	@Override
 	public double getLogPartialNormalizationConstant(int parameterIndex) throws Exception {
 		throw new IndexOutOfBoundsException(
 				"Since a uniform scoring function has no parameters, this method can not be used");

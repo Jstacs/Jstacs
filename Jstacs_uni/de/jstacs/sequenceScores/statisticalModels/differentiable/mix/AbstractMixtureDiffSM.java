@@ -442,7 +442,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 *             {@link DifferentiableStatisticalModel}s could not
 	 *             be cloned
 	 */
-	public DifferentiableStatisticalModel[] getScoringFunctions() throws CloneNotSupportedException {
+	public DifferentiableStatisticalModel[] getDifferentiableStatisticalModels() throws CloneNotSupportedException {
 		return ArrayHandler.clone( function );
 	}
 

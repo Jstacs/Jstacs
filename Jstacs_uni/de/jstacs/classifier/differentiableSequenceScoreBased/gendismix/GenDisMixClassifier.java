@@ -325,7 +325,7 @@ public class GenDisMixClassifier extends ScoreClassifier
 
 	/**
 	 * This method creates an array of GenDisMixClassifiers by using the cross-product of the given
-	 * NormalizableScoringFunctions.
+	 * {@link DifferentiableStatisticalModel}s.
 	 * 
 	 * @param params
 	 *            the parameters that will be used in all classifiers
@@ -334,9 +334,9 @@ public class GenDisMixClassifier extends ScoreClassifier
 	 * @param weights
 	 *            the weights that will be used in all classifiers
 	 * @param functions
-	 *            the NormalizableScoringFunctions
+	 *            the {@link DifferentiableStatisticalModel}s
 	 *            <ol>
-	 *            <li> functions[i] are the NormalizableScoringFunctions that can be used for class i
+	 *            <li> functions[i] are the {@link DifferentiableStatisticalModel}s that can be used for class i
 	 *            <li> functions.length has to be at least 2
 	 *            </ol>
 	 * 

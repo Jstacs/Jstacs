@@ -250,10 +250,9 @@ public class BayesianNetworkDiffSM extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getPartialNormalizationConstant(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogPartialNormalizationConstant(int)
 	 */
+	@Override
 	public double getLogPartialNormalizationConstant(int parameterIndex)
 			throws Exception {
 		if (logNormalizationConstant == null) {
@@ -858,10 +857,9 @@ public class BayesianNetworkDiffSM extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * addGradientOfLogPriorTerm(double[], int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#addGradientOfLogPriorTerm(double[], int)
 	 */
+	@Override
 	public void addGradientOfLogPriorTerm(double[] grad, int start) {
 		for (int i = 0; i < nums.length; i++) {
 			grad[i + start] += this.parameters[nums[i]].getPseudoCount();

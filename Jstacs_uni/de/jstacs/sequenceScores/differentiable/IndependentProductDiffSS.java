@@ -350,7 +350,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 		StringBuffer xml = XMLParser.extractForTag( rep, getInstanceName() );
 		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
-		score = XMLParser.extractObjectForTags( xml, "ScoringFunctions", DifferentiableSequenceScore[].class );
+		score = XMLParser.extractObjectForTags( xml, "DifferentiableSequenceScores", DifferentiableSequenceScore[].class );
 		set( XMLParser.extractObjectForTags( xml, "index", int[].class ),
 				XMLParser.extractObjectForTags( xml, "partialLength", int[].class ),
 				XMLParser.extractObjectForTags( xml, "reverse", boolean[].class ));
@@ -574,7 +574,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 		StringBuffer xml = new StringBuffer( 10000 );
 		XMLParser.appendObjectWithTags( xml, alphabets, "AlphabetContainer" );
 		XMLParser.appendObjectWithTags( xml, length, "length" );
-		XMLParser.appendObjectWithTags( xml, score, "ScoringFunctions" );
+		XMLParser.appendObjectWithTags( xml, score, "DifferentiableSequenceScores" );
 		XMLParser.appendObjectWithTags( xml, index, "index" );
 		XMLParser.appendObjectWithTags( xml, partialLength, "partialLength" );
 		XMLParser.appendObjectWithTags( xml, reverse, "reverse" );

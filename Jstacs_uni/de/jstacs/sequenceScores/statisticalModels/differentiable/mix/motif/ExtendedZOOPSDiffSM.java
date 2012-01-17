@@ -75,7 +75,7 @@ public class ExtendedZOOPSDiffSM extends AbstractMixtureDiffSM implements Mutabl
 
 	private HomogeneousDiffSM bg;
 
-	private static DifferentiableStatisticalModel[] getNormalizableScoringFunctions( int length,
+	private static DifferentiableStatisticalModel[] getDifferentiableStatisticalModels( int length,
 			HomogeneousDiffSM bg, DifferentiableStatisticalModel[] motif, DurationDiffSM[] posPrior )
 	{
 		int m = motif.length;
@@ -174,7 +174,7 @@ public class ExtendedZOOPSDiffSM extends AbstractMixtureDiffSM implements Mutabl
 			throws Exception
 	{
 		super( length, starts, motif.length + (type == CONTAINS_ALWAYS_A_MOTIF ? 0 : 1), true, plugIn,
-				getNormalizableScoringFunctions( length, bg, motif, posPrior ) );
+				getDifferentiableStatisticalModels( length, bg, motif, posPrior ) );
 		if( !alphabets.isSimple() )
 		{
 			throw new IllegalArgumentException( "The AlphabetContainer has to be simple." );

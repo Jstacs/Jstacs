@@ -111,9 +111,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.mix.AbstractMixtureScoringFunction#
-	 * getLogNormalizationConstantForComponent(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.mix.AbstractMixtureDiffSM#getLogNormalizationConstantForComponent(int)
 	 */
 	@Override
 	protected double getLogNormalizationConstantForComponent( int i ) {
@@ -122,10 +120,9 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getLogPartialNormalizationConstant(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogPartialNormalizationConstant(int)
 	 */
+	@Override
 	public double getLogPartialNormalizationConstant( int parameterIndex ) throws Exception {
 		if( isNormalized() ) {
 			return Double.NEGATIVE_INFINITY;
@@ -144,9 +141,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.mix.AbstractMixtureScoringFunction#
-	 * getHyperparameterForHiddenParameter(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.mix.AbstractMixtureDiffSM#getHyperparameterForHiddenParameter(int)
 	 */
 	@Override
 	public double getHyperparameterForHiddenParameter( int index ) {
@@ -200,9 +195,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.mix.AbstractMixtureScoringFunction#
-	 * initializeUsingPlugIn(int, boolean, de.jstacs.data.DataSet[], double[][])
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.mix.AbstractMixtureDiffSM#initializeUsingPlugIn(int, boolean, de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	protected void initializeUsingPlugIn( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
@@ -271,9 +264,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.mix.AbstractMixtureScoringFunction#
-	 * fillComponentScores(de.jstacs.data.Sequence, int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.mix.AbstractMixtureDiffSM#fillComponentScores(de.jstacs.data.Sequence, int)
 	 */
 	@Override
 	protected void fillComponentScores( Sequence seq, int start ) {
