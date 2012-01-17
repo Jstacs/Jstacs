@@ -210,7 +210,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static enum InitMethodForScoringFunction {
+	public static enum InitMethodForDiffSM {
 		/**
 		 * This constants indicates that a {@link DifferentiableSequenceScore} should be initialized using {@link DifferentiableSequenceScore#initializeFunction(int, boolean, DataSet[], double[][])}.
 		 */
@@ -244,13 +244,13 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 	 * @throws Exception if something went wrong
 	 */
 	@SuppressWarnings("unchecked")
-	public static ComparableElement<double[],Double>[] getSortedInitialParameters( DifferentiableSequenceScore[] funs, InitMethodForScoringFunction[] init, DiffSSBasedOptimizableFunction opt, int n, OutputStream stream, int optimizationSteps ) throws Exception
+	public static ComparableElement<double[],Double>[] getSortedInitialParameters( DifferentiableSequenceScore[] funs, InitMethodForDiffSM[] init, DiffSSBasedOptimizableFunction opt, int n, OutputStream stream, int optimizationSteps ) throws Exception
 	{
 		SafeOutputStream info = SafeOutputStream.getSafeOutputStream(stream);
 		DataSet[] data = opt.getData();
 		double[][] oldParams = new double[funs.length][];
 		for( int j = 0; j < funs.length; j++ ) {
-			if( init[j] == InitMethodForScoringFunction.NOTHING ) {
+			if( init[j] == InitMethodForDiffSM.NOTHING ) {
 				oldParams[j] = funs[j].getCurrentParameterValues();
 			}			
 		}

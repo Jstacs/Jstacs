@@ -1,3 +1,4 @@
+- Alignment
 - Javadoc anpassen
 - wohin interfaces/abstract classes? Ins Paket oder daneben?
-- Textsuche Model und ScoringFunction
+- Textsuche DataSet
