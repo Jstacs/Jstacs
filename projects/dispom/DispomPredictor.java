@@ -121,7 +121,7 @@ public class DispomPredictor {
 		}
 		//restore classifier
 		GenDisMixClassifier cl = new GenDisMixClassifier( XMLParser.extractForTag( FileManager.readFile( new File(fName) ),"classifier")  );
-		DifferentiableStatisticalModel[] bestNSF = ArrayHandler.cast( DifferentiableStatisticalModel.class, cl.getScoringFunctions() );
+		DifferentiableStatisticalModel[] bestNSF = ArrayHandler.cast( DifferentiableStatisticalModel.class, cl.getDifferentiableSequenceScores() );
 
 		// show
 		System.out.println("_________________________________");

@@ -80,7 +80,7 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 	 * 
 	 * @throws Exception if the {@link ParameterSet} could not be created
 	 * 
-	 * @see AlphabetContainerParameterSet#AlphabetContainerParameterSet(AlphabetContainerType, boolean)
+	 * @see #AlphabetContainerParameterSet(AlphabetContainerType, boolean)
 	 */
 	public AlphabetContainerParameterSet() throws Exception {
 		this( AlphabetContainerType.BOTH, false );

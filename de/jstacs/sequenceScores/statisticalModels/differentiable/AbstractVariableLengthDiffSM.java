@@ -92,20 +92,18 @@ public abstract class AbstractVariableLengthDiffSM extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getLogNormalizationConstant()
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogNormalizationConstant()
 	 */
+	@Override
 	public double getLogNormalizationConstant() {
 		return getLogNormalizationConstant(length);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getLogPartialNormalizationConstant(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogPartialNormalizationConstant(int)
 	 */
+	@Override
 	public double getLogPartialNormalizationConstant(int parameterIndex)
 			throws Exception {
 		return getLogPartialNormalizationConstant(parameterIndex, length);

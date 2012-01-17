@@ -1047,7 +1047,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		public abstract int getPossibleLength();
 
 		/**
-		 * Indicates if all positions use {@link DiscreteAlphabetParameterSet}, i.e.
+		 * Indicates if all positions use {@link de.jstacs.data.alphabets.DiscreteAlphabet.DiscreteAlphabetParameterSet}, i.e.
 		 * if all {@link Alphabet}s of the corresponding {@link AlphabetContainer}
 		 * are discrete.
 		 * 

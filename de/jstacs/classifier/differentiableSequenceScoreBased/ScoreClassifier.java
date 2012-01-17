@@ -545,7 +545,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws CloneNotSupportedException
 	 *             if the {@link DifferentiableSequenceScore} could not be cloned
 	 */
-	public DifferentiableSequenceScore getScoringFunction( int i ) throws CloneNotSupportedException {
+	public DifferentiableSequenceScore getDifferentiableSequenceScore( int i ) throws CloneNotSupportedException {
 		return score[i].clone();
 	}
 
@@ -559,7 +559,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * @throws CloneNotSupportedException
 	 *             if a {@link DifferentiableSequenceScore} could not be cloned
 	 */
-	public DifferentiableSequenceScore[] getScoringFunctions() throws CloneNotSupportedException {
+	public DifferentiableSequenceScore[] getDifferentiableSequenceScores() throws CloneNotSupportedException {
 		return ArrayHandler.clone( score );
 	}
 

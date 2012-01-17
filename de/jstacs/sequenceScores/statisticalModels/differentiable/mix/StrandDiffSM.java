@@ -555,11 +555,11 @@ public class StrandDiffSM extends AbstractMixtureDiffSM implements Mutable
 	 * 
 	 * @return <code>true</code> if the {@link DifferentiableStatisticalModel} is a {@link StrandDiffSM}
 	 */
-	public static boolean isStrandScoringFunction( DifferentiableStatisticalModel nsf )
+	public static boolean isStrandModel( DifferentiableStatisticalModel nsf )
 	{
 		if( nsf instanceof NormalizedDiffSM )
 		{
-			return ((NormalizedDiffSM) nsf).isStrandScoringFunction();
+			return ((NormalizedDiffSM) nsf).isStrandModel();
 		}
 		else
 		{

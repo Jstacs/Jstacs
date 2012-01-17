@@ -398,7 +398,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @throws IllegalArgumentException
 	 *             if something is wrong with the {@link DataSet} <code>s</code>
 	 * 
-	 * @see AbstractClassifier#setNewAlphabetContainerInstance(AlphabetContainer)
+	 * @see AlphabetContainer#checkConsistency(AlphabetContainer)
 	 */
 	protected void check( DataSet s ) throws NotTrainedException, IllegalArgumentException {
 		if( !isInitialized() ) {

@@ -573,10 +573,9 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * getSizeOfEventSpaceForRandomVariablesOfParameter(int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)
 	 */
+	@Override
 	public int getSizeOfEventSpaceForRandomVariablesOfParameter(int index) {
 		int i = 0;
 		while( index >= offset[i] ) {
@@ -714,10 +713,9 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.NormalizableScoringFunction#
-	 * addGradientOfLogPriorTerm(double[], int)
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#addGradientOfLogPriorTerm(double[], int)
 	 */
+	@Override
 	public void addGradientOfLogPriorTerm(double[] grad, int start) {
 		if (optimize) {
 			double hyper, hyperSum;
@@ -758,9 +756,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.homogeneous.HomogeneousScoringFunction#
-	 * getMaximalMarkovOrder()
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM#getMaximalMarkovOrder()
 	 */
 	@Override
 	public byte getMaximalMarkovOrder() {
@@ -769,9 +765,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.AbstractNormalizableScoringFunction#
-	 * getNumberOfRecommendedStarts()
+	 * @see de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore#getNumberOfRecommendedStarts()
 	 */
 	@Override
 	public int getNumberOfRecommendedStarts() {
@@ -812,10 +806,9 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @seede.jstacs.scoringFunctions.VariableLengthScoringFunction#
-	 * setStatisticForHyperparameters(int[], double[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.VariableLengthDiffSM#setStatisticForHyperparameters(int[], double[])
 	 */
+	@Override
 	public void setStatisticForHyperparameters(int[] length, double[] weight)
 			throws Exception {
 		if (weight.length != length.length) {

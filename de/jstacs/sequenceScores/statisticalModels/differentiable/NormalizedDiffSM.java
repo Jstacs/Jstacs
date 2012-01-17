@@ -330,11 +330,11 @@ public final class NormalizedDiffSM extends AbstractDifferentiableStatisticalMod
 	 * 
 	 * @return <code>true</code> if the internal {@link DifferentiableStatisticalModel} is a {@link StrandDiffSM} otherwise <code>false</code>
 	 */
-	public boolean isStrandScoringFunction()
+	public boolean isStrandModel()
 	{
 		if( nsf instanceof NormalizedDiffSM )
 		{
-			return ((NormalizedDiffSM)nsf).isStrandScoringFunction();
+			return ((NormalizedDiffSM)nsf).isStrandModel();
 		}
 		else
 		{
