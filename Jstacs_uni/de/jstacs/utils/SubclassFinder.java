@@ -37,8 +37,8 @@ import java.util.jar.JarFile;
 
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Singleton;
+import de.jstacs.Singleton.SingletonHandler;
 import de.jstacs.io.RegExFilenameFilter;
-import de.jstacs.io.SingletonHandler;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSet;

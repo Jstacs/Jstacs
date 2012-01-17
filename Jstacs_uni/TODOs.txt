@@ -1,5 +1,7 @@
 - Alignment
-- GNU GPL 3 preabmble
+- GNU GPL 3 preamble
 - Javadoc anpassen
 - wohin interfaces/abstract classes? Ins Paket oder daneben?
 - Textsuche DataSet
+- ParameterSet: getName und getComment 
+- rename classes: *SF*

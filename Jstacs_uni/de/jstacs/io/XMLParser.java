@@ -30,6 +30,7 @@ import java.util.TreeMap;
 import de.jstacs.NonParsableException;
 import de.jstacs.Singleton;
 import de.jstacs.Storable;
+import de.jstacs.Singleton.SingletonHandler;
 
 /**
  * Class for parsing standard data types and arrays in and out of an XML

@@ -517,7 +517,7 @@ public class StatisticalModelTester {
 		// the alphabets
 		private AlphabetContainer abc;
 
-		public SeqIterator(AlphabetContainer abc, int length)
+		private SeqIterator(AlphabetContainer abc, int length)
 				throws IllegalArgumentException {
 			if (!abc.isDiscrete()) {
 				throw new IllegalArgumentException("The model is not discrete.");
@@ -535,7 +535,7 @@ public class StatisticalModelTester {
 			seq = new int[length + 1];
 		}
 
-		public boolean next() {
+		private boolean next() {
 			int s_index = 0;
 			while (seq[s_index] == a[simple ? 0 : s_index]) {
 				seq[s_index++] = 0;
@@ -553,7 +553,7 @@ public class StatisticalModelTester {
 			return (i == constr.length);
 		}
 
-		public Sequence getSequence() throws WrongAlphabetException,
+		private Sequence getSequence() throws WrongAlphabetException,
 				WrongSequenceTypeException {
 			return new IntSequence(abc, seq, 0, l);
 		}

@@ -227,6 +227,8 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	 *             if the data type is not allowed, i.e. is not one of the
 	 *             primitive data types, {@link String} or
 	 *             {@link DataType#PARAMETERSET}
+	 * @throws InconsistentCollectionException
+	 *             if the internally used keys are not unique 
 	 */
 	@SuppressWarnings("unchecked")
 	protected void createParameterSet(Object[] values, String[] keys, String[] comments) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
