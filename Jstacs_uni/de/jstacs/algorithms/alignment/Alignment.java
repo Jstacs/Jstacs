@@ -133,16 +133,17 @@ public class Alignment {
 		this.s2 = s2; this.startS2 = startS2;
 		
 		int l1 = endS1-startS1, l2 = endS2-startS2, start, end;
+		//TODO Jan: if( Math.abs(l1-l2) < offDiagonal ) throw new IllegalArgumentException();
 		
 		//initialize & compute
-		if( d == null || d.length < l1+1 ||d[0].length < l2+1 ) {
+		if( d == null || d.length < l1+1 || d[0].length < l2+1 ) {
 			d = new D[l1 + 1][l2 + 1];
 			e = new E[l1 + 1][l2 + 1];
 			f = new F[l1 + 1][l2 + 1];
 			
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,Math.max(l2,i+offDiagonal));
+				end = Math.min(l2,i+offDiagonal);
 				for( int j = start; j <= end; j++ ) {
 					e[i][j] = new E( i, j );
 					f[i][j] = new F( i, j );
@@ -152,7 +153,7 @@ public class Alignment {
 		} else {
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,Math.max(l2,i+offDiagonal));
+				end = Math.min(l2,i+offDiagonal);
 				for( int j = start; j <= end; j++ ) {
 					e[i][j].compute();
 					f[i][j].compute();
@@ -178,7 +179,9 @@ public class Alignment {
 			}
 		} else {
 			endPos=l1;
-			
+			System.out.println( l1 + "\t" + l2 );
+			System.out.println( e[l1][l2] );
+			System.out.println( f[l1][l2] );
 			if( e[l1][l2].cost < f[l1][l2].cost && e[l1][l2].cost < d[l1][l2].cost ) {
 				curr = e[l1][l2];
 			} else if( f[l1][l2].cost < d[l1][l2].cost ) {
