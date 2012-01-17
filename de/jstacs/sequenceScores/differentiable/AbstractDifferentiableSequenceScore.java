@@ -22,7 +22,6 @@ package de.jstacs.sequenceScores.differentiable;
 import java.util.Random;
 
 import de.jstacs.NonParsableException;
-import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.Sequence;
@@ -272,20 +271,6 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 	 */
 	public NumericalResultSet getNumericalCharacteristics() throws Exception {
 		return new NumericalResultSet( new NumericalResult( "number of parameters", "the number of parameters used in this instance to score sequences", getNumberOfParameters() ) );
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.SequenceScore#setNewAlphabetContainerInstance(de.jstacs.data.AlphabetContainer)
-	 */
-	public final boolean setNewAlphabetContainerInstance(AlphabetContainer abc) {
-		if (abc.checkConsistency(alphabets)) {
-			set(abc);
-			alphabets = abc;
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	/**

@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import de.jstacs.DataType;
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Singleton;
+import de.jstacs.Singleton.SingletonHandler;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterException;

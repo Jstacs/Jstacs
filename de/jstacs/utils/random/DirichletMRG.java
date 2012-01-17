@@ -61,6 +61,27 @@ public class DirichletMRG extends MultivariateRandomGenerator {
 		}
 	}
 	
+	/**
+	 * Fills a part of the array <code>d</code> beginning at <code>start</code> with <code>n</code> logarithmic values.
+	 * 
+	 * @param d
+	 *            the array
+	 * @param start
+	 *            the start index for generated values
+	 * @param n
+	 *            the dimension of the random array
+	 * @param p
+	 *            the parameter of the underlying distribution
+	 * 
+	 * @throws ClassCastException
+	 *             if the object <code>p</code> could not be parsed to the
+	 *             correct subclass
+	 * @throws IllegalArgumentException
+	 *             if an argument is not correct
+	 *             
+	 * @see DiMRGParams
+	 * @see #generate(double[], int, int, MRGParams)
+	 */
 	public void generateLog(  double[] d, int start, int n, MRGParams p ) {
 		fill( d, start, n, p );
 		double logSum = Normalisation.getLogSum( start, start+n, d );

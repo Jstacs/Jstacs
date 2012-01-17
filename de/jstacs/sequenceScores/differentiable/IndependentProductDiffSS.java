@@ -123,7 +123,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 *             
 	 * @see IndependentProductDiffSS#IndependentProductDiffSS(boolean, DifferentiableSequenceScore[], int[])
 	 */
-	public IndependentProductDiffSS( double ess, boolean plugIn, DifferentiableSequenceScore... functions ) throws CloneNotSupportedException, WrongAlphabetException {
+	public IndependentProductDiffSS( boolean plugIn, DifferentiableSequenceScore... functions ) throws CloneNotSupportedException, WrongAlphabetException {
 		this( plugIn, functions, getLengthArray( functions ) );
 	}
 
