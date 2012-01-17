@@ -67,7 +67,7 @@ public class StorableValidator implements ParameterValidator {
 			this.clazz = clazz;
 		} else {
 			throw new Exception(
-					"Class is not a subtype of StorableAbstractClassifier or StorableAbstractModel");
+					"Class is not a subtype of AbstractClassifier or AbstractTrainSM.");
 		}
 		this.trained = trained;
 	}

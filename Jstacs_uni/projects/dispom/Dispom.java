@@ -68,7 +68,7 @@ import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
-import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox.InitMethodForScoringFunction;
+import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox.InitMethodForDiffSM;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
 import de.jstacs.motifDiscovery.history.CappedHistory;
 import de.jstacs.motifDiscovery.history.NoRevertHistory;
@@ -401,16 +401,16 @@ public class Dispom {
 			
 			// initialize
 			if( initMethod.startsWith( "best-random" ) ) {
-				InitMethodForScoringFunction[] initMeth = {InitMethodForScoringFunction.NOTHING, InitMethodForScoringFunction.NOTHING};
+				InitMethodForDiffSM[] initMeth = {InitMethodForDiffSM.NOTHING, InitMethodForDiffSM.NOTHING};
 				if( initMethod.startsWith( "best-random=" ) ) {
-					initMeth[0] = InitMethodForScoringFunction.RANDOMLY;
+					initMeth[0] = InitMethodForDiffSM.RANDOMLY;
 				} else if( initMethod.startsWith( "best-random-plugin=" ) ) {
-					initMeth[0] = InitMethodForScoringFunction.PLUG_IN;
+					initMeth[0] = InitMethodForDiffSM.PLUG_IN;
 				} else if( initMethod.startsWith( "best-random-motif=" ) ) {
-					initMeth[0] = InitMethodForScoringFunction.MOTIF_RANDOMLY;
+					initMeth[0] = InitMethodForDiffSM.MOTIF_RANDOMLY;
 				} 
 				
-				if( initMeth[0] == InitMethodForScoringFunction.NOTHING ) {
+				if( initMeth[0] == InitMethodForDiffSM.NOTHING ) {
 					throw new IllegalArgumentException( "Initialization method not correctly set." );
 				}
 					

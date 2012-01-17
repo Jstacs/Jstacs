@@ -656,8 +656,7 @@ public class BayesianNetworkDiffSM extends
 			}
 			return buf.toString();
 		} else {
-			return "BNScoringFunction of length " + length
-					+ ": not initialized";
+			return getClass().getSimpleName() + " of length " + length + ": not initialized";
 		}
 	}
 
