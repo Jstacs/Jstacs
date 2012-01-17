@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+/*
+ * This file is part of Jstacs.
+ *
+ * Jstacs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Jstacs.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+-->
+</head>
+<body bgcolor="white">
+
+Provides all {@link de.jstacs.SequenceScore}s, which can be used to score a {@link de.jstacs.data.Sequence}, typically using some model assumptions.
+Important special cases of {@link de.jstacs.SequenceScore}s are {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s, which can compute
+the gradient with respect to their parameter for a given input sequence, including logistic regression, and {@link de.jstacs.sequenceScores.StatisticalModel}s,
+which can compute a proper (i.e., normalized) likelihood over the input space of sequences. These are located in the sub-package {@link de.jstacs.sequenceScores.statisticalModels}.<br />
+
+{@link de.jstacs.sequenceScores.StatisticalModel}s can be further differentiated into {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s,
+which can be learned from a single input {@link de.jstacs.data.DataSet}, and {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s,
+which define a proper likelihood but can also compute gradients like {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s.
+
+<!-- Put @see and @since tags down here. -->
+</body>
+</html>

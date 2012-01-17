@@ -23,11 +23,10 @@
 -->
 </head>
 <body bgcolor="white">
-Provides <code>ScoringFunction</code>s that are equivalent to directed graphical models. The currently implemented
-<code>BayesianNetworkScoringFunction</code> provides structure learning for inhomogeneous Markov models, Bayesian trees, and permuted Markov models,
-but can be extended to other graph structures easily using the <code>Measure</code> interface. When using a <code>BayesianNetworkScoringFunction</code>
-in the <code>CLLClassifier</code>, it is important to define only moral Bayesian network structures, because other in the chosen parameterization the 
-normalization is not defined.
+Provides {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s that are directed graphical models. The currently implemented
+{@link de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSM} provides structure learning for inhomogeneous Markov models, Bayesian trees, and permuted Markov models,
+but can be extended to other graph structures easily using the {@link de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure} interface. 
+It is important to define only moral Bayesian network structures because of the chosen parameterization.
 
 <!-- Put @see and @since tags down here. -->
 
