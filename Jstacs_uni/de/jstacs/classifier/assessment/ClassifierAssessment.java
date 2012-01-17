@@ -882,7 +882,7 @@ public abstract class ClassifierAssessment {
 		AlphabetContainer abc = this.myAbstractClassifier[0].getAlphabetContainer();
 		for( int i = 0; i < s.length; i++ ) {
 			if( !abc.checkConsistency( s[i].getAlphabetContainer() ) ) {
-				throw new WrongAlphabetException( "The AlphabetContainer of Sample " + i + " does not match with tha AlphabetContainer of the first classifier." );
+				throw new WrongAlphabetException( "The AlphabetContainer of DataSet " + i + " does not match with tha AlphabetContainer of the first classifier." );
 			}
 		}
 
@@ -930,7 +930,7 @@ public abstract class ClassifierAssessment {
 			Exception {
 
 		if( testS.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
-			throw new IllegalArgumentException( "Dimension of given testSample-array is not " + "equal to problem-dimension (classifier.getNumberOfClasses)." );
+			throw new IllegalArgumentException( "Dimension of given testDataSet-array is not " + "equal to problem-dimension (classifier.getNumberOfClasses)." );
 		}
 
 		for( int i = 0; i < this.myAbstractClassifier.length; i++ ) {
@@ -964,7 +964,7 @@ public abstract class ClassifierAssessment {
 	protected void train( DataSet... trainS ) throws IllegalArgumentException, Exception {
 
 		if( trainS.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
-			throw new IllegalArgumentException( "Dimension of given trainSample-array is not " + "equal to problem-dimension (classifier.getNumberOfClasses)." );
+			throw new IllegalArgumentException( "Dimension of given trainDataSet-array is not " + "equal to problem-dimension (classifier.getNumberOfClasses)." );
 		}
 
 		for( int i = 0; i < this.myAbstractClassifier.length - this.skipLastClassifiersDuringClassifierTraining; i++ ) {
