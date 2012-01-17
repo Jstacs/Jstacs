@@ -24,15 +24,21 @@
 </head>
 <body bgcolor="white">
 
-Provides the interface <code>TrainableStatisticalModel</code> and its abstract implementation <code>AbstractTrainSM</code>, which is the super class of all other models.
-The <code>TrainableStatisticalModel</code> interface defines how to obtain a probability for a sequence and how to train the parameters of the model using a <code>DataSet</code>.
-Any combination of <code>TrainableStatisticalModel</code>s can be used to build a <code>TrainSMBasedClassifier</code>, which can be evaluated in a <code>ClassifierAssessment</code>.
+Provides all {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s, which can
+be learned from a single {@link de.jstacs.data.DataSet}. Often, parameter learning follows a learning principle
+like maximum likelihood or maximum a-posteriori. Parameter learning typically is performed analytically like for the homogeneous and inhomogeneous
+models in the {@link de.jstacs.sequenceScores.statisticalModels.trainable.discrete} sub-package.<br />
 
+Notable exceptions are hidden Markov models ({@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm}), which are learned by Baum-Welch or Viterbi training, 
+and mixture models ({@link de.jstacs.sequenceScores.statisticalModels.trainable.mixture}), which are learned by expectation-maximization (EM) or
+Gibbs sampling.<br />
+
+After a {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel} has been trained, it can be used
+to compute the likelihood of new sequences.<br />
+
+Any combination of {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s can be used to build a
+{@link de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier}, which can be used to classify new sequences and which can
+be evaluated using a {@link de.jstacs.classifier.assessment.ClassifierAssessment}.<br />
 <!-- Put @see and @since tags down here. -->
-@see TrainableStatisticalModel
-@see AbstractTrainSM
-@see de.jstacs.data.DataSet
-@see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier
-@see de.jstacs.classifier.assessment.ClassifierAssessment
 </body>
 </html>

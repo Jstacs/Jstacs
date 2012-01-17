@@ -39,9 +39,20 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 
 /**
- * This class is the main class for all model based classifiers. The score for
- * this class is the logarithm of the joint probability
- * <code>p(x,c|\lambda)</code>.
+ * Classifier that works on {@link TrainableStatisticalModel}s for each of the different classes.
+ * By calling the {@link TrainSMBasedClassifier#train(DataSet...)} method of this classifier,
+ * all internal {@link TrainableStatisticalModel}s are learned on the {@link DataSet} for the corresponding class
+ * using their own {@link TrainableStatisticalModel#train(DataSet)} method. In addition, the a-priori class
+ * probabilities are estimated.
+ * 
+ * After training, the method {@link TrainSMBasedClassifier#getScore(Sequence, int)} returns the joint
+ * probability (likelihood) of the provided {@link Sequence} and the specified class.
+ * 
+ * For two-class problems, the method {@link TrainSMBasedClassifier#getScores(DataSet)} returns the log-likelihood ratios for
+ * all {@link Sequence}s in the provided {@link DataSet}.
+ * 
+ * The methods {@link TrainSMBasedClassifier#classify(Sequence)} and {@link TrainSMBasedClassifier#classify(DataSet)} use the likelihoods of {@link Sequence} 
+ * and class and report the class yielding the maximum likelihood.
  * 
  * @author Jens Keilwagen
  * 
