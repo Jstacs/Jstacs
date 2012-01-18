@@ -91,7 +91,7 @@ public class AbsoluteValueCondition extends AbstractTerminationCondition {
 	
 	public boolean doNextIteration( int iteration, double f_last, double f_current, double[] gradient, double[] direction, double alpha,
 			Time t ) {
-		return threshold > f_current;
+		return threshold < f_current;
 	}
 
 	public boolean isSimple() {
