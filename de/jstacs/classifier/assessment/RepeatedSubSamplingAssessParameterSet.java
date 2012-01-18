@@ -58,13 +58,12 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * @throws UnsupportedOperationException
 	 *             if the {@link RepeatedSubSamplingAssessParameterSet} could
 	 *             not be constructed or the parameters could not be loaded
-	 * @throws CloneNotSupportedException 
-	 * @throws IllegalValueException 
-	 * @throws DatatypeNotValidException 
+	 * @throws CloneNotSupportedException if the parameter for the subsampled sequences could not be created
+	 * @throws IllegalValueException if the parameters could not be filled with the default values
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public RepeatedSubSamplingAssessParameterSet() throws UnsupportedOperationException, DatatypeNotValidException, IllegalValueException, CloneNotSupportedException {
+	public RepeatedSubSamplingAssessParameterSet() throws UnsupportedOperationException, CloneNotSupportedException, IllegalValueException {
 		super();
 		addParameters();
 	}
@@ -121,15 +120,13 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * 
 	 * @throws IllegalValueException
 	 *             in case of out-of-range or invalid given parameters
-	 * @throws DatatypeNotValidException 
-	 * @throws UnsupportedOperationException 
-	 * @throws CloneNotSupportedException 
+	 * @throws CloneNotSupportedException if the parameter for the subsampled sequences could not be created
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 */
 	public RepeatedSubSamplingAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable, int repeats, int[] trainNumbers,
-													int[] testNumbers ) throws IllegalValueException, UnsupportedOperationException, DatatypeNotValidException, CloneNotSupportedException {
+													int[] testNumbers ) throws IllegalValueException, CloneNotSupportedException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
 		
@@ -158,28 +155,37 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * specific class.
 	 * @throws DatatypeNotValidException 
 	 */
-	private ParameterSet getParameterSetContainingASingleIntValue( int num, final String train_test ) throws IllegalValueException, DatatypeNotValidException {
+	private ParameterSet getParameterSetContainingASingleIntValue( int num, final String train_test ) throws IllegalValueException {
 
-		ParameterSet ret = new SimpleParameterSet(new SimpleParameter( DataType.INT,
-						"number",
-						"Defines a number of elements of data used as " + train_test
-								+ " items (class-specific) during a SubSamplingAssessment",
-						true,
-						new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
+		ParameterSet ret;
+		try {
+			ret = new SimpleParameterSet(new SimpleParameter( DataType.INT,
+							"number",
+							"Defines a number of elements of data used as " + train_test
+									+ " items (class-specific) during a SubSamplingAssessment",
+							true,
+							new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
+		} catch ( DatatypeNotValidException doesnothappen ) {
+			throw new RuntimeException( doesnothappen );
+		}
 
 		ret.getParameterAt( 0 ).setValue( new Integer( num ) );
 
 		return ret;
 	}
 
-	private void addParameters() throws DatatypeNotValidException, IllegalValueException, CloneNotSupportedException {
+	private void addParameters() throws CloneNotSupportedException, IllegalValueException {
 		//2-k
-		this.parameters.add( new SimpleParameter( DataType.INT,
-				"repeats",
-				"Determines how often the procedure of " + "train/test classifers with random created "
-						+ "train- and test-data should be repeated.",
-				true,
-				new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
+		try {
+			this.parameters.add( new SimpleParameter( DataType.INT,
+					"repeats",
+					"Determines how often the procedure of " + "train/test classifers with random created "
+							+ "train- and test-data should be repeated.",
+					true,
+					new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
+		} catch ( DatatypeNotValidException doesnothappen ) {
+			throw new RuntimeException( doesnothappen );
+		}
 
 		//3-percents
 		this.parameters.add( new ParameterSetContainer( "trainDataNumbers",

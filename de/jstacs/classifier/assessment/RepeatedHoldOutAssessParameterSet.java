@@ -57,12 +57,12 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * &quot;filled&quot; {@link RepeatedHoldOutAssessParameterSet}s, i.e. to
 	 * create {@link RepeatedHoldOutAssessParameterSet}s from a set of values
 	 * and not to fill it from the platform user interface.
-	 * @throws ParameterException 
-	 * @throws CloneNotSupportedException 
+	 * @throws ParameterException if the parameters could not be created
+	 * @throws CloneNotSupportedException if the parameter for the percentages could not be created
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
-	public RepeatedHoldOutAssessParameterSet() throws CloneNotSupportedException, ParameterException {
+	public RepeatedHoldOutAssessParameterSet() throws ParameterException, CloneNotSupportedException {
 		super();
 		addParameters();
 	}
@@ -123,16 +123,15 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 *            iteration of that {@link RepeatedHoldOutExperiment} this
 	 *            {@link RepeatedHoldOutAssessParameterSet} is used with
 	 * 
-	 * @throws UnsupportedOperationException 
-	 * @throws ParameterException 
-	 * @throws CloneNotSupportedException 
+	 * @throws ParameterException if the parameters could not be created
+	 * @throws CloneNotSupportedException if the parameter for the percentages could not be created
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public RepeatedHoldOutAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable,
-												int repeats, double[] percents ) throws UnsupportedOperationException, CloneNotSupportedException, ParameterException {
+												int repeats, double[] percents ) throws ParameterException, CloneNotSupportedException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
 		this.parameters.get( 2 ).setValue( new Integer( repeats ) );
@@ -183,7 +182,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 		return ret;
 	}
 	
-	private void addParameters() throws CloneNotSupportedException, ParameterException {
+	private void addParameters() throws ParameterException, CloneNotSupportedException {
 		//2-k
 		this.parameters.add( new SimpleParameter( DataType.INT,
 				"repeats",

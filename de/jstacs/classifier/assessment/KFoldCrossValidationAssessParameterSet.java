@@ -26,6 +26,7 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
@@ -54,7 +55,7 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 * @throws UnsupportedOperationException
 	 *             if the {@link KFoldCrossValidationAssessParameterSet} could not be
 	 *             constructed or the parameters could not be loaded
-	 * @throws ParameterException 
+	 * @throws ParameterException if the parameter for the {@link PartitionMethod} could not be created
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
 	public KFoldCrossValidationAssessParameterSet() throws UnsupportedOperationException, ParameterException {
@@ -110,16 +111,14 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 *            dataset. Thus <code>k</code> also defines how many (
 	 *            <code>k</code>) repeated classifier trainings and classifier
 	 *            evaluations (tests) are performed.
+	 * @throws ParameterException if the parameter for the {@link PartitionMethod} could not be created
 	 * 
-	 * @throws UnsupportedOperationException 
-	 * @throws ParameterException 
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
-	public KFoldCrossValidationAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable, int k )
-																																		throws UnsupportedOperationException, ParameterException {
+	public KFoldCrossValidationAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable, int k ) throws ParameterException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
 		( this.parameters.get( 2 ) ).setValue( new Integer( k ) );
@@ -133,6 +132,7 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 
 	private void addParameters() throws ParameterException {
 
+		try{
 		//2-k
 		this.parameters.add( new SimpleParameter( DataType.INT,
 				"k",
@@ -140,6 +140,9 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 				true,
 				new NumberValidator<Integer>( 2, Integer.MAX_VALUE ) ) );
 
+		}catch(DatatypeNotValidException doesnothappen){
+			throw new RuntimeException( doesnothappen );
+		}
 		//3-dataSplitMethod
 		this.parameters.add( new EnumParameter( PartitionMethod.class, "The method used to compute the percentages of the partitions", true ) );
 	}

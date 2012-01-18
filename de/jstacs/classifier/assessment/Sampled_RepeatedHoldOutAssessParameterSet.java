@@ -54,7 +54,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *             if the {@link Sampled_RepeatedHoldOutAssessParameterSet}
 	 *             could not be constructed or the parameters could not be
 	 *             loaded
-	 * @throws ParameterException 
+	 * @throws ParameterException if the parameter for the percentages could not be created
 	 * 
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet()
 	 */
@@ -121,7 +121,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *            if <code>true</code> for test and train dataset the sequences
 	 *            of the non-reference classes have the same length as the
 	 *            corresponding sequence of the reference class
-	 * @throws ParameterException 
+	 * @throws ParameterException if the parameter for the percentages could not be created
 	 * 
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
