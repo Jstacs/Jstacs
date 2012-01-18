@@ -18,11 +18,11 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.shared;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM;

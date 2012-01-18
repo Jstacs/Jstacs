@@ -18,7 +18,7 @@
 package de.jstacs.data.sequences.annotation;
 
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 
 /**

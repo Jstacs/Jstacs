@@ -20,14 +20,13 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.sampling.AbstractBurnInTest;
 import de.jstacs.sampling.AbstractBurnInTestParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.HMMTrainingParameterSet;
 import de.jstacs.utils.SubclassFinder;
 
 /**

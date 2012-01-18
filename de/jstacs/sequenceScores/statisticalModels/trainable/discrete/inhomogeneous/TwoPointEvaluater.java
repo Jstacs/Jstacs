@@ -20,9 +20,9 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogene
 
 import java.awt.image.BufferedImage;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;
 import de.jstacs.utils.REnvironment;
 

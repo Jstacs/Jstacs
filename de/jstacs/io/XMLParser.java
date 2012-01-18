@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Singleton;
 import de.jstacs.Storable;
 import de.jstacs.Singleton.SingletonHandler;

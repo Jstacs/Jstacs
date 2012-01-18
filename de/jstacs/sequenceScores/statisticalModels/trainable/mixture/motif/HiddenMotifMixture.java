@@ -22,11 +22,11 @@ import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.sampling.BurnInTest;

@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.ByteSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.ConstraintManager;

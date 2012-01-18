@@ -23,6 +23,8 @@ import java.util.Iterator;
 
 import javax.naming.OperationNotSupportedException;
 
+import de.jstacs.data.sequences.Sequence;
+
 /**
  * Class for an {@link RecyclableSequenceEnumerator} of {@link Sequence}s that enumerates all k-mers that exist in a given {@link DataSet}, optionally ignoring reverse complements.
  * 

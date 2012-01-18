@@ -26,13 +26,11 @@
 
 This package is the super package for any mixture model.
 
-The most interesting class of this package is the {@link de.jstacs.trainableStatisticalModels.AbstractTrainSM}.
+The most interesting class of this package is the {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM}.
 This class currently enables to train the model using EM or Gibbs Sampling. All mixtures
-of {@link de.jstacs.sequenceScore.statisticalModels.trainable.TrainableStatisticalModel}s should be extensions of {@link de.jstacs.trainableStatisticalModels.AbstractTrainSM}.
+of {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s should be extensions of {@link de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM}.
 
 <!-- Put @see and @since tags down here. -->
-@see de.jstacs.trainableStatisticalModels.AbstractTrainSM
-@see de.jstacs.trainableStatisticalModels.mixture.AbstractMixtureTrainSM
 @see de.jstacs.sampling.SamplingComponent
 </body>
 </html>

@@ -100,10 +100,10 @@ public abstract class OptimizableFunction extends DifferentiableFunction {
 	public abstract DataSet[] getData();
 
 	/**
-	 * Returns the weights for each {@link de.jstacs.data.Sequence} for each
+	 * Returns the weights for each {@link de.jstacs.data.sequences.Sequence} for each
 	 * class used in this {@link OptimizableFunction}.
 	 * 
-	 * @return the weights for each {@link de.jstacs.data.Sequence} and each
+	 * @return the weights for each {@link de.jstacs.data.sequences.Sequence} and each
 	 *         class
 	 * 
 	 * @see OptimizableFunction#getData()

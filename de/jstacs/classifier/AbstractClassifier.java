@@ -20,14 +20,14 @@ package de.jstacs.classifier;
 
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;

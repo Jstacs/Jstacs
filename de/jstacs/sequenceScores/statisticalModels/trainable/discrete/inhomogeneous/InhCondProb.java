@@ -20,9 +20,9 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogene
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
@@ -206,7 +206,7 @@ public class InhCondProb extends InhConstraint {
 	 *             if this instance models a joint probability for more than one
 	 *             position (shall be implemented in the future)
 	 * 
-	 * @see de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int[])
+	 * @see de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int[])
 	 */
 	public void getOutput( byte[] content, double p ) throws OperationNotSupportedException {
 		int off = 0;

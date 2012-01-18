@@ -1,10 +1,10 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

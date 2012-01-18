@@ -16,34 +16,36 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs;
+package de.jstacs.data;
+
 
 /**
- * A {@link NonParsableException} is thrown if some object could not be restored
- * (parsed) from a {@link StringBuffer}.
+ * A {@link WrongAlphabetException} is thrown if the given {@link de.jstacs.data.alphabets.Alphabet} or {@link de.jstacs.data.AlphabetContainer}
+ * does not support some data.
  * 
- * @author Jan Grau, Jens Keilwagen
+ * @author Jan Grau
  */
-public class NonParsableException extends Exception {
+public class WrongAlphabetException extends Exception {
 
-	private static final long serialVersionUID = 3257284725474670903L;
+	private static final long serialVersionUID = 3257008769530474547L;
 
 	/**
-	 * Creates a new {@link NonParsableException} with standard error message
-	 * (&quot;StringBuffer not parsable.&quot;).
+	 * Creates a new {@link WrongAlphabetException} with standard error message
+	 * (&quot;The data of the selected file does not match the entered
+	 * alphabet.&quot;).
 	 */
-	public NonParsableException() {
-		super( "StringBuffer not parsable." );
+	public WrongAlphabetException() {
+		super( "The data of the selected file does not match the entered alphabet." );
 	}
 
 	/**
-	 * Creates a new {@link NonParsableException} with given error
+	 * Creates a new {@link WrongAlphabetException} with given error
 	 * <code>message</code>.
 	 * 
 	 * @param message
 	 *            the error message
 	 */
-	public NonParsableException( String message ) {
-		super( "StringBuffer not parsable. (" + message + ")" );
+	public WrongAlphabetException( String message ) {
+		super( message );
 	}
 }

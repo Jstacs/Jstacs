@@ -24,11 +24,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.InstantiableFromParameterSet;
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.TopSort;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;

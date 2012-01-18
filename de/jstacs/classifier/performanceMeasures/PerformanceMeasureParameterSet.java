@@ -2,9 +2,9 @@ package de.jstacs.classifier.performanceMeasures;
 
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.assessment.ClassifierAssessment;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.ParameterSet;

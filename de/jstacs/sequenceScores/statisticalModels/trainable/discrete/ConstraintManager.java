@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.graphs.UnionFind;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.CombinationIterator;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.InhCondProb;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.MEMConstraint;

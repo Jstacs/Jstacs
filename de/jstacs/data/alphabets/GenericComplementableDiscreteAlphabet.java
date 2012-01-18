@@ -20,7 +20,7 @@ package de.jstacs.data.alphabets;
 import java.util.StringTokenizer;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 
@@ -166,7 +166,7 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 		 *             {@link StringBuffer} <code>representation</code> could
 		 *             not be parsed)
 		 * 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
 		 * @see de.jstacs.Storable
 		 */
 		public GenericComplementableDiscreteAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {

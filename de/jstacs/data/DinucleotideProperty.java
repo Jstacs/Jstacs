@@ -21,10 +21,10 @@ package de.jstacs.data;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.ArbitrarySequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;

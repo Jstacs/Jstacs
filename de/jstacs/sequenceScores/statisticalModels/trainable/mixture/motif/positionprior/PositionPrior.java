@@ -18,8 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.positionprior;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

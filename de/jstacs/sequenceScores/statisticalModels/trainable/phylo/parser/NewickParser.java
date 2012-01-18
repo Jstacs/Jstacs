@@ -1,6 +1,6 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.phylo.parser;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloNode;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;
 

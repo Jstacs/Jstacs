@@ -24,7 +24,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.ComparableElement;
 

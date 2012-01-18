@@ -19,10 +19,10 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mix.motif;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;

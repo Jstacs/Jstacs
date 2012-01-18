@@ -2,8 +2,8 @@ package de.jstacs.classifier.performanceMeasures;
 
 import java.util.ArrayList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;

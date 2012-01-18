@@ -18,7 +18,7 @@
 
 package de.jstacs.data.alphabets;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * This abstract class indicates that an alphabet can be used to compute the

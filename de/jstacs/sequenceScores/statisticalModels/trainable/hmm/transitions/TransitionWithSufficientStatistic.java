@@ -1,7 +1,6 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions;
 
-import de.jstacs.data.Sequence;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * This interface defines method for reseting and filling an internal sufficient statistic.

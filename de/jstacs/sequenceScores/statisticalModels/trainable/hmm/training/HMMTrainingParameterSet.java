@@ -17,15 +17,16 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.sequenceScores.statisticalModels.trainable.hmm;
+package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 
 /**
  * This class implements an abstract {@link ParameterSet} that is used for the training of an {@link AbstractHMM}.

@@ -18,7 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.positionprior;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * This prior implements a uniform distribution for the start position.

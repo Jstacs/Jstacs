@@ -19,8 +19,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
-import de.jstacs.sequenceScores.StatisticalModel;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 
 /**
  * The interface for normalizable {@link DifferentiableSequenceScore}s.

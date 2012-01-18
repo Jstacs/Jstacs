@@ -243,6 +243,8 @@ public class ParameterSetParser {
 	 * <code>pars</code>. The instance class is taken from <code>pars</code> via
 	 * the method {@link InstanceParameterSet#getInstanceClass()}.
 	 * 
+	 * @param <T> the type of the {@link InstanceParameterSet}
+	 * 
 	 * @param pars
 	 *            the {@link InstanceParameterSet}
 	 * 
@@ -264,6 +266,8 @@ public class ParameterSetParser {
 	 * Returns an instance of a subclass of {@link InstantiableFromParameterSet}
 	 * that can be instantiated by the {@link ParameterSet} <code>pars</code>.
 	 * The instance class is taken from <code>instanceClass</code>.
+	 * 
+	 * @param <T> the type of the {@link InstanceParameterSet}
 	 * 
 	 * @param pars
 	 *            the {@link ParameterSet}

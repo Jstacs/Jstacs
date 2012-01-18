@@ -18,7 +18,7 @@
 
 package de.jstacs.data.sequences.annotation;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.Result;
 
 /**

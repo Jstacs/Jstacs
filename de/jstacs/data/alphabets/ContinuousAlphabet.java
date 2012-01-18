@@ -19,8 +19,7 @@
 package de.jstacs.data.alphabets;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
-import de.jstacs.data.Alphabet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
@@ -206,7 +205,7 @@ public class ContinuousAlphabet extends Alphabet {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.data.Alphabet#getMin()
+	 * @see de.jstacs.data.alphabets.Alphabet#getMin()
 	 */
 	@Override
 	public double getMin() {
@@ -237,7 +236,7 @@ public class ContinuousAlphabet extends Alphabet {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.data.Alphabet#length()
+	 * @see de.jstacs.data.alphabets.Alphabet#length()
 	 */
 	@Override
 	public double length() {
@@ -245,7 +244,7 @@ public class ContinuousAlphabet extends Alphabet {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.data.Alphabet#toString()
+	 * @see de.jstacs.data.alphabets.Alphabet#toString()
 	 */
 	@Override
 	public String toString() {
@@ -264,7 +263,7 @@ public class ContinuousAlphabet extends Alphabet {
 		 * Creates a new {@link ContinuousAlphabetParameterSet} with empty
 		 * values.
 		 * @throws ParameterException 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
 		public ContinuousAlphabetParameterSet() throws ParameterException {
 			super( ContinuousAlphabet.class );
@@ -328,7 +327,7 @@ public class ContinuousAlphabet extends Alphabet {
 		 *             {@link StringBuffer} <code>representation</code> could
 		 *             not be parsed)
 		 * 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
 		 * @see de.jstacs.Storable
 		 */
 		public ContinuousAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {

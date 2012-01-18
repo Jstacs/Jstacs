@@ -2,14 +2,14 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
 /**
- * This class implements a {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.State} based on {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission} that allows to reuse {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission}s for different {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.State}s.
+ * This class implements a {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State} based on {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission} that allows to reuse {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission}s for different {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State}s.
  * 
  * @author Jens Keilwagen
  */

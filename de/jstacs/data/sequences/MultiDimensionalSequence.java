@@ -1,8 +1,10 @@
-package de.jstacs.data;
+package de.jstacs.data.sequences;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.WrongAlphabetException;
+import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
 /**

@@ -22,9 +22,8 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Alphabet;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SelectionParameter;
@@ -286,7 +285,7 @@ public class DiscreteAlphabet extends Alphabet {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.data.Alphabet#getMin()
+	 * @see de.jstacs.data.alphabets.Alphabet#getMin()
 	 */
 	@Override
 	public double getMin() {
@@ -353,7 +352,7 @@ public class DiscreteAlphabet extends Alphabet {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.data.Alphabet#toString()
+	 * @see de.jstacs.data.alphabets.Alphabet#toString()
 	 */
 	@Override
 	public String toString() {
@@ -383,10 +382,9 @@ public class DiscreteAlphabet extends Alphabet {
 		
 		/**
 		 * Creates a new {@link DiscreteAlphabetParameterSet} with empty values.
-		 * @throws DatatypeNotValidException 
 		 * @throws ParameterException
 		 * 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
 		 */
 		public DiscreteAlphabetParameterSet() throws ParameterException {
 			this( DiscreteAlphabet.class );
@@ -469,7 +467,7 @@ public class DiscreteAlphabet extends Alphabet {
 		 *             {@link StringBuffer} <code>representation</code> could
 		 *             not be parsed)
 		 * 
-		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer)
 		 * @see de.jstacs.Storable
 		 */
 		public DiscreteAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {

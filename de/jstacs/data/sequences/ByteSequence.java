@@ -18,8 +18,8 @@
 
 package de.jstacs.data.sequences;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.SymbolExtractor;
 
@@ -37,7 +37,7 @@ public class ByteSequence extends SimpleDiscreteSequence {
 	/**
 	 * Creates a new {@link ByteSequence} from an array of <code>byte</code>-
 	 * encoded alphabet symbols. This constructor is designed for the method
-	 * {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)}.
+	 * {@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int...)}.
 	 * 
 	 * @param alphabetContainer
 	 *            the {@link AlphabetContainer} for the sequence
@@ -51,7 +51,7 @@ public class ByteSequence extends SimpleDiscreteSequence {
 	 *             if <code>alphabetContainer</code> contains alphabets that can
 	 *             not be encoded with <code>byte</code>s
 	 * 
-	 * @see de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)
+	 * @see de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int...)
 	 * @see SimpleDiscreteSequence#SimpleDiscreteSequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public ByteSequence( AlphabetContainer alphabetContainer, byte[] content ) throws WrongAlphabetException, WrongSequenceTypeException {

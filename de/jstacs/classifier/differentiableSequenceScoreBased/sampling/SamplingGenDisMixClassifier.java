@@ -18,7 +18,6 @@
 
 package de.jstacs.classifier.differentiableSequenceScoreBased.sampling;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
@@ -26,6 +25,7 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningP
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sampling.BurnInTest;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;

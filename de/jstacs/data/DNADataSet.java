@@ -21,8 +21,8 @@ package de.jstacs.data;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.SparseStringExtractor;
 

@@ -18,12 +18,12 @@
 
 package de.jstacs.classifier.differentiableSequenceScoreBased.msp;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 
 /**

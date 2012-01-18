@@ -15,7 +15,7 @@ import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.ResultSet;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSM;

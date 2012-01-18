@@ -26,8 +26,8 @@ import java.util.LinkedList;
 
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.PermutedSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;

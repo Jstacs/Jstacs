@@ -21,14 +21,14 @@ package de.jstacs.data.sequences.annotation;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 
 /**
- * Class for a general annotation of a {@link de.jstacs.data.Sequence}.
+ * Class for a general annotation of a {@link de.jstacs.data.sequences.Sequence}.
  * Annotations may be e.g. exons, introns, coding sequences or splice sites.
  * 
  * @author Jan Grau

@@ -19,7 +19,7 @@
 package de.jstacs.sampling;
 
 import de.jstacs.InstantiableFromParameterSet;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
 

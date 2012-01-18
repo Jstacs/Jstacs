@@ -19,9 +19,9 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.parameters;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.validation.NumberValidator;

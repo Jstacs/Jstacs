@@ -17,7 +17,7 @@
  */
 package de.jstacs.algorithms.alignment.cost;
 
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * The general interface for the costs of an alignment.

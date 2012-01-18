@@ -24,12 +24,12 @@
 </head>
 <body bgcolor="white">
 
-Provides all {@link de.jstacs.SequenceScore}s, which can be used to score a {@link de.jstacs.data.Sequence}, typically using some model assumptions.
-Important special cases of {@link de.jstacs.SequenceScore}s are {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s, which can compute
-the gradient with respect to their parameter for a given input sequence, including logistic regression, and {@link de.jstacs.sequenceScores.StatisticalModel}s,
+Provides all {@link de.jstacs.sequenceScores.SequenceScore}s, which can be used to score a {@link de.jstacs.data.sequences.Sequence}, typically using some model assumptions.
+Important special cases of {@link de.jstacs.sequenceScores.SequenceScore}s are {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s, which can compute
+the gradient with respect to their parameter for a given input sequence, including logistic regression, and {@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel}s,
 which can compute a proper (i.e., normalized) likelihood over the input space of sequences. These are located in the sub-package {@link de.jstacs.sequenceScores.statisticalModels}.<br />
 
-{@link de.jstacs.sequenceScores.StatisticalModel}s can be further differentiated into {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s,
+{@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel}s can be further differentiated into {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s,
 which can be learned from a single input {@link de.jstacs.data.DataSet}, and {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s,
 which define a proper likelihood but can also compute gradients like {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s.
 

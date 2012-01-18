@@ -18,8 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mix.motif;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 

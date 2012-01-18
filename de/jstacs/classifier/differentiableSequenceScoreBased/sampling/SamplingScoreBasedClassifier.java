@@ -29,9 +29,7 @@ import java.util.Random;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
@@ -39,11 +37,13 @@ import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;

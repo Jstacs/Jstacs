@@ -17,7 +17,7 @@
  */
 package de.jstacs.algorithms.alignment.cost;
 
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 
 /**

@@ -22,7 +22,7 @@ package de.jstacs.parameters.validation;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

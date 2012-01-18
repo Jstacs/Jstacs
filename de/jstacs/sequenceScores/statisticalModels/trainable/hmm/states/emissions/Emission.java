@@ -6,15 +6,15 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition;
 
 /**
  * This interface declares all method for an emission of a state.
  * 
  * @author Jens Keilwagen
  * 
- * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.State
+ * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State
  */
 public interface Emission extends Storable, Cloneable {
 

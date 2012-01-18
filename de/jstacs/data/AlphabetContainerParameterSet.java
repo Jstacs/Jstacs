@@ -22,14 +22,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.ContinuousAlphabet.ContinuousAlphabetParameterSet;
 import de.jstacs.data.alphabets.DNAAlphabet.DNAAlphabetParameterSet;
 import de.jstacs.data.alphabets.DiscreteAlphabet.DiscreteAlphabetParameterSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ArrayParameterSet;
 import de.jstacs.parameters.ExpandableParameterSet;
@@ -80,7 +81,7 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 	 * 
 	 * @throws Exception if the {@link ParameterSet} could not be created
 	 * 
-	 * @see #AlphabetContainerParameterSet(AlphabetContainerType, boolean)
+	 * @see #AlphabetContainerParameterSet(AlphabetContainer.AlphabetContainerType, boolean)
 	 */
 	public AlphabetContainerParameterSet() throws Exception {
 		this( AlphabetContainerType.BOTH, false );
@@ -413,7 +414,7 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 		 * 
 		 * @throws NonParsableException
 		 *             if the
-		 *             {@link de.jstacs.data.Alphabet.AlphabetParameterSet}
+		 *             {@link de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet}
 		 *             could not be reconstructed out of the XML representation
 		 *             (the {@link StringBuffer} <code>representation</code>
 		 *             could not be parsed)

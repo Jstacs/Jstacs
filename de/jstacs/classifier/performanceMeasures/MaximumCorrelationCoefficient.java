@@ -1,6 +1,6 @@
 package de.jstacs.classifier.performanceMeasures;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * This class implements the maximum of the correlation coefficient.

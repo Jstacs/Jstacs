@@ -29,10 +29,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
 import de.jstacs.io.AbstractStringExtractor;

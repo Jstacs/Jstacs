@@ -21,15 +21,15 @@ package de.jstacs.utils;
 
 import java.io.IOException;
 
-import de.jstacs.SequenceScore;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.DataSet.ElementEnumerator;
 import de.jstacs.data.sequences.IntSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
-import de.jstacs.sequenceScores.StatisticalModel;
+import de.jstacs.sequenceScores.SequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 
 /**
@@ -37,7 +37,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatistical
  * several statistics (log-likelihood, Shannon entropy, AIC, BIC, ...) to
  * compare models.
  * 
- * @see de.jstacs.sequenceScores.StatisticalModel
+ * @see de.jstacs.sequenceScores.statisticalModels.StatisticalModel
  * 
  * @author Jens Keilwagen
  */

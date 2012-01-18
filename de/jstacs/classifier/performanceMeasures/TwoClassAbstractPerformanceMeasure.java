@@ -2,7 +2,7 @@ package de.jstacs.classifier.performanceMeasures;
 
 import java.util.Arrays;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.ResultSet;
 
 /**

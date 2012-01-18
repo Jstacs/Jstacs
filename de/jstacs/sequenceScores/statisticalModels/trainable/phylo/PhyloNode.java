@@ -1,7 +1,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.phylo;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import java.util.ArrayList;
 import java.util.Arrays;

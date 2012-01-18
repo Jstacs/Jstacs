@@ -17,8 +17,8 @@
  */
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGModelForGibbsSampling;
 
 /**

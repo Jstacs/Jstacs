@@ -19,21 +19,16 @@
 
 package de.jstacs.algorithms.optimization.termination;
 
-import java.io.IOException;
-
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.AbstractSelectionParameter.InconsistentCollectionException;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.utils.SubclassFinder;
 import de.jstacs.utils.Time;
 
@@ -136,14 +131,10 @@ public class CombinedCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
-		 * @throws DatatypeNotValidException 
-		 * @throws IOException 
-		 * @throws ClassNotFoundException 
-		 * @throws IllegalAccessException 
-		 * @throws InstantiationException 
-		 * @throws CloneNotSupportedException 
+		 * 
+		 * @throws Exception if some error occurs
 		 */
-		public CombinedConditionParameterSet() throws DatatypeNotValidException, CloneNotSupportedException, InstantiationException, IllegalAccessException, ClassNotFoundException, IOException, InconsistentCollectionException, IllegalValueException {
+		public CombinedConditionParameterSet() throws Exception {
 			super( CombinedCondition.class );
 			parameters.add( new SimpleParameter( DataType.INT,
 					"threshold",

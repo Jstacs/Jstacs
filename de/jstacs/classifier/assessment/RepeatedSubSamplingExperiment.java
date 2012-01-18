@@ -18,11 +18,11 @@
 
 package de.jstacs.classifier.assessment;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.utils.ProgressUpdater;
 

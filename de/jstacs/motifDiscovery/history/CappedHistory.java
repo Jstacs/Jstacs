@@ -18,7 +18,7 @@
 
 package de.jstacs.motifDiscovery.history;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

@@ -19,9 +19,9 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**
@@ -39,7 +39,7 @@ public class BNDiffSMParameter implements Storable, Cloneable {
 	 */
 	private double value;
 	/**
-	 * The symbol (out of some {@link de.jstacs.data.Alphabet}) this parameter
+	 * The symbol (out of some {@link de.jstacs.data.alphabets.Alphabet}) this parameter
 	 * is responsible for.
 	 */
 	protected byte symbol;

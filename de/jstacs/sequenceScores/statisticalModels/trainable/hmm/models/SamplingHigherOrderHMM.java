@@ -22,10 +22,10 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sampling.BurnInTest;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SamplingState;

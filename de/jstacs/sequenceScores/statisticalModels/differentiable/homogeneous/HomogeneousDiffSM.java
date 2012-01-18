@@ -19,8 +19,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractVariableLengthDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
 

@@ -24,11 +24,10 @@ import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -84,7 +83,7 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 	 * 
 	 * @throws WrongSequenceTypeException
 	 *             if the {@link AlphabetContainer} is not simple or the
-	 *             internal {@link de.jstacs.data.Alphabet} has more than 4
+	 *             internal {@link de.jstacs.data.alphabets.Alphabet} has more than 4
 	 *             symbols
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not discrete
@@ -105,7 +104,7 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 	 * 
 	 * @throws WrongSequenceTypeException
 	 *             if the {@link AlphabetContainer} is not simple or the
-	 *             internal {@link de.jstacs.data.Alphabet} has more than 4
+	 *             internal {@link de.jstacs.data.alphabets.Alphabet} has more than 4
 	 *             symbols
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not discrete
@@ -323,7 +322,7 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 	 *  
 	 * @throws WrongSequenceTypeException
 	 *             if the {@link AlphabetContainer} is not simple or the
-	 *             internal {@link de.jstacs.data.Alphabet} has more than 4
+	 *             internal {@link de.jstacs.data.alphabets.Alphabet} has more than 4
 	 *             symbols
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not discrete

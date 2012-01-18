@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

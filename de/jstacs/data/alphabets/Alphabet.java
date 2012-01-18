@@ -16,11 +16,11 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.data;
+package de.jstacs.data.alphabets;
 
 import de.jstacs.InstantiableFromParameterSet;
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.InstanceParameterSet;
 
 /**

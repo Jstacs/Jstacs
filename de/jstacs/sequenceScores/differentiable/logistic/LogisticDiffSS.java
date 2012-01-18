@@ -21,12 +21,12 @@ package de.jstacs.sequenceScores.differentiable.logistic;
 import java.util.Arrays;
 import java.util.Random;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
 import de.jstacs.utils.DoubleList;

@@ -20,13 +20,13 @@ package de.jstacs.data.sequences.annotation;
 
 import java.util.Collection;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.Result;
 
 /**
  * Class for a {@link SequenceAnnotation} that has a position, a length and an
- * orientation on the strand of a {@link de.jstacs.data.Sequence}.
+ * orientation on the strand of a {@link de.jstacs.data.sequences.Sequence}.
  * 
  * @author Jan Grau
  */

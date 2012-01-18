@@ -20,9 +20,9 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphi
 
 import java.util.ArrayList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.Mutable;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;

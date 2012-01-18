@@ -1,9 +1,9 @@
-package de.jstacs.sequenceScores;
+package de.jstacs.sequenceScores.statisticalModels;
 
 import de.jstacs.NotTrainedException;
-import de.jstacs.SequenceScore;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.sequenceScores.SequenceScore;
 
 /**
  * This interface declares methods an statistical model.

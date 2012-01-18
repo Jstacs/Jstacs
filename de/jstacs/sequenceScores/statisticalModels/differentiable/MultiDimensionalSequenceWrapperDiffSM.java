@@ -19,10 +19,10 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
 import java.util.Arrays;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.MultiDimensionalSequence;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.MultiDimensionalSequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;

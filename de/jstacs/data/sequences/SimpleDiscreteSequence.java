@@ -18,9 +18,8 @@
 
 package de.jstacs.data.sequences;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
 /**
@@ -44,7 +43,7 @@ public abstract class SimpleDiscreteSequence extends Sequence<int[]> {
 	 * @throws WrongAlphabetException
 	 *             if the {@link AlphabetContainer} is not discrete
 	 * 
-	 * @see de.jstacs.data.Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
+	 * @see de.jstacs.data.sequences.Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
 	 */
 	public SimpleDiscreteSequence( AlphabetContainer container, SequenceAnnotation[] annotation ) throws WrongAlphabetException {
 		super( container, annotation );

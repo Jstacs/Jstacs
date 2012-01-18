@@ -23,28 +23,28 @@ import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.HMMTrainingParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.TrainableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWelchParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.ViterbiParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.TrainableTransition;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM;
 import de.jstacs.utils.IntList;
@@ -389,7 +389,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @param weight the given external weight of the sequence (only used for Baum-Welch)
 	 * @param seq the sequence
 	 * 
-	 * @throws Exception forwarded from {@link TrainableState#addToStatistic} and {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.State#getLogScoreFor(int, int, Sequence)}
+	 * @throws Exception forwarded from {@link TrainableState#addToStatistic} and {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State#getLogScoreFor(int, int, Sequence)}
 	 */
 	protected void fillBwdOrViterbiMatrix( Type t, int startPos, int endPos, double weight, Sequence seq )  throws Exception {
 		int l = endPos-startPos+1, stateID, context, n;

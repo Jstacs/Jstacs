@@ -55,13 +55,13 @@ import org.biojavax.bio.seq.io.RichSequenceBuilder;
 import org.biojavax.bio.seq.io.RichSequenceBuilderFactory;
 import org.biojavax.ontology.SimpleComparableTerm;
 
-import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.Alphabet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotationWithLength;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;

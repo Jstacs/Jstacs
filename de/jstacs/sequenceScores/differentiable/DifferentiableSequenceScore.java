@@ -19,9 +19,9 @@
 
 package de.jstacs.sequenceScores.differentiable;
 
-import de.jstacs.SequenceScore;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.sequenceScores.SequenceScore;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 

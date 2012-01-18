@@ -20,7 +20,7 @@ package de.jstacs.data.sequences.annotation;
 
 import java.util.Collection;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.Result;
 

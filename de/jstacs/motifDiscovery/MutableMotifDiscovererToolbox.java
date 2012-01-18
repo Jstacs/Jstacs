@@ -35,8 +35,8 @@ import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimiza
 import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.RecyclableSequenceEnumerator;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
 import de.jstacs.motifDiscovery.history.History;

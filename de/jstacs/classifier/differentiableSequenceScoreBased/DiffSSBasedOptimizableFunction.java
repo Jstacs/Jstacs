@@ -73,7 +73,7 @@ public abstract class DiffSSBasedOptimizableFunction extends AbstractMultiThread
 	 * @param threads the number of threads used for evaluating the function and determining the gradient of the function
 	 * @param score an array containing the {@link DifferentiableSequenceScore}s that are used for determining the sequences scores
 	 * @param data the array of {@link DataSet}s containing the data that is needed to evaluate the function
-	 * @param weights the weights for each {@link de.jstacs.data.Sequence} in each {@link DataSet} of  <code>data</code> 
+	 * @param weights the weights for each {@link de.jstacs.data.sequences.Sequence} in each {@link DataSet} of  <code>data</code> 
 	 * @param prior the prior that is used for learning the parameters 
 	 * @param norm
 	 *            the switch for using the normalization (division by the number
