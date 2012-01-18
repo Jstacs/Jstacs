@@ -28,7 +28,7 @@ import de.jstacs.io.SymbolExtractor;
  * <code>int</code>s and can therefore be used for discrete
  * {@link AlphabetContainer}s with alphabets that use a huge number of symbols.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class IntSequence extends SimpleDiscreteSequence {
 

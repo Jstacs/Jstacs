@@ -13,7 +13,7 @@ import de.jstacs.parameters.ParameterSet;
  * @see DNAAlphabet
  * @see DNADataSet
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public final class DNAAlphabetContainer extends AlphabetContainer implements Singleton {
 	

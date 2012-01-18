@@ -35,7 +35,7 @@ import de.jstacs.utils.REnvironment;
  * This <code>enum</code> defines physicochemical, conformational, and letter-based dinucleotide properties of nucleotide sequences.
  * All dinucleotide parameters are obtained from http://diprodb.fli-leibniz.de/.
  * 
- * @author Jan Grau
+ * @author Jens Keilwagen, Jan Grau
  */
 public enum DinucleotideProperty {
 

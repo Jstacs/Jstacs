@@ -27,11 +27,11 @@ import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
-import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
-import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
-import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
-import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
@@ -57,7 +57,7 @@ import de.jstacs.utils.SafeOutputStream;
  * @see DifferentiableStatisticalModel
  * @see LogGenDisMixFunction
  */
-public class NormalizableScoringFunctionModel extends AbstractTrainSM
+public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTrainSM
 {
 	private SafeOutputStream out;
 	
@@ -82,7 +82,7 @@ public class NormalizableScoringFunctionModel extends AbstractTrainSM
 	 * 
 	 * @throws CloneNotSupportedException if <code>nsf</code> can not be cloned
 	 */
-	public NormalizableScoringFunctionModel( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD ) throws CloneNotSupportedException
+	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD ) throws CloneNotSupportedException
 	{
 		super( nsf.getAlphabetContainer(), nsf.getLength() );
 		if( threads < 1 )
@@ -116,7 +116,7 @@ public class NormalizableScoringFunctionModel extends AbstractTrainSM
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link NormalizableScoringFunctionModel} out of a {@link StringBuffer}.
+	 * Creates a new {@link DifferentiableStatisticalModelWrapperTrainSM} out of a {@link StringBuffer}.
 	 * 
 	 * @param stringBuff
 	 *            the {@link StringBuffer} to be parsed
@@ -124,14 +124,14 @@ public class NormalizableScoringFunctionModel extends AbstractTrainSM
 	 * @throws NonParsableException
 	 *             is thrown if the {@link StringBuffer} could not be parsed
 	 */
-	public NormalizableScoringFunctionModel( StringBuffer stringBuff ) throws NonParsableException
+	public DifferentiableStatisticalModelWrapperTrainSM( StringBuffer stringBuff ) throws NonParsableException
 	{
 		super( stringBuff );
 	}
 
-	public NormalizableScoringFunctionModel clone() throws CloneNotSupportedException
+	public DifferentiableStatisticalModelWrapperTrainSM clone() throws CloneNotSupportedException
 	{
-		NormalizableScoringFunctionModel clone = (NormalizableScoringFunctionModel) super.clone();
+		DifferentiableStatisticalModelWrapperTrainSM clone = (DifferentiableStatisticalModelWrapperTrainSM) super.clone();
 		clone.nsf = (DifferentiableStatisticalModel) nsf.clone();
 		clone.tc = tc.clone();
 		clone.setOutputStream( out.doesNothing() ? null : SafeOutputStream.DEFAULT_STREAM );
@@ -260,7 +260,7 @@ public class NormalizableScoringFunctionModel extends AbstractTrainSM
 		return nsf.toString();
 	}
 
-	private static final String XML_TAG = "NormalizableScoringFunctionModel";
+	private static final String XML_TAG = "DifferentiableStatisticalModelWrapperTrainSM";
 	
 	protected void fromXML( StringBuffer xml ) throws NonParsableException
 	{

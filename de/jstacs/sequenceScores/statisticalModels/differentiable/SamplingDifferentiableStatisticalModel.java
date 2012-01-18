@@ -21,7 +21,7 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
 /**
  * Interface for {@link DifferentiableStatisticalModel}s that can be used for
- * Metropolis-Hastings sampling in a {@link de.jstacs.classifier.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier}.
+ * Metropolis-Hastings sampling in a {@link de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier}.
  * 
  * @author Jan Grau
  *

@@ -32,7 +32,7 @@ import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
 import de.jstacs.sequenceScores.differentiable.IndependentProductDiffSS;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.mix.AbstractMixtureDiffSM;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.AbstractMixtureDiffSM;
 import de.jstacs.utils.Normalisation;
 
 /**

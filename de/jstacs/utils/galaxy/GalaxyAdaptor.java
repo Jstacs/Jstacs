@@ -31,7 +31,7 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 import de.jstacs.DataType;
-import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
+import de.jstacs.classifiers.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;

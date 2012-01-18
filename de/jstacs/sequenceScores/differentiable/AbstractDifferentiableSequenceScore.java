@@ -37,7 +37,7 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
 /**
- * This class is the main part of any {@link de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier}. It implements
+ * This class is the main part of any {@link de.jstacs.classifiers.differentiableSequenceScoreBased.ScoreClassifier}. It implements
  * many methods of the interface {@link DifferentiableSequenceScore}.
  * 
  * @author Jens Keilwagen, Jan Grau

@@ -30,17 +30,17 @@ The parameters of {@link de.jstacs.sequenceScores.statisticalModels.differentiab
 gradient-based method like provided in {@link de.jstacs.algorithms.optimization.Optimizer}.<br />
 
 This is especially used in Jstacs for learning the parameters by discriminative learning principles like maximum conditional likelihood or
-maximum supervised posterior (see {@link de.jstacs.classifier.differentiableSequenceScoreBased.msp.MSPClassifier}) or by a unified learning principle (see
-{@link de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier}).<br />
+maximum supervised posterior (see {@link de.jstacs.classifiers.differentiableSequenceScoreBased.msp.MSPClassifier}) or by a unified learning principle (see
+{@link de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier}).<br />
 
 The sub-package {@link de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels} contains Bayesian networks and inhomogeneous Markov models.<br />
 The sub-package {@link de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous} provides homogeneous models like homogeneous Markov models.<br />
-The sub-package {@link de.jstacs.sequenceScores.statisticalModels.differentiable.mix} provides mixture models including an extended ZOOPS model
+The sub-package {@link de.jstacs.sequenceScores.statisticalModels.differentiable.mixture} provides mixture models including an extended ZOOPS model
 for de-novo motif discovery.<br />
 
 Some of the provided {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s also implement the interface
 {@link de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel} and can be used for
-Metropolis-Hastings parameter sampling in a {@link de.jstacs.classifier.differentiableSequenceScoreBased.sampling.SamplingGenDisMixClassifier}.
+Metropolis-Hastings parameter sampling in a {@link de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingGenDisMixClassifier}.
 
 <!-- Put @see and @since tags down here. -->
 

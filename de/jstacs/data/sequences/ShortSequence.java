@@ -28,7 +28,7 @@ import de.jstacs.io.SymbolExtractor;
  * <code>shorts</code>s and can therefore be used for discrete
  * {@link AlphabetContainer}s with alphabets that use many different symbols.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class ShortSequence extends SimpleDiscreteSequence {
 

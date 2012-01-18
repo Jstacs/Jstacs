@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import de.jstacs.classifier.utils.PValueComputation;
+import de.jstacs.classifiers.utils.PValueComputation;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.Sequence;

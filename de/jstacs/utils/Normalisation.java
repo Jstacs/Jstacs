@@ -22,7 +22,7 @@ package de.jstacs.utils;
  * This class can be used for normalisation of any <code>double</code> array or
  * a part of a <code>double</code> array.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class Normalisation {
 

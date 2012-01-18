@@ -19,13 +19,22 @@
 package de.jstacs.sequenceScores;
 
 import de.jstacs.Storable;
+import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.ResultSet;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
+import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 
 /**
+ * This interface defines a scoring function that assigns a score to each input sequence. Such score can, for instance, be
+ * used in a {@link AbstractScoreBasedClassifier} to classify {@link Sequence}s by chosing the class with the {@link SequenceScore} yielding
+ * the maximum score for the input {@link Sequence}.
+ * 
+ * The most important sub-interfaces are the {@link StatisticalModel} for {@link SequenceScore}s that define a proper, i.e., normalized, likelihood
+ * over the input {@link Sequence}s, and {@link DifferentiableSequenceScore} that can compute the derivation with respect to their parameters.
  * 
  * @author Jan Grau, Jens Keilwagen
  */

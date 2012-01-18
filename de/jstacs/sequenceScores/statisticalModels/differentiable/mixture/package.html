@@ -23,15 +23,11 @@
 -->
 </head>
 <body bgcolor="white">
-
-Provides the classes for {@link de.jstacs.classifiers.AbstractScoreBasedClassifier}s that are based on
-{@link de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel}s
-and that sample parameters using the Metropolis-Hastings algorithm. The abstract base class of all such
-classifiers is the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier}, while
-the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingGenDisMixClassifier} provides an
-implementation for the unified generative-discriminative learning principle.
+Provides {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s that are mixtures of other {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s.
+The abstract base of all mixtures is {@link de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.AbstractMixtureDiffSM},
+{@link de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.MixtureDiffSM} provides a default implementation.
 
 <!-- Put @see and @since tags down here. -->
-@since Jstacs 1.5
+
 </body>
 </html>

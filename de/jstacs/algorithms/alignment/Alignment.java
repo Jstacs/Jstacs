@@ -64,7 +64,10 @@ public class Alignment {
 	private F[][] f;
 	
 	/**
-	 * The number of secondary diagonals at both sides of the diagonal.
+	 * The number of secondary diagonals at both sides of the main diagonal.
+	 * If the alignment is performed for {@link Sequence}s of different length, 
+	 * the number of secondary diagonals must be at least as large as the difference
+	 * of the lengths.
 	 * This allows to use a banded version of the alignment algorithm.
 	 */
 	private int offDiagonal;
@@ -87,6 +90,10 @@ public class Alignment {
 	 * Creates a new {@link Alignment} instance that aligns the sequences
 	 * <code>s1</code> and <code>s2</code> using the costs defined in
 	 * <code>costs</code> and a banded version of the alignment algorithm.
+	 * 
+	 * If the alignment is performed for {@link Sequence}s of different length, 
+	 * the number of secondary diagonals must be at least as large as the difference
+	 * of the lengths.
 	 * 
 	 * @param type
 	 *            the type of the alignment
@@ -133,7 +140,7 @@ public class Alignment {
 		this.s2 = s2; this.startS2 = startS2;
 		
 		int l1 = endS1-startS1, l2 = endS2-startS2, start, end;
-		//TODO Jan: if( Math.abs(l1-l2) < offDiagonal ) throw new IllegalArgumentException();
+		if( Math.abs(l1-l2) < offDiagonal ) throw new IllegalArgumentException();
 		
 		//initialize & compute
 		if( d == null || d.length < l1+1 || d[0].length < l2+1 ) {

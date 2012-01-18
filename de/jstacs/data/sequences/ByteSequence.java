@@ -28,7 +28,7 @@ import de.jstacs.io.SymbolExtractor;
  * <code>byte</code>s and can therefore be used for discrete
  * {@link AlphabetContainer}s with alphabets that use only few symbols.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class ByteSequence extends SimpleDiscreteSequence {
 

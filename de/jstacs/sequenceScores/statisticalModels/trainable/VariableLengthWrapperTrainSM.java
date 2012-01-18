@@ -35,12 +35,12 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * <br><br>
  * 
- * This class might be useful in any {@link de.jstacs.classifier.assessment.ClassifierAssessment}.
+ * This class might be useful in any {@link de.jstacs.classifiers.assessment.ClassifierAssessment}.
  * 
  * @author Jens Keilwagen
  * 
  * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet, double[], int)
- * @see de.jstacs.classifier.assessment.ClassifierAssessment
+ * @see de.jstacs.classifiers.assessment.ClassifierAssessment
  */
 public class VariableLengthWrapperTrainSM extends AbstractTrainSM {
 

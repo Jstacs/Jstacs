@@ -24,8 +24,8 @@ import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWith
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.Mutable;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.mix.AbstractMixtureDiffSM;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.mix.StrandDiffSM;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.AbstractMixtureDiffSM;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandDiffSM;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 

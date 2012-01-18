@@ -8,7 +8,6 @@ public class MSEOutputNeuron extends InnerNeuron {
 
 	/**
 	 * @param activationFunction
-	 * @param outputLayer
 	 * @param index
 	 * @param predecessors
 	 */

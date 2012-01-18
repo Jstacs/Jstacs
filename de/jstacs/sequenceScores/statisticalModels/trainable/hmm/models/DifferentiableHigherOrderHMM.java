@@ -28,7 +28,7 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
-import de.jstacs.sequenceScores.statisticalModels.trainable.NormalizableScoringFunctionModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.DifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleDifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State;
@@ -289,7 +289,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	public void train( DataSet data, double[] weights ) throws Exception {
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
 			NumericalHMMTrainingParameterSet params = (NumericalHMMTrainingParameterSet) trainingParameter;
-			NormalizableScoringFunctionModel model = new NormalizableScoringFunctionModel( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance() );
+			DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance() );
 			model.setOutputStream( sostream );
 			model.train( data, weights );
 			

@@ -69,7 +69,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * another jar-file.
  * </ul>
  * 
- * @author Jan Grau, Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class SubclassFinder {
 
