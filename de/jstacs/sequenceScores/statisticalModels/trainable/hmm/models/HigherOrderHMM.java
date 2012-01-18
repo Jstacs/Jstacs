@@ -110,6 +110,10 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * Helper variable = only for internal use. This field is used in the method {@link #samplePath(IntList, int, int, Sequence)}.
 	 */
 	protected IntList stateList;
+	
+	/**
+	 * Indicates if the model should be initialized (randomly) before optimization
+	 */
 	protected boolean skipInit;
 	
 	/**
@@ -128,7 +132,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 *  <li>the states can not be handled by the transition
 	 *  </ul>
 	 * 
-	 * @see HigherOrderHMM#HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], AbstractTransitionElement[])
+	 * @see HigherOrderHMM#HigherOrderHMM(HMMTrainingParameterSet, String[], int[], boolean[], Emission[], de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement...)
 	 */
 	public HigherOrderHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
 		this( trainingParameterSet, name, null, null, emission, te );
