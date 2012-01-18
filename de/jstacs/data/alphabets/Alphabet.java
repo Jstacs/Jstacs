@@ -72,6 +72,8 @@ public abstract class Alphabet implements Storable, InstantiableFromParameterSet
 	 * {@link Alphabet}.
 	 * 
 	 * @author Jens Keilwagen
+	 * 
+	 * @param <T> the type of the {@link AlphabetParameterSet} 
 	 */
 	public static abstract class AlphabetParameterSet<T extends Alphabet> extends InstanceParameterSet<T> {
 

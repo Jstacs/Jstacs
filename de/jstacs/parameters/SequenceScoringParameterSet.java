@@ -42,6 +42,8 @@ import de.jstacs.utils.SubclassFinder;
  * well suited as parameter set for {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM} and
  * {@link de.jstacs.classifier.AbstractClassifier}.
  * 
+ * @param <T> the type of the {@link SequenceScoringParameterSet}
+ * 
  * @author Jan Grau, Jens Keilwagen
  * 
  * @see de.jstacs.InstantiableFromParameterSet

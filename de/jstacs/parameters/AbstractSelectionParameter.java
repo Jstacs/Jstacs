@@ -178,16 +178,44 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	 * @see ParameterSet#getName(ParameterSet)
 	 * @see ParameterSet#getComment(ParameterSet)
 	 */
-	public AbstractSelectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	public AbstractSelectionParameter( String name, String comment, boolean required, ParameterSet... values) {
 		this(DataType.PARAMETERSET, name, comment, required);
-		//XXX try catch?
-		createParameterSet(values, null, null);
+		try {
+			createParameterSet(values, null, null);
+		} catch( Exception shouldNotHappen ) {
+			throw new RuntimeException( shouldNotHappen );
+		}
 	}
 
-	public AbstractSelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	/**
+	 * Constructor for a {@link AbstractSelectionParameter} from an array of
+	 * {@link Class}es of {@link ParameterSet}s. This constructor can be used to easily construct a
+	 * {@link AbstractSelectionParameter} that lets the user select from a list of
+	 * possible options that all require an own set of {@link Parameter}s to be
+	 * instantiated. It is the lazy evaluation variant of {@link #AbstractSelectionParameter(String, String, boolean, ParameterSet...)},
+	 * i.e., the {@link ParameterSet}s are only created if necessary.
+	 * 
+	 * @param values
+	 *            the array of {@link Class}es of {@link ParameterSet}s
+	 * @param name
+	 *            the name of the parameter
+	 * @param comment
+	 *            a comment on the parameter
+	 * @param required
+	 *            <code>true</code> if the parameter is required,
+	 *            <code>false</code> otherwise
+	 * 
+	 * @see #createParameterSet(Object[], String[], String[])
+	 * @see ParameterSet#getName(ParameterSet)
+	 * @see ParameterSet#getComment(ParameterSet)
+	 */
+	public AbstractSelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) {
 		this(DataType.PARAMETERSET, name, comment, required);
-		//XXX try catch?
-		createParameterSet(values, null, null);
+		try {
+			createParameterSet(values, null, null);
+		} catch( Exception shouldNotHappen ) {
+			throw new RuntimeException( shouldNotHappen );
+		}
 	}
 	
 	/**
@@ -351,6 +379,17 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		return rangeable;
 	}
 	
+	/**
+	 * Test whether a given <code>value</code> can be used in {@link #setValue(Object)}.
+	 * If so, the index of corresponding option is returned, otherwise -1.
+	 * 
+	 * @param value the value to be checked
+	 * 
+	 * @return the index of the corresponding option or -1 if there's no corresponding option
+	 * 
+	 * @see #errorMessage
+	 * @see #checkValue(Object)
+	 */
 	@SuppressWarnings("unchecked")
 	protected int check(Object value) {
 		if (value == null) {

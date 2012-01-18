@@ -24,7 +24,6 @@ import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner;
@@ -219,8 +218,9 @@ public class SharedStructureMixture extends MixtureTrainSM {
 	 *             if the models can not be cloned
 	 * 
 	 * @see ModelType
-	 * @see MixtureTrainSM#MixtureTrainSM(int, de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel, int,
-	 *      boolean, double[], double[], de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Algorithm, double, TerminationCondition,
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM#MixtureTrainSM(int, de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalMode, int,
+	 *      boolean, double[], double[], de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Algorithm,
+	 *      double, de.jstacs.algorithms.optimization.termination.TerminationCondition,
 	 *      de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization, int, int,
 	 *      de.jstacs.sampling.BurnInTest)
 	 */

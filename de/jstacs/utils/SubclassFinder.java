@@ -380,28 +380,16 @@ public class SubclassFinder {
 	 * @return a {@link SelectionParameter} that contains
 	 *         {@link de.jstacs.parameters.InstanceParameterSet} for each
 	 *         possible class.
-	 * 
-	 * @throws InstantiationException
-	 *             if any {@link InstanceParameterSet} has no nullary
-	 *             constructor; or if the instantiation fails for some other
-	 *             reason
-	 * @throws IllegalAccessException
-	 *             if any {@link InstanceParameterSet} or its nullary
-	 *             constructor is not accessible
-	 * @throws ClassNotFoundException
-	 *             if one of the classes is present in the file system or jar
-	 *             but cannot be loaded by the class loader
-	 * @throws IOException
-	 *             if the classes are searched for in a jar file, but that file
-	 *             could not be accessed or read
+	 *         
+	 * @throws Exception
+	 *             if the {@link SelectionParameter} could not be created properly
 	 * 
 	 * @see SubclassFinder#findInstantiableSubclasses(Class, String)
 	 * @see SubclassFinder#filterBySuperclass(Class, LinkedList)
 	 * @see #getInstanceParameterSets(Class, String)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> SelectionParameter getSelectionParameter( Class<? extends ParameterSet> clazz, String startPackage, String name, String comment, boolean required ) throws InstantiationException,
-			IllegalAccessException,	ClassNotFoundException,	IOException, AbstractSelectionParameter.InconsistentCollectionException, IllegalValueException, DatatypeNotValidException {
+	public static <T> SelectionParameter getSelectionParameter( Class<? extends ParameterSet> clazz, String startPackage, String name, String comment, boolean required ) throws Exception {
 		LinkedList<?> list = SubclassFinder.findInstantiableSubclasses( clazz, startPackage );
 		Class<? extends ParameterSet>[] classes = new Class[list.size()];
 		Iterator<?> it = list.iterator();

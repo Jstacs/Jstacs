@@ -1,9 +1,11 @@
 - Alignment
 - GNU GPL 3 preamble
 - Javadoc anpassen
-- wohin interfaces/abstract classes? Ins Paket oder daneben?
 - Textsuche Sample
-- ParameterSet: getName und getComment 
-- rename classes: *SF*
+- ParameterSet: getName und getComment implementation - ich würde sie mittlerweile fast so lassen
+- rename: 
+	- package classifier(s)?
+	- de.jstacs.sequenceScores.statisticalModels.trainable.NormalizableScoringFunctionModel
+	- de.jstacs.classifier.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier.ScoringFunctionSamplingComponent
+	- einheitlich packages mix oder mixture
 - move: NotTrainedException?
--rename: classifiers?

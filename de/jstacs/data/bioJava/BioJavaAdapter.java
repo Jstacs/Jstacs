@@ -60,6 +60,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotation;
@@ -154,7 +155,12 @@ public class BioJavaAdapter {
 				throw new Exception( "size > 1" );
 			}
 		}
-		AlphabetContainer con = new AlphabetContainer( abc );
+		AlphabetContainer con;
+		if( abc.length == 1 && abc[0] == DNAAlphabet.SINGLETON ) {
+			con = DNAAlphabetContainer.SINGLETON;
+		} else {
+			con = new AlphabetContainer( abc );
+		}
 
 		SequenceAnnotation[] empty = new SequenceAnnotation[0];
 		LinkedList<SequenceAnnotation> annotations = new LinkedList<SequenceAnnotation>();

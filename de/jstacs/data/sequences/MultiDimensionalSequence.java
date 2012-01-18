@@ -11,6 +11,8 @@ import de.jstacs.data.sequences.annotation.SequenceAnnotation;
  * This class is for multidimensional sequences that can be used, for instance, for phylogenetic footprinting.
  * 
  * @author Jens Keilwagen
+ * 
+ * @param <T> the type of this {@link MultiDimensionalSequence} 
  */
 public abstract class MultiDimensionalSequence<T> extends Sequence<T> {
 
