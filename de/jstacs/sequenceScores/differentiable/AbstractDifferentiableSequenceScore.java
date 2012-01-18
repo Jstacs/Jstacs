@@ -271,23 +271,5 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 	 */
 	public NumericalResultSet getNumericalCharacteristics() throws Exception {
 		return new NumericalResultSet( new NumericalResult( "number of parameters", "the number of parameters used in this instance to score sequences", getNumberOfParameters() ) );
-	}
-
-	/**
-	 * This method should only be invoked by the method
-	 * {@link #setNewAlphabetContainerInstance(AlphabetContainer)} and <b>not be
-	 * made public</b>.
-	 * 
-	 * <br>
-	 * <br>
-	 * 
-	 * It enables you to do more with the method
-	 * {@link #setNewAlphabetContainerInstance(AlphabetContainer)}, e.g. setting
-	 * a new {@link AlphabetContainer} instance for subcomponents.
-	 * 
-	 * @param abc
-	 *            the new instance
-	 */
-	protected void set(AlphabetContainer abc) {}
-	
+	}	
 }
