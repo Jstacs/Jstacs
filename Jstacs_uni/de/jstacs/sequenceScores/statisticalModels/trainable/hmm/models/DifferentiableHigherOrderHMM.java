@@ -103,7 +103,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 * @param emission the emissions
 	 * @param likelihood if <code>true</code> the likelihood is return  by {@link #getLogScoreFor(Sequence)} otherwise the viterbi score
 	 * @param ess the ess of the model
-	 * @param te the {@link TransitionElement}s used for creating a {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition}
+	 * @param te the {@link TransitionElement}s used for creating a {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition}
 	 * 
 	 * @throws Exception if 
 	 * 	<ul>
