@@ -305,7 +305,7 @@ public class GalaxyAdaptor {
 		}else if(res instanceof ListResult){
 			buf.append( getLROutput( ((ListResult) res ) ) );
 		}else if(res instanceof DataSetResult){
-			buf.append( getSampleOutput((DataSetResult)res) );
+			buf.append( getDataSetOutput((DataSetResult)res) );
 		}else if(res instanceof StorableResult){
 			buf.append( getStorableOutput((StorableResult)res) );
 		}else if(res instanceof DoubleTableResult){
@@ -373,7 +373,7 @@ public class GalaxyAdaptor {
 		return "<a href=\""+name+ext+"\">"+res.getName()+"</a>";
 	}
 
-	private String getSampleOutput( DataSetResult res ) throws IOException {
+	private String getDataSetOutput( DataSetResult res ) throws IOException {
 		DataSet data = res.getValue();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		if(res.getParser() == null){

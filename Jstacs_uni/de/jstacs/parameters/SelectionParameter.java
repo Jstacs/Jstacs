@@ -143,11 +143,31 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 	 * 
 	 * @see AbstractSelectionParameter#createParameterSet(Object[], String[], String[])
 	 */
-	public SelectionParameter( String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	public SelectionParameter( String name, String comment, boolean required, ParameterSet... values) {
 		super( name, comment, required, values );
 	}
 	
-	public SelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	 /**
+	 * Constructor for a {@link SelectionParameter} from an array of
+	 * {@link Class}es of {@link ParameterSet}s. This constructor can be used to easily construct a
+	 * {@link SelectionParameter} that lets the user select from a list of
+	 * possible options that all require an own set of {@link Parameter}s to be
+	 * instantiated. It is the lazy evaluation variant of {@link #SelectionParameter(String, String, boolean, ParameterSet...)},
+	 * i.e., the {@link ParameterSet}s are only created if necessary.
+	 * 
+	 * @param values
+	 *            the array of {@link Class}es of {@link ParameterSet}s
+	 * @param name
+	 *            the name of the parameter
+	 * @param comment
+	 *            a comment on the parameter
+	 * @param required
+	 *            <code>true</code> if the parameter is required,
+	 *            <code>false</code> otherwise
+	 * 
+	 * @see AbstractSelectionParameter#createParameterSet(Object[], String[], String[])
+	 */
+	public SelectionParameter( String name, String comment, boolean required, Class<? extends ParameterSet>... values) {
 		super( name, comment, required, values );
 	}
 	

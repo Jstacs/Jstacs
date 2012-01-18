@@ -134,11 +134,28 @@ public class MultiSelectionParameter extends AbstractSelectionParameter implemen
 	 *            {@link MultiSelectionParameter} is required,
 	 *            <code>false</code> otherwise
 	 */
-	public MultiSelectionParameter(String name, String comment, boolean required, ParameterSet... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	public MultiSelectionParameter(String name, String comment, boolean required, ParameterSet... values) {
 		super( name, comment, required, values );
 	}
 	
-	public MultiSelectionParameter(String name, String comment, boolean required, Class<? extends ParameterSet>... values) throws DatatypeNotValidException, IllegalValueException, InconsistentCollectionException {
+	/**
+	 * Creates a new {@link MultiSelectionParameter} from an array of
+	 * {@link Class}es of {@link ParameterSet}s. The first option in the selection is selected by
+	 * default. It is the lazy evaluation variant of {@link #MultiSelectionParameter(String, String, boolean, ParameterSet...)},
+	 * i.e., the {@link ParameterSet}s are only created if necessary.
+	 * 
+	 * @param values
+	 *            the array of {@link Class}es of {@link ParameterSet}s
+	 * @param name
+	 *            the name of this {@link MultiSelectionParameter}
+	 * @param comment
+	 *            the comment on this {@link MultiSelectionParameter}
+	 * @param required
+	 *            <code>true</code> if this
+	 *            {@link MultiSelectionParameter} is required,
+	 *            <code>false</code> otherwise
+	 */
+	public MultiSelectionParameter(String name, String comment, boolean required, Class<? extends ParameterSet>... values) {
 		super( name, comment, required, values );
 	}
 

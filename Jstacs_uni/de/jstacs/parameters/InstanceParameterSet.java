@@ -29,8 +29,9 @@ import de.jstacs.io.ParameterSetParser.NotInstantiableException;
  * Container class for a set of {@link Parameter}s that can be used to
  * instantiate another class.
  * 
- * @author Jan Grau, Jens Keilwagen
+ * @param <T> the type of the {@link InstanceParameterSet}
  * 
+ * @author Jan Grau, Jens Keilwagen
  */
 public abstract class InstanceParameterSet<T extends InstantiableFromParameterSet> extends ParameterSet {
 	/**
@@ -65,8 +66,7 @@ public abstract class InstanceParameterSet<T extends InstantiableFromParameterSe
 	 *             reconstructed out of the {@link StringBuffer}
 	 *             <code>representation</code>
 	 */
-	public InstanceParameterSet(StringBuffer representation)
-			throws NonParsableException {
+	public InstanceParameterSet(StringBuffer representation) throws NonParsableException {
 		super(representation);
 	}
 

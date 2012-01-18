@@ -39,18 +39,63 @@ import de.jstacs.io.XMLParser;
 public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvertible {
 	
 	//XXX
+	
+	/**
+	 * Returns a name for the class.
+	 * 
+	 * @param c the given class.
+	 * 
+	 * @return a name for the class.
+	 * 
+	 * @see ParameterSetContainer#ParameterSetContainer(Class)
+	 * @see AbstractSelectionParameter#AbstractSelectionParameter(String, String, boolean, Class...)
+	 */
 	public static String getName( Class<? extends ParameterSet> c ) {
 		return c.getSimpleName();
 	}
 	
+	/**
+	 * Returns a comment for the class.
+	 * 
+	 * @param c the given class.
+	 * 
+	 * @return a comment for the class.
+	 * 
+	 * @see ParameterSetContainer#ParameterSetContainer(Class)
+	 * @see AbstractSelectionParameter#AbstractSelectionParameter(String, String, boolean, Class...)
+	 */
 	public static String getComment( Class<? extends ParameterSet> c ) {
 		return "";
 	}
 	
+	/**
+	 * Returns a name for the {@link ParameterSet}.
+	 * 
+	 * @param p the given {@link ParameterSet}.
+	 * 
+	 * @return a name for the {@link ParameterSet}.
+	 * 
+	 * @see ParameterSetContainer#ParameterSetContainer(ParameterSet)
+	 * @see AbstractSelectionParameter#AbstractSelectionParameter(String, String, boolean, ParameterSet...)
+	 * @see #getName(Class)
+	 * @see Object#getClass()
+	 */
 	public static String getName( ParameterSet p ) {
 		return getName( p.getClass() );
 	}
 	
+	/**
+	 * Returns a comment for the {@link ParameterSet}.
+	 * 
+	 * @param p the given {@link ParameterSet}.
+	 * 
+	 * @return a comment for the {@link ParameterSet}.
+	 * 
+	 * @see ParameterSetContainer#ParameterSetContainer(ParameterSet)
+	 * @see AbstractSelectionParameter#AbstractSelectionParameter(String, String, boolean, ParameterSet...)
+	 * @see #getComment(Class)
+	 * @see Object#getClass()
+	 */
 	public static String getComment( ParameterSet p ) {
 		return getComment( p.getClass() );
 	}

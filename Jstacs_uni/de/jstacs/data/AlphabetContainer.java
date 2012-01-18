@@ -1027,12 +1027,43 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		return index == null ? null : index.clone();
 	}
 	
+	/**
+	 * This class is the super class of any {@link InstanceParameterSet} for {@link AlphabetContainer}.
+	 * 
+	 * @author Jens Keilwagen
+	 *
+	 * @param <T> the type of the {@link AbstractAlphabetContainerParameterSet}
+	 */
 	public static abstract class AbstractAlphabetContainerParameterSet<T extends AlphabetContainer> extends InstanceParameterSet<T> {
 
+		/**
+		 * Constructs an {@link AbstractAlphabetContainerParameterSet} from the class that can be
+		 * instantiated using this {@link AbstractAlphabetContainerParameterSet}. 
+		 * 
+		 * @param instanceClass
+		 *            the class to be instantiated
+		 */
 		protected AbstractAlphabetContainerParameterSet( Class<? extends T> instanceClass ) {
 			super( instanceClass );
 		}
-		
+
+		/**
+		 * The standard constructor for the interface {@link de.jstacs.Storable}.
+		 * Creates a new {@link AbstractAlphabetContainerParameterSet} out of its XML
+		 * representation.
+		 * 
+		 * @param xml
+		 *            the XML representation as {@link StringBuffer}
+		 * 
+		 * @throws NonParsableException
+		 *             if the {@link AbstractAlphabetContainerParameterSet} could not be
+		 *             reconstructed out of the XML representation (the
+		 *             {@link StringBuffer} <code>representation</code> could not be
+		 *             parsed)
+		 * 
+		 * @see InstanceParameterSet#InstanceParameterSet(StringBuffer)
+		 * @see de.jstacs.Storable
+		 */
 		protected AbstractAlphabetContainerParameterSet( StringBuffer xml ) throws NonParsableException {
 			super( xml );
 		}
