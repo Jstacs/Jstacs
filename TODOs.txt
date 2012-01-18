@@ -3,9 +3,6 @@
 - Javadoc anpassen
 - Textsuche Sample
 - ParameterSet: getName und getComment implementation - ich würde sie mittlerweile fast so lassen
-- rename: 
-	- package classifier(s)?
-	- de.jstacs.sequenceScores.statisticalModels.trainable.NormalizableScoringFunctionModel
-	- de.jstacs.classifier.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier.ScoringFunctionSamplingComponent
-	- einheitlich packages mix oder mixture
 - move: NotTrainedException?
+- HMM-Paket kommentieren
+- NeuralNetwork kommentieren
