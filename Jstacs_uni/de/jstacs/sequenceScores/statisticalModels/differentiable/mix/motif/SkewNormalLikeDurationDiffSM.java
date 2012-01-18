@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;

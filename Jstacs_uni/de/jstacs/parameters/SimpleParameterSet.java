@@ -19,7 +19,7 @@
 
 package de.jstacs.parameters;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * Class for a {@link ParameterSet} that is constructed from an array of {@link Parameter}s.

@@ -38,11 +38,12 @@ import java.util.regex.Pattern;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
+import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.sequences.ArbitrarySequence;
 import de.jstacs.data.sequences.ByteSequence;
 import de.jstacs.data.sequences.IntSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.ShortSequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.NullSequenceAnnotationParser;
@@ -821,7 +822,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * Creates a new {@link DataSet} from an array of {@link Sequence}s and a
 	 * given annotation.<br>
 	 * This constructor is specially designed for the method
-	 * {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)}
+	 * {@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int...)}
 	 * 
 	 * @param annotation
 	 *            the annotation of the {@link DataSet}
@@ -895,7 +896,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * This method enables you to use only composite {@link Sequence}s of all
 	 * elements in the current {@link DataSet}. Each composite {@link Sequence}
 	 * will be build from one corresponding {@link Sequence} in this
-	 * {@link DataSet} and all composite {@link de.jstacs.data.Sequence}s
+	 * {@link DataSet} and all composite {@link de.jstacs.data.sequences.Sequence}s
 	 * will be returned in a new {@link DataSet}.
 	 * 
 	 * @param starts
@@ -2054,7 +2055,7 @@ public class DataSet implements Iterable<Sequence>{
 					l = s.getLength() - length + 1;
 					if( l > 0 ) {
 						for( j = 0; j < l; j++ ) {
-							put( ht, s.getSubSequence( s.alphabetCon, j, length ), w );
+							put( ht, s.getSubSequence( s.getAlphabetContainer(), j, length ), w );
 						}
 					} else {
 						throw new WrongLengthException( length );

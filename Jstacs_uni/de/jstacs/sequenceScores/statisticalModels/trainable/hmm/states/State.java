@@ -17,14 +17,15 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.sequenceScores.statisticalModels.trainable.hmm;
+package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states;
 
 import java.text.NumberFormat;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 
 /**
  * This interface declares the methods of any state used in a hidden Markov model.

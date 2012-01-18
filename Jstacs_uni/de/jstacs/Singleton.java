@@ -10,7 +10,6 @@ import java.lang.reflect.Field;
  * {@link Singleton} instances can be saved and loaded using the {@link de.jstacs.io.XMLParser}.
  * 
  * @see de.jstacs.io.XMLParser
- * @see de.jstacs.io.SingletonHandler
  * 
  * @author Jan Grau, Jens Keilwagen
  */

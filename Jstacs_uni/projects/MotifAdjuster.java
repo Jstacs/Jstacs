@@ -25,9 +25,9 @@ import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEv
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.StringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
 import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;

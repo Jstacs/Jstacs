@@ -21,9 +21,8 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.State;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 

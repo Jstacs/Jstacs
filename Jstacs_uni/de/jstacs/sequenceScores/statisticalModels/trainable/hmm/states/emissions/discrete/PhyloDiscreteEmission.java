@@ -1,11 +1,11 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.sequences.MultiDimensionalDiscreteSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SamplingEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloNode;

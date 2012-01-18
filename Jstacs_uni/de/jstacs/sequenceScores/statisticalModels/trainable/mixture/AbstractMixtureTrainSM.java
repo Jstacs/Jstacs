@@ -34,16 +34,16 @@ import java.util.TreeMap;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
@@ -1993,7 +1993,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	 * @throws Exception
 	 *             if it was impossible to sample the sequences
 	 * 
-	 * @see de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)
+	 * @see de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int...)
 	 */
 	protected abstract Sequence[] emitDataSetUsingCurrentParameterSet( int n, int... lengths ) throws Exception;
 

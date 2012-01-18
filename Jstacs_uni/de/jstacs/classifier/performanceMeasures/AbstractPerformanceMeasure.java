@@ -3,7 +3,7 @@ package de.jstacs.classifier.performanceMeasures;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.ResultSet;

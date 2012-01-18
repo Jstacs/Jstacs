@@ -17,12 +17,12 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.sequenceScores.statisticalModels.trainable.hmm;
+package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions;
 
 import java.text.NumberFormat;
 
 import de.jstacs.Storable;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * This interface declares the methods of the transition used in a hidden Markov model.
@@ -36,7 +36,7 @@ import de.jstacs.data.Sequence;
  * 
  * @author Jan Grau, Jens Keilwagen, Michael Scharfe
  * 
- * @see AbstractHMM
+ * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM
  */
 public interface Transition extends Cloneable, Storable {	
 	/**

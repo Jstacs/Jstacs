@@ -30,13 +30,13 @@ import java.util.Map.Entry;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;

@@ -18,10 +18,10 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mix.motif;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.utils.DoubleList;

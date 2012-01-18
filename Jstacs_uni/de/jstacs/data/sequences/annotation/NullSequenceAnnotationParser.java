@@ -22,7 +22,7 @@ package de.jstacs.data.sequences.annotation;
 
 /**
  * This {@link SequenceAnnotationParser} returns always <code>null</code> as {@link SequenceAnnotation}.
- * That is it add no {@link SequenceAnnotation} to each {@link de.jstacs.data.Sequence}.
+ * That is it add no {@link SequenceAnnotation} to each {@link de.jstacs.data.sequences.Sequence}.
  * 
  * <br><br>
  * 

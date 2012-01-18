@@ -22,13 +22,13 @@ package de.jstacs.sequenceScores.statisticalModels.trainable;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;

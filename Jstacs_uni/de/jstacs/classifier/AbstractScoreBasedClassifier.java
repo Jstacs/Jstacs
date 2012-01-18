@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifier.performanceMeasures.PRCurve;
@@ -34,8 +33,9 @@ import de.jstacs.classifier.performanceMeasures.ROCCurve;
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.ImageResult;
 import de.jstacs.results.NumericalResultSet;

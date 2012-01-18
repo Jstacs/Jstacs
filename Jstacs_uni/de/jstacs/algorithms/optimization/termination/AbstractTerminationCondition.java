@@ -17,7 +17,7 @@
  */
 package de.jstacs.algorithms.optimization.termination;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.InstanceParameterSet;
 

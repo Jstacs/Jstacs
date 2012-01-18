@@ -20,12 +20,12 @@ package de.jstacs.sequenceScores.differentiable;
 
 import java.util.Arrays;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.VariableLengthDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM;

@@ -18,8 +18,8 @@
  */
 package de.jstacs.sequenceScores.differentiable.logistic;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

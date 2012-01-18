@@ -21,13 +21,13 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogene
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.algorithms.graphs.DAG;
 import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.ConstraintManager;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
 

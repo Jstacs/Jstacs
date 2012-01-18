@@ -21,8 +21,7 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.data.Sequence;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.State;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * This class implements method that allows to fill a statistic, which is used to estimate the parameters of a state during, for instance, the Baum-Welch training.

@@ -17,7 +17,7 @@
  */
 package de.jstacs.algorithms.alignment.cost;
 
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * Class for simple costs with costs <code>mismatch</code> for a mismatch,

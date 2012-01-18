@@ -20,7 +20,7 @@
 package de.jstacs.motifDiscovery;
 
 import de.jstacs.Storable;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * This is the interface that any tool for de-novo motif discovery should

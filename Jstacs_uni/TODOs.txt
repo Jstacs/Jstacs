@@ -5,3 +5,5 @@
 - Textsuche Sample
 - ParameterSet: getName und getComment 
 - rename classes: *SF*
+- move: NotTrainedException?
+-rename: classifiers?

@@ -20,9 +20,9 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogene
 
 import java.io.OutputStream;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DGTrainSMParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.IDGTrainSMParameterSet;

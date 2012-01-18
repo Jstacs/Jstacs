@@ -18,8 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DGTrainSMParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.InhomogeneousDGTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;

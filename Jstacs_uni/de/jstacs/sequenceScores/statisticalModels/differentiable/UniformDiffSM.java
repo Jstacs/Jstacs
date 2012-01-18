@@ -19,11 +19,11 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.UniformDiffSS;
 import de.jstacs.utils.DoubleList;

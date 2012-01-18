@@ -20,21 +20,21 @@
 package de.jstacs.results;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.StringExtractor;
 import de.jstacs.io.XMLParser;
 
 /**
  * {@link Result} that contains a {@link DataSet}. This {@link DataSet} e.g. may
- * have been created by {@link de.jstacs.sequenceScores.StatisticalModel#emitDataSet(int, int...)},
+ * have been created by {@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int...)},
  * or maybe a {@link DataSet} that has been annotated in a classification.
  * 
  * @author Jan Grau

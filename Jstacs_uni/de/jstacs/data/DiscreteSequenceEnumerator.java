@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.sequences.IntSequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * This class enumerates over all {@link Sequence}s of a specific

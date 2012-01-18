@@ -21,7 +21,7 @@ package de.jstacs.data.sequences.annotation;
 /**
  * This interface declares the methods which are used by
  * {@link de.jstacs.io.AbstractStringExtractor} to annotate a {@link String}
- * which will be parsed to a {@link de.jstacs.data.Sequence}.
+ * which will be parsed to a {@link de.jstacs.data.sequences.Sequence}.
  * 
  * @author Jens Keilwagen
  */

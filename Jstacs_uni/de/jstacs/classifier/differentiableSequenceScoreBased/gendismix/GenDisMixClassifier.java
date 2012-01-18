@@ -20,11 +20,11 @@ package de.jstacs.classifier.differentiableSequenceScoreBased.gendismix;
 
 import java.util.Arrays;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;

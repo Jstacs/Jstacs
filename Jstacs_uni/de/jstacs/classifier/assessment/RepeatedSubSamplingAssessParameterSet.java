@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;

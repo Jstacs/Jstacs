@@ -18,11 +18,11 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.shared;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;

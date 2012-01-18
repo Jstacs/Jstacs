@@ -19,7 +19,6 @@
 package de.jstacs.classifier.differentiableSequenceScoreBased;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
@@ -28,6 +27,7 @@ import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEv
 import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.EnumParameter;

@@ -18,12 +18,11 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition.AbstractTerminationConditionParameterSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.HMMTrainingParameterSet;
 import de.jstacs.utils.SubclassFinder;
 
 /**

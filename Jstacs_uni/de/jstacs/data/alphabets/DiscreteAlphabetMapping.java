@@ -19,8 +19,8 @@
 
 package de.jstacs.data.alphabets;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**
@@ -39,7 +39,7 @@ public class DiscreteAlphabetMapping implements Storable {
 	private double[] logNumSimilarSymbols;
 	
 	/**
-	 * The new {@link de.jstacs.data.Alphabet}.
+	 * The new {@link de.jstacs.data.alphabets.Alphabet}.
 	 */
 	private DiscreteAlphabet newAlphabet;
 	
@@ -47,7 +47,7 @@ public class DiscreteAlphabetMapping implements Storable {
 	 * The main constructor creating a {@link DiscreteAlphabetMapping}.
 	 * 
 	 * @param newValues the assignment of the old value (index) to the new value (entry of the array)
-	 * @param newAlphabet the new {@link de.jstacs.data.Alphabet}
+	 * @param newAlphabet the new {@link de.jstacs.data.alphabets.Alphabet}
 	 */
 	public DiscreteAlphabetMapping( int[] newValues, DiscreteAlphabet newAlphabet ) {
 		this.newValues = newValues.clone();

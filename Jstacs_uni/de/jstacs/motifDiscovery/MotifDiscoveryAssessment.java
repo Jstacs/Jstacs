@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.LocatedSequenceAnnotationWithLength;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;

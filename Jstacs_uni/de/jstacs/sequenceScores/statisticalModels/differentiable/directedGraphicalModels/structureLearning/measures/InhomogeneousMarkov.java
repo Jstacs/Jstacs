@@ -20,8 +20,8 @@
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 

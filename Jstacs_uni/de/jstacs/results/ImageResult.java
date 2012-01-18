@@ -29,7 +29,7 @@ import javax.imageio.ImageIO;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

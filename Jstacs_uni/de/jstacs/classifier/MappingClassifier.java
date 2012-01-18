@@ -22,11 +22,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResultSet;

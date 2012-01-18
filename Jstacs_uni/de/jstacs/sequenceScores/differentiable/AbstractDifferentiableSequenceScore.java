@@ -21,12 +21,12 @@ package de.jstacs.sequenceScores.differentiable;
 
 import java.util.Random;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;

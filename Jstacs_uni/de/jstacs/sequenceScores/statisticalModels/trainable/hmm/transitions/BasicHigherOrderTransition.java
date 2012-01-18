@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
@@ -832,7 +831,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @param arrowOption this parameter gives the possibility to set some arrow option 
 		 * @param graphical represent transition probabilities as thickness of edges instead of textual output
 		 * 
-		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition#getGraphizNetworkRepresentation(NumberFormat, String, boolean)
+		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition#getGraphizNetworkRepresentation(NumberFormat, String, boolean)
 		 * @see #appendTransitions(StringBuffer, String, NumberFormat, String, boolean)
 		 */
 		public void appendGraphvizDescription( StringBuffer representation, NumberFormat nf, String arrowOption, boolean graphical ) {
@@ -905,7 +904,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * 
 		 * @return a {@link String} that is used in the Graphviz notation to quantify a specific transition
 		 * 
-		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition#getGraphizNetworkRepresentation(NumberFormat, String, boolean)
+		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition#getGraphizNetworkRepresentation(NumberFormat, String, boolean)
 		 * @see #appendTransitions(StringBuffer, String, NumberFormat, String, boolean)
 		 */
 		protected static String getArrowOption( NumberFormat nf, double prob, double weight, String arrowOption, boolean graphical ) {
@@ -1012,7 +1011,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * 
 		 * @return a value that is proportional to the log of the prior
 		 * 
-		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition#getLogPriorTerm()
+		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition#getLogPriorTerm()
 		 */
 		public double getLogPriorTerm() {
 			if( hyperParameters.length > 0 ) {

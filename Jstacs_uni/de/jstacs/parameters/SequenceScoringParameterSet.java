@@ -24,11 +24,11 @@ import java.util.LinkedList;
 
 import de.jstacs.DataType;
 import de.jstacs.InstantiableFromParameterSet;
-import de.jstacs.NonParsableException;
 import de.jstacs.Singleton;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AbstractAlphabetContainerParameterSet;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.validation.NumberValidator;

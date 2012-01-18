@@ -20,9 +20,9 @@
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.AlphabetContainer.AlphabetContainerType;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;

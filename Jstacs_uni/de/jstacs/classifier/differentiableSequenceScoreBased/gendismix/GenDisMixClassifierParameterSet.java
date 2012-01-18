@@ -19,11 +19,11 @@
 package de.jstacs.classifier.differentiableSequenceScoreBased.gendismix;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier;
 import de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifierParameterSet;
 import de.jstacs.classifier.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;

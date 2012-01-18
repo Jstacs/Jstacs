@@ -21,7 +21,7 @@ package de.jstacs.algorithms.alignment;
 import de.jstacs.algorithms.alignment.cost.Costs;
 import de.jstacs.algorithms.alignment.cost.Costs.Direction;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * Class for gapped alignments using the Gotohs algorithm.

@@ -20,15 +20,15 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneou
 
 import java.util.Random;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.Constraint;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DGTrainSMParameterSet;
@@ -345,7 +345,7 @@ public abstract class HomogeneousTrainSM extends DiscreteGraphicalTrainSM {
 		 * The main constructor. Creates a new {@link HomCondProb} instance and
 		 * checks that each position is used maximally once. In all/most cases
 		 * <code>pos</code> is <code>new int[]{0,1,2...}</code> and <code>n</code>
-		 * is <code>Math.pow({@link de.jstacs.data.Alphabet#length()},pos.length)</code>.
+		 * is <code>Math.pow({@link de.jstacs.data.alphabets.Alphabet#length()},pos.length)</code>.
 		 * 
 		 * @param pos
 		 *            the used positions (will be cloned), have to be

@@ -1,8 +1,8 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.continuous;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

@@ -19,7 +19,7 @@
 package de.jstacs.sequenceScores.differentiable.logistic;
 
 import de.jstacs.Storable;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 
 /**
  * This interface defines the function {@latex.inline $f(\\underline{x})$} for sequence {@latex.inline $\\underline{x}$} which can be used in {@link LogisticDiffSS}.

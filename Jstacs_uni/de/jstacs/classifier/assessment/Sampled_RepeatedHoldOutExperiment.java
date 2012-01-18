@@ -20,14 +20,14 @@ package de.jstacs.classifier.assessment;
 
 import java.util.Random;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.DataSet.PartitionMethod;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.utils.ProgressUpdater;
 

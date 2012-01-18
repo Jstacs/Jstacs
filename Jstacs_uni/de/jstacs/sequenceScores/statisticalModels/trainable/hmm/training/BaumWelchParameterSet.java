@@ -19,12 +19,12 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 
 /**
- * This class implements an {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.HMMTrainingParameterSet} for the Baum-Welch training of an {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM}.
+ * This class implements an {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet} for the Baum-Welch training of an {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM}.
  * 
  * @author Jens Keilwagen
  */

@@ -1,6 +1,6 @@
 package de.jstacs.classifier.performanceMeasures;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.NumericalResultSet;
 
 /**

@@ -22,12 +22,12 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous;
 import java.util.Arrays;
 import java.util.Random;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.ByteSequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;

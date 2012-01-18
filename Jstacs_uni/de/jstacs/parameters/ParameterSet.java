@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import de.jstacs.AnnotatedEntityList;
-import de.jstacs.NonParsableException;
 import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

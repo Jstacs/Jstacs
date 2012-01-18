@@ -20,8 +20,8 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogene
 
 import java.util.Arrays;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DGTrainSMParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.ModelType;

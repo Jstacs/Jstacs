@@ -16,18 +16,15 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs.data;
+package de.jstacs.data.sequences;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.WrongAlphabetException;
+import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
-import de.jstacs.data.sequences.ArbitrarySequence;
-import de.jstacs.data.sequences.ByteSequence;
-import de.jstacs.data.sequences.SimpleDiscreteSequence;
-import de.jstacs.data.sequences.IntSequence;
-import de.jstacs.data.sequences.ShortSequence;
-import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
 /**
@@ -45,12 +42,12 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	protected AlphabetContainer alphabetCon;
 
 	/**
-	 * The pointer to the reverse complement of the {@link de.jstacs.data.Sequence}.
+	 * The pointer to the reverse complement of the {@link de.jstacs.data.sequences.Sequence}.
 	 */
 	protected Sequence<T> rc;
 
 	/**
-	 * The annotation of the {@link de.jstacs.data.Sequence}.
+	 * The annotation of the {@link de.jstacs.data.sequences.Sequence}.
 	 */
 	protected SequenceAnnotation[] annotation;
 	
@@ -60,14 +57,14 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	private Integer hashCode;
 
 	/**
-	 * Creates a new {@link de.jstacs.data.Sequence} with the given {@link AlphabetContainer}
+	 * Creates a new {@link de.jstacs.data.sequences.Sequence} with the given {@link AlphabetContainer}
 	 * and the given annotation, but without the content. The content has to be
 	 * set by the constructor of the extending class.
 	 * 
 	 * @param container
-	 *            the {@link AlphabetContainer} of the {@link de.jstacs.data.Sequence}
+	 *            the {@link AlphabetContainer} of the {@link de.jstacs.data.sequences.Sequence}
 	 * @param annotation
-	 *            the annotation of the {@link de.jstacs.data.Sequence}
+	 *            the annotation of the {@link de.jstacs.data.sequences.Sequence}
 	 */
 	protected Sequence( AlphabetContainer container, SequenceAnnotation[] annotation ) {
 		if( container == null ) {
@@ -82,25 +79,25 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * Returns the continuous value at position <code>pos</code> of the
-	 * {@link de.jstacs.data.Sequence}.
+	 * {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @param pos
-	 *            the position of the {@link de.jstacs.data.Sequence}
+	 *            the position of the {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @return the continuous value at position <code>pos</code> of the
-	 *         {@link de.jstacs.data.Sequence}
+	 *         {@link de.jstacs.data.sequences.Sequence}
 	 */
 	public abstract double continuousVal( int pos );
 
 	/**
 	 * Returns the discrete value at position <code>pos</code> of the
-	 * {@link de.jstacs.data.Sequence}.
+	 * {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @param pos
-	 *            the position of the {@link de.jstacs.data.Sequence}
+	 *            the position of the {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @return the discrete value at position <code>pos</code> of the
-	 *         {@link de.jstacs.data.Sequence}
+	 *         {@link de.jstacs.data.sequences.Sequence}
 	 */
 	public abstract int discreteVal( int pos );
 
@@ -121,19 +118,19 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * Return the alphabets, i.e. the {@link AlphabetContainer}, used in this
-	 * {@link de.jstacs.data.Sequence}.
+	 * {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @return the alphabets, i.e. the {@link AlphabetContainer}, used in this
-	 *         {@link de.jstacs.data.Sequence}
+	 *         {@link de.jstacs.data.sequences.Sequence}
 	 */
 	public final AlphabetContainer getAlphabetContainer() {
 		return alphabetCon;
 	}
 
 	/**
-	 * Returns the annotation of the {@link de.jstacs.data.Sequence}.
+	 * Returns the annotation of the {@link de.jstacs.data.sequences.Sequence}.
 	 * 
-	 * @return the annotation of the {@link de.jstacs.data.Sequence} (can be <code>null</code>)
+	 * @return the annotation of the {@link de.jstacs.data.sequences.Sequence} (can be <code>null</code>)
 	 */
 	public final SequenceAnnotation[] getAnnotation() {
 		if( annotation != null ) {
@@ -145,7 +142,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	
 	
 	/**
-	* Returns the {@link SequenceAnnotation} of this {@link de.jstacs.data.Sequence} that has type <code>type</code> and identifier <code>identifier</code>.
+	* Returns the {@link SequenceAnnotation} of this {@link de.jstacs.data.sequences.Sequence} that has type <code>type</code> and identifier <code>identifier</code>.
 	* 
 	* @param type the chosen type of the {@link SequenceAnnotation}
 	* @param identifier the chosen identifier of the {@link SequenceAnnotation}
@@ -161,7 +158,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 	
 	/**
-	* Returns the {@link SequenceAnnotation} no. <code>idx</code> of this {@link de.jstacs.data.Sequence} that has type <code>type</code>
+	* Returns the {@link SequenceAnnotation} no. <code>idx</code> of this {@link de.jstacs.data.sequences.Sequence} that has type <code>type</code>
 	* 
 	* @param type the chosen type of a subset of {@link SequenceAnnotation}s
 	* @param idx the index of the returned {@link SequenceAnnotation} within this subset.
@@ -181,7 +178,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 	
 	/**
-	 * Returns the number of {@link SequenceAnnotation}s of type <code>type</code> for this {@link de.jstacs.data.Sequence}.
+	 * Returns the number of {@link SequenceAnnotation}s of type <code>type</code> for this {@link de.jstacs.data.sequences.Sequence}.
 	 * @param type the type
 	 * @return the number of annotations
 	 */
@@ -197,15 +194,15 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * This method should be used if one wants to create a {@link DataSet} of
-	 * {@link CompositeSequence}s. With this constructor you are enabled to
-	 * create a {@link DataSet} where every {@link de.jstacs.data.Sequence} has the same
+	 * {@link Sequence.CompositeSequence}s. With this constructor you are enabled to
+	 * create a {@link DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
 	 * <br>
 	 * 
 	 * Internally it is checked that the {@link AlphabetContainer} matches with
-	 * the one of the {@link CompositeSequence}.
+	 * the one of the {@link Sequence.CompositeSequence}.
 	 * 
 	 * @param abc
 	 *            the new {@link AlphabetContainer}
@@ -214,18 +211,17 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * @param lengths
 	 *            the length of each junk
 	 * 
-	 * @return the {@link CompositeSequence}
+	 * @return the {@link Sequence.CompositeSequence}
 	 * 
 	 * @see Sequence.CompositeSequence#Sequence.CompositeSequence(de.jstacs.data.AlphabetContainer,
-	 * 			de.jstacs.data.Sequence, int[], int[]) CompositeSequence#CompositeSequence(de.jstacs.data.AlphabetContainer,
-	 * 			de.jstacs.data.Sequence, int[], int[])
+	 * 			de.jstacs.data.sequences.Sequence, int[], int[])
 	 */
 	public Sequence<T> getCompositeSequence( AlphabetContainer abc, int[] starts, int[] lengths ) {
 		return new CompositeSequence( abc, this, starts, lengths );
 	}
 
 	/**
-	 * This is a very efficient way to create a {@link CompositeSequence} for
+	 * This is a very efficient way to create a {@link Sequence.CompositeSequence} for
 	 * sequences with a simple {@link AlphabetContainer}.
 	 * 
 	 * @param starts
@@ -233,9 +229,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * @param lengths
 	 *            the length of each junk
 	 * 
-	 * @return the {@link CompositeSequence}
+	 * @return the {@link Sequence.CompositeSequence}
 	 * 
-	 * @see Sequence.CompositeSequence#Sequence.CompositeSequence(de.jstacs.data.Sequence, int[], int[]) CompositeSequence#CompositeSequence(de.jstacs.data.Sequence, int[], int[])
+	 * @see Sequence.CompositeSequence#Sequence.CompositeSequence(de.jstacs.data.sequences.Sequence, int[], int[])
 	 */
 	public Sequence getCompositeSequence( int[] starts, int[] lengths ) {
 		return new CompositeSequence( this, starts, lengths );
@@ -244,7 +240,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	/**
 	 * This method should be used if one wants to create a {@link DataSet} of
 	 * subsequences of defined length. With this constructor you are enabled to
-	 * create a {@link DataSet} where every {@link de.jstacs.data.Sequence} has the same
+	 * create a {@link DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -269,7 +265,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	/**
 	 * This method should be used if one wants to create a {@link DataSet} of
 	 * subsequences of defined length. With this constructor you are enabled to
-	 * create a {@link DataSet} where every {@link de.jstacs.data.Sequence} has the same
+	 * create a {@link DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -283,11 +279,11 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * @param start
 	 *            the index of the start position
 	 * @param length
-	 *            the length of the new {@link de.jstacs.data.Sequence}
+	 *            the length of the new {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @return the subsequence
 	 * 
-	 * @see Sequence.SubSequence#Sequence.SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.Sequence, int, int) SubSequence#SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.Sequence, int, int)
+	 * @see Sequence.SubSequence#Sequence.SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.Sequence, int, int) SubSequence#SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.Sequence, int, int)
 	 */
 	public Sequence getSubSequence( AlphabetContainer abc, int start, int length ) {
 		if( start == 0 && length == getLength() ) {
@@ -299,7 +295,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * This is a very efficient way to create a subsequence/suffix for
-	 * {@link de.jstacs.data.Sequence}s with a simple {@link AlphabetContainer}.
+	 * {@link de.jstacs.data.sequences.Sequence}s with a simple {@link AlphabetContainer}.
 	 * 
 	 * @param start
 	 *            the index of the start position
@@ -314,12 +310,12 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * This is a very efficient way to create a subsequence of defined length
-	 * for {@link de.jstacs.data.Sequence}s with a simple {@link AlphabetContainer}.
+	 * for {@link de.jstacs.data.sequences.Sequence}s with a simple {@link AlphabetContainer}.
 	 * 
 	 * @param start
 	 *            the index of the start position
 	 * @param length
-	 *            the length of the new {@link de.jstacs.data.Sequence}
+	 *            the length of the new {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @return the subsequence
 	 * 
@@ -334,7 +330,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method allows to append annotation to a {@link de.jstacs.data.Sequence}.
+	 * This method allows to append annotation to a {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @param add
 	 *            indicates whether to add the new annotation to the existing or
@@ -342,7 +338,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * @param annotation
 	 *            the new annotation
 	 * 
-	 * @return the new annotated {@link de.jstacs.data.Sequence}
+	 * @return the new annotated {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @see Sequence#flatCloneWithoutAnnotation()
 	 */
@@ -377,22 +373,22 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * annotation. This method is used in
 	 * {@link #annotate(boolean, SequenceAnnotation...)}.
 	 * 
-	 * @return the cloned {@link de.jstacs.data.Sequence} without annotation
+	 * @return the cloned {@link de.jstacs.data.sequences.Sequence} without annotation
 	 */
 	protected abstract Sequence flatCloneWithoutAnnotation();
 
 	/**
-	 * Returns the length of the {@link de.jstacs.data.Sequence}.
+	 * Returns the length of the {@link de.jstacs.data.sequences.Sequence}.
 	 * 
-	 * @return the length of the {@link de.jstacs.data.Sequence}
+	 * @return the length of the {@link de.jstacs.data.sequences.Sequence}
 	 */
 	public abstract int getLength();
 
 	/**
-	 * Returns a {@link String} representation of the {@link de.jstacs.data.Sequence} (normally
-	 * the {@link de.jstacs.data.Sequence} in its original {@link Alphabet}).
+	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link Alphabet}).
 	 * 
-	 * @return the {@link de.jstacs.data.Sequence} as {@link String}
+	 * @return the {@link de.jstacs.data.sequences.Sequence} as {@link String}
 	 * 
 	 * @see Sequence#toString(String, int, int)
 	 */
@@ -402,14 +398,14 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * Returns a {@link String} representation of the {@link de.jstacs.data.Sequence} (normally
-	 * the {@link de.jstacs.data.Sequence} in its original {@link Alphabet}) beginning at
+	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link Alphabet}) beginning at
 	 * position <code>start</code> with a default delimiter as separator.
 	 * 
 	 * @param start
 	 *            the start index (inclusive)
 	 * 
-	 * @return the {@link de.jstacs.data.Sequence} as {@link String}
+	 * @return the {@link de.jstacs.data.sequences.Sequence} as {@link String}
 	 * 
 	 * @see Sequence#toString(String, int, int)
 	 */
@@ -418,8 +414,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * Returns a {@link String} representation of the {@link de.jstacs.data.Sequence} (normally
-	 * the {@link de.jstacs.data.Sequence} in its original {@link Alphabet}) between
+	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link Alphabet}) between
 	 * <code>start</code> and <code>end</code> with a default delimiter as
 	 * separator.
 	 * 
@@ -428,7 +424,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * @param end
 	 *            the end index (exclusive)
 	 * 
-	 * @return the {@link de.jstacs.data.Sequence} as {@link String}
+	 * @return the {@link de.jstacs.data.sequences.Sequence} as {@link String}
 	 * 
 	 * @see Sequence#toString(String, int, int)
 	 */
@@ -483,10 +479,10 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * This method converts a continuous value at position <code>pos</code> of
-	 * the {@link de.jstacs.data.Sequence} into a discrete one.
+	 * the {@link de.jstacs.data.sequences.Sequence} into a discrete one.
 	 * 
 	 * @param pos
-	 *            the position of the {@link de.jstacs.data.Sequence}
+	 *            the position of the {@link de.jstacs.data.sequences.Sequence}
 	 * @param content
 	 *            the value at this position
 	 * 
@@ -499,8 +495,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * Returns a {@link String} representation of the {@link de.jstacs.data.Sequence} (normally
-	 * the {@link de.jstacs.data.Sequence} in its original alphabet) between <code>start</code>
+	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original alphabet) between <code>start</code>
 	 * and <code>end</code> with <code>delim</code> as separator.
 	 * 
 	 * @param delim
@@ -510,7 +506,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * @param end
 	 *            the end index (exclusive)
 	 * 
-	 * @return the {@link de.jstacs.data.Sequence} as {@link String}
+	 * @return the {@link de.jstacs.data.sequences.Sequence} as {@link String}
 	 * 
 	 * @see #getEmptyRepresentation()
 	 * @see #addToRepresentation(Object, int, String)
@@ -559,16 +555,16 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	protected abstract String getStringRepresentation( Object representation );
 
 	/**
-	 * Creates a {@link de.jstacs.data.Sequence} from a {@link String} based on the given
+	 * Creates a {@link de.jstacs.data.sequences.Sequence} from a {@link String} based on the given
 	 * {@link AlphabetContainer} using the standard delimiter for this
 	 * {@link AlphabetContainer}.
 	 * 
 	 * @param con
 	 *            the {@link AlphabetContainer}
 	 * @param sequence
-	 *            the {@link String} containing the {@link de.jstacs.data.Sequence}
+	 *            the {@link String} containing the {@link de.jstacs.data.sequences.Sequence}
 	 * 
-	 * @return a new {@link de.jstacs.data.Sequence} instance
+	 * @return a new {@link de.jstacs.data.sequences.Sequence} instance
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if <code>sequence</code> is not defined over <code>con</code>
@@ -583,17 +579,17 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * Creates a {@link de.jstacs.data.Sequence} from a {@link String} based on the given
+	 * Creates a {@link de.jstacs.data.sequences.Sequence} from a {@link String} based on the given
 	 * {@link AlphabetContainer} using the given delimiter <code>delim</code>.
 	 * 
 	 * @param con
 	 *            the {@link AlphabetContainer}
 	 * @param sequence
-	 *            the {@link String} containing the {@link de.jstacs.data.Sequence}
+	 *            the {@link String} containing the {@link de.jstacs.data.sequences.Sequence}
 	 * @param delim
 	 *            the given delimiter
 	 * 
-	 * @return a new {@link de.jstacs.data.Sequence} instance
+	 * @return a new {@link de.jstacs.data.sequences.Sequence} instance
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if <code>sequence</code> is not defined over <code>con</code>
@@ -610,20 +606,20 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * Creates a {@link de.jstacs.data.Sequence} from a {@link String} based on the given
+	 * Creates a {@link de.jstacs.data.sequences.Sequence} from a {@link String} based on the given
 	 * {@link AlphabetContainer} using the given delimiter <code>delim</code>
-	 * and some <code>annotation</code> for the {@link de.jstacs.data.Sequence}.
+	 * and some <code>annotation</code> for the {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @param con
 	 *            the {@link AlphabetContainer}
 	 * @param annotation
-	 *            the annotation for the {@link de.jstacs.data.Sequence}
+	 *            the annotation for the {@link de.jstacs.data.sequences.Sequence}
 	 * @param sequence
-	 *            the {@link String} containing the {@link de.jstacs.data.Sequence}
+	 *            the {@link String} containing the {@link de.jstacs.data.sequences.Sequence}
 	 * @param delim
 	 *            the given delimiter
 	 * 
-	 * @return a new {@link de.jstacs.data.Sequence} instance
+	 * @return a new {@link de.jstacs.data.sequences.Sequence} instance
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if <code>sequence</code> is not defined over <code>con</code>
@@ -658,18 +654,18 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method returns a new instance of {@link de.jstacs.data.Sequence} containing the
-	 * reverse current {@link de.jstacs.data.Sequence}.
+	 * This method returns a new instance of {@link de.jstacs.data.sequences.Sequence} containing the
+	 * reverse current {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * <br>
 	 * 
 	 * So invoking this method, for instance, on the sequence &quot;TAATA&quot;
 	 * returns &quot;ATAAT&quot;.
 	 * 
-	 * @return the reverse {@link de.jstacs.data.Sequence}
+	 * @return the reverse {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @throws OperationNotSupportedException
-	 *             if the current {@link de.jstacs.data.Sequence} is based on an
+	 *             if the current {@link de.jstacs.data.sequences.Sequence} is based on an
 	 *             {@link AlphabetContainer} that is not simple
 	 * 
 	 * @see Sequence#reverse(int, int)
@@ -679,19 +675,19 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method returns a new instance of {@link de.jstacs.data.Sequence} containing a part
-	 * of the reverse current {@link de.jstacs.data.Sequence}.
+	 * This method returns a new instance of {@link de.jstacs.data.sequences.Sequence} containing a part
+	 * of the reverse current {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @param start
 	 *            the start position (inclusive) in the original
-	 *            {@link de.jstacs.data.Sequence}
+	 *            {@link de.jstacs.data.sequences.Sequence}
 	 * @param end
-	 *            the end position (exclusive) in the original {@link de.jstacs.data.Sequence}
+	 *            the end position (exclusive) in the original {@link de.jstacs.data.sequences.Sequence}
 	 * 
-	 * @return the reverse {@link de.jstacs.data.Sequence} of the part
+	 * @return the reverse {@link de.jstacs.data.sequences.Sequence} of the part
 	 * 
 	 * @throws OperationNotSupportedException
-	 *             if the current {@link de.jstacs.data.Sequence} is based on an
+	 *             if the current {@link de.jstacs.data.sequences.Sequence} is based on an
 	 *             {@link AlphabetContainer} that is not simple
 	 */
 	public Sequence reverse( int start, int end ) throws OperationNotSupportedException {
@@ -723,8 +719,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method returns a new instance of {@link de.jstacs.data.Sequence} containing the
-	 * complementary current {@link de.jstacs.data.Sequence}.
+	 * This method returns a new instance of {@link de.jstacs.data.sequences.Sequence} containing the
+	 * complementary current {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * <br>
 	 * 
@@ -732,10 +728,10 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * with an {@link AlphabetContainer} on
 	 * {@link de.jstacs.data.alphabets.DNAAlphabet} returns &quot;ATTAT&quot;.
 	 * 
-	 * @return the complementary {@link de.jstacs.data.Sequence}
+	 * @return the complementary {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @throws OperationNotSupportedException
-	 *             if the current {@link de.jstacs.data.Sequence} is not based on a
+	 *             if the current {@link de.jstacs.data.sequences.Sequence} is not based on a
 	 *             {@link ComplementableDiscreteAlphabet}
 	 * 
 	 * @see ComplementableDiscreteAlphabet
@@ -746,14 +742,14 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method returns a new instance of {@link de.jstacs.data.Sequence} containing the
-	 * reverse complementary current {@link de.jstacs.data.Sequence}. For more details see the
+	 * This method returns a new instance of {@link de.jstacs.data.sequences.Sequence} containing the
+	 * reverse complementary current {@link de.jstacs.data.sequences.Sequence}. For more details see the
 	 * methods {@link #reverse()} and {@link #complement()}.
 	 * 
-	 * @return the reverse complementary {@link de.jstacs.data.Sequence}
+	 * @return the reverse complementary {@link de.jstacs.data.sequences.Sequence}
 	 * 
 	 * @throws OperationNotSupportedException
-	 *             if the current {@link de.jstacs.data.Sequence} is not discrete and simple
+	 *             if the current {@link de.jstacs.data.sequences.Sequence} is not discrete and simple
 	 *             (not based on a {@link ComplementableDiscreteAlphabet})
 	 * 
 	 * @see Sequence#reverse()
@@ -766,8 +762,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 	
 	/**
-	 * This method returns a new instance of {@link de.jstacs.data.Sequence} containing a part
-	 * of the complementary current {@link de.jstacs.data.Sequence}.
+	 * This method returns a new instance of {@link de.jstacs.data.sequences.Sequence} containing a part
+	 * of the complementary current {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * <br>
 	 * 
@@ -777,14 +773,14 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @param start
 	 *            the start position (inclusive) in the original
-	 *            {@link de.jstacs.data.Sequence}
+	 *            {@link de.jstacs.data.sequences.Sequence}
 	 * @param end
-	 *            the end position (exclusive) in the original {@link de.jstacs.data.Sequence}
+	 *            the end position (exclusive) in the original {@link de.jstacs.data.sequences.Sequence}
 	 * 
-	 * @return the complementary {@link de.jstacs.data.Sequence} of the part
+	 * @return the complementary {@link de.jstacs.data.sequences.Sequence} of the part
 	 * 
 	 * @throws OperationNotSupportedException
-	 *             if the current {@link de.jstacs.data.Sequence} is not based on a
+	 *             if the current {@link de.jstacs.data.sequences.Sequence} is not based on a
 	 *             {@link ComplementableDiscreteAlphabet}
 	 * 
 	 * @see ComplementableDiscreteAlphabet
@@ -820,20 +816,20 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method returns a new instance of {@link de.jstacs.data.Sequence} containing a
-	 * reverse part of the complementary current {@link de.jstacs.data.Sequence}. For more
+	 * This method returns a new instance of {@link de.jstacs.data.sequences.Sequence} containing a
+	 * reverse part of the complementary current {@link de.jstacs.data.sequences.Sequence}. For more
 	 * details see the methods {@link #reverse()} and {@link #complement()}.
 	 * 
 	 * @param start
 	 *            the start position (inclusive) in the original
-	 *            {@link de.jstacs.data.Sequence}
+	 *            {@link de.jstacs.data.sequences.Sequence}
 	 * @param end
-	 *            the end position (exclusive) in the original {@link de.jstacs.data.Sequence}
+	 *            the end position (exclusive) in the original {@link de.jstacs.data.sequences.Sequence}
 	 * 
-	 * @return the reverse complementary {@link de.jstacs.data.Sequence} of the part
+	 * @return the reverse complementary {@link de.jstacs.data.sequences.Sequence} of the part
 	 * 
 	 * @throws OperationNotSupportedException
-	 *             if the current {@link de.jstacs.data.Sequence} is not discrete and simple
+	 *             if the current {@link de.jstacs.data.sequences.Sequence} is not discrete and simple
 	 *             ((not based on a {@link ComplementableDiscreteAlphabet})
 	 * 
 	 * @see Sequence#reverse()
@@ -911,7 +907,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	protected abstract int hashCodeForPos( int pos );
 	
 	/**
-	 * This method returns the Hamming distance between the current {@link de.jstacs.data.Sequence} and <code>seq</code>.
+	 * This method returns the Hamming distance between the current {@link de.jstacs.data.sequences.Sequence} and <code>seq</code>.
 	 * If the sequence have different length -1 is returned.
 	 * 
 	 * @param seq the sequence to be compared
@@ -1002,8 +998,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * This is the main class for subsequences, composite sequences, ... . All these
-	 * sequences are defined on an existing {@link de.jstacs.data.Sequence}. After creating an
-	 * {@link Sequence.RecursiveSequence}, no {@link SequenceAnnotation} of the internally {@link de.jstacs.data.Sequence}
+	 * sequences are defined on an existing {@link de.jstacs.data.sequences.Sequence}. After creating an
+	 * {@link Sequence.RecursiveSequence}, no {@link SequenceAnnotation} of the internally {@link de.jstacs.data.sequences.Sequence}
 	 * is returned by {@link Sequence#getAnnotation()}, ...
 	 * 
 	 * @param <T> the type of each position
@@ -1018,7 +1014,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		protected Sequence<T> content;
 
 		/**
-		 * Creates a new {@link Sequence.RecursiveSequence} on the {@link de.jstacs.data.Sequence}
+		 * Creates a new {@link Sequence.RecursiveSequence} on the {@link de.jstacs.data.sequences.Sequence}
 		 * <code>seq</code> with the {@link AlphabetContainer} <code>alphabet</code>
 		 * and the annotation <code>annotation</code>.
 		 * 
@@ -1037,9 +1033,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		}
 
 		/**
-		 * Creates a new {@link Sequence.RecursiveSequence} on the {@link de.jstacs.data.Sequence}
+		 * Creates a new {@link Sequence.RecursiveSequence} on the {@link de.jstacs.data.sequences.Sequence}
 		 * <code>seq</code> with the {@link AlphabetContainer} <code>alphabet</code>
-		 * using the annotation of the given {@link de.jstacs.data.Sequence}.
+		 * using the annotation of the given {@link de.jstacs.data.sequences.Sequence}.
 		 * 
 		 * @param alphabet
 		 *            the {@link AlphabetContainer}
@@ -1121,8 +1117,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 	
 	/**
-	 * The class handles composite {@link de.jstacs.data.Sequence}s. A
-	 * {@link Sequence.CompositeSequence} consists of several (partial) {@link de.jstacs.data.Sequence}
+	 * The class handles composite {@link de.jstacs.data.sequences.Sequence}s. A
+	 * {@link Sequence.CompositeSequence} consists of several (partial) {@link de.jstacs.data.sequences.Sequence}
 	 * s. A biological example are promoters like in eukaryotes (-10 and -35
 	 * box).
 	 * 
@@ -1162,10 +1158,10 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 		/**
 		 * This is a very efficient way to create a {@link Sequence.CompositeSequence}
-		 * for {@link de.jstacs.data.Sequence}s with a simple {@link AlphabetContainer}.
+		 * for {@link de.jstacs.data.sequences.Sequence}s with a simple {@link AlphabetContainer}.
 		 * 
 		 * @param seq
-		 *            the original {@link de.jstacs.data.Sequence}
+		 *            the original {@link de.jstacs.data.sequences.Sequence}
 		 * @param starts
 		 *            the start positions of the junks
 		 * @param lengths
@@ -1179,7 +1175,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		 * This constructor should be used if one wants to create a
 		 * {@link DataSet} of {@link Sequence.CompositeSequence}s. With this constructor
 		 * you are enabled to create a {@link DataSet} where every
-		 * {@link de.jstacs.data.Sequence} has the same {@link AlphabetContainer} instance.
+		 * {@link de.jstacs.data.sequences.Sequence} has the same {@link AlphabetContainer} instance.
 		 * 
 		 * <br>
 		 * <br>
@@ -1190,7 +1186,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		 * @param abc
 		 *            the new {@link AlphabetContainer}
 		 * @param seq
-		 *            the original {@link de.jstacs.data.Sequence}
+		 *            the original {@link de.jstacs.data.sequences.Sequence}
 		 * @param starts
 		 *            the start positions of the junks
 		 * @param lengths
@@ -1235,8 +1231,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * This class handles subsequences. {@link Sequence.SubSequence}s are often used to
-	 * extract the {@link de.jstacs.data.Sequence} of a sliding window on a long
-	 * {@link de.jstacs.data.Sequence}. The class is implemented in such a way that it avoids
+	 * extract the {@link de.jstacs.data.sequences.Sequence} of a sliding window on a long
+	 * {@link de.jstacs.data.sequences.Sequence}. The class is implemented in such a way that it avoids
 	 * chains of {@link Sequence.SubSequence}s.
 	 * 
 	 * @param <T> the type of each position
@@ -1274,7 +1270,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		 * This constructor should be used if one wants to create a
 		 * {@link DataSet} of {@link Sequence.SubSequence}s of defined length. With this
 		 * constructor you are enabled to create a {@link DataSet} where every
-		 * {@link de.jstacs.data.Sequence} has the same {@link AlphabetContainer} instance.
+		 * {@link de.jstacs.data.sequences.Sequence} has the same {@link AlphabetContainer} instance.
 		 * 
 		 * <br>
 		 * <br>
@@ -1285,7 +1281,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		 * @param abc
 		 *            the new {@link AlphabetContainer}
 		 * @param seq
-		 *            the original {@link de.jstacs.data.Sequence}
+		 *            the original {@link de.jstacs.data.sequences.Sequence}
 		 * @param start
 		 *            the index of the start position
 		 * @param length
@@ -1297,15 +1293,15 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 		/**
 		 * This is a very efficient way to create a {@link Sequence.SubSequence} of
-		 * defined length for {@link de.jstacs.data.Sequence}s with a simple
+		 * defined length for {@link de.jstacs.data.sequences.Sequence}s with a simple
 		 * {@link AlphabetContainer}.
 		 * 
 		 * @param seq
-		 *            the original {@link de.jstacs.data.Sequence}
+		 *            the original {@link de.jstacs.data.sequences.Sequence}
 		 * @param start
 		 *            the index of the start position
 		 * @param length
-		 *            the length of the new {@link de.jstacs.data.Sequence}
+		 *            the length of the new {@link de.jstacs.data.sequences.Sequence}
 		 */
 		public SubSequence( Sequence seq, int start, int length ) {
 			this( seq.getAlphabetContainer().getSubContainer( start, length ), null, seq, start, length, false );

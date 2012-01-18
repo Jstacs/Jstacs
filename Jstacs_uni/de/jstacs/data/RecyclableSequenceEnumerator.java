@@ -21,6 +21,8 @@ package de.jstacs.data;
 
 import java.util.Enumeration;
 
+import de.jstacs.data.sequences.Sequence;
+
 /**
  * This interface extends {@link Enumeration} of {@link Sequence}s by declaring an additional method that allows to reuse the Enumeration.
  * 

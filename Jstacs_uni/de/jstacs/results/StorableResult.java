@@ -20,11 +20,11 @@
 package de.jstacs.results;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
-import de.jstacs.SequenceScore;
 import de.jstacs.Storable;
 import de.jstacs.classifier.AbstractClassifier;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.sequenceScores.SequenceScore;
 
 /**
  * Class for {@link Result}s that are {@link Storable}s. The method

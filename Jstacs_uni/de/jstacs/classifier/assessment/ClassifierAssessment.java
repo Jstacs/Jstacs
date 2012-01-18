@@ -20,15 +20,15 @@ package de.jstacs.classifier.assessment;
 
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.AbstractClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.classifier.performanceMeasures.NumericalPerformanceMeasureParameterSet;
 import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;

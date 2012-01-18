@@ -21,7 +21,7 @@ package de.jstacs.results;
 
 import java.util.LinkedList;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * Class for a set of numerical result values, which are all of the type

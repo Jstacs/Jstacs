@@ -21,6 +21,8 @@ package de.jstacs.data;
 
 import java.util.Collection;
 
+import de.jstacs.data.sequences.Sequence;
+
 /**
  * This class implements a {@link RecyclableSequenceEnumerator} on user-specified {@link Sequence}s.
  * 

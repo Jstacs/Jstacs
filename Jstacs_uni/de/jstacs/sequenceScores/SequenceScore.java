@@ -16,11 +16,12 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package de.jstacs;
+package de.jstacs.sequenceScores;
 
+import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.ResultSet;
 

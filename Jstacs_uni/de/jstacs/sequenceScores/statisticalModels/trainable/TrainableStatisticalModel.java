@@ -20,7 +20,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
 import de.jstacs.data.DataSet;
-import de.jstacs.sequenceScores.StatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 
 /**
  * This interface defines all methods for a probabilistic model.

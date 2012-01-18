@@ -18,9 +18,9 @@
 
 package de.jstacs.classifier.differentiableSequenceScoreBased.logPrior;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * Class for a {@link LogPrior} that defines a Laplace prior on the parameters

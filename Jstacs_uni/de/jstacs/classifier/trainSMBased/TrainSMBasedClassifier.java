@@ -22,13 +22,13 @@ import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier;
 import de.jstacs.classifier.ClassDimensionException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;

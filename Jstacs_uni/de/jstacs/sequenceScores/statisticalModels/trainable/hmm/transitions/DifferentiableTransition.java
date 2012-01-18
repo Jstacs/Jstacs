@@ -21,8 +21,7 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions;
 
 import java.util.LinkedList;
 
-import de.jstacs.data.Sequence;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.Transition;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 

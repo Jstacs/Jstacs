@@ -25,8 +25,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 
 /**
  * This class enables you to extract elements (symbols) from a given

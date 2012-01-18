@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sampling.GibbsSamplingModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGTrainSMForGibbsSamplingParameterSet;

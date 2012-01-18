@@ -19,13 +19,13 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.DataSet.ElementEnumerator;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;

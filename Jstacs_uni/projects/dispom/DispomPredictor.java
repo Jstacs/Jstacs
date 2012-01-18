@@ -25,16 +25,16 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import de.jstacs.DataType;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.PermutedSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
 import de.jstacs.io.ArrayHandler;

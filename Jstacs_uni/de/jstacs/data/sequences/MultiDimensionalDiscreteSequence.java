@@ -17,9 +17,7 @@
  */
 package de.jstacs.data.sequences;
 
-import de.jstacs.WrongAlphabetException;
-import de.jstacs.data.MultiDimensionalSequence;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.ArrayHandler;

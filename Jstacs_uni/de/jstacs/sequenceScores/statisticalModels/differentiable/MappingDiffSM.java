@@ -18,15 +18,15 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabetMapping;
 import de.jstacs.data.sequences.MappedDiscreteSequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.SimpleDiscreteSequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.Mutable;
@@ -70,7 +70,7 @@ public final class MappingDiffSM extends AbstractDifferentiableStatisticalModel 
 	 * 
 	 * @throws WrongAlphabetException
 	 *             if there is a problem with the mapping of the
-	 *             {@link de.jstacs.data.Alphabet}s
+	 *             {@link de.jstacs.data.alphabets.Alphabet}s
 	 * @throws CloneNotSupportedException
 	 *             if the {@link DifferentiableStatisticalModel} could not be
 	 *             cloned

@@ -1,5 +1,6 @@
 package de.jstacs;
 
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 

@@ -11,9 +11,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.utils.DoubleList;

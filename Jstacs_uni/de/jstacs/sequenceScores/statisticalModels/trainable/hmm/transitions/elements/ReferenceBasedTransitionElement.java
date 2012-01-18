@@ -1,7 +1,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements;
 
-import de.jstacs.NonParsableException;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

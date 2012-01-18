@@ -2,8 +2,8 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models;
 
 import java.util.Random;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.WrongAlphabetException;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.PhyloDiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.SamplingHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.SamplingTransition;

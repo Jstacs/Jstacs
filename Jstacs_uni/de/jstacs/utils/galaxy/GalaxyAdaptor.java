@@ -31,11 +31,11 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.CategoricalResult;

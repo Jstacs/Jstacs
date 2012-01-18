@@ -20,11 +20,11 @@
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.pmmMeasures;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.algorithms.graphs.DAG;
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.DataSet;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.validation.NumberValidator;

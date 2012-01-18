@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import de.jstacs.NonParsableException;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**

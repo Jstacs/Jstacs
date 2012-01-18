@@ -1,6 +1,6 @@
 package de.jstacs.classifier.performanceMeasures;
 
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * This class implements a container for {@link NumericalPerformanceMeasure}s that can be used, for instance, in an repeated assessment,

@@ -31,8 +31,8 @@ import java.util.AbstractMap.SimpleEntry;
 import de.jstacs.classifier.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.utils.ComparableElement;
 
 /**

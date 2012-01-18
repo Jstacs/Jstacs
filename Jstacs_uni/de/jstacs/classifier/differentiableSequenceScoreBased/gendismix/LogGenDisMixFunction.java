@@ -25,7 +25,7 @@ import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.classifier.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
 import de.jstacs.classifier.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.utils.Normalisation;

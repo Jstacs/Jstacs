@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
 import de.jstacs.data.DataSet.PartitionMethod;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;

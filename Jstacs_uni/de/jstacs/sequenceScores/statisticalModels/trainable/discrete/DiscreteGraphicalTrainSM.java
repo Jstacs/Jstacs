@@ -19,9 +19,9 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete;
 
 import de.jstacs.InstantiableFromParameterSet;
-import de.jstacs.NonParsableException;
 import de.jstacs.NotTrainedException;
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;

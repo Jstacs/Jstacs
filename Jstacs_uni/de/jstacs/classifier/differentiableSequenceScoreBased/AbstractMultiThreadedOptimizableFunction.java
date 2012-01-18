@@ -64,7 +64,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 * 
 	 * @param threads the number of threads used for evaluating the function and determining the gradient of the function
 	 * @param data the array of {@link DataSet}s containing the data that is needed to evaluate the function
-	 * @param weights the weights for each {@link de.jstacs.data.Sequence} in each {@link DataSet} of  <code>data</code>
+	 * @param weights the weights for each {@link de.jstacs.data.sequences.Sequence} in each {@link DataSet} of  <code>data</code>
 	 * @param norm
 	 *            the switch for using the normalization (division by the number
 	 *            of sequences)
@@ -72,7 +72,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 *            the switch for using only the free parameters
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if the number of threads is not positive, the {@link DataSet}s contain too less {@link de.jstacs.data.Sequence} for the number of threads, the number of classes or the dimension of the weights is not correct
+	 *             if the number of threads is not positive, the {@link DataSet}s contain too less {@link de.jstacs.data.sequences.Sequence} for the number of threads, the number of classes or the dimension of the weights is not correct
 	 */
 	public AbstractMultiThreadedOptimizableFunction( int threads, DataSet[] data, double[][] weights, boolean norm, boolean freeParams ) throws IllegalArgumentException
 	{

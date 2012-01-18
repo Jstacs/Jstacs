@@ -19,7 +19,7 @@
 
 package de.jstacs.motifDiscovery;
 
-import de.jstacs.data.Sequence;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
 import de.jstacs.results.ImageResult;
 import de.jstacs.utils.REnvironment;

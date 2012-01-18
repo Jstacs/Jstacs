@@ -20,7 +20,7 @@
 package de.jstacs.results;
 
 import de.jstacs.DataType;
-import de.jstacs.NonParsableException;
+import de.jstacs.io.NonParsableException;
 
 /**
  * Class for numerical {@link Result} values. Possible data types are the
