@@ -320,6 +320,14 @@ public class ToolBox {
 		return sum;
 	}
 	
+	/**
+	 * Transpose a <code>double</code> matrix.
+	 * 
+	 * @param sp the array
+	 * @return the transposed array
+	 * 
+	 * @throws Exception if <code>sp</code> is no matrix
+	 */
 	public static double[][] transpose( double[][] sp ) throws Exception {
 		double[][] tr = new double[sp[0].length][sp.length];
 		for(int i=0;i<sp.length;i++){

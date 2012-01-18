@@ -566,8 +566,8 @@ public enum DinucleotideProperty {
 	 * @return the converted {@link Sequence}s as a {@link DataSet}
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static DataSet getSampleForProperty(DataSet original, DinucleotideProperty property) throws WrongSequenceTypeException{
-		return getSampleForProperty( original, NO_SMOOTHING, false, property );
+	public static DataSet getDataSetForProperty(DataSet original, DinucleotideProperty property) throws WrongSequenceTypeException{
+		return getDataSetForProperty( original, NO_SMOOTHING, false, property );
 	}
 	
 	/**
@@ -579,8 +579,8 @@ public enum DinucleotideProperty {
 	 * @return the converted {@link Sequence}s as a {@link DataSet}
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static DataSet getSampleForProperty(DataSet original, Smoothing smoothing, boolean originalAsAnnotation, DinucleotideProperty property) throws WrongSequenceTypeException{
-		return getSampleForProperty( original, smoothing, originalAsAnnotation ? Annotation.ORIGINAL_AS_ANNOTATION : Annotation.NO_ANNOTATION, property );
+	public static DataSet getDataSetForProperty(DataSet original, Smoothing smoothing, boolean originalAsAnnotation, DinucleotideProperty property) throws WrongSequenceTypeException{
+		return getDataSetForProperty( original, smoothing, originalAsAnnotation ? Annotation.ORIGINAL_AS_ANNOTATION : Annotation.NO_ANNOTATION, property );
 	}
 	
 	/**
@@ -590,8 +590,8 @@ public enum DinucleotideProperty {
 	 * @return the annotated {@link Sequence}s as a {@link DataSet}
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static DataSet getSampleForProperty(DataSet original, DinucleotideProperty... properties) throws WrongSequenceTypeException{
-		return getSampleForProperty( original, NO_SMOOTHING, Annotation.SET_PROPERTY_AS_ANNOTATION, properties );
+	public static DataSet getDataSetForProperty(DataSet original, DinucleotideProperty... properties) throws WrongSequenceTypeException{
+		return getDataSetForProperty( original, NO_SMOOTHING, Annotation.SET_PROPERTY_AS_ANNOTATION, properties );
 	}
 	
 	/**
@@ -602,11 +602,11 @@ public enum DinucleotideProperty {
 	 * @param properties the properties
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
-	public static DataSet getSampleForProperty(DataSet original, Smoothing smoothing, boolean addToAnnotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
-		return getSampleForProperty( original, smoothing, addToAnnotation ? Annotation.ADD_PROPERTY_AS_ANNOTATION : Annotation.SET_PROPERTY_AS_ANNOTATION, properties );
+	public static DataSet getDataSetForProperty(DataSet original, Smoothing smoothing, boolean addToAnnotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
+		return getDataSetForProperty( original, smoothing, addToAnnotation ? Annotation.ADD_PROPERTY_AS_ANNOTATION : Annotation.SET_PROPERTY_AS_ANNOTATION, properties );
 	}
 	
-	private static DataSet getSampleForProperty(DataSet original, Smoothing smoothing, Annotation annotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
+	private static DataSet getDataSetForProperty(DataSet original, Smoothing smoothing, Annotation annotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{
 		Sequence[] seqs = new Sequence[original.getNumberOfElements()];
 		
 		if(properties.length > 1 && annotation == Annotation.NO_ANNOTATION || annotation == Annotation.ORIGINAL_AS_ANNOTATION){
@@ -673,7 +673,7 @@ public enum DinucleotideProperty {
 	public static ImageResult getPropertyImage( DataSet original, DinucleotideProperty prop, Smoothing smoothing, REnvironment re, int xLeft, String pltOptions, int width, int height ) throws Exception {
 		int l = original.getElementLength();
 		if( l == 0 ) {
-			throw new WrongLengthException( "All Sequences of the Sample have to have the same length." );
+			throw new WrongLengthException( "All Sequences of the DataSet have to have the same length." );
 		} else {
 			l--; 
 		}

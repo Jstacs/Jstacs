@@ -73,7 +73,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	 * 
 	 * @see ModelType
 	 * @see LearningType
-	 * @see TrainSMBasedClassifier#TrainSMBasedClassifier(boolean,de.jstacs.trainableStatisticalModels.TrainableStatisticalModel[])
+	 * @see TrainSMBasedClassifier#TrainSMBasedClassifier(boolean, de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel...)
 	 */
 	public SharedStructureClassifier( int length, ModelType model, byte order, LearningType method, FSDAGTrainSM... models )
 																															throws IllegalArgumentException,
