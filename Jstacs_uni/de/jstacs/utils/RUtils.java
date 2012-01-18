@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RFileInputStream;
@@ -152,17 +150,28 @@ public class RUtils {
 	 * 
 	 * @return the number of copied bytes
 	 * 
-	 * @throws Exception
+	 * @throws IOException
 	 *             if the file could not be copied
 	 */
-	public static int copyFileFromServer( String sourcePath, String targetPath, RConnection c ) throws Exception {
+	public static int copyFileFromServer( String sourcePath, String targetPath, RConnection c ) throws IOException {
 		BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream( targetPath ) );
 		int code = copyFileFromServer( sourcePath, out, c );
 		out.close();
 		return code;
 	}
 	
-	public static int copyFileFromServer( String sourcePath, OutputStream out, RConnection c ) throws Exception {
+	/**
+	 * Pipes a {@link RFileInputStream} of the given <code>sourcePath</code> into the given {@link OutputStream} <code>out</code>
+	 *  
+	 * @param sourcePath the server path name
+	 * @param out the stream which is used to write the content
+	 * @param c the connection to R
+	 * 
+	 * @return the number of copied bytes
+	 * 
+	 * @throws IOException if the file could not be copied
+	 */
+	public static int copyFileFromServer( String sourcePath, OutputStream out, RConnection c ) throws IOException {
 		RFileInputStream is = c.openFile( sourcePath );
 		int bufSize = 65536, n, code = 0;
 		byte[] buf = new byte[bufSize];
