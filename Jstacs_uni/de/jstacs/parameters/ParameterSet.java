@@ -537,10 +537,10 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 		}
 
 		/**
-		 * @param initialSize
+		 * @param initialCapacity the initial capacity of the {@link ParameterList}
 		 */
-		public ParameterList( int initialSize ) {
-			super( initialSize );
+		public ParameterList( int initialCapacity ) {
+			super( initialCapacity );
 		}
 
 		@Override

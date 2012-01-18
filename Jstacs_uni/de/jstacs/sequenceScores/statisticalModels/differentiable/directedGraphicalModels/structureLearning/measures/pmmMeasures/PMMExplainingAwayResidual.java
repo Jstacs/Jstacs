@@ -147,7 +147,7 @@ public class PMMExplainingAwayResidual extends Measure {
 		/**
 		 * Creates a new {@link PMMExplainingAwayResidualParameterSet} with
 		 * empty parameter values.
-		 * @throws DatatypeNotValidException 
+		 * @throws DatatypeNotValidException if the parameters could not be created
 		 */
 		public PMMExplainingAwayResidualParameterSet() throws DatatypeNotValidException {
 			super(PMMExplainingAwayResidual.class);

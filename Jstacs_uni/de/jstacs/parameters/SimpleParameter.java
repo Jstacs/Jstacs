@@ -136,13 +136,14 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	 * @param defaultVal
 	 *            the default value
 	 * 
-	 * @throws ParameterException
-	 *             if either the default value is not a valid value with respect
-	 *             to <code>datatype</code> or <code>datatype</code> is not in
+	 * @throws DatatypeNotValidException if <code>datatype</code> is not in
 	 *             the values allowed for a {@link SimpleParameter}
+	 * @throws IllegalValueException
+	 *             if the default value is not a valid value with respect
+	 *             to <code>datatype</code>
 	 */
 	public SimpleParameter(DataType datatype, String name, String comment,
-			boolean required, Object defaultVal) throws ParameterException {
+			boolean required, Object defaultVal) throws DatatypeNotValidException, IllegalValueException {
 		this(datatype, name, comment, required);
 		if (checkValue(defaultVal)) {
 			setDefault(defaultVal);

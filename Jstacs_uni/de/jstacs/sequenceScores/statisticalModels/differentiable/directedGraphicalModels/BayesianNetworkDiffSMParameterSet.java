@@ -87,7 +87,7 @@ public class BayesianNetworkDiffSMParameterSet extends
 	/**
 	 * Creates a new {@link BayesianNetworkDiffSMParameterSet} with
 	 * empty parameter values.
-	 * @throws Exception 
+	 * @throws Exception if the parameter for the structure measures could not be created
 	 */
 	public BayesianNetworkDiffSMParameterSet() throws Exception {
 		super(BayesianNetworkDiffSM.class,

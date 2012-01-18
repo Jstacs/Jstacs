@@ -18,6 +18,7 @@
 
 package de.jstacs.data;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -63,7 +64,7 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 	 *            the type of the alphabet(s)
 	 * @param simple
 	 *            indicates if there shall be only a single {@link Alphabet}
-	 * @throws Exception 
+	 * @throws Exception if the parameters could not be created for the given arguments
 	 * 
 	 * @see AlphabetContainerType
 	 * @see InstanceParameterSet#InstanceParameterSet(Class)
@@ -157,7 +158,15 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 	public AlphabetContainerParameterSet( Alphabet[] alphabets ) throws Exception {
 		this( AlphabetContainer.class, alphabets );
 	}
-		
+	
+	/**
+	 * /**
+	 * Creates a new {@link AlphabetContainerParameterSet} from an array of
+	 * {@link Alphabet}s for a given sub-class of {@link AlphabetContainer}.
+	 * @param instanceClass the sub-class fo {@link AlphabetContainer}
+	 * @param alphabets the alphabets
+	 * @throws Exception if the parameters could not be created for the given arguments
+	 */
 	protected AlphabetContainerParameterSet( Class<? extends AlphabetContainer> instanceClass, Alphabet... alphabets ) throws Exception {
 		super( instanceClass );
 		this.simple = false;

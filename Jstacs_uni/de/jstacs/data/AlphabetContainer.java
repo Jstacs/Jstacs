@@ -126,11 +126,10 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 * @throws IOException
 		 *             if the classes are searched for in a jar file, but that
 		 *             file could not be accessed or read
-		 * @throws ParameterException 
 		 */
 		public LinkedList<InstanceParameterSet> getInstanceParameterSets()
 				throws ClassNotFoundException, IOException,
-				InstantiationException, IllegalAccessException, ParameterException {
+				InstantiationException, IllegalAccessException {
 			LinkedList<InstanceParameterSet> list = new LinkedList<InstanceParameterSet>();
 			if (this != CONTINUOUS) {
 				list.addAll(SubclassFinder.getInstanceParameterSets( DiscreteAlphabet.class, DiscreteAlphabet.class.getPackage().getName() ));

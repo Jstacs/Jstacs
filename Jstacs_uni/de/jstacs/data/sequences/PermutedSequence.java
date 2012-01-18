@@ -46,7 +46,7 @@ public class PermutedSequence<T> extends Sequence.RecursiveSequence<T> {
 	 * @throws WrongAlphabetException
 	 *             if the {@link de.jstacs.data.AlphabetContainer} is not simple
 	 * 
-	 * @see de.jstacs.data.sequences.Sequence.RecursiveSequence#Sequence.RecursiveSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.SequenceSequence)
+	 * @see de.jstacs.data.sequences.Sequence.RecursiveSequence#Sequence.RecursiveSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.Sequence)
 	 */
 	public PermutedSequence( Sequence<T> seq ) throws WrongAlphabetException {
 		super( seq.getAlphabetContainer(), seq );
@@ -78,7 +78,7 @@ public class PermutedSequence<T> extends Sequence.RecursiveSequence<T> {
 	 *             if the {@link de.jstacs.data.AlphabetContainer} is not simple
 	 * @throws Exception if the length of the permutation does not match that of the sequence
 	 * 
-	 * @see de.jstacs.data.sequences.Sequence.RecursiveSequence#Sequence.RecursiveSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.SequenceSequence)
+	 * @see de.jstacs.data.sequences.Sequence.RecursiveSequence#Sequence.RecursiveSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.Sequence)
 	 */
 	public PermutedSequence( Sequence<T> seq, int[] permutation ) throws WrongAlphabetException, Exception {
 		super( seq.getAlphabetContainer(), seq );

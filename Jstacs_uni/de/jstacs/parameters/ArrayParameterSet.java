@@ -65,21 +65,26 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 	 * @param allowedLengths
 	 *            a {@link NumberValidator} to set a lower and upper bound on
 	 *            the number of elements in the array
-	 * @throws CloneNotSupportedException 
-	 * @throws DatatypeNotValidException 
-	 * @throws IllegalValueException 
+	 * @throws CloneNotSupportedException if the templace could not be cloned
+	 * @throws IllegalValueException if the values of <code>allowedLengths</code> are not allowed values 
+	 * 		of the length parameter
 	 * 
 	 */
 	public ArrayParameterSet(ParameterSet template, String nameTemplate,
 			String commentTemplate, String lengthName, String lengthComment,
-			NumberValidator<Integer> allowedLengths) throws CloneNotSupportedException, DatatypeNotValidException, IllegalValueException {
+			NumberValidator<Integer> allowedLengths) throws CloneNotSupportedException, IllegalValueException {
 		super(template, nameTemplate, commentTemplate);
 		this.lengthName = lengthName;
 		this.lengthComment = lengthComment;
 		this.allowedLengths = allowedLengths;
 
-		SimpleParameter length = new SimpleParameter(DataType.INT,
-				lengthName, lengthComment, true, allowedLengths);
+		SimpleParameter length;
+		try {
+			length = new SimpleParameter(DataType.INT,
+					lengthName, lengthComment, true, allowedLengths);
+		} catch ( DatatypeNotValidException doesnothappen ) {
+			throw new RuntimeException( doesnothappen );
+		}
 		length.setDefault(allowedLengths.getLowerBound());
 		length.setValue(allowedLengths.getLowerBound());
 		length.setRangeable(false);
@@ -102,12 +107,12 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 	 *            the name-template
 	 * @param commentTemplate
 	 *            the comment-template
-	 * @throws CloneNotSupportedException 
-	 * @throws IllegalValueException 
-	 * @throws DatatypeNotValidException 
+	 * @throws CloneNotSupportedException if the templace could not be cloned
+	 * @throws IllegalValueException if the values of <code>allowedLengths</code> are not allowed values 
+	 * 		of the length parameter
 	 */
 	public ArrayParameterSet(ParameterSet template, String nameTemplate,
-			String commentTemplate) throws DatatypeNotValidException, IllegalValueException, CloneNotSupportedException {
+			String commentTemplate) throws IllegalValueException, CloneNotSupportedException {
 		this(template, nameTemplate, commentTemplate, "Length",
 				"The length of the array.", new NumberValidator<Integer>(1,
 						Integer.MAX_VALUE));

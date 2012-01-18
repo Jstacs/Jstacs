@@ -85,6 +85,8 @@ public class BTMutualInformation extends Measure {
 	 *            defined by {@link DataSource}
 	 * @param ess
 	 *            the equivalent sample sizes for both classes
+	 * @throws CloneNotSupportedException if the parameters could not be created
+	 * @throws Exception if the parameters could not be created for the <code>ess</code>
 	 */
 	public BTMutualInformation(DataSource clazz, double[] ess) throws CloneNotSupportedException, Exception {
 		this( new BTMutualInformationParameterSet( clazz, ess ) );
@@ -96,6 +98,7 @@ public class BTMutualInformation extends Measure {
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters
+	 * @throws CloneNotSupportedException if the parameters could not be cloned
 	 */
 	public BTMutualInformation(BTMutualInformationParameterSet parameters) throws CloneNotSupportedException {
 		super( parameters );
@@ -194,7 +197,7 @@ public class BTMutualInformation extends Measure {
 		/**
 		 * Creates a new {@link BTMutualInformationParameterSet} with empty
 		 * parameter values.
-		 * @throws ParameterException 
+		 * @throws ParameterException if the parameters could not be created
 		 */
 		public BTMutualInformationParameterSet() throws ParameterException {
 			super(BTMutualInformation.class);

@@ -218,11 +218,10 @@ public class SharedStructureMixture extends MixtureTrainSM {
 	 *             if the models can not be cloned
 	 * 
 	 * @see ModelType
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM#MixtureTrainSM(int, de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalMode, int,
-	 *      boolean, double[], double[], de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Algorithm,
-	 *      double, de.jstacs.algorithms.optimization.termination.TerminationCondition,
-	 *      de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization, int, int,
-	 *      de.jstacs.sampling.BurnInTest)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM#MixtureTrainSM(int, 
+	 * 		de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel[], 
+	 * 		int, boolean, double[], double[], de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Algorithm, double, 
+	 * 		TerminationCondition, de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization, int, int, de.jstacs.sampling.BurnInTest)
 	 */
 	protected SharedStructureMixture( FSDAGTrainSM[] m, ModelType model, byte order, int starts, boolean estimateComponentProbs,
 										double[] weights, double alpha, TerminationCondition tc ) throws IllegalArgumentException,

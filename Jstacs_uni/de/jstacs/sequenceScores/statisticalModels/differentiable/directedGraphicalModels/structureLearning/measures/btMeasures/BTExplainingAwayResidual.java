@@ -43,8 +43,9 @@ public class BTExplainingAwayResidual extends Measure {
 	 * 
 	 * @param ess
 	 *            the equivalent sample sizes (ess) for the classes
+	 * @throws Exception if the parameters could bot be created for the 
 	 */
-	public BTExplainingAwayResidual(double[] ess) throws CloneNotSupportedException, Exception {
+	public BTExplainingAwayResidual(double[] ess) throws Exception {
 		this( new BTExplainingAwayResidualParameterSet( ess ) );
 	}
 
@@ -54,6 +55,7 @@ public class BTExplainingAwayResidual extends Measure {
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters
+	 * @throws CloneNotSupportedException if the parameters could not be cloned
 	 */
 	public BTExplainingAwayResidual( BTExplainingAwayResidualParameterSet parameters) throws CloneNotSupportedException {
 		super( parameters );
@@ -142,7 +144,7 @@ public class BTExplainingAwayResidual extends Measure {
 		/**
 		 * Creates a new {@link BTExplainingAwayResidualParameterSet} with empty
 		 * parameter values.
-		 * @throws DatatypeNotValidException 
+		 * @throws DatatypeNotValidException if the parameters could not be created
 		 */
 		public BTExplainingAwayResidualParameterSet() throws DatatypeNotValidException {
 			super(BTExplainingAwayResidual.class);
