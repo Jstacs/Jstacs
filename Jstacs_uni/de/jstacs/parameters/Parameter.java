@@ -36,7 +36,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * 
  * @see de.jstacs.parameters.ParameterSet
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  * 
  */
 public abstract class Parameter extends AnnotatedEntity implements Cloneable {

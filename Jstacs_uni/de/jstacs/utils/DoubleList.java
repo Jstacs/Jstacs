@@ -29,7 +29,7 @@ import de.jstacs.io.XMLParser;
 /**
  * A simple list of primitive type <code>double</code>.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public final class DoubleList implements Storable, Cloneable {
 

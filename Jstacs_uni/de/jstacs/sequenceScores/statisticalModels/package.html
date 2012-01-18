@@ -24,14 +24,12 @@
 </head>
 <body bgcolor="white">
 
-Provides the classes for {@link de.jstacs.classifiers.AbstractScoreBasedClassifier}s that are based on
-{@link de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel}s
-and that sample parameters using the Metropolis-Hastings algorithm. The abstract base class of all such
-classifiers is the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier}, while
-the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingGenDisMixClassifier} provides an
-implementation for the unified generative-discriminative learning principle.
+Provides all {@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel}s, which can compute a proper (i.e., normalized) likelihood over the input space of sequences.<br />
 
+{@link de.jstacs.sequenceScores.statisticalModels.StatisticalModel}s can be further differentiated into {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel}s,
+which can be learned from a single input {@link de.jstacs.data.DataSet}, and {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s,
+which define a proper likelihood but can also compute gradients like {@link de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore}s.
+These can be found in the sub-packages {@link de.jstacs.sequenceScores.statisticalModels.trainable} and {@link de.jstacs.sequenceScores.statisticalModels.differentiable}, respectively.
 <!-- Put @see and @since tags down here. -->
-@since Jstacs 1.5
 </body>
 </html>

@@ -27,7 +27,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.Mutable;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.mix.motif.DurationDiffSM;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.DurationDiffSM;
 
 /**
  * This class implements a {@link de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel} for an inhomogeneous Markov model.

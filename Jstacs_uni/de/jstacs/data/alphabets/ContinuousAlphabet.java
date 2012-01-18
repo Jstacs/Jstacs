@@ -29,7 +29,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 /**
  * Class for a continuous alphabet.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class ContinuousAlphabet extends Alphabet {
 

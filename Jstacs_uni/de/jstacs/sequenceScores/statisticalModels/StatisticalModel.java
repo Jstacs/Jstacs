@@ -1,14 +1,16 @@
 package de.jstacs.sequenceScores.statisticalModels;
 
 import de.jstacs.NotTrainedException;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.sequenceScores.SequenceScore;
 
 /**
- * This interface declares methods an statistical model.
- * If you like to train the model please have a look at {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel},
- * if you like to use the model in some optimization (e.g. discriminative learning) have a look at {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}.
+ * This interface declares methods of a statistical model, i.e., a {@link SequenceScore} that defines a proper likelihood
+ * over the input {@link Sequence}s.
+ * If you like to train the model from a {@link DataSet}, please have a look at {@link de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel},
+ * if you like to use the model in some optimization (e.g., discriminative learning using the {@link GenDisMixClassifier}) have a look at {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}.
  * 
  * @author Jan Grau, Jens Keilwagen
  */

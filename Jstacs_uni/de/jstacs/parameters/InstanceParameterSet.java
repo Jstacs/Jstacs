@@ -31,7 +31,7 @@ import de.jstacs.io.ParameterSetParser.NotInstantiableException;
  * 
  * @param <T> the type of the {@link InstanceParameterSet}
  * 
- * @author Jan Grau, Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public abstract class InstanceParameterSet<T extends InstantiableFromParameterSet> extends ParameterSet {
 	/**

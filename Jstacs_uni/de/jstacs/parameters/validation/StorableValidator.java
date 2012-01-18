@@ -20,7 +20,7 @@
 package de.jstacs.parameters.validation;
 
 import de.jstacs.Storable;
-import de.jstacs.classifier.AbstractClassifier;
+import de.jstacs.classifiers.AbstractClassifier;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;

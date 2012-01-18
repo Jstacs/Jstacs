@@ -34,7 +34,7 @@ import de.jstacs.io.XMLParser;
  * {@link ExpandableParameterSet} ) or defining an array of {@link ParameterSet}
  * s from a common template ( {@link ArrayParameterSet} ).
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  */
 public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvertible {
 	

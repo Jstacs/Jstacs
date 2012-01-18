@@ -79,7 +79,7 @@ import de.jstacs.utils.Pair;
  * 
  * {@link DataSet} is immutable.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Andre Gohr, Jan Grau
  * 
  * @see AlphabetContainer
  * @see Alphabet

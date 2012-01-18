@@ -19,8 +19,8 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.shared;
 
 import de.jstacs.algorithms.graphs.tensor.SymmetricTensor;
-import de.jstacs.classifier.ClassDimensionException;
-import de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier;
+import de.jstacs.classifiers.ClassDimensionException;
+import de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -110,7 +110,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#clone()
+	 * @see de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier#clone()
 	 */
 	@Override
 	public SharedStructureClassifier clone() throws CloneNotSupportedException {
@@ -120,7 +120,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#train(de.jstacs.data.DataSet[], double[][])
+	 * @see de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier#train(de.jstacs.data.DataSet[], double[][])
 	 */
 	@Override
 	public void train( DataSet[] data, double[][] weights ) throws IllegalArgumentException, Exception {
@@ -136,7 +136,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#getInstanceName()
+	 * @see de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier#getInstanceName()
 	 */
 	@Override
 	public String getInstanceName() {
@@ -144,7 +144,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#extractFurtherClassifierInfosFromXML(java.lang.StringBuffer)
+	 * @see de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier#extractFurtherClassifierInfosFromXML(java.lang.StringBuffer)
 	 */
 	@Override
 	protected void extractFurtherClassifierInfosFromXML( StringBuffer xml ) throws NonParsableException {
@@ -156,7 +156,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#getFurtherClassifierInfos()
+	 * @see de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier#getFurtherClassifierInfos()
 	 */
 	@Override
 	protected StringBuffer getFurtherClassifierInfos() {
@@ -168,7 +168,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.jstacs.classifier.trainSMBased.TrainSMBasedClassifier#getClassifierAnnotation()
+	 * @see de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier#getClassifierAnnotation()
 	 */
 	@Override
 	public CategoricalResult[] getClassifierAnnotation() {

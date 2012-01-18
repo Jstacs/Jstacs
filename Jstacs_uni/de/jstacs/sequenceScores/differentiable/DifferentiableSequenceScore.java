@@ -26,7 +26,7 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
 /**
- * This interface is the main part of any {@link de.jstacs.classifier.differentiableSequenceScoreBased.ScoreClassifier}.
+ * This interface is the main part of any {@link de.jstacs.classifiers.differentiableSequenceScoreBased.ScoreClassifier}.
  * 
  * @author Jens Keilwagen, Jan Grau
  */

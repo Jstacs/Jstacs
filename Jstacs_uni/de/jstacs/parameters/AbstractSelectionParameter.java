@@ -35,7 +35,7 @@ import de.jstacs.utils.galaxy.GalaxyAdaptor;
  * 
  * @see de.jstacs.parameters.ParameterSet
  * 
- * @author Jan Grau, Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public abstract class AbstractSelectionParameter extends Parameter implements Rangeable, GalaxyConvertible {
 
