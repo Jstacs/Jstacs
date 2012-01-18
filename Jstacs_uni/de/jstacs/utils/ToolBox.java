@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  * This class is a collection of methods which might be useful for the programmer.
  * 
- * @author Jens Keilwagen
+ * @author Jens Keilwagen, Jan Grau
  */
 public class ToolBox {
 
