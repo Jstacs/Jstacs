@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import de.jstacs.DataType;
-import de.jstacs.classifier.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;

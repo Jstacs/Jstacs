@@ -28,7 +28,7 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.AbstractMap.SimpleEntry;
 
-import de.jstacs.classifier.utils.PValueComputation;
+import de.jstacs.classifiers.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
