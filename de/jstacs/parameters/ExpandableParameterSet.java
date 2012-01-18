@@ -66,7 +66,7 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *            the name-template
 	 * @param commentTemplate
 	 *            the comment-template
-	 * @throws CloneNotSupportedException 
+	 * @throws CloneNotSupportedException if the template could not be cloned
 	 */
 	public ExpandableParameterSet(ParameterSet template, String nameTemplate,
 			String commentTemplate) throws CloneNotSupportedException {
@@ -88,7 +88,7 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *            the comment-template
 	 * @param initCount
 	 *            the number of initial copies of the template
-	 * @throws CloneNotSupportedException 
+	 * @throws CloneNotSupportedException if the template could not be cloned
 	 */
 	public ExpandableParameterSet(ParameterSet template, String nameTemplate,
 			String commentTemplate, int initCount) throws CloneNotSupportedException {

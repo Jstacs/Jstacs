@@ -23,6 +23,8 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * Class for a continuous alphabet.
@@ -262,14 +264,19 @@ public class ContinuousAlphabet extends Alphabet {
 		/**
 		 * Creates a new {@link ContinuousAlphabetParameterSet} with empty
 		 * values.
-		 * @throws ParameterException 
 		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
-		public ContinuousAlphabetParameterSet() throws ParameterException {
+		public ContinuousAlphabetParameterSet() {
 			super( ContinuousAlphabet.class );
-			parameters.add( new SimpleParameter( DataType.DOUBLE, "Minimum", "The minimal value of the alphabet.", true ) );
-			parameters.add( new SimpleParameter( DataType.DOUBLE, "Maximum", "The maximum value of the alphabet", true ) );
-			parameters.add( new SimpleParameter( DataType.BOOLEAN, "Allow NaN", "Allow NaN values", true, false ) );
+			try {
+				parameters.add( new SimpleParameter( DataType.DOUBLE, "Minimum", "The minimal value of the alphabet.", true ) );
+				parameters.add( new SimpleParameter( DataType.DOUBLE, "Maximum", "The maximum value of the alphabet", true ) );
+				parameters.add( new SimpleParameter( DataType.BOOLEAN, "Allow NaN", "Allow NaN values", true, false ) );
+			} catch ( DatatypeNotValidException doesnothappen ) {
+				throw new RuntimeException( doesnothappen );
+			}catch ( IllegalValueException doesnothappen ) {
+				throw new RuntimeException( doesnothappen );
+			}
 		}
 
 		/**

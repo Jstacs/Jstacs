@@ -382,7 +382,7 @@ public class DiscreteAlphabet extends Alphabet {
 		
 		/**
 		 * Creates a new {@link DiscreteAlphabetParameterSet} with empty values.
-		 * @throws ParameterException
+		 * @throws ParameterException if the parameters could not be created
 		 * 
 		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
 		 */

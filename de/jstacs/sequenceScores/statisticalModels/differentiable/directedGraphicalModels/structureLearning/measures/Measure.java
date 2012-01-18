@@ -36,18 +36,34 @@ import de.jstacs.parameters.InstanceParameterSet;
  * @author Jan Grau
  */
 public abstract class Measure implements Cloneable, Storable, InstantiableFromParameterSet {
-	
+	/**
+	 * The parameters of this measure
+	 */
 	protected MeasureParameterSet parameters;
 	
+	/**
+	 * Creates a new {@link Measure} from its XML-representation.
+	 * @param xml the XML-representation
+	 * @throws NonParsableException the the XML could not be parsed
+	 */
 	protected Measure( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, getXMLTag() );
 		parameters = XMLParser.extractObjectForTags( xml, "parameters", MeasureParameterSet.class );
 	}
 	
+	/**
+	 * Creates a new {@link Measure} from its {@link MeasureParameterSet}.
+	 * @param parameters the parameters
+	 * @throws CloneNotSupportedException if the parameters could not be cloned
+	 */
 	protected Measure( MeasureParameterSet parameters ) throws CloneNotSupportedException {
 		this.parameters = (MeasureParameterSet) parameters.clone();
 	}
 
+	/**
+	 * Returns the XML-tag for storing this measure
+	 * @return the tag
+	 */
 	public abstract String getXMLTag();
 	
 	/* (non-Javadoc)
@@ -708,6 +724,11 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 	 */
 	public static abstract class MeasureParameterSet extends InstanceParameterSet<Measure> {
 
+		/**
+		 * Creates a new empty {@link MeasureParameterSet} for the given sub-class
+		 * of {@link Measure},
+		 * @param clazz the sub-class
+		 */
 		protected MeasureParameterSet( Class<? extends Measure> clazz ) {
 			super( clazz );
 		}

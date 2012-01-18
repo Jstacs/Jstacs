@@ -62,6 +62,7 @@ public abstract class MultiDimensionalSequence<T> extends Sequence<T> {
 		return content[0].discreteVal( pos );
 	}
 	
+	//TODO Jens?
 	protected abstract MultiDimensionalSequence<T> getInstance( SequenceAnnotation[] seqAn, Sequence... seqs ) throws WrongLengthException, WrongAlphabetException;
 
 	/*

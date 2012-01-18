@@ -156,7 +156,7 @@ public class PMMMutualInformation extends Measure {
 		/**
 		 * Creates a new {@link PMMMutualInformationParameterSet} with empty
 		 * parameter values.
-		 * @throws ParameterException 
+		 * @throws ParameterException if the parameters could not be created
 		 */
 		public PMMMutualInformationParameterSet() throws ParameterException {
 			super(BTMutualInformation.class);

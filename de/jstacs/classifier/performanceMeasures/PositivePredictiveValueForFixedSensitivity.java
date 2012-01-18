@@ -18,9 +18,8 @@ public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstract
 
 	/**
 	 * Constructs a new instance of the performance measure {@link PositivePredictiveValueForFixedSensitivity} with empty parameter values.
-	 * @throws DatatypeNotValidException 
 	 */
-	public PositivePredictiveValueForFixedSensitivity() throws DatatypeNotValidException {
+	public PositivePredictiveValueForFixedSensitivity() {
 		super();
 		try{
 			parameters.add( new SimpleParameter( DataType.DOUBLE, "Sensitivity", "The fixed sensitivity for the positive predictive value.", true, new NumberValidator<Double>(0d,1d),0.95 ) );

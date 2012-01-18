@@ -24,6 +24,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * Class for a network structure of a
@@ -42,8 +43,10 @@ public class InhomogeneousMarkov extends Measure {
 	 * 
 	 * @param order
 	 *            the order
+	 * @throws CloneNotSupportedException if the parameters could not be cloned
+	 * @throws IllegalValueException if the order is not allowed
 	 */
-	public InhomogeneousMarkov(int order) throws Exception {
+	public InhomogeneousMarkov(int order) throws IllegalValueException, CloneNotSupportedException {
 		this( new InhomogeneousMarkovParameterSet( order ) );
 	}
 
@@ -53,6 +56,7 @@ public class InhomogeneousMarkov extends Measure {
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters
+	 * @throws CloneNotSupportedException if the parameters could not be cloned
 	 */
 	public InhomogeneousMarkov(InhomogeneousMarkovParameterSet parameters) throws CloneNotSupportedException {
 		super( parameters );
@@ -160,12 +164,15 @@ public class InhomogeneousMarkov extends Measure {
 		/**
 		 * Creates a new {@link InhomogeneousMarkovParameterSet} with empty
 		 * parameter values.
-		 * @throws DatatypeNotValidException 
 		 */
-		public InhomogeneousMarkovParameterSet() throws DatatypeNotValidException {
+		public InhomogeneousMarkovParameterSet() {
 			super(InhomogeneousMarkov.class);
+			try{
 			this.parameters.add(new SimpleParameter(DataType.INT, "Order",
 					"The order of the Markov model.", true));
+			}catch(DatatypeNotValidException doesnothappen){
+				throw new RuntimeException( doesnothappen );
+			}
 		}
 
 		/**
@@ -174,11 +181,10 @@ public class InhomogeneousMarkov extends Measure {
 		 * 
 		 * @param order
 		 *            the order
+		 * @throws IllegalValueException if the value of the order is not allowed
 		 * 
-		 * @throws Exception
-		 *             if the parameters could not be created or set
 		 */
-		public InhomogeneousMarkovParameterSet(int order) throws Exception {
+		public InhomogeneousMarkovParameterSet(int order) throws IllegalValueException {
 			this();
 			this.parameters.get(0).setValue(order);
 		}

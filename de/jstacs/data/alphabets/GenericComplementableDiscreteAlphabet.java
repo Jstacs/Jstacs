@@ -117,14 +117,17 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 		
 		/**
 		 * This constructor creates an empty parameter set the has to be filled before it can be used to create a {@link GenericComplementableDiscreteAlphabet}.
-		 * @throws DatatypeNotValidException 
 		 */
-		public GenericComplementableDiscreteAlphabetParameterSet() throws DatatypeNotValidException {
+		public GenericComplementableDiscreteAlphabetParameterSet() {
 			super( GenericComplementableDiscreteAlphabet.class );
+			try{
 			parameters.add( new SimpleParameter( DataType.STRING,
 					"Values of the index for computings the reverse complement",
 					"",
 					true ) );
+			}catch(DatatypeNotValidException doesnothappen){
+				throw new RuntimeException( doesnothappen );
+			}
 		}
 		
 		/**
