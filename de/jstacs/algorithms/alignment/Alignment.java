@@ -140,7 +140,7 @@ public class Alignment {
 		this.s2 = s2; this.startS2 = startS2;
 		
 		int l1 = endS1-startS1, l2 = endS2-startS2, start, end;
-		if( Math.abs(l1-l2) < offDiagonal ) throw new IllegalArgumentException();
+		if( Math.abs(l1-l2) > offDiagonal ) throw new IllegalArgumentException("The number of secondary diagonals must be at least as large as the difference of the lengths, but is "+offDiagonal+" < "+Math.abs(l1-l2)+".");
 		
 		//initialize & compute
 		if( d == null || d.length < l1+1 || d[0].length < l2+1 ) {
