@@ -60,11 +60,9 @@ import de.jstacs.Singleton.SingletonHandler;
  */
 public final class XMLParser {
 	
-	@SuppressWarnings( "unchecked" )
-	private static final Class stringBufferClass = StringBuffer.class;
+	private static final Class<StringBuffer> stringBufferClass = StringBuffer.class;
 	private static final String ARRAY_TAG = "pos"; 
-	@SuppressWarnings( "unchecked" )
-	private static final HashSet<Class> simpleParsable;
+	private static final HashSet<Class<?>> simpleParsable;
 	
 	private static final String CLASS_NAME = "className";
 	private static final String LENGTH = "length";
@@ -73,7 +71,7 @@ public final class XMLParser {
 	private static final String ENUM = "name";
 	
 	static {
-		simpleParsable = new HashSet<Class>();
+		simpleParsable = new HashSet<Class<?>>();
 		//primitive types
 		simpleParsable.add( Boolean.TYPE );
 		simpleParsable.add( Byte.TYPE );
@@ -191,7 +189,7 @@ public final class XMLParser {
 		if( s == null ) {
 			xml.append( NULL );
 		} else {
-			Class k = s.getClass();
+			Class<? extends Object> k = s.getClass();
 			if( writeClassInfo ) {
 				appendObjectWithTagsAndAttributes( xml, k.getName(), CLASS_NAME, null, false );
 			}

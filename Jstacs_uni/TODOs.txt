@@ -1,8 +1,13 @@
-- Alignment
-- GNU GPL 3 preamble
+Jan:
+- Alignment?
 - Javadoc anpassen
 - Textsuche Sample
+- NeuralNetwork kommentieren: Safe- & RegExOuputStream?
+- GNU GPL 3 preamble
+
+Jens:
+
+gemeinsam:
 - ParameterSet: getName und getComment implementation - ich würde sie mittlerweile fast so lassen
 - move: NotTrainedException?
-- HMM-Paket kommentieren
-- NeuralNetwork kommentieren
+- TODO HMMFactory Zeile 82

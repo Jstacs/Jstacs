@@ -146,8 +146,27 @@ public class HMMFactory {
 		
 		return getHMM( pars, name, null, null, emission, list.toArray( new TransitionElement[0] ), ess, true );
 	}
-	
-	public static AbstractHMM createPseudoErgodicHMM( HMMTrainingParameterSet pars, double ess, double selfTranistionPart, AlphabetContainer con, int numStates, boolean insertUniform ) throws Exception {
+
+	/**
+	 * Creates an HMM with <code>numStates+1</code> states, where <code>numStates</code> emitting build a clique and each of those states is connected to the absorbing silent final state.
+	 * Such an HMM models the length of the input sequences, i.e. summing the likelihood over all input sequences (of different lengths) will give 1,
+	 * whereas an ergodic HMM does not model the input length and summing the likelihood of each possible input length will give 1.
+	 * 
+	 * @param pars the parameters of the algorithm for learning the model parameters
+	 * @param ess the equivalent sample size, is propagated between states to obtain consistent hyper-parameters for all parameters
+	 * @param selfTranistionPart the a-priori probability of a self transition for each emitting state
+	 * @param finalTranistionPart the a-priori probability of the transition to the final state from each emitting state 
+	 * @param con the {@link AlphabetContainer} of the HMM
+	 * @param numStates the number of emitting states
+	 * @param insertUniform if <code>true</code> the emitting states will use {@link UniformEmission}s
+	 * 
+	 * @return an HMM with <code>numStates+1</code> states, where <code>numStates</code> emitting build a clique and each of those states is connected to the absorbing silent final state 
+	 * 
+	 * @throws Exception if the HMM could not be created properly
+	 * 
+	 * @see #propagateESS(double, ArrayList)
+	 */
+	public static AbstractHMM createPseudoErgodicHMM( HMMTrainingParameterSet pars, double ess, double selfTranistionPart, double finalTranistionPart, AlphabetContainer con, int numStates, boolean insertUniform ) throws Exception {
 		Emission[] emission = new Emission[numStates+1];
 		String[] name = new String[numStates+1];
 		int[] states;
@@ -171,8 +190,9 @@ public class HMMFactory {
 			states[i] = i;
 		}
 		hyperParams = new double[states.length];
-		e = (1-selfTranistionPart)*ess/(hyperParams.length-1);
+		e = (1-selfTranistionPart-finalTranistionPart)*ess/(hyperParams.length-2);
 		Arrays.fill( hyperParams, e );
+		hyperParams[numStates] = finalTranistionPart*ess;
 		for( int i = 0; i < numStates; i++ ) {
 			hyperParams[i] = selfTranistionPart*ess;
 			list.add( new PseudoTransitionElement( new int[]{i}, states, hyperParams ) );
@@ -376,6 +396,7 @@ public class HMMFactory {
 
 	/**
 	 * Creates a new profile HMM for a given architecture and number of layers.
+	 * 
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
 	 * @param initFromTo hyper-parameters of the transition from each state (first dimension) of the current layer to each other state in the same layer (first three entries of the second dimension)
 	 * 						and the next layer (next three entries in the second dimension). If a hyper-parameter is set to {@link Double#NaN}, the corresponding transition is not allowed
@@ -387,6 +408,8 @@ public class HMMFactory {
 	 * @param conditionalMain if <code>true</code>, the match states have {@link ReferenceSequenceDiscreteEmission}s, and {@link DiscreteEmission}s otherwise
 	 * @param closeCircle if <code>true</code> the circle from end to initial state is closed, i.e., the HMM can be traversed several times
 	 * @param conditionInitProbs the hyper-parameters for initializing the match states if <code>conditionalMain</code> is <code>true. May be <code>null</code> for using the hyper-parameters of the prior
+	 * @param insertUniform if <code>true</code> the insert states will use {@link UniformEmission}s
+	 * 
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
@@ -396,6 +419,7 @@ public class HMMFactory {
 	
 	/**
 	 * Creates a new profile HMM for a given architecture and number of layers.
+	 * 
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
 	 * @param initFromTo hyper-parameters of the transition from each state (first dimension) of the current layer to each other state in the same layer (first three entries of the second dimension)
 	 * 						and the next layer (next three entries in the second dimension). If a hyper-parameter is set to {@link Double#NaN}, the corresponding transition is not allowed
@@ -407,6 +431,8 @@ public class HMMFactory {
 	 * @param conditionalMain if <code>true</code>, the match states have {@link ReferenceSequenceDiscreteEmission}s, and {@link DiscreteEmission}s otherwise
 	 * @param joiningStates the number of states used in the joining arc, if not positive the profile HMM does not contain any joining states (i.e. the circle is not closed)
 	 * @param conditionInitProbs the hyper-parameters for initializing the match states if <code>conditionalMain</code> is <code>true. May be <code>null</code> for using the hyper-parameters of the prior
+	 * @param insertUniform if <code>true</code> the insert states will use {@link UniformEmission}s
+	 * 
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
@@ -831,6 +857,16 @@ public class HMMFactory {
 		return a;
 	}
 	
+	/**
+	 * Creates the real {@link TransitionElement}s that can be used to create the HMM.
+	 * 
+	 * @param hyperParams the hyper-parameters for {@link PseudoTransitionElement} from the <code>list</code>
+	 * @param list a list of {@link PseudoTransitionElement} that is used to create the HMM
+	 * 
+	 * @return an array of {@link TransitionElement}s that correspond to all entries of the <code>list</code>
+	 * 
+	 * @see #propagateESS(double, ArrayList)
+	 */
 	public static TransitionElement[] createTransition( double[][] hyperParams, ArrayList<PseudoTransitionElement> list ) {
 		TransitionElement[] t = new TransitionElement[list.size()];
 		for( int i = 0; i < list.size(); i++ ) {
@@ -840,7 +876,14 @@ public class HMMFactory {
 		return t;
 	}
 		
-	//propagates the ess for an HMM with absorbing states
+	/**
+	 * Propagates the <code>ess</code> for an HMM with absorbing states.
+	 * 
+	 * @param ess the equivalent sample size of the HMM
+	 * @param list a list of {@link PseudoTransitionElement} that is used to create the HMM
+	 * 
+	 * @return a {@link Pair}, which contains as first element the hyper-parameters for {@link PseudoTransitionElement} from the <code>list</code>, and as second element the ess of each state 
+	 */
 	public static Pair<double[][], double[]> propagateESS( double ess, ArrayList<PseudoTransitionElement> list ) {
 		
 		//prepare
@@ -980,11 +1023,26 @@ public class HMMFactory {
 		private int[] states;
 		private int[] child;
 		private double[] prob, weights;
-		
+
+		/**
+		 * This constructor creates an new {@link PseudoTransitionElement} without edge weights.
+		 * 
+		 * @param context the context of this instance; can be <code>null</code>
+		 * @param states the states to be visited from the instance; can be <code>null</code>
+		 * @param posScore a positive score reflecting the a-priori assumption about the next visited state which is used in the method {@link HMMFactory#propagateESS(double, ArrayList)}; can be <code>null</code>
+		 */
 		public PseudoTransitionElement( int[] context, int[] states, double[] posScore ) {
 			this( context, states, posScore, null );
 		}
 		
+		/**
+		 * This constructor creates an new {@link PseudoTransitionElement} with specific edge weights.
+		 * 
+		 * @param context the context of this instance; can be <code>null</code>
+		 * @param states the states to be visited from the instance; can be <code>null</code>
+		 * @param posScore a positive score reflecting the a-priori assumption about the next visited state which is used in the method {@link HMMFactory#propagateESS(double, ArrayList)}; can be <code>null</code>
+		 * @param weights the edge weight that is used for drawing the final HMM using one oth the methods {@link AbstractHMM#getGraphvizRepresentation(java.text.NumberFormat)}, ...; can be <code>null</code>
+		 */
 		public PseudoTransitionElement( int[] context, int[] states, double[] posScore, double[] weights ) {
 			this.context = context == null ? new int[0] : context.clone();
 			this.states = states == null ? new int[0] : states.clone();

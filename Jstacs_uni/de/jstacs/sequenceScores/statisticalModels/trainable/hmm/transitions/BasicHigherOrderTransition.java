@@ -1059,17 +1059,24 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			statistic[ childIdx ] += weight;
 		}
 		
-		public void joinStatistics(BasicHigherOrderTransition.AbstractTransitionElement... transitions){
-			for(int j=0;j<transitions.length;j++){
-				if(transitions[j] != this){
+		/**
+		 * This method joins the statistics of different instances and sets this joined statistic as statistic of each instance.
+		 * 
+		 * This method might be used for instance in a multi-threaded optimization to join partial statistics.
+		 * 
+		 * @param te the transition elements to be joined
+		 */
+		public void joinStatistics(BasicHigherOrderTransition.AbstractTransitionElement... te){
+			for(int j=0;j<te.length;j++){
+				if(te[j] != this){
 					for(int i=0;i<statistic.length;i++){
-						statistic[i] += transitions[j].statistic[i];
+						statistic[i] += te[j].statistic[i];
 					}
 				}
 			}
-			for(int j=0;j<transitions.length;j++){
-				if(transitions[j] != this){
-					System.arraycopy( this.statistic, 0, transitions[j].statistic, 0, this.statistic.length );
+			for(int j=0;j<te.length;j++){
+				if(te[j] != this){
+					System.arraycopy( this.statistic, 0, te[j].statistic, 0, this.statistic.length );
 				}
 			}
 		}
@@ -1252,6 +1259,16 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			}
 		}
 		
+		/**
+		 * Set values of parameters of the instance to the value of the parameters of the given instance.
+		 * It can be assumed that the given instance and the current instance are from the same class.
+		 * 
+		 * This method might be used for instance in a multi-threaded optimization to broadcast the parameters. 
+		 * 
+		 * @param t the transition element with the parameters to be set 
+		 * 
+		 * @throws IllegalArgumentException if the assumption about the same class for given and current instance is wrong
+		 */
 		public void setParameters( AbstractTransitionElement t ) throws IllegalArgumentException {
 			if( !t.getClass().equals( getClass() ) || t.parameters.length != parameters.length ) {
 				throw new IllegalArgumentException( "The transition elements are not comparable." );

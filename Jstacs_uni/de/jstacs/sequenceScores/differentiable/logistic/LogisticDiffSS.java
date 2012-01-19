@@ -29,6 +29,7 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
@@ -41,9 +42,21 @@ import de.jstacs.utils.IntList;
  */
 public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 
-	protected LogisticConstraint[] constraint;
-	protected double[] parameter;
+	private LogisticConstraint[] constraint;
+	private double[] parameter;
 	
+	/**
+	 * This is the main constructor to create {@link LogisticDiffSS} instance.
+	 * 
+	 * @param con
+	 *            the {@link AlphabetContainer} of this instance
+	 * @param length
+	 *            the length of this instance, i.e. the length of
+	 *            the modeled sequences
+	 * @param constraint the constraints used in this instance
+	 * 
+	 * @throws CloneNotSupportedException if the constraints could not be cloned
+	 */
 	public LogisticDiffSS( AlphabetContainer con, int length, LogisticConstraint... constraint ) throws CloneNotSupportedException {
 		super( con, length );
 		
@@ -51,6 +64,17 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 		this.parameter = new double[constraint.length];
 	}
 
+	/**
+	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
+	 * {@link LogisticDiffSS} out of a {@link StringBuffer}
+	 * .
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the XML representation could not be parsed
+	 */
 	public LogisticDiffSS( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}

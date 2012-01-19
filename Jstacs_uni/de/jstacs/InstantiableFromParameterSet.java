@@ -52,6 +52,6 @@ public interface InstantiableFromParameterSet {
 	 * @throws Exception
 	 *             if the {@link InstanceParameterSet} could not be returned
 	 */
-	public InstanceParameterSet getCurrentParameterSet() throws Exception;
+	public InstanceParameterSet<? extends InstantiableFromParameterSet> getCurrentParameterSet() throws Exception;
 
 }

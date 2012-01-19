@@ -67,6 +67,13 @@ public abstract class Alphabet implements Storable, InstantiableFromParameterSet
 	@Override
 	public abstract String toString();
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.InstantiableFromParameterSet#getCurrentParameterSet()
+	 */
+	@Override
+	public abstract InstanceParameterSet<? extends Alphabet> getCurrentParameterSet() throws Exception;
+	
 	/**
 	 * The super class for the {@link InstanceParameterSet} of any
 	 * {@link Alphabet}.

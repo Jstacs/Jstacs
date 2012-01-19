@@ -23,15 +23,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
-import java.util.LinkedList;
 
-import de.jstacs.classifier.AbstractScoreBasedClassifier.DoubleTableResult;
-import de.jstacs.classifier.performanceMeasures.AbstractPerformanceMeasure;
-import de.jstacs.classifier.performanceMeasures.PerformanceMeasureParameterSet;
+import de.jstacs.classifiers.AbstractScoreBasedClassifier.DoubleTableResult;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.io.FileManager;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.REnvironment;
 

@@ -134,7 +134,7 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 		if( type == AlphabetContainerType.CONTINUOUS ) {
 			this.parameters.get( 0 ).setValue( alph.getCurrentParameterSet() );
 		} else {
-			InstanceParameterSet<Alphabet> ap = alph.getCurrentParameterSet();
+			InstanceParameterSet<? extends Alphabet> ap = alph.getCurrentParameterSet();
 			this.parameters.get( 0 ).setValue( ap );
 			( (SelectionParameter)this.parameters.get( 0 ) ).getParametersInCollection()
 					.getParameterAt( ( (SelectionParameter)this.parameters.get( 0 ) ).getSelected() )

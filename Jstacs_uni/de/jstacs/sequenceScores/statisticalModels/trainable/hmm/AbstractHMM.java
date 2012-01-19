@@ -443,7 +443,20 @@ public abstract class AbstractHMM extends AbstractTrainSM implements Cloneable, 
 		}
 		return getGraphvizRepresentation(nf, data, weight, map );
 	}
-		
+	
+	/**
+	 * This method returns a {@link String} representation of the structure that
+	 * can be used in <i>Graphviz</i> to create an image.
+	 * 
+	 * @param nf an instance of {@link NumberFormat} for formating the probabilities of the transition
+	 * @param data the data to determine the state posterior; can be <code>null</code> 
+	 * @param weight the weights to weight the determined state posterior; can be <code>null</code>
+	 * @param rankPatterns a {@link HashMap} contain regular expressions and their corresponding value for the option <code>rank</code> in Graphviz
+	 * 
+	 * @return a {@link String} representation of the structure
+	 * 
+	 * @see HMMFactory#getHashMap()
+	 */
 	public String getGraphvizRepresentation( NumberFormat nf, DataSet data, double[] weight, HashMap<String, String> rankPatterns ) {
 		double[] freq = null;
 		double maxFreq = 0;
