@@ -152,7 +152,9 @@ public class NeuralNetworkClassifier extends AbstractScoreBasedClassifier {
 		Time time = Time.getTimeInstance( null );
 		
 		do{
-			System.out.println(epoch+"\t"+totalError+"\t");
+			if(epoch % 1000 == 0){
+				System.out.println(epoch+"\t"+totalError+"\t"+time.getElapsedTime());
+			}
 			num = freeIndexes.length;
 			epoch++;
 			lastTotalError = totalError;
@@ -205,7 +207,7 @@ public class NeuralNetworkClassifier extends AbstractScoreBasedClassifier {
 			
 		}while(termCond.doNextIteration( epoch, lastTotalError, totalError, null, null, currStepSize, time ));
 		
-		System.out.println(epoch+"\t"+totalError+"\t");
+		System.out.println(epoch+"\t"+totalError+"\t"+time.getElapsedTime());
 		
 		freeIndexes = null;
 		
