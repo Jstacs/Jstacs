@@ -31,7 +31,6 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDiffere
 import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.DifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleDifferentiableState;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
@@ -213,7 +212,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		((DifferentiableTransition) transition).addGradientForLogPriorTerm( grad, start );
 	}
 	
-	protected void getOffsets() {
+	private void getOffsets() {
 		numberOfParameters = 0;
 		for( int e = 0; e < emission.length; e++ ) {
 			numberOfParameters = ((DifferentiableEmission)emission[e]).setParameterOffset( numberOfParameters );

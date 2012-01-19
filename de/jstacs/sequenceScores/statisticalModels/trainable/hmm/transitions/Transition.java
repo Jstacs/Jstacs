@@ -207,5 +207,15 @@ public interface Transition extends Cloneable, Storable {
 	 */
 	public String toString( String[] stateNames );
 	
+	/**
+	 * Set values of parameters of the instance to the value of the parameters of the given instance.
+	 * It can be assumed that the given instance and the current instance are from the same class.
+	 * 
+	 * This method might be used for instance in a multi-threaded optimization to broadcast the parameters. 
+	 * 
+	 * @param t the transition with the parameters to be set 
+	 * 
+	 * @throws IllegalArgumentException if the assumption about the same class for given and current instance is wrong
+	 */
 	public void setParameters( Transition t ) throws IllegalArgumentException;
 }

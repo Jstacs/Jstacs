@@ -84,25 +84,27 @@ public abstract class SimpleResult extends Result implements
 	 */
 	@Override
 	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
+		Class c;
 		switch (datatype) {
 			case STRING:
-				result = XMLParser.extractObjectForTags(representation, "result", String.class );
+				c = String.class;
 				break;
 			case BOOLEAN:
-				result = XMLParser.extractObjectForTags(representation, "result", boolean.class );
+				c = boolean.class;
 				break;
 			case INT:
-				result = XMLParser.extractObjectForTags(representation, "result", int.class );
+				c = int.class;
 				break;
 			case LONG:
-				result = XMLParser.extractObjectForTags(representation, "result", long.class );
+				c = long.class;
 				break;
 			case DOUBLE:
-				result = XMLParser.extractObjectForTags(representation, "result", double.class );
+				c = double.class;
 				break;
 			default:
 				throw new NonParsableException("Result not of expected datatype");
 		}
+		result = (Comparable)XMLParser.extractObjectForTags(representation, "result", c );
 	}
 
 	

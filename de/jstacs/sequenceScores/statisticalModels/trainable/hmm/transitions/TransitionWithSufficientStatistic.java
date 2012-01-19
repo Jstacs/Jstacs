@@ -30,8 +30,15 @@ public interface TransitionWithSufficientStatistic extends Transition {
 	 * @param sequence the sequence
 	 * @param sequencePosition the position within the sequence
 	 */
-	public abstract void addToStatistic( int layer, int index, int childIdx,	double weight, Sequence sequence, int sequencePosition );
+	public abstract void addToStatistic( int layer, int index, int childIdx, double weight, Sequence sequence, int sequencePosition );
 	
+	/**
+	 * This method joins the statistics of different instances and sets this joined statistic as statistic of each instance.
+	 * 
+	 * This method might be used for instance in a multi-threaded optimization to join partial statistics.
+	 * 
+	 * @param transitions the transitions to be joined
+	 */
 	public abstract void joinStatistics(Transition... transitions);
 	
 	/**

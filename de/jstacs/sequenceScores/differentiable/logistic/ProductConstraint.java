@@ -23,6 +23,8 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
 /**
+ * This class implements product constraints, i.e., the method {@link #getValue(Sequence,int)}
+ * returns the product of the values for the positions defined in the constructor.
  * 
  * @author Jens Keilwagen
  */
@@ -30,11 +32,27 @@ public class ProductConstraint implements LogisticConstraint {
 
 	private int[] pos;
 	
+	/**
+	 * This is the main constructor creating an instance from a given set of positions.
+	 * 
+	 * @param pos the positions to be used in {@link #getValue(Sequence, int)}
+	 */
 	public ProductConstraint( int... pos ) {
-		//TODO
+		//TODO check, ...
 		this.pos = pos.clone();
 	}
 
+	/**
+	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
+	 * {@link ProductConstraint} out of a {@link StringBuffer}
+	 * .
+	 * 
+	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the XML representation could not be parsed
+	 */
 	public ProductConstraint( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, XML_TAG );
 		pos = XMLParser.extractObjectForTags( xml, "pos", int[].class );

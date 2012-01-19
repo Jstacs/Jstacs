@@ -20,8 +20,6 @@ package supplementary.codeExamples;
 
 import java.util.Arrays;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;

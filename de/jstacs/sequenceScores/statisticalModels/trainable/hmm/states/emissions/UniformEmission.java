@@ -9,10 +9,12 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
 /**
+ * This class implements a simple uniform emission.
  * 
  * @author Jens Keilwagen
  */
@@ -21,11 +23,26 @@ public class UniformEmission implements DifferentiableEmission {
 	private AlphabetContainer con;
 	private double logP;
 	
+	/**
+	 * The main constructor for a {@link UniformEmission}.
+	 * 
+	 * @param con the {@link AlphabetContainer} for this emission
+	 */
 	public UniformEmission( AlphabetContainer con ) {
 		this.con = con;
 		logP = -Math.log( con.getAlphabetLengthAt(0) );
 	}
 	
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Constructs a {@link UniformEmission} out of an XML representation.
+	 * 
+	 * @param xml the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link UniformEmission} could not be reconstructed out of
+	 *             the {@link StringBuffer} <code>xml</code>
+	 */
 	public UniformEmission( StringBuffer xml ) throws NonParsableException {
 		this( new AlphabetContainer( XMLParser.extractForTag( xml, XML_TAG ) ) );
 	}

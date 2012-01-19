@@ -72,6 +72,13 @@ public interface Emission extends Storable, Cloneable {
 	 */
 	public void addToStatistic( boolean forward, int startPos, int endPos, double weight, Sequence seq ) throws OperationNotSupportedException;
 
+	/**
+	 * This method joins the statistics of different instances and sets this joined statistic as statistic of each instance.
+	 * 
+	 * This method might be used for instance in a multi-threaded optimization to join partial statistics.
+	 * 
+	 * @param emissions the emissions to be joined
+	 */
 	public void joinStatistics(Emission... emissions);
 	
 	/**
@@ -98,5 +105,15 @@ public interface Emission extends Storable, Cloneable {
 	 */
 	public String getNodeLabel(double weight, String name, NumberFormat nf);
 
+	/**
+	 * Set values of parameters of the instance to the value of the parameters of the given instance.
+	 * It can be assumed that the given instance and the current instance are from the same class.
+	 * 
+	 * This method might be used for instance in a multi-threaded optimization to broadcast the parameters. 
+	 * 
+	 * @param t the emission with the parameters to be set 
+	 * 
+	 * @throws IllegalArgumentException if the assumption about the same class for given and current instance is wrong
+	 */
 	public void setParameters( Emission t ) throws IllegalArgumentException;
 }
