@@ -79,7 +79,11 @@ public class HMMFactory {
 			    return new SamplingHigherOrderHMM( (SamplingHMMTrainingParameterSet) pars, name, emissionIdx, forward, ArrayHandler.cast( SamplingEmission.class, emission ), te );
 			}
 		} else {
-			if( /*TODO*/true || pars instanceof NumericalHMMTrainingParameterSet ) {
+			boolean diff = true;//transition element okay?
+			for( int e = 0; diff && e < emission.length; e++ ) {
+				diff = emission[e] instanceof DifferentiableEmission;					
+			}
+			if( diff ) {
 				return new DifferentiableHigherOrderHMM( (MaxHMMTrainingParameterSet)pars, name, emissionIdx, forward, ArrayHandler.cast( DifferentiableEmission.class, emission ), likelihood, ess, te );
 			} else {
 				return new HigherOrderHMM( pars, name, emission, te );

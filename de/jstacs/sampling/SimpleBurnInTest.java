@@ -27,7 +27,7 @@ import de.jstacs.io.XMLParser;
  * 
  * @author Jens Keilwagen
  * 
- * @deprecated
+ * @deprecated since this burn test ignore the data coming from the sampling, it might be problematic to use this test
  */
 public class SimpleBurnInTest implements BurnInTest {
 

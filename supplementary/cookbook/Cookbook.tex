@@ -74,7 +74,7 @@ out of an existing sequence. Here, we define a binary alphabet of symbols ``A'' 
 The first parameter again defines if this alphabet is case-insensitive (which is the case), the second parameter defines the symbols of the alphabet, and the third parameter specifies the index of the complementary symbol. For instance, the symbol at position $1$ (``B'') is set as the complement of the symbol at position 0 (``A'') by setting the $0$-th value of the integer array to $1$.
 
 After the definition of single alphabets, we switch to the creation of aggregate alphabets. Almost everywhere in Jstacs, we use aggregate alphabets
-to maintain generalizability. Since the aggregate alphabet containing only a \DNAAlphabet is always the same, a singleton for such an \AlphabetContainer is pre-defined:
+to maintain generalizability. Since the aggregate alphabet containing only a \DNAAlphabet~is always the same, a singleton for such an \AlphabetContainer~is pre-defined:
 \addtocounter{off}{3}
 \code{0}
 We can explicitly define an \AlphabetContainer~using a simple continuous alphabet by calling:
@@ -327,8 +327,8 @@ A \SelectionParameter~accepts values from a pre-defined collection of values. Fo
 \addtocounter{off}{3}
 \code{0}
 
-For the special case, where the user shall select the concrete implementation of an abstract class of interface, Jstacs provides a static convenience method \lstinline+getSelectionParameter+ in the class \SubclassFinder. This method requires the specification of the super-class of the \ParameterSet that can be used to instantiate the implementations, the root package in which sub-classes or implementations shall be found, and, again, a name, a comment, and if this parameter is required.
-For example, we can find all classes that can be instantiated by a sub-class of \SequenceScoringParameterSet the package \lstinline+de+ and its sub-packages by calling
+For the special case, where the user shall select the concrete implementation of an abstract class of interface, Jstacs provides a static convenience method \lstinline+getSelectionParameter+ in the class \SubclassFinder. This method requires the specification of the super-class of the \ParameterSet~that can be used to instantiate the implementations, the root package in which sub-classes or implementations shall be found, and, again, a name, a comment, and if this parameter is required.
+For example, we can find all classes that can be instantiated by a sub-class of \SequenceScoringParameterSet~the package \lstinline+de+ and its sub-packages by calling
 \addtocounter{off}{3}
 \code{0}
 The method returns a \SelectionParameter~from which a user can select the appropriate implementation.

@@ -34,19 +34,17 @@ import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet;
-import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.ParameterSetParser;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;
-import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.utils.SubclassFinder;
 
 /**
- * The container for {@link Alphabet}s used in a {@link Sequence},
+ * The container for {@link Alphabet}s used in a {@link de.jstacs.data.sequences.Sequence},
  * {@link DataSet}, {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM} or ... . The container
  * enables the user to have a different {@link Alphabet} at each position or at
  * least not the same {@link Alphabet} at all positions. This is impossible if
@@ -194,7 +192,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 *            positions <br>
 	 *            <ul>
 	 *            <li>the length of this array defines the length of the
-	 *            {@link Sequence}s the returned {@link AlphabetContainer} is
+	 *            {@link de.jstacs.data.sequences.Sequence}s the returned {@link AlphabetContainer} is
 	 *            capable to handle
 	 *            <li>for each position <code>false</code> forces to use the
 	 *            {@link Alphabet} given by the given {@link AlphabetContainer}
@@ -765,7 +763,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	}
 
 	/**
-	 * Returns the possible length for {@link Sequence}s using this
+	 * Returns the possible length for {@link de.jstacs.data.sequences.Sequence}s using this
 	 * {@link AlphabetContainer}. If 0 (zero) is returned, all lengths are
 	 * possible.
 	 * 
@@ -916,10 +914,10 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 
 	/**
 	 * This method helps to determine if the {@link AlphabetContainer} also
-	 * computes the reverse complement of a {@link Sequence}.
+	 * computes the reverse complement of a {@link de.jstacs.data.sequences.Sequence}.
 	 * 
 	 * @return <code>true</code> if the {@link AlphabetContainer} also computes
-	 *         the reverse complement of a {@link Sequence}, <code>false</code>
+	 *         the reverse complement of a {@link de.jstacs.data.sequences.Sequence}, <code>false</code>
 	 *         otherwise
 	 */
 	public final boolean isReverseComplementable() {
@@ -1018,7 +1016,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	}
 	
 	/**
-	 * This method returns an object that is used for assigning the positions of the {@link Sequence}s to specific {@link Alphabet}s. 
+	 * This method returns an object that is used for assigning the positions of the {@link de.jstacs.data.sequences.Sequence}s to specific {@link Alphabet}s. 
 	 * 
 	 * @return <code>null</code> or an int array
 	 */
