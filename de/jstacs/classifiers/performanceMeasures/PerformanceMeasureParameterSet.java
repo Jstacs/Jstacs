@@ -91,7 +91,7 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 			if( i != 0 ) {
 				pars[i] = template.clone();
 			}
-			((SelectionParameter)pars[i].getParameterAt( 0 )).setValue( measures[i].getName() );
+			((SelectionParameter)pars[i].getParameterAt( 0 )).setValue( measures[i] );
 			ParameterSet coll = ((SelectionParameter)pars[i].getParameterAt( 0 )).getParametersInCollection();
 			ParameterSetContainer cont = (ParameterSetContainer)coll.getParameterAt( ((SelectionParameter)pars[i].getParameterAt( 0 )).getSelected() );
 			cont.setValue( measures[i] );
