@@ -20,7 +20,6 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneou
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.io.NonParsableException;
-import de.jstacs.parameters.ParameterException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.HomogeneousMM;
 
 /**

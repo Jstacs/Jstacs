@@ -39,12 +39,9 @@ import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Singleton;
 import de.jstacs.Singleton.SingletonHandler;
 import de.jstacs.io.RegExFilenameFilter;
-import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * Utility-class with static methods to

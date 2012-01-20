@@ -9,7 +9,6 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 

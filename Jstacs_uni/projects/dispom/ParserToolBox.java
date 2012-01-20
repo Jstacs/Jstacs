@@ -29,8 +29,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;

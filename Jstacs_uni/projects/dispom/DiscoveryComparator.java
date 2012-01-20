@@ -53,7 +53,6 @@ import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoveryAssessment;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.results.ResultSet;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.DurationDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.ExtendedZOOPSDiffSM;
 import de.jstacs.utils.ComparableElement;

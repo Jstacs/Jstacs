@@ -18,10 +18,9 @@
 
 package de.jstacs.data;
 
-import de.jstacs.data.sequences.Sequence;
 
 /**
- * An {@link EmptyDataSetException} will be thrown if no {@link Sequence} is in a
+ * An {@link EmptyDataSetException} will be thrown if no {@link de.jstacs.data.sequences.Sequence} is in a
  * {@link DataSet} (i.e. the {@link DataSet} is empty).
  * 
  * @author Jens Keilwagen

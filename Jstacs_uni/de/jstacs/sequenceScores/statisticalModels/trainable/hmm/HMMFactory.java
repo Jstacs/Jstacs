@@ -27,7 +27,6 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.ReferenceSequenceDiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.SamplingHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;

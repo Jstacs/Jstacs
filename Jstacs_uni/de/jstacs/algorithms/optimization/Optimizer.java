@@ -24,10 +24,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-import de.jstacs.utils.RealTime;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.Time;
-import de.jstacs.utils.UserTime;
 
 /**
  * This class can be used for optimization purposes. The function will be

@@ -21,7 +21,6 @@ import de.jstacs.algorithms.optimization.termination.CombinedCondition;
 import de.jstacs.algorithms.optimization.termination.IterationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
-
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
@@ -31,7 +30,6 @@ import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.PartitionMethod;
-
 import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabet;
@@ -50,7 +48,6 @@ import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWith
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.XMLParser;
-
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
@@ -98,11 +95,10 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWel
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
-import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
-import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.ZOOPSTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.StrandTrainSM;
-
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.ZOOPSTrainSM;
 import de.jstacs.utils.SubclassFinder;
 
 

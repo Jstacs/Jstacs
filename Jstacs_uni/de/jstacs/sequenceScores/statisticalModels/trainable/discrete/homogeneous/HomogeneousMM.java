@@ -18,9 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous;
 
-import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.DataSet;

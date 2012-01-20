@@ -21,9 +21,7 @@ package de.jstacs.data.sequences;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
-import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
@@ -193,9 +191,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method should be used if one wants to create a {@link DataSet} of
+	 * This method should be used if one wants to create a {@link de.jstacs.data.DataSet} of
 	 * {@link Sequence.CompositeSequence}s. With this constructor you are enabled to
-	 * create a {@link DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
+	 * create a {@link de.jstacs.data.DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -238,9 +236,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method should be used if one wants to create a {@link DataSet} of
+	 * This method should be used if one wants to create a {@link de.jstacs.data.DataSet} of
 	 * subsequences of defined length. With this constructor you are enabled to
-	 * create a {@link DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
+	 * create a {@link de.jstacs.data.DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -263,9 +261,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 
 	/**
-	 * This method should be used if one wants to create a {@link DataSet} of
+	 * This method should be used if one wants to create a {@link de.jstacs.data.DataSet} of
 	 * subsequences of defined length. With this constructor you are enabled to
-	 * create a {@link DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
+	 * create a {@link de.jstacs.data.DataSet} where every {@link de.jstacs.data.sequences.Sequence} has the same
 	 * {@link AlphabetContainer} instance.
 	 * 
 	 * <br>
@@ -386,7 +384,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
-	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link Alphabet}).
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link de.jstacs.data.alphabets.Alphabet}).
 	 * 
 	 * @return the {@link de.jstacs.data.sequences.Sequence} as {@link String}
 	 * 
@@ -399,7 +397,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
-	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link Alphabet}) beginning at
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link de.jstacs.data.alphabets.Alphabet}) beginning at
 	 * position <code>start</code> with a default delimiter as separator.
 	 * 
 	 * @param start
@@ -415,7 +413,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 	/**
 	 * Returns a {@link String} representation of the {@link de.jstacs.data.sequences.Sequence} (normally
-	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link Alphabet}) between
+	 * the {@link de.jstacs.data.sequences.Sequence} in its original {@link de.jstacs.data.alphabets.Alphabet}) between
 	 * <code>start</code> and <code>end</code> with a default delimiter as
 	 * separator.
 	 * 
@@ -1173,8 +1171,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 		/**
 		 * This constructor should be used if one wants to create a
-		 * {@link DataSet} of {@link Sequence.CompositeSequence}s. With this constructor
-		 * you are enabled to create a {@link DataSet} where every
+		 * {@link de.jstacs.data.DataSet} of {@link Sequence.CompositeSequence}s. With this constructor
+		 * you are enabled to create a {@link de.jstacs.data.DataSet} where every
 		 * {@link de.jstacs.data.sequences.Sequence} has the same {@link AlphabetContainer} instance.
 		 * 
 		 * <br>
@@ -1268,8 +1266,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 
 		/**
 		 * This constructor should be used if one wants to create a
-		 * {@link DataSet} of {@link Sequence.SubSequence}s of defined length. With this
-		 * constructor you are enabled to create a {@link DataSet} where every
+		 * {@link de.jstacs.data.DataSet} of {@link Sequence.SubSequence}s of defined length. With this
+		 * constructor you are enabled to create a {@link de.jstacs.data.DataSet} where every
 		 * {@link de.jstacs.data.sequences.Sequence} has the same {@link AlphabetContainer} instance.
 		 * 
 		 * <br>

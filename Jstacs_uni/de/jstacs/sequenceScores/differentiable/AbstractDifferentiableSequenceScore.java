@@ -32,7 +32,6 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
@@ -70,7 +69,7 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 	protected static final Random r = new Random();
 
 	/**
-	 * The {@link AlphabetContainer} of this {@link DifferentiableStatisticalModel}
+	 * The {@link AlphabetContainer} of this {@link AbstractDifferentiableSequenceScore}
 	 * .
 	 */
 	protected AlphabetContainer alphabets;

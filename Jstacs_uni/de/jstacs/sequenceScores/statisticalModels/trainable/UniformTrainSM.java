@@ -22,7 +22,6 @@ package de.jstacs.sequenceScores.statisticalModels.trainable;
 import java.io.IOException;
 import java.util.Random;
 
-import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;

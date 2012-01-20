@@ -1,5 +1,11 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import javax.naming.OperationNotSupportedException;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.sequences.MultiDimensionalDiscreteSequence;
 import de.jstacs.data.sequences.Sequence;
@@ -10,12 +16,9 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SamplingEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloNode;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;
-import de.jstacs.utils.Normalisation;
-import java.util.*;
-import javax.naming.OperationNotSupportedException;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
-import java.util.ArrayList;
+import de.jstacs.utils.Normalisation;
 
 /**
  * Phylogenetic discrete emission

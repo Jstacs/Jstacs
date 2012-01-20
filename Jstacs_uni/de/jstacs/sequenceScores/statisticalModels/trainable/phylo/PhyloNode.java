@@ -1,10 +1,11 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.phylo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * This class implements a node in a {@link PhyloTree}

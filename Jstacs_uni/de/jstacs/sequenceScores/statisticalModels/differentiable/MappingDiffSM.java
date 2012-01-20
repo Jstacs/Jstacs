@@ -19,8 +19,8 @@
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabetMapping;
 import de.jstacs.data.sequences.MappedDiscreteSequence;

@@ -2,7 +2,6 @@ package de.jstacs.data.sequences;
 
 import javax.naming.OperationNotSupportedException;
 
-import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -28,7 +27,7 @@ public abstract class MultiDimensionalSequence<T> extends Sequence<T> {
 	 * @param sequence the individual sequences that have been aligned
 	 * 
 	 * @throws WrongLengthException if the sequences have different lengths
-	 * @throws WrongAlphabetException if the sequences have different {@link AlphabetContainer}s 
+	 * @throws WrongAlphabetException if the sequences have different {@link de.jstacs.data.AlphabetContainer}s 
 	 */
 	public MultiDimensionalSequence( SequenceAnnotation[] seqAn, Sequence... sequence ) throws WrongLengthException, WrongAlphabetException {
 		super( sequence[0].getAlphabetContainer(), seqAn );
