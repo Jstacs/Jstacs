@@ -23,8 +23,8 @@ import de.jstacs.DataType;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.io.NonParsableException;
-import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ParameterException;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 

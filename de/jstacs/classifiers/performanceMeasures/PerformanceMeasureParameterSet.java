@@ -2,13 +2,11 @@ package de.jstacs.classifiers.performanceMeasures;
 
 import java.util.LinkedList;
 
-import de.jstacs.classifiers.AbstractClassifier;
-import de.jstacs.classifiers.assessment.ClassifierAssessment;
 import de.jstacs.io.NonParsableException;
-import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
@@ -111,7 +109,9 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	}	
 	
 	/**
-	 * Creates a filled {@link NumericalPerformanceMeasureParameterSet} that can be used in {@link AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)} or in a {@link ClassifierAssessment}.
+	 * Creates a filled {@link NumericalPerformanceMeasureParameterSet} that can be used in
+	 * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}
+	 * or in a {@link de.jstacs.classifiers.assessment.ClassifierAssessment}.
 	 * 
 	 * @return a filled {@link NumericalPerformanceMeasureParameterSet}
 	 * 
@@ -122,7 +122,8 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	}
 	
 	/**
-	 * Creates a filled {@link PerformanceMeasureParameterSet} that can be used in {@link AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
+	 * Creates a filled {@link PerformanceMeasureParameterSet} that can be used in
+	 * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
 	 * If <code>numerical = false</code>, the parameter set also contains curve measures (e.g. {@link PRCurve}, {@link ROCCurve}).
 	 * 
 	 * @param numerical if <code>true</code the return type is {@link NumericalPerformanceMeasureParameterSet}, otherwise {@link PerformanceMeasureParameterSet} 

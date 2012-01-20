@@ -22,12 +22,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
-import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
 import de.jstacs.io.SparseStringExtractor;
 
 /**
- * This class exist for convenience to allow the user an easy creation of {@link DataSet}s of DNA {@link Sequence}s.
+ * This class exist for convenience to allow the user an easy creation of {@link DataSet}s of DNA {@link de.jstacs.data.sequences.Sequence}s.
  * 
  * @author Jan Grau, Jens Keilwagen
  */

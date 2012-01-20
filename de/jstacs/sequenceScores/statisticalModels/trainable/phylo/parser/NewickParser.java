@@ -1,14 +1,14 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.phylo.parser;
 
-import de.jstacs.io.NonParsableException;
-import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloNode;
-import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.util.EmptyStackException;
 import java.util.Stack;
+
+import de.jstacs.io.NonParsableException;
+import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloNode;
+import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;
 
 
 

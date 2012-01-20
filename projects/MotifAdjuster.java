@@ -25,7 +25,6 @@ import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEv
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.StringExtractor;

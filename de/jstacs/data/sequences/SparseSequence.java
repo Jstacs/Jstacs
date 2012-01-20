@@ -25,8 +25,8 @@ import java.util.LinkedList;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;

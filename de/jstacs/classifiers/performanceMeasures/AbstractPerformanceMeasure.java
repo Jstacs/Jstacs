@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.io.NonParsableException;
-import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.SubclassFinder;
 

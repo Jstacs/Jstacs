@@ -31,7 +31,6 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
 import de.jstacs.sequenceScores.differentiable.IndependentProductDiffSS;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.AbstractMixtureDiffSM;
 import de.jstacs.utils.Normalisation;
 
@@ -82,7 +81,9 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * 
 	 * @param ess
 	 * 			  the equivalent sample size
-	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters are used for parts that are instance of {@link HomogeneousDiffSM}
+	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters
+	 * 			  are used for parts that are instance of
+	 * 			  {@link de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM}
 	 * @param functions
 	 *            the components, i.e. the given series of independent
 	 *            {@link DifferentiableStatisticalModel}s
@@ -110,7 +111,9 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * 
 	 * @param ess
 	 * 			  the equivalent sample size
-	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters are used for parts that are instance of {@link HomogeneousDiffSM}
+	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters
+	 * 			  are used for parts that are instance of
+	 * 			  {@link de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM}
 	 * @param functions
 	 *            the components, i.e. the given series of independent
 	 *            {@link DifferentiableStatisticalModel}s
@@ -136,7 +139,9 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * This is the main constructor.
 	 *
 	 * @param ess the equivalent sample size
-	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters are used for parts that are instance of {@link HomogeneousDiffSM}
+	 * @param plugIn whether to use plugIn parameters for the parts, otherwise the last parameters
+	 * 			  are used for parts that are instance of
+	 * 			  {@link de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM}
 	 * @param functions the {@link DifferentiableStatisticalModel}
 	 * @param index the index of the {@link DifferentiableStatisticalModel} at each part
 	 * @param length the length of each part

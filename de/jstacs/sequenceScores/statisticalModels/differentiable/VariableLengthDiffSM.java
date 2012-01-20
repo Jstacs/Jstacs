@@ -19,7 +19,6 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
-import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;

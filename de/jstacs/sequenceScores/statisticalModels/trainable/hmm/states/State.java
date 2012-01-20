@@ -25,14 +25,13 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 
 /**
  * This interface declares the methods of any state used in a hidden Markov model.
  * 
  * @author Jan Grau, Jens Keilwagen, Michael Scharfe
  * 
- * @see AbstractHMM
+ * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM
  */
 public interface State  {
 	

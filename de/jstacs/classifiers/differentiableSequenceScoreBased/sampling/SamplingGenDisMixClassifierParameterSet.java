@@ -19,15 +19,13 @@
 package de.jstacs.classifiers.differentiableSequenceScoreBased.sampling;
 
 import de.jstacs.DataType;
-import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier.SamplingScheme;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 
 /**
- * {@link ParameterSet} to instantiate a {@link SamplingGenDisMixClassifier}.
+ * {@link de.jstacs.parameters.ParameterSet} to instantiate a {@link SamplingGenDisMixClassifier}.
  * @author Jan Grau
  *
  */
@@ -39,12 +37,12 @@ public class SamplingGenDisMixClassifierParameterSet extends SamplingScoreBasedC
 	 * @param length the length of the sequences that can be classified
 	 * @param numStarts the number of independent samplings
 	 * @param scheme the sampling scheme
-	 * @param testSamplings the number of samplings between checks for the lenght of the burn-in phase
+	 * @param testSamplings the number of samplings between checks for the length of the burn-in phase
 	 * @param stationarySamplings the number of samplings in the stationary phase
 	 * @param freeParameters if only free parameters shall be used
 	 * @param adaptVariance if the variance shall be adapted to the size of the event space of a random variable
 	 * @param outfilePrefix the prefix of the temporary files for storing the parameters
-	 * @param threads the number of threads for evaluating the {@link LogGenDisMixFunction}
+	 * @param threads the number of threads for evaluating the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction}
 	 * @throws Exception if the parameters could not be created
 	 */
 	public SamplingGenDisMixClassifierParameterSet( AlphabetContainer alphabet, int length, int numStarts, SamplingScheme scheme,
@@ -70,12 +68,12 @@ public class SamplingGenDisMixClassifierParameterSet extends SamplingScoreBasedC
 	 * @param length the length of the sequences that can be classified
 	 * @param numStarts the number of independent samplings
 	 * @param scheme the sampling scheme
-	 * @param testSamplings the number of samplings between checks for the lenght of the burn-in phase
+	 * @param testSamplings the number of samplings between checks for the length of the burn-in phase
 	 * @param stationarySamplings the number of samplings in the stationary phase
 	 * @param freeParameters if only free parameters shall be used
 	 * @param adaptVariance if the variance shall be adapted to the size of the event space of a random variable
 	 * @param outfilePrefix the prefix of the temporary files for storing the parameters
-	 * @param threads the number of threads for evaluating the {@link LogGenDisMixFunction}
+	 * @param threads the number of threads for evaluating the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction}
 	 * @throws Exception if the parameters could not be created
 	 */
 	protected SamplingGenDisMixClassifierParameterSet( Class<? extends SamplingScoreBasedClassifier> instanceClass,
@@ -102,10 +100,10 @@ public class SamplingGenDisMixClassifierParameterSet extends SamplingScoreBasedC
 	 * @param alphabet the alphabet of the classifier
 	 * @param length the length of the sequences that can be classified
 	 * @param numStarts the number of independent samplings
-	 * @param testSamplings the number of samplings between checks for the lenght of the burn-in phase
+	 * @param testSamplings the number of samplings between checks for the length of the burn-in phase
 	 * @param stationarySamplings the number of samplings in the stationary phase
 	 * @param outfilePrefix the prefix of the temporary files for storing the parameters
-	 * @param threads the number of threads for evaluating the {@link LogGenDisMixFunction}
+	 * @param threads the number of threads for evaluating the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction}
 	 * @throws Exception if the parameters could not be created
 	 */
 	public SamplingGenDisMixClassifierParameterSet( AlphabetContainer alphabet, int length, int numStarts, int testSamplings,
@@ -127,7 +125,7 @@ public class SamplingGenDisMixClassifierParameterSet extends SamplingScoreBasedC
 	}
 	
 	/**
-	 * Returns the number of threads for evaluating the {@link LogGenDisMixFunction}
+	 * Returns the number of threads for evaluating the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction}
 	 * @return the number of threads
 	 */
 	public int getNumberOfThreads() {

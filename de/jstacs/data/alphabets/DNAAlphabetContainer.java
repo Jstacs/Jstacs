@@ -2,16 +2,14 @@ package de.jstacs.data.alphabets;
 
 import de.jstacs.Singleton;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.DNADataSet;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
-import de.jstacs.parameters.ParameterSet;
 
 /**
  * This class implements a singleton for an {@link AlphabetContainer} that can be used for DNA. 
  * 
  * @see Singleton
  * @see DNAAlphabet
- * @see DNADataSet
+ * @see de.jstacs.data.DNADataSet
  * 
  * @author Jens Keilwagen, Jan Grau
  */
@@ -40,7 +38,7 @@ public final class DNAAlphabetContainer extends AlphabetContainer implements Sin
 	}
 
 	/**
-	 * This class implements a singleton for the {@link ParameterSet} of a {@link DNAAlphabetContainer}. 
+	 * This class implements a singleton for the {@link de.jstacs.parameters.ParameterSet} of a {@link DNAAlphabetContainer}. 
 	 * 
 	 * @author Jens Keilwagen
 	 */

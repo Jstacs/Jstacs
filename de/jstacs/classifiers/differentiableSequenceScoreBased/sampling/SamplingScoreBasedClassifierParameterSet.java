@@ -22,14 +22,12 @@ import de.jstacs.DataType;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.sampling.SamplingScoreBasedClassifier.SamplingScheme;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.parameters.EnumParameter;
-import de.jstacs.parameters.ParameterSet;
-import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SequenceScoringParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
- * {@link ParameterSet} to instantiate a {@link SamplingScoreBasedClassifier}.
+ * {@link de.jstacs.parameters.ParameterSet} to instantiate a {@link SamplingScoreBasedClassifier}.
  * @author Jan Grau
  *
  */
@@ -42,7 +40,7 @@ public abstract class SamplingScoreBasedClassifierParameterSet extends SequenceS
 	 * @param length the length of the sequences that can be classified
 	 * @param numStarts the number of independent samplings
 	 * @param scheme the sampling scheme
-	 * @param testSamplings the number of samplings between checks for the lenght of the burn-in phase
+	 * @param testSamplings the number of samplings between checks for the length of the burn-in phase
 	 * @param stationarySamplings the number of samplings in the stationary phase
 	 * @param freeParameters if only free parameters shall be used
 	 * @param adaptVariance if the variance shall be adapted to the size of the event space of a random variable
@@ -65,7 +63,7 @@ public abstract class SamplingScoreBasedClassifierParameterSet extends SequenceS
 	 * @param alphabet the alphabet of the classifier
 	 * @param length the length of the sequences that can be classified
 	 * @param numStarts the number of independent samplings
-	 * @param testSamplings the number of samplings between checks for the lenght of the burn-in phase
+	 * @param testSamplings the number of samplings between checks for the length of the burn-in phase
 	 * @param stationarySamplings the number of samplings in the stationary phase
 	 * @param outfilePrefix the prefix of the temporary files for storing the parameters
 	 * @throws Exception if the parameters could not be created

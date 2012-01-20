@@ -7,7 +7,6 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition;
 
 /**
  * This interface declares all method for an emission of a state.

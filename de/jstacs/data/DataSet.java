@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
-import de.jstacs.data.alphabets.Alphabet;
 import de.jstacs.data.sequences.ArbitrarySequence;
 import de.jstacs.data.sequences.ByteSequence;
 import de.jstacs.data.sequences.IntSequence;
@@ -64,7 +63,7 @@ import de.jstacs.utils.Pair;
  * For the internal representation the class {@link Sequence} is used, where the
  * external alphabet is converted to integral numerical values. The class
  * {@link DataSet} knows about this coding via instances of class
- * {@link AlphabetContainer} and accordingly {@link Alphabet}.
+ * {@link AlphabetContainer} and accordingly {@link de.jstacs.data.alphabets.Alphabet}.
  * 
  * <br>
  * <br>
@@ -82,7 +81,7 @@ import de.jstacs.utils.Pair;
  * @author Jens Keilwagen, Andre Gohr, Jan Grau
  * 
  * @see AlphabetContainer
- * @see Alphabet
+ * @see de.jstacs.data.alphabets.Alphabet
  * @see Sequence
  */
 public class DataSet implements Iterable<Sequence>{
@@ -317,7 +316,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if <code>s.length != in.length</code> or the {@link Alphabet}
+	 *             if <code>s.length != in.length</code> or the {@link de.jstacs.data.alphabets.Alphabet}
 	 *             s do not match
 	 * @throws EmptyDataSetException
 	 *             if the union is empty
@@ -343,7 +342,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if the {@link Alphabet}s do not match
+	 *             if the {@link de.jstacs.data.alphabets.Alphabet}s do not match
 	 * 
 	 * @see DataSet#union(DataSet[], boolean[])
 	 */
@@ -379,7 +378,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if <code>s.length != in.length</code> or the {@link Alphabet}
+	 *             if <code>s.length != in.length</code> or the {@link de.jstacs.data.alphabets.Alphabet}
 	 *             s do not match
 	 * @throws EmptyDataSetException
 	 *             if the union is empty
@@ -460,7 +459,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @return the united {@link DataSet}
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if the {@link Alphabet}s do not match
+	 *             if the {@link de.jstacs.data.alphabets.Alphabet}s do not match
 	 * @throws WrongLengthException
 	 *             if the united {@link DataSet} does not support this
 	 *             <code>subsequenceLength</code>
@@ -522,12 +521,12 @@ public class DataSet implements Iterable<Sequence>{
 	 * <br>
 	 * 
 	 * <b>You have to ensure that all {@link Sequence}s are defined over the
-	 * {@link Alphabet}(s) in the {@link AlphabetContainer} <code>abc</code>
+	 * {@link de.jstacs.data.alphabets.Alphabet}(s) in the {@link AlphabetContainer} <code>abc</code>
 	 * since it is not checked internally! Furthermore you have to ensure that
 	 * the length is correct!</b>
 	 * 
 	 * @param abc
-	 *            the {@link AlphabetContainer} with the {@link Alphabet}s
+	 *            the {@link AlphabetContainer} with the {@link de.jstacs.data.alphabets.Alphabet}s
 	 * @param seqs
 	 *            the array of {@link Sequence}s
 	 * @param length

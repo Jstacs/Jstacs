@@ -4,7 +4,6 @@ import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;

@@ -26,10 +26,9 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 
 /**
- * This class implements an abstract {@link ParameterSet} that is used for the training of an {@link AbstractHMM}.
+ * This class implements an abstract {@link ParameterSet} that is used for the training of an {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM}.
  * 
  * @author Jens Keilwagen
  */

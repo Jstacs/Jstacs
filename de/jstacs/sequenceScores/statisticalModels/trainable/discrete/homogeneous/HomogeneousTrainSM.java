@@ -22,8 +22,8 @@ import java.util.Random;
 
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;

@@ -30,7 +30,6 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.sequenceScores.SequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
-import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 
 /**
  * This class is useful for some test for any (discrete) models. It implements
@@ -92,7 +91,7 @@ public class StatisticalModelTester {
 	 *            another discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link TrainableStatisticalModel#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the difference of the Kullback-Leibler-divergence
 	 * 
@@ -300,7 +299,7 @@ public class StatisticalModelTester {
 	 *            the discrete model
 	 * @param length
 	 *            the length of the sequence (for inhomogeneous models length
-	 *            has to be {@link TrainableStatisticalModel#getLength()})
+	 *            has to be {@link StatisticalModel#getLength()})
 	 * 
 	 * @return the Shannon entropy for a discrete model
 	 * 

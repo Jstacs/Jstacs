@@ -19,15 +19,12 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture;
 
-import java.util.Arrays;
-
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.VariableLengthDiffSM;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
-import de.jstacs.utils.ToolBox;
 
 
 /**
