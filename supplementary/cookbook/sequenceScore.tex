@@ -1,0 +1,176 @@
+\section{First main course: Models}
+\newcounter{tempcounter}
+\setcounter{tempcounter}{\arabic{off}}
+
+Statistical models that can be learned on a single input data set are represented by the interface \TrainSM~of Jstacs. In most cases, such models are learned by generative learning principles like maximum likelihood or maximum a-posteriori. For models that are learned from multiple data sets, commonly by discriminative learning principles, Jstacs provides another interface \DiffSM, which will be presented in the next section.
+
+In the following, we briefly describe all methods that are defined in the \TrainSM~interface. For convenience, an abstract implementation \AbstractTrainSM~of \TrainSM~exists, which provides standard implementations for many of these methods.
+
+\renewcommand{\codefile}{../../de/jstacs/sequenceScores/SequenceScore.java}
+\setcounter{off}{45}
+
+
+\TrainSM~extends the standard interface \lstinline+Cloneable+ and, hence, implementations must provide a \lstinline+clone()+ method, which returns a deep copy of all fields of an instance:
+\code{0}
+Since the implementation of the clone method is very model-specific, it must be implemented anew for each implementation of the \TrainSM~interface.
+
+The parameters of statistical models are typically learned from some training data set. For this purpose, \TrainSM~specifies a method \lstinline+train+
+\addtocounter{off}{18}
+\code{0}
+that learns the parameters from the training data set \lstinline+data+. By specification, successive calls to \lstinline+train+ must result in a model trained on the data set provided in the last call, as opposed to incremental learning on all data sets.
+
+Besides this simple \lstinline+train+ method, \TrainSM~also declares another one
+\addtocounter{off}{27}
+\code{0}
+that allows for the specification of weights for each input sequence. Since the previous method is a special case of this one where all weights are equal to $1$, only the weighted variant must be implemented, if you decide to extend \AbstractTrainSM. This method should be implemented such that the specification of \lstinline+null+ weights leads to the standard variant with all weights equal to 1. The actual training method may be totally problem and implementation specific. However, in most cases you might want to use one of the generative learning principles ML or MAP.
+
+After a model has been trained it can be used to compute the likelihood of a sequence given the model and its (trained) parameters. The \TrainSM~interface specifies a number of methods for this purpose.
+
+The first method just requires the specification of the \Sequence~object for which the likelihood is to be computed:
+\addtocounter{off}{24}
+\code{1}
+If the \TrainSM~has not been trained prior to calling this method, it is allowed to throw a \lstinline+NotTrainedException+. The meaning of this method is slightly different for inhomogeneous, that is position-dependent, and homogeneous models. In case of an inhomogeneous model, for instance a position weight matrix, the specified \Sequence~must be of the same length as the model, i.e. the number of columns in the weight matrix. Otherwise an Exception should be thrown, since users may be tempted to misinterpret the return value as a probability of the complete, possibly longer or shorter, provided sequence.
+In case of homogeneous models, for instance homogeneous Markov models, this method must return the likelihood of the complete sequence. Since this is not always the desired result, to other methods are specified, which allow for computing the likelihood of sub-sequences. This method should also check if the provided \Sequence~is defined over the same \AlphabetContainer~as the model.
+
+The first of these methods is
+\addtocounter{off}{37}
+\code{1}
+which computes the likelihood of the sub-sequence starting at position \lstinline+startpos+. The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos))+.
+
+The second method reads
+\addtocounter{off}{40}
+\code{1}
+and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))+.
+Only the last method must be implemented if we decide for extending \AbstractTrainSM, since the previous two can again be perceived as special cases.
+
+In some cases, for instance for very long sequences, the computation of the likelihood may lead to numerical problems. Hence, the \TrainSM~interface in complete analogy defines methods for computing the log-likelihood. These methods are
+\addtocounter{off}{32}
+\code{1}
+\addtocounter{off}{28}
+\code{1}
+\addtocounter{off}{28}
+\code{0}
+Although the implementation of the log-variants is not required if you extend \AbstractTrainSM, we strongly recommend to also implement \lstinline+getLogProbFor(Sequence,int,int)+ because otherwise it defaults to \lstinline+Math.log(getProbFor(Sequence,int,int))+ and, hence, inherits numerical problems that may occur for this method.
+
+For convenience, \TrainSM~also provides a method for computing the log-likelihoods of all \Sequence s in a \DataSet
+\addtocounter{off}{25}
+\code{0}
+which is already implemented in \AbstractTrainSM by successive calls to \lstinline+getLogProbFor(Sequence)+. This method also exists in a variant
+\addtocounter{off}{25}
+\code{0}
+where the user may specify an existing array for storing the computed log-likelihoods. This may be reasonable to save memory, for instance if we compute the log-likelihoods of a large number of sequences using different models.
+
+If we want to use Bayesian principles for learning the parameters of a model, we need to specify a prior distribution on the parameter values. In some cases, for instance for using MAP estimation in an expectation maximization (EM) algorithm, it is not only necessary to estimate the parameters taking the prior into account, but also to know the value of the prior (or a term proportional to it). For this reason, the \TrainSM~interface defines the methods
+\addtocounter{off}{11}
+\code{0}
+and
+\addtocounter{off}{13}
+\code{0}
+which return this prior term and its logarithm, respectively. In the default implementation of \AbstractTrainSM, the first method defaults to \lstinline+Math.exp(getLogPriorTerm())+.
+
+If the concept of a prior is not applicable for a certain model or other reasons prevent you from implementing these methods, \lstinline+getLogPriorTerm()+ should return \lstinline+Double.NEGATIVE_INFINITY+.
+
+Generative \TrainSM s can also be used to create new, artificial data according to the model assumptions. For this purpose, the \TrainSM~interface specifies a method
+\addtocounter{off}{50}
+\code{1}
+wich returns a \DataSet~of \lstinline+numberOfSequences+ \Sequence s drawn from the model using its current parameter values. The second parameter \lstinline+seqLength+ allows for the specification of the lenghts of the drawn \Sequence s. For inhomogeneous model, which inherently define the length of possible sequence, this parameter should be \lstinline+null+ or an array of length 0. For homogeneous models, the lengths may either be specified for all drawn sequences by a single \lstinline+int+ value or by an array of length \lstinline+numberOfSequences+ specifying the length of each drawn sequence independently.
+
+The implementation of this method is not always possible. In its default implementation in \AbstractTrainSM, this method just throws an Exception and must be explicitly overridden to be functional.
+
+\TrainSM~also defines some methods that are basically getters for typical properties of a \TrainSM~implementation. 
+These are
+\addtocounter{off}{10}
+\code{0}
+which returns the current \AlphabetContainer~of the model,
+\addtocounter{off}{7}
+\code{0}
+which returns a (helpful) name of the current \TrainSM~instance,
+\addtocounter{off}{10}
+\code{0}
+which returns the length of the \TrainSM~(0 for homogeneous models), and
+\addtocounter{off}{10}
+\code{0}
+which returns the maximum number of preceeding positions that are considered for (conditional) probabilities.
+For instance, for a position weight matrix, this method should return 0, whereas for a homogeneous Markov model of order 2, it should return 2.
+
+The method
+\addtocounter{off}{9}
+\code{0}
+must return \lstinline+true+ if the model has already been trained, i.e., the train method has been called at least once, and \lstinline+false+ otherwise.
+
+The methods
+\addtocounter{off}{17}
+\code{0}
+and
+\addtocounter{off}{12}
+\code{0}
+can be used to return some  properties of a \TrainSM~like the number of parameters, the depth of some tree structure, or whatever seems useful. In the latter case, these characteristics are limited to numerical values. If a model is used, e.g., in a cross validation (\KFoldCrossValidation), these numerical properties are averaged over all cross validation iterations and displayed together with the performance measures.
+
+The method
+\addtocounter{off}{8}
+\code{0}
+should return some \lstinline+String+ representation of the current model. Typically, this representation should include the current parameter values in some suitable format.
+
+Finally, the method
+\addtocounter{off}{20}
+\code{0}
+can be used to replace the current \AlphabetContainer~by some (compatible) other \AlphabetContainer.
+Compatible means that the new \AlphabetContainer~must define an identical alphabet, although it may be a different instance. This method may be helpful if in successive evaluations the consistency check between alphabets can be reduced to the comparison of references. The default implement in \AbstractTrainSM~should do the right thing in most cases.
+
+\renewcommand{\codefile}{../codeExamples/NewCodeExampleTest.java}
+\setcounter{off}{\arabic{tempcounter}}
+
+Besides the possibility to implement new statistical models in Jstacs, many of them are already implemented and can readily be used.
+As a central facility for creating model instances of many standard models, Jstacs provides a \TrainSMFactory.
+
+Using the \TrainSMFactory, we can create a new position weight matrix (PWM) model by calling
+\addtocounter{off}{10}
+\code{0}
+where we need to specify the (discrete) alphabet, the length of the matrix ($10$), i.e. the number of positions modeled, and an equivalent sample size (ESS) for MAP estimation ($4.0$). For the concept of an equivalent sample size and the BDeu prior used for most models in Jstacs, we refer the reader to (Heckerman). If the ESS is set to $0.0$, the parameters are estimated by the ML instead of the MAP principle.
+
+The factory method for an inhomogeneous Markov model of arbitrary order -- the PWM model is just an inhomogeneous Markov model of order 0 -- is
+\addtocounter{off}{1}
+\code{0}
+where the parameters are in complete analogy to the PWM model, expect the last one specifying the order of the inhomogeneous Markov model, which is 2 in the example.
+
+We can also create permuted Markov models of order $1$ and $2$, where the positions of the sequences may be permuted before building an inhomogeneous Markov model. The permutation is chosen such that the mutual information between adjacent positions is maximized. We create a permuted Markov model of length 7 and order 1 by calling
+\addtocounter{off}{1}
+\code{0}
+
+Homogeneous Markov models are created by
+\addtocounter{off}{1}
+\code{0}
+where the first parameter again specifies the alphabet, the second parameter 
+
+\addtocounter{off}{1}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{2}
+
+\addtocounter{off}{5}
+\code{3}
+
+\addtocounter{off}{6}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
