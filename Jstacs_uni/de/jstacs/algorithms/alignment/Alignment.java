@@ -208,9 +208,9 @@ public class Alignment {
 				b2.insert( 0, cont.getSymbol( startS2 + curr.j - 1, s2.discreteVal( startS2 + curr.j - 1 ) ) );
 			} else if( curr.direction == Direction.LEFT ) {
 				b1.insert( 0, '-' );
-				b2.insert( 0, cont.getSymbol( startS2 + curr.j - 1, startS2 + s2.discreteVal( curr.j - 1 ) ) );
+				b2.insert( 0, cont.getSymbol( startS2 + curr.j - 1, s2.discreteVal( startS2 + curr.j - 1 ) ) );
 			} else if( curr.direction == Direction.TOP ) {
-				b1.insert( 0, cont.getSymbol( startS1 + curr.j - 1, s1.discreteVal( startS1 + curr.i - 1 ) ) );
+				b1.insert( 0, cont.getSymbol( startS1 + curr.i - 1, s1.discreteVal( startS1 + curr.i - 1 ) ) );
 				b2.insert( 0, '-' );
 			}
 			if( curr.j == l2 && (curr.direction == Direction.DIAGONAL || curr.direction == Direction.LEFT) ) {
