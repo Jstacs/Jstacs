@@ -150,7 +150,7 @@ public class Alignment {
 			
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,i+offDiagonal);
+				end = Math.min(l2,Math.max(l2,i+offDiagonal));//due to offDiagonal=Integer.MAX_VALUE
 				for( int j = start; j <= end; j++ ) {
 					e[i][j] = new E( i, j );
 					f[i][j] = new F( i, j );
@@ -160,7 +160,7 @@ public class Alignment {
 		} else {
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,i+offDiagonal);
+				end = Math.min(l2,Math.max(l2,i+offDiagonal));//due to offDiagonal=Integer.MAX_VALUE
 				for( int j = start; j <= end; j++ ) {
 					e[i][j].compute();
 					f[i][j].compute();
@@ -186,9 +186,6 @@ public class Alignment {
 			}
 		} else {
 			endPos=l1;
-			System.out.println( l1 + "\t" + l2 );
-			System.out.println( e[l1][l2] );
-			System.out.println( f[l1][l2] );
 			if( e[l1][l2].cost < f[l1][l2].cost && e[l1][l2].cost < d[l1][l2].cost ) {
 				curr = e[l1][l2];
 			} else if( f[l1][l2].cost < d[l1][l2].cost ) {
