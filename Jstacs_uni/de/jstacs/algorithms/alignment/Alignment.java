@@ -151,7 +151,6 @@ public class Alignment {
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
 				end = Math.min(l2,Math.max(0,i+offDiagonal));//due to offDiagonal=Integer.MAX_VALUE
-				System.out.println( end );
 				for( int j = start; j <= end; j++ ) {
 					e[i][j] = new E( i, j );
 					f[i][j] = new F( i, j );
