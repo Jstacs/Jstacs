@@ -4,7 +4,7 @@ Another problem we wanted to handle has been the documentation of (external) par
 
 Finally, the same problem also occurrs for the results of computations. With a generic documentation, these results can be displayed together with some annotation in a way that is appropriate for the current application. In Jstacs, we use \Result s and \ResultSet s for this purpose, and we show how to use these in the third sub-section.
 
-\subsection{XMLParser}
+\subsection{XMLParser}\label{sec:xmlparser}
 In the following examples, let \lstinline+buffer+ be some \lstinline+StringBuffer+. 
 All kinds of primitives or \Storable s are appended to an existing \lstinline+StringBuffer+ surrounded by the specified XML tags by the static method \lstinline+appendObjectWithTags+ of \XMLParser. For example, the following two lines append an integer with the value $5$ using the tag \lstinline+integer+, and a \lstinline+String+ with the tag \lstinline+foo+:
 \addtocounter{off}{9}
