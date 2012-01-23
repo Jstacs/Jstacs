@@ -191,50 +191,50 @@ public class NewCodeExampleTest {
 		//retrieve a specific annotation
 		MotifAnnotation motif = (MotifAnnotation) annotatedDnaSeq.getSequenceAnnotationByType( "Motif", 0 );
 		
-		//create a sample from a DNA-FastA
-		DNADataSet dnaSample = new DNADataSet( "myfile.fa" );
+		//create a data set from a DNA-FastA
+		DNADataSet dnaDataSet = new DNADataSet( "myfile.fa" );
 		
-		//create a sample from a continuous tab-separated file
-		DataSet contSample = new DataSet( contContainer, new SparseStringExtractor( "myfile.tab", '#' ), "\t" );
+		//create a data set from a continuous tab-separated file
+		DataSet contDataSet = new DataSet( contContainer, new SparseStringExtractor( "myfile.tab", '#' ), "\t" );
 		
-		//create a sample of sparse sequences
-		DataSet sparseSample = SparseSequence.getDataSet( dnaContainer, new SparseStringExtractor( "myfile.fa", '>' ) );
+		//create a data set of sparse sequences
+		DataSet sparseDataSet = SparseSequence.getDataSet( dnaContainer, new SparseStringExtractor( "myfile.fa", '>' ) );
 		
 		//retrieve a sequence from a sample
-		Sequence fifth = dnaSample.getElementAt( 5 );
+		Sequence fifth = dnaDataSet.getElementAt( 5 );
 		
-		for(int i=0;i<dnaSample.getNumberOfElements();i++){
-			System.out.println(dnaSample.getElementAt( i ));
+		for(int i=0;i<dnaDataSet.getNumberOfElements();i++){
+			System.out.println(dnaDataSet.getElementAt( i ));
 		}
 		
 		//iterate over sample
-		for(Sequence seq : contSample){
+		for(Sequence seq : contDataSet){
 			System.out.println(seq.getLength());
 		}
 		
 		//infix sample
-		DataSet infix = dnaSample.getInfixDataSet( 3, 10 );
+		DataSet infix = dnaDataSet.getInfixDataSet( 3, 10 );
 		
 		//suffix sample
-		DataSet suffix = dnaSample.getSuffixDataSet( 7 );
+		DataSet suffix = dnaDataSet.getSuffixDataSet( 7 );
 		
 		//complementary sample
-		DataSet allRevComplements = dnaSample.getReverseComplementaryDataSet();
+		DataSet allRevComplements = dnaDataSet.getReverseComplementaryDataSet();
 		
 		//partition
-		DataSet[] fiveParts = dnaSample.partition( 5, PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS );
-		DataSet[] randParts = dnaSample.partition( PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, 0.1, 0.2, 0.7 );
+		DataSet[] fiveParts = dnaDataSet.partition( 5, PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS );
+		DataSet[] randParts = dnaDataSet.partition( PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, 0.1, 0.2, 0.7 );
 		
 		//sub-sequences of user-defined length
-		DataSet sliding = new DataSet( dnaSample, 8 );
+		DataSet sliding = new DataSet( dnaDataSet, 8 );
 		
-		//create a sample from DNA-FastA and parse comment line
+		//create a data set from DNA-FastA and parse comment line
 		DNADataSet dnaWithComments = new DNADataSet( "myfile.fa", '>', new SimpleSequenceAnnotationParser() );
 		
 		//obtain comment line from sequence
 		String comment = dnaWithComments.getElementAt( 0 ).getAnnotation()[0].getResultAt( 0 ).getValue().toString();
 		
-		//create sample from DNA-FastA and parse entries of comment line
+		//create data set from DNA-FastA and parse entries of comment line
 		DNADataSet dnaWithParsedComments = new DNADataSet( "myfile.fa", '>', new SplitSequenceAnnotationParser("=",";") );
 		
 		//obtain entries as annotation
@@ -362,7 +362,7 @@ public class NewCodeExampleTest {
 	public static void trainSMs() throws Exception {
 		
 		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
-		DataSet sam = new DNADataSet( "myfile.fa" );		
+		DataSet ds = new DNADataSet( "myfile.fa" );		
 		
 		//create models using model factory
 		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
@@ -372,7 +372,7 @@ public class NewCodeExampleTest {
 		TrainableStatisticalModel zoops = TrainableStatisticalModelFactory.createZOOPS( pwm, hmm, new double[]{4,4}, true );
 		
 		//train the PWM
-		pwm.train( sam );
+		pwm.train( ds );
 		
 		//create hMM directly
 		HomogeneousMM hmm2 = new HomogeneousMM( new HomMMParameterSet( alphabet, 4.0, "hmm(0)", (byte) 0 ) );
