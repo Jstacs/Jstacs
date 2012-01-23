@@ -21,11 +21,21 @@ import de.jstacs.algorithms.optimization.termination.CombinedCondition;
 import de.jstacs.algorithms.optimization.termination.IterationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
+import de.jstacs.classifiers.AbstractClassifier;
+import de.jstacs.classifiers.assessment.ClassifierAssessment;
+import de.jstacs.classifiers.assessment.KFoldCrossValidation;
+import de.jstacs.classifiers.assessment.KFoldCrossValidationAssessParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
+import de.jstacs.classifiers.performanceMeasures.AucPR;
+import de.jstacs.classifiers.performanceMeasures.AucROC;
+import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
+import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
+import de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
@@ -259,7 +269,7 @@ public class NewCodeExampleTest {
 		XMLParser.appendObjectWithTags( buffer, da, "da" );
 		
 		//create and store Storable
-		HomogeneousMM hMM = new HomogeneousMM( new HomMMParameterSet( new AlphabetContainer( DNAAlphabet.SINGLETON ), 4, "hmm(0)", (byte) 0 ) );
+		HomogeneousMM hMM = new HomogeneousMM( new HomMMParameterSet( DNAAlphabetContainer.SINGLETON, 4, "hmm(0)", (byte) 0 ) );
 		XMLParser.appendObjectWithTags( buffer, hMM, "hMM" );
 		
 		//create and store arrays of Storables
@@ -351,7 +361,7 @@ public class NewCodeExampleTest {
 	
 	public static void trainSMs() throws Exception {
 		
-		AlphabetContainer alphabet = new AlphabetContainer( DNAAlphabet.SINGLETON );
+		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
 		DataSet sam = new DNADataSet( "myfile.fa" );		
 		
 		//create models using model factory
@@ -402,7 +412,7 @@ public class NewCodeExampleTest {
 	
 	public static void scoringFunctions() throws Exception {
 		
-		AlphabetContainer alphabet = new AlphabetContainer( DNAAlphabet.SINGLETON );
+		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
 		DataSet[] data = null;//TODO create
 		
 		//create BNSF
@@ -502,31 +512,48 @@ public class NewCodeExampleTest {
 		
 	}
 	
-	public static void classifier(){
+	public static void classifier() throws Exception {
+		
+		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
+		DataSet[] data = null;//TODO create
+		
 		
 		//create models
+		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
 		
 		//create and train model based classifier
-		
+		AbstractClassifier cl = new TrainSMBasedClassifier( pwm, pwm );
 		
 		//create scoring functions
+		BayesianNetworkDiffSM pwm2 = new BayesianNetworkDiffSM( alphabet, 10, 4.0, true, new InhomogeneousMarkov(0) );
 		
 		//create log prior
+		LogPrior prior = new CompositeLogPrior();
 		
 		//create and train GenDisMix classifier
+		GenDisMixClassifierParameterSet ps = new GenDisMixClassifierParameterSet( alphabet, pwm2.getLength(), (byte) 10, 1E-6, 1E-9, 1, false, KindOfParameter.PLUGIN, true, 2 );
+		cl = new GenDisMixClassifier(ps, prior, LearningPrinciple.MSP, pwm2, pwm2 );
+		cl = new GenDisMixClassifier(ps, prior, new double[]{0.4,0.1,0.5}, pwm2, pwm2 );
 		
-		//create and train sampling GenDisMix classifier
+		//train
+		cl.train( data );
 		
-		//define SBPMD
+		//classify sequence
+		System.out.println( cl.classify( data[0].getElementAt(0) ) );
 		
-		//define measure parameters
+		//define performance measures
+		PerformanceMeasureParameterSet measures = PerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
+		measures = new PerformanceMeasureParameterSet( 2, new AucROC(), new AucPR() );
 		
 		//assess model based classifier on test data
+		System.out.println( cl.evaluate( measures, true, data ) );
 		
 		//assess classifiers in CV
+		NumericalPerformanceMeasureParameterSet numMeasures = PerformanceMeasureParameterSet.createFilledParameters();
 		
-		//create new AbstractScoreBasedClassifer
-		
+		ClassifierAssessment assessment = new KFoldCrossValidation( cl );
+		KFoldCrossValidationAssessParameterSet params = new KFoldCrossValidationAssessParameterSet( PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS, cl.getLength(), true, 10 );
+		System.out.println( assessment.assess( numMeasures, params, data ) );				
 	}
 	
 	public static void alignment(){
