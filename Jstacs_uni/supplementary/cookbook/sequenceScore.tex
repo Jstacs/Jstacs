@@ -1,6 +1,77 @@
 \newcounter{tempcounter}
 \setcounter{tempcounter}{\arabic{off}}
 
+\SeqScore s define scoring functions over sequences that can assign a score to each input sequence. Such scores can then be used
+to classify sequences by chosing the class represented by that \SeqScore~yielding the maximum score.
+
+Sub-iterfaces of \SeqScore~are \DiffSS, which is tailored to numerical optimization, and \StatMod, which represents statistical models 
+defining a proper likelihood. \StatMod, in turn, has two sub-interfaces \TrainSM~and \DiffSM, where the latter joins the properties of \StatMod s and \DiffSS s. All of these will be explained in the sub-sections of this section.
+
+\renewcommand{\codefile}{../../de/jstacs/sequenceScores/SequenceScore.java}
+\setcounter{off}{47}
+
+\SeqScore~extends the standard interface \lstinline+Cloneable+ and, hence, implementations must provide a \lstinline+clone()+ method, which returns a deep copy of all fields of an instance:
+\code{0}
+Since the implementation of the clone method is very score-specific, it must be implemented anew for each implementation of the \SeqScore~interface. Besides that \SeqScore~also extends \Storable, which demands the implementation of the \lstinline+toXML()+ method and a constructor working on a \lstinline+StringBuffer+ containing an XML-representation (see section~\ref{sec:xmlparser}).
+
+\SeqScore~also defines some methods that are basically getters for typical properties of a \SeqScore~implementation. 
+These are
+\addtocounter{off}{7}
+\code{0}
+which returns the current \AlphabetContainer~of the model, i.e., the \AlphabetContainer~of \Sequence s this \SeqScore can score,
+\addtocounter{off}{7}
+\code{0}
+which returns a - distinguishing - name of the current \SeqScore~instance, and
+\addtocounter{off}{10}
+\code{0}
+which returns the length of the \SeqScore, i.e. the possible length of input sequences. This length is defined to be zero, if the score can handle \Sequence s of variable length.
+
+The methods
+\addtocounter{off}{17}
+\code{0}
+and
+\addtocounter{off}{11}
+\code{0}
+can be used to return some properties of a \SeqScore~like the number of parameters, the depth of some tree structure, or whatever seems useful. In the latter case, these characteristics are limited to numerical values. If a model is used, e.g., in a cross validation (\KFoldCrossValidation), these numerical properties are averaged over all cross validation iterations and displayed together with the performance measures.
+
+The scoring of input \Sequence is performed by three methods \lstinline+getLogScore+. The name of this method reflects that the returned score should be on a lagorithmic scale. For instance, for a stastical model with a proper likelihood over the sequences this score would correspond to the log-likelihood.
+The first method
+\addtocounter{off}{10}
+\code{0}
+returns the score for the given \Sequence. For reasons of efficiency, it is not intended to check if the length or
+the \AlphabetContainer~of the \Sequence~match those of the \SeqScore. Hence, no exception is declared for this method. So if
+this method is used (instead of the more stringent methods of \StatMod, see \ref{}) this should be checked externally.
+
+The second method is
+\addtocounter{off}{13}
+\code{0}
+which returns the score for the sub-sequence starting at position \lstinline+start+ end extending to the end of the \Sequence or the end of the \SeqScore, whichever comes first.
+
+The third method is
+\addtocounter{off}{17}
+\code{0}
+and computes the score for the sub-sequence between \lstinline+start+ and \lstinline+end+, where the value at position \lstinline+end+ is the last value considered for the computation of the score.
+
+Two additional methods
+\addtocounter{off}{25}
+\code{0}
+and
+\addtocounter{off}{26}
+\code{0}
+allow for the computation of such scores for all \Sequence s in a \DataSet. The first method returns these scores, whereas the second stores the scores to the provided \lstinline+double+ array. The result of this method (w.r.t. one \Sequence) should be identical
+to independent calls of \lstinline+getLogScore+. Hence, these method are pre-implemented exactly in this way in the abstract implementations
+of \SeqScore.
+
+Finally, the return value of the method
+\addtocounter{off}{9}
+\code{0}
+indicates if a \SeqScore~has been initialized, i.e., all parameters have been set to some (initial or learned) value and the \SeqScore~is
+ready to score \Sequence s.
+
+\subsection{\DiffSS}
+
+\subsection{\TrainSM}
+
 Statistical models that can be learned on a single input data set are represented by the interface \TrainSM~of Jstacs. In most cases, such models are learned by generative learning principles like maximum likelihood or maximum a-posteriori. For models that are learned from multiple data sets, commonly by discriminative learning principles, Jstacs provides another interface \DiffSM, which will be presented in the next section.
 
 In the following, we briefly describe all methods that are defined in the \TrainSM~interface. For convenience, an abstract implementation \AbstractTrainSM~of \TrainSM~exists, which provides standard implementations for many of these methods.
@@ -141,35 +212,4 @@ Homogeneous Markov models are created by
 \code{0}
 where the first parameter again specifies the alphabet, the second parameter 
 
-\addtocounter{off}{1}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{3}
-\code{2}
-
-\addtocounter{off}{5}
-\code{3}
-
-\addtocounter{off}{6}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{3}
-\code{0}
+\subsection{\DiffSM}
