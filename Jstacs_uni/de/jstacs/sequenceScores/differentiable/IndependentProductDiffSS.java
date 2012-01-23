@@ -27,6 +27,7 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.sequenceScores.SequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.VariableLengthDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM;
 import de.jstacs.utils.DoubleList;
@@ -49,11 +50,40 @@ import de.jstacs.utils.IntList;
  */
 public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScore {
 	
+	/**
+	 * The internally used {@link DifferentiableSequenceScore}s.
+	 */
 	protected DifferentiableSequenceScore[] score;
 
-	protected int[] index, start, partialLength, params;
+	/**
+	 * This index indicates which entry of the array {@link #score} should be used for the specific parts.
+	 */
+	protected int[] index;
 	
-	protected boolean[] reverse, isVariable;
+	/**
+	 * This array specifies the start positions of the specific parts.
+	 */
+	protected int[] start;
+	
+	/**
+	 * This array specifies the lengths of the specific parts.
+	 */
+	protected int[] partialLength;
+	
+	/**
+	 * This array specifies whether the sequence or its reverse complement is used in the specific parts.
+	 */
+	protected boolean[] reverse;
+	
+	/**
+	 * This array specifies for each entry of {@link #score} whether it is able to score sequences of variable length.
+	 */
+	protected boolean[] isVariable;
+	
+	/**
+	 * This array contains the start indices for {@link DifferentiableSequenceScore#setParameters(double[], int)} on {@link #score}.
+	 */
+	protected int[] startIndexOfParams;
 	
 	private IntList partIList;
 	
@@ -90,14 +120,26 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 		return res;
 	}
 
-	protected final static int[] getLengthArray( DifferentiableSequenceScore... functions ) throws IllegalArgumentException {
+	/**
+	 * This method provides an array of lengths that can be used for instance as {@link #partialLength}.
+	 * 
+	 * @param function the internally used {@link DifferentiableSequenceScore}s
+	 * 
+	 * @return an array of lengths that can be used for instance as {@link #partialLength}
+	 * 
+	 * @throws IllegalArgumentException if at least one <code>function</code> has length 0
+	 * 
+	 * @see SequenceScore#getLength()
+	 * @see #IndependentProductDiffSS(boolean, DifferentiableSequenceScore...)
+	 */
+	protected final static int[] getLengthArray( DifferentiableSequenceScore... function ) throws IllegalArgumentException {
 		int i = 0;
-		int[] res = new int[functions.length];
-		while( i < functions.length && functions[i].getLength() > 0 ) {
-			res[i] = functions[i].getLength();
+		int[] res = new int[function.length];
+		while( i < function.length && function[i].getLength() > 0 ) {
+			res[i] = function[i].getLength();
 			i++;
 		}
-		if( i != functions.length ) {
+		if( i != function.length ) {
 			throw new IllegalArgumentException( "The DifferentiableSequenceScore with index " + i + " has a length 0." );
 		}
 		return res;
@@ -230,17 +272,20 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 		partIList = new IntList();
 	}
 
+	/**
+	 * This method set the value of the array {@link #startIndexOfParams}.
+	 */
 	protected void setParamsStarts() {
-		if( params == null ) {
-			params = new int[score.length + 1];
+		if( startIndexOfParams == null ) {
+			startIndexOfParams = new int[score.length + 1];
 		}
 		for( int n, i = 0; i < score.length; i++ ) {
 			n = score[i].getNumberOfParameters();
 			if( n == UNKNOWN ) {
-				params = null;
+				startIndexOfParams = null;
 				break;
 			} else {
-				params[i + 1] = params[i] + n;
+				startIndexOfParams[i + 1] = startIndexOfParams[i] + n;
 			}
 		}
 	}
@@ -253,7 +298,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 		IndependentProductDiffSS clone = (IndependentProductDiffSS)super.clone();
 		clone.score = ArrayHandler.clone( score );
 		clone.set( index, partialLength, reverse );
-		clone.params = null;
+		clone.startIndexOfParams = null;
 		clone.setParamsStarts();
 		return clone;
 	}
@@ -526,7 +571,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 			}
 			
 			for( j = 0; j < partIList.length(); j++ ) {
-				indices.add( partIList.get( j ) + params[index[i]] );
+				indices.add( partIList.get( j ) + startIndexOfParams[index[i]] );
 			}
 		}
 		return s;
@@ -537,10 +582,10 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#getNumberOfParameters()
 	 */
 	public int getNumberOfParameters() {
-		if( params == null ) {
+		if( startIndexOfParams == null ) {
 			return UNKNOWN;
 		} else {
-			return params[score.length];
+			return startIndexOfParams[score.length];
 		}
 	}
 
@@ -562,7 +607,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 */
 	public void setParameters( double[] params, int start ) {
 		for( int i = 0; i < score.length; i++ ) {
-			score[i].setParameters( params, start + this.params[i] );
+			score[i].setParameters( params, start + this.startIndexOfParams[i] );
 		}
 	}
 

@@ -219,7 +219,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 
 	private int getSFIndex( int index ) {
 		int i = 1;
-		while( i < params.length && index >= params[i] ) {
+		while( i < startIndexOfParams.length && index >= startIndexOfParams[i] ) {
 			i++;
 		}
 		return i - 1;
@@ -231,7 +231,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 */
 	public int getSizeOfEventSpaceForRandomVariablesOfParameter( int index ) {
 		int i = getSFIndex( index );
-		return ((DifferentiableStatisticalModel)score[i]).getSizeOfEventSpaceForRandomVariablesOfParameter( index - params[i] );
+		return ((DifferentiableStatisticalModel)score[i]).getSizeOfEventSpaceForRandomVariablesOfParameter( index - startIndexOfParams[i] );
 	}
 
 	/*
@@ -255,7 +255,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getLogPartialNormalizationConstant(int)
 	 */
 	public double getLogPartialNormalizationConstant( int parameterIndex ) throws Exception {
-		int i = 0, j = getSFIndex( parameterIndex ), k = parameterIndex - params[j];
+		int i = 0, j = getSFIndex( parameterIndex ), k = parameterIndex - startIndexOfParams[j];
 		double normOfOther = 0, myNorm = 0, myPartNorm = Double.NEGATIVE_INFINITY, n, p;
 		for( ; i < index.length; i++ ) {
 			if( index[i] == j ) {
@@ -310,10 +310,10 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#getNumberOfParameters()
 	 */
 	public int getNumberOfParameters() {
-		if( params == null ) {
+		if( startIndexOfParams == null ) {
 			return UNKNOWN;
 		} else {
-			return params[score.length];
+			return startIndexOfParams[score.length];
 		}
 	}
 
@@ -335,7 +335,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 */
 	public void setParameters( double[] params, int start ) {
 		for( int i = 0; i < score.length; i++ ) {
-			score[i].setParameters( params, start + this.params[i] );
+			score[i].setParameters( params, start + this.startIndexOfParams[i] );
 		}
 	}
 
@@ -368,7 +368,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 */
 	public void addGradientOfLogPriorTerm( double[] grad, int start ) throws Exception {
 		for( int i = 0; i < score.length; i++ ) {
-			((DifferentiableStatisticalModel)score[i]).addGradientOfLogPriorTerm( grad, start + params[i] );
+			((DifferentiableStatisticalModel)score[i]).addGradientOfLogPriorTerm( grad, start + startIndexOfParams[i] );
 		}
 	}	
 	
