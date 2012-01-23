@@ -70,69 +70,108 @@ Finally, the return value of the method
 indicates if a \SeqScore~has been initialized, i.e., all parameters have been set to some (initial or learned) value and the \SeqScore~is
 ready to score \Sequence s.
 
-\subsection{\DiffSS}
+\subsection{DifferentiableSequenceScores}
+\renewcommand{\codefile}{../../de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.java}
+\setcounter{off}{68}
 
-\subsection{\StatMod}
+The interface \DiffSS~extends \SeqScore~ and adds all methods that are necessary for a numerical optimization of the parameters
+of a \SeqScore. This especially includes the computation of the gradient w.r.t. the parameters for a given input \Sequence.
 
-The first method just requires the specification of the \Sequence~object for which the likelihood is to be computed:
-\addtocounter{off}{24}
+Before we can start a numerical optimization, we first need to specify initial parameters. \DiffSS declares two 
+methods for that purpos. The first is
 \code{1}
-If the \TrainSM~has not been trained prior to calling this method, it is allowed to throw a \lstinline+NotTrainedException+. The meaning of this method is slightly different for inhomogeneous, that is position-dependent, and homogeneous models. In case of an inhomogeneous model, for instance a position weight matrix, the specified \Sequence~must be of the same length as the model, i.e. the number of columns in the weight matrix. Otherwise an Exception should be thrown, since users may be tempted to misinterpret the return value as a probability of the complete, possibly longer or shorter, provided sequence.
-In case of homogeneous models, for instance homogeneous Markov models, this method must return the likelihood of the complete sequence. Since this is not always the desired result, to other methods are specified, which allow for computing the likelihood of sub-sequences. This method should also check if the provided \Sequence~is defined over the same \AlphabetContainer~as the model.
+which is tailored to initializing the parameters from a given data set. The parameters have the following meaning: \lstinline+index+ is the index of the class this \DiffSS~ represents.
+For some parameterizations, we can either optimize (and initialize) only the free parameters of the model, i.e., excluding parameters with values that can be computed from the values of a subset of the remaining parameters, or we can optimize all parameters. For example such parameters could be those of a DNA dice, where the probability of one nucleotide is fixed if we know the probabilities of all other nucleotides.
+If \lstinline+freeParams+ is \lstinline+true+, only the free parameters are used.
+The array \lstinline+data+ holds the input data, where \lstinline+data[index]+ holds the data for the current class, and \lstinline+weights+ are the weights on each \Sequence~in \lstinline+data+.
 
-The first of these methods is
-\addtocounter{off}{37}
-\code{1}
-which computes the likelihood of the sub-sequence starting at position \lstinline+startpos+. The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos))+.
-
-The second method reads
-\addtocounter{off}{40}
-\code{1}
-and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))+.
-Only the last method must be implemented if we decide for extending \AbstractTrainSM, since the previous two can again be perceived as special cases.
-
-In some cases, for instance for very long sequences, the computation of the likelihood may lead to numerical problems. Hence, the \TrainSM~interface in complete analogy defines methods for computing the log-likelihood. These methods are
-\addtocounter{off}{32}
-\code{1}
-\addtocounter{off}{28}
-\code{1}
-\addtocounter{off}{28}
-\code{0}
-Although the implementation of the log-variants is not required if you extend \AbstractTrainSM, we strongly recommend to also implement \lstinline+getLogProbFor(Sequence,int,int)+ because otherwise it defaults to \lstinline+Math.log(getProbFor(Sequence,int,int))+ and, hence, inherits numerical problems that may occur for this method.
-
-If we want to use Bayesian principles for learning the parameters of a model, we need to specify a prior distribution on the parameter values. In some cases, for instance for using MAP estimation in an expectation maximization (EM) algorithm, it is not only necessary to estimate the parameters taking the prior into account, but also to know the value of the prior (or a term proportional to it). For this reason, the \TrainSM~interface defines the methods
-\addtocounter{off}{11}
-\code{0}
-and
+The second method for initialization is
 \addtocounter{off}{13}
 \code{0}
-which return this prior term and its logarithm, respectively. In the default implementation of \AbstractTrainSM, the first method defaults to \lstinline+Math.exp(getLogPriorTerm())+.
+which initializes all parameters randomly, where the exact method for drawing parameter values is implementation-specific.
 
-If the concept of a prior is not applicable for a certain model or other reasons prevent you from implementing these methods, \lstinline+getLogPriorTerm()+ should return \lstinline+Double.NEGATIVE_INFINITY+.
+Like for the method \lstinline+getLogScore+ of \SeqScore, there are three methods for computing the gradient w.r.t. the parameters.
+The first is
+\addtocounter{off}{21}
+\code{0}
+where \lstinline+seq+ is the \Sequence~for which the gradient is to be computed, and \lstinline+indices+ and \lstinline+partialDer+ are lists that shall be filled with the indexes and values of the partial derivation, respectively. Assume that we implement a \DiffSS~$f$~with $N$ parameters and $d_i = \frac{\partial \log f}{\partial \lambda_i}$ is the partial derivation of the log-score w.r.t. the $i$-th parameter of $f$. Then we would add the index $i$ to \lstinline+indices+ and (before subsequent additions to \lstinline+indices+ or \lstinline+partialDer+) add $d_i$ to \lstinline+partialDer+. Partial derivations, i.e., components of the gradient, that are zero may be omitted.
 
-Generative \TrainSM s can also be used to create new, artificial data according to the model assumptions. For this purpose, the \TrainSM~interface specifies a method
+The other two methods
+\addtocounter{off}{24}
+\code{0}
+and
+\addtocounter{off}{28}
+\code{0}
+additionally allow for the specification of a start (and end) position within the \Sequence~\lstinline+seq+ in the same manner as specified for \lstinline+getLogScore+ of \SeqScore.
+
+The method
+\addtocounter{off}{11}
+\code{0}
+returns the number of parameters ($N$ in the example above) of parameters of this \DiffSS. It is used, for example, to create temporary arrays for the summation of gradients during numerical optimization.
+
+Since numerical optimization for non-convex problems may get stuck in local optima, we often need to restart numerical optimization multiple times from different initial values of the parameters. As the number of starts that is required to yield the global optimum with high probability is highly score-specific, \DiffSS~defines a method
+\addtocounter{off}{8}
+\code{0}
+that returns the number of starts that is recommended by the developer of this \DiffSS. If multiple \DiffSS~are used in a numerical optimization (for instance for the different classed), the maximum of these values is used in the optimization. If your parameterization is known to be convex, this method should return 1.
+
+The currently set parameters (either by initialization or explicitly, see below) can be obtained by
+\addtocounter{off}{16}
+\code{0}
+and new parameter values may be set by
+\addtocounter{off}{12}
+\code{0}
+where \lstinline+start+ is the index of the value for the first parameter of this \DiffSS~ within \lstinline+params+.
+
+Finally, the method
+\addtocounter{off}{12}
+\code{0}
+returns the class parameter for a given class probability. The default implementation in the abstract class \AbstractDiffSS~returns \lstinline+Math.log(classProb)+. This abstract class also provides standard implementations for many of the other methods.
+
+\subsection{StatisticalModels}
+\renewcommand{\codefile}{../../de/jstacs/sequenceScores/statisticalModels/StatisticalModel.java}
+\setcounter{off}{122}
+
+\StatMod s extend the specification of \SeqScore s by the computation of proper (normalized) likelihoods for input sequences.
+To this end, it defines three methods for computing the log-likelihood of a \Sequence~given a \StatMod~and its current parameter values.
+
+The first method just requires the specification of the \Sequence~object for which the log-likelihood is to be computed:
+\code{0}
+If the \StatMod~has not been trained prior to calling this method, it is allowed to throw an \lstinline+Exception+. The meaning of this method is slightly different for inhomogeneous, that is position-dependent, and homogeneous models. In case of an inhomogeneous model, for instance a position weight matrix, the specified \Sequence~must be of the same length as the model, i.e. the number of columns in the weight matrix. Otherwise an Exception should be thrown, since users may be tempted to misinterpret the return value as a probability of the complete, possibly longer or shorter, provided sequence.
+In case of models that can handle \Sequence s of varying lengths, for instance homogeneous Markov models, this method must return the likelihood of the complete sequence. Since this is not always the desired result, to other methods are specified, which allow for computing the likelihood of sub-sequences. This method should also check if the provided \Sequence~is defined over the same \AlphabetContainer~as the model.
+
+The second method is
+\addtocounter{off}{-28}
+\code{0}
+which computes the log-likelihood of the sub-sequence starting at position \lstinline+startpos+. The resulting value of the log-likelihood must be the same as if the user had called \lstinline+getLogProbFor(sequence.getSubSequence(startpos))+.
+
+The third method reads
+\addtocounter{off}{-38}
+\code{0}
+and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))+.
+
+If we want to use Bayesian principles for learning the parameters of a model, we need to specify a prior distribution on the parameter values. In some cases, for instance for using MAP estimation in an expectation maximization (EM) algorithm, it is not only necessary to estimate the parameters taking the prior into account, but also to know the value of the prior (or a term proportional to it). For this reason, the \StatMod~interface defines the method
+\addtocounter{off}{77}
+\code{0}
+which returns the logarithm of this prior term.
+
+If the concept of a prior is not applicable for a certain model or other reasons prevent you from implementing this method, \lstinline+getLogPriorTerm()+ should return \lstinline+Double.NEGATIVE_INFINITY+.
+
+\StatMod s can also be used to create new, artificial data according to the model assumptions. For this purpose, the \StatMod~interface specifies a method
 \addtocounter{off}{50}
 \code{1}
-wich returns a \DataSet~of \lstinline+numberOfSequences+ \Sequence s drawn from the model using its current parameter values. The second parameter \lstinline+seqLength+ allows for the specification of the lenghts of the drawn \Sequence s. For inhomogeneous model, which inherently define the length of possible sequence, this parameter should be \lstinline+null+ or an array of length 0. For homogeneous models, the lengths may either be specified for all drawn sequences by a single \lstinline+int+ value or by an array of length \lstinline+numberOfSequences+ specifying the length of each drawn sequence independently.
+which returns a \DataSet~of \lstinline+numberOfSequences+ \Sequence s drawn from the model using its current parameter values. The second parameter \lstinline+seqLength+ allows for the specification of the lenghts of the drawn \Sequence s. For inhomogeneous model, which inherently define the length of possible sequence, this parameter should be \lstinline+null+ or an array of length 0. For variable-length models, the lengths may either be specified for all drawn sequences by a single \lstinline+int+ value or by an array of length \lstinline+numberOfSequences+ specifying the length of each drawn sequence independently.
 
-The implementation of this method is not always possible. In its default implementation in \AbstractTrainSM, this method just throws an Exception and must be explicitly overridden to be functional.
+The implementation of this method is not always possible. In its default implementation in the abstract implementations of \StatMod, this method just throws an Exception and must be explicitly overridden to be functional.
 
-
-
-
-
-
-\addtocounter{off}{10}
+The last method defined in \StatMod~ is
+\addtocounter{off}{11}
 \code{0}
 which returns the maximum number of preceeding positions that are considered for (conditional) probabilities.
 For instance, for a position weight matrix, this method should return 0, whereas for a homogeneous Markov model of order 2, it should return 2.
 
+\subsubsection{TrainableStatisticalModels}
 
-
-
-\subsubsection{\TrainSM}
-
-Statistical models that can be learned on a single input data set are represented by the interface \TrainSM~of Jstacs. In most cases, such models are learned by generative learning principles like maximum likelihood (ML) or maximum a-posteriori (MAP). For models that are learned from multiple data sets, commonly by discriminative learning principles, Jstacs provides another interface \DiffSM, which will be presented in the next -sub-section.
+Statistical models that can be learned on a single input data set are represented by the interface \TrainSM~of Jstacs. In most cases, such models are learned by generative learning principles like maximum likelihood (ML) or maximum a-posteriori (MAP). For models that are learned from multiple data sets, commonly by discriminative learning principles, Jstacs provides another interface \DiffSM, which will be presented in the next sub-section.
 
 In the following, we briefly describe all methods that are defined in the \TrainSM~interface. For convenience, an abstract implementation \AbstractTrainSM~of \TrainSM~exists, which provides standard implementations for many of these methods.
 
@@ -178,6 +217,9 @@ We can also create permuted Markov models of order $1$ and $2$, where the positi
 Homogeneous Markov models are created by
 \addtocounter{off}{1}
 \code{0}
-where the first parameter again specifies the alphabet, the second parameter 
+where the first parameter again specifies the alphabet, the second parameter is the equivalent sample size, and the third parameter is the order of the Markov model.
 
-\subsection{\DiffSM}
+
+
+\subsubsection{DifferentiableStatisticalModels}
+
