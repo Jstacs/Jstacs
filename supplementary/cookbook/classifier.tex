@@ -116,5 +116,32 @@ Based on this array, we can create a \PerformanceMeasureParameterSet~that only c
 
 \subsection{Assessment}\label{Assessment}
 
+If we like to assess the performance of any classifier based on an array of data sets that is not split into test and train data, we have to use some repeated procedure. In Jstacs, we provide the \ClassifierAssessment~that is the abstract super class of any such an procedure. We have already implemented the most widely used procedures (cf. \KFoldCrossValidation~and \RepeatedHoldOutExperiment).
+
+Before performing a \ClassifierAssessment, we have to define a set of numerical performance measures. The performance measure have to be numerical to allow for an averaging. The most simple way to create such a set is
 \addtocounter{off}{6}
-\code{4}
+\code{0}
+However, you can choose other measures as described in the previous subsection.
+
+In this subsection, we exemplarily present how to perfrom a k-fold cross validation in Jstacs. First, we have to create an instance of \KFoldCrossValidation. There several constructor to do so. Here, we use the constructor that used \AbstractClassifier s. 
+
+\addtocounter{off}{2}
+\code{0}
+
+Second, we have to specify the parameters of the \KFoldCrossValidation.
+
+\stepcounter{off}
+\code{0}
+
+These parameter are
+the partition method, i.e., the way how to count entries during a partioning,
+the sequence length for the test data,
+a switch indicating whether an exception should be thrown if a performance measure could not be computed (cf. \lstinline+evaluate+ in \AbstractClassifier),
+and the number of repeats $k$.
+
+Now, we are able to perform a \ClassifierAssessment~just by calling the method \lstinline+assess+.
+
+\stepcounter{off}
+\code{0}
+
+We print the result (cf. \ListResult) of this assessment to standard out. If we like to perform other \ClassifierAssessment s, as for instance, a \RepeatedHoldOutExperiment, we have to use a specific \ParameterSet (cf. \KFoldCrossValidation~and \KFoldCrossValidationAssessParameterSet).

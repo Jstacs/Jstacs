@@ -252,7 +252,7 @@ public class CodeExampleTest {
 		
 		 
 		AbstractPerformanceMeasure[] m = { new PRCurve(), new ROCCurve() };
-		PerformanceMeasureParameterSet mp = new PerformanceMeasureParameterSet( 2, m );
+		PerformanceMeasureParameterSet mp = new PerformanceMeasureParameterSet( m );
 		ResultSet rs = trainedClassifier.evaluate( mp, true, test );
 		 
 		REnvironment r = null;

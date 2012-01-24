@@ -30,7 +30,9 @@ import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMi
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.AucPR;
 import de.jstacs.classifiers.performanceMeasures.AucROC;
 import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
@@ -74,6 +76,7 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.sampling.VarianceRatioBurnInTest;
 import de.jstacs.sampling.VarianceRatioBurnInTestParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.IndependentProductDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSMParameterSet;
@@ -512,11 +515,10 @@ public class NewCodeExampleTest {
 		
 	}
 	
-	public static void classifier() throws Exception {
-		
+//classifier-section
+	public static void classifier() throws Exception {		
 		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
 		DataSet[] data = null;//TODO create
-		
 		
 		//create models
 		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
@@ -524,15 +526,22 @@ public class NewCodeExampleTest {
 		//create and train model based classifier
 		AbstractClassifier cl = new TrainSMBasedClassifier( pwm, pwm );
 		
+		//create the parameters for GenDisMixClassifier
+		GenDisMixClassifierParameterSet ps = new GenDisMixClassifierParameterSet( alphabet, 10, (byte) 10, 1E-6, 1E-9, 1, false, KindOfParameter.PLUGIN, true, 2 );
+		
 		//create scoring functions
-		BayesianNetworkDiffSM pwm2 = new BayesianNetworkDiffSM( alphabet, 10, 4.0, true, new InhomogeneousMarkov(0) );
+		DifferentiableStatisticalModel pwm2 = new BayesianNetworkDiffSM( alphabet, 10, 4.0, true, new InhomogeneousMarkov(0) );
+		
+		//create a GenDisMixClassifier using ML
+		cl = new GenDisMixClassifier(ps, DoesNothingLogPrior.defaultInstance, LearningPrinciple.ML, pwm2, pwm2 );
 		
 		//create log prior
 		LogPrior prior = new CompositeLogPrior();
 		
-		//create and train GenDisMix classifier
-		GenDisMixClassifierParameterSet ps = new GenDisMixClassifierParameterSet( alphabet, pwm2.getLength(), (byte) 10, 1E-6, 1E-9, 1, false, KindOfParameter.PLUGIN, true, 2 );
+		//create a GenDisMixClassifier using MSP
 		cl = new GenDisMixClassifier(ps, prior, LearningPrinciple.MSP, pwm2, pwm2 );
+		
+		//create a GenDisMixClassifier using some hybrid learning principle
 		cl = new GenDisMixClassifier(ps, prior, new double[]{0.4,0.1,0.5}, pwm2, pwm2 );
 		
 		//train
@@ -543,7 +552,8 @@ public class NewCodeExampleTest {
 		
 		//define performance measures
 		PerformanceMeasureParameterSet measures = PerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
-		measures = new PerformanceMeasureParameterSet( 2, new AucROC(), new AucPR() );
+		AbstractPerformanceMeasure[] m = {new AucROC(), new AucPR()};
+		measures = new PerformanceMeasureParameterSet( m );
 		
 		//assess model based classifier on test data
 		System.out.println( cl.evaluate( measures, true, data ) );
