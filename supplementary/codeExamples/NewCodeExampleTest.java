@@ -1,6 +1,8 @@
 package supplementary.codeExamples;
 
+import java.io.OutputStream;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Random;
 
 import org.biojava.bio.seq.SequenceIterator;
@@ -10,6 +12,10 @@ import org.biojavax.bio.seq.RichSequenceIterator;
 
 import de.jstacs.DataType;
 import de.jstacs.Storable;
+import de.jstacs.algorithms.alignment.Alignment;
+import de.jstacs.algorithms.alignment.Alignment.AlignmentType;
+import de.jstacs.algorithms.alignment.cost.Costs;
+import de.jstacs.algorithms.alignment.cost.SimpleCosts;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.DifferentiableFunction;
 import de.jstacs.algorithms.optimization.DimensionException;
@@ -112,7 +118,10 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrain
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.StrandTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.ZOOPSTrainSM;
+import de.jstacs.utils.REnvironment;
+import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.SubclassFinder;
+import de.jstacs.utils.ToolBox;
 
 
 public class NewCodeExampleTest {
@@ -569,49 +578,56 @@ public class NewCodeExampleTest {
 	public static void alignment(){
 		
 		//create costs
+		Costs costs = new SimpleCosts( 0, 1, 1, 0.5 );
 		
+		Sequence seq1=null, seq2=null;
 		//create alignment of two string
-		
-		//create alignment of multiple strings
+		Alignment align = new Alignment( AlignmentType.GLOBAL, costs );
+		System.out.println( align.getAlignment( seq1, seq2 ) );
 		
 	}
 	
-	public void utils(){
+	public void utils() throws Exception{
 		
 		//create REnvironment
+		REnvironment re = new REnvironment();
 		
+		double[] values = new double[10];
 		//use REnvironment
+		re.createVector( "values", values );
 		
 		//plot
+		re.plotToPDF( "plot(values,t=\"l\");", "values.pdf", true );
 		
+		double[][] twodim = new double[5][5];
 		//ArrayHandler clone
+		ArrayHandler.clone( twodim );
 		
 		//ArrayHandler create
+		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, 10, 4.0 );
+		TrainableStatisticalModel[] models = ArrayHandler.createArrayOf( pwm, 10 );
 		
 		//ArrayHandler cast
+		BayesianNetworkTrainSM[] bns = ArrayHandler.cast( BayesianNetworkTrainSM.class, models );
 		
 		//ToBo.max
+		double max = ToolBox.max( values );
 		
 		//ToBo.sum
-		
-		//ToBo.corr
+		double sum = ToolBox.sum( values );
 		
 		//ToBo.maxIndex
-		
-		
-		//FileManager, write
-		
-		//FileManager, read
-		
-		//FilenameFilters
+		int maxIndex = ToolBox.getMaxIndex( values );
 		
 		//SafeOutputStream
+		OutputStream stream = SafeOutputStream.getSafeOutputStream( System.out );
 		
 		//IntList
 		
 		//DoubleList
 		
 		//SubclassFinder
+		LinkedList<Class<? extends TrainableStatisticalModel>> list = SubclassFinder.findInstantiableSubclasses( TrainableStatisticalModel.class, "de.jstacs" );
 		
 		//UserTime
 		
