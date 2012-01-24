@@ -147,7 +147,6 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 
 	@Override
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights) throws Exception {
-		// TODO Auto-generated method stub
 		initializeFunctionRandomly( freeParams );
 	}
 
@@ -207,7 +206,6 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 	private static final String XML_TAG = LogisticDiffSS.class.getSimpleName(); 
 	
 	public String toString() {
-		//TODO
 		return Arrays.toString( parameter );
 	}
 }
