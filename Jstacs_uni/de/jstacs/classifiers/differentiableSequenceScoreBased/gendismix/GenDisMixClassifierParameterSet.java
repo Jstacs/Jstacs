@@ -54,9 +54,6 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 */
 	public GenDisMixClassifierParameterSet( StringBuffer xml ) throws NonParsableException {
 		super( xml );
-		if( parameters != null && parameters.size() == 7 ) {//TODO remove later
-			parameters.add( getThreadsParameter() );
-		}
 	}
 
 	/**

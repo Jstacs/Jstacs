@@ -9,3 +9,4 @@ Jens:
 gemeinsam:
 - ParameterSet: getName und getComment implementation - ich würde sie mittlerweile fast so lassen
 - move: NotTrainedException?
+- Tasks: TODO, FixMe
