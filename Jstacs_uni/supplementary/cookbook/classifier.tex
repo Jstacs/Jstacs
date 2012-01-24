@@ -1,11 +1,11 @@
-\setcounter{off}{515}%line containing: public static void classifier() throws Exception {
+\setcounter{off}{518}%line containing: public static void classifier() throws Exception {
 %
 Classifiers allow to classify, i.e., label, previously uncharacterized data. In Jstacs, we provide the abstract class \AbstractClassifier~that declares three important methods besides several others. 
 
 \begin{itemize}
   \item The first method trains a classifier, i.e., it somehow adjusts to the train data.
   
-  \addtocounter{off}{24}
+  \addtocounter{off}{30}
   \code{0}
   
   \item The second method classifies a given sequence. If we like to classify for instance the first sequence of a data set, we might use
@@ -15,7 +15,7 @@ Classifiers allow to classify, i.e., label, previously uncharacterized data. In 
 
   \item	The third method allows for assessing the performance. Typically this is done on some test data 
   
-  \addtocounter{off}{7}
+  \addtocounter{off}{8}
   \code{0}
   
   where \lstinline+measures+ is a \ParameterSet~of performance measures (cf. subsection~\ref{Performance}), \lstinline+true+ indicates that an exception should be thrown if a performance measure could not be computed, and \lstinline+data+ is an array of data sets, where dimension \lstinline+i+ contains data of class \lstinline+i+.
@@ -29,9 +29,9 @@ But at first, we will focus on classifiers. Any classifier in Jstacs is an exten
 
 The class \TrainSMBasedClassifier~implements a classifier on \TrainSM s, i.e., for each class the classifier holds a \TrainSM.
  
-If we like to build a binary classifier using PWMs for each class, we first create a PWM.
+If we like to build a binary classifier using PWMs for each class, we first create a PWM that is a \TrainSM.
 
-\addtocounter{off}{-27}
+\addtocounter{off}{-35}
 \code{0}
 
 Then we can use this instance to create the classifier using 
@@ -45,24 +45,71 @@ If we train a \TrainSMBasedClassifier, the train method of the internally used \
 
 \subsection{GenDisMixClassifier}\label{GenDisMixClassifier}
 
-\addtocounter{off}{3}
-\code{0}
+The class \GenDisMixClassifier~implements a classifier using the unified generative-discriminative learning principle to train the internally used \DiffSM s. In analogy to the \TrainSMBasedClassifier, the \GenDisMixClassifier holds for each class a \DiffSM.
+
+If we like to build a \GenDisMixClassifier, we have to provide the parameters for this classifier:
 
 \addtocounter{off}{3}
 \code{0}
 
+This line of code generate a \ParameterSet~for a \GenDisMixClassifier. It states 
+the used \AlphabetContainer,
+the sequence length,
+an indicator for the numerical algorithm that is used during training,
+an epsilon for stopping the numerical optimization,
+a line epsilon for stopping the line search within the numerical optimization,
+a start distance for the line search,
+a switch that indicates whether the free or all parameter should be used,
+an enum that indicates the kind of class parameter initialization,
+a switch that indicates whether normalization should be used during optimization,
+and the number of threads used during numerical optimization.
+
+If we like to build a binary classifier using PWMs for each class, we create a PWM that is a \DiffSM.
+
 \addtocounter{off}{3}
-\code{1}
+\code{0}
 
-Alternative
+Now, we are able to build a \GenDisMixClassifier~that uses the maximum likelihood learning principle.
 
-\addtocounter{off}{2}
+\addtocounter{off}{3}
+\code{0}
+
+In close analogy, we can build a \GenDisMixClassifier~that uses the maximum conditional likelihood learning principle, if we use \lstinline+LearningPrinciple.MCL+.
+
+However, if we like to use a Bayesian learning principle we have to specify a prior that represents our prior knowledge. One of the most popular priors is the product Dirichlet prior. We can create an instance of this prior using
+
+\addtocounter{off}{3}
+\code{0}
+
+This class utilizes methods of \DiffSM~(cf. \lstinline+getLogPriorTerm()+ and \lstinline+addGradientOfLogPriorTerm(double[], int)+) to provide the correct prior.
+
+Given a prior, we can build a \GenDisMixClassifier~using for instance the maximum supervised learning principle:
+
+\addtocounter{off}{3}
+\code{0}
+
+Again in close analogy, we can build a \GenDisMixClassifier~that uses the maximum a-posteriori learning principle, if we use \lstinline+LearningPrinciple.MAP+.
+ 
+Alternative, we can build a \GenDisMixClassifier~that utilize the unified generative-dicriminative learning principle. If we like to do so, we have to provide a weighting that sums to 1 and represents the weights for the conditional likelihood, the likelihood and the prior.
+
+\addtocounter{off}{3}
 \code{0}
 
 \subsection{Performance measures}\label{Performance}
 
+If we like to assess the performance of any classifier, we have to use the method \lstinline+evaluate+ (see begining of this section). The first argument of this method is a \PerformanceMeasureParameterSet~that hold the performance measures to be computed. The most simple way to create an instance is
+
 \addtocounter{off}{9}
 \code{0}
+
+which yields an instance with all standard performance measures of Jstacs and specified parameters. The first argument states that all performance measures should be included. If we would change the argument to \lstinline+true+, only numerical performance measures would be included an the returned instance would be a \NumericalPerformanceMeasureParameterSet. The other four arguments are parameters for some performance measures.
+
+Another way of creating a \PerformanceMeasureParameterSet~is to directly use performance measures extending the class \AbstractPerformanceMeasure. For instance if we like to use the area under the curve (auc) for ROC and PR curve, we create 
+
+\addtocounter{off}{1}
+\code{0}
+
+Based on this array, we can create a \PerformanceMeasureParameterSet~that only contains these performance measures.
 
 \addtocounter{off}{1}
 \code{0}
