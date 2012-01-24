@@ -139,7 +139,7 @@ public class Alignment {
 		this.s1 = s1; this.startS1 = startS1;
 		this.s2 = s2; this.startS2 = startS2;
 		
-		int l1 = endS1-startS1, l2 = endS2-startS2, start, end;
+		int l1 = endS1-startS1, l2 = endS2-startS2, start, end, h;
 		if( Math.abs(l1-l2) > offDiagonal ) throw new IllegalArgumentException("The number of secondary diagonals must be at least as large as the difference of the lengths, but is "+offDiagonal+" < "+Math.abs(l1-l2)+".");
 		
 		//initialize & compute
@@ -150,7 +150,12 @@ public class Alignment {
 			
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,Math.max(0,i+offDiagonal));//due to offDiagonal=Integer.MAX_VALUE
+				h = i+offDiagonal;
+				if( h > 0 ) {//due to possible overflow
+					end = Math.min(l2,h);
+				} else {
+					end = l2;
+				}
 				for( int j = start; j <= end; j++ ) {
 					e[i][j] = new E( i, j );
 					f[i][j] = new F( i, j );
@@ -160,7 +165,12 @@ public class Alignment {
 		} else {
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,Math.max(0,i+offDiagonal));//due to offDiagonal=Integer.MAX_VALUE
+				h = i+offDiagonal;
+				if( h > 0 ) {//due to possible overflow
+					end = Math.min(l2,h);
+				} else {
+					end = l2;
+				}
 				for( int j = start; j <= end; j++ ) {
 					e[i][j].compute();
 					f[i][j].compute();
