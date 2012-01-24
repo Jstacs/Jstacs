@@ -83,7 +83,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 * @param norm
 	 *            the switch for using a normalization while optimization
 	 * @param threads
-	 * 			  the {@link NumberFormatException} of threads used during an optimization
+	 * 			  the number of threads used during an optimization
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
@@ -124,7 +124,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 	 * @param norm
 	 *            the switch for using a normalization while optimization
 	 * @param threads
-	 * 			  the {@link NumberFormatException} of threads used during an optimization
+	 * 			  the number of threads used during an optimization
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
