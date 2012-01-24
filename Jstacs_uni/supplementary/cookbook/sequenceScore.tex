@@ -147,7 +147,7 @@ which computes the log-likelihood of the sub-sequence starting at position \lsti
 The third method reads
 \addtocounter{off}{-38}
 \code{0}
-and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))+.
+and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))+. %TODO PROBLEM +
 
 If we want to use Bayesian principles for learning the parameters of a model, we need to specify a prior distribution on the parameter values. In some cases, for instance for using MAP estimation in an expectation maximization (EM) algorithm, it is not only necessary to estimate the parameters taking the prior into account, but also to know the value of the prior (or a term proportional to it). For this reason, the \StatMod~interface defines the method
 \addtocounter{off}{77}
