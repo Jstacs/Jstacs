@@ -60,7 +60,16 @@
 \newcommand{\TrainSM}{\link{sequenceScores/statisticalModels/trainable}{TrainableStatisticalModel}}
 \newcommand{\TrainSMFactory}{\link{sequenceScores/statisticalModels/trainable}{TrainSMFactory}}
 \newcommand{\AbstractTrainSM}{\link{sequenceScores/statisticalModels/trainable}{AbstractTrainSM}}
+\newcommand{\StrandTrainSM}{\link{sequenceScores/statisticalModels/trainable/mixture}{StrandTrainSM}}
+\newcommand{\StrandDiffSM}{\link{sequenceScores/statisticalModels/differentiable/mixture}{StrandDiffSM}}
+\newcommand{\IndependentProductDiffSM}{\link{sequenceScores/statisticalModels/differentiable}{IndependentProductDiffSM}}
+
+
 \newcommand{\HomogeneousModel}{\link{sequenceScores/statisticalModels/trainable/discrete/homogeneous}{HomogeneousModel}}
+\newcommand{\HMMFactory}{\link{sequenceScores/statisticalModels/trainable/hmm}{HMMFactory}}
+\newcommand{\HigherOrderHMM}{\link{sequenceScores/statisticalModels/trainable/hmm/models}{HigherOrderHMM}}
+\newcommand{\TransitionElement}{\link{sequenceScores/statisticalModels/trainable/hmm/transitions/elements}{TransitionElement}}
+
 
 \newcommand{\DiffSM}{\link{sequenceScores/statisticalModels/differentiable}{DifferentiableStatisticalModel}}
 \newcommand{\DiffSS}{\link{sequenceScores/differentiable}{DifferentiableSequenceScore}}
@@ -81,3 +90,31 @@
 \newcommand{\KFoldCrossValidation}{\link{classifiers/assessment}{KFoldCrossValidation}}
 \newcommand{\RepeatedHoldOutExperiment}{\link{classifiers/assessment}{RepeatedHoldOutExperiment}}
 \newcommand{\KFoldCrossValidationAssessParameterSet}{\link{classifiers/assessment}{KFoldCrossValidationAssessParameterSet}}
+
+%finding the line numer of a specific line in the \codefile
+\newcommand{\lineIndex}[1]{
+  \setboolean{next}{true}
+  \setcounter{off}{0}
+
+  \openin\File=\codefile
+  \whiledo{\boolean{next}}{%\and{\boolean{next}}{\not\equal{\FileLine}{#1}}}{
+    \ReadNextLine{\File}
+    \ifthenelse{\boolean{next}}{\\stepcounter{off}}{}
+  }
+  \File
+  \closein\File
+  \codefile: \arabic{off}
+}
+
+\newboolean{next}
+\newcommand{\FileLine}{}
+\newread\File
+
+\newcommand{\ReadNextLine}[1]{
+  \ifthenelse{\boolean{next}}{
+    \read#1 to \FileLine
+    \ifeof#1\setboolean{next}{false}
+    \else % if last line already is read, EOF appears here
+    \fi
+  }{}
+}
