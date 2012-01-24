@@ -147,7 +147,7 @@ which computes the log-likelihood of the sub-sequence starting at position \lsti
 The third method reads
 \addtocounter{off}{-38}
 \code{0}
-and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline+getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))+. %TODO PROBLEM +
+and computes the likelihood of the sub-sequence starting at position \lstinline+startpos+ up to position \lstinline+endpos+ (inclusive). The resulting value of the likelihood must be the same as if the user had called \lstinline!getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))!.
 
 If we want to use Bayesian principles for learning the parameters of a model, we need to specify a prior distribution on the parameter values. In some cases, for instance for using MAP estimation in an expectation maximization (EM) algorithm, it is not only necessary to estimate the parameters taking the prior into account, but also to know the value of the prior (or a term proportional to it). For this reason, the \StatMod~interface defines the method
 \addtocounter{off}{77}
@@ -219,11 +219,147 @@ Homogeneous Markov models are created by
 \code{0}
 where the first parameter again specifies the alphabet, the second parameter is the equivalent sample size, and the third parameter is the order of the Markov model.
 
+We can create a ZOOPS model with a PWM as motif model and the homogeneous Markov model created above as flanking model using
 \addtocounter{off}{1}
 \code{0}
+where the third parameter contains the hyper-parameters for the two components of the ZOOPS model, and the last boolean allows two switch training of the flanking model on or off. In the example, we choose to train the flanking model and the motif model.
 
+After we created a \TrainSM, we can train it on input data. For instance, we train the PWM created above on a training \DataSet~\lstinline+ds+ by calling:
 \addtocounter{off}{3}
 \code{0}
 
+Instead of using the \TrainSMFactory, we can also create \TrainSM s directly using their constructors. For example, we create a homogeneous Markov model of order $0$ by calling
+\addtocounter{off}{3}
+\code{0}
+or we create a Bayesian network of (full) order $1$, i.e., a Bayesian tree, of length $8$ learned by MAP with an equivalent sample size of $4.0$ with
+\addtocounter{off}{3}
+\code{0}
+
+Due to the complexity of hidden Markov models, these have their own factory class called \HMMFactory.
+To create a new hidden Markov model, we first need to define the parameters of the training procedure, which is Baum-Welch training in the example
+\addtocounter{off}{3}
+\code{0}
+The parameters provided to that \ParameterSet~are the number of restarts of the training, the termination condition for each training, and the number of threads used for the (multi-threaded) optimization.
+
+Then we create the emissions of the HMM. Here, we choose two discrete emissions over the \DNAAlphabet:
+\addtocounter{off}{1}
+\code{0}
+For the first emission, we use a BDeu prior with equivalent sample size $4$, whereas for the second emission, we explictly specify the hyper-parameters of the BDe prior.
+
+Finally, we use the \HMMFactory~to create a new ergodic, i.e., fully connected, HMM for this training procedure and these emissions:
+\addtocounter{off}{1}
+\code{0}
+
+For non-standard architectures of the HMM, we can also use a constructor of \HigherOrderHMM, although we only use order $1$ in the example,
+\addtocounter{off}{3}
+\code{4}
+The arguments are: the training parameters, the names of the (two) states, the emissions as specified above, and \TransitionElement s that specify the transitions allowed in the HMM. In the example, we may start in the $0$-th state (A) represented by the first \TransitionElement, from that state we may either loop in state $0$ or proceeed to state $1$, and from state $1$ we may only go back to state $0$. For all transitions, we specify hyper-parameters for the corresponding Dirichlet prior.
+
+Once an HMM is created, we can use a method \lstinline+getGraphvizRepresentation+ to obtain the content of a .dot file with a graphical representation (nodes and edges) of the HMM:
+\addtocounter{off}{6}
+\code{0}
+
+Another important type of \TrainSM s within Jstacs are mixture models. Such mixture models can be mixtures of any sub-class of \TrainSM and can be learned either by expectation-maximization (EM) or by Gibbs sampling.
+
+We create a mixture model of two PWMs learned by expectation maximization using the constructor
+\addtocounter{off}{3}
+\code{0}
+where the first argument is the length of the model, the second are the \TrainSM s used as mixture components, the third is the number of restarts of the EM, the fourth are the hyper-parameters for the prior on the component probabilities, i.e., mixture weights, the fifth is the termination condition, and the last is the parameterization. For mixture models we can choose between the parameterization in terms of probabilities (called \lstinline+THETA+) and the so called ``natural parameterization'' as log-probabilities (called \lstinline+LAMBDA+).
+
+If we want to use Gibbs sampling instead of EM, we use the constructor
+\addtocounter{off}{3}
+\code{0}
+where the first 4 arguments remain unchanged, the fifth is the number of intial steps in the stationary phase, the sixth is the total number of stationary samplings, and the seventh is a burn-in test for determining the end of the burn-in phase and the start of the stationary phase. 
+
+A special case of a mixture model is the \StrandTrainSM, which is a mixture over the two strands of DNA. For both strands, the same component \TrainSM~is used but it is evaluated once for the original \Sequence~and once for its reverse complement.
+We construct a \StrandTrainSM~of the inhomogeneous Markov model created by the \TrainSMFactory~by calling
+\addtocounter{off}{3}
+\code{0}
+where the first argument is the component \TrainSM, the second is the number of starts, the third is the probability of the forward strand (which is fixed in the example but can also be learned), the fourth is the hyper-parameter for drawing initial strands ($1$ results in a uniform distribution on the simplex), the fifth is the termination condition, and the last is the parameterization (as above).
+
+
 \subsubsection{DifferentiableStatisticalModels}
+\setcounter{tempcounter}{\arabic{off}}
+
+\renewcommand{\codefile}{../../de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.java}
+\setcounter{off}{50}
+
+\DiffSM s are \StatMod s that also inherit the properties of \DiffSS s. That means, \DiffSM s define a proper likelihood over the input sequences and at the same time can compute partial derivations w.r.t. their parameters.
+
+This also means that they can compute a - not necessarily normalized - log-score using the \lstinline+getLogScore+ methods and normalized log-likelihoods using the \lstinline+getLogProb+ methods. In many cases it is more efficient to use the \lstinline+getLogScore+ methods and, in addition, to compute the normalization constant to obtain proper probabilities seperately. Hence,
+\DiffSM~defines a method
+\code{0}
+that returns the logarithm of that normalization constant, which only depends on the current parameter values but not on the input sequence. For computing the gradients with respect to the parameters, we also need the partial derivations of the log-normalization constant with respect to the parameters. To this end \DiffSM~ provides a method
+\addtocounter{off}{19}
+\code{0}
+that takes the (internal) index of the parameter for which the partial derivation shall be computed as the only argument.
+
+A similar schema is used for the prior on the parameters. In addition to the method \lstinline+getLogPriorTerm+ of \StatMod, the method
+\addtocounter{off}{36}
+\code{0}
+adds the values of the gradient of the log-prior with respect to all parameters to the given array \lstinline+grad+ starting at position \lstinline+start+.
+
+The method
+\addtocounter{off}{10}
+\code{0}
+returns \lstinline+true+ if the \DiffSM~is already normalized, that means if \lstinline+getLogScore+ already returns proper probabilities. If that is the case, \lstinline+getLogNormalizationConstant+ must always return $0$, and \lstinline+getLogPartialNormalizationConstant+ must return \lstinline+Double.NEGATIVE_INFINITY+ for all parameters.
+
+Finally,
+\addtocounter{off}{9}
+\code{0}
+returns the equivalent sample size used for the prior of this \DiffSM.
+
+\renewcommand{\codefile}{../codeExamples/NewCodeExampleTest.java}
+\setcounter{off}{\arabic{tempcounter}}
+
+The \DiffSM~implementations of standard models already exist in Jstacs.
+For example, we can create a Bayesian network of length $10$ with the network structure learned by means of the discriminative ``explaining away residual'' with
+\addtocounter{off}{15}
+\code{0}
+where the parameters of the \ParameterSet~are the \AlphabetContainer, the length and the equivalent sample size of the \DiffSM, a switch wether (generative) plug-in parameters shall be used and an object for the structure measure.
+
+An inhomogeneous Markov model of order $1$, length $8$, and with equivalent sample size $4.0$ is created by
+\addtocounter{off}{3}
+\code{0}
+
+\DiffSM s are mainly used for discriminative parameter learning in Jstacs. To discriminatively learn the parameters of two inhomogeneous Markov models as created above, we need the following three lines.
+\addtocounter{off}{3}
+\code{2}
+The discriminative learning principle used in the example is maximum supervised posterior (MSP). For details about the \GenDisMixClassifier~used in the example, see section~\ref{GenDisMixClassifier}
+
+A homogeneous Markov models of order $3$ with equivalent sample size $4.0$ is created by the constructor
+\addtocounter{off}{6}
+\code{0}
+The last argument of this constructor is the expected length of the input sequences. This length is used to compute consistent hyper-parameters from the equivalent sample size for this class, since the (transition) parameters of a homogeneous Markov model are used for more than one position of an input sequence.
+
+Similar to hidden Markov models that are \TrainSM s, we can create a \DiffSM~hidden Markov model with the following lines:
+\addtocounter{off}{3}
+\code{5}
+The emissions and transitions of the hidden Markov model are the same as in the \TrainSM~case. However, we use training parameters for numerical optimization in this example.
+
+A mixture \DiffSM~of two inhomogeneous Markov models can be created by
+\addtocounter{off}{8}
+\code{0}
+where the first argument is the recommended number of restarts, and the second argument indicates if plug-in parameters shall be used.
+
+Similar to \TrainSM s, we can also define a mixture over the DNA strands with
+\addtocounter{off}{4}
+\code{0}
+where the first argument is the component \DiffSM, the second is the a-priori probability of the forward strand, the third is the recommended number of restarts, the fourth, again, indicates if plug-in parameters are used, and the fifth indicates on which strands the component \DiffSM~is initialized.
+
+We can use this \StrandDiffSM~together with a homogeneous Markov model as the flanking model to specify a ZOOPS \DiffSM~using the constructor
+\addtocounter{off}{3}
+\code{0}
+Here, the first argument specifies that we want to use ZOOPS (as opposed to OOPS, where each sequence contains a motif occurrence), the second is the lenght of the input sequences, the third is the number of restarts, the fourth switches plug-in parameters, the fifth and sixth are the flanking and motif model, respectively, the seventh specifies a position distribution for the motifs (where \lstinline+null+ defaults to a uniform distribution), and the last indicates if the flanking model is initialized (again).
+
+Sometimes it is useful to model different parts of a sequence by different \DiffSM s, for instance if we have some structural knowledge about the input sequences. To this end, Jstacs provides a class \IndependentProductDiffSM, for which we can specify the models of different parts independently. We create such a \IndependentProductDiffSM~by calling
+\addtocounter{off}{4}
+\code{0}
+where the first parameter is the equivalent sample size, the second switches plug-in parameters, and the remaining are the \DiffSM s to be combined. Besides this constructor, other constructors allow for specifying the lengths of the parts of a sequence to be modeled by the different \DiffSM s or the re-use of the same \DiffSM~for different, possibly remote, parts of an input sequence.
+
+Since \DiffSM s provide methods for computing log-likelihoods, for computing normalization constants, and for determining the gradient with respect to their parameters, they can also be learned generatively by numerical optimization. For this purpose, a wrapper class exists that creates a \TrainSM~out of any \DiffSM. We create such a wrapper object with
+\addtocounter{off}{4}
+\code{1}
+where we need to specify the \DiffSM~that shall be learned and the parameters of the numerical optimization (see section~\ref{Optimization} for details). By this means, we can use any \DiffSM~in the world of \TrainSM s as well, for instance to build a \TrainSMBasedClassifier (see next section).
+
 
