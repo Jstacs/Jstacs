@@ -1,15 +1,73 @@
-Classifiers allow to classify, i.e., label, previously uncharacterized data. In Jstacs, we provide the abstract class \AbstractClassifier~that declares a method for classifing sequences.
+\setcounter{off}{515}%line containing: public static void classifier() throws Exception {
+%
+Classifiers allow to classify, i.e., label, previously uncharacterized data. In Jstacs, we provide the abstract class \AbstractClassifier~that declares three important methods besides several others. 
 
-\setcounter{off}{542}
-\code{0}
+\begin{itemize}
+  \item The first method trains a classifier, i.e., it somehow adjusts to the train data.
+  
+  \addtocounter{off}{24}
+  \code{0}
+  
+  \item The second method classifies a given sequence. If we like to classify for instance the first sequence of a data set, we might use
+  
+  \addtocounter{off}{3}
+  \code{0}
 
-In addition, this class declares a method for assessing the performance of any classifier.
+  \item	The third method allows for assessing the performance. Typically this is done on some test data 
+  
+  \addtocounter{off}{7}
+  \code{0}
+  
+  where \lstinline+measures+ is a \ParameterSet~of performance measures (cf. subsection~\ref{Performance}), \lstinline+true+ indicates that an exception should be thrown if a performance measure could not be computed, and \lstinline+data+ is an array of data sets, where dimension \lstinline+i+ contains data of class \lstinline+i+.
+\end{itemize}
 
-%TODO
+Sometimes data is not split into test and train data for several diverse reasons, as for instance limited amount of data. In such cases, it is recommended to utilize some repeated procedure to split the data, train on one part and classify on the other part. In Jstacs, we provide the abstract class \ClassifierAssessment~that allows to implement such procedures. In subsection~\ref{Assessment}, we describe how to use \ClassifierAssessment~and its extension.
 
-Any classifier in Jstacs is an extension of the \AbstractClassifier. However in this section, we focus on two concrete implementaions, namely \TrainSMBasedClassifier~(cf. subsection~\ref{TrainSMBasedClassifier}) and \GenDisMixClassifier~(cf. subsection~\ref{GenDisMixClassifier}). 
+But at first, we will focus on classifiers. Any classifier in Jstacs is an extension of the \AbstractClassifier. In this section, we present on two concrete implementations, namely \TrainSMBasedClassifier~(cf. subsection~\ref{TrainSMBasedClassifier}) and \GenDisMixClassifier~(cf. subsection~\ref{GenDisMixClassifier}). 
 
 \subsection{TrainSMBasedClassifier}\label{TrainSMBasedClassifier}
+
+The class \TrainSMBasedClassifier~implements a classifier on \TrainSM s, i.e., for each class the classifier holds a \TrainSM.
+ 
+If we like to build a binary classifier using PWMs for each class, we first create a PWM.
+
+\addtocounter{off}{-27}
+\code{0}
+
+Then we can use this instance to create the classifier using 
+
+\addtocounter{off}{3}
+\code{0}
+
+Thereby, we do not need to clone the PWM instance, as this is done internally for safety reasons. If we like to build a classifier that allows to distinguish between $N$ classes, we use the same constructor but provide $N$ \TrainSM s.
+
+If we train a \TrainSMBasedClassifier, the train method of the internally used \TrainSM s is called. For classifying a sequence, the \TrainSMBasedClassifier calls \lstinline+getLogProbFor+ of the internally used \TrainSM s and incoorperates some class weight.
+
 \subsection{GenDisMixClassifier}\label{GenDisMixClassifier}
-\subsection{Performance measures}
-\subsection{Assessment}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{0}
+
+\addtocounter{off}{3}
+\code{1}
+
+Alternative
+
+\addtocounter{off}{2}
+\code{0}
+
+\subsection{Performance measures}\label{Performance}
+
+\addtocounter{off}{9}
+\code{0}
+
+\addtocounter{off}{1}
+\code{0}
+
+\subsection{Assessment}\label{Assessment}
+
+\addtocounter{off}{6}
+\code{4}
