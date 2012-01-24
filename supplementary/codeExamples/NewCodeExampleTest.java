@@ -372,7 +372,7 @@ public class NewCodeExampleTest {
 		TrainableStatisticalModel imm = TrainableStatisticalModelFactory.createInhomogeneousMarkovModel( alphabet, 12, 4.0, (byte) 2 );
 		TrainableStatisticalModel pmm = TrainableStatisticalModelFactory.createPermutedMarkovModel( alphabet, 7, 4.0, (byte) 1 );
 		TrainableStatisticalModel hmm = TrainableStatisticalModelFactory.createHomogeneousMarkovModel( alphabet, 400.0, (byte) 3 );
-		TrainableStatisticalModel zoops = TrainableStatisticalModelFactory.createZOOPS( pwm, hmm, new double[]{4,4}, true );
+		TrainableStatisticalModel zoops = TrainableStatisticalModelFactory.createZOOPS( pwm, hmm, new double[]{4,4}, false );
 		
 		//train the PWM
 		pwm.train( ds );
@@ -419,19 +419,19 @@ public class NewCodeExampleTest {
 		DataSet[] data = null;//TODO create
 		
 		//create BNSF
-		BayesianNetworkDiffSM bnsf = new BayesianNetworkDiffSM( new BayesianNetworkDiffSMParameterSet( alphabet, 10, 4.0, true, new BTExplainingAwayResidual( new double[]{4.0,4.0} ) ) );
+		BayesianNetworkDiffSM bnDsm = new BayesianNetworkDiffSM( new BayesianNetworkDiffSMParameterSet( alphabet, 10, 4.0, true, new BTExplainingAwayResidual( new double[]{4.0,4.0} ) ) );
 		
 		//create MMSF
-		MarkovModelDiffSM mmsf = new MarkovModelDiffSM( alphabet, 8, 4.0, true, new InhomogeneousMarkov( 1 ) );
+		MarkovModelDiffSM mmDsm = new MarkovModelDiffSM( alphabet, 8, 4.0, true, new InhomogeneousMarkov( 1 ) );
 		
 		//train mmsfs discriminatively
 		GenDisMixClassifierParameterSet params = new GenDisMixClassifierParameterSet( alphabet, 8, Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1E-6, 1, false, KindOfParameter.PLUGIN, true, 4 );
-		GenDisMixClassifier cl = new GenDisMixClassifier( params, new CompositeLogPrior(), LearningPrinciple.MSP, mmsf, mmsf );
+		GenDisMixClassifier cl = new GenDisMixClassifier( params, new CompositeLogPrior(), LearningPrinciple.MSP, mmDsm, mmDsm );
 		cl.train( data );
 		System.out.println(cl);
 		
 		//create HMMSF
-		HomogeneousMMDiffSM hmmsf = new HomogeneousMMDiffSM( alphabet, 3, 4, 100 );
+		HomogeneousMMDiffSM hmmDsm = new HomogeneousMMDiffSM( alphabet, 3, 4.0, 100 );
 		
 		//create DHOMM
 		DifferentiableEmission[] emissions = new DifferentiableEmission[]{new DiscreteEmission( alphabet, 4.0 ),new DiscreteEmission( alphabet, new double[]{2.0,1.0,1.0,2.0} )};
@@ -442,23 +442,23 @@ public class NewCodeExampleTest {
 				new TransitionElement( new int[]{1}, new int[]{0}, new double[]{4.0} ));
 		
 		//create mixture scoring function
-		MixtureDiffSM mixSf = new MixtureDiffSM( 3, true, mmsf,mmsf );
+		MixtureDiffSM mixDsm = new MixtureDiffSM( 3, true, mmDsm,mmDsm );
 		
 		//create strand scoring function
 		
-		StrandDiffSM strandSf = new StrandDiffSM( mmsf, 0.5, 1, true, InitMethod.INIT_BOTH_STRANDS );
+		StrandDiffSM strandDsm = new StrandDiffSM( mmDsm, 0.5, 1, true, InitMethod.INIT_BOTH_STRANDS );
 		
 		//create HiddenMotifsMixture
-		ExtendedZOOPSDiffSM zoops = new ExtendedZOOPSDiffSM( ExtendedZOOPSDiffSM.CONTAINS_SOMETIMES_A_MOTIF, 500, 4, false, hmmsf, mmsf, null, true );
+		ExtendedZOOPSDiffSM zoops = new ExtendedZOOPSDiffSM( ExtendedZOOPSDiffSM.CONTAINS_SOMETIMES_A_MOTIF, 500, 4, false, hmmDsm, strandDsm, null, true );
 		
 		//use IPSF
 		
-		IndependentProductDiffSM ipsf = new IndependentProductDiffSM( 4.0, true, bnsf,mmsf );
+		IndependentProductDiffSM ipsf = new IndependentProductDiffSM( 4.0, true, bnDsm,mmDsm );
 		
 		//use NormalizedScoringFunctionModel
 		
-		DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( mmsf, 4, Optimizer.QUASI_NEWTON_BFGS, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), 1E-6, 1 );
-		model.train( data[0] );
+		DifferentiableStatisticalModelWrapperTrainSM trainSm = new DifferentiableStatisticalModelWrapperTrainSM( mmDsm, 4, Optimizer.QUASI_NEWTON_BFGS, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), 1E-6, 1 );
+		trainSm.train( data[0] );
 		
 		//implement AbstractNormalizableScoringFunction
 		//TODO
