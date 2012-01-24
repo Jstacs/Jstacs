@@ -59,13 +59,29 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	public PerformanceMeasureParameterSet( int numClasses ) throws Exception {
 		this( numClasses, new AbstractPerformanceMeasure[0] );
 	}
+	
+	private static int getNumberOfClasses( AbstractPerformanceMeasure[] measures ) {
+		int res = 0;
+		for( int i = 0; i < measures.length; i++ ) {
+			int n = measures[i].getAllowedNumberOfClasses();
+			if( res == 0 ) {
+				if( n != 0 ) {
+					res = n;
+				}
+			} else {
+				if( n != res ) {
+					throw new IllegalArgumentException( "The performance measures are defined for different number of classes." );
+				}
+			}
+		}
+		return res;
+	}
 
 	/**
 	 * Constructs a new {@link PerformanceMeasureParameterSet} that can be used for classifiers that
 	 * handle the given number of classes. The instance contains the given performance measures.
 	 * 
-	 * @param numClasses the number of classes
-	 * @param measures the measures contained in the instance 
+	 * @param numClasses the number of classes 
 	 *  
 	 * @throws Exception if something went wrong
 	 * 
@@ -73,7 +89,11 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	 * @see PerformanceMeasureParameterSet#PerformanceMeasureParameterSet(int, SelectionParameter, AbstractPerformanceMeasure... )
 	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
 	 */
-	public PerformanceMeasureParameterSet( int numClasses, AbstractPerformanceMeasure... measures ) throws Exception {
+	public PerformanceMeasureParameterSet( AbstractPerformanceMeasure... measures ) throws Exception {
+		this( getNumberOfClasses( measures ), measures );
+	}
+	
+	private PerformanceMeasureParameterSet( int numClasses, AbstractPerformanceMeasure... measures ) throws Exception {
 		this( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, false ), measures );
 	}
 
