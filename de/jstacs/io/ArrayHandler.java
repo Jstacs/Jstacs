@@ -25,7 +25,7 @@ import java.util.LinkedList;
 
 /**
  * This class handles arrays with elements of generic type and enables the user
- * to cast and clone arrays easily.
+ * to cast, clone, and create arrays easily.
  * 
  * @author Jens Keilwagen
  */
