@@ -41,7 +41,7 @@ Then we can use this instance to create the classifier using
 
 Thereby, we do not need to clone the PWM instance, as this is done internally for safety reasons. If we like to build a classifier that allows to distinguish between $N$ classes, we use the same constructor but provide $N$ \TrainSM s.
 
-If we train a \TrainSMBasedClassifier, the train method of the internally used \TrainSM s is called. For classifying a sequence, the \TrainSMBasedClassifier calls \lstinline+getLogProbFor+ of the internally used \TrainSM s and incoorperates some class weight.
+If we train a \TrainSMBasedClassifier, the train method of the internally used \TrainSM s is called. For classifying a sequence, the \TrainSMBasedClassifier calls \lstinline+getLogProbFor+ of the internally used \TrainSM s and incorporates some class weight.
 
 \subsection{GenDisMixClassifier}\label{GenDisMixClassifier}
 
@@ -90,14 +90,14 @@ Given a prior, we can build a \GenDisMixClassifier~using for instance the maximu
 
 Again in close analogy, we can build a \GenDisMixClassifier~that uses the maximum a-posteriori learning principle, if we use \lstinline+LearningPrinciple.MAP+.
  
-Alternative, we can build a \GenDisMixClassifier~that utilize the unified generative-dicriminative learning principle. If we like to do so, we have to provide a weighting that sums to 1 and represents the weights for the conditional likelihood, the likelihood and the prior.
+Alternative, we can build a \GenDisMixClassifier~that utilize the unified generative-discriminative learning principle. If we like to do so, we have to provide a weighting that sums to 1 and represents the weights for the conditional likelihood, the likelihood and the prior.
 
 \addtocounter{off}{3}
 \code{0}
 
 \subsection{Performance measures}\label{Performance}
 
-If we like to assess the performance of any classifier, we have to use the method \lstinline+evaluate+ (see begining of this section). The first argument of this method is a \PerformanceMeasureParameterSet~that hold the performance measures to be computed. The most simple way to create an instance is
+If we like to assess the performance of any classifier, we have to use the method \lstinline+evaluate+ (see beginning of this section). The first argument of this method is a \PerformanceMeasureParameterSet~that hold the performance measures to be computed. The most simple way to create an instance is
 
 \addtocounter{off}{9}
 \code{0}
@@ -123,7 +123,7 @@ Before performing a \ClassifierAssessment, we have to define a set of numerical 
 \code{0}
 However, you can choose other measures as described in the previous subsection.
 
-In this subsection, we exemplarily present how to perfrom a k-fold cross validation in Jstacs. First, we have to create an instance of \KFoldCrossValidation. There several constructor to do so. Here, we use the constructor that used \AbstractClassifier s. 
+In this subsection, we exemplarily present how to perform a k-fold cross validation in Jstacs. First, we have to create an instance of \KFoldCrossValidation. There several constructor to do so. Here, we use the constructor that used \AbstractClassifier s. 
 
 \addtocounter{off}{2}
 \code{0}
@@ -134,7 +134,7 @@ Second, we have to specify the parameters of the \KFoldCrossValidation.
 \code{0}
 
 These parameter are
-the partition method, i.e., the way how to count entries during a partioning,
+the partition method, i.e., the way how to count entries during a partitioning,
 the sequence length for the test data,
 a switch indicating whether an exception should be thrown if a performance measure could not be computed (cf. \lstinline+evaluate+ in \AbstractClassifier),
 and the number of repeats $k$.

@@ -97,6 +97,13 @@
 
 \newcommand{\CombinedCondition}{\link{algorithms/optimization/termination}{CombinedCondition}}
 
+\newcommand{\Costs}{\link{algorithms/alignment/cost}{Costs}}
+\newcommand{\Alignment}{\link{algorithms/alignment}{Alignment}}
+\newcommand{\AlignmentType}{\link{algorithms/alignment}{Alignment.AlignmentType}}
+
+\newcommand{\REnvironment}{\link{utils}{REnvironment}}
+\newcommand{\ArrayHandler}{\link{io}{ArrayHandler}}
+
 
 %finding the line numer of a specific line in the \codefile
 \newcommand{\lineIndex}[1]{
@@ -108,7 +115,6 @@
     \ReadNextLine{\File}
     \ifthenelse{\boolean{next}}{\\stepcounter{off}}{}
   }
-  \File
   \closein\File
   \codefile: \arabic{off}
 }

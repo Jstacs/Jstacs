@@ -1,29 +1,81 @@
 \setcounter{off}{578}
-In this section
+
+In this section, we present a motley composition of interesting classes of Jstacs.
+
+\subsection{Alignments}
+
+In this subsection, we present how to compute Alignments using Jstacs.
+
+If we like to compute an alignment, we first have to define the costs for match, mismatch, and gaps. In Jstacs, we provide the interface \Costs~that declares all necessary method used during the alignment. In this example, we restrict to simple costs that are 0 for match, 1 for match, 1 for gap opening and 0.5 for gap elongation.
+ 
+\addtocounter{off}{3}
+\code{0}
+
+Second, we have to provide an instance of \Alignment. This instance contains all information needed for an alignment and stores for instance matrices used for dynamic programming. When creating an instance, we have to specify which kind of alignment we like to have. Jstacs supports local, global and semi-global alignments (cf. \AlignmentType).  
+
+\addtocounter{off}{4}
+\code{0}
+
+In second constructor it is also possible to specify the number of offdiagonals to be used leading to a \textcolor {red}{XXX}. 
+
+Finally, we can compute the optimal alignment between two \Sequence s and write the result to the standard output.
+
+\stepcounter{off}
+\code{0}
+
+The alignment instance can be reused for aligning further sequences.
+
+\subsection{REnvironment: Connection to R}
+
+In this subsection, we show how to access R (cf. \url{http://www.r-project.org/}) from Jstacs. R is a project for statistical computing already that allows for performing complex computations and creating nice plots.
+
+In some cases, it is reasonable to use R from within Jstacs. To do so, we have to create a connection to R. We utilize the package \lstinline+Rserve+ (cf. \url{http://www.rforge.net/Rserve/}) of R that allows to communicate between Java and R. Having a running instance of \lstinline+Rserve+, we can create a connection via  
+
+\addtocounter{off}{7}
+\code{0}
+
+However, in some cases we have to specify the login name, a password, and the port for the communication which is possible via alternative constructors.
+
+Now, we are able to do diverse things in R. Here, we only present three methods, but \REnvironment provides more functionality. First, we copy an array of \lstinline+double+s from Java to R 
+
+\addtocounter{off}{4}
+\code{0}
+
+and second, we modify it 
+
+\stepcounter{off}
+\code{0}
+
+Finally, the \REnvironment~allows to create plots as PDF, TeX, or \lstinline+BufferedImage+. 
 
 \addtocounter{off}{3}
 \code{0}
 
-\addtocounter{off}{4}
+\subsection{ArrayHandler: Handling arrays}
+
+In this subsection, we present a way to easily handle arrays in Java, i.e., to cast, clone, and create arrays with elements of generic type. To this end, we implement the class \ArrayHandler~in Jstacs. 
+
+Let's assume we have a two dimensional array of either primitives of some Java class and we like to create a deep clone as it is necessary for member fields in clone methods.
+
+\addtocounter{off}{2}
+\code{0}
+
+Traditionally, we would have to implement \lstinline+for+-loops to do so. However, the \ArrayHandler~implements this functionality in a generic manner providing one method for this purpose.
+
+\addtocounter{off}{2}
+\code{0}
+
+A second use case, is the creation of arrays, where each and every entry is a clone of some instance.
+
+\addtocounter{off}{3}
 \code{1}
 
-\addtocounter{off}{8}
-\code{0}
+The third use case is to cast an array. Even if all elements of the array are from the same class, the component type of the array might be different (some super class). A simple cast will fail in those cases. However, the \ArrayHandler~provides two methods for casting arrays. Here, we present the more important method, which allows to specify the array component type and performs the cast operation. \textcolor{red}{good example?}
 
 \addtocounter{off}{4}
 \code{0}
 
-\addtocounter{off}{3}
-\code{0}
-
-\addtocounter{off}{4}
-\code{0}
-
-\addtocounter{off}{3}
-\code{1}
-
-\addtocounter{off}{4}
-\code{0}
+\subsection{ToolBox}
 
 \addtocounter{off}{3}
 \code{0}
@@ -33,6 +85,8 @@ In this section
 
 \addtocounter{off}{3}
 \code{0}
+
+\subsection{Goodies}
 
 \addtocounter{off}{3}
 \code{0}

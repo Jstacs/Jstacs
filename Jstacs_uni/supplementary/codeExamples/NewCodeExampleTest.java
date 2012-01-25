@@ -595,13 +595,14 @@ public class NewCodeExampleTest {
 		double[] values = new double[10];
 		//use REnvironment
 		re.createVector( "values", values );
+		re.voidEval( "values=rnorm(length(values));" );
 		
 		//plot
 		re.plotToPDF( "plot(values,t=\"l\");", "values.pdf", true );
 		
 		double[][] twodim = new double[5][5];
 		//ArrayHandler clone
-		ArrayHandler.clone( twodim );
+		double[][] clone = ArrayHandler.clone( twodim );
 		
 		//ArrayHandler create
 		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, 10, 4.0 );
