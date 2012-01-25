@@ -45,9 +45,9 @@ public class CombinedCondition extends AbstractTerminationCondition {
 	/**
 	 * This constructor creates an instance that allows to use many {@link TerminationCondition}s at once. 
 	 * 
-	 * @param threshold the number of conditions that has to be fulfilled;
-	 * 			if all conditions should be fulfilled than <code>threshold=condition.length</code> (equal to AND);
-	 * 			if at least one condition should be fulfilled than <code>threshold=1</code> (equal to OR);
+	 * @param threshold the number of conditions that has to be fulfilled to continue;
+	 * 			if all conditions should be fulfilled then <code>threshold=condition.length</code> (equal to AND);
+	 * 			if at least one condition should be fulfilled then <code>threshold=1</code> (equal to OR);
 	 * @param condition the conditions that are used to create this instance and that are used to determine whether another iteration should be done
 	 * 
 	 * @throws Exception if the parameter can not be set properly
