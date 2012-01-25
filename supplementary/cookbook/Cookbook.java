@@ -1,4 +1,4 @@
-package supplementary.codeExamples;
+package supplementary.cookbook;
 
 import java.io.OutputStream;
 import java.util.HashSet;
@@ -124,7 +124,7 @@ import de.jstacs.utils.SubclassFinder;
 import de.jstacs.utils.ToolBox;
 
 
-public class NewCodeExampleTest {
+public class Cookbook {
 
 	/**
 	 * @param args

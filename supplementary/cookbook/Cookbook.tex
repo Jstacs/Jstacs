@@ -19,7 +19,8 @@
 \newcounter{last}
 \setcounter{last}{1}
 
-\newcommand{\codefile}{../codeExamples/NewCodeExampleTest.java}
+\newcommand{\defaultcodefile}{./Cookbook.java}
+\newcommand{\codefile}{\defaultcodefile}
 \newcommand{\code}[1]{%
 \setcounter{first}{\value{off}}%
 \setcounter{last}{\value{off}}%
@@ -68,5 +69,5 @@ The complete API documentation can be found at \url{\APIhome}.
 \clearpage
 
 \section{Recipes}
-TODO: Code examples with some comments
+\input{recipes}
 \end{document}
