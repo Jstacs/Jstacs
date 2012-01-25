@@ -54,7 +54,7 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
 
 /**
- * This is the class for any sample of {@link Sequence}s. All {@link Sequence}s
+ * This is the class for any data set of {@link Sequence}s. All {@link Sequence}s
  * in a {@link DataSet} have to have the same {@link AlphabetContainer}. The
  * {@link Sequence}s may have different lengths.
  * 
@@ -180,7 +180,7 @@ public class DataSet implements Iterable<Sequence>{
 		// remove 
 		for( ; i < samples.length && hash.size() > 0; i++ ) {
 			if( !abc.checkConsistency( samples[i].getAlphabetContainer() ) ) {
-				throw new WrongAlphabetException( "The sample do not have the same AlphabetContainer." );
+				throw new WrongAlphabetException( "The data sets do not have the same AlphabetContainer." );
 			}
 			for( n = 0; n < samples[i].getNumberOfElements(); n++ ) {
 				seq = samples[i].getElementAt( n );
@@ -234,7 +234,7 @@ public class DataSet implements Iterable<Sequence>{
 		AlphabetContainer abc = samples[i].getAlphabetContainer();
 		while( i < wsf.length ) {
 			if( !abc.checkConsistency( samples[i].getAlphabetContainer() ) ) {
-				throw new IllegalArgumentException( "The sample do not have the same AlphabetContainer." );
+				throw new IllegalArgumentException( "The data sets do not have the same AlphabetContainer." );
 			}
 			try {
 				wsf[i] = new WeightedDataSetFactory( SortOperation.SORT_BY_SEQUENCE, samples[i++] );
@@ -424,7 +424,7 @@ public class DataSet implements Iterable<Sequence>{
 				i++;
 			}
 			if( i < l ) {
-				throw new IllegalArgumentException( "The alphabets of the samples do not match." );
+				throw new IllegalArgumentException( "The alphabets of the data sets do not match." );
 			}
 
 			Sequence[] seqs = new Sequence[anz];
@@ -923,7 +923,7 @@ public class DataSet implements Iterable<Sequence>{
 			length += lengths[i];
 		}
 		try {
-			return new DataSet( abc, n, length, "composite sample (starts=" + Arrays.toString( starts )
+			return new DataSet( abc, n, length, "composite data set (starts=" + Arrays.toString( starts )
 												+ ", lengths="
 												+ Arrays.toString( lengths )
 												+ ") of "
@@ -1023,7 +1023,7 @@ public class DataSet implements Iterable<Sequence>{
 					n[i] = ei.nextElement().getSubSequence( abc, start, length );
 				}
 				try {
-					return new DataSet( abc, n, length, "infix sample (start=" + start + ", length=" + length + ") of " + annotation );
+					return new DataSet( abc, n, length, "infix data set (start=" + start + ", length=" + length + ") of " + annotation );
 				} catch ( EmptyDataSetException doesNotHappen ) {
 					// since the current sample is not empty, a sample of infixes can't be empty
 					return null;
@@ -1213,7 +1213,7 @@ public class DataSet implements Iterable<Sequence>{
 			n[i] = ei.nextElement().getSubSequence( abc, start );
 		}
 		try {
-			return new DataSet( abc, n, l, "suffix sample (start=" + start + ") of " + annotation );
+			return new DataSet( abc, n, l, "suffix data set (start=" + start + ") of " + annotation );
 		} catch ( EmptyDataSetException doesNotHappen ) {
 			// since the current sample is not empty, a sample of suffixes can't be empty
 			return null;
@@ -1289,7 +1289,7 @@ public class DataSet implements Iterable<Sequence>{
 			UnsupportedOperationException,
 			EmptyDataSetException {
 		if( !isSimpleDataSet() && length != subsequenceLength ) {
-			throw new UnsupportedOperationException( "The is method can only be used for simple samples." );
+			throw new UnsupportedOperationException( "This method can only be used for simple data sets." );
 		}
 		DataSet[] parts = partition( method, 1d - p, p );
 		parts[1].setSubsequenceLength( subsequenceLength );
@@ -1710,7 +1710,7 @@ public class DataSet implements Iterable<Sequence>{
 				}
 				length = len;
 			} else {
-				throw new UnsupportedOperationException( "For this sample it is impossible to have a sliding window, since the AlphabetContainer is not simple." );
+				throw new UnsupportedOperationException( "For this data set it is impossible to have a sliding window, since the AlphabetContainer is not simple." );
 			}
 		}
 	}
