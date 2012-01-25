@@ -4,7 +4,6 @@ Jan:
 - GNU GPL 3 preamble
 
 Jens:
-- Cookbook: classifier
 
 gemeinsam:
 - ParameterSet: getName und getComment implementation - ich würde sie mittlerweile fast so lassen
