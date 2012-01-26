@@ -1,7 +1,6 @@
 Jan:
 - Textsuche Sample
 - NeuralNetwork kommentieren: Safe- & RegExOuputStream?
-- GNU GPL 3 preamble
 
 Jens:
 
