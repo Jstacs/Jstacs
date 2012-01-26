@@ -76,12 +76,12 @@ public class TrainSMBasedClassifierTest {
 		 
 		//create a new classifier
 		TrainSMBasedClassifier classifier = new TrainSMBasedClassifier( pwm, pwm );
-		 
+		System.out.println("x");
 		//train the classifier
 		classifier.train( data );
-		
+		System.out.println("y");
 		//sequences that will be classified
-		DataSet toClassify = new DNADataSet( args[2] );
+		DataSet toClassify = new DNADataSet( args[3] );
 		 
 		//use the trained classifier to classify new sequences
 		byte[] result = classifier.classify( toClassify ); 
@@ -93,7 +93,7 @@ public class TrainSMBasedClassifierTest {
 		 
 		//write it to disk
 		FileManager.writeFile( new File(home+"myClassifier.xml"), buf );
-		 
+		
 		//read XML-representation from disk
 		StringBuffer buf2 = FileManager.readFile( new File(home+"myClassifier.xml") );
 		 

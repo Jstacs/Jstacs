@@ -30,6 +30,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.ImageResult;
+import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.REnvironment;
 
@@ -73,10 +74,15 @@ public class CurvePlotter {
 		REnvironment r = null;
 		try {
 			r = new REnvironment();//might be adjusted
-			for( AbstractPerformanceMeasure s : m )  {
-				DoubleTableResult dtr = (DoubleTableResult) rs.getResultAt( 1 );
-				ImageResult ir = DoubleTableResult.plot( r, dtr );
-				REnvironment.showImage( dtr.getName(), ir.getValue() );
+			for( int i = 0; i < rs.getNumberOfResults(); i++ )  {
+				Result res = rs.getResultAt(i);
+				if( res instanceof DoubleTableResult ) {
+					DoubleTableResult dtr = (DoubleTableResult) res;
+					ImageResult ir = DoubleTableResult.plot( r, dtr );
+					REnvironment.showImage( dtr.getName(), ir.getValue() );
+				} else {
+					System.out.println( res );
+				}
 			}
 		} catch( Exception e ) {
 			e.printStackTrace();

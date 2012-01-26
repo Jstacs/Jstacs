@@ -55,7 +55,7 @@ public class HomogeneousMarkovModel extends AbstractTrainSM {
 		//extract our XML-code
 		xml = XMLParser.extractForTag( xml, "homogeneousMarkovModel" );
 		//extract all the variables using XMLParser
-		alphabets = XMLParser.extractObjectForTags( xml, "alphabets", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabets" );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		logProbs = XMLParser.extractObjectForTags( xml, "logProbs", double[].class );
 	}
