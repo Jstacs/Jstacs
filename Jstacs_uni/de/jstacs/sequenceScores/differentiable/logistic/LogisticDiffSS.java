@@ -197,7 +197,7 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 	
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, XML_TAG );
-		alphabets = XMLParser.extractObjectForTags( xml, "alphabetContainer", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabetContainer" );
 		length = XMLParser.extractObjectForTags( xml, "length", Integer.class );
 		constraint = XMLParser.extractObjectForTags( xml, "constraint", LogisticConstraint[].class );
 		parameter = XMLParser.extractObjectForTags( xml, "parameter", double[].class );

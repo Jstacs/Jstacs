@@ -222,7 +222,7 @@ public class GaussianEmission implements DifferentiableEmission {
 	 */
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, getClass().getSimpleName() );
-		con = XMLParser.extractObjectForTags( xml, "alphabet", AlphabetContainer.class );
+		con = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabet" );
 		ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
 		priorMu = XMLParser.extractObjectForTags( xml, "priorMu", double.class );
 		priorAlpha = XMLParser.extractObjectForTags( xml, "priorAlpha", double.class );

@@ -27,7 +27,6 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.sequenceScores.SequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.VariableLengthDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousDiffSM;
 import de.jstacs.utils.DoubleList;
@@ -393,7 +392,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 */
 	protected void fromXML( StringBuffer rep ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( rep, getInstanceName() );
-		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "AlphabetContainer" );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		score = XMLParser.extractObjectForTags( xml, "DifferentiableSequenceScores", DifferentiableSequenceScore[].class );
 		set( XMLParser.extractObjectForTags( xml, "index", int[].class ),

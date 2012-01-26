@@ -468,7 +468,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 
 	private void fromXML( StringBuffer representation ) throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag( representation, getXMLTag() );
-		alphabets = XMLParser.extractObjectForTags( xml, "alphabetcontainer", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabetcontainer" );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		extractFurtherClassifierInfosFromXML( xml );
 	}

@@ -162,7 +162,7 @@ public final class MarkovRandomFieldDiffSM extends
 			throws NonParsableException {
 		StringBuffer xml = XMLParser.extractForTag(representation, XML_TAG);
 		length = XMLParser.extractObjectForTags(xml, "length", int.class );
-		alphabets = XMLParser.extractObjectForTags(xml, "alphabets", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabets" );
 		ess = XMLParser.extractObjectForTags(xml, "ess", double.class );
 		name = XMLParser.extractObjectForTags(xml, "name", String.class );
 		constr = XMLParser.extractObjectForTags(xml, "constr", MEMConstraint[].class );

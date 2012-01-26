@@ -291,7 +291,7 @@ public class HomogeneousMM0DiffSM extends HomogeneousDiffSM {
 		StringBuffer b = XMLParser.extractForTag(xml, getClass()
 				.getSimpleName());
 		length = XMLParser.extractObjectForTags(b, "length", int.class );
-		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( b, "alphabets" );
 		ess = XMLParser.extractObjectForTags(b, "ess", double.class );
 		sumOfHyperParams = XMLParser.extractObjectForTags(b, "sumOfHyperParams", double.class );
 		params = XMLParser.extractObjectForTags(b, "params", MEMConstraint.class );

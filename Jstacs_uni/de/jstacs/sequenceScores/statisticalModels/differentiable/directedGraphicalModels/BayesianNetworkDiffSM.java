@@ -592,7 +592,7 @@ public class BayesianNetworkDiffSM extends
 	@Override
 	protected void fromXML(StringBuffer source) throws NonParsableException {
 		source = XMLParser.extractForTag(source, "bayesianNetworkSF");
-		alphabets = XMLParser.extractObjectForTags(source, "alphabets", AlphabetContainer.class);
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( source, "alphabets" );
 		length = XMLParser.extractObjectForTags(source, "length", int.class );
 		trees = XMLParser.extractObjectForTags(source, "trees", BNDiffSMParameterTree[].class );
 		if (trees.length == 0) {
