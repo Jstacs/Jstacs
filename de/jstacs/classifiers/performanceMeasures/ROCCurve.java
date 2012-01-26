@@ -58,7 +58,7 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 	/**
 	 * The name of the performance measure return by {@link #getName()} 
 	 */
-	public static final String NAME = "Receiver Operating Characteristic";
+	public static final String NAME = "Receiver Operating Characteristic curve";
 	
 	@Override
 	public String getName() {
@@ -143,13 +143,13 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 		if( list != null ) {
 			list.add( new double[]{ 0, 0 } );
 		}
-		NumericalResult auc = new NumericalResult( "AUC-ROC", "Area under the " + getName() + " curve", erg );
+		NumericalResult auc = new NumericalResult( "AUC-ROC", "Area under the " + getName(), erg );
 		if(list == null){
 			return new NumericalResultSet( auc );
 		}else{
 			return new ResultSet( new Result[]{
 			                                   auc,
-			                                   new AbstractScoreBasedClassifier.DoubleTableResult("ROC curve", getName() + " curve", list)
+			                                   new AbstractScoreBasedClassifier.DoubleTableResult(getName(), getName(), list)
 			} );
 		}
 	}

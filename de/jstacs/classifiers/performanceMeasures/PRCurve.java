@@ -198,7 +198,7 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 		}else{
 			return new ResultSet( new Result[]{
 			                                   auc,
-			                                   new AbstractScoreBasedClassifier.DoubleTableResult("PR curve", getName(), list)
+			                                   new AbstractScoreBasedClassifier.DoubleTableResult(getName(), getName(), list)
 			} );
 		}
 	}
