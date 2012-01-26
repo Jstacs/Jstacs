@@ -79,7 +79,7 @@ public class ReferenceSequenceAnnotation extends SequenceAnnotation {
 	public ReferenceSequenceAnnotation( StringBuffer representation ) throws NonParsableException {
 		super( XMLParser.extractForTag( representation, "super" ) );
 		representation = XMLParser.extractForTag( representation, getClass().getSimpleName() );
-		AlphabetContainer cont = XMLParser.extractObjectForTags( representation, "alphabet", AlphabetContainer.class );
+		AlphabetContainer cont = (AlphabetContainer) XMLParser.extractObjectForTags( representation, "alphabet" );
 		try {
 			ref = Sequence.create( cont, XMLParser.extractObjectForTags( representation, "ref", String.class ) );
 		} catch ( Exception e ) {

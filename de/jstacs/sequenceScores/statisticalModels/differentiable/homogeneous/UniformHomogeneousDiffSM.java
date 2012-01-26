@@ -168,7 +168,7 @@ public class UniformHomogeneousDiffSM extends HomogeneousDiffSM {
 	protected void fromXML(StringBuffer xml) throws NonParsableException {
 		StringBuffer b = XMLParser.extractForTag(xml, getClass().getSimpleName());
 		length = XMLParser.extractObjectForTags(b, "length", int.class );
-		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags(b, "alphabets" );
 		ess = XMLParser.extractObjectForTags(b, "ess", double.class );
 		computeLogP();
 	}

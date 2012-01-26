@@ -530,7 +530,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	protected void fromXML(StringBuffer xml) throws NonParsableException {
 		StringBuffer b = XMLParser.extractForTag(xml, getClass().getSimpleName());
 		length = XMLParser.extractObjectForTags(b, "length", int.class );
-		alphabets = XMLParser.extractObjectForTags(b, "alphabets", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( b, "alphabets" );
 		order = XMLParser.extractObjectForTags(b, "order", int.class );
 		createArrays();
 		classEss = XMLParser.extractObjectForTags(b, "classEss", double.class );

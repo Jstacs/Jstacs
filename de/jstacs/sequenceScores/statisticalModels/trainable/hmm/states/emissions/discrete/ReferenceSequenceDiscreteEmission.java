@@ -149,7 +149,7 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 
 	@Override
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {
-		refCon = XMLParser.extractObjectForTags( xml, "refCon", AlphabetContainer.class );
+		refCon = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "refCon" );
 		refIdx = XMLParser.extractObjectForTags( xml, "refIdx", int.class );
 	}
 }

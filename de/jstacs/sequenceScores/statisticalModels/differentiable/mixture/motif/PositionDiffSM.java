@@ -235,7 +235,7 @@ public abstract class PositionDiffSM extends AbstractDifferentiableStatisticalMo
 	
 	protected void fromXML( StringBuffer xml ) throws NonParsableException
 	{
-		alphabets = XMLParser.extractObjectForTags( xml, "AlphabetContainer", AlphabetContainer.class );
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "AlphabetContainer" );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		internal = XMLParser.extractObjectForTags( xml, "internal", int[].class );
 	}
