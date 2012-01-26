@@ -1,8 +1,21 @@
-\documentclass[a4paper]{report}
+\documentclass[a4paper,halfparskip]{scrreprt}
 \pagestyle{plain}
 
-\usepackage{listings}
-\lstset{language=Java,basicstyle=\small\ttfamily}
+\usepackage{listings,xcolor,tikz}
+
+\usetikzlibrary{mindmap,positioning,calc}
+
+\definecolor{lstgreen}{rgb}{0,0.6,0}
+\definecolor{lstblue}{rgb}{0,0,0.7}
+
+\definecolor{green}{rgb}{0.314,0.62,0.294}
+
+\lstset{language=Java,basicstyle=\small\ttfamily,
+keywordstyle=\color{lstblue},
+commentstyle=\color{lstgreen}\ttfamily,
+tabsize=2,
+breaklines=true,
+breakatwhitespace=true}
 \usepackage{fp}
 
 \input{defs}
@@ -37,12 +50,7 @@
 \clearpage
 
 \section{Preface}
-
-Teile vom Jstacs-Paper?
-
-\vfill
-The complete API documentation can be found at \url{\APIhome}.
-\clearpage
+\input{preface}
 
 \section{Starter: Data handling}\label{data}
 \input{data}
