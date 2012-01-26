@@ -23,7 +23,7 @@ import de.jstacs.data.alphabets.GenericComplementableDiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 
 /**
- * This class exemplarily shows how two create a user-specified alphabet.
+ * This class exemplarily shows how to create a user-specified alphabet.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
