@@ -135,11 +135,11 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrain
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.StrandTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.ZOOPSTrainSM;
+import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.REnvironment;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.SubclassFinder;
 import de.jstacs.utils.ToolBox;
-
 
 public class Cookbook {
 
@@ -636,6 +636,15 @@ public class Cookbook {
 		
 		//ToBo.maxIndex
 		int maxIndex = ToolBox.getMaxIndex( values );
+		
+		//log sum
+		double logSum = Normalisation.getLogSum( values );
+		
+		//log sum normalisation
+		Normalisation.logSumNormalisation( values );
+		
+		//sum normalisation
+		Normalisation.sumNormalisation( values );
 		
 		//SafeOutputStream
 		OutputStream stream = SafeOutputStream.getSafeOutputStream( System.out );
