@@ -465,6 +465,9 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 */
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		if( plugIn ) {
+			if( !isInitialized() ) {
+				initializeFunctionRandomly( freeParams );
+			}
 			initializeUsingPlugIn( index, freeParams, data, weights );
 			init( freeParams );
 		} else {
@@ -830,7 +833,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 			hiddenParameter[j] = 0;
 		}
 		for( i = 0; i < j; i++ ) {
-			hiddenParameter[i] = Math.log( statistic[i] ) - sum -getLogNormalizationConstantForComponent( i ) - offset;
+			hiddenParameter[i] = Math.log( statistic[i] ) - sum - getLogNormalizationConstantForComponent( i ) - offset;
 		}
 		setHiddenParameters( hiddenParameter, 0 );
 	}
