@@ -205,7 +205,7 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 		double[] help = weights[index];
 		double[][] newWeights = null;
 		for( int r = 0; r < 3; r++ ) {
-			if( r== 0 ) {
+			if( r == 0 ) {
 				newWeights = getRandomWeights( help, data[index].getNumberOfElements() );
 			} else {
 				for( int n = 0; n < data[index].getNumberOfElements(); n++ ) {

@@ -69,7 +69,7 @@ public class GenDisMixClassifierTest {
 		GenDisMixClassifierParameterSet cps = new GenDisMixClassifierParameterSet(
 				container,//the used alphabets
 				length,//sequence length that can be modeled/classified
-				Optimizer.QUASI_NEWTON_BFGS, 1E-9, 1E-11, 1,//optimization parameter
+				Optimizer.QUASI_NEWTON_BFGS, 1E-1, 1E-1, 1,//optimization parameter
 				false,//use free parameters or all
 				KindOfParameter.PLUGIN,//how to start the numerical optimization
 				true,//use a normalized objective function
@@ -104,5 +104,4 @@ public class GenDisMixClassifierTest {
 			System.out.println( cl[i].evaluate( mp, true, data ) );
 		}
 	}
-
 }
