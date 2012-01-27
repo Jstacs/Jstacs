@@ -21,7 +21,7 @@ In this example, we create a case-sensitive alphabet with symbols "W", "S", "w",
 \addtocounter{off}{3}
 \code{0}
 If you rather want to define an alphabet over contiguous discrete numerical values, you can do so by calling a constructor that takes
-the maximum and minimum value of the desired range, and defines the alphabet as all integer values between minimum and
+the minimum and maximum value of the desired range, and defines the alphabet as all integer values between minimum and
 maximum (inclusive). For example, to create a discrete alphabet over the values from $3$ to $10$, you can call
 \addtocounter{off}{3}
 \code{0}
@@ -172,13 +172,13 @@ or a \DataSet~containing all reverse complementary \Sequence s using
 \addtocounter{off}{3}
 \code{0}
 
-For cross-validation experiments, hold-out samplings, or similar procedures, it is useful to partition a sample randomly. \DataSet s in Jstacs support two types of partitionings.
-The first is to partition a \DataSet~into $k$ equally sized parts. What is ``equally sized'' can either be determined by the number of sequences or by the number of symbols of all sequences in a sample. Both measures are supported by Jstacs. 
+For cross-validation experiments, hold-out samplings, or similar procedures (cf. \href{\APIhome de/jstacs/classifier/assessment/package-summary.html}{package assessment}), it is useful to partition a sample randomly. \DataSet s in Jstacs support two types of partitionings.
+The first is to partition a \DataSet~into $k$ almost equally sized parts. What is ``equally sized'' can either be determined by the number of sequences or by the number of symbols of all sequences in a sample. Both measures are supported by Jstacs. 
 
 The second partitioning method creates partitions of a user-defined fraction of the original sample. For example, we partition the \DataSet~\lstinline+dnaSample+ into five equally sized parts according to the number of sequences in that \DataSet~by calling
 \addtocounter{off}{3}
 \code{0}
-and we partition the same sample into parts containing $10$, $20$, and $70$ percent of the symbols of the original \DataSet by calling
+and we partition the same sample into parts containing $10$, $20$, and $70$ percent of the symbols of the original \DataSet~by calling
 \addtocounter{off}{1}
 \code{0}
 In both cases, the \Sequence s in the \DataSet~are partitioned as atomic elements. That means, a \Sequence~is not cut into several parts to obtain exactly equally sized parts, but the size of a part may slightly (depending on the number of sequences and lengths of those sequences) differ from the specified percentages.
@@ -204,7 +204,7 @@ We can now access all parsed annotations by the \lstinline+getAnnotation()+ meth
 \code{0}
 or, for instance, the \lstinline+getSequenceAnnotationByType+ introduced in the previous section, where the type corresponds to the key in the comment line, and the identifier of the retrieved \SequenceAnnotation~is identical to the value for that key in the comment line.
 
-Jstacs only supports FastA and plain text files directly. However, you can access other formats or even data bases like Genbank using an adaptor to BioJava.
+Jstacs only supports FastA and plain text files directly. However, you can access other formats or even databases like Genbank using an adaptor to BioJava.
 
 For example, we can use BioJava to load two sequences from Genbank.
 \addtocounter{off}{3}
