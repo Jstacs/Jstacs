@@ -148,7 +148,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	//	**********************
 	//	member methods
 	//	**********************
-
+	
 	/**
 	 * Creates a new {@link ParameterSet} containing a single
 	 * <code>double</code>-<code>SimpleParameter</code>. This
@@ -165,22 +165,27 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * 
 	 * @throws IllegalValueException
 	 *             if something went wrong
-	 * @throws DatatypeNotValidException 
 	 */
-	private ParameterSet getParameterSetContainingASingleDoubleValue( double percent ) throws IllegalValueException, DatatypeNotValidException {
+	protected SimpleParameterSet getParameterSetContainingASingleDoubleValue( double percent ) throws IllegalValueException {
 
-		ParameterSet ret = new SimpleParameterSet( new SimpleParameter( DataType.DOUBLE,
-						"percent",
-						"Defines the percentage of the entire given data (for a " + "specific class) should be used as test-data in a "
-								+ "RepeatedHoldOutExperiment.",
-						true,
-						new NumberValidator<Double>( 0d, 1d ) ) );
-		if( !Double.isNaN( percent ) ) {
-			ret.getParameterAt( 0 ).setValue( new Double( percent ) );
+		SimpleParameterSet ret;
+		try {
+			ret = new SimpleParameterSet( new SimpleParameter( DataType.DOUBLE,
+					"percent",
+					"Defines the percentage of the entire given data (for a specific class) should be used as test-data in a RepeatedHoldOutExperiment.",
+					true,
+					new NumberValidator<Double>( 0d, 1d ) ));
+			
+			if( !Double.isNaN( percent ) ) {
+				ret.getParameterAt( 0 ).setValue( percent );
+			}
+
+			return ret;
+		} catch (DatatypeNotValidException doesnothappen) {
+			return null;
 		}
-
-		return ret;
 	}
+	
 	
 	private void addParameters() throws ParameterException, CloneNotSupportedException {
 		//2-k
@@ -242,7 +247,6 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 		double[] ret = new double[tempEPS.getNumberOfParameters()];
 
 		for( int i = 0; i < ret.length; i++ ) {
-			//holy shit, that's realy unsexy
 			ret[i] = ( (Double)( ( (ParameterSet)( tempEPS.getParameterAt( i ).getValue() ) ).getParameterAt( 0 ).getValue() ) ).doubleValue();
 		}
 

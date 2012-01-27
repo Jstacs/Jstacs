@@ -262,7 +262,6 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 		int[] ret = new int[tempEPS.getNumberOfParameters()];
 
 		for( int i = 0; i < ret.length; i++ ) {
-			//holy shit, that's really unsexy
 			ret[i] = ( (Integer)( ( (ParameterSet)( tempEPS.getParameterAt( i ).getValue() ) ).getParameterAt( 0 ).getValue() ) ).intValue();
 		};
 
