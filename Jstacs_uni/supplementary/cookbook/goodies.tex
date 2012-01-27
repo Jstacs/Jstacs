@@ -70,37 +70,49 @@ A second use case, is the creation of arrays, where each and every entry is a cl
 \addtocounter{off}{3}
 \code{1}
 
-The third use case is to cast an array. Even if all elements of the array are from the same class, the component type of the array might be different (some super class). A simple cast will fail in those cases. However, the \ArrayHandler~provides two methods for casting arrays. Here, we present the more important method, which allows to specify the array component type and performs the cast operation. \textcolor{red}{good example?}
+The third use case is to cast an array. Even if all elements of the array are from the same class, the component type of the array might be different (some super class). A simple cast will fail in those cases. However, the \ArrayHandler~provides two methods for casting arrays. Here, we present the more important method, which allows to specify the array component type and performs the cast operation.
 
 \addtocounter{off}{4}
-\code{0}
+\code{4}
 
 \subsection{ToolBox}
 
+The class \ToolBox~contains several static methods for recurring tasks. 
+For example, you can compute the maximum of an array of \lstinline+double+s
+\addtocounter{off}{7}
+\code{0}
+or the sum of the values
 \addtocounter{off}{3}
 \code{0}
-
-\addtocounter{off}{3}
-\code{0}
-
+or you can obtain the index of the first maximum value in the provided array
 \addtocounter{off}{3}
 \code{0}
 
 \subsection{Normalisation}
 
+Another frequently needed functionality is the handling of log-values. Assume that we have an array \lstinline+values+ containing a number of log-probabilities $l_i$. What we want to compute is the logarithm of the sum of the original probabilities, i.e., $\log(\sum_i \exp(l_i))$. The naive computation of this sum often results in numerical problems, especially, if the original probabilities are very different.
+A more exact solution is provided by the static method \lstinline+getLogSum+ of the class \Normalisation, which can be accessed by calling
 \addtocounter{off}{3}
 \code{0}
+Of course, this method does not only work for probabilities, but for general log-values.
 
+Sometimes, we also want to normalize the given probabilities. That means, given the log-probabilities $l_i$, we want to obtain normalized probabilities $p_i = \frac{\exp(l_i)}{\sum_j \exp(l_j)}$. This normalization is performed by calling
 \addtocounter{off}{3}
 \code{0}
+and after the call, the array \lstinline+values+ contains the normalized probabilities (not log-probabilities!).
 
+Finally, we might want to do the same for probabilities, i.e. given probabilities $q_i$ in an array \lstinline+values+, we want to compute $p_i = \frac{q_i}{\sum_j q_j}$ using
 \addtocounter{off}{3}
 \code{0}
+A typical application for the last two methods are (log) joint probabilities that we want use to compute conditional probabilities by dividing by a marginal probability.
 
 \subsection{Goodies}
-
+The class \SafeOutputStream~is a simple way to switch between writing outputs of a program to standard out, to a file, or to completely suppress output. This class is basically a wrapper for other output streams that can handle \lstinline+null+ values. You can create a \SafeOutputStream~writing to standard out with
 \addtocounter{off}{3}
 \code{0}
+If you provided \lstinline+null+ to the factory method instead, output would be suppressed, while no modifications in code using this \SafeOutputStream~ would be necessary.
 
+Finally, the class \SubclassFinder~can be used to search for all subclasses of a given class in a specified package and its sub-packages. For example, if we want to find all concrete sub-classes of \TrainSM, i.e., classes that are not abstract and can be instantiated, in all sub-packages of \lstinline+de.jstacs+, we call
 \addtocounter{off}{7}
 \code{0}
+and obtain a linked list containing all such classes. Other methods in \SubclassFinder~allow for searching for general sub-types including interfaces and abstract classes, or for filtering the results by further required interfaces.

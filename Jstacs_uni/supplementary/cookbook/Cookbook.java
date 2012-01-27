@@ -626,7 +626,11 @@ public class Cookbook {
 		TrainableStatisticalModel[] models = ArrayHandler.createArrayOf( pwm, 10 );
 		
 		//ArrayHandler cast
-		BayesianNetworkTrainSM[] bns = ArrayHandler.cast( BayesianNetworkTrainSM.class, models );
+		Object[] m = new Object[]{
+		    TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, 10, 4.0 ),
+		    TrainableStatisticalModelFactory.createHomogeneousMarkovModel( DNAAlphabetContainer.SINGLETON, 40.0, (byte)0 )
+		};
+		TrainableStatisticalModel[] sms = ArrayHandler.cast( TrainableStatisticalModel.class, models );
 		
 		//ToBo.max
 		double max = ToolBox.max( values );
