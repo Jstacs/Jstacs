@@ -18,7 +18,7 @@ Since the implementation of the clone method is very score-specific, it must be 
 These are
 \addtocounter{off}{7}
 \code{0}
-which returns the current \AlphabetContainer~of the model, i.e., the \AlphabetContainer~of \Sequence s this \SeqScore can score,
+which returns the current \AlphabetContainer~of the model, i.e., the \AlphabetContainer~of \Sequence s this \SeqScore~can score,
 \addtocounter{off}{7}
 \code{0}
 which returns a - distinguishing - name of the current \SeqScore~instance, and
@@ -34,18 +34,18 @@ and
 \code{0}
 can be used to return some properties of a \SeqScore~like the number of parameters, the depth of some tree structure, or whatever seems useful. In the latter case, these characteristics are limited to numerical values. If a model is used, e.g., in a cross validation (\KFoldCrossValidation), these numerical properties are averaged over all cross validation iterations and displayed together with the performance measures.
 
-The scoring of input \Sequence is performed by three methods \lstinline+getLogScore+. The name of this method reflects that the returned score should be on a lagorithmic scale. For instance, for a stastical model with a proper likelihood over the sequences this score would correspond to the log-likelihood.
+The scoring of input \Sequence s is performed by three methods \lstinline+getLogScore+. The name of this method reflects that the returned score should be on a lagorithmic scale. For instance, for a stastical model with a proper likelihood over the sequences this score would correspond to the log-likelihood.
 The first method
 \addtocounter{off}{10}
 \code{0}
 returns the score for the given \Sequence. For reasons of efficiency, it is not intended to check if the length or
 the \AlphabetContainer~of the \Sequence~match those of the \SeqScore. Hence, no exception is declared for this method. So if
-this method is used (instead of the more stringent methods of \StatMod, see \ref{}) this should be checked externally.
+this method is used (instead of the more stringent methods of \StatMod, see \ref{StatMod}) this should be checked externally.
 
 The second method is
 \addtocounter{off}{13}
 \code{0}
-which returns the score for the sub-sequence starting at position \lstinline+start+ end extending to the end of the \Sequence or the end of the \SeqScore, whichever comes first.
+which returns the score for the sub-sequence starting at position \lstinline+start+ end extending to the end of the \Sequence~or the end of the \SeqScore, whichever comes first.
 
 The third method is
 \addtocounter{off}{17}
@@ -77,7 +77,7 @@ ready to score \Sequence s.
 The interface \DiffSS~extends \SeqScore~ and adds all methods that are necessary for a numerical optimization of the parameters
 of a \SeqScore. This especially includes the computation of the gradient w.r.t. the parameters for a given input \Sequence.
 
-Before we can start a numerical optimization, we first need to specify initial parameters. \DiffSS declares two 
+Before we can start a numerical optimization, we first need to specify initial parameters. \DiffSS~declares two 
 methods for that purpos. The first is
 \code{1}
 which is tailored to initializing the parameters from a given data set. The parameters have the following meaning: \lstinline+index+ is the index of the class this \DiffSS~ represents.
@@ -127,7 +127,7 @@ Finally, the method
 \code{0}
 returns the class parameter for a given class probability. The default implementation in the abstract class \AbstractDiffSS~returns \lstinline+Math.log(classProb)+. This abstract class also provides standard implementations for many of the other methods.
 
-\subsection{StatisticalModels}
+\subsection{StatisticalModels}\label{StatMod}
 \renewcommand{\codefile}{../../de/jstacs/sequenceScores/statisticalModels/StatisticalModel.java}
 \setcounter{off}{139}
 
