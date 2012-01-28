@@ -131,10 +131,10 @@ to, for instance, obtain the first (index $0$) annotation of type ``Motif''.
 In most cases, we want to load \Sequence s from some FastA or plain text file instead of creating \Sequence s manually from strings. In Jstacs, collections of \Sequence s are represented by
 \DataSet s. The class \DataSet~(and \DNADataSet) provide constructors that work on a file or the path to a file, and parse the contents of the file to a \DataSet, i.e. a collection of \Sequence s.
 
-The most simple case is to create a \DNADataSet~from a FastA file. To do so, we call the constructor of \DNADataSet with the (absolute or relative) path to the FastA file:
+The most simple case is to create a \DNADataSet~from a FastA file. To do so, we call the constructor of \DNADataSet~with the (absolute or relative) path to the FastA file:
 \addtocounter{off}{3}
 \code{0}
-For other file formats and types of \Sequence s, \DataSet~provides another constructor that works on the \AlphabetContainer for the data in the file, a \StringExtractor~that handles the extraction of
+For other file formats and types of \Sequence s, \DataSet~provides another constructor that works on the \AlphabetContainer~for the data in the file, a \StringExtractor~that handles the extraction of
 the strings representing single sequences and skipping comment lines, and a delimiter between the elements of a sequence. Hence, the \StringExtractor, a \SparseStringExtractor~in the example, requires the specification of the path to the file and the symbol that indicates comment line. For example, if we want to create a sample of continuous sequences stored in a tab-separated plain text file ``myfile.tab'', we use the \AlphabetContainer~with a continuous \Alphabet~from above, a \StringExtractor~with a hash as the comment symbol, and a tab as the delimiter:
 \addtocounter{off}{3}
 \code{0}
