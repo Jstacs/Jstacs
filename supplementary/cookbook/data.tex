@@ -4,7 +4,7 @@ In Jstacs, data is organized at three levels:
   \item \Sequence s for defining sequences of symbols over a given alphabet,
   \item \DataSet s for defining sets of sequences.
 \end{itemize}
-Sequences are implemented as an array of numerical values. In case of discrete sequences over some symbolic alphabet,
+Sequences are implemented as numerical values. In case of discrete sequences over some symbolic alphabet,
 the symbols are mapped to contiguous discrete values starting at $0$, which can be mapped back to the original symbols
 using the alphabet. This mapping is also used for the \lstinline{toString()} method, e.g., for printing a sequence. The actual 
 data type, i.e. byte, short, or integer, used to represented the symbols is chosen internally depending on the size of 
