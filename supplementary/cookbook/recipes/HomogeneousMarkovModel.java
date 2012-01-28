@@ -16,7 +16,7 @@
  * For more information on Jstacs, visit http://www.jstacs.de
  */
 
-package supplementary.codeExamples;
+package supplementary.cookbook.recipes;
 
 import java.util.Arrays;
 
