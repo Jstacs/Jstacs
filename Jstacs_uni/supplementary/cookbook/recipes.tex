@@ -1,46 +1,87 @@
-In this section, we show some more complex code examples. All these code examples can be downloaded at \textcolor{red}{XXXX}.
+\lstset{language=Java,basicstyle=\footnotesize\ttfamily,
+keywordstyle=\color{lstblue},
+commentstyle=\color{lstgreen}\ttfamily,
+tabsize=2,
+breaklines=true,
+breakatwhitespace=true}
+
+In this section, we show some more complex code examples. All these code examples can be downloaded at \textcolor{red}{XXXX} and may serve as a starting points for your own applications.
 
 \subsection{Creation of user-specfic alphabet}
+In this example, we create a new \ComplementableDiscreteAlphabet~using the generic implementation. We then use this \Alphabet~to create a \Sequence~and compute its reverse complement.
 \renewcommand{\codefile}{./recipes/AlphabetCreation.java}
 \setcounter{off}{33}
 \code{16}
 
 \subsection{Creating Data sets}
+In this example, we show different ways of creating a \DataSet~ in Jstacs from plain text and FastA files and using the adaptor to BioJava.
 \renewcommand{\codefile}{./recipes/DataLoader.java}
 \setcounter{off}{42}
 \code{23}
 
 \subsection{Using TrainSMBasedClassifier}
+In this example, we show how to create a \TrainSMBasedClassifier~using to position weight matrices, train this classifier, classify previously unlabeled data, store the classifier to its XML representation, and load it back into Jstacs.
 \renewcommand{\codefile}{./recipes/TrainSMBasedClassifierTest.java}
 \setcounter{off}{53}
 \code{48}
 
 \subsection{Using GenDisMixClassifier}
+In this example, we show how to create \GenDisMixClassifier s using two position weight matrices. We show how \GenDisMixClassifier~s can be created for all basic learning principles (ML, MAP, MCL, MSP), and how these classifiers can be trained and assessed.
 \renewcommand{\codefile}{./recipes/GenDisMixClassifierTest.java}
 \setcounter{off}{54}
 \code{51}
 
 \subsection{Accessing R from Jstacs}
+Here, we show a number of examples how R can be used from within Jstacs using RServe.
 \renewcommand{\codefile}{./recipes/RserveTest.java}
 \setcounter{off}{40}
 \code{38}
 
 \subsection{Getting ROC and PR curve from a classifier}
+In this example, we show how a classifier (loaded from disk) can be assessed on test data, and how we can plot ROC and PR curves of this classifier and test data set.
 \renewcommand{\codefile}{./recipes/CurvePlotter.java}
 \setcounter{off}{53}
 \code{39}
 
 \subsection{Performing crossvalidation}
+In this example, we show how we can compare classifiers built on different types of models and using different learning principles in a cross validation. Specifically, we create a position weight matrix, use that matrix to create a mixture model, and we create an inhomogeneous Markov model of order $3$. We do so in the world of \TrainSM s and in the world of \DiffSM s. We then use the mixture model as foreground model and the inhomogeneous Markov model as the background model when building classifiers. The classifiers are learned by the generative MAP principle and the discriminative MSP principle, respectively. 
+We then assess these classifiers in a $10$-fold cross validation.
 \renewcommand{\codefile}{./recipes/Crossvalidation.java}
 \setcounter{off}{62}
 \code{92}
 
 \subsection{Implementing a TrainableStatisticalModel}
+In this example, we show how to implement a new \TrainSM. Here, we implement a simple homogeneous Markov models of order $0$ to focus on the technical side of the implementation. A homogeneous Markov model of order $0$ has parameters $\theta_a$ where $a$ is a symbol of the alphabet $\Sigma$ and $\sum_{a \in \Sigma} \theta_a = 1$. For an input sequence $\bm{x} = x_1,\ldots,x_L$ it models the likelihood
+\begin{align*}
+P(\bm{x}|\bm{\theta}) &= \prod_{l=1}^{L} \theta_{x_l}.
+\end{align*}
+In the implementation, we use log-parameters $\log \theta_a$.
 \renewcommand{\codefile}{../codeExamples/HomogeneousMarkovModel.java}
 \setcounter{off}{35}
 \code{93}
 
 \subsection{Implementing a DifferentiableStatisticalModel}
+In this example, we show how to implement a new \DiffSM. Here, we implement a simple position weight matrix, i.e., an inhomogeneous Markov model of order $0$. Since we want to use this position weight matrix in numerical optimization, we parameterize it in the so called ``natural parameterization'', where the probability of symbol $a$ at position $l$ is $P(X_l=a | \bm{\lambda}) = \frac{\exp(\lambda_{l,a})}{ \sum_{\tilde{a}} \exp(\lambda_{l,\tilde{a}}) }$. Since we use a product-Dirichlet prior on the parameters, we transformed this prior to the parameterization we use.
+
+Here, the method \lstinline+getLogScore+ returns a log-score that can be normalized to a proper log-likelihood by subtracting a log-normalization constant.
+The log-score for an input sequence $\bm{x} = x_1,\ldots,x_L$ essentially is
+\begin{align*}
+S(\bm{x}|\bm{\lambda}) &= \sum_{l=1}^{L} \lambda_{l,x_l}.
+\end{align*}
+The normalization constant is a partition function, i.e., the sum of the scores over all possible input sequences:
+\begin{align*}
+Z(\bm{\lambda}) &= \sum_{\bm{x} \in \Sigma^L} \exp( S(\bm{x}|\bm{\lambda}) )\\
+&= \sum_{\bm{x} \in \Sigma^L} \prod_{l=1}^{L} \exp(\lambda_{l,x_l})\\
+&= \prod_{l=1}^{L} \sum_{a \in \Sigma} \exp(\lambda_{l,a})
+\end{align*}
+Thus, the likelihood is defined as
+\begin{align*}
+P(\bm{x}|\lambda) &= \frac{\exp(S(\bm{x}|\bm{\lambda}))}{Z(\bm{\lambda})}
+\end{align*}
+and
+\begin{align*}
+\log P(\bm{x}|\lambda) &= S(\bm{x}|\bm{\lambda})) - \log Z(\bm{\lambda}).
+\end{align*}
 \renewcommand{\codefile}{../codeExamples/PositionWeightMatrixDiffSM.java}
 \setcounter{off}{18}
-\code{204}
+\code{238}

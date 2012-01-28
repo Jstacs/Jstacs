@@ -11,8 +11,8 @@ All kinds of primitives or \Storable s are appended to an existing \lstinline+St
 \code{3}
 If we assume that \lstinline+buffer+ was an empty \lstinline+StringBuffer+ before appending these two elements, the resulting XML text will be
 \begin{lstlisting}[language=XML]
-<integer>5</integer>
-<foo>hallo welt</foo>
+<integer><className>java.lang.Integer</className>5</integer>
+<foo><className>java.lang.String</className>hello world</foo>
 \end{lstlisting}
 In exactly the same manner, we can append XML representations of arrays of primitives, for example a two-dimensional array of \lstinline+double+ s
 \addtocounter{off}{6}
@@ -90,7 +90,7 @@ Since such a \link{parameters}{ParameterSetContainer} can itself be part of anot
 
 \subsection{Results \& ResultSets}
 
-We distinguish two types of \Result s, namely \NumericalResult s and \CategoricalResult s. The first are results containing numerical values, which can be aggregated, for instance averaged, while the latter are results of categorical values like strings or booleans. 
+In Jstacs, several types of \Result s are implemented. The two basic \Result~types are \NumericalResult s and \CategoricalResult s. The first are results containing numerical values, which can be aggregated, for instance averaged, while the latter are results of categorical values like strings or booleans. 
 For example, we can create a \NumericalResult~containing a single \lstinline+double+ value by the following line
 \addtocounter{off}{6}
 \code{0}
