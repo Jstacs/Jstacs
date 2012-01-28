@@ -128,7 +128,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 	 * 
 	 * @throws IllegalArgumentException if at least one <code>function</code> has length 0
 	 * 
-	 * @see SequenceScore#getLength()
+	 * @see de.jstacs.sequenceScores.SequenceScore#getLength()
 	 * @see #IndependentProductDiffSS(boolean, DifferentiableSequenceScore...)
 	 */
 	protected final static int[] getLengthArray( DifferentiableSequenceScore... function ) throws IllegalArgumentException {
