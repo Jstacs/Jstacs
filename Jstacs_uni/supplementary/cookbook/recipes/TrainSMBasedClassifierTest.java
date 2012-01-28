@@ -43,7 +43,7 @@ public class TrainSMBasedClassifierTest {
 	/**
 	 * @param args
 	 * <ul>
-	 * <li>args[0] contains the path to the classifier</li>
+	 * <li>args[0] contains the path where the classifier will be stored</li>
 	 * <li>args[1] contains the path to the foreground data set</li>
 	 * <li>args[2] contains the path to the background data set</li>
 	 * <li>args[3] contains the path to the data set to be classified</li>
