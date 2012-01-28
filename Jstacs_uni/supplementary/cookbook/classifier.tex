@@ -1,25 +1,40 @@
-\setcounter{off}{544}%line containing: public static void classifier() throws Exception {
-%
+\renewcommand{\codefile}{../../de/jstacs/classifiers/AbstractClassifier.java}
+\setcounter{off}{422}
+
 Classifiers allow to classify, i.e., label, previously uncharacterized data. In Jstacs, we provide the abstract class \AbstractClassifier~that declares three important methods besides several others. 
 
-\begin{itemize}
-  \item The first method trains a classifier, i.e., it somehow adjusts to the train data.
-  
-  \addtocounter{off}{30}
-  \code{0}
-  
-  \item The second method classifies a given sequence. If we like to classify for instance the first sequence of a data set, we might use
-  
-  \addtocounter{off}{3}
+The first method trains a classifier, i.e., it somehow adjusts to the train data:
   \code{0}
 
-  \item	The third method allows for assessing the performance. Typically this is done on some test data 
+The second method classifies a given \Sequence:
   
-  \addtocounter{off}{8}
+  \addtocounter{off}{-274}
+  \code{0}
+
+\renewcommand{\codefile}{\defaultcodefile}
+\setcounter{off}{577}
+If we like to classify for instance the first sequence of a data set, we might use
+\code{0}
+In addition to this method, another method \lstinline+classify(DataSet)+ exists that performs a classification for all \Sequence s in a \DataSet.
+
+\renewcommand{\codefile}{../../de/jstacs/classifiers/AbstractClassifier.java}
+\setcounter{off}{216}
+The third method allows for assessing the performance. Typically this is done on test data
   \code{0}
   
-  where \lstinline+measures+ is a \ParameterSet~of performance measures (cf. subsection~\ref{Performance}), \lstinline+true+ indicates that an exception should be thrown if a performance measure could not be computed, and \lstinline+data+ is an array of data sets, where dimension \lstinline+i+ contains data of class \lstinline+i+.
-\end{itemize}
+  where \lstinline+params+ is a \ParameterSet~of performance measures (cf. subsection~\ref{Performance}), \lstinline+exceptionIfNotComputeable+ indicates if an exception should be thrown if a performance measure could not be computed, and \lstinline+s+ is an array of data sets, where dimension \lstinline+i+ contains data of class \lstinline+i+.
+
+The abstract sub-class \AbstractScoreBasedClassifier~ of \AbstractClassifier~adds an additional method for computing a joint score for an input \Sequence~ and a given class:
+\renewcommand{\codefile}{../../de/jstacs/classifiers/AbstractScoreBasedClassifier.java}
+\setcounter{off}{274}
+ \code{0}
+Similar to the \lstinline+classify+ method. For two-class problems, the method
+\setcounter{off}{560}
+ \code{0}
+allows for computing the score-differences given foreground and background class for all \Sequence s in the \DataSet~\lstinline+s+. Such scores are typically the sum of the a-priori class log-score or log-probability and the score returned by \lstinline+getLogScore+ of \SeqScore~ or \lstinline+getLogProb+ of \StatMod.
+
+\renewcommand{\codefile}{\defaultcodefile}
+\setcounter{off}{585}
 
 Sometimes data is not split into test and train data for several diverse reasons, as for instance limited amount of data. In such cases, it is recommended to utilize some repeated procedure to split the data, train on one part and classify on the other part. In Jstacs, we provide the abstract class \ClassifierAssessment~that allows to implement such procedures. In subsection~\ref{Assessment}, we describe how to use \ClassifierAssessment~and its extension.
 
