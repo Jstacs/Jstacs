@@ -95,10 +95,11 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	}
 
 	/**
-	 * Constructs a new {@link PerformanceMeasureParameterSet} that can be used for classifiers that
-	 * handle the given number of classes. The instance contains the given performance measures.
+	 * Constructs a new {@link PerformanceMeasureParameterSet} with the given performance measures.
+	 * The number of classes this {@link PerformanceMeasureParameterSet} can be used for is determined from
+	 * the given {@link AbstractPerformanceMeasure}s.
 	 * 
-	 * @param numClasses the number of classes 
+	 * @param measures the {@link AbstractPerformanceMeasure} that shall be used
 	 *  
 	 * @throws Exception if something went wrong
 	 * 
