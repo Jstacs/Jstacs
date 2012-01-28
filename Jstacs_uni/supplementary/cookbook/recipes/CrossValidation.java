@@ -148,7 +148,7 @@ public class CrossValidation {
 		//we use a specificity of 0.999 to compute the sensitivity and a sensitivity of 0.95 to compute FPR and PPV
 		NumericalPerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters();
 		//we do a 10-fold cross validation and partition the data by means of the number of symbols
-		KFoldCrossValidationAssessParameterSet cvpars = new KFoldCrossValidationAssessParameterSet(PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, length, true, 2);
+		KFoldCrossValidationAssessParameterSet cvpars = new KFoldCrossValidationAssessParameterSet(PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, length, true, 10);
 		 
 		//compute the result of the cross validation and print them to System.out
 		System.out.println( cv.assess( mp, cvpars, data ) );
