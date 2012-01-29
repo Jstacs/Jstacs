@@ -20,33 +20,36 @@ package de.jstacs.algorithms.alignment.cost;
 import de.jstacs.data.sequences.Sequence;
 
 /**
- * Class for simple costs with costs <code>mismatch</code> for a mismatch,
- * costs <code>start</code> to start a new gap, costs <code>elong</code> to
- * elongate a gap by one position and costs of <code>match</code> for a match.
+ * Class for simple costs with costs 
+ * <ul>
+ * <li><code>match</code> for a match,</li>
+ * <li><code>mismatch</code> for a mismatch, and</li>
+ * <li><code>gap</code> for a gap (of length 1).</li>
+ * </ul>
+ * 
+ * @author Jan Grau, Jens Keilwagen
  */
-public class SimpleCosts extends AffineCosts {
+public class SimpleCosts implements Costs {
 
 	private double match;
-	
 	private double mismatch;
+	private double gap;
 
 	/**
 	 * Creates a new instance of simple costs with costs
-	 * <code>mismatch</code> for a mismatch, costs <code>start</code> to
-	 * start a new gap, costs <code>elong</code> to elongate a gap by one
-	 * position and costs of <code>match</code> for a match.
+	 * <code>match</code> for a match,
+	 * <code>mismatch</code> for a mismatch, and
+	 * <code>gap</code> for a gap (of length 1).
 	 *
 	 * @param match
 	 *            the match costs
 	 * @param mismatch
 	 *            the mismatch costs
-	 * @param start
-	 *            the costs to start a gap
-	 * @param elong
-	 *            the costs to elongate a gap
+	 * @param gap
+	 *            the costs for a gap
 	 */
-	public SimpleCosts( double match, double mismatch, double start, double elong ) {
-		super( start, elong );
+	public SimpleCosts( double match, double mismatch, double gap ) {
+		this.gap = gap;
 		if( mismatch <= 0 ) {
 			throw new IllegalArgumentException( "Problem: mismatch <= 0" );
 		}
@@ -62,7 +65,7 @@ public class SimpleCosts extends AffineCosts {
 	 */
 	public double getCostFor( Sequence s1, Sequence s2, int i, int j, Direction from ) {
 		if( from == Direction.TOP || from == Direction.LEFT ) {
-			return getGapCostsFor(1);
+			return gap;
 		} else {
 			if( s1.discreteVal( i - 1 ) != s2.discreteVal( j - 1 ) ) {
 				return mismatch;
@@ -70,5 +73,10 @@ public class SimpleCosts extends AffineCosts {
 				return match;
 			}
 		}
+	}
+
+	@Override
+	public double getGapCosts() {
+		return gap;
 	}
 }
