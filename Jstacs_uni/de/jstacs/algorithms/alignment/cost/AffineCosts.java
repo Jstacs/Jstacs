@@ -17,6 +17,8 @@
  */
 package de.jstacs.algorithms.alignment.cost;
 
+import de.jstacs.data.sequences.Sequence;
+
 
 /**
  * This class implements affine gap costs, i.e., the costs for starting a new gap are given by <code>start</code>, and
@@ -24,36 +26,56 @@ package de.jstacs.algorithms.alignment.cost;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public abstract class AffineCosts implements Costs {
+public class AffineCosts implements Costs {
 	private double start;
 	private double elong;
+	private Costs c;
 	
 	/**
-	 * This constructor must be used by any constructor of any subclass to define the affine gap costs of an alignment.
+	 * This constructor creates a new instance of cost using affine gap costs.
+	 * The costs for match, mismatch and gap elongation are defined by <code>c</code>,
+	 * while the costs for a start of a gap are given by <code>start</code>.
 	 * 
 	 * @param start the costs for starting a gap
-	 * @param elong the cost for elongating a gap
+	 * @param c the cost for match, mismatch and gap elongation
 	 */
-	protected AffineCosts( double start, double elong ) {
+	public AffineCosts( double start, Costs c ) {
+		this.c = c;
+		this.elong = c.getGapCosts();
 		if( start < 0 && -start > elong ) {
 			throw new IllegalArgumentException( "Problem: start < 0 && -start > elong" );
 		}
 		this.start = start;
-		this.elong = elong;
 	}
 	
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.algorithms.Alignment.Costs#getElongateCosts()
+	/**
+	 * Returns the costs to elongate a gap by one position.
+	 * 
+	 * @return the corresponding costs
 	 */
 	public double getElongateCosts() {
 		return elong;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.algorithms.Alignment.Costs#getGapCostsFor(int)
+	/**
+	 * Returns the costs for a gap of length <code>length</code>.
+	 * 
+	 * @param length
+	 *            the length of the gap
+	 * 
+	 * @return the corresponding costs
 	 */
 	public double getGapCostsFor( int length ) {
 		return start + ( length * elong );
+	}
+
+	@Override
+	public double getCostFor(Sequence s1, Sequence s2, int i, int j, Direction from) {
+		return c.getCostFor(s1, s2, i, j, from);
+	}
+
+	@Override
+	public double getGapCosts() {
+		return c.getGapCosts();
 	}
 }

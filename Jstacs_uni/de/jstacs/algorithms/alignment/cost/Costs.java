@@ -73,19 +73,9 @@ public interface Costs {
 	public double getCostFor( Sequence s1, Sequence s2, int i, int j, Direction from );
 
 	/**
-	 * Returns the costs for a gap of length <code>length</code>.
-	 * 
-	 * @param length
-	 *            the length of the gap
-	 * 
-	 * @return the corresponding costs
+	 * Returns the costs for a gap.
+	 *  
+	 * @return the costs for a gap
 	 */
-	public double getGapCostsFor( int length );
-
-	/**
-	 * Returns the costs to elongate a gap by one position.
-	 * 
-	 * @return the corresponding costs
-	 */
-	public double getElongateCosts();
+	public double getGapCosts();
 }

@@ -18,16 +18,18 @@
 
 package de.jstacs.algorithms.alignment;
 
+import de.jstacs.algorithms.alignment.cost.AffineCosts;
 import de.jstacs.algorithms.alignment.cost.Costs;
 import de.jstacs.algorithms.alignment.cost.Costs.Direction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 
 /**
- * Class for gapped alignments using the Gotohs algorithm.
+ * Class for computing optimal alignments using Needleman-Wunsch algorithm of for affine gap costs Gotohs algorithm.
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
+ * @see AffineCosts
  */
 public class Alignment {
 
@@ -54,10 +56,12 @@ public class Alignment {
 	private int startS1, startS2;
 	
 	private Sequence s1, s2;
+	int l1, l2;
 
-	private Costs costs;
+	private Costs costs;	
+	private AffineCosts aCosts;
 
-	private D[][] d;
+	private Element[][] d;
 
 	private E[][] e;
 
@@ -105,6 +109,11 @@ public class Alignment {
 	public Alignment( AlignmentType type, Costs costs, int offDiagonal ) {
 		this.type = type;
 		this.costs = costs;
+		if( costs instanceof AffineCosts ) {
+			aCosts = (AffineCosts) costs;
+		} else {
+			aCosts = null;
+		}
 		this.offDiagonal = offDiagonal;
 	}
 
@@ -139,14 +148,22 @@ public class Alignment {
 		this.s1 = s1; this.startS1 = startS1;
 		this.s2 = s2; this.startS2 = startS2;
 		
-		int l1 = endS1-startS1, l2 = endS2-startS2, start, end, h;
+		l1 = endS1-startS1;
+		l2 = endS2-startS2;
+		
 		if( Math.abs(l1-l2) > offDiagonal ) throw new IllegalArgumentException("The number of secondary diagonals must be at least as large as the difference of the lengths, but is "+offDiagonal+" < "+Math.abs(l1-l2)+".");
+		
+		int start, end, h;
 		
 		//initialize & compute
 		if( d == null || d.length < l1+1 || d[0].length < l2+1 ) {
-			d = new D[l1 + 1][l2 + 1];
-			e = new E[l1 + 1][l2 + 1];
-			f = new F[l1 + 1][l2 + 1];
+			if( aCosts == null ) {
+				d = new Naive[l1+1][l2+1];
+			} else {
+				d = new D[l1 + 1][l2 + 1];
+				e = new E[l1 + 1][l2 + 1];
+				f = new F[l1 + 1][l2 + 1];
+			}
 			
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
@@ -157,10 +174,14 @@ public class Alignment {
 					end = l2;
 				}
 				for( int j = start; j <= end; j++ ) {
-					e[i][j] = new E( i, j );
-					f[i][j] = new F( i, j );
-					d[i][j] = new D( i, j );
+					if( aCosts == null ) {
+						d[i][j] = new Naive( i, j );
+					} else {
+						d[i][j] = new D( i, j );
+					}
+					//System.out.print( d[i][j].cost + "\t" );
 				}
+				//System.out.println();
 			}
 		} else {
 			for( int i = 0; i <= l1; i++ ) {
@@ -172,8 +193,6 @@ public class Alignment {
 					end = l2;
 				}
 				for( int j = start; j <= end; j++ ) {
-					e[i][j].compute();
-					f[i][j].compute();
 					d[i][j].compute();
 				}
 			}
@@ -196,12 +215,16 @@ public class Alignment {
 			}
 		} else {
 			endPos=l1;
-			if( e[l1][l2].cost < f[l1][l2].cost && e[l1][l2].cost < d[l1][l2].cost ) {
-				curr = e[l1][l2];
-			} else if( f[l1][l2].cost < d[l1][l2].cost ) {
-				curr = f[l1][l2];
-			} else {
+			if( aCosts == null ) {
 				curr = d[l1][l2];
+			} else {
+				if( e[l1][l2].cost < f[l1][l2].cost && e[l1][l2].cost < d[l1][l2].cost ) {
+					curr = e[l1][l2];
+				} else if( f[l1][l2].cost < d[l1][l2].cost ) {
+					curr = f[l1][l2];
+				} else {
+					curr = d[l1][l2];
+				}
 			}
 		}
 
@@ -212,7 +235,7 @@ public class Alignment {
 
 		AlphabetContainer cont = s1.getAlphabetContainer();
 
-		while( curr.pre != null ) {
+		while( curr.direction != null ) {
 			if( curr.direction == Direction.DIAGONAL ) {
 				b1.insert( 0, cont.getSymbol( startS1 + curr.i - 1, s1.discreteVal( startS1 + curr.i - 1 ) ) );
 				b2.insert( 0, cont.getSymbol( startS2 + curr.j - 1, s2.discreteVal( startS2 + curr.j - 1 ) ) );
@@ -230,7 +253,7 @@ public class Alignment {
 				startPos = startS1+curr.i-1;
 			}
 			
-			curr = curr.pre;
+			curr = curr.getPre();
 		}
 
 		return new PairwiseStringAlignment( b1.toString(), b2.toString(), cost, startPos, endPos );
@@ -266,11 +289,6 @@ public class Alignment {
 		protected Direction direction;
 
 		/**
-		 * The predecessor-element in the DP-matrix.
-		 */
-		protected Element pre;
-
-		/**
 		 * Creates a new element for row <code>i</code> and column
 		 * <code>j</code>.
 		 * 
@@ -282,20 +300,48 @@ public class Alignment {
 		public Element( int i, int j ) {
 			this.i = i;
 			this.j = j;
+			prepare();
 			compute();
 		}
 		
+		public abstract Element getPre();
+
+		protected void prepare(){}
+		
 		public abstract void compute();
+	}
+	
+	private abstract class PreElement extends Element {
+		
+		public PreElement(int i, int j) {
+			super(i, j);
+		}
+
+		/**
+		 * The predecessor-element in the DP-matrix.
+		 */
+		protected Element pre;
+		
+		public final Element getPre() {
+			return pre;
+		}
 	}
 
 	//(mis-)match (== S in http://de.wikipedia.org/wiki/Gotoh-Algorithmus)
-	private class D extends Element {
+	private class D extends PreElement {
 
 		private D( int i, int j ) {
 			super( i, j );
 		}
 		
+		protected void prepare() {
+			e[i][j] = new E( i, j );
+			f[i][j] = new F( i, j );
+		}
+		
 		public void compute() {
+			e[i][j].compute();
+			f[i][j].compute();
 			if( i == 0 && j == 0 ) {
 				cost = 0;
 			} else if( i == 0 && j > 0 ) {
@@ -328,7 +374,7 @@ public class Alignment {
 				if( type == AlignmentType.LOCAL ) {
 					if( 0 < cost ) {
 						cost = 0;
-						direction = Direction.SELF;
+						direction = null;
 						pre = null;
 					}
 				}
@@ -337,7 +383,7 @@ public class Alignment {
 	}
 
 	//gap in first string (== H in http://de.wikipedia.org/wiki/Gotoh-Algorithmus)
-	private class E extends Element {
+	private class E extends PreElement {
 
 		private E( int i, int j ) {
 			super( i, j );
@@ -347,32 +393,30 @@ public class Alignment {
 			if( j == 0 || e[i][j-1] == null ) {
 				cost = Double.POSITIVE_INFINITY;
 			} else if( i == 0 && j > 0 ) {
-				direction = Direction.LEFT;
 				if( type==AlignmentType.LOCAL ) {
 					cost = 0; 
-					pre = null;
 				} else {
+					direction = Direction.LEFT;
 					pre = e[i][j - 1];
-					cost = costs.getGapCostsFor( j );					
+					cost = aCosts.getGapCostsFor( j );					
 				}
 			} else {
-				double elong = e[i][j - 1].cost + costs.getElongateCosts();
-				double start = d[i][j - 1].cost + costs.getGapCostsFor( 1 );
+				double elong = e[i][j - 1].cost + aCosts.getElongateCosts();
+				double start = d[i][j - 1].cost + aCosts.getGapCostsFor( 1 );
 				if( elong < start ) {
 					cost = elong;
-					direction = Direction.LEFT;
 					pre = e[i][j - 1];
 				} else {
 					cost = start;
-					direction = Direction.LEFT;
 					pre = d[i][j - 1];
 				}
+				direction = Direction.LEFT;
 			}
 		}
 	}
 
 	//gap in second string (== V in http://de.wikipedia.org/wiki/Gotoh-Algorithmus)
-	private class F extends Element {
+	private class F extends PreElement {
 
 		private F( int i, int j ) {
 			super( i, j );
@@ -382,25 +426,93 @@ public class Alignment {
 			if( i == 0 || f[i-1][j] == null ) {
 				cost = Double.POSITIVE_INFINITY;
 			} else if( i > 0 && j == 0 ) {
-				direction = Direction.TOP;
-				cost = type!=AlignmentType.GLOBAL ? 0 : costs.getGapCostsFor( i );
+				direction = type==AlignmentType.LOCAL ? null : Direction.TOP;
+				cost = type!=AlignmentType.GLOBAL ? 0 : aCosts.getGapCostsFor( i );
 				pre = type==AlignmentType.LOCAL ? null : f[i - 1][j];
-			} else if ( type==AlignmentType.SEMI_GLOBAL && i > 0 && j == s2.getLength() ) {
+			} else if ( type==AlignmentType.SEMI_GLOBAL && i > 0 && j == l2 ) {
 				direction = Direction.TOP;
 				pre = d[i - 1][j];
 				cost = pre.cost;
 			} else {
-				double elong = f[i - 1][j].cost + costs.getElongateCosts();
-				double start = d[i - 1][j].cost + costs.getGapCostsFor( 1 );
+				double elong = f[i - 1][j].cost + aCosts.getElongateCosts();
+				double start = d[i - 1][j].cost + aCosts.getGapCostsFor( 1 );
 				if( elong < start ) {
 					cost = elong;
-					direction = Direction.TOP;
 					pre = f[i - 1][j];
 				} else {
 					cost = start;
-					direction = Direction.TOP;
 					pre = d[i - 1][j];
 				}
+				direction = Direction.TOP;
+			}
+		}
+	}
+	
+	private class Naive extends Element {
+
+		private Naive( int i, int j ) {
+			super( i, j );
+		}
+		
+		public void compute() {
+			if( i == 0 && j == 0 ) {
+				cost = 0;
+			} else if( i == 0 && j > 0 ) {
+				direction = Direction.LEFT;
+				
+				cost = d[i][j-1].cost+costs.getGapCosts();
+			} else if( i > 0 && j == 0 ) {
+				if( type != AlignmentType.LOCAL ) {
+					direction = Direction.TOP;
+				}
+				cost = type != AlignmentType.GLOBAL ? 0 :  d[i-1][j].cost + costs.getGapCosts();
+			} else {
+				double diag = d[i - 1][j - 1].cost + costs.getCostFor( s1, s2, startS1+i, startS2+j, Direction.DIAGONAL );
+				double left;
+				if( d[i][j-1] == null ) {
+					left = Double.POSITIVE_INFINITY;
+				} else {
+					left = d[i][j - 1].cost + costs.getGapCosts();
+				}
+				double top;
+				if( d[i-1][j] == null ) {
+					top = Double.POSITIVE_INFINITY;
+				} else {
+					top = d[i-1][j].cost;
+					if ( type!=AlignmentType.SEMI_GLOBAL || j != l2 ) {
+						top += costs.getGapCosts();;
+					}
+				}
+				
+				if( diag < left && diag < top ) {
+					cost = diag;
+					direction = Direction.DIAGONAL;
+				} else if( left < top ) {
+					cost = left;
+					direction = Direction.LEFT;
+				} else {
+					cost = top;
+					direction = Direction.TOP;
+				}
+			}
+			
+			if( type == AlignmentType.LOCAL && 0 < cost ) {
+				cost = 0;
+				direction = null;
+			}
+		}
+
+		@Override
+		public Element getPre() {
+			switch( direction ) {
+				case DIAGONAL:
+					return d[i - 1][j - 1];
+				case LEFT:
+					return d[i][j-1];
+				case TOP:
+					return d[i-1][j];
+				default:
+					return null;
 			}
 		}
 	}
