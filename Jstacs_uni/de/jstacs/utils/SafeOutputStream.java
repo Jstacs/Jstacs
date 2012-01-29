@@ -132,34 +132,35 @@ public class SafeOutputStream extends OutputStream {
 	}
 
 	/**
-	 * Writes a <code>String</code> and a line break.
+	 * Writes an {@link Object} and a line break.
 	 * 
 	 * @param s
-	 *            the <code>String</code> to be written
+	 *            the {@link Object} to be written
 	 * 
 	 * @throws IOException
 	 *             if something went wrong
 	 * 
 	 * @see SafeOutputStream#write(int)
+	 * @see Object#toString()
 	 */
-	public void writeln( String s ) throws IOException {
+	public void writeln( Object s ) throws IOException {
 		write( s + "\n" );
 	}
 
 	/**
-	 * Writes a <code>String</code>.
+	 * Writes an {@link Object} using {@link Object#toString()}.
 	 * 
 	 * @param s
-	 *            the <code>String</code> to be written
+	 *            the {@link Object} to be written
 	 * 
 	 * @throws IOException
 	 *             if something went wrong
 	 * 
 	 * @see SafeOutputStream#write(int)
 	 */
-	public void write( String s ) throws IOException {
+	public void write( Object s ) throws IOException {
 		if( ostream != null ) {
-			ostream.write( s.getBytes() );
+			ostream.write( s.toString().getBytes() );
 		}
 	}
 
