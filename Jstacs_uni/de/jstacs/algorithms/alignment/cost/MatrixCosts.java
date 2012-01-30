@@ -47,16 +47,9 @@ public class MatrixCosts implements Costs {
 		this.matrix = ArrayHandler.clone( matrix );
 		this.gap = gap;
 	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.algorithms.Alignment.Costs#getCostFor(de.jstacs.data.Sequence, de.jstacs.data.Sequence, int, int, de.jstacs.algorithms.Alignment.Costs.Direction)
-	 */
-	public double getCostFor( Sequence s1, Sequence s2, int i, int j, Direction from ) {
-		if( from == Direction.TOP || from == Direction.LEFT ) {
-			return gap;
-		} else {
-			return matrix[s1.discreteVal( i - 1 )][s2.discreteVal( j - 1 )];
-		}
+	
+	public double getCostFor( Sequence s1, Sequence s2, int i, int j ) {
+		return matrix[s1.discreteVal( i - 1 )][s2.discreteVal( j - 1 )];
 	}
 
 	@Override

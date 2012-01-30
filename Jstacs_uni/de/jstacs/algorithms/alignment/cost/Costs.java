@@ -25,37 +25,9 @@ import de.jstacs.data.sequences.Sequence;
  * @author Jan Grau
  */
 public interface Costs {
-
 	/**
-	 * The direction of the predecessor in the DP (<b>d</b>ynamic
-	 * <b>p</b>rogramming)-matrix.
-	 * 
-	 * @author Jan Grau
-	 */
-	public enum Direction {
-
-		/**
-		 * The predecessor is above the current element.
-		 */
-		TOP,
-		/**
-		 * The predecessor is left of the current element.
-		 */
-		LEFT,
-		/**
-		 * The predecessor is top left of the current element.
-		 */
-		DIAGONAL,
-		/**
-		 * The predecessor is at the same position as the current element.
-		 */
-		SELF;
-
-	}
-
-	/**
-	 * Returns the costs for the alignment if <code>s1(i)</code> and
-	 * <code>s2(j)</code> coming from <code>from</code>.
+	 * Returns the costs for the alignment of <code>s1(i)</code> and
+	 * <code>s2(j)</code>.
 	 * 
 	 * @param s1
 	 *            the first sequence
@@ -65,12 +37,12 @@ public interface Costs {
 	 *            the index in the first sequence
 	 * @param j
 	 *            the index in the second sequence
-	 * @param from
-	 *            the direction within the DP-matrix
 	 * 
 	 * @return the costs
+	 * 
+	 * @see Sequence#discreteVal(int)
 	 */
-	public double getCostFor( Sequence s1, Sequence s2, int i, int j, Direction from );
+	public double getCostFor( Sequence s1, Sequence s2, int i, int j );
 
 	/**
 	 * Returns the costs for a gap.
