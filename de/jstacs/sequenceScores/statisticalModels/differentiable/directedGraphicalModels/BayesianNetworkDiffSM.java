@@ -24,9 +24,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.InstantiableFromParameterSet;
+import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.graphs.TopSort;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -1003,4 +1005,27 @@ public class BayesianNetworkDiffSM extends
 					structureMeasure);
 		}
 	}
+
+	@Override
+	public DataSet emitDataSet( int numberOfSequences, int... seqLength ) throws NotTrainedException, Exception {
+		if(seqLength != null && seqLength.length > 0){
+			throw new IllegalArgumentException( "You cannot set sequence lengths for a model of a fixed length of "+length+"." );
+		}
+		if(!isInitialized()){
+			throw new NotTrainedException();
+		}
+		this.precomputeNormalization();
+		IntSequence[] seqs = new IntSequence[numberOfSequences];
+		for(int i=0;i<numberOfSequences;i++){
+			int[] content = new int[this.length];
+			for(int j=0;j<order.length;j++){			
+				trees[order[j][0]].emitSymbol(content);
+			}
+			seqs[i] = new IntSequence( alphabets, content );
+		}
+		return new DataSet("", seqs);
+	}
+	
+	
+	
 }
