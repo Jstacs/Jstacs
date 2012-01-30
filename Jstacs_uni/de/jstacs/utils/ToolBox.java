@@ -174,6 +174,47 @@ public class ToolBox {
 	}
 	
 	/**
+	 * This method returns the median of the elements of <code>array</code>.
+	 * 
+	 * @param array
+	 *            the array of values
+	 * 
+	 * @return the median
+	 */
+	public static double median( double... array ) {
+		return median( 0, array.length, array );
+	}
+	
+	/**
+	 * This method returns the medin of the elements of an <code>array</code>
+	 * between <code>start</code> and <code>end</code>.
+	 * 
+	 * @param start
+	 *            start position (inclusive)
+	 * @param end
+	 *            end position (exclusive)
+	 * @param array
+	 *            the array of values
+	 * 
+	 * @return the median
+	 */
+	public static double median( int start, int end, double[] array ) {
+		if( end <= start ) {
+			throw new IllegalArgumentException();
+		} else {
+			double[] ar2 = new double[end-start];
+			System.arraycopy( array, start, ar2, 0, ar2.length );
+			Arrays.sort( ar2 );
+			int idx = ar2.length/2;
+			if(ar2.length % 2 == 0){
+				return (ar2[idx-1]+ar2[idx])/2.0;
+			}else{
+				return ar2[idx];
+			}
+		}
+	}
+	
+	/**
 	 * Ranks the values in <code>values</code>, where the greatest value obtains the lowest rank.
 	 * The boolean <code>sameRank</code> allows to decide whether tied values should obtain the same rank.
 	 * 
