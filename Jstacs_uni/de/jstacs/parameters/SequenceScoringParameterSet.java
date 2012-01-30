@@ -39,7 +39,7 @@ import de.jstacs.utils.SubclassFinder;
  * to construct an {@link Object} that implements
  * {@link de.jstacs.InstantiableFromParameterSet}. This parameter set handles the
  * {@link AlphabetContainer} and if necessary the length of a sequence, so it is
- * well suited as parameter set for {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM} and
+ * well suited as parameter set for {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel} and
  * {@link de.jstacs.classifiers.AbstractClassifier}.
  * 
  * @param <T> the type of the {@link SequenceScoringParameterSet}
@@ -48,7 +48,7 @@ import de.jstacs.utils.SubclassFinder;
  * 
  * @see de.jstacs.InstantiableFromParameterSet
  * @see ParameterSet
- * @see de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM
+ * @see de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel
  * @see de.jstacs.classifiers.AbstractClassifier
  */
 public abstract class SequenceScoringParameterSet<T extends InstantiableFromParameterSet> extends InstanceParameterSet<T> {

@@ -24,12 +24,12 @@ import de.jstacs.classifiers.AbstractClassifier;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 
 /**
  * Class for a validator that validates instances and XML representations for
- * the correct class types (e.g. {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM}).
+ * the correct class types (e.g. {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel}).
  * 
  * @author Jan Grau
  */
@@ -50,7 +50,7 @@ public class StorableValidator implements ParameterValidator {
 
 	/**
 	 * Creates a new {@link StorableValidator} for a subclass of
-	 * {@link AbstractTrainSM} or {@link AbstractClassifier}. This constructor may
+	 * {@link AbstractTrainableStatisticalModel} or {@link AbstractClassifier}. This constructor may
 	 * not be used on other subclasses of {@link Storable}.
 	 * 
 	 * @param clazz
@@ -62,12 +62,12 @@ public class StorableValidator implements ParameterValidator {
 	 */
 	public StorableValidator(Class<? extends Storable> clazz, boolean trained)
 			throws Exception {
-		if (AbstractTrainSM.class.isAssignableFrom(clazz)
+		if (AbstractTrainableStatisticalModel.class.isAssignableFrom(clazz)
 				|| AbstractClassifier.class.isAssignableFrom(clazz)) {
 			this.clazz = clazz;
 		} else {
 			throw new Exception(
-					"Class is not a subtype of AbstractClassifier or AbstractTrainSM.");
+					"Class is not a subtype of AbstractClassifier or AbstractTrainableStatisticalModel.");
 		}
 		this.trained = trained;
 	}
@@ -114,7 +114,7 @@ public class StorableValidator implements ParameterValidator {
 	public StorableValidator clone() throws CloneNotSupportedException {
 		try {
 			StorableValidator clone = null;
-			if (AbstractTrainSM.class.isAssignableFrom(clazz)
+			if (AbstractTrainableStatisticalModel.class.isAssignableFrom(clazz)
 					|| AbstractClassifier.class.isAssignableFrom(clazz)) {
 				clone = new StorableValidator(
 						(Class<? extends Storable>) clazz, trained);
@@ -130,7 +130,7 @@ public class StorableValidator implements ParameterValidator {
 
 	/**
 	 * Checks the value of <code>value</code>. Allowed types of
-	 * <code>value</code> are {@link AbstractTrainSM}, {@link AbstractClassifier},
+	 * <code>value</code> are {@link AbstractTrainableStatisticalModel}, {@link AbstractClassifier},
 	 * {@link de.jstacs.parameters.FileParameter.FileRepresentation}, {@link String}, and {@link StringBuffer}. In
 	 * all cases where an XML representation is given as <code>value</code>, it
 	 * must be surrounded by &lt;object&gt;-tags and these tags must contain a
@@ -145,8 +145,8 @@ public class StorableValidator implements ParameterValidator {
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean checkValue(Object value) {
-		if (AbstractTrainSM.class.isAssignableFrom(clazz)
-				&& value instanceof AbstractTrainSM) {
+		if (AbstractTrainableStatisticalModel.class.isAssignableFrom(clazz)
+				&& value instanceof AbstractTrainableStatisticalModel) {
 			if (!trained || ((TrainableStatisticalModel) value).isInitialized()) {
 				errorMessage = null;
 				return true;
@@ -182,7 +182,7 @@ public class StorableValidator implements ParameterValidator {
 				Class c = Class.forName(className);
 				if (clazz.isAssignableFrom(c)) {
 					boolean modelTrained = false;
-					if (AbstractTrainSM.class.isAssignableFrom(c)) {
+					if (AbstractTrainableStatisticalModel.class.isAssignableFrom(c)) {
 						TrainableStatisticalModel model = (TrainableStatisticalModel) c.getConstructor(
 								new Class[] { StringBuffer.class })
 								.newInstance(buf);

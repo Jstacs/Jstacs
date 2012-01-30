@@ -90,11 +90,11 @@ public final class ArrayHandler {
 	 * <br>
 	 * <code>
 	 * Object[] o = { new UniformTrainSM( alphabetContainer ), new UniformTrainSM( alphabetContainer ) };<br>
-	 * AbstractTrainSM[] a = (AbstractTrainSM[]) ArrayHandler.cast( o );<br>
+	 * AbstractTrainableStatisticalModel[] a = (AbstractTrainableStatisticalModel[]) ArrayHandler.cast( o );<br>
 	 * </code> <br>
 	 * This should work fine, while<br>
 	 * 
-	 * <code>AbstractTrainSM[] a = (AbstractTrainSM[]) o;</code><br>
+	 * <code>AbstractTrainableStatisticalModel[] a = (AbstractTrainableStatisticalModel[]) o;</code><br>
 	 * 
 	 * will not.
 	 * 
@@ -123,11 +123,11 @@ public final class ArrayHandler {
 	 * <br>
 	 * <code>
 	 * Object[] o = { new UniformTrainSM( alphabetContainer ), new UniformTrainSM( alphabetContainer ) };<br>
-	 * AbstractTrainSM[] a = ArrayHandler.cast( AbstractTrainSM.class, o );<br>
+	 * AbstractTrainableStatisticalModel[] a = ArrayHandler.cast( AbstractTrainableStatisticalModel.class, o );<br>
 	 * </code> <br>
 	 * This should work fine, while<br>
 	 * 
-	 * <code>AbstractTrainSM[] a = (AbstractTrainSM[]) o;</code><br>
+	 * <code>AbstractTrainableStatisticalModel[] a = (AbstractTrainableStatisticalModel[]) o;</code><br>
 	 * 
 	 * will not.
 	 * 
