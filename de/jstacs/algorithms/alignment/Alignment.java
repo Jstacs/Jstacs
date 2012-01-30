@@ -18,14 +18,17 @@
 
 package de.jstacs.algorithms.alignment;
 
+import java.util.Arrays;
+
 import de.jstacs.algorithms.alignment.cost.AffineCosts;
 import de.jstacs.algorithms.alignment.cost.Costs;
-import de.jstacs.algorithms.alignment.cost.Costs.Direction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 
 /**
  * Class for computing optimal alignments using Needleman-Wunsch algorithm of for affine gap costs Gotohs algorithm.
+ * The class also provides the possibility of specifying the number of off-diagonals. In this case, the current
+ * implementation helps to reduce the runtime but not the memory consumption.
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
@@ -60,13 +63,10 @@ public class Alignment {
 
 	private Costs costs;	
 	private AffineCosts aCosts;
-
-	private Element[][] d;
-
-	private E[][] e;
-
-	private F[][] f;
 	
+	private AlignmentAlgorithm algorithm;
+
+	private double[][][] d;	
 	/**
 	 * The number of secondary diagonals at both sides of the main diagonal.
 	 * If the alignment is performed for {@link Sequence}s of different length, 
@@ -111,8 +111,10 @@ public class Alignment {
 		this.costs = costs;
 		if( costs instanceof AffineCosts ) {
 			aCosts = (AffineCosts) costs;
+			algorithm = new AffineAlignment();
 		} else {
 			aCosts = null;
+			algorithm = new SimpleAlgorithm();
 		}
 		this.offDiagonal = offDiagonal;
 	}
@@ -155,365 +157,310 @@ public class Alignment {
 		
 		int start, end, h;
 		
-		//initialize & compute
+		//initialize
 		if( d == null || d.length < l1+1 || d[0].length < l2+1 ) {
-			if( aCosts == null ) {
-				d = new Naive[l1+1][l2+1];
+			d = new double[aCosts == null ? 1 : 3][l1+1][l2+1];
+		}
+		
+		//compute
+		for( int i = 0; i <= l1; i++ ) {
+			start = Math.max(0,i-offDiagonal);
+			h = i+offDiagonal;
+			if( h > 0 ) {//due to possible overflow
+				end = Math.min(l2,h);
 			} else {
-				d = new D[l1 + 1][l2 + 1];
-				e = new E[l1 + 1][l2 + 1];
-				f = new F[l1 + 1][l2 + 1];
+				end = l2;
 			}
-			
-			for( int i = 0; i <= l1; i++ ) {
-				start = Math.max(0,i-offDiagonal);
-				h = i+offDiagonal;
-				if( h > 0 ) {//due to possible overflow
-					end = Math.min(l2,h);
-				} else {
-					end = l2;
-				}
-				for( int j = start; j <= end; j++ ) {
-					if( aCosts == null ) {
-						d[i][j] = new Naive( i, j );
-					} else {
-						d[i][j] = new D( i, j );
-					}
-					//System.out.print( d[i][j].cost + "\t" );
-				}
-				//System.out.println();
+			algorithm.reset( i, 0, start );
+			for( int j = start; j <= end; j++ ) {
+				algorithm.compute(i,j);
 			}
-		} else {
-			for( int i = 0; i <= l1; i++ ) {
-				start = Math.max(0,i-offDiagonal);
-				h = i+offDiagonal;
-				if( h > 0 ) {//due to possible overflow
-					end = Math.min(l2,h);
-				} else {
-					end = l2;
-				}
-				for( int j = start; j <= end; j++ ) {
-					d[i][j].compute();
-				}
-			}
+			if( end != l2 ) algorithm.reset( i, end+1, l2 );
 		}
 
 		//create results: aligned strings, ...
-		Element curr = null;
+		int[] index = {-1,-1,-1};
 		int endPos, startPos = 0;
 		if( type == AlignmentType.LOCAL ) {
 			endPos=-1;
+			index[0] = 0;
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
 				end = Math.min(l2,Math.max(l2,i+offDiagonal));
 				for( int j = start; j <= end; j++ ) {
-					if( curr == null || d[i][j].cost < curr.cost ) {
-						curr = d[i][j];
+					if( index[1] < 0 || d[0][i][j] < d[0][index[1]][index[2]] ) {
+						index[1] = i;
+						index[2] = j;
 						endPos=startS1+i;
 					}
 				}
 			}
 		} else {
 			endPos=l1;
+			index[1] = l1;
+			index[2] = l2;
 			if( aCosts == null ) {
-				curr = d[l1][l2];
+				index[0] = 0;
 			} else {
-				if( e[l1][l2].cost < f[l1][l2].cost && e[l1][l2].cost < d[l1][l2].cost ) {
-					curr = e[l1][l2];
-				} else if( f[l1][l2].cost < d[l1][l2].cost ) {
-					curr = f[l1][l2];
+				if( d[1][l1][l2] < d[2][l1][l2] && d[1][l1][l2] < d[0][l1][l2] ) {
+					index[0] = 1;
+				} else if( d[2][l1][l2] < d[0][l1][l2] ) {
+					index[0] = 2;
 				} else {
-					curr = d[l1][l2];
+					index[0] = 0;
 				}
 			}
 		}
 
-		double cost = curr.cost;
+		double cost = d[index[0]][index[1]][index[2]];
 
 		StringBuffer b1 = new StringBuffer();
 		StringBuffer b2 = new StringBuffer();
 
 		AlphabetContainer cont = s1.getAlphabetContainer();
 
-		while( curr.direction != null ) {
-			if( curr.direction == Direction.DIAGONAL ) {
-				b1.insert( 0, cont.getSymbol( startS1 + curr.i - 1, s1.discreteVal( startS1 + curr.i - 1 ) ) );
-				b2.insert( 0, cont.getSymbol( startS2 + curr.j - 1, s2.discreteVal( startS2 + curr.j - 1 ) ) );
-			} else if( curr.direction == Direction.LEFT ) {
+		int[] next = index.clone();
+		while( true ) {
+			algorithm.next(index, next);
+			//System.out.println( Arrays.toString(index) + "\t" + Arrays.toString(next) );
+			if( next[0] < 0 ) {
+				break;
+			}
+			
+			int row = next[1] - index[1];
+			int column = next[2] - index[2];
+			if( row == -1 && column == -1 ) {
+				b1.insert( 0, cont.getSymbol( startS1 + index[1] - 1, s1.discreteVal( startS1 + index[1] - 1 ) ) );
+				b2.insert( 0, cont.getSymbol( startS2 + index[2] - 1, s2.discreteVal( startS2 + index[2] - 1 ) ) );
+			} else if( column == -1 ) {//&& row == 0;
 				b1.insert( 0, '-' );
-				b2.insert( 0, cont.getSymbol( startS2 + curr.j - 1, s2.discreteVal( startS2 + curr.j - 1 ) ) );
-			} else if( curr.direction == Direction.TOP ) {
-				b1.insert( 0, cont.getSymbol( startS1 + curr.i - 1, s1.discreteVal( startS1 + curr.i - 1 ) ) );
+				b2.insert( 0, cont.getSymbol( startS2 + index[2] - 1, s2.discreteVal( startS2 + index[2] - 1 ) ) );
+			} else if( row == -1 ) {
+				b1.insert( 0, cont.getSymbol( startS1 + index[1] - 1, s1.discreteVal( startS1 + index[1] - 1 ) ) );
 				b2.insert( 0, '-' );
 			}
-			if( curr.j == l2 && (curr.direction == Direction.DIAGONAL || curr.direction == Direction.LEFT) ) {
-				endPos = startS1+curr.i;
+			if( index[2] == l2 && column == -1 ) {
+				endPos = startS1+index[1];
 			}
-			if( (type==AlignmentType.LOCAL || curr.j == 1) && (curr.direction == Direction.DIAGONAL || curr.direction == Direction.TOP) ) {
-				startPos = startS1+curr.i-1;
+			if( (type==AlignmentType.LOCAL || index[2] == 1) && row == -1 ) {
+				startPos = startS1+index[1]-1;
 			}
 			
-			curr = curr.getPre();
+			System.arraycopy( next, 0, index, 0, 3 );
 		}
-
 		return new PairwiseStringAlignment( b1.toString(), b2.toString(), cost, startPos, endPos );
 	}
-
-	/**
-	 * Class for a general element of the DP (<b>d</b>ynamic
-	 * <b>p</b>rogramming)-matrices of the Needleman-Wunsch algorithm.
-	 * 
-	 * @author Jan Grau
-	 */
-	private abstract class Element {
-
-		/**
-		 * The row index of the element in the matrix.
-		 */
-		protected int i;
-
-		/**
-		 * The column index of the element in the matrix.
-		 */
-		protected int j;
-
-		/**
-		 * The costs of the alignment until this element, i.e.
-		 * <code>s1(1..i),s2(1..j)</code>.
-		 */
-		double cost;
-
-		/**
-		 * The direction of the predecessor in the DP-matrix.
-		 */
-		protected Direction direction;
-
-		/**
-		 * Creates a new element for row <code>i</code> and column
-		 * <code>j</code>.
-		 * 
-		 * @param i
-		 *            the row index for the new element
-		 * @param j
-		 *            the column index for the new element
-		 */
-		public Element( int i, int j ) {
-			this.i = i;
-			this.j = j;
-			prepare();
-			compute();
-		}
-		
-		public abstract Element getPre();
-
-		protected void prepare(){}
-		
-		public abstract void compute();
+	
+	private static interface AlignmentAlgorithm {
+		public void compute( int i, int j );
+		public void reset( int i, int startJ, int endJ );
+		public void next( int[] current, int[] next );
 	}
 	
-	private abstract class PreElement extends Element {
-		
-		public PreElement(int i, int j) {
-			super(i, j);
-		}
-
-		/**
-		 * The predecessor-element in the DP-matrix.
-		 */
-		protected Element pre;
-		
-		public final Element getPre() {
-			return pre;
-		}
-	}
-
-	//(mis-)match (== S in http://de.wikipedia.org/wiki/Gotoh-Algorithmus)
-	private class D extends PreElement {
-
-		private D( int i, int j ) {
-			super( i, j );
+	private class SimpleAlgorithm implements AlignmentAlgorithm {
+		public void compute( int i, int j ) {
+			computeDirection( i, j );
 		}
 		
-		protected void prepare() {
-			e[i][j] = new E( i, j );
-			f[i][j] = new F( i, j );
-		}
-		
-		public void compute() {
-			e[i][j].compute();
-			f[i][j].compute();
+		public byte computeDirection( int i, int j ) {
+			byte direction = -1;
 			if( i == 0 && j == 0 ) {
-				cost = 0;
+				d[0][i][j] = 0;
 			} else if( i == 0 && j > 0 ) {
-				pre = e[i][j];
-				cost = pre.cost;
-				direction = Direction.SELF;
-			} else if( i > 0 && j == 0 ) {
-				pre = f[i][j];
-				cost = pre.cost;
-				direction = Direction.SELF;
-			} else {
-				double diag = d[i - 1][j - 1].cost + costs.getCostFor( s1, s2, startS1+i, startS2+j, Direction.DIAGONAL );
-				double left = e[i][j].cost;
-				double top = f[i][j].cost;
-
-				if( diag < left && diag < top ) {
-					cost = diag;
-					direction = Direction.DIAGONAL;
-					pre = d[i - 1][j - 1];
-				} else if( left < top ) {
-					cost = left;
-					direction = Direction.SELF;
-					pre = e[i][j];
-				} else {
-					cost = top;
-					direction = Direction.SELF;
-					pre = f[i][j];
-				}
+				direction = 1;
 				
-				if( type == AlignmentType.LOCAL ) {
-					if( 0 < cost ) {
-						cost = 0;
-						direction = null;
-						pre = null;
-					}
-				}
-			}
-		}
-	}
-
-	//gap in first string (== H in http://de.wikipedia.org/wiki/Gotoh-Algorithmus)
-	private class E extends PreElement {
-
-		private E( int i, int j ) {
-			super( i, j );
-		}
-		
-		public void compute() {
-			if( j == 0 || e[i][j-1] == null ) {
-				cost = Double.POSITIVE_INFINITY;
-			} else if( i == 0 && j > 0 ) {
-				if( type==AlignmentType.LOCAL ) {
-					cost = 0; 
-				} else {
-					direction = Direction.LEFT;
-					pre = e[i][j - 1];
-					cost = aCosts.getGapCostsFor( j );					
-				}
-			} else {
-				double elong = e[i][j - 1].cost + aCosts.getElongateCosts();
-				double start = d[i][j - 1].cost + aCosts.getGapCostsFor( 1 );
-				if( elong < start ) {
-					cost = elong;
-					pre = e[i][j - 1];
-				} else {
-					cost = start;
-					pre = d[i][j - 1];
-				}
-				direction = Direction.LEFT;
-			}
-		}
-	}
-
-	//gap in second string (== V in http://de.wikipedia.org/wiki/Gotoh-Algorithmus)
-	private class F extends PreElement {
-
-		private F( int i, int j ) {
-			super( i, j );
-		}
-		
-		public void compute() {
-			if( i == 0 || f[i-1][j] == null ) {
-				cost = Double.POSITIVE_INFINITY;
-			} else if( i > 0 && j == 0 ) {
-				direction = type==AlignmentType.LOCAL ? null : Direction.TOP;
-				cost = type!=AlignmentType.GLOBAL ? 0 : aCosts.getGapCostsFor( i );
-				pre = type==AlignmentType.LOCAL ? null : f[i - 1][j];
-			} else if ( type==AlignmentType.SEMI_GLOBAL && i > 0 && j == l2 ) {
-				direction = Direction.TOP;
-				pre = d[i - 1][j];
-				cost = pre.cost;
-			} else {
-				double elong = f[i - 1][j].cost + aCosts.getElongateCosts();
-				double start = d[i - 1][j].cost + aCosts.getGapCostsFor( 1 );
-				if( elong < start ) {
-					cost = elong;
-					pre = f[i - 1][j];
-				} else {
-					cost = start;
-					pre = d[i - 1][j];
-				}
-				direction = Direction.TOP;
-			}
-		}
-	}
-	
-	private class Naive extends Element {
-
-		private Naive( int i, int j ) {
-			super( i, j );
-		}
-		
-		public void compute() {
-			if( i == 0 && j == 0 ) {
-				cost = 0;
-			} else if( i == 0 && j > 0 ) {
-				direction = Direction.LEFT;
-				
-				cost = d[i][j-1].cost+costs.getGapCosts();
+				d[0][i][j] = d[0][i][j-1]+costs.getGapCosts();
 			} else if( i > 0 && j == 0 ) {
 				if( type != AlignmentType.LOCAL ) {
-					direction = Direction.TOP;
+					direction = 2;
 				}
-				cost = type != AlignmentType.GLOBAL ? 0 :  d[i-1][j].cost + costs.getGapCosts();
+				d[0][i][j] = type != AlignmentType.GLOBAL ? 0 :  d[0][i-1][j] + costs.getGapCosts();
 			} else {
-				double diag = d[i - 1][j - 1].cost + costs.getCostFor( s1, s2, startS1+i, startS2+j, Direction.DIAGONAL );
-				double left;
-				if( d[i][j-1] == null ) {
-					left = Double.POSITIVE_INFINITY;
-				} else {
-					left = d[i][j - 1].cost + costs.getGapCosts();
-				}
-				double top;
-				if( d[i-1][j] == null ) {
-					top = Double.POSITIVE_INFINITY;
-				} else {
-					top = d[i-1][j].cost;
-					if ( type!=AlignmentType.SEMI_GLOBAL || j != l2 ) {
-						top += costs.getGapCosts();;
-					}
+				double diag = d[0][i - 1][j - 1] + costs.getCostFor( s1, s2, startS1+i, startS2+j );
+				double left = d[0][i][j - 1] + costs.getGapCosts();
+				double top = d[0][i-1][j];
+				if ( type!=AlignmentType.SEMI_GLOBAL || j != l2 ) {
+					top += costs.getGapCosts();;
 				}
 				
 				if( diag < left && diag < top ) {
-					cost = diag;
-					direction = Direction.DIAGONAL;
+					d[0][i][j] = diag;
+					direction = 0;
 				} else if( left < top ) {
-					cost = left;
-					direction = Direction.LEFT;
+					d[0][i][j] = left;
+					direction = 1;
 				} else {
-					cost = top;
-					direction = Direction.TOP;
+					d[0][i][j] = top;
+					direction = 2;
 				}
 			}
 			
-			if( type == AlignmentType.LOCAL && 0 < cost ) {
-				cost = 0;
-				direction = null;
+			if( type == AlignmentType.LOCAL && 0 < d[0][i][j] ) {
+				d[0][i][j] = 0;
+				direction = -1;
+			}
+			return direction;
+		}
+
+		@Override
+		public void reset(int i, int startJ, int endJ) {
+			Arrays.fill( d[0][i], startJ, endJ, Double.POSITIVE_INFINITY );
+		}
+
+		@Override
+		public void next( int[] index, int[] next ) {
+			byte res = computeDirection( index[1], index[2] );
+			if( res < 0 ) {
+				next[0] = -1;
+			} else {
+				System.arraycopy(index, 0, next, 0, 3);
+				switch( res ) {
+					case 0: next[1]--; next[2]--;break;
+					case 2: next[1]--; break;
+					case 1: next[2]--; break;
+				}
+			}
+		}		
+	}
+	
+	private class AffineAlignment implements AlignmentAlgorithm {
+
+		@Override
+		public void compute(int i, int j) {
+			computeGap1( i, j );
+			computeGap2( i, j );
+			computeMatchMisMatch( i, j );
+		}
+		
+		public byte computeMatchMisMatch( int i, int j ) {
+			byte direction = -99;
+			if( i == 0 && j == 0 ) {
+				d[0][i][j] = 0;
+			} else if( i == 0 && j > 0 ) {
+				d[0][i][j] = d[1][i][j];
+				direction = 1;
+			} else if( i > 0 && j == 0 ) {
+				d[0][i][j] = d[2][i][j];
+				direction = 2;
+			} else {
+				double diag = d[0][i - 1][j - 1] + costs.getCostFor( s1, s2, startS1+i, startS2+j );
+				double left = d[1][i][j];
+				double top = d[2][i][j];
+
+				if( diag < left && diag < top ) {
+					d[0][i][j] = diag;
+					direction = 0;
+				} else if( left < top ) {
+					d[0][i][j] = left;
+					direction = 1;
+				} else {
+					d[0][i][j] = top;
+					direction = 2;
+				}
+			}
+			if( type == AlignmentType.LOCAL && 0 < d[0][i][j] ) {
+				d[0][i][j] = 0;
+				direction = -1;
+			}
+			return direction;
+		}
+
+		public byte computeGap1( int i, int j ) {
+			byte direction = -100;
+			if( j == 0 ) {
+				d[1][i][j] = Double.POSITIVE_INFINITY;
+			} else if( i == 0 && j > 0 ) {
+				if( type==AlignmentType.LOCAL ) {
+					d[1][i][j] = 0;
+					direction = -1;
+				} else {
+					direction = 1;
+					d[1][i][j] = aCosts.getGapCostsFor( j );					
+				}
+			} else {
+				double elong = d[1][i][j - 1] + aCosts.getElongateCosts();
+				double start = d[0][i][j - 1] + aCosts.getGapCostsFor( 1 );
+				if( elong < start ) {
+					d[1][i][j] = elong;
+					direction = 1;
+				} else {
+					d[1][i][j] = start;
+					direction = 0;
+				}
+			}
+			return direction;
+		}
+
+		public byte computeGap2( int i, int j ) {
+			byte direction = -101;
+			if( i == 0 ) {
+				d[2][i][j] = Double.POSITIVE_INFINITY;
+			} else if( i > 0 && j == 0 ) {
+				direction = (byte) (type==AlignmentType.LOCAL ? -1 : 2);
+				d[2][i][j] = type!=AlignmentType.GLOBAL ? 0 : aCosts.getGapCostsFor( i );
+			} else if ( type==AlignmentType.SEMI_GLOBAL && i > 0 && j == l2 ) {
+				direction = 0;
+				d[2][i][j] = d[0][i - 1][j];
+			} else {
+				double elong = d[2][i - 1][j] + aCosts.getElongateCosts();
+				double start = d[0][i - 1][j] + aCosts.getGapCostsFor( 1 );
+				if( elong < start ) {
+					d[2][i][j] = elong;
+					direction = 2;
+				} else {
+					d[2][i][j] = start;
+					direction = 0;
+				}
+			}
+			return direction;
+		}
+
+		@Override
+		public void next(int[] index, int[] next) {
+			byte b;
+			switch( index[0] ) {
+				case 0:
+					b = computeMatchMisMatch( index[1], index[2] );
+					if( b < 0 ) {
+						next[0] = -1;
+					} else {
+						System.arraycopy(index, 0, next, 0, 3);
+						if( b == 0 ) {
+							next[1]--;
+							next[2]--;
+						} else {
+							next[0] = b;
+						}
+					}
+					break;
+				case 1:
+					b = computeGap1( index[1], index[2] );
+					if( b < 0 ) {
+						next[0] = -1;
+					} else {
+						System.arraycopy(index, 0, next, 0, 3);
+						next[2]--;
+						next[0]=b;
+					}
+					break;
+				case 2:
+					b = computeGap2( index[1], index[2] );
+					if( b < 0 ) {
+						next[0] = -1;
+					} else {
+						System.arraycopy(index, 0, next, 0, 3);
+						next[1]--;
+						next[0]=b;
+					}
+					break;
 			}
 		}
 
 		@Override
-		public Element getPre() {
-			switch( direction ) {
-				case DIAGONAL:
-					return d[i - 1][j - 1];
-				case LEFT:
-					return d[i][j-1];
-				case TOP:
-					return d[i-1][j];
-				default:
-					return null;
+		public void reset(int i, int startJ, int endJ) {
+			for( int k = 0; k < d.length; k++ ) {
+				Arrays.fill( d[k][i], startJ, endJ, Double.POSITIVE_INFINITY );
 			}
-		}
+		}		
 	}
 }

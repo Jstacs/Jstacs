@@ -68,10 +68,10 @@ public class AffineCosts implements Costs {
 	public double getGapCostsFor( int length ) {
 		return start + ( length * elong );
 	}
-
+	
 	@Override
-	public double getCostFor(Sequence s1, Sequence s2, int i, int j, Direction from) {
-		return c.getCostFor(s1, s2, i, j, from);
+	public double getCostFor(Sequence s1, Sequence s2, int i, int j) {
+		return c.getCostFor(s1, s2, i, j);
 	}
 
 	@Override
