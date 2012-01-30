@@ -1,4 +1,4 @@
-\setcounter{off}{595}
+\setcounter{off}{596}
 
 In this section, we present a motley composition of interesting classes of Jstacs.
 
@@ -6,7 +6,7 @@ In this section, we present a motley composition of interesting classes of Jstac
 
 In this subsection, we present how to compute Alignments using Jstacs.
 
-If we like to compute an alignment, we first have to define the costs for match, mismatch, and gaps. In Jstacs, we provide the interface \Costs~that declares all necessary method used during the alignment. In this example, we restrict to simple costs that are 0 for match, 1 for match, 1 for gap opening and 0.5 for gap elongation.
+If we like to compute an alignment, we first have to define the costs for match, mismatch, and gaps. In Jstacs, we provide the interface \Costs~that declares all necessary method used during the alignment. In this example, we restrict to simple costs that are 0 for match, 1 for match, 0.5 for a gap.
  
 \addtocounter{off}{3}
 \code{0}
@@ -24,6 +24,12 @@ Finally, we can compute the optimal alignment between two \Sequence s and write 
 \code{0}
 
 The alignment instance can be reused for aligning further sequences.
+
+In Jstacs, we also provide the possibility of computing optimal alignments with affine gap costs. For this reason, we implement the class \AffineCosts~that is used to specify the cost for a gap opening. The costs for gap elongation are given by the gap costs of the internally used instance of \Costs.
+
+\stepcounter{off}
+\code{3}
+
 
 \subsection{REnvironment: Connection to R}
 

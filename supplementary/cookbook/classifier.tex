@@ -12,7 +12,7 @@ The second method classifies a given \Sequence:
   \code{0}
 
 \renewcommand{\codefile}{\defaultcodefile}
-\setcounter{off}{577}
+\setcounter{off}{578}
 If we like to classify for instance the first sequence of a data set, we might use
 \code{0}
 In addition to this method, another method \lstinline+classify(DataSet)+ exists that performs a classification for all \Sequence s in a \DataSet.
@@ -34,7 +34,7 @@ Similar to the \lstinline+classify+ method. For two-class problems, the method
 allows for computing the score-differences given foreground and background class for all \Sequence s in the \DataSet~\lstinline+s+. Such scores are typically the sum of the a-priori class log-score or log-probability and the score returned by \lstinline+getLogScore+ of \SeqScore~ or \lstinline+getLogProb+ of \StatMod.
 
 \renewcommand{\codefile}{\defaultcodefile}
-\setcounter{off}{585}
+\setcounter{off}{586}
 
 Sometimes data is not split into test and train data for several diverse reasons, as for instance limited amount of data. In such cases, it is recommended to utilize some repeated procedure to split the data, train on one part and classify on the other part. In Jstacs, we provide the abstract class \ClassifierAssessment~that allows to implement such procedures. In subsection~\ref{Assessment}, we describe how to use \ClassifierAssessment~and its extension.
 
