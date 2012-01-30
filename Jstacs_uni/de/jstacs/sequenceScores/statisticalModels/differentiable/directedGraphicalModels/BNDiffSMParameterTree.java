@@ -21,6 +21,7 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphi
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Random;
 
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
@@ -46,6 +47,7 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 	private AlphabetContainer alphabet;
 	private int firstParent;
 	private int[] firstChildren;
+	private static Random r = new Random();
 
 	/**
 	 * Creates a new {@link BNDiffSMParameterTree} for the parameters at position
@@ -1406,6 +1408,26 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 				return pars;
 			}
 		}
+		
+		private void emitSymbol( int[] content ) {
+			if(this.children != null){
+				 children[content[contextPos]].emitSymbol( content );
+			}else{
+				double[] temp = new double[pars.length];
+				for(int i=0;i<temp.length;i++){
+					temp[i] = pars[i].getValue() + pars[i].getLogZ();
+				}
+				Normalisation.logSumNormalisation( temp );
+				double v = r.nextDouble();
+				for(int i=0;i<temp.length;i++){
+					if(v-temp[i]<=0){
+						content[pos] = i;
+						return;
+					}
+					v -= temp[i];
+				}
+			}
+		}
 
 	}
 
@@ -1436,6 +1458,10 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 	 */
 	public int[] getParameterIndexesForSamplingStep( int step, int offset ) {
 		return root.getParameterIndexesForSamplingStep(step, offset);
+	}
+	
+	public void emitSymbol( int[] content ) {
+		root.emitSymbol( content);
 	}
 
 }
