@@ -28,11 +28,11 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
  
  
  
-public class HomogeneousMarkovModel extends AbstractTrainSM {
+public class HomogeneousMarkovModel extends AbstractTrainableStatisticalModel {
  
 	private double[] logProbs;//array for the parameters, i.e. the probabilities for each symbol
  
