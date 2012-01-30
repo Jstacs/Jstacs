@@ -40,7 +40,7 @@ import de.jstacs.results.StorableResult;
  * 
  * @author Andre Gohr, Jan Grau, Jens Keilwagen
  */
-public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableStatisticalModel {
+public abstract class AbstractTrainableStatisticalModel implements Cloneable, Storable, TrainableStatisticalModel {
 	/**
 	 * The length of the sequences the model can classify. For models that can
 	 * take sequences of arbitrary length this value should be set to 0
@@ -76,7 +76,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	 *            the length of the sequences a model can classify, 0 for
 	 *            arbitrary length
 	 */
-	public AbstractTrainSM(AlphabetContainer alphabets, int length) {
+	public AbstractTrainableStatisticalModel(AlphabetContainer alphabets, int length) {
 		this.length = length;
 		this.alphabets = alphabets;
 		if (alphabets.getPossibleLength() > 0
@@ -88,7 +88,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link AbstractTrainSM} out of a {@link StringBuffer}.
+	 * Creates a new {@link AbstractTrainableStatisticalModel} out of a {@link StringBuffer}.
 	 * 
 	 * @param stringBuff
 	 *            the {@link StringBuffer} to be parsed
@@ -96,7 +96,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	 * @throws NonParsableException
 	 *             is thrown if the {@link StringBuffer} could not be parsed
 	 */
-	public AbstractTrainSM(StringBuffer stringBuff) throws NonParsableException {
+	public AbstractTrainableStatisticalModel(StringBuffer stringBuff) throws NonParsableException {
 		alphabets = null;
 		length = -1;
 		fromXML(stringBuff);
@@ -117,11 +117,11 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	/**
 	 * Follows the conventions of {@link Object}'s <code>clone()</code>-method.
 	 * 
-	 * @return an object, that is a copy of the current {@link AbstractTrainSM}
+	 * @return an object, that is a copy of the current {@link AbstractTrainableStatisticalModel}
 	 *         (the member-{@link AlphabetContainer} isn't deeply cloned since
 	 *         it is assumed to be immutable). The type of the returned object
 	 *         is defined by the class <code>X</code> directly inherited from
-	 *         {@link AbstractTrainSM}. Hence <code>X</code>'s
+	 *         {@link AbstractTrainableStatisticalModel}. Hence <code>X</code>'s
 	 *         <code>clone()</code>-method should work as:<br>
 	 *         1. <code>Object o = (X)super.clone();</code> <br>
 	 *         2. all additional member variables of <code>o</code> defined by
@@ -131,8 +131,8 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	 *         3. <code>return o</code>
 	 */
 	@Override
-	public AbstractTrainSM clone() throws CloneNotSupportedException {
-		return (AbstractTrainSM) super.clone();
+	public AbstractTrainableStatisticalModel clone() throws CloneNotSupportedException {
+		return (AbstractTrainableStatisticalModel) super.clone();
 	}
 
 	/*
@@ -312,7 +312,7 @@ public abstract class AbstractTrainSM implements Cloneable, Storable, TrainableS
 	 *             if the {@link StringBuffer} is not parsable or the
 	 *             representation is conflicting
 	 * 
-	 * @see AbstractTrainSM#AbstractTrainSM(StringBuffer)
+	 * @see AbstractTrainableStatisticalModel#AbstractTrainableStatisticalModel(StringBuffer)
 	 */
 	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
 }

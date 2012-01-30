@@ -200,7 +200,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	 * Computes the models with structure <code>graph</code>.
 	 * 
 	 * @param models
-	 *            an array of {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM}s containing
+	 *            an array of {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel}s containing
 	 *            only instances of {@link FSDAGTrainSM}
 	 * @param data
 	 *            the {@link DataSet}

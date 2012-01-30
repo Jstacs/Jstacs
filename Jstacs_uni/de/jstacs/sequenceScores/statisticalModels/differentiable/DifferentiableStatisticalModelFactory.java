@@ -86,7 +86,7 @@ public class DifferentiableStatisticalModelFactory {
 	/**
 	 * This method allows to create a {@link MixtureDiffSM} that models a mixture of individual component {@link DifferentiableStatisticalModel}s.
 	 * 
-	 * @param model the internally used model
+	 * @param models the internally used models
 	 * 
 	 * @return the {@link MixtureDiffSM}
 	 * 

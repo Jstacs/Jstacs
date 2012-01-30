@@ -35,7 +35,7 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
@@ -61,7 +61,7 @@ import de.jstacs.utils.ToolBox;
  * @see State
  * @see Transition
  */
-public abstract class AbstractHMM extends AbstractTrainSM implements Cloneable, Storable {
+public abstract class AbstractHMM extends AbstractTrainableStatisticalModel implements Cloneable, Storable {
 
 	/**
 	 * The (hidden) states of the HMM.

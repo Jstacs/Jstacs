@@ -24,7 +24,7 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 
 /**
  * This is the main class for all <b>d</b>iscrete <b>g</b>raphical <b>m</b>odels
@@ -34,7 +34,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
  * 
  * @see DGTrainSMParameterSet
  */
-public abstract class DiscreteGraphicalTrainSM extends AbstractTrainSM implements InstantiableFromParameterSet {
+public abstract class DiscreteGraphicalTrainSM extends AbstractTrainableStatisticalModel implements InstantiableFromParameterSet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,7 +62,7 @@ public abstract class DiscreteGraphicalTrainSM extends AbstractTrainSM implement
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 * 
-	 * @see AbstractTrainSM#AbstractTrainSM(de.jstacs.data.AlphabetContainer, int)
+	 * @see AbstractTrainableStatisticalModel#AbstractTrainableStatisticalModel(de.jstacs.data.AlphabetContainer, int)
 	 */
 	public DiscreteGraphicalTrainSM( DGTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException,
 															NonParsableException {
@@ -84,7 +84,7 @@ public abstract class DiscreteGraphicalTrainSM extends AbstractTrainSM implement
 	 *             {@link StringBuffer} could not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
-	 * @see AbstractTrainSM#AbstractTrainSM(StringBuffer)
+	 * @see AbstractTrainableStatisticalModel#AbstractTrainableStatisticalModel(StringBuffer)
 	 */
 	public DiscreteGraphicalTrainSM( StringBuffer representation ) throws NonParsableException {
 		super( representation );
