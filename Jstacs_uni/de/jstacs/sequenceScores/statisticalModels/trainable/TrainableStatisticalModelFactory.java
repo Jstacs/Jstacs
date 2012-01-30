@@ -161,7 +161,7 @@ public class TrainableStatisticalModelFactory {
 	}
 	
 	/**
-	 * This method allows to create a &quot;zero or one occurrence per sequence&quot; (ZOOPS) model that allows to discovers binding sites in a {@link de.jstacs.data.DataSet}.
+	 * This method allows to create a &quot;zero or one occurrence per sequence&quot; (ZOOPS) model that allows to discover binding sites in a {@link de.jstacs.data.DataSet}.
 	 * 
 	 * @param motif the internally used model for the binding sites
 	 * @param bg the internally used model for the flanking sequence
