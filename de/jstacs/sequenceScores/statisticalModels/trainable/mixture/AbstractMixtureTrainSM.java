@@ -53,7 +53,7 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.sampling.BurnInTest;
 import de.jstacs.sampling.GibbsSamplingModel;
 import de.jstacs.sampling.SamplingComponent;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.SafeOutputStream;
@@ -115,7 +115,7 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  * @see de.jstacs.sampling.SamplingComponent
  * @see System#gc()
  */
-public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
+public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatisticalModel {
 
 	//private static final int NO_OF_UNSURE_DECIMAL_PLACES = 3;
 
@@ -1350,7 +1350,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainSM {
 	/**
 	 * Returns a deep copy of the models.
 	 * 
-	 * @return an array of {@link AbstractTrainSM}s
+	 * @return an array of {@link AbstractTrainableStatisticalModel}s
 	 * 
 	 * @throws CloneNotSupportedException
 	 *             if at least one model can not be cloned

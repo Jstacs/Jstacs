@@ -57,7 +57,7 @@ import de.jstacs.utils.SafeOutputStream;
  * @see DifferentiableStatisticalModel
  * @see LogGenDisMixFunction
  */
-public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTrainSM
+public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTrainableStatisticalModel
 {
 	private SafeOutputStream out;
 	

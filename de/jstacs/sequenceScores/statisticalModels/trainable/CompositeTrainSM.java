@@ -44,7 +44,7 @@ import de.jstacs.results.StorableResult;
  * 
  * @author Jens Keilwagen
  */
-public class CompositeTrainSM extends AbstractTrainSM {
+public class CompositeTrainSM extends AbstractTrainableStatisticalModel {
 	private static final long serialVersionUID = 1263707296720984521L;
 
 	private static final String XML_TAG = "CompositeTrainSM";
@@ -271,7 +271,7 @@ public class CompositeTrainSM extends AbstractTrainSM {
 	/**
 	 * Returns the a deep copy of the models.
 	 * 
-	 * @return an array of {@link AbstractTrainSM}s
+	 * @return an array of {@link AbstractTrainableStatisticalModel}s
 	 * 
 	 * @throws CloneNotSupportedException
 	 *             if at least one of the models could not be cloned
@@ -364,7 +364,7 @@ public class CompositeTrainSM extends AbstractTrainSM {
 		length = XMLParser.extractObjectForTags(xml, "sequencelength", int.class );
 		lengths = XMLParser.extractObjectForTags(xml, "lengths", int[][].class );
 		starts = XMLParser.extractObjectForTags(xml, "starts", int[][].class );
-		models = XMLParser.extractObjectForTags( xml, "models", AbstractTrainSM[].class );
+		models = XMLParser.extractObjectForTags( xml, "models", AbstractTrainableStatisticalModel[].class );
 	}
 
 	/*

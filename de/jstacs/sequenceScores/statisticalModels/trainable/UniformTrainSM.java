@@ -39,7 +39,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jens Keilwagen
  */
-public class UniformTrainSM extends AbstractTrainSM
+public class UniformTrainSM extends AbstractTrainableStatisticalModel
 {
 	private static final long serialVersionUID = 1L;
 

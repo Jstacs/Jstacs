@@ -42,7 +42,7 @@ import de.jstacs.results.NumericalResultSet;
  * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet, double[], int)
  * @see de.jstacs.classifiers.assessment.ClassifierAssessment
  */
-public class VariableLengthWrapperTrainSM extends AbstractTrainSM {
+public class VariableLengthWrapperTrainSM extends AbstractTrainableStatisticalModel {
 
 	private TrainableStatisticalModel m;
 	

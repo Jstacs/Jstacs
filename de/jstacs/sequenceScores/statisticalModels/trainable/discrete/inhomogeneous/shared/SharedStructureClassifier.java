@@ -25,7 +25,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.CategoricalResult;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;
@@ -79,7 +79,7 @@ public class SharedStructureClassifier extends TrainSMBasedClassifier {
 																															throws IllegalArgumentException,
 																															CloneNotSupportedException,
 																															ClassDimensionException {
-		super( true, (AbstractTrainSM[])models );
+		super( true, (AbstractTrainableStatisticalModel[])models );
 		this.model = model;
 		if( order < 0 ) {
 			throw new IllegalArgumentException( "The value of order has to be non-negative." );

@@ -22,7 +22,7 @@ package de.jstacs.sampling;
 import de.jstacs.data.DataSet;
 
 /**
- * This is the interface that any {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM} has to implement if it
+ * This is the interface that any {@link de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel} has to implement if it
  * should be used in a sampling.
  * 
  * <br>
@@ -33,7 +33,7 @@ import de.jstacs.data.DataSet;
  * 
  * @author Berit Haldemann, Jens Keilwagen
  * 
- * @see de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM
+ * @see de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel
  * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM
  * @see de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Algorithm#GIBBS_SAMPLING
  */
