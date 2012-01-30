@@ -31,6 +31,7 @@ import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.alignment.Alignment;
 import de.jstacs.algorithms.alignment.Alignment.AlignmentType;
+import de.jstacs.algorithms.alignment.cost.AffineCosts;
 import de.jstacs.algorithms.alignment.cost.Costs;
 import de.jstacs.algorithms.alignment.cost.SimpleCosts;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
@@ -595,13 +596,16 @@ public class Cookbook {
 	public static void alignment(){
 		
 		//create costs
-		Costs costs = new SimpleCosts( 0, 1, 1, 0.5 );
+		Costs costs = new SimpleCosts( 0, 1, 0.5 );
 		
 		Sequence seq1=null, seq2=null;
 		//create alignment of two string
 		Alignment align = new Alignment( AlignmentType.GLOBAL, costs );
 		System.out.println( align.getAlignment( seq1, seq2 ) );
 		
+		costs = new AffineCosts( 1, costs );
+		align = new Alignment( AlignmentType.GLOBAL, costs );
+		System.out.println( align.getAlignment( seq1, seq2 ) );
 	}
 	
 	public void utils() throws Exception{

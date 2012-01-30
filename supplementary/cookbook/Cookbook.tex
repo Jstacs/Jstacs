@@ -44,7 +44,7 @@ breakatwhitespace=true}
 \begin{document}
 
 \maketitle
-\cleardoublepage
+\clearpage%~\clearpage
 
 \tableofcontents
 \clearpage
@@ -76,6 +76,7 @@ breakatwhitespace=true}
 \input{goodies}
 \clearpage
 
+\addtocontents{toc}{\newpage}
 \section{Recipes}
 \input{recipes}
 \end{document}
