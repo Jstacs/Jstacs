@@ -29,7 +29,7 @@ import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.StringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainSM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.HomogeneousMM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.parameters.HomMMParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.BayesianNetworkTrainSM;
@@ -93,7 +93,7 @@ public class MotifAdjuster
 				double pBg = Double.parseDouble( args[8] ), pwmESS = (1d-pBg)*ess, strandHyper=pwmESS/2d;
 				
 				BayesianNetworkTrainSMParameterSet p = new BayesianNetworkTrainSMParameterSet( con, sl, pwmESS, "foreground model", ModelType.IMM, fgOrder, LearningType.ML_OR_MAP );
-				AbstractTrainSM motifModel;
+				AbstractTrainableStatisticalModel motifModel;
 				TerminationCondition stop = new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 );
 				if( bothStrands )
 				{
@@ -105,7 +105,7 @@ public class MotifAdjuster
 					motifModel = new BayesianNetworkTrainSM( p );
 				}
 
-				AbstractTrainSM backgroundModel = new HomogeneousMM( new HomMMParameterSet( con, (s.getElementLength() - (1d-pBg)*sl) * ess, null, (byte) 0 ) );
+				AbstractTrainableStatisticalModel backgroundModel = new HomogeneousMM( new HomMMParameterSet( con, (s.getElementLength() - (1d-pBg)*sl) * ess, null, (byte) 0 ) );
 
 				// here you can alter the prior
 				PositionPrior pr = new GaussianLikePositionPrior( l, max, sigma );
@@ -131,7 +131,7 @@ public class MotifAdjuster
 				System.out.println( "models: " );
 
 				System.out.println( em );
-				motifModel = (AbstractTrainSM) em.getModel( 0 );
+				motifModel = (AbstractTrainableStatisticalModel) em.getModel( 0 );
 
 				Sequence seq;
 				int start;
