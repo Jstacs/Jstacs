@@ -25,15 +25,11 @@ breakatwhitespace=true}
 \author{Jan Grau and Jens Keilwagen}
 \title{Jstacs Cookbook}
 
-\newcounter{off}
-\setcounter{off}{1}
 \newcounter{first}
 \setcounter{first}{1}
 \newcounter{last}
 \setcounter{last}{1}
 
-\newcommand{\defaultcodefile}{./Cookbook.java}
-\newcommand{\codefile}{\defaultcodefile}
 \newcommand{\code}[1]{%
 \setcounter{first}{\value{off}}%
 \setcounter{last}{\value{off}}%
@@ -49,34 +45,14 @@ breakatwhitespace=true}
 \tableofcontents
 \clearpage
 
-\section{Preface}
 \input{preface}\clearpage
-
-\section{Starter: Data handling}\label{data}
-\input{data}
-\clearpage
-
-\section{Intermediate course: XMLParser, Parameters, and Results}\label{sec:xmlparres}
-\input{infrastructure}
-\clearpage
-
-\section{First main course: SequenceScores}\label{sequenceScore}
-\input{sequenceScore}
-\clearpage
-
-\section{Second main course: Classifiers}\label{classifier}
-\input{classifier}
-\clearpage
-
-\section{Intermediate course: Optimization}\label{Optimization}
-\input{optimization}
-\clearpage
-
-\section{Dessert: Alignments, Utils and goodies}
-\input{goodies}
-\clearpage
-
+\input{data}\clearpage
+\input{infrastructure}\clearpage
+\input{sequenceScore}\clearpage
+\input{classifier}\clearpage
+\input{optimization}\clearpage
+\input{goodies}\clearpage
 \addtocontents{toc}{\newpage}
-\section{Recipes}
 \input{recipes}
+
 \end{document}
