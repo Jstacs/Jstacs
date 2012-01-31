@@ -308,7 +308,8 @@ public class Tex2Wiki {
 	private static class NewCounterReplacement implements Replacement {
 		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
-			counter.put( list.get(0), new int[]{ 1 } );
+			//System.out.println( list.get(0) + "\t" + 0 );	
+			counter.put( list.get(0), new int[]{ 0 } );
 			wiki.delete( start, end );			
 		}
 	}
@@ -317,6 +318,7 @@ public class Tex2Wiki {
 		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 2 );
 			int[] c = counter.get( list.get(0) );
+			//System.out.print( list.get(0) + "\t" + c[0] );
 			int v;
 			try{
 				v = Integer.parseInt(list.get(1));
@@ -329,6 +331,7 @@ public class Tex2Wiki {
 			} else {
 				c[0] = v;
 			}
+			//System.out.println( " -> " + counter.get( list.get(0) )[0] );
 			wiki.delete( start, end );			
 		}
 	}
@@ -336,7 +339,9 @@ public class Tex2Wiki {
 	private static class StepCounterReplacement implements Replacement {
 		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
+			//System.out.print( list.get(0) + "\t" + counter.get( list.get(0) )[0] );
 			counter.get( list.get(0) )[0]++;
+			//System.out.println( " -> " + counter.get( list.get(0) )[0] );
 			wiki.delete( start, end );			
 		}
 	}
@@ -345,7 +350,9 @@ public class Tex2Wiki {
 		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 2 );
 			int[] c = counter.get( list.get(0) );
+			//System.out.print( list.get(0) + "\t" + c[0] );
 			c[0] += Integer.parseInt(list.get(1));
+			//System.out.println( " -> " + c[0] );
 			wiki.delete( start, end );			
 		}
 	}
@@ -363,7 +370,7 @@ public class Tex2Wiki {
 			} while( s.charAt(0) == '\\' );
 			
 			BufferedReader r = new BufferedReader( new FileReader( HOME + s ) );
-			for( int i = 0; i < off; i++ ) {
+			for( int i = 1; i < off; i++ ) {
 				r.readLine();
 			}
 			int anz = Integer.parseInt( list.get(0) );
