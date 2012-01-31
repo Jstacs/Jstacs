@@ -43,7 +43,6 @@ public class Tex2Wiki {
 	private static final String END = "\\end{document}";
 	
 	private static final String CMD = "\\newcommand{";
-	private static final String COUNTER = "\\newcounter";
 	private static final String INPUT = "\\input{";
 	
 	private static final String OPEN = "{";
@@ -52,14 +51,6 @@ public class Tex2Wiki {
 
 	private static boolean isOkay( char c ) {
 		return ('a' <= c && c <='z') || ('A' <= c && c <='Z');
-	}
-	
-	private static String getReplacement( String template, ArrayList<String> params ) {
-		int anz = params.size();
-		while( anz > 0 ) {
-			template = template.replace( "#" + anz, params.get( --anz ) );			
-		}
-		return template;
 	}
 	
 	private static int findOpeningTag( String tag, int startIdx, StringBuffer s ) {
@@ -170,17 +161,15 @@ public class Tex2Wiki {
 		hash.put( "\\textsc", new SimpleReplacement( 1, "<span style=\"font-variant: small-caps;\">#1</span>") );//TODO
 		hash.put( "\\href", new SimpleReplacement( 2, "[#1 #2]") );
 		hash.put( "\\url", new SimpleReplacement( 1, "[#1 #1]") );
-		hash.put( "\\lstinline", new SimpleReplacement(1, "<span style=\"font-variant: Courier;\">#1</span>") );//TODO
+		hash.put( "\\lstinline", new SimpleReplacement(1, "<code>#1</code>") );//TODO
 		
 		hash.put( "\\newcounter", new NewCounterReplacement() );
 		hash.put( "\\setcounter", new SetCounterReplacement() );
 		hash.put( "\\stepcounter", new StepCounterReplacement() );
 		hash.put( "\\addtocounter", new AddToCounterReplacement() );
 		hash.put( "\\code", new CodeReplacement() );
-		
-		
+				
 		hash.put( "\\begin", new EnvironmentReplacement() );
-
 		
 		createWiki( false, "defs", System.out );
 		
@@ -216,8 +205,6 @@ public class Tex2Wiki {
 		String cmd;
 		int idx1 = 0, idx2;
 		while( (idx1 = wiki.indexOf( "\\", idx1 ) ) >= 0 ){
-			//System.out.println("INDEX\t" + idx1);
-			
 			//extract command
 			idx2 = idx1+1;
 			while( isOkay( wiki.charAt( idx2 ) ) ) {
@@ -225,11 +212,6 @@ public class Tex2Wiki {
 			}
 			cmd = wiki.substring( idx1, idx2 );
 			e = hash.get( cmd );
-			int help = wiki.indexOf("\n", idx1), help2 = Math.max(0,idx1-10);
-			if( help < 0 || help > idx1+100 ) {
-				help = Math.min(wiki.length(),idx1+100);
-			}
-			//System.out.println( "BEFORE\t" + wiki.substring(help2,help).replace("\n", "\\n") );
 			
 			try {
 				//replace
@@ -245,7 +227,6 @@ public class Tex2Wiki {
 				ex.printStackTrace();
 				idx1++;
 			}
-			//System.out.println( "AFTER\t" + wiki.substring(help2,help).replace("\n", "\\n") );
 		}
 		if( create ) {
 			FileManager.writeFile( new File( HOME + file + ".wiki" ), wiki );
@@ -282,9 +263,17 @@ public class Tex2Wiki {
 			int end = fillParams( wiki, startParams, anz );			
 			String result = template;
 			int anz = list.size();
+			//System.out.println( "BEFORE\t\"" + wiki.substring(start, end) + "\"" );
+			//System.out.println( list );
 			while( anz > 0 ) {
-				result = result.replaceAll( "#" + anz, list.get( --anz ) );			
+				//System.out.println( "AFTER\t" + (anz == list.size() ? "" : list.get( anz )) + "\t\"" + result + "\"" );
+				String h = "#" + anz;
+				--anz;
+				while( result.indexOf(h) >= 0 ) {
+					result = result.replace( h, list.get( anz ) );
+				}
 			}
+			//System.out.println( "AFTER\t" + (anz == list.size() ? "" : list.get( anz )) + "\t\"" + result + "\"" );
 			wiki.replace( start, end, result );
 		}
 	}
@@ -396,12 +385,9 @@ public class Tex2Wiki {
 			
 			StringBuffer _new = new StringBuffer();
 			String s = list.get(0);
-			System.out.println( s );
 			if( s.equals("itemize") ) {
 				s = wiki.substring( end, end2 );
-				System.out.println( s );
-				s = s.replaceAll( "\\item", "*" );
-				System.out.println( s );
+				s = s.replaceAll( "\\\\item", "*" );
 				_new.append( s );
 			} else {
 				throw new Exception( s );
