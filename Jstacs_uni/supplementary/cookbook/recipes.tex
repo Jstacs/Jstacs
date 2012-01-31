@@ -53,9 +53,9 @@ We then assess these classifiers in a $10$-fold cross validation.
 \code{92}
 
 \subsection{Implementing a TrainableStatisticalModel}
-In this example, we show how to implement a new \TrainSM. Here, we implement a simple homogeneous Markov models of order $0$ to focus on the technical side of the implementation. A homogeneous Markov model of order $0$ has parameters $\theta_a$ where $a$ is a symbol of the alphabet $\Sigma$ and $\sum_{a \in \Sigma} \theta_a = 1$. For an input sequence $\bm{x} = x_1,\ldots,x_L$ it models the likelihood
+In this example, we show how to implement a new \TrainSM. Here, we implement a simple homogeneous Markov models of order $0$ to focus on the technical side of the implementation. A homogeneous Markov model of order $0$ has parameters $\theta_a$ where $a$ is a symbol of the alphabet $\Sigma$ and $\sum_{a \in \Sigma} \theta_a = 1$. For an input sequence $\mathbf{x} = x_1,\ldots,x_L$ it models the likelihood
 \begin{align*}
-P(\bm{x}|\bm{\theta}) &= \prod_{l=1}^{L} \theta_{x_l}.
+P(\mathbf{x}|\boldsymbol{\theta}) &= \prod_{l=1}^{L} \theta_{x_l}.
 \end{align*}
 In the implementation, we use log-parameters $\log \theta_a$.
 \renewcommand{\codefile}{recipes/HomogeneousMarkovModel.java}
@@ -63,26 +63,26 @@ In the implementation, we use log-parameters $\log \theta_a$.
 \code{93}
 
 \subsection{Implementing a DifferentiableStatisticalModel}
-In this example, we show how to implement a new \DiffSM. Here, we implement a simple position weight matrix, i.e., an inhomogeneous Markov model of order $0$. Since we want to use this position weight matrix in numerical optimization, we parameterize it in the so called ``natural parameterization'', where the probability of symbol $a$ at position $l$ is $P(X_l=a | \bm{\lambda}) = \frac{\exp(\lambda_{l,a})}{ \sum_{\tilde{a}} \exp(\lambda_{l,\tilde{a}}) }$. Since we use a product-Dirichlet prior on the parameters, we transformed this prior to the parameterization we use.
+In this example, we show how to implement a new \DiffSM. Here, we implement a simple position weight matrix, i.e., an inhomogeneous Markov model of order $0$. Since we want to use this position weight matrix in numerical optimization, we parameterize it in the so called ``natural parameterization'', where the probability of symbol $a$ at position $l$ is $P(X_l=a | \boldsymbol{\lambda}) = \frac{\exp(\lambda_{l,a})}{ \sum_{\tilde{a}} \exp(\lambda_{l,\tilde{a}}) }$. Since we use a product-Dirichlet prior on the parameters, we transformed this prior to the parameterization we use.
 
 Here, the method \lstinline+getLogScore+ returns a log-score that can be normalized to a proper log-likelihood by subtracting a log-normalization constant.
-The log-score for an input sequence $\bm{x} = x_1,\ldots,x_L$ essentially is
+The log-score for an input sequence $\mathbf{x} = x_1,\ldots,x_L$ essentially is
 \begin{align*}
-S(\bm{x}|\bm{\lambda}) &= \sum_{l=1}^{L} \lambda_{l,x_l}.
+S(\mathbf{x}|\boldsymbol{\lambda}) &= \sum_{l=1}^{L} \lambda_{l,x_l}.
 \end{align*}
 The normalization constant is a partition function, i.e., the sum of the scores over all possible input sequences:
 \begin{align*}
-Z(\bm{\lambda}) &= \sum_{\bm{x} \in \Sigma^L} \exp( S(\bm{x}|\bm{\lambda}) )\\
-&= \sum_{\bm{x} \in \Sigma^L} \prod_{l=1}^{L} \exp(\lambda_{l,x_l})\\
+Z(\boldsymbol{\lambda}) &= \sum_{\mathbf{x} \in \Sigma^L} \exp( S(\mathbf{x}|\boldsymbol{\lambda}) )\\
+&= \sum_{\mathbf{x} \in \Sigma^L} \prod_{l=1}^{L} \exp(\lambda_{l,x_l})\\
 &= \prod_{l=1}^{L} \sum_{a \in \Sigma} \exp(\lambda_{l,a})
 \end{align*}
 Thus, the likelihood is defined as
 \begin{align*}
-P(\bm{x}|\lambda) &= \frac{\exp(S(\bm{x}|\bm{\lambda}))}{Z(\bm{\lambda})}
+P(\mathbf{x}|\lambda) &= \frac{\exp(S(\mathbf{x}|\boldsymbol{\lambda}))}{Z(\boldsymbol{\lambda})}
 \end{align*}
 and
 \begin{align*}
-\log P(\bm{x}|\lambda) &= S(\bm{x}|\bm{\lambda})) - \log Z(\bm{\lambda}).
+\log P(\mathbf{x}|\lambda) &= S(\mathbf{x}|\boldsymbol{\lambda})) - \log Z(\boldsymbol{\lambda}).
 \end{align*}
 \renewcommand{\codefile}{recipes/PositionWeightMatrixDiffSM.java}
 \setcounter{off}{34}
