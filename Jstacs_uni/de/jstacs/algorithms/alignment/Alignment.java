@@ -186,7 +186,12 @@ public class Alignment {
 			index[0] = 0;
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
-				end = Math.min(l2,Math.max(l2,i+offDiagonal));
+				h = i+offDiagonal;
+				if( h > 0 ) {//due to possible overflow
+					end = Math.min(l2,h);
+				} else {
+					end = l2;
+				}
 				for( int j = start; j <= end; j++ ) {
 					if( index[1] < 0 || d[0][i][j] < d[0][index[1]][index[2]] ) {
 						index[1] = i;
@@ -304,7 +309,13 @@ public class Alignment {
 
 		@Override
 		public void reset(int i, int startJ, int endJ) {
-			Arrays.fill( d[0][i], startJ, endJ, Double.POSITIVE_INFINITY );
+			if( startJ >= 0 && startJ < d[0][i].length ) {
+				d[0][i][startJ] = Double.POSITIVE_INFINITY;
+			}
+			if( endJ > 0 && endJ <= d[0][i].length ) {
+				d[0][i][endJ-1] = Double.POSITIVE_INFINITY;
+			}
+			//Arrays.fill( d[0][i], startJ, endJ, Double.POSITIVE_INFINITY );
 		}
 
 		@Override
@@ -459,7 +470,13 @@ public class Alignment {
 		@Override
 		public void reset(int i, int startJ, int endJ) {
 			for( int k = 0; k < d.length; k++ ) {
-				Arrays.fill( d[k][i], startJ, endJ, Double.POSITIVE_INFINITY );
+				if( startJ >= 0 && startJ < d[k][i].length ) {
+					d[k][i][startJ] = Double.POSITIVE_INFINITY;
+				}
+				if( endJ > 0 && endJ <= d[k][i].length ) {
+					d[k][i][endJ-1] = Double.POSITIVE_INFINITY;
+				}
+				//Arrays.fill( d[k][i], startJ, endJ, Double.POSITIVE_INFINITY );
 			}
 		}		
 	}
