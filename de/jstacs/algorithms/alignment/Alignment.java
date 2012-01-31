@@ -18,8 +18,6 @@
 
 package de.jstacs.algorithms.alignment;
 
-import java.util.Arrays;
-
 import de.jstacs.algorithms.alignment.cost.AffineCosts;
 import de.jstacs.algorithms.alignment.cost.Costs;
 import de.jstacs.data.AlphabetContainer;
@@ -158,7 +156,7 @@ public class Alignment {
 		int start, end, h;
 		
 		//initialize
-		if( d == null || d.length < l1+1 || d[0].length < l2+1 ) {
+		if( d == null || d[0].length < l1+1 || d[0][0].length < l2+1 ) {
 			d = new double[aCosts == null ? 1 : 3][l1+1][l2+1];
 		}
 		
@@ -285,7 +283,7 @@ public class Alignment {
 				double left = d[0][i][j - 1] + costs.getGapCosts();
 				double top = d[0][i-1][j];
 				if ( type!=AlignmentType.SEMI_GLOBAL || j != l2 ) {
-					top += costs.getGapCosts();;
+					top += costs.getGapCosts();
 				}
 				
 				if( diag < left && diag < top ) {
