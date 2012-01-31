@@ -19,12 +19,16 @@
 
 package supplementary;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import de.jstacs.io.FileManager;
+import de.jstacs.utils.SafeOutputStream;
 
 /**
  * This class is a VERY SIMPLE parser for Tex-Files to wiki.
@@ -33,12 +37,13 @@ import de.jstacs.io.FileManager;
  */
 public class Tex2Wiki {
 
-	private static final String HOME = "./supplementary/";
+	private static final String HOME = "./supplementary/cookbook/";
 	
 	private static final String START = "\\begin{document}";
 	private static final String END = "\\end{document}";
 	
 	private static final String CMD = "\\newcommand{";
+	private static final String COUNTER = "\\newcounter";
 	private static final String INPUT = "\\input{";
 	
 	private static final String OPEN = "{";
@@ -61,13 +66,37 @@ public class Tex2Wiki {
 		return s.indexOf( tag, startIdx );
 	}
 	
-	private static int findClosingTag( String startTag, String endTag, int startIdx, StringBuffer s ) throws Exception {
+	private static HashMap<Character, Character> tag = new HashMap<Character, Character>();
+	
+	static {
+		tag.put( '{', '}' );
+		tag.put( '[', ']' );
+		tag.put( '(', ')' );
+	}
+	
+	private static char getEndTag( char c ) {
+		Character end = tag.get( c );
+		if( end == null ) {
+			return c;
+		}
+		return end;
+	}
+	
+	private static int findClosingTag( int startIdx, StringBuffer s ) throws Exception {
+		char startTag = s.charAt(startIdx), endTag = getEndTag( startTag );
+		String eTag = ""+endTag, sTag = "" + startTag;
+		startIdx++;
+		return findClosingTag( startIdx, sTag, eTag, s );
+	}
+	
+	private static int findClosingTag( int startIdx, String sTag, String eTag, StringBuffer s ) throws Exception {
+		int hh = startIdx;
 		int anz = 1, idx, h;
 		do {
 			//System.out.println( "a\t" + startIdx + " " + anz + " " + s.substring( startIdx, Math.min( s.length(), startIdx+25 ) ).replace( "\n", " " ) );
-			idx = s.indexOf( endTag, startIdx );
+			idx = s.indexOf( eTag, startIdx );
 			anz--;
-			while( (h = s.indexOf( startTag, startIdx )) < idx && h > 0 ) {
+			while( (h = s.indexOf( sTag, startIdx )) < idx && h > 0 ) {
 				anz++;
 				//System.out.println( "xxx " + startIdx + " " + h + " " + anz + " " + s.substring( h, Math.min( s.length(), h+25 ) ).replace( "\n", " " ) );
 				startIdx = h+1;
@@ -76,20 +105,21 @@ public class Tex2Wiki {
 			startIdx = idx+1;
 		} while( idx > 0 && anz > 0 );
 		if( idx < 0 ) {
-			throw new Exception( "could not parse: did not find closing \"" + endTag + "\"" );
+			System.out.println( "CLOSE?\t" + s.substring( hh ));
+			throw new Exception( "could not parse: did not find closing \"" + eTag + "\"" );
 		}
 		return idx;
 	}
 	
-	private static void addCommands( StringBuffer s, Hashtable<String, Entry<Integer,String>> hash ) throws Exception {
+	private static void add( StringBuffer s, HashMap<String, Replacement> hash ) throws Exception {
 		int idx1, idx2, idx3, idx4, startIdx = 0, params;
 		String cmd, rep;
 		while( (idx1=s.indexOf( CMD, startIdx )) >= 0 ) {
 			idx2 = s.indexOf( "}", idx1 );
-			idx3 = findOpeningTag( "{", idx2+1, s );
-			idx4 = findClosingTag( "{", "}", idx3+1, s );
+			idx3 = findOpeningTag( OPEN, idx2+1, s );
+			idx4 = findClosingTag( idx3, s );
 			
-			cmd = s.substring( idx1+CMD.length(), idx2 );
+			cmd = s.substring( idx1+CMD.length(), idx2 ).trim();
 			rep = s.substring( idx3+1,idx4 );
 			
 			if( idx2+1 == idx3 ){
@@ -101,7 +131,7 @@ public class Tex2Wiki {
 					throw new Exception( "could not parse command" );
 				}
 			}
-			hash.put( cmd, new MyEntry( params, rep ) );
+			hash.put( cmd, new SimpleReplacement( params, rep ) );
 			
 			startIdx = idx4+1;
 		}
@@ -113,10 +143,12 @@ public class Tex2Wiki {
 			idx2 = s.indexOf( "}", idx1 );
 			rep = s.substring( idx1+INPUT.length(), idx2 );
 			sb = FileManager.readFile( new File( HOME + rep ) );
-			addCommands( sb, hash );			
+			add( sb, hash );			
 			startIdx = idx2+1;
 		}
 	}
+	
+	private static HashMap<String,Replacement> hash = new HashMap<String,Replacement>(50);
 	
 	/**
 	 * This is the main of the program.
@@ -126,29 +158,66 @@ public class Tex2Wiki {
 	 * @throws Exception if something went wrong
 	 */
 	public static void main( String[] args ) throws Exception {
+		hash.put( "\\newcommand", new NewCommandReplacement() );
+		hash.put( "\\renewcommand", new RenewCommandReplacement() );
+		
+		hash.put( "\\section", new SimpleReplacement( 1, "= #1 =") );
+		hash.put( "\\subsection", new SimpleReplacement( 1, "== #1 ==") );
+		hash.put( "\\subsubsection", new SimpleReplacement( 1, "=== #1 ===") );
+		hash.put( "\\emph", new SimpleReplacement( 1, "''#1''") );
+		hash.put( "\\textit", new SimpleReplacement( 1, "''#1''") );
+		hash.put( "\\textbf", new SimpleReplacement( 1, "'''#1'''") );
+		hash.put( "\\textsc", new SimpleReplacement( 1, "<span style=\"font-variant: small-caps;\">#1</span>") );//TODO
+		hash.put( "\\href", new SimpleReplacement( 2, "[#1 #2]") );
+		hash.put( "\\url", new SimpleReplacement( 1, "[#1 #1]") );
+		hash.put( "\\lstinline", new SimpleReplacement(1, "<span style=\"font-variant: Courier;\">#1</span>") );//TODO
+		
+		hash.put( "\\newcounter", new NewCounterReplacement() );
+		hash.put( "\\setcounter", new SetCounterReplacement() );
+		hash.put( "\\stepcounter", new StepCounterReplacement() );
+		hash.put( "\\addtocounter", new AddToCounterReplacement() );
+		hash.put( "\\code", new CodeReplacement() );
+		
+		
+		hash.put( "\\begin", new EnvironmentReplacement() );
 
-		Hashtable<String,Entry<Integer,String>> hash = new Hashtable<String,Entry<Integer,String>>(50);
-		hash.put( "\\section", new MyEntry( 1, "= #1 =") );
-		hash.put( "\\subsection", new MyEntry( 1, "== #1 ==") );
-		hash.put( "\\emph", new MyEntry( 1, "''#1''") );
-		hash.put( "\\textit", new MyEntry( 1, "''#1''") );
-		hash.put( "\\textbf", new MyEntry( 1, "'''#1'''") );
-		hash.put( "\\textsc", new MyEntry( 1, "<span style=\"font-variant: small-caps;\">#1</span>") );//TODO
-		hash.put( "\\href", new MyEntry( 2, "[#1 #2]") );
 		
-		StringBuffer s = FileManager.readFile( new File( HOME + "Mixtures.tex" ) ); //TODO args[0]
-		int start = s.indexOf( START ) + START.length();
+		createWiki( false, "defs", System.out );
+		
+		createWiki( true, "preface", System.out );
+		createWiki( true, "data", System.out );
+		createWiki( true, "infrastructure", System.out );
+		createWiki( true, "sequenceScore", System.out );
+		createWiki( true, "classifier", System.out );
+		createWiki( true, "optimization", System.out );
+		createWiki( true, "goodies", System.out );
+		createWiki( true, "recipes", System.out );
+	}
+	
+	private static ArrayList<String> list = new ArrayList<String>();
+	
+	private static void createWiki( boolean create, String file, OutputStream out ) throws Exception {
+		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream( out );
+		System.out.println("--------------------------------------------------");
+		System.out.println( file );
+		StringBuffer s = FileManager.readFile( new File( HOME + file + ".tex" ) );
+		int start = s.indexOf( START );
 		int end = s.indexOf( END );
+		StringBuffer wiki;
+		wiki = new StringBuffer( s.toString().replace( "\\\\", "\n" ) );
+		if( start >= 0 && end >= 0 ) {
+			wiki = new StringBuffer( wiki.substring( start+START.length(), end ) ); 
+		} else if( start < 0 && end < 0 ) {
+		} else {
+			throw new Exception("could not localize part for parsing");
+		}
 		
-		addCommands( new StringBuffer( s.substring( 0, start ).replace( "\\\\", "\n" ) ), hash );
-		
-		StringBuffer wiki = new StringBuffer( s.substring( start, end ).replace( "\\\\", "\n" ) ); 
-		
-		Entry<Integer,String> e;
+		Replacement e;
 		String cmd;
-		int idx1 = 0, idx2, idx3, idx4, anz;
-		ArrayList<String> list = new ArrayList<String>();
+		int idx1 = 0, idx2;
 		while( (idx1 = wiki.indexOf( "\\", idx1 ) ) >= 0 ){
+			//System.out.println("INDEX\t" + idx1);
+			
 			//extract command
 			idx2 = idx1+1;
 			while( isOkay( wiki.charAt( idx2 ) ) ) {
@@ -156,53 +225,189 @@ public class Tex2Wiki {
 			}
 			cmd = wiki.substring( idx1, idx2 );
 			e = hash.get( cmd );
-			
-			//replace
-			if( e == null ) {
-				idx1++; //skip
-				//throw new Exception( "Could not parse command: " + cmd );//TODO
-			} else {
-				anz = e.getKey();
-				list.clear();
-				idx4 = idx2;
-				for( int i = 0; i < anz; i++ ) {
-					idx3 = findOpeningTag( OPEN, idx4, wiki );
-					idx4 = findClosingTag( OPEN, CLOSE, idx3+1, wiki );
-					list.add( wiki.substring( idx3+1, idx4 ) );
-					idx4++;
-				}
-				if( wiki.charAt( idx1-1 ) == '{' && wiki.charAt( idx4 ) == '}' ) {
-					idx1--;
-					idx4++;
-				}
-				wiki.replace( idx1, idx4, getReplacement( e.getValue(), list ) );
+			int help = wiki.indexOf("\n", idx1), help2 = Math.max(0,idx1-10);
+			if( help < 0 || help > idx1+100 ) {
+				help = Math.min(wiki.length(),idx1+100);
 			}
+			//System.out.println( "BEFORE\t" + wiki.substring(help2,help).replace("\n", "\\n") );
+			
+			try {
+				//replace
+				if( e == null ) {
+					idx1++; //skip
+					sos.writeln( "PROBLEM\t" + cmd );
+				} else {
+					list.clear();
+					e.replace( wiki, idx1, idx2 );
+				}
+			} catch( Exception ex ) {
+				System.out.println( "ERROR\t" + cmd + "\t" + ex.getMessage() );
+				ex.printStackTrace();
+				idx1++;
+			}
+			//System.out.println( "AFTER\t" + wiki.substring(help2,help).replace("\n", "\\n") );
 		}
-		System.out.println( wiki );	
+		if( create ) {
+			FileManager.writeFile( new File( HOME + file + ".wiki" ), wiki );
+		}
+	}
+	
+	private static int fillParams( StringBuffer wiki, int idx2, int anz ) throws Exception {
+		int idx4 = idx2, idx3;
+		for( int i = 0; i < anz; i++ ) {
+			idx3 = idx4;
+			idx4 = findClosingTag( idx3, wiki );
+			list.add( wiki.substring( idx3+1, idx4 ) );
+			idx4++;
+		}
+		return idx4;
+	}
+	
+
+	private static interface Replacement {	
+		public abstract void replace( StringBuffer wiki, int start, int startParams ) throws Exception;
+	}
+	
+	private static class SimpleReplacement implements Replacement {
+
+		int anz;
+		String template;
+		
+		public SimpleReplacement( int anz, String template ) {
+			this.anz = anz;
+			this.template = template;
+		}
+		
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, anz );			
+			String result = template;
+			int anz = list.size();
+			while( anz > 0 ) {
+				result = result.replaceAll( "#" + anz, list.get( --anz ) );			
+			}
+			wiki.replace( start, end, result );
+		}
+	}
+	
+	private static class NewCommandReplacement implements Replacement {		
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 1 );
+			delete();
+			int anz = wiki.charAt(end) == '[' ? 2: 1;
+			int end2 = fillParams( wiki, end, anz );
+			if( anz == 2 ) {
+				anz = Integer.parseInt( list.get(1) );
+			} else {
+				anz = 0;
+			}
+			hash.put( list.get(0), new SimpleReplacement( anz, list.get(list.size()-1) ) );
+
+			wiki.delete( start, end2 );
+		}
+		
+		private void delete() {}
+	}
+	
+	private static class RenewCommandReplacement extends NewCommandReplacement {		
+		private void delete() {
+			hash.remove( list.get(0) );
+		}
+	}
+	
+	private static HashMap<String,int[]> counter = new HashMap<String, int[]>();
+	
+	private static class NewCounterReplacement implements Replacement {
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 1 );
+			counter.put( list.get(0), new int[]{ 1 } );
+			wiki.delete( start, end );			
+		}
+	}
+	
+	private static class SetCounterReplacement implements Replacement {
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 2 );
+			int[] c = counter.get( list.get(0) );
+			int v;
+			try{
+				v = Integer.parseInt(list.get(1));
+			} catch( Exception e ) {
+				String s = list.get(1);
+				v = counter.get( s.substring(8,s.length()-1) )[0];
+			}
+			if( c == null ) {
+				counter.put( list.get(0), new int[]{ v } );
+			} else {
+				c[0] = v;
+			}
+			wiki.delete( start, end );			
+		}
+	}
+	
+	private static class StepCounterReplacement implements Replacement {
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 1 );
+			counter.get( list.get(0) )[0]++;
+			wiki.delete( start, end );			
+		}
+	}
+	
+	private static class AddToCounterReplacement implements Replacement {
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 2 );
+			int[] c = counter.get( list.get(0) );
+			c[0] += Integer.parseInt(list.get(1));
+			wiki.delete( start, end );			
+		}
 	}
 
-	private static class MyEntry implements Entry<Integer,String> {
-
-		private int key;
-		private String value;
-		
-		public MyEntry( int key, String val ) {
-			this.key = key;
-			this.value = val;
+	private static class CodeReplacement implements Replacement {
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 1 );
+			
+			int off = counter.get( "off" )[0];
+			StringBuffer _new = new StringBuffer();
+			_new.append( "<source lang=\"java5\">\n" );
+			String s = "\\codefile";
+			do {
+				s = ((SimpleReplacement) hash.get( s )).template;
+			} while( s.charAt(0) == '\\' );
+			
+			BufferedReader r = new BufferedReader( new FileReader( HOME + s ) );
+			for( int i = 0; i < off; i++ ) {
+				r.readLine();
+			}
+			int anz = Integer.parseInt( list.get(0) );
+			for( int i = 0; i <= anz; i++ ) {
+				_new.append( r.readLine() );
+				_new.append( "\n" );
+			}
+			r.close();
+			_new.append( "</source>\n" );
+			
+			wiki.replace( start, end, _new.toString() );			
 		}
-		
-		public Integer getKey() {
-			return key;
+	}
+	
+	private static class EnvironmentReplacement implements Replacement {
+		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+			int end = fillParams( wiki, startParams, 1 );
+			int end2 = findClosingTag( end, "\\begin{"+list.get(0)+"}", "\\end{"+list.get(0)+"}", wiki );
+			
+			StringBuffer _new = new StringBuffer();
+			String s = list.get(0);
+			System.out.println( s );
+			if( s.equals("itemize") ) {
+				s = wiki.substring( end, end2 );
+				System.out.println( s );
+				s = s.replaceAll( "\\item", "*" );
+				System.out.println( s );
+				_new.append( s );
+			} else {
+				throw new Exception( s );
+			}
+			
+			wiki.replace( start, end2+s.length()+2+4, _new.toString() );			
 		}
-
-		public String getValue() {
-			return value;
-		}
-
-		public String setValue( String value ) {
-			String old = this.value;
-			this.value = value;
-			return old;
-		}	
-	}	
+	}
 }
