@@ -161,15 +161,19 @@ public class Tex2Wiki {
 		hash.put( "\\textsc", new SimpleReplacement( 1, "<span style=\"font-variant: small-caps;\">#1</span>") );//TODO
 		hash.put( "\\href", new SimpleReplacement( 2, "[#1 #2]") );
 		hash.put( "\\url", new SimpleReplacement( 1, "[#1 #1]") );
-		hash.put( "\\lstinline", new SimpleReplacement(1, "<code>#1</code>") );//TODO
-		
+		hash.put( "\\caption", new SimpleReplacement( 1, "#1" ) );
+		hash.put( "\\lstinline", new SimpleReplacement(1, "<code>#1</code>") );
+		hash.put( "\\label", new SimpleReplacement( 1, "\n<span id=\"#1\"> </span>" ) );
+		hash.put( "\\ref", new SimpleReplacement( 1, "[[##1 (link)]]" ) );
 		hash.put( "\\newcounter", new NewCounterReplacement() );
 		hash.put( "\\setcounter", new SetCounterReplacement() );
 		hash.put( "\\stepcounter", new StepCounterReplacement() );
 		hash.put( "\\addtocounter", new AddToCounterReplacement() );
 		hash.put( "\\code", new CodeReplacement() );
-				
+		hash.put( "\\lstset", new SimpleReplacement( 1, "" ));
+		
 		hash.put( "\\begin", new EnvironmentReplacement() );
+
 		
 		createWiki( false, "defs", System.out );
 		
@@ -228,6 +232,24 @@ public class Tex2Wiki {
 				idx1++;
 			}
 		}
+		
+		idx1 = 0; idx2=0;
+		while( (idx1 = wiki.indexOf( "$", idx1 ) ) >= 0 ){
+			
+			wiki.replace( idx1, idx1+1, "<math>" );
+			idx2 = wiki.indexOf( "$", idx1+1 );
+			wiki.replace( idx2, idx2+1, "</math>" );
+			idx1 = idx2+7;
+		}
+		
+		String str = new String(wiki);
+		str = str.replaceAll( "!%!", "\\\\" );//TODO Frickelalarm
+		str = str.replaceAll( "~", " " );//naive replacements!
+		str = str.replaceAll( "\\\\&", "&" );
+		str = str.replaceAll( "''", "&quot;" );
+		str = str.replaceAll( "``", "&quot;" );
+		
+		wiki = new StringBuffer( str );
 		if( create ) {
 			FileManager.writeFile( new File( HOME + file + ".wiki" ), wiki );
 		}
@@ -363,7 +385,7 @@ public class Tex2Wiki {
 			
 			int off = counter.get( "off" )[0];
 			StringBuffer _new = new StringBuffer();
-			_new.append( "<source lang=\"java5\">\n" );
+			_new.append( "<source lang=\"java5\" enclose=\"div\">\n" );
 			String s = "\\codefile";
 			do {
 				s = ((SimpleReplacement) hash.get( s )).template;
@@ -394,9 +416,43 @@ public class Tex2Wiki {
 			String s = list.get(0);
 			if( s.equals("itemize") ) {
 				s = wiki.substring( end, end2 );
-				s = s.replaceAll( "\\\\item", "*" );
+				System.out.println( s );
+				s = s.replaceAll( "[ \\t]*\\\\item", "*" );
+				System.out.println( s );
 				_new.append( s );
-			} else {
+			} else if( s.equals( "figure" ) ){
+				s = wiki.substring( end, end2 );
+				System.out.println( s );
+				_new.append("[[File:TODO|thumb|");
+				_new.append( s );
+				_new.append( "]]\n" );
+			}else if( s.equals( "align*" ) || s.equals( "align" ) || 
+					s.equals( "equation*" ) || s.equals( "equation" ) ||
+					s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
+				String s2 = wiki.substring( end, end2 );
+				_new.append( "\n<math>" );
+				_new.append( "!%!begin{" );//TODO Frickelalarm
+				_new.append( s );
+				_new.append( "}\n" );
+				_new.append( s2 );
+				_new.append( "\n!%!end{" );//TODO Frickelalarm
+				_new.append( s );
+				_new.append( "}" );
+				_new.append( "</math>\n" );
+			}else if( s.equals( "lstlisting" ) ){
+				String s2 = wiki.substring( end,end2 );
+				String lang = "java5";
+				if(s2.startsWith( "[" )){
+					int end3 = s2.indexOf( "]" );
+					if(s2.startsWith( "[language=" )){
+						lang = s2.substring( 10, end3 );
+					}
+					s2 = s2.substring( end3+1 );
+				}
+				_new.append( "<source lang=\""+lang+"\" enclose=\"div\">" );
+				_new.append( s2 );
+				_new.append( "</source>" );
+			}else{
 				throw new Exception( s );
 			}
 			
