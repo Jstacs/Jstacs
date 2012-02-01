@@ -453,14 +453,18 @@ public class Tex2Wiki {
 					s.equals( "equation*" ) || s.equals( "equation" ) ||
 					s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
 				String s2 = wiki.substring( end, end2 );
+				String s3 = s;
+				if(s.endsWith( "*" )){
+					s3 = s.substring( 0, s.length()-1 );
+				}
 				_new.append( "\n<math>" );
 				_new.append( "\\begin{" );
 				res += _new.length();
-				_new.append( s );
+				_new.append( s3 );
 				_new.append( "}\n" );
 				_new.append( s2 );
 				_new.append( "\n\\end{" );
-				_new.append( s );
+				_new.append( s3 );
 				_new.append( "}" );
 				_new.append( "</math>\n" );
 			}else if( s.equals( "lstlisting" ) ){
