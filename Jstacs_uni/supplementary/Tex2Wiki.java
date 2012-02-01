@@ -199,8 +199,9 @@ public class Tex2Wiki {
 		int end = s.indexOf( END );
 		StringBuffer wiki;
 		wiki = new StringBuffer( s.toString()
-				//.replace( "\\", "\n" )
-				.replaceAll( "~", " " )//naive replacements!
+				//naive replacements!
+				.replaceAll( "\\\\\\\\", "\n" )
+				.replaceAll( "~", " " )
 				.replaceAll( "\\\\&", "&" )
 				.replaceAll( "''", "&quot;" )
 				.replaceAll( "``", "&quot;" )
