@@ -74,6 +74,7 @@ import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.GenericComplementableDiscreteAlphabet;
 import de.jstacs.data.bioJava.BioJavaAdapter;
+import de.jstacs.data.bioJava.SimpleSequenceIterator;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.SparseSequence;
@@ -145,11 +146,10 @@ import de.jstacs.utils.ToolBox;
 
 public class Cookbook {
 
-	/**
-	 * @param args
-	 */
+	
+
 	public static void main( String[] args ) throws Exception {
-		utils();
+		data();
 	}
 	
 	public static void data() throws Exception{
@@ -272,11 +272,11 @@ public class Cookbook {
 		
 		//use BioJava to obtain sequences from genbank
 		GenbankRichSequenceDB db = new GenbankRichSequenceDB();
-		HashSet<String> idSet = new HashSet<String>( 2 );
-		idSet.add( "NC_001284" );
-		idSet.add( "NC_000932" );
-		RichSequenceDB subDB = db.getRichSequences( idSet );
-		RichSequenceIterator dbIterator = subDB.getRichSequenceIterator();
+		
+		SequenceIterator dbIterator = new SimpleSequenceIterator( 
+				db.getRichSequence( "NC_001284" ), 
+				db.getRichSequence( "NC_000932" ) 
+		);
 		
 		DataSet fromBioJava = BioJavaAdapter.sequenceIteratorToDataSet( dbIterator, null );
 		
