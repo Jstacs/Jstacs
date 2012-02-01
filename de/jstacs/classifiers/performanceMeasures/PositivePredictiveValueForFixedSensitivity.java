@@ -27,6 +27,10 @@ import de.jstacs.results.NumericalResultSet;
 
 /**
  * This class implements the positive predictive value for a fixed sensitivity.
+ * The positive predictive value is defined as {@latex.inline $\\frac{TP}{TP+FP}$} and the sensitivity is defined as {@latex.inline $\\frac{TP}{TP+FN}$}. 
+ * The classification threshold for computing the positive predictive value is chosen such that the classifier yields at least the specified sensitivity.
+ * 
+ * This measure corresponds to a specific point on the {@link PRCurve}.
  * 
  * @author Jan Grau, Jens Keilwagen
  */

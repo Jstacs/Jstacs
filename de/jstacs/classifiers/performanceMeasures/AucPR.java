@@ -24,6 +24,7 @@ import de.jstacs.results.NumericalResultSet;
  * This class implements the area under curve of the precision-recall curve.
  * 
  * @author Jan Grau, Jens Keilwagen
+ * @see PRCurve
  */
 public class AucPR extends PRCurve implements NumericalPerformanceMeasure {
 

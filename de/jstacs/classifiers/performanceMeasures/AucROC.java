@@ -24,6 +24,7 @@ import de.jstacs.results.NumericalResultSet;
  * This class implements the area under curve of the Receiver Operating Characteristics curve.
  * 
  * @author Jan Grau, Jens Keilwagen
+ * @see AucROC
  */
 public class AucROC extends ROCCurve implements NumericalPerformanceMeasure {
 

@@ -28,6 +28,10 @@ import de.jstacs.results.ResultSet;
 
 /**
  * This class implements the Receiver Operating Characteristics curve and the area under the curve.
+ * The Receiver Operating Characteristics curve is the plot of sensitivity ({@latex.inline $\\frac{TP}{TP+FN}$}) 
+ * against the false positive rate ( {@latex.inline $\\frac{FP}{FP+TN}$}) for all possible classification thresholds.
+ * 
+ * If you are only interested in the area under this curve, you can use {@link AucROC} instead.
  * 
  * @author Jan Grau, Jens Keilwagen
  */

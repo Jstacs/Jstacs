@@ -28,6 +28,10 @@ import de.jstacs.results.ResultSet;
 
 /**
  * This class implements the precision-recall curve and its area under the curve.
+ * The precision-recall curve is the plot of precision (also called positive predictive value, {@latex.inline $\\frac{TP}{TP+FP}$}) 
+ * against recall (also called sensitivity, {@latex.inline $\\frac{TP}{TP+FN}$}) for all possible classification thresholds.
+ * 
+ * If you are only interested in the area under this curve, you can use {@link AucPR} instead.
  * 
  * @author Jan Grau, Jens Keilwagen
  */

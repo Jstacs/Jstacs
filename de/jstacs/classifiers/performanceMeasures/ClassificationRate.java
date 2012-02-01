@@ -23,7 +23,7 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.utils.ToolBox;
 
 /**
- * This class implements the classification rate.
+ * This class implements the classification rate, i.e. {@latex.inline $\\frac{TP + TN}{N}$}.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
