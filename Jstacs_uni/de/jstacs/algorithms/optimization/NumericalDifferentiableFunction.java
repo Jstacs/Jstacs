@@ -20,10 +20,10 @@ package de.jstacs.algorithms.optimization;
 
 /**
  * This class is the framework for any numerical differentiable function
- * <code>f: R^n -> R</code>. The gradient is computed numerically. Each partial
+ *{@latex.inline $f: \\mathbb{R}^n \\to \\mathbb{R}$}. The gradient is computed numerically. Each partial
  * differentiation is computed by the formula<br>
  * 
- * <code>\partial_k f(x) = \frac{f(x)-f(x+\varepsilon*e_k)}{\varepsilon}</code>.
+ * {@latex.inline $\\partial_k f(x) = \\frac{f(x)-f(x+\\varepsilon*e_k)}{\\varepsilon}$}.
  * 
  * @author Jens Keilwagen
  */

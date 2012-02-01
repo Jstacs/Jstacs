@@ -27,6 +27,8 @@ import de.jstacs.results.NumericalResultSet;
 
 /**
  * This class implements the sensitivity for a fixed specificity.
+ * The sensitivity is defined as {@latex.inline $\\frac{TP}{TP+FN}$} and the specificity is defined as {@latex.inline $\\frac{TN}{TN+FP}$}. 
+ * The classification threshold for computing the sensitivity is chosen such that the classifier yields at least the specified specificity.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
