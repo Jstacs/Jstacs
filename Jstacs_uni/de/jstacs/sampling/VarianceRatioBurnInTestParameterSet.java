@@ -65,6 +65,13 @@ public class VarianceRatioBurnInTestParameterSet extends AbstractBurnInTestParam
 	 */
 	public VarianceRatioBurnInTestParameterSet( int starts, double t ) throws IllegalArgumentException, IllegalValueException {
 		super( VarianceRatioBurnInTest.class, starts );
+		try {
+			parameters.add( new SimpleParameter( DataType.DOUBLE, "threshold", "the threshold value for testing the end of the burn-in phase" +
+					"with the Variance-Ratio burn-in test, the value has to be greater than 1 since the tested potential scale reduction" +
+					"factor R converges to 1", true, new NumberValidator<Double>( 1d, Double.MAX_VALUE ), 1.2 ) );
+		} catch ( ParameterException doesNotHappen ) {
+			throw new RuntimeException( doesNotHappen );
+		}
 		parameters.get( 1 ).setValue( t );
 	}
 	
