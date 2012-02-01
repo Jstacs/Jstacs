@@ -1031,7 +1031,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 	 *
 	 * @param <T> the type of the {@link AbstractAlphabetContainerParameterSet}
 	 */
-	public static abstract class AbstractAlphabetContainerParameterSet<T extends AlphabetContainer> extends InstanceParameterSet<T> {
+	public static abstract class AbstractAlphabetContainerParameterSet<T extends AlphabetContainer> extends de.jstacs.parameters.InstanceParameterSet<T> {
 
 		/**
 		 * Constructs an {@link AbstractAlphabetContainerParameterSet} from the class that can be
