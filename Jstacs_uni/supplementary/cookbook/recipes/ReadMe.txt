@@ -1,0 +1,146 @@
+
+= Introduction =
+
+These code examples shall show how you can use Jstacs to get several tasks done.
+Each of these code examples must be compiled with Jstacs and the required libraries in the classpath, e.g.,
+
+ javac -cp jstacs-2.0.jar AlphabetCreation.java
+
+or
+
+ javac -cp jstacs-2.0.jar:RClient-0.6.7.jar RserveTest.java
+
+If the libraries are not located in the same directory as the Java source file, you need to adapt the paths to the libraries Jars.
+
+The code examples
+* AlphabetCreation,
+* CrossValidation,
+* CurvePlotter,
+* DataLoader,
+* GenDisMixClassifierTest,
+* TrainSMBasedClassifierTest, and
+* RserveTest
+contain a main-method. Hence, after compilation, you can directly run them as a program, e.g.,
+
+ java -cp .:jstacs-2.0.jar:RClient-0.6.7.jar RserveTest
+
+The remaining two examples
+* HomogeneousMarkovModel and
+* PositionWeightMatrixDiffSM
+show how to implement new TrainableStatisticalModels and DifferentiableStatisticalModels and do not contain a
+main-method.
+
+= Examples =
+
+== AlphabetCreation ==
+In this example, we create a new ComplementableDiscreteAlphabet using the generic implementation. 
+We then use this Alphabet to create a Sequence and compute its reverse complement.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar AlphabetCreation.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar AlphabetCreation
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== DataLoader ==
+In this example, we show different ways of creating a DataSet in Jstacs from plain text and FastA 
+files and using the adaptor to BioJava.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar:biojava-live.jar:bytecode.jar DataLoader.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar:biojava-live.jar:bytecode.jar DataLoader ./
+where the files "myfile.fa" and "myfile.txt" must be located in the working directory.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== TrainSMBasedClassifierTest ==
+In this example, we show how to create a TrainSMBasedClassifier using to position weight matrices, 
+train this classifier, classify previously unlabeled data, store the classifier to its XML representation, 
+and load it back into Jstacs.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar TrainSMBasedClassifierTest.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar TrainSMBasedClassifierTest ./ fg.fa bg.fa unknown.fa
+where the files "fg.fa", "bg.fa", and "unknown.fa" must be located in the working directory.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== GenDisMixClassifierTest ==
+In this example, we show how to create GenDisMixClassifiers using two position weight matrices. 
+We show how GenDisMixClassifiers can be created for all basic learning principles (ML, MAP, MCL, MSP), 
+and how these classifiers can be trained and assessed.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar:numericalMethods.jar GenDisMixClassifierTest.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar:numericalMethods.jar GenDisMixClassifierTest fg.fa bg.fa
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== RserveTest ==
+Here, we show a number of examples how R can be used from within Jstacs using RServe.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar:RClient-0.6.7.jar RserveTest.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar:RClient-0.6.7.jar RserveTest ./
+where plots are created in the working directory. For this program, 
+a running Rserve on the local computer with standard port is required.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== CurvePlotter ==
+In this example, we show how a classifier (loaded from disk) can be assessed on test data, 
+and how we can plot ROC and PR curves of this classifier and test data set.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar:RClient-0.6.7.jar CurvePlotter.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar:RClient-0.6.7.jar CurvePlotter ./ fg.fa bg.fa
+where the files "fg.fa", "bg.fa", and "myClassifier.xml" must be located in the working directory. 
+The classifier in "myClassifier.xml" can be created by running the code example "TrainSMBasedClassifierTest".
+For this program, a running Rserve on the local computer with standard port is required.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== CrossValidation ==
+In this example, we show how we can compare classifiers built on different types of models and using different 
+learning principles in a cross validation. Specifically, we create a position weight matrix, use that matrix to 
+create a mixture model, and we create an inhomogeneous Markov model of order 3. 
+We do so in the world of TrainableStatisticalModels and in the world of DifferentiableStatisticalModels. 
+We then use the mixture model as foreground model and the inhomogeneous Markov model as the background model
+when building classifiers. The classifiers are learned by the generative MAP principle and the discriminative 
+MSP principle, respectively. 
+We then assess these classifiers in a 10-fold cross validation.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar:numericalMethods.jar CrossValidation.java
+
+=== Run ===
+ java -cp .:jstacs-2.0.jar:numericalMethods.jar CrossValidation
+
+
+== HomogeneousMarkovModel ==
+In this example, we show how to implement a new TrainableStatisticalModel. Here, we implement a simple homogeneous 
+Markov models of order 0 to focus on the technical side of the implementation.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar HomogeneousMarkovModel.java
+ 
+== PositionWeightMatrixDiffSM ==
+In this example, we show how to implement a new DifferentiableStatisticalModel. Here, we implement a simple position 
+weight matrix, i.e., an inhomogeneous Markov model of order 0. Since we want to use this position weight matrix in 
+numerical optimization, we parameterize it in the so called "natural parameterization".
+Since we use a product-Dirichlet prior on the parameters, we transformed this prior to the parameterization we use.
+
+=== Compile ===
+ javac -cp jstacs-2.0.jar PositionWeightMatrixDiffSM.java
