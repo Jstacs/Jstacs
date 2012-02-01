@@ -25,7 +25,6 @@ import java.io.FileReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import de.jstacs.io.FileManager;
 import de.jstacs.utils.SafeOutputStream;
@@ -199,7 +198,13 @@ public class Tex2Wiki {
 		int start = s.indexOf( START );
 		int end = s.indexOf( END );
 		StringBuffer wiki;
-		wiki = new StringBuffer( s.toString().replace( "\\\\", "\n" ) );
+		wiki = new StringBuffer( s.toString()
+				//.replace( "\\", "\n" )
+				.replaceAll( "~", " " )//naive replacements!
+				.replaceAll( "\\\\&", "&" )
+				.replaceAll( "''", "&quot;" )
+				.replaceAll( "``", "&quot;" )
+		);
 		if( start >= 0 && end >= 0 ) {
 			wiki = new StringBuffer( wiki.substring( start+START.length(), end ) ); 
 		} else if( start < 0 && end < 0 ) {
@@ -226,7 +231,7 @@ public class Tex2Wiki {
 					sos.writeln( "PROBLEM\t" + cmd );
 				} else {
 					list.clear();
-					e.replace( wiki, idx1, idx2 );
+					idx1 = e.replace( wiki, idx1, idx2 );
 				}
 			} catch( Exception ex ) {
 				System.out.println( "ERROR\t" + cmd + "\t" + ex.getMessage() );
@@ -235,25 +240,20 @@ public class Tex2Wiki {
 			}
 		}
 		
-		idx1 = 0; idx2=0;
+		idx1 = 0;
+		boolean open = true;
 		while( (idx1 = wiki.indexOf( "$", idx1 ) ) >= 0 ){
 			
-			wiki.replace( idx1, idx1+1, "<math>" );
-			idx2 = wiki.indexOf( "$", idx1+1 );
-			wiki.replace( idx2, idx2+1, "</math>" );
-			idx1 = idx2+7;
+			if( idx1 > 0 && wiki.charAt(idx1-1) != '\\' ) {
+				wiki.replace( idx1, idx1+1, open ? "<math>" : "</math>" );
+				idx1 += open?6:7;
+				open = !open;
+			} else {
+				idx1++;
+			}
 		}
 		
 		if( create ) {
-			String str = new String(wiki);
-			str = str.replaceAll( PLACE_HOLDER, "\\\\" );
-			str = str.replaceAll( "~", " " );//naive replacements!
-			str = str.replaceAll( "\\\\&", "&" );
-			str = str.replaceAll( "''", "&quot;" );
-			str = str.replaceAll( "``", "&quot;" );
-			
-			wiki = new StringBuffer( str );
-			
 			FileManager.writeFile( new File( HOME + file + ".wiki" ), wiki );
 		}
 	}
@@ -270,8 +270,20 @@ public class Tex2Wiki {
 	}
 	
 
-	private static interface Replacement {	
-		public abstract void replace( StringBuffer wiki, int start, int startParams ) throws Exception;
+	private static interface Replacement {
+		
+		/**
+		 * The method performs the replacement of a specific TeX command to a specific wiki command.
+		 *  
+		 * @param wiki the {@link StringBuffer} to be modified (from tex to wiki)
+		 * @param start the index where the command starts
+		 * @param startParams the index where the parameters of the command start
+		 * 
+		 * @return the index where to further replace, if recursive replacements are necessary you have to return <code>start</code>
+		 * 
+		 * @throws Exception if something went wrong
+		 */
+		public abstract int replace( StringBuffer wiki, int start, int startParams ) throws Exception;
 	}
 	
 	private static class SimpleReplacement implements Replacement {
@@ -284,7 +296,7 @@ public class Tex2Wiki {
 			this.template = template;
 		}
 		
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, anz );			
 			String result = template;
 			int anz = list.size();
@@ -300,11 +312,12 @@ public class Tex2Wiki {
 			}
 			//System.out.println( "AFTER\t" + (anz == list.size() ? "" : list.get( anz )) + "\t\"" + result + "\"" );
 			wiki.replace( start, end, result );
+			return start;
 		}
 	}
 	
 	private static class NewCommandReplacement implements Replacement {		
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
 			delete();
 			int anz = wiki.charAt(end) == '[' ? 2: 1;
@@ -317,6 +330,7 @@ public class Tex2Wiki {
 			hash.put( list.get(0), new SimpleReplacement( anz, list.get(list.size()-1) ) );
 
 			wiki.delete( start, end2 );
+			return start;
 		}
 		
 		private void delete() {}
@@ -331,16 +345,17 @@ public class Tex2Wiki {
 	private static HashMap<String,int[]> counter = new HashMap<String, int[]>();
 	
 	private static class NewCounterReplacement implements Replacement {
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
 			//System.out.println( list.get(0) + "\t" + 0 );	
 			counter.put( list.get(0), new int[]{ 0 } );
-			wiki.delete( start, end );			
+			wiki.delete( start, end );
+			return start;
 		}
 	}
 	
 	private static class SetCounterReplacement implements Replacement {
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 2 );
 			int[] c = counter.get( list.get(0) );
 			//System.out.print( list.get(0) + "\t" + c[0] );
@@ -357,33 +372,36 @@ public class Tex2Wiki {
 				c[0] = v;
 			}
 			//System.out.println( " -> " + counter.get( list.get(0) )[0] );
-			wiki.delete( start, end );			
+			wiki.delete( start, end );
+			return start;
 		}
 	}
 	
 	private static class StepCounterReplacement implements Replacement {
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
 			//System.out.print( list.get(0) + "\t" + counter.get( list.get(0) )[0] );
 			counter.get( list.get(0) )[0]++;
 			//System.out.println( " -> " + counter.get( list.get(0) )[0] );
-			wiki.delete( start, end );			
+			wiki.delete( start, end );
+			return start;
 		}
 	}
 	
 	private static class AddToCounterReplacement implements Replacement {
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 2 );
 			int[] c = counter.get( list.get(0) );
 			//System.out.print( list.get(0) + "\t" + c[0] );
 			c[0] += Integer.parseInt(list.get(1));
 			//System.out.println( " -> " + c[0] );
-			wiki.delete( start, end );			
+			wiki.delete( start, end );	
+			return start;
 		}
 	}
 
 	private static class CodeReplacement implements Replacement {
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
 			
 			int off = counter.get( "off" )[0];
@@ -406,14 +424,17 @@ public class Tex2Wiki {
 			r.close();
 			_new.append( "</source>\n" );
 			
-			wiki.replace( start, end, _new.toString() );			
+			wiki.replace( start, end, _new.toString() );
+			return start+_new.length();
 		}
 	}
 	
 	private static class EnvironmentReplacement implements Replacement {
-		public void replace( StringBuffer wiki, int start, int startParams ) throws Exception {
+		public int replace( StringBuffer wiki, int start, int startParams ) throws Exception {
 			int end = fillParams( wiki, startParams, 1 );
 			int end2 = findClosingTag( end, "\\begin{"+list.get(0)+"}", "\\end{"+list.get(0)+"}", wiki );
+			
+			int res;
 			
 			StringBuffer _new = new StringBuffer();
 			String s = list.get(0);
@@ -421,45 +442,47 @@ public class Tex2Wiki {
 				s = wiki.substring( end, end2 );
 				s = s.replaceAll( "[ \\t]*\\\\item", "*" );
 				_new.append( s );
-			} else if( s.equals( "figure" ) ){
-				s = wiki.substring( end, end2 );
-				System.out.println( s );
-				_new.append("[[File:TODO|thumb|");//TODO
-				_new.append( s );
-				_new.append( "]]\n" );
-			}else if( s.equals( "align*" ) || s.equals( "align" ) || 
-					s.equals( "equation*" ) || s.equals( "equation" ) ||
-					s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
-				String s2 = wiki.substring( end, end2 );
-				_new.append( "\n<math>" );
-				_new.append( PLACE_HOLDER+"begin{" );
-				_new.append( s );
-				_new.append( "}\n" );
-				_new.append( s2 );
-				_new.append( "\n"+PLACE_HOLDER+"end{" );
-				_new.append( s );
-				_new.append( "}" );
-				_new.append( "</math>\n" );
-			}else if( s.equals( "lstlisting" ) ){
-				String s2 = wiki.substring( end,end2 );
-				String lang = "java5";
-				if(s2.startsWith( "[" )){
-					int end3 = s2.indexOf( "]" );
-					if(s2.startsWith( "[language=" )){
-						lang = s2.substring( 10, end3 );
+				res = start;
+			} else {
+				if( s.equals( "figure" ) ){
+					s = wiki.substring( end, end2 );
+					System.out.println( s );
+					_new.append("[[File:TODO|thumb|");//TODO
+					_new.append( s );
+					_new.append( "]]\n" );
+				}else if( s.equals( "align*" ) || s.equals( "align" ) || 
+						s.equals( "equation*" ) || s.equals( "equation" ) ||
+						s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
+					String s2 = wiki.substring( end, end2 );
+					_new.append( "\n<math>" );
+					_new.append( "\\begin{" );
+					_new.append( s );
+					_new.append( "}\n" );
+					_new.append( s2 );
+					_new.append( "\n\\end{" );
+					_new.append( s );
+					_new.append( "}" );
+					_new.append( "</math>\n" );
+				}else if( s.equals( "lstlisting" ) ){
+					String s2 = wiki.substring( end,end2 );
+					String lang = "java5";
+					if(s2.startsWith( "[" )){
+						int end3 = s2.indexOf( "]" );
+						if(s2.startsWith( "[language=" )){
+							lang = s2.substring( 10, end3 );
+						}
+						s2 = s2.substring( end3+1 );
 					}
-					s2 = s2.substring( end3+1 );
+					_new.append( "<source lang=\""+lang+"\" enclose=\"div\">" );
+					_new.append( s2 );
+					_new.append( "</source>" );
+				}else{
+					throw new Exception( s );
 				}
-				_new.append( "<source lang=\""+lang+"\" enclose=\"div\">" );
-				_new.append( s2 );
-				_new.append( "</source>" );
-			}else{
-				throw new Exception( s );
+				res = start+_new.length();//skip replacement in further search
 			}
-			
-			wiki.replace( start, end2+s.length()+2+4, _new.toString() );			
+			wiki.replace( start, end2+s.length()+2+4, _new.toString() );
+			return res;
 		}
 	}
-	
-	private static final String PLACE_HOLDER = "!%!";//TODO Frickelalarm
 }
