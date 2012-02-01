@@ -435,7 +435,7 @@ public class Tex2Wiki {
 			int end = fillParams( wiki, startParams, 1 );
 			int end2 = findClosingTag( end, "\\begin{"+list.get(0)+"}", "\\end{"+list.get(0)+"}", wiki );
 			
-			int res;
+			int res = start;
 			
 			StringBuffer _new = new StringBuffer();
 			String s = list.get(0);
@@ -443,45 +443,43 @@ public class Tex2Wiki {
 				s = wiki.substring( end, end2 );
 				s = s.replaceAll( "[ \\t]*\\\\item", "*" );
 				_new.append( s );
-				res = start;
-			} else {
-				if( s.equals( "figure" ) ){
-					s = wiki.substring( end, end2 );
-					System.out.println( s );
-					_new.append("[[File:TODO|thumb|");//TODO
-					_new.append( s );
-					_new.append( "]]\n" );
-				}else if( s.equals( "align*" ) || s.equals( "align" ) || 
-						s.equals( "equation*" ) || s.equals( "equation" ) ||
-						s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
-					String s2 = wiki.substring( end, end2 );
-					_new.append( "\n<math>" );
-					_new.append( "\\begin{" );
-					_new.append( s );
-					_new.append( "}\n" );
-					_new.append( s2 );
-					_new.append( "\n\\end{" );
-					_new.append( s );
-					_new.append( "}" );
-					_new.append( "</math>\n" );
-				}else if( s.equals( "lstlisting" ) ){
-					String s2 = wiki.substring( end,end2 );
-					String lang = "java5";
-					if(s2.startsWith( "[" )){
-						int end3 = s2.indexOf( "]" );
-						if(s2.startsWith( "[language=" )){
-							lang = s2.substring( 10, end3 );
-						}
-						s2 = s2.substring( end3+1 );
+			} else if( s.equals( "figure" ) ){
+				s = wiki.substring( end, end2 );
+				System.out.println( s );
+				_new.append("[[File:TODO|thumb|");//TODO
+				_new.append( s );
+				_new.append( "]]\n" );
+			}else if( s.equals( "align*" ) || s.equals( "align" ) || 
+					s.equals( "equation*" ) || s.equals( "equation" ) ||
+					s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
+				String s2 = wiki.substring( end, end2 );
+				_new.append( "\n<math>" );
+				_new.append( "\\begin{" );
+				res += _new.length();
+				_new.append( s );
+				_new.append( "}\n" );
+				_new.append( s2 );
+				_new.append( "\n\\end{" );
+				_new.append( s );
+				_new.append( "}" );
+				_new.append( "</math>\n" );
+			}else if( s.equals( "lstlisting" ) ){
+				String s2 = wiki.substring( end,end2 );
+				String lang = "java5";
+				if(s2.startsWith( "[" )){
+					int end3 = s2.indexOf( "]" );
+					if(s2.startsWith( "[language=" )){
+						lang = s2.substring( 10, end3 );
 					}
-					_new.append( "<source lang=\""+lang+"\" enclose=\"div\">" );
-					_new.append( s2 );
-					_new.append( "</source>" );
-				}else{
-					throw new Exception( s );
+					s2 = s2.substring( end3+1 );
 				}
-				res = start+_new.length();//skip replacement in further search
+				_new.append( "<source lang=\""+lang+"\" enclose=\"div\">" );
+				_new.append( s2 );
+				_new.append( "</source>" );
+			}else{
+				throw new Exception( s );
 			}
+
 			wiki.replace( start, end2+s.length()+2+4, _new.toString() );
 			return res;
 		}
