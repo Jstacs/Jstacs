@@ -109,7 +109,7 @@
 			            <fileset dir="tempbin"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.1.jar"/>
+			            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
 			        </jar>
