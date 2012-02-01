@@ -6,20 +6,20 @@
 		<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
 	-->
 	
-	<property name="version" value="1.5" />
+	<property name="version" value="2.0" />
 	<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
 	
 	<target name="javadoc">
-		<javadoc access="protected" author="true" classpath="lib/numericalMethods.jar:lib/RClient.jar:lib/biojava-live.jar:lib/bytecode.jar"
+		<javadoc access="protected" author="true" classpath="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode.jar"
 				destdir="${builddir}/jstacs-api" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false"
-				additionalparam=" -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -tagletpath lib/LaTeXlet-1.1.jar "
+				additionalparam="  -tagletpath /Users/dev/Documents/workspace/Jstacs_test/lib/LaTeXlet-1.2.jar -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -taglet latexlet.CopyInheritedTaglet  "
 				packagenames="de.jstacs.*"
 				doctitle="Jstacs ${version} API Specification"
 				source="1.6" sourcepath="." splitindex="true" use="true" version="true">
 			<link href="http://www.biojava.org/docs/api16"/>
 			<link href="http://download.oracle.com/javase/6/docs/api/"/>
 			<link href="http://rforge.net/Rserve/doc/"/>
-			<link href="http://www.jtem.de/numericalMethods/"/>
+			<link href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/"/>
 			<link href="http://www.biojava.org/docs/api16/"/>
 		</javadoc>
 		<zip destfile="${builddir}/jstacs-api-${version}.zip">
@@ -42,7 +42,7 @@
 		</delete>
 		<javac srcdir="de" 
 		       destdir="tempbin"
-		       classpath="lib/numericalMethods.jar:lib/RClient.jar:lib/biojava-live.jar:lib/bytecode.jar"
+		       classpath="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode.jar"
 		       debug="on">
 		</javac>
 		<jar destfile="${builddir}/jstacs-${version}.jar">
@@ -85,7 +85,7 @@
 			</delete>
 			<javac srcdir="de:projects" 
 			       destdir="tempbin"
-			       classpath="lib/numericalMethods.jar:lib/RClient.jar:lib/biojava-live.jar:lib/bytecode.jar"
+			       classpath="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode.jar"
 			       debug="on">
 			</javac>
 			<mkdir dir="${builddir}/Dispom" />
@@ -99,7 +99,7 @@
 	            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
 	            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.1.jar"/>
 	            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/RClient.jar"/>
+	            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
 	        </jar>
 			<jar destfile="${builddir}/Dispom/DispomPredictor.jar" filesetmanifest="mergewithoutmain">
 			            <manifest>
@@ -111,7 +111,7 @@
 			            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.1.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/RClient.jar"/>
+			            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
 			        </jar>
 			<delete includeemptydirs="true">
 				<fileset dir="tempbin" />
