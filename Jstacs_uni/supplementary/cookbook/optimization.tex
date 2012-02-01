@@ -21,9 +21,9 @@ However, often we can derive the gradient analytically, which often yield a more
 Now we can start a numerical optimization. To this end, we need to specify a \TerminationCondition~that determines when to stop the iterations of the optimization. For example, such a \TerminationCondition~may stop the optimization, if the difference of successive function evaluations does not exceed a given threshold:
 \addtocounter{off}{7}
 \code{0}
-In this example, this threshold is set to $10^{-6}$. Another option would be to stop after $100$ iterations:
+In this example, this threshold is set to $10^{-6}$. Another option would be to stop after $100$ iterations or if the gradient becomes small:
 \addtocounter{off}{1}
-\code{0}
+\code{1}
 
 And we may also combine several \TerminationCondition~in a \CombinedCondition:
 \addtocounter{off}{3}

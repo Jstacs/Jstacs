@@ -44,6 +44,7 @@ import de.jstacs.algorithms.optimization.termination.AbstractTerminationConditio
 import de.jstacs.algorithms.optimization.termination.CombinedCondition;
 import de.jstacs.algorithms.optimization.termination.IterationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.algorithms.optimization.termination.SmallGradientConditon;
 import de.jstacs.algorithms.optimization.termination.TerminationCondition;
 import de.jstacs.classifiers.AbstractClassifier;
 import de.jstacs.classifiers.assessment.ClassifierAssessment;
@@ -147,9 +148,8 @@ public class Cookbook {
 	/**
 	 * @param args
 	 */
-	public static void main( String[] args ) {
-		// TODO Auto-generated method stub
-
+	public static void main( String[] args ) throws Exception {
+		utils();
 	}
 	
 	public static void data() throws Exception{
@@ -273,8 +273,8 @@ public class Cookbook {
 		//use BioJava to obtain sequences from genbank
 		GenbankRichSequenceDB db = new GenbankRichSequenceDB();
 		HashSet<String> idSet = new HashSet<String>( 2 );
-		idSet.add( "NC_001284.2" );
-		idSet.add( "NC_000932.1" );
+		idSet.add( "NC_001284" );
+		idSet.add( "NC_000932" );
 		RichSequenceDB subDB = db.getRichSequences( idSet );
 		RichSequenceIterator dbIterator = subDB.getRichSequenceIterator();
 		
@@ -392,7 +392,7 @@ public class Cookbook {
 	public static void trainSMs() throws Exception {
 		
 		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
-		DataSet ds = new DNADataSet( "myfile.fa" );		
+		DataSet ds = new DataSet(new DNADataSet( "myfile.fa" ),10);		
 		
 		//create models using model factory
 		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
@@ -425,10 +425,10 @@ public class Cookbook {
 		System.out.println( hohmm.getGraphvizRepresentation( null ) );
 		
 		//create mixture model of two PWMs, learn by EM
-		MixtureTrainSM mixEm = new MixtureTrainSM( 8, new TrainableStatisticalModel[]{pwm,pwm}, 3, new double[]{4,0,4.0}, 1, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), Parameterization.LAMBDA );
+		MixtureTrainSM mixEm = new MixtureTrainSM( 10, new TrainableStatisticalModel[]{pwm,pwm}, 3, new double[]{4.0,4.0}, 1, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), Parameterization.LAMBDA );
 		
 		//create mixture model of two PWMs, learn by Gibbs-sampling
-		MixtureTrainSM mixGibbs = new MixtureTrainSM( 8, new TrainableStatisticalModel[]{pwm,pwm}, 3, new double[]{4,0,4.0}, 100, 1000, new VarianceRatioBurnInTest( new VarianceRatioBurnInTestParameterSet( 3, 1.2 ) ) );
+		MixtureTrainSM mixGibbs = new MixtureTrainSM( 10, new TrainableStatisticalModel[]{pwm,pwm}, 3, new double[]{4.0,4.0}, 100, 1000, new VarianceRatioBurnInTest( new VarianceRatioBurnInTestParameterSet( 3, 1.2 ) ) );
 		
 		//create strand model of iMM
 		StrandTrainSM strandModel = new StrandTrainSM( imm, 3, 0.5, 1, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), Parameterization.LAMBDA );
@@ -440,7 +440,7 @@ public class Cookbook {
 		//TODO
 	}
 	
-	public static void scoringFunctions() throws Exception {
+	public static void diffSMs() throws Exception {
 		
 		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
 		DataSet[] data = null;//TODO create
@@ -532,12 +532,12 @@ public class Cookbook {
 		//create termination condition
 		AbstractTerminationCondition tc = new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 );
 		AbstractTerminationCondition tc2 = new IterationCondition(100);
-		
+		AbstractTerminationCondition tc3 = new SmallGradientConditon( 1E-6 );
 		//create combined termination condition
-		TerminationCondition combined = new CombinedCondition( 2, tc, tc2 );
+		TerminationCondition combined = new CombinedCondition( 2, tc, tc3 );
 		
 		//use optimizer
-		double[] parameters = new double[df.getDimensionOfScope()];
+		double[] parameters = new double[df.getDimensionOfScope()]; 
 		Optimizer.optimize( Optimizer.QUASI_NEWTON_BFGS, df, parameters, combined, 1E-6, new ConstantStartDistance( 1E-4 ), System.out );
 		
 	}
@@ -545,7 +545,7 @@ public class Cookbook {
 //classifier-section
 	public static void classifier() throws Exception {		
 		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
-		DataSet[] data = null;//TODO create
+		DataSet[] data = new DataSet[]{new DNADataSet( "supplementary/cookbook/recipes/fg.fa" ), new DNADataSet( "supplementary/cookbook/recipes/bg.fa" )};
 		
 		//create models
 		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
@@ -593,12 +593,12 @@ public class Cookbook {
 		System.out.println( assessment.assess( numMeasures, params, data ) );				
 	}
 	
-	public static void alignment(){
+	public static void alignment() throws Exception {
 		
 		//create costs
 		Costs costs = new SimpleCosts( 0, 1, 0.5 );
 		
-		Sequence seq1=null, seq2=null;
+		Sequence seq1=Sequence.create( DNAAlphabetContainer.SINGLETON, "ACGTACGTAGCTGATCG" ), seq2=Sequence.create( DNAAlphabetContainer.SINGLETON, "TATCGATCGATGCGTAGCT" );
 		//create alignment of two string
 		Alignment align = new Alignment( AlignmentType.GLOBAL, costs );
 		System.out.println( align.getAlignment( seq1, seq2 ) );
@@ -608,7 +608,7 @@ public class Cookbook {
 		System.out.println( align.getAlignment( seq1, seq2 ) );
 	}
 	
-	public void utils() throws Exception{
+	public static void utils() throws Exception{
 		
 		//create REnvironment
 		REnvironment re = new REnvironment();
