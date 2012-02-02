@@ -1,4 +1,4 @@
-//package projects;
+package projects;
 
 import java.io.File;
 import java.util.Arrays;
@@ -133,7 +133,7 @@ public class GenDisMixApp {
 	
 	private static class GDMParameters extends ParameterSet {
 
-		public GDMParameters(){
+		public GDMParameters() throws Exception {
 			super();
 			initParameterList(10);
 			parameters.add( new SimpleParameter( DataType.STRING, "home directory", "the path to the data directory", true, "./" ) );
