@@ -33,39 +33,39 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneo
  * 
  * @author Jens Keilwagen
  */
-public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
+public class FSDAGTrainSMParameterSet extends IDGTrainSMParameterSet {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Creates a new {@link FSDAGMParameterSet} out of its XML representation.
+	 * Creates a new {@link FSDAGTrainSMParameterSet} out of its XML representation.
 	 * 
 	 * @param s
 	 *            the XML representation as {@link StringBuffer}
 	 * 
 	 * @throws NonParsableException
-	 *             if the {@link FSDAGMParameterSet} could not be reconstructed
+	 *             if the {@link FSDAGTrainSMParameterSet} could not be reconstructed
 	 *             out of the XML representation (the {@link StringBuffer} could
 	 *             not be parsed)
 	 * 
 	 * @see de.jstacs.Storable
 	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(StringBuffer)
 	 */
-	public FSDAGMParameterSet( StringBuffer s ) throws NonParsableException {
+	public FSDAGTrainSMParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
 	}
 
 	/**
-	 * This constructor creates an empty {@link FSDAGMParameterSet} set for a
+	 * This constructor creates an empty {@link FSDAGTrainSMParameterSet} set for a
 	 * {@link FSDAGTrainSM}.
 	 * 
-	 * @see FSDAGMParameterSet#FSDAGMParameterSet(Class)
+	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(Class)
 	 */
-	public FSDAGMParameterSet() {
+	public FSDAGTrainSMParameterSet() {
 		this( FSDAGTrainSM.class );
 	}
 
 	/**
-	 * This constructor creates an {@link FSDAGMParameterSet} instance. It sets
+	 * This constructor creates an {@link FSDAGTrainSMParameterSet} instance. It sets
 	 * the {@link AlphabetContainer}, the length, the ess (<b>e</b>quivalent
 	 * <b>s</b>ample <b>s</b>ize) and the model description as well as a
 	 * {@link String} describing the graph structure.
@@ -88,17 +88,17 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see FSDAGMParameterSet#encode(int[][])
-	 * @see FSDAGMParameterSet#FSDAGMParameterSet(Class, AlphabetContainer, int,
+	 * @see FSDAGTrainSMParameterSet#encode(int[][])
+	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String, String)
 	 */
-	public FSDAGMParameterSet( AlphabetContainer alphabet, int length, double ess, String description, String graph ) throws Exception {
+	public FSDAGTrainSMParameterSet( AlphabetContainer alphabet, int length, double ess, String description, String graph ) throws Exception {
 		this( FSDAGTrainSM.class, alphabet, length, ess, description, graph );
 	}
 
 	/**
-	 * This the constructor creates an empty {@link FSDAGMParameterSet} from the
-	 * class that can be instantiated using this {@link FSDAGMParameterSet}.
+	 * This the constructor creates an empty {@link FSDAGTrainSMParameterSet} from the
+	 * class that can be instantiated using this {@link FSDAGTrainSMParameterSet}.
 	 * 
 	 * @param clazz
 	 *            the class of the object that will be created with this
@@ -108,7 +108,7 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSDAGModelForGibbsSampling
 	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(Class)
 	 */
-	protected FSDAGMParameterSet( Class<? extends FSDAGTrainSM> clazz ) {
+	protected FSDAGTrainSMParameterSet( Class<? extends FSDAGTrainSM> clazz ) {
 		super( clazz );
 		try {
 			parameters.add( new SimpleParameter( DataType.STRING,
@@ -121,7 +121,7 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	}
 
 	/**
-	 * This constructor creates an {@link FSDAGMParameterSet} instance for the
+	 * This constructor creates an {@link FSDAGTrainSMParameterSet} instance for the
 	 * specified class. It sets the {@link AlphabetContainer}, the length, the
 	 * ess (<b>e</b>quivalent <b>s</b>ample <b>s</b>ize) and the model
 	 * description as well as a {@link String} describing the graph structure.
@@ -147,11 +147,11 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see FSDAGMParameterSet#encode(int[][])
+	 * @see FSDAGTrainSMParameterSet#encode(int[][])
 	 * @see IDGTrainSMParameterSet#IDGTrainSMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String)
 	 */
-	protected FSDAGMParameterSet( Class<? extends FSDAGTrainSM> clazz, AlphabetContainer alphabet, int length, double ess,
+	protected FSDAGTrainSMParameterSet( Class<? extends FSDAGTrainSM> clazz, AlphabetContainer alphabet, int length, double ess,
 									String description, String graph ) throws Exception {
 		super( clazz, alphabet, length, ess, description );
 		parameters.add( new SimpleParameter( DataType.STRING,
@@ -182,9 +182,9 @@ public class FSDAGMParameterSet extends IDGTrainSMParameterSet {
 	 * 
 	 * @return the graph description {@link String}
 	 * 
-	 * @see FSDAGMParameterSet#FSDAGMParameterSet(AlphabetContainer, int,
+	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(AlphabetContainer, int,
 	 *      double, String, String)
-	 * @see FSDAGMParameterSet#FSDAGMParameterSet(Class, AlphabetContainer, int,
+	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String, String)
 	 */
 	public static String encode( int[][] graph ) {

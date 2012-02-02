@@ -27,7 +27,8 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneo
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.LearningType;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.StructureLearner.ModelType;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.BayesianNetworkTrainSMParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGTrainSMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGModelForGibbsSamplingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.StrandTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
@@ -55,7 +56,9 @@ public class TrainableStatisticalModelFactory {
 	 * @throws Exception if the model can not be created correctly
 	 */
 	public static FSDAGTrainSM createPWM( AlphabetContainer con, int length, double ess ) throws Exception {
-		FSDAGMParameterSet ps = new FSDAGMParameterSet( con, length, ess, null, "" );
+		FSDAGTrainSMParameterSet ps = 
+			//new FSDAGTrainSMParameterSet( con, length, ess, null, "" );
+			new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, null, "" );
 		return (FSDAGTrainSM) ps.getInstance();
 	}
 	
@@ -76,8 +79,24 @@ public class TrainableStatisticalModelFactory {
 	 * 
 	 * @throws Exception if the model can not be created correctly
 	 */
-	public static BayesianNetworkTrainSM createInhomogeneousMarkovModel( AlphabetContainer con, int length, double ess, byte order ) throws Exception {
-		return createBN( con, length, ess, ModelType.IMM, order );
+	public static FSDAGTrainSM createInhomogeneousMarkovModel( AlphabetContainer con, int length, double ess, byte order ) throws Exception {
+		//return createBN( con, length, ess, ModelType.IMM, order );
+		String graph = "";
+		if( order < 0 ) {
+			throw new IllegalArgumentException( "The order has to be positive" );
+		} else {
+			if( order > 0 ) {
+				for( int l = 0; l < length; l++ ) {
+					graph += "<parents node="+l+">";
+					for( int p = Math.max(0,l-order); p < l; p++ ) {
+						graph += p + (p+1<l?",":"");
+					}
+					graph += "</parents>";
+				}
+			}
+		}
+		FSDAGModelForGibbsSamplingParameterSet ps = new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, null, graph );
+		return (FSDAGTrainSM) ps.getInstance();
 	}
 	
 	/**

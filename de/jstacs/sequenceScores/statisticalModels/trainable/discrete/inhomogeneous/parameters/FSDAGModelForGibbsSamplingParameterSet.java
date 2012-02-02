@@ -28,11 +28,11 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneo
  * 
  * @see FSDAGModelForGibbsSampling
  */
-public class FSDAGTrainSMForGibbsSamplingParameterSet extends FSDAGMParameterSet {
+public class FSDAGModelForGibbsSamplingParameterSet extends FSDAGTrainSMParameterSet {
 
 	/**
 	 * The constructor for the {@link de.jstacs.Storable} interface. Creates a
-	 * new {@link FSDAGTrainSMForGibbsSamplingParameterSet} out of its XML
+	 * new {@link FSDAGModelForGibbsSamplingParameterSet} out of its XML
 	 * representation.
 	 * 
 	 * @param s
@@ -41,7 +41,7 @@ public class FSDAGTrainSMForGibbsSamplingParameterSet extends FSDAGMParameterSet
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} is not parsable
 	 */
-	public FSDAGTrainSMForGibbsSamplingParameterSet( StringBuffer s ) throws NonParsableException {
+	public FSDAGModelForGibbsSamplingParameterSet( StringBuffer s ) throws NonParsableException {
 		super( s );
 	}
 
@@ -49,7 +49,7 @@ public class FSDAGTrainSMForGibbsSamplingParameterSet extends FSDAGMParameterSet
 	 * This is the constructor that creates an empty parameter set for a
 	 * {@link FSDAGModelForGibbsSampling}.
 	 */
-	public FSDAGTrainSMForGibbsSamplingParameterSet() {
+	public FSDAGModelForGibbsSamplingParameterSet() {
 		super( FSDAGModelForGibbsSampling.class );
 	}
 
@@ -74,9 +74,9 @@ public class FSDAGTrainSMForGibbsSamplingParameterSet extends FSDAGMParameterSet
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see FSDAGMParameterSet#encode(int[][])
+	 * @see FSDAGTrainSMParameterSet#encode(int[][])
 	 */
-	public FSDAGTrainSMForGibbsSamplingParameterSet( AlphabetContainer alphabet, int length, double ess, String description, String graph )
+	public FSDAGModelForGibbsSamplingParameterSet( AlphabetContainer alphabet, int length, double ess, String description, String graph )
 																																			throws Exception {
 		super( FSDAGModelForGibbsSampling.class, alphabet, length, ess, description, graph );
 	}

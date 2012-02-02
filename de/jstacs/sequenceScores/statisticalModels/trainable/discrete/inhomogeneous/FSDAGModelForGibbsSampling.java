@@ -33,7 +33,7 @@ import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sampling.GibbsSamplingModel;
-import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGTrainSMForGibbsSamplingParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGModelForGibbsSamplingParameterSet;
 
 /**
  * This is the class for a fixed structure directed acyclic graphical model (see
@@ -84,7 +84,7 @@ public class FSDAGModelForGibbsSampling extends FSDAGTrainSM implements GibbsSam
 	 * @throws NonParsableException
 	 *             if the parameter set is not parsable
 	 */
-	public FSDAGModelForGibbsSampling( FSDAGTrainSMForGibbsSamplingParameterSet params ) throws CloneNotSupportedException,
+	public FSDAGModelForGibbsSampling( FSDAGModelForGibbsSamplingParameterSet params ) throws CloneNotSupportedException,
 																						IllegalArgumentException, NonParsableException {
 		super( params );
 		paramsFile = null;
