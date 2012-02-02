@@ -470,17 +470,17 @@ public class Tex2Wiki {
 			int res = start;
 			
 			StringBuffer _new = new StringBuffer();
-			String s = list.get(0);
+			String s = list.get(0), h;
 			if( s.equals("itemize") ) {
-				s = wiki.substring( end, end2 );
-				s = s.replaceAll( "[ \\t]*\\\\item", "*" );
-				_new.append( s );
-			/*} else if( s.equals( "figure" ) ){
-				s = wiki.substring( end, end2 );
-				System.out.println( s );
+				h = wiki.substring( end, end2 );
+				h = s.replaceAll( "[ \\t]*\\\\item", "*" );
+				_new.append( h );
+			} else if( s.equals( "figure" ) ){
+				h = wiki.substring( end, end2 );
+				System.out.println( h );
 				_new.append("[[File:TODO|thumb|");//TODO
-				_new.append( s );
-				_new.append( "]]\n" );*/
+				_new.append( h );
+				_new.append( "]]\n" );
 			}else if( s.equals( "align*" ) || s.equals( "align" ) || 
 					s.equals( "equation*" ) || s.equals( "equation" ) ||
 					s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
