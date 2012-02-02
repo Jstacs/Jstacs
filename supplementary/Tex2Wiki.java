@@ -475,12 +475,12 @@ public class Tex2Wiki {
 				s = wiki.substring( end, end2 );
 				s = s.replaceAll( "[ \\t]*\\\\item", "*" );
 				_new.append( s );
-			} else if( s.equals( "figure" ) ){
+			/*} else if( s.equals( "figure" ) ){
 				s = wiki.substring( end, end2 );
 				System.out.println( s );
 				_new.append("[[File:TODO|thumb|");//TODO
 				_new.append( s );
-				_new.append( "]]\n" );
+				_new.append( "]]\n" );*/
 			}else if( s.equals( "align*" ) || s.equals( "align" ) || 
 					s.equals( "equation*" ) || s.equals( "equation" ) ||
 					s.equals( "eqnarray*" ) || s.equals( "eqnarray" )){
