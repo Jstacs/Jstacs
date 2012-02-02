@@ -116,7 +116,7 @@
 			<delete includeemptydirs="true">
 				<fileset dir="tempbin" />
 			</delete>
-			<zip destfile="${builddir}/Dispom1.1.zip">
+			<zip destfile="${builddir}/Dispom1.2.zip">
 					<zipfileset dir="projects/dispom" includes="Dispom-ReadMe.html" />
 					<zipfileset dir="." includes="COPYING.txt" />
 					<zipfileset dir="${builddir}/Dispom" includes="Dispom.jar,DispomPredictor.jar" />
