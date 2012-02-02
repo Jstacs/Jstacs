@@ -130,6 +130,21 @@
 		<delete file="${builddir}/jstacs-${version}.jar" />
 	</target>
 	
+	<target name="recipes">
+		<exec executable="sh">
+			<arg value="supplementary/cookbook/comment_pkg_recipes.sh" />
+		</exec>
+		<zip destfile="${builddir}/recipes.zip">
+			<zipfileset dir="supplementary/cookbook/recipes" includes="*" prefix="recipes" />
+		</zip>
+		<tar destfile="${builddir}/recipes.tar.gz" compression="gzip">
+			<tarfileset dir="supplementary/cookbook/recipes" includes="*" prefix="recipes" />
+		</tar>
+		<exec executable="sh">
+			<arg value="supplementary/cookbook/uncomment_pkg_recipes.sh" />
+		</exec>
+	</target>
+	
 	<target name="all" depends="src,bin,javadoc,cleanjar,Dispom" />
 	
 </project>
