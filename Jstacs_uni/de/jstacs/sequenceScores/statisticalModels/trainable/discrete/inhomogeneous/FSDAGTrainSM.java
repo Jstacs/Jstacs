@@ -28,7 +28,7 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DGTrainSMParameterSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGMParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.FSDAGTrainSMParameterSet;
 
 /**
  * This class can be used for any discrete <b>f</b>ixed <b>s</b>tructure
@@ -40,7 +40,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 
 	/**
 	 * This is the main constructor. It creates a new {@link FSDAGTrainSM} from
-	 * the given {@link FSDAGMParameterSet}.
+	 * the given {@link FSDAGTrainSMParameterSet}.
 	 * 
 	 * @param params
 	 *            the given parameter set
@@ -54,7 +54,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	 * 
 	 * @see DAGTrainSM#DAGTrainSM(de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.parameters.IDGTrainSMParameterSet)
 	 */
-	public FSDAGTrainSM( FSDAGMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException, NonParsableException {
+	public FSDAGTrainSM( FSDAGTrainSMParameterSet params ) throws CloneNotSupportedException, IllegalArgumentException, NonParsableException {
 		super( params );
 	}
 
@@ -162,7 +162,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 			if( !checkAcyclic( length, graph ) ) {
 				throw new IllegalArgumentException( "the graph is not acyclic" );
 			}
-			params.getParameterAt( 2 ).setValue( FSDAGMParameterSet.encode( graph ) );
+			params.getParameterAt( 2 ).setValue( FSDAGTrainSMParameterSet.encode( graph ) );
 			// create
 			createConstraints( graph );
 		}
@@ -189,7 +189,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	 */
 	private void trainUnchecked( DataSet data, double[] weights, int[][] graph ) throws Exception {
 		// set parameter
-		params.getParameterAt( 2 ).setValue( FSDAGMParameterSet.encode( graph ) );
+		params.getParameterAt( 2 ).setValue( FSDAGTrainSMParameterSet.encode( graph ) );
 		// create
 		createConstraints( graph );
 		// estimate

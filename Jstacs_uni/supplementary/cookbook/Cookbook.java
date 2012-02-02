@@ -149,7 +149,7 @@ public class Cookbook {
 	
 
 	public static void main( String[] args ) throws Exception {
-		data();
+		trainSMs();
 	}
 	
 	public static void data() throws Exception{
@@ -392,7 +392,7 @@ public class Cookbook {
 	public static void trainSMs() throws Exception {
 		
 		AlphabetContainer alphabet = DNAAlphabetContainer.SINGLETON;
-		DataSet ds = new DataSet(new DNADataSet( "myfile.fa" ),10);		
+		DataSet ds = new DataSet(new DNADataSet( "supplementary/cookbook/recipes/myfile.fa" ),10);		
 		
 		//create models using model factory
 		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
