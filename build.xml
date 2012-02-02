@@ -15,9 +15,9 @@
 				additionalparam="  -tagletpath /Users/dev/Documents/workspace/Jstacs_test/lib/LaTeXlet-1.2.jar -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -taglet latexlet.CopyInheritedTaglet  "
 				packagenames="de.jstacs.*"
 				doctitle="Jstacs ${version} API Specification"
-				source="1.6" sourcepath="." splitindex="true" use="true" version="true">
+				source="1.6" sourcepath="." splitindex="true" use="true" version="true" verbose="false">
 			<link href="http://www.biojava.org/docs/api16"/>
-			<link href="http://download.oracle.com/javase/6/docs/api/"/>
+			<link href="http://docs.oracle.com/javase/6/docs/api/"/>
 			<link href="http://rforge.net/Rserve/doc/"/>
 			<link href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/"/>
 			<link href="http://www.biojava.org/docs/api16/"/>
@@ -26,7 +26,7 @@
 			<zipfileset dir="${builddir}" includes="jstacs-api/**" />
 			<zipfileset dir="." includes="COPYING.txt,ReadMe.txt" />
 		</zip>
-		<tar destfile="${builddir}/jstacs-api-${version}.tar.gz" compression="gzip">
+		<tar destfile="${builddir}/jstacs-api-${version}.tar.gz" compression="gzip" longfile="gnu">
 			<tarfileset dir="${builddir}" includes="jstacs-api/**" />
 			<tarfileset dir="." includes="COPYING.txt,ReadMe.txt" />
 		</tar>
@@ -61,7 +61,7 @@
 			<zipfileset dir="." includes="COPYING.txt,ReadMe.txt" prefix="jstacs-bin-${version}" />
 			<zipfileset dir="de/jstacs/utils" includes="de_jstacs_utils_UserTime.h,de_jstacs_utils_UserTime.c,libUserTime.jnilib,libUserTime.so,UserTime.dll" prefix="jstacs-bin-${version}/native" />
 		</zip>
-		<tar destfile="${builddir}/jstacs-bin-${version}.tar.gz" compression="gzip">
+		<tar destfile="${builddir}/jstacs-bin-${version}.tar.gz" compression="gzip" longfile="gnu">
 			<tarfileset dir="${builddir}" includes="jstacs-${version}.jar" prefix="jstacs-bin-${version}" />
 			<tarfileset dir="lib" prefix="jstacs-bin-${version}/lib"  excludes="LaTeXlet-1.1.jar" />
 			<tarfileset dir="." includes="COPYING.txt,ReadMe.txt" prefix="jstacs-bin-${version}" />
@@ -73,7 +73,7 @@
 		<zip destfile="${builddir}/jstacs-source-${version}.zip">
 			<zipfileset dir="." includes="de/**,COPYING.txt,ReadMe.txt,projects/**,supplementary/**" prefix="jstacs-source-${version}" />
 		</zip>
-		<tar destfile="${builddir}/jstacs-source-${version}.tar.gz" compression="gzip">
+		<tar destfile="${builddir}/jstacs-source-${version}.tar.gz" compression="gzip" longfile="gnu">
 			<tarfileset dir="." includes="de/**,COPYING.txt,ReadMe.txt,projects/**,supplementary/**" prefix="jstacs-source-${version}" />
 		</tar>		
 	</target>
@@ -137,7 +137,7 @@
 		<zip destfile="${builddir}/recipes.zip">
 			<zipfileset dir="supplementary/cookbook/recipes" includes="*" prefix="recipes" />
 		</zip>
-		<tar destfile="${builddir}/recipes.tar.gz" compression="gzip">
+		<tar destfile="${builddir}/recipes.tar.gz" compression="gzip" longfile="gnu">
 			<tarfileset dir="supplementary/cookbook/recipes" includes="*" prefix="recipes" />
 		</tar>
 		<exec executable="sh">
@@ -145,6 +145,6 @@
 		</exec>
 	</target>
 	
-	<target name="all" depends="src,bin,javadoc,cleanjar,Dispom" />
+	<target name="all" depends="src,bin,javadoc,cleanjar,Dispom,recipes" />
 	
 </project>
