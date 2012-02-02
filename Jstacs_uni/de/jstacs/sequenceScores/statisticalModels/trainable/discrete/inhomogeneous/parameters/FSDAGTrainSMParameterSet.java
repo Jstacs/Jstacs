@@ -58,7 +58,7 @@ public class FSDAGTrainSMParameterSet extends IDGTrainSMParameterSet {
 	 * This constructor creates an empty {@link FSDAGTrainSMParameterSet} set for a
 	 * {@link FSDAGTrainSM}.
 	 * 
-	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(Class)
+	 * @see FSDAGTrainSMParameterSet#FSDAGTrainSMParameterSet(Class)
 	 */
 	public FSDAGTrainSMParameterSet() {
 		this( FSDAGTrainSM.class );
@@ -89,7 +89,7 @@ public class FSDAGTrainSMParameterSet extends IDGTrainSMParameterSet {
 	 *             if something went wrong
 	 * 
 	 * @see FSDAGTrainSMParameterSet#encode(int[][])
-	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(Class, AlphabetContainer, int,
+	 * @see FSDAGTrainSMParameterSet#FSDAGTrainSMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String, String)
 	 */
 	public FSDAGTrainSMParameterSet( AlphabetContainer alphabet, int length, double ess, String description, String graph ) throws Exception {
@@ -182,9 +182,9 @@ public class FSDAGTrainSMParameterSet extends IDGTrainSMParameterSet {
 	 * 
 	 * @return the graph description {@link String}
 	 * 
-	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(AlphabetContainer, int,
+	 * @see FSDAGTrainSMParameterSet#FSDAGTrainSMParameterSet(AlphabetContainer, int,
 	 *      double, String, String)
-	 * @see FSDAGTrainSMParameterSet#FSDAGMParameterSet(Class, AlphabetContainer, int,
+	 * @see FSDAGTrainSMParameterSet#FSDAGTrainSMParameterSet(Class, AlphabetContainer, int,
 	 *      double, String, String)
 	 */
 	public static String encode( int[][] graph ) {
