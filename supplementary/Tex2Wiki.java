@@ -467,6 +467,11 @@ public class Tex2Wiki {
 			int end = fillParams( wiki, startParams, 1 );
 			int end2 = findClosingTag( end, "\\begin{"+list.get(0)+"}", "\\end{"+list.get(0)+"}", wiki );
 			
+			int x = wiki.indexOf("\\begin", start+1);
+			if( x > -1 && x < end2 ) {
+				System.out.println( "WARNING: nested environments (cf. \\begin{"+list.get(0)+"})" );
+			}
+			
 			int res = start;
 			
 			StringBuffer _new = new StringBuffer();
