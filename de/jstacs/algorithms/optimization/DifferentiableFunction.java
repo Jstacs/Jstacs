@@ -84,6 +84,14 @@ public abstract class DifferentiableFunction implements Function {
 	 */
 	protected double[] findOneDimensionalMin( double[] x, double[] d, double alpha_0, double fAlpha_0, double linEps,
 			double startDistance ) throws DimensionException, EvaluationException {
-		return ( new OneDimensionalSubFunction( this, x, d ) ).findMin( alpha_0, fAlpha_0, linEps, startDistance );
+		int i=0;
+		while(i<d.length && d[i] == 0){
+			i++;
+		}
+		OneDimensionalSubFunction fun = new OneDimensionalSubFunction( this, x, d );
+		if(i==d.length){
+			return new double[]{0,fun.evaluateFunction( 0 )};
+		}
+		return fun.findMin( alpha_0, fAlpha_0, linEps, startDistance );
 	}
 }
