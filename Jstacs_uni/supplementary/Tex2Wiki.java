@@ -195,8 +195,23 @@ public class Tex2Wiki {
 		System.out.println("--------------------------------------------------");
 		System.out.println( file );
 		StringBuffer s = FileManager.readFile( new File( HOME + file + ".tex" ) );
-		int start = s.indexOf( START );
-		int end = s.indexOf( END );
+		
+		//remove comments
+		int start = 0, end;
+		while( (start = s.indexOf("%", 0)) >= 0 ) {
+			if( s.charAt(start-1) != '\\' ) {
+				end = s.indexOf("\n", start+1);
+				if( end < 0 ) {
+					end = s.length();
+				}
+				s.delete(start, end);
+			} else {
+				start++;
+			}
+		}
+		
+		start = s.indexOf( START );
+		end = s.indexOf( END );
 		StringBuffer wiki;
 		wiki = new StringBuffer( s.toString()
 				//naive replacements!
