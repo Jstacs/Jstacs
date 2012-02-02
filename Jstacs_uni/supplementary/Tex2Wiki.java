@@ -473,7 +473,7 @@ public class Tex2Wiki {
 			String s = list.get(0), h;
 			if( s.equals("itemize") ) {
 				h = wiki.substring( end, end2 );
-				h = s.replaceAll( "[ \\t]*\\\\item", "*" );
+				h = h.replaceAll( "[ \\t]*\\\\item", "*" );
 				_new.append( h );
 			} else if( s.equals( "figure" ) ){
 				h = wiki.substring( end, end2 );
