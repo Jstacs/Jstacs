@@ -76,10 +76,8 @@ public class TrainSMBasedClassifierTest {
 		 
 		//create a new classifier
 		TrainSMBasedClassifier classifier = new TrainSMBasedClassifier( pwm, pwm );
-		System.out.println("x");
 		//train the classifier
 		classifier.train( data );
-		System.out.println("y");
 		//sequences that will be classified
 		DataSet toClassify = new DNADataSet( args[3] );
 		 
