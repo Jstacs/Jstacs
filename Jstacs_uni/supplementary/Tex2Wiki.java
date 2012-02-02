@@ -418,8 +418,25 @@ public class Tex2Wiki {
 				r.readLine();
 			}
 			int anz = Integer.parseInt( list.get(0) );
+			String prefix = null, line;
 			for( int i = 0; i <= anz; i++ ) {
-				_new.append( r.readLine() );
+				line = r.readLine();
+				if( i == 0 ) {
+					int p = 0;
+					while( p < line.length() && line.charAt(p) == '\t' ) {
+						p++;
+					}
+					prefix = line.substring(0,p);
+				} 
+				
+				if( line.startsWith(prefix) ) {
+					line = line.substring(prefix.length());
+				} else {
+					if( line.length() > 0 ) {
+						System.out.println( "WARNING " + this.getClass().getSimpleName() + "\t" + (off+i) + "\t" + s  + "\t\"" + line + "\"" );
+					}
+				}
+				_new.append( line );
 				_new.append( "\n" );
 			}
 			r.close();

@@ -82,7 +82,7 @@ Other \ParameterSet s are the \link{parameters}{ExpandableParameterSet} and \lin
 
 One special case of \ParameterSet s is the \InstanceParameterSet, which has several sub-classes that can be used to instantiate new Jstacs objects like statistical models or classifiers. If a new model, say an implementation of the \TrainSM~interface, shall be found via the \SubclassFinder, or its parameters shall be set in a command line program using the \link{parameters}{ParameterSetTagger} or in Galaxy, we need to create a new sub-class of \InstanceParameterSet~that represents all (external) parameters of this model. In this sub-class we must basically implement two methods: \lstinline+getInstanceName+ and \lstinline+getInstanceComment+ return the name of and a comment on the model class (i.e., in the example, the model we just implemented) that may be of help for a potential user. The constructor does the main work. By a call to the super-constructor, it initializes the list of parameters in this set and then adds the parameters of the model.
 \addtocounter{off}{20}
-%\code{18}
+%code{18}
 For implementations of the \TrainSM~interface we may also extend \link{parameters}{SequenceScoringParameterSet}, which already handles the \AlphabetContainer~and length of this model.
 
 Not always do we have flat hierarchies of parameters. For instance, the choice of subsequent parameters may depend on the selection from some \SelectionParameter. For this purpose, Jstacs provides a sub-class of \Parameter~that only serves as a container for a \ParameterSet~and is called \link{parameters}{ParameterSetContainer}. Like other parameters, this container takes a name and a comment in its constructor, whereas the third argument is a \ParameterSet:
