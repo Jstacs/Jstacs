@@ -151,7 +151,7 @@ public class Tex2Wiki {
 		hash.put( "\\newcommand", new NewCommandReplacement() );
 		hash.put( "\\renewcommand", new RenewCommandReplacement() );
 		
-		hash.put( "\\section", new SimpleReplacement( 1, "= #1 =") );
+		hash.put( "\\section", new SimpleReplacement( 1, "" ) );//"= #1 =") );
 		hash.put( "\\subsection", new SimpleReplacement( 1, "== #1 ==") );
 		hash.put( "\\subsubsection", new SimpleReplacement( 1, "=== #1 ===") );
 		hash.put( "\\emph", new SimpleReplacement( 1, "''#1''") );
@@ -194,6 +194,10 @@ public class Tex2Wiki {
 		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream( out );
 		System.out.println("--------------------------------------------------");
 		System.out.println( file );
+		File f = new File( HOME + "/../wiki/" );
+		if( !f.exists() ) {
+			System.out.println( "CREATE WIKI DIRECTORY\t" + f.mkdirs() );
+		}
 		StringBuffer s = FileManager.readFile( new File( HOME + file + ".tex" ) );
 		
 		//remove comments
@@ -270,7 +274,7 @@ public class Tex2Wiki {
 		}
 		
 		if( create ) {
-			FileManager.writeFile( new File( HOME + file + ".wiki" ), wiki );
+			FileManager.writeFile( new File( HOME + "/../wiki/" + file + ".wiki" ), wiki );
 		}
 	}
 	
