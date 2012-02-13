@@ -1,0 +1,67 @@
+<span id="Optimization"> </span>
+
+For many tasks in Jstacs, especially for numerical parameter learning, we need numerical optimization techniques.
+
+We start the description of numerical optimization in Jstacs with the definition of a function that depends on parameters to be optimized. The most simple way to define such a function is to extend the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/NumericalDifferentiableFunction.html NumericalDifferentiableFunction]. In this abstract class, the gradient of the function is approximated by evaluating the function in an epsilon neightborhood around the current parameter values. Hence, a sub-class of [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/NumericalDifferentiableFunction.html NumericalDifferentiableFunction] must only implement two methods. The first returns the number of parameters, and the second returns the function value for given parameter values.
+
+Let us assume that we want to optimize, i.e., minimize, a function <math>f(x_1,x_2)=x_1^2 + x_2^2</math>. This functions depends on two parameters. Hence, we implement
+
+<source lang="java5" enclose="div">
+public int getDimensionOfScope() {
+	return 2;
+}
+</source>
+
+And we implement the method returning the function value as
+
+<source lang="java5" enclose="div">
+public double evaluateFunction( double[] x ) throws DimensionException, EvaluationException {
+	return x[0]*x[0] + x[1]*x[1];
+}
+</source>
+
+Now we are set to start a numerical optimization.
+
+However, often we can derive the gradient analytically, which often yield a more efficient numerical optimization. Hence, the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/DifferentiableFunction.html DifferentiableFunction] allows to implement the computation of the gradient explicitly. To this end, we extend [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/DifferentiableFunction.html DifferentiableFunction] and implement an additional method that computes the gradient:
+
+<source lang="java5" enclose="div">
+public double[] evaluateGradientOfFunction( double[] x ) throws DimensionException, EvaluationException {
+	return new double[]{2.0*x[0], 2.0*x[1]};
+}
+</source>
+
+
+Now we can start a numerical optimization. To this end, we need to specify a [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/TerminationCondition.html TerminationCondition] that determines when to stop the iterations of the optimization. For example, such a [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/TerminationCondition.html TerminationCondition] may stop the optimization, if the difference of successive function evaluations does not exceed a given threshold:
+
+<source lang="java5" enclose="div">
+AbstractTerminationCondition tc = new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 );
+</source>
+
+In this example, this threshold is set to <math>10^{-6}</math>. Another option would be to stop after <math>100</math> iterations or if the gradient becomes small:
+
+<source lang="java5" enclose="div">
+AbstractTerminationCondition tc2 = new IterationCondition(100);
+AbstractTerminationCondition tc3 = new SmallGradientConditon( 1E-6 );
+</source>
+
+
+And we may also combine several [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/TerminationCondition.html TerminationCondition] in a [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/CombinedCondition.html CombinedCondition]:
+
+<source lang="java5" enclose="div">
+TerminationCondition combined = new CombinedCondition( 2, tc, tc3 );
+</source>
+
+The first parameter (<math>2</math>) specifies that the [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/CombinedCondition.html CombinedCondition] only allows to continue to the next iteration if both of the supplied [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/TerminationCondition.html TerminationCondition] s do so. 
+
+For the numerical optimization, we create initial parameters and start the optimization:
+
+<source lang="java5" enclose="div">
+double[] parameters = new double[df.getDimensionOfScope()]; 
+Optimizer.optimize( Optimizer.QUASI_NEWTON_BFGS, df, parameters, combined, 1E-6, new ConstantStartDistance( 1E-4 ), System.out );
+</source>
+
+The arguments of this static method have the following meaning:
+The first argument defines the technique for the optimization. In the example, we set this to the quasi-Newton method of Broyden, Fletcher, Goldfarb, and Shanno. As an alternative, Jstacs offers other quasi-Newton method including limited-memory variants, different conjugate gradients approaches, and steepest descent.
+The second argument is the [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/DifferentiableFunction.html DifferentiableFunction], the third are the initial parameter values, the fourth is the [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/optimization/termination/TerminationCondition.html TerminationCondition], and the fifth is the threshold on the difference of function values during the line search. Jstacs uses Brent's method, which is a combination of quadratic interpolation and golden ratio, for the line search. The sixth argument is the initial step size during the line search, and the last argument is an <code>OutputStream</code> to which output of the optimization is written. Here, we specify <code>System.out</code>. If this argument is <code>null</code>, output is suppressed.
+
+After the optimization has finished, the supplied parameter array (<code>parameters</code> in the example) contains the optimal parameter values.

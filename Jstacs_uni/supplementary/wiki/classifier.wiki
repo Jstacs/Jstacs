@@ -1,0 +1,218 @@
+<span id="classifier"> </span>
+
+Classifiers allow to classify, i.e., label, previously uncharacterized data. In Jstacs, we provide the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier] that declares three important methods besides several others. 
+
+__TOC__
+
+The first method trains a classifier, i.e., it somehow adjusts to the train data:
+  <source lang="java5" enclose="div">
+public void train( DataSet... s ) throws Exception {
+</source>
+
+The second method classifies a given [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence]:
+  
+  <source lang="java5" enclose="div">
+public abstract byte classify( Sequence seq ) throws Exception;
+</source>
+
+If we like to classify for instance the first sequence of a data set, we might use
+<source lang="java5" enclose="div">
+System.out.println( cl.classify( data[0].getElementAt(0) ) );
+</source>
+
+In addition to this method, another method <code>classify(DataSet)</code> exists that performs a classification for all [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s in a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet].
+
+The third method allows for assessing the performance. Typically this is done on test data
+  <source lang="java5" enclose="div">
+public final ResultSet evaluate( PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
+</source>
+
+where <code>params</code> is a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] of performance measures (cf. subsection [[#Performance measures]]), <code>exceptionIfNotComputeable</code> indicates if an exception should be thrown if a performance measure could not be computed, and <code>s</code> is an array of data sets, where dimension <code>i</code> contains data of class <code>i</code>.
+
+The abstract sub-class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractScoreBasedClassifier.html AbstractScoreBasedClassifier] †of [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier] adds an additional method for computing a joint score for an input [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] †and a given class:
+
+ <source lang="java5" enclose="div">
+public double getScore( Sequence seq, int i ) throws Exception {
+</source>
+
+Similar to the <code>classify</code> method. For two-class problems, the method
+
+ <source lang="java5" enclose="div">
+public double[] getScores( DataSet s ) throws Exception {
+</source>
+
+allows for computing the score-differences given foreground and background class for all [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s in the [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] <code>s</code>. Such scores are typically the sum of the a-priori class log-score or log-probability and the score returned by <code>getLogScore</code> of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] or <code>getLogProb</code> of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel].
+
+Sometimes data is not split into test and train data for several diverse reasons, as for instance limited amount of data. In such cases, it is recommended to utilize some repeated procedure to split the data, train on one part and classify on the other part. In Jstacs, we provide the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment] that allows to implement such procedures. In subsection [[#Assessment]], we describe how to use [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment] and its extension.
+
+But at first, we will focus on classifiers. Any classifier in Jstacs is an extension of the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier]. In this section, we present on two concrete implementations, namely [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier] (cf. subsection [[#TrainSMBasedClassifier]]) and [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] (cf. subsection [[#GenDisMixClassifier]]). 
+
+== TrainSMBasedClassifier ==
+<span id="TrainSMBasedClassifier"> </span>
+
+The class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier] implements a classifier on [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s, i.e., for each class the classifier holds a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel].
+ 
+If we like to build a binary classifier using PWMs for each class, we first create a PWM that is a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel].
+
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
+</source>
+
+
+Then we can use this instance to create the classifier using 
+
+
+<source lang="java5" enclose="div">
+AbstractClassifier cl = new TrainSMBasedClassifier( pwm, pwm );
+</source>
+
+
+Thereby, we do not need to clone the PWM instance, as this is done internally for safety reasons. If we like to build a classifier that allows to distinguish between <math>N</math> classes, we use the same constructor but provide <math>N</math> [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s.
+
+If we train a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier], the train method of the internally used [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s is called. For classifying a sequence, the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier] calls <code>getLogProbFor</code> of the internally used [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s and incorporates some class weight.
+
+== GenDisMixClassifier ==
+<span id="GenDisMixClassifier"> </span>
+
+The class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] implements a classifier using the unified generative-discriminative learning principle to train the internally used [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s. In analogy to the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier], the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] holds for each class a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel].
+
+If we like to build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier], we have to provide the parameters for this classifier:
+
+
+<source lang="java5" enclose="div">
+GenDisMixClassifierParameterSet ps = new GenDisMixClassifierParameterSet( alphabet, 10, (byte) 10, 1E-6, 1E-9, 1, false, KindOfParameter.PLUGIN, true, 2 );
+</source>
+
+
+This line of code generate a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] for a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier]. It states 
+the used [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer],
+the sequence length,
+an indicator for the numerical algorithm that is used during training,
+an epsilon for stopping the numerical optimization,
+a line epsilon for stopping the line search within the numerical optimization,
+a start distance for the line search,
+a switch that indicates whether the free or all parameter should be used,
+an enum that indicates the kind of class parameter initialization,
+a switch that indicates whether normalization should be used during optimization,
+and the number of threads used during numerical optimization.
+
+If we like to build a binary classifier using PWMs for each class, we create a PWM that is a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel].
+
+
+<source lang="java5" enclose="div">
+DifferentiableStatisticalModel pwm2 = new BayesianNetworkDiffSM( alphabet, 10, 4.0, true, new InhomogeneousMarkov(0) );
+</source>
+
+
+Now, we are able to build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] that uses the maximum likelihood learning principle.
+
+
+<source lang="java5" enclose="div">
+cl = new GenDisMixClassifier(ps, DoesNothingLogPrior.defaultInstance, LearningPrinciple.ML, pwm2, pwm2 );
+</source>
+
+
+In close analogy, we can build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] that uses the maximum conditional likelihood learning principle, if we use <code>LearningPrinciple.MCL</code>.
+
+However, if we like to use a Bayesian learning principle we have to specify a prior that represents our prior knowledge. One of the most popular priors is the product Dirichlet prior. We can create an instance of this prior using
+
+
+<source lang="java5" enclose="div">
+LogPrior prior = new CompositeLogPrior();
+</source>
+
+
+This class utilizes methods of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] (cf. <code>getLogPriorTerm()</code> and <code>addGradientOfLogPriorTerm(double[], int)</code>) to provide the correct prior.
+
+Given a prior, we can build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] using for instance the maximum supervised learning principle:
+
+
+<source lang="java5" enclose="div">
+cl = new GenDisMixClassifier(ps, prior, LearningPrinciple.MSP, pwm2, pwm2 );
+</source>
+
+
+Again in close analogy, we can build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] that uses the maximum a-posteriori learning principle, if we use <code>LearningPrinciple.MAP</code>.
+ 
+Alternative, we can build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] that utilize the unified generative-discriminative learning principle. If we like to do so, we have to provide a weighting that sums to 1 and represents the weights for the conditional likelihood, the likelihood and the prior.
+
+
+<source lang="java5" enclose="div">
+cl = new GenDisMixClassifier(ps, prior, new double[]{0.4,0.1,0.5}, pwm2, pwm2 );
+</source>
+
+
+== Performance measures ==
+<span id="Performance"> </span>
+
+If we like to assess the performance of any classifier, we have to use the method <code>evaluate</code> (see beginning of this section). The first argument of this method is a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/PerformanceMeasureParameterSet.html PerformanceMeasureParameterSet] that hold the performance measures to be computed. The most simple way to create an instance is
+
+
+<source lang="java5" enclose="div">
+PerformanceMeasureParameterSet measures = PerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
+</source>
+
+
+which yields an instance with all standard performance measures of Jstacs and specified parameters. The first argument states that all performance measures should be included. If we would change the argument to <code>true</code>, only numerical performance measures would be included an the returned instance would be a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/NumericalPerformanceMeasureParameterSet.html NumericalPerformanceMeasureParameterSet]. The other four arguments are parameters for some performance measures.
+
+Another way of creating a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/PerformanceMeasureParameterSet.html PerformanceMeasureParameterSet] is to directly use performance measures extending the class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/AbstractPerformanceMeasure.html AbstractPerformanceMeasure]. For instance if we like to use the area under the curve (auc) for ROC and PR curve, we create 
+
+
+<source lang="java5" enclose="div">
+AbstractPerformanceMeasure[] m = {new AucROC(), new AucPR()};
+</source>
+
+
+Based on this array, we can create a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/PerformanceMeasureParameterSet.html PerformanceMeasureParameterSet] that only contains these performance measures.
+
+
+<source lang="java5" enclose="div">
+measures = new PerformanceMeasureParameterSet( m );
+</source>
+
+
+== Assessment ==
+<span id="Assessment"> </span>
+
+If we like to assess the performance of any classifier based on an array of data sets that is not split into test and train data, we have to use some repeated procedure. In Jstacs, we provide the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment] that is the abstract super class of any such an procedure. We have already implemented the most widely used procedures (cf. [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidation.html KFoldCrossValidation] and [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/RepeatedHoldOutExperiment.html RepeatedHoldOutExperiment]).
+
+Before performing a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment], we have to define a set of numerical performance measures. The performance measure have to be numerical to allow for an averaging. The most simple way to create such a set is
+
+<source lang="java5" enclose="div">
+NumericalPerformanceMeasureParameterSet numMeasures = PerformanceMeasureParameterSet.createFilledParameters();
+</source>
+
+However, you can choose other measures as described in the previous subsection.
+
+In this subsection, we exemplarily present how to perform a k-fold cross validation in Jstacs. First, we have to create an instance of [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidation.html KFoldCrossValidation]. There several constructor to do so. Here, we use the constructor that used [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier] s. 
+
+
+<source lang="java5" enclose="div">
+ClassifierAssessment assessment = new KFoldCrossValidation( cl );
+</source>
+
+
+Second, we have to specify the parameters of the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidation.html KFoldCrossValidation].
+
+
+<source lang="java5" enclose="div">
+KFoldCrossValidationAssessParameterSet params = new KFoldCrossValidationAssessParameterSet( PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS, cl.getLength(), true, 10 );
+</source>
+
+
+These parameter are
+the partition method, i.e., the way how to count entries during a partitioning,
+the sequence length for the test data,
+a switch indicating whether an exception should be thrown if a performance measure could not be computed (cf. <code>evaluate</code> in [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier]),
+and the number of repeats <math>k</math>.
+
+Now, we are able to perform a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment] just by calling the method <code>assess</code>.
+
+
+<source lang="java5" enclose="div">
+System.out.println( assessment.assess( numMeasures, params, data ) );				
+</source>
+
+
+We print the result (cf. [http://www.jstacs.de/api-2.0//de/jstacs/results/ListResult.html ListResult]) of this assessment to standard out. If we like to perform other [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment] s, as for instance, a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/RepeatedHoldOutExperiment.html RepeatedHoldOutExperiment], we have to use a specific [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] †(cf. [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidation.html KFoldCrossValidation] and [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidationAssessParameterSet.html KFoldCrossValidationAssessParameterSet]).

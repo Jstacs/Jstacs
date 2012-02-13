@@ -1,0 +1,562 @@
+<span id="sequenceScore"> </span>
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] s define scoring functions over sequences that can assign a score to each input sequence. Such scores can then be used
+to classify sequences by chosing the class represented by that [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] yielding the maximum score.
+
+Sub-iterfaces of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] are [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore], which is tailored to numerical optimization, and [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel], which represents statistical models 
+defining a proper likelihood. [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel], in turn, has two sub-interfaces [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] and [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel], where the latter joins the properties of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] s and [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] s. All of these will be explained in the sub-sections of this section.
+
+__TOC__
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] extends the standard interface <code>Cloneable</code> and, hence, implementations must provide a <code>clone()</code> method, which returns a deep copy of all fields of an instance:
+<source lang="java5" enclose="div">
+public SequenceScore clone() throws CloneNotSupportedException;
+</source>
+
+Since the implementation of the clone method is very score-specific, it must be implemented anew for each implementation of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] interface. Besides that [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] also extends [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable], which demands the implementation of the <code>toXML()</code> method and a constructor working on a <code>StringBuffer</code> containing an XML-representation (see section [[Intermediate course: XMLParser, Parameters, and Results]]).
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] also defines some methods that are basically getters for typical properties of a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] implementation. 
+These are
+
+<source lang="java5" enclose="div">
+public AlphabetContainer getAlphabetContainer();
+</source>
+
+which returns the current [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] of the model, i.e., the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] can score,
+
+<source lang="java5" enclose="div">
+public String getInstanceName();
+</source>
+
+which returns a - distinguishing - name of the current [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] instance, and
+
+<source lang="java5" enclose="div">
+public int getLength();
+</source>
+
+which returns the length of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore], i.e. the possible length of input sequences. This length is defined to be zero, if the score can handle [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s of variable length.
+
+The methods
+
+<source lang="java5" enclose="div">
+public ResultSet getCharacteristics() throws Exception;
+</source>
+
+and
+
+<source lang="java5" enclose="div">
+public NumericalResultSet getNumericalCharacteristics() throws Exception;
+</source>
+
+can be used to return some properties of a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] like the number of parameters, the depth of some tree structure, or whatever seems useful. In the latter case, these characteristics are limited to numerical values. If a model is used, e.g., in a cross validation ([http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidation.html KFoldCrossValidation]), these numerical properties are averaged over all cross validation iterations and displayed together with the performance measures.
+
+The scoring of input [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s is performed by three methods <code>getLogScore</code>. The name of this method reflects that the returned score should be on a lagorithmic scale. For instance, for a stastical model with a proper likelihood over the sequences this score would correspond to the log-likelihood.
+The first method
+
+<source lang="java5" enclose="div">
+public double getLogScoreFor(Sequence seq);
+</source>
+
+returns the score for the given [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence]. For reasons of efficiency, it is not intended to check if the length or
+the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] of the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] match those of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore]. Hence, no exception is declared for this method. So if
+this method is used (instead of the more stringent methods of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel], see [[#StatisticalModels]]) this should be checked externally.
+
+The second method is
+
+<source lang="java5" enclose="div">
+public double getLogScoreFor(Sequence seq, int start);
+</source>
+
+which returns the score for the sub-sequence starting at position <code>start</code> end extending to the end of the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] or the end of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore], whichever comes first.
+
+The third method is
+
+<source lang="java5" enclose="div">
+public double getLogScoreFor(Sequence seq, int start, int end) throws Exception;
+</source>
+
+and computes the score for the sub-sequence between <code>start</code> and <code>end</code>, where the value at position <code>end</code> is the last value considered for the computation of the score.
+
+Two additional methods
+
+<source lang="java5" enclose="div">
+public double[] getLogScoreFor(DataSet data) throws Exception;
+</source>
+
+and
+
+<source lang="java5" enclose="div">
+public void getLogScoreFor(DataSet data, double[] res) throws Exception;
+</source>
+
+allow for the computation of such scores for all [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s in a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet]. The first method returns these scores, whereas the second stores the scores to the provided <code>double</code> array. This may be reasonable to save memory, for instance if we compute the log-likelihoods of a large number of sequences using different models.
+
+The result of this method (w.r.t. one [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence]) should be identical
+to independent calls of <code>getLogScore</code>. Hence, these method are pre-implemented exactly in this way in the abstract implementations
+of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore].
+
+Finally, the return value of the method
+
+<source lang="java5" enclose="div">
+public boolean isInitialized();
+</source>
+
+indicates if a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] has been initialized, i.e., all parameters have been set to some (initial or learned) value and the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] is
+ready to score [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s.
+
+== DifferentiableSequenceScores ==
+
+
+
+The interface [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] extends [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] †and adds all methods that are necessary for a numerical optimization of the parameters
+of a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore]. This especially includes the computation of the gradient w.r.t. the parameters for a given input [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence].
+
+Before we can start a numerical optimization, we first need to specify initial parameters. [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] declares two 
+methods for that purpos. The first is
+<source lang="java5" enclose="div">
+public void initializeFunction(int index, boolean freeParams,
+		DataSet[] data, double[][] weights) throws Exception;
+</source>
+
+which is tailored to initializing the parameters from a given data set. The parameters have the following meaning: <code>index</code> is the index of the class this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] †represents.
+For some parameterizations, we can either optimize (and initialize) only the free parameters of the model, i.e., excluding parameters with values that can be computed from the values of a subset of the remaining parameters, or we can optimize all parameters. For example such parameters could be those of a DNA dice, where the probability of one nucleotide is fixed if we know the probabilities of all other nucleotides.
+If <code>freeParams</code> is <code>true</code>, only the free parameters are used.
+The array <code>data</code> holds the input data, where <code>data[index]</code> holds the data for the current class, and <code>weights</code> are the weights on each [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] in <code>data</code>.
+
+The second method for initialization is
+
+<source lang="java5" enclose="div">
+public void initializeFunctionRandomly(boolean freeParams) throws Exception;
+</source>
+
+which initializes all parameters randomly, where the exact method for drawing parameter values is implementation-specific.
+
+Like for the method <code>getLogScore</code> of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore], there are three methods for computing the gradient w.r.t. the parameters.
+The first is
+
+<source lang="java5" enclose="div">
+public double getLogScoreAndPartialDerivation(Sequence seq, IntList indices, DoubleList partialDer);
+</source>
+
+where <code>seq</code> is the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] for which the gradient is to be computed, and <code>indices</code> and <code>partialDer</code> are lists that shall be filled with the indexes and values of the partial derivation, respectively. Assume that we implement a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] <math>f</math> with <math>N</math> parameters and <math>d_i = \frac{\partial \log f}{\partial \lambda_i}</math> is the partial derivation of the log-score w.r.t. the <math>i</math>-th parameter of <math>f</math>. Then we would add the index <math>i</math> to <code>indices</code> and (before subsequent additions to <code>indices</code> or <code>partialDer</code>) add <math>d_i</math> to <code>partialDer</code>. Partial derivations, i.e., components of the gradient, that are zero may be omitted.
+
+The other two methods
+
+<source lang="java5" enclose="div">
+public double getLogScoreAndPartialDerivation(Sequence seq, int start, IntList indices, DoubleList partialDer);
+</source>
+
+and
+
+<source lang="java5" enclose="div">
+public double getLogScoreAndPartialDerivation( Sequence seq, int start, int end, IntList indices, DoubleList partialDer ) throws Exception;
+</source>
+
+additionally allow for the specification of a start (and end) position within the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] <code>seq</code> in the same manner as specified for <code>getLogScore</code> of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore].
+
+The method
+
+<source lang="java5" enclose="div">
+public int getNumberOfParameters();
+</source>
+
+returns the number of parameters (<math>N</math> in the example above) of parameters of this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore]. It is used, for example, to create temporary arrays for the summation of gradients during numerical optimization.
+
+Since numerical optimization for non-convex problems may get stuck in local optima, we often need to restart numerical optimization multiple times from different initial values of the parameters. As the number of starts that is required to yield the global optimum with high probability is highly score-specific, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] defines a method
+
+<source lang="java5" enclose="div">
+public int getNumberOfRecommendedStarts();
+</source>
+
+that returns the number of starts that is recommended by the developer of this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore]. If multiple [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] are used in a numerical optimization (for instance for the different classed), the maximum of these values is used in the optimization. If your parameterization is known to be convex, this method should return 1.
+
+The currently set parameters (either by initialization or explicitly, see below) can be obtained by
+
+<source lang="java5" enclose="div">
+public double[] getCurrentParameterValues() throws Exception;
+</source>
+
+and new parameter values may be set by
+
+<source lang="java5" enclose="div">
+public void setParameters(double[] params, int start);
+</source>
+
+where <code>start</code> is the index of the value for the first parameter of this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] †within <code>params</code>.
+
+Finally, the method
+
+<source lang="java5" enclose="div">
+public double getInitialClassParam(double classProb);
+</source>
+
+returns the class parameter for a given class probability. The default implementation in the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/AbstractDifferentiableSequenceScore.html AbstractDifferentiableSequenceScore] returns <code>Math.log(classProb)</code>. This abstract class also provides standard implementations for many of the other methods.
+
+== StatisticalModels ==
+<span id="StatMod"> </span>
+
+
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] s extend the specification of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/SequenceScore.html SequenceScore] s by the computation of proper (normalized) likelihoods for input sequences.
+To this end, it defines three methods for computing the log-likelihood of a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] given a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] and its current parameter values.
+
+The first method just requires the specification of the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] object for which the log-likelihood is to be computed:
+<source lang="java5" enclose="div">
+public double getLogProbFor(Sequence sequence) throws Exception;
+</source>
+
+If the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] has not been trained prior to calling this method, it is allowed to throw an <code>Exception</code>. The meaning of this method is slightly different for inhomogeneous, that is position-dependent, and homogeneous models. In case of an inhomogeneous model, for instance a position weight matrix, the specified [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] must be of the same length as the model, i.e. the number of columns in the weight matrix. Otherwise an Exception should be thrown, since users may be tempted to misinterpret the return value as a probability of the complete, possibly longer or shorter, provided sequence.
+In case of models that can handle [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s of varying lengths, for instance homogeneous Markov models, this method must return the likelihood of the complete sequence. Since this is not always the desired result, to other methods are specified, which allow for computing the likelihood of sub-sequences. This method should also check if the provided [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] is defined over the same [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] as the model.
+
+The second method is
+
+<source lang="java5" enclose="div">
+public double getLogProbFor(Sequence sequence, int startpos) throws Exception;
+</source>
+
+which computes the log-likelihood of the sub-sequence starting at position <code>startpos</code>. The resulting value of the log-likelihood must be the same as if the user had called <code>getLogProbFor(sequence.getSubSequence(startpos))</code>.
+
+The third method reads
+
+<source lang="java5" enclose="div">
+public double getLogProbFor(Sequence sequence, int startpos, int endpos) throws Exception;
+</source>
+
+and computes the likelihood of the sub-sequence starting at position <code>startpos</code> up to position <code>endpos</code> (inclusive). The resulting value of the likelihood must be the same as if the user had called <code>getProbFor(sequence.getSubSequence(startpos,endpos-startpos+1))</code>.
+
+If we want to use Bayesian principles for learning the parameters of a model, we need to specify a prior distribution on the parameter values. In some cases, for instance for using MAP estimation in an expectation maximization (EM) algorithm, it is not only necessary to estimate the parameters taking the prior into account, but also to know the value of the prior (or a term proportional to it). For this reason, the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] interface defines the method
+
+<source lang="java5" enclose="div">
+public double getLogPriorTerm() throws Exception;
+</source>
+
+which returns the logarithm of this prior term.
+
+If the concept of a prior is not applicable for a certain model or other reasons prevent you from implementing this method, <code>getLogPriorTerm()</code> should return <code>Double.NEGATIVE_INFINITY</code>.
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] s can also be used to create new, artificial data according to the model assumptions. For this purpose, the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] interface specifies a method
+
+<source lang="java5" enclose="div">
+public DataSet emitDataSet(int numberOfSequences, int... seqLength)
+		throws NotTrainedException, Exception;
+</source>
+
+which returns a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] of <code>numberOfSequences</code> [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s drawn from the model using its current parameter values. The second parameter <code>seqLength</code> allows for the specification of the lenghts of the drawn [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s. For inhomogeneous model, which inherently define the length of possible sequence, this parameter should be <code>null</code> or an array of length 0. For variable-length models, the lengths may either be specified for all drawn sequences by a single <code>int</code> value or by an array of length <code>numberOfSequences</code> specifying the length of each drawn sequence independently.
+
+The implementation of this method is not always possible. In its default implementation in the abstract implementations of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel], this method just throws an Exception and must be explicitly overridden to be functional.
+
+The last method defined in [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] †is
+
+<source lang="java5" enclose="div">
+public byte getMaximalMarkovOrder() throws UnsupportedOperationException;	
+</source>
+
+which returns the maximum number of preceeding positions that are considered for (conditional) probabilities.
+For instance, for a position weight matrix, this method should return 0, whereas for a homogeneous Markov model of order 2, it should return 2.
+
+=== TrainableStatisticalModels ===
+
+Statistical models that can be learned on a single input data set are represented by the interface [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] of Jstacs. In most cases, such models are learned by generative learning principles like maximum likelihood (ML) or maximum a-posteriori (MAP). For models that are learned from multiple data sets, commonly by discriminative learning principles, Jstacs provides another interface [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel], which will be presented in the next sub-section.
+
+In the following, we briefly describe all methods that are defined in the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] interface. For convenience, an abstract implementation [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/AbstractTrainSM.html AbstractTrainSM] of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] exists, which provides standard implementations for many of these methods.
+
+
+
+
+The parameters of statistical models are typically learned from some training data set. For this purpose, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] specifies a method <code>train</code>
+<source lang="java5" enclose="div">
+public void train(DataSet data) throws Exception;
+</source>
+
+that learns the parameters from the training data set <code>data</code>. By specification, successive calls to <code>train</code> must result in a model trained on the data set provided in the last call, as opposed to incremental learning on all data sets.
+
+Besides this simple <code>train</code> method, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] also declares another method
+
+<source lang="java5" enclose="div">
+public void train(DataSet data, double[] weights) throws Exception;
+</source>
+
+that allows for the specification of weights for each input sequence. Since the previous method is a special case of this one where all weights are equal to <math>1</math>, only the weighted variant must be implemented, if you decide to extend [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/AbstractTrainSM.html AbstractTrainSM]. This method should be implemented such that the specification of <code>null</code> weights leads to the standard variant with all weights equal to 1. The actual training method may be totally problem and implementation specific. However, in most cases you might want to use one of the generative learning principles ML or MAP.
+
+After a model has been trained it can be used to compute the likelihood of a sequence given the model and its (trained) parameters as defined in [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel].
+
+The method
+
+<source lang="java5" enclose="div">
+public String toString();
+</source>
+
+should return some <code>String</code> representation of the current model. Typically, this representation should include the current parameter values in some suitable format.
+
+
+
+
+Besides the possibility to implement new statistical models in Jstacs, many of them are already implemented and can readily be used.
+As a central facility for creating [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] instances of many standard models, Jstacs provides a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainSMFactory.html TrainSMFactory].
+
+Using the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainSMFactory.html TrainSMFactory], we can create a new position weight matrix (PWM) model by calling
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( alphabet, 10, 4.0 );
+</source>
+
+where we need to specify the (discrete) alphabet, the length of the matrix (<math>10</math>), i.e. the number of positions modeled, and an equivalent sample size (ESS) for MAP estimation (<math>4.0</math>). For the concept of an equivalent sample size and the BDeu prior used for most models in Jstacs, we refer the reader to (Heckerman). If the ESS is set to <math>0.0</math>, the parameters are estimated by the ML instead of the MAP principle.
+
+The factory method for an inhomogeneous Markov model of arbitrary order -- the PWM model is just an inhomogeneous Markov model of order 0 -- is
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel imm = TrainableStatisticalModelFactory.createInhomogeneousMarkovModel( alphabet, 12, 4.0, (byte) 2 );
+</source>
+
+where the parameters are in complete analogy to the PWM model, expect the last one specifying the order of the inhomogeneous Markov model, which is 2 in the example.
+
+We can also create permuted Markov models of order <math>1</math> and <math>2</math>, where the positions of the sequences may be permuted before building an inhomogeneous Markov model. The permutation is chosen such that the mutual information between adjacent positions is maximized. We create a permuted Markov model of length 7 and order 1 by calling
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel pmm = TrainableStatisticalModelFactory.createPermutedMarkovModel( alphabet, 7, 4.0, (byte) 1 );
+</source>
+
+
+Homogeneous Markov models are created by
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel hmm = TrainableStatisticalModelFactory.createHomogeneousMarkovModel( alphabet, 400.0, (byte) 3 );
+</source>
+
+where the first parameter again specifies the alphabet, the second parameter is the equivalent sample size, and the third parameter is the order of the Markov model.
+
+We can create a ZOOPS model with a PWM as motif model and the homogeneous Markov model created above as flanking model using
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel zoops = TrainableStatisticalModelFactory.createZOOPS( pwm, hmm, new double[]{4,4}, false );
+</source>
+
+where the third parameter contains the hyper-parameters for the two components of the ZOOPS model, and the last boolean allows two switch training of the flanking model on or off. In the example, we choose to train the flanking model and the motif model.
+
+After we created a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel], we can train it on input data. For instance, we train the PWM created above on a training [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] <code>ds</code> by calling:
+
+<source lang="java5" enclose="div">
+pwm.train( ds );
+</source>
+
+
+Instead of using the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainSMFactory.html TrainSMFactory], we can also create [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s directly using their constructors. For example, we create a homogeneous Markov model of order <math>0</math> by calling
+
+<source lang="java5" enclose="div">
+HomogeneousMM hmm2 = new HomogeneousMM( new HomMMParameterSet( alphabet, 4.0, "hmm(0)", (byte) 0 ) );
+</source>
+
+or we create a Bayesian network of (full) order <math>1</math>, i.e., a Bayesian tree, of length <math>8</math> learned by MAP with an equivalent sample size of <math>4.0</math> with
+
+<source lang="java5" enclose="div">
+BayesianNetworkTrainSM bnm = new BayesianNetworkTrainSM( new BayesianNetworkTrainSMParameterSet( alphabet, 8, 4.0, "Bayesian network", ModelType.BN, (byte) 1, LearningType.ML_OR_MAP ) );
+</source>
+
+
+Due to the complexity of hidden Markov models, these have their own factory class called [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/hmm/HMMFactory.html HMMFactory].
+To create a new hidden Markov model, we first need to define the parameters of the training procedure, which is Baum-Welch training in the example
+
+<source lang="java5" enclose="div">
+HMMTrainingParameterSet trainingPars = new BaumWelchParameterSet( 5, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ),2 );
+</source>
+
+The parameters provided to that [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] are the number of restarts of the training, the termination condition for each training, and the number of threads used for the (multi-threaded) optimization.
+
+Then we create the emissions of the HMM. Here, we choose two discrete emissions over the [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet]:
+
+<source lang="java5" enclose="div">
+Emission[] emissions = new Emission[]{new DiscreteEmission( alphabet, 4.0 ),new DiscreteEmission( alphabet, new double[]{2.0,1.0,1.0,2.0} )};
+</source>
+
+For the first emission, we use a BDeu prior with equivalent sample size <math>4</math>, whereas for the second emission, we explictly specify the hyper-parameters of the BDe prior.
+
+Finally, we use the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/hmm/HMMFactory.html HMMFactory] to create a new ergodic, i.e., fully connected, HMM for this training procedure and these emissions:
+
+<source lang="java5" enclose="div">
+AbstractHMM myHMM = HMMFactory.createErgodicHMM( trainingPars, 1, 4.0, 0.1, 100.0, emissions );
+</source>
+
+
+For non-standard architectures of the HMM, we can also use a constructor of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/hmm/models/HigherOrderHMM.html HigherOrderHMM], although we only use order <math>1</math> in the example,
+
+<source lang="java5" enclose="div">
+HigherOrderHMM hohmm = new HigherOrderHMM( trainingPars, new String[]{"A","B"}, emissions, 
+		new TransitionElement( null, new int[]{0}, new double[]{4.0} ), 
+		new TransitionElement( new int[]{0}, new int[]{0,1}, new double[]{2.0,2.0} ),
+		new TransitionElement( new int[]{1}, new int[]{0}, new double[]{4.0} ));
+
+</source>
+
+The arguments are: the training parameters, the names of the (two) states, the emissions as specified above, and [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/hmm/transitions/elements/TransitionElement.html TransitionElement] s that specify the transitions allowed in the HMM. In the example, we may start in the <math>0</math>-th state (A) represented by the first [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/hmm/transitions/elements/TransitionElement.html TransitionElement], from that state we may either loop in state <math>0</math> or proceeed to state <math>1</math>, and from state <math>1</math> we may only go back to state <math>0</math>. For all transitions, we specify hyper-parameters for the corresponding Dirichlet prior.
+
+Once an HMM is created, we can use a method <code>getGraphvizRepresentation</code> to obtain the content of a .dot file with a graphical representation (nodes and edges) of the HMM:
+
+<source lang="java5" enclose="div">
+System.out.println( hohmm.getGraphvizRepresentation( null ) );
+</source>
+
+
+Another important type of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s within Jstacs are mixture models. Such mixture models can be mixtures of any sub-class of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] and can be learned either by expectation-maximization (EM) or by Gibbs sampling.
+
+We create a mixture model of two PWMs learned by expectation maximization using the constructor
+
+<source lang="java5" enclose="div">
+MixtureTrainSM mixEm = new MixtureTrainSM( 10, new TrainableStatisticalModel[]{pwm,pwm}, 3, new double[]{4.0,4.0}, 1, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), Parameterization.LAMBDA );
+</source>
+
+where the first argument is the length of the model, the second are the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s used as mixture components, the third is the number of restarts of the EM, the fourth are the hyper-parameters for the prior on the component probabilities, i.e., mixture weights, the fifth is the termination condition, and the last is the parameterization. For mixture models we can choose between the parameterization in terms of probabilities (called <code>THETA</code>) and the so called &quot;natural parameterization&quot; as log-probabilities (called <code>LAMBDA</code>).
+
+If we want to use Gibbs sampling instead of EM, we use the constructor
+
+<source lang="java5" enclose="div">
+MixtureTrainSM mixGibbs = new MixtureTrainSM( 10, new TrainableStatisticalModel[]{pwm,pwm}, 3, new double[]{4.0,4.0}, 100, 1000, new VarianceRatioBurnInTest( new VarianceRatioBurnInTestParameterSet( 3, 1.2 ) ) );
+</source>
+
+where the first 4 arguments remain unchanged, the fifth is the number of intial steps in the stationary phase, the sixth is the total number of stationary samplings, and the seventh is a burn-in test for determining the end of the burn-in phase and the start of the stationary phase. 
+
+A special case of a mixture model is the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/mixture/StrandTrainSM.html StrandTrainSM], which is a mixture over the two strands of DNA. For both strands, the same component [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] is used but it is evaluated once for the original [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] and once for its reverse complement.
+We construct a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/mixture/StrandTrainSM.html StrandTrainSM] of the inhomogeneous Markov model created by the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainSMFactory.html TrainSMFactory] by calling
+
+<source lang="java5" enclose="div">
+StrandTrainSM strandModel = new StrandTrainSM( imm, 3, 0.5, 1, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), Parameterization.LAMBDA );
+</source>
+
+where the first argument is the component [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel], the second is the number of starts, the third is the probability of the forward strand (which is fixed in the example but can also be learned), the fourth is the hyper-parameter for drawing initial strands (<math>1</math> results in a uniform distribution on the simplex), the fifth is the termination condition, and the last is the parameterization (as above).
+
+
+=== DifferentiableStatisticalModels ===
+
+
+
+
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s are [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] s that also inherit the properties of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html DifferentiableSequenceScore] s. That means, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s define a proper likelihood over the input sequences and at the same time can compute partial derivations w.r.t. their parameters.
+
+This also means that they can compute a - not necessarily normalized - log-score using the <code>getLogScore</code> methods and normalized log-likelihoods using the <code>getLogProb</code> methods. In many cases it is more efficient to use the <code>getLogScore</code> methods and, in addition, to compute the normalization constant to obtain proper probabilities seperately. Hence,
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] defines a method
+<source lang="java5" enclose="div">
+public double getLogNormalizationConstant();
+</source>
+
+that returns the logarithm of that normalization constant, which only depends on the current parameter values but not on the input sequence. For computing the gradients with respect to the parameters, we also need the partial derivations of the log-normalization constant with respect to the parameters. To this end [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] †provides a method
+
+<source lang="java5" enclose="div">
+public double getLogPartialNormalizationConstant(int parameterIndex)
+</source>
+
+that takes the (internal) index of the parameter for which the partial derivation shall be computed as the only argument.
+
+A similar schema is used for the prior on the parameters. In addition to the method <code>getLogPriorTerm</code> of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel], the method
+
+<source lang="java5" enclose="div">
+public void addGradientOfLogPriorTerm(double[] grad, int start)
+</source>
+
+adds the values of the gradient of the log-prior with respect to all parameters to the given array <code>grad</code> starting at position <code>start</code>.
+
+The method
+
+<source lang="java5" enclose="div">
+public boolean isNormalized();
+</source>
+
+returns <code>true</code> if the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] is already normalized, that means if <code>getLogScore</code> already returns proper probabilities. If that is the case, <code>getLogNormalizationConstant</code> must always return <math>0</math>, and <code>getLogPartialNormalizationConstant</code> must return <code>Double.NEGATIVE_INFINITY</code> for all parameters.
+
+Finally,
+
+<source lang="java5" enclose="div">
+public double getESS();
+</source>
+
+returns the equivalent sample size used for the prior of this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel].
+
+
+
+
+The [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] implementations of standard models already exist in Jstacs.
+For example, we can create a Bayesian network of length <math>10</math> with the network structure learned by means of the discriminative &quot;explaining away residual&quot; with
+
+<source lang="java5" enclose="div">
+BayesianNetworkDiffSM bnDsm = new BayesianNetworkDiffSM( new BayesianNetworkDiffSMParameterSet( alphabet, 10, 4.0, true, new BTExplainingAwayResidual( new double[]{4.0,4.0} ) ) );
+</source>
+
+where the parameters of the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] are the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer], the length and the equivalent sample size of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel], a switch wether (generative) plug-in parameters shall be used and an object for the structure measure.
+
+An inhomogeneous Markov model of order <math>1</math>, length <math>8</math>, and with equivalent sample size <math>4.0</math> is created by
+
+<source lang="java5" enclose="div">
+MarkovModelDiffSM mmDsm = new MarkovModelDiffSM( alphabet, 8, 4.0, true, new InhomogeneousMarkov( 1 ) );
+</source>
+
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s are mainly used for discriminative parameter learning in Jstacs. To discriminatively learn the parameters of two inhomogeneous Markov models as created above, we need the following three lines.
+
+<source lang="java5" enclose="div">
+GenDisMixClassifierParameterSet params = new GenDisMixClassifierParameterSet( alphabet, 8, Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1E-6, 1, false, KindOfParameter.PLUGIN, true, 4 );
+GenDisMixClassifier cl = new GenDisMixClassifier( params, new CompositeLogPrior(), LearningPrinciple.MSP, mmDsm, mmDsm );
+cl.train( data );
+</source>
+
+The discriminative learning principle used in the example is maximum supervised posterior (MSP). For details about the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] used in the example, see section [[Second main course: Classifiers#GenDisMixClassifiers]].
+
+A homogeneous Markov models of order <math>3</math> with equivalent sample size <math>4.0</math> is created by the constructor
+
+<source lang="java5" enclose="div">
+HomogeneousMMDiffSM hmmDsm = new HomogeneousMMDiffSM( alphabet, 3, 4.0, 100 );
+</source>
+
+The last argument of this constructor is the expected length of the input sequences. This length is used to compute consistent hyper-parameters from the equivalent sample size for this class, since the (transition) parameters of a homogeneous Markov model are used for more than one position of an input sequence.
+
+Similar to hidden Markov models that are [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s, we can create a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] hidden Markov model with the following lines:
+
+<source lang="java5" enclose="div">
+DifferentiableEmission[] emissions = new DifferentiableEmission[]{new DiscreteEmission( alphabet, 4.0 ),new DiscreteEmission( alphabet, new double[]{2.0,1.0,1.0,2.0} )};
+NumericalHMMTrainingParameterSet trainingParameterSet = new NumericalHMMTrainingParameterSet( 3, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), 2, Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1 );
+DifferentiableHigherOrderHMM hmm = new DifferentiableHigherOrderHMM( trainingParameterSet, new String[]{"A","B"} , new int[]{0,1}, new boolean[]{true,true},emissions, true,4.0,
+		new TransitionElement( null, new int[]{0}, new double[]{4.0} ), 
+		new TransitionElement( new int[]{0}, new int[]{0,1}, new double[]{2.0,2.0} ),
+		new TransitionElement( new int[]{1}, new int[]{0}, new double[]{4.0} ));
+</source>
+
+The emissions and transitions of the hidden Markov model are the same as in the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] case. However, we use training parameters for numerical optimization in this example.
+
+A mixture [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] of two inhomogeneous Markov models can be created by
+
+<source lang="java5" enclose="div">
+MixtureDiffSM mixDsm = new MixtureDiffSM( 3, true, mmDsm,mmDsm );
+</source>
+
+where the first argument is the recommended number of restarts, and the second argument indicates if plug-in parameters shall be used.
+
+Similar to [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s, we can also define a mixture over the DNA strands with
+
+<source lang="java5" enclose="div">
+StrandDiffSM strandDsm = new StrandDiffSM( mmDsm, 0.5, 1, true, InitMethod.INIT_BOTH_STRANDS );
+</source>
+
+where the first argument is the component [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel], the second is the a-priori probability of the forward strand, the third is the recommended number of restarts, the fourth, again, indicates if plug-in parameters are used, and the fifth indicates on which strands the component [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] is initialized.
+
+We can use this [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/mixture/StrandDiffSM.html StrandDiffSM] together with a homogeneous Markov model as the flanking model to specify a ZOOPS [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] using the constructor
+
+<source lang="java5" enclose="div">
+ExtendedZOOPSDiffSM zoops = new ExtendedZOOPSDiffSM( ExtendedZOOPSDiffSM.CONTAINS_SOMETIMES_A_MOTIF, 500, 4, false, hmmDsm, strandDsm, null, true );
+</source>
+
+Here, the first argument specifies that we want to use ZOOPS (as opposed to OOPS, where each sequence contains a motif occurrence), the second is the lenght of the input sequences, the third is the number of restarts, the fourth switches plug-in parameters, the fifth and sixth are the flanking and motif model, respectively, the seventh specifies a position distribution for the motifs (where <code>null</code> defaults to a uniform distribution), and the last indicates if the flanking model is initialized (again).
+
+Sometimes it is useful to model different parts of a sequence by different [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s, for instance if we have some structural knowledge about the input sequences. To this end, Jstacs provides a class [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/IndependentProductDiffSM.html IndependentProductDiffSM], for which we can specify the models of different parts independently. We create such a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/IndependentProductDiffSM.html IndependentProductDiffSM] by calling
+
+<source lang="java5" enclose="div">
+IndependentProductDiffSM ipsf = new IndependentProductDiffSM( 4.0, true, bnDsm,mmDsm );
+</source>
+
+where the first parameter is the equivalent sample size, the second switches plug-in parameters, and the remaining are the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s to be combined. Besides this constructor, other constructors allow for specifying the lengths of the parts of a sequence to be modeled by the different [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s or the re-use of the same [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] for different, possibly remote, parts of an input sequence.
+
+Since [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s provide methods for computing log-likelihoods, for computing normalization constants, and for determining the gradient with respect to their parameters, they can also be learned generatively by numerical optimization. For this purpose, a wrapper class exists that creates a [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] out of any [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel]. We create such a wrapper object with
+
+<source lang="java5" enclose="div">
+DifferentiableStatisticalModelWrapperTrainSM trainSm = new DifferentiableStatisticalModelWrapperTrainSM( mmDsm, 4, Optimizer.QUASI_NEWTON_BFGS, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), 1E-6, 1 );
+trainSm.train( data[0] );
+</source>
+
+where we need to specify the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] that shall be learned and the parameters of the numerical optimization (see section [[[[Intermediate course: Optimization]]]] for details). By this means, we can use any [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] in the world of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s as well, for instance to build a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier] (see [[Second main course: Classifiers]]).

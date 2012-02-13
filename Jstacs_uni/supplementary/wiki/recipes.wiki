@@ -1,0 +1,766 @@
+In this section, we show some more complex code examples. All these code examples can be downloaded [http://www.jstacs.de/downloads/recipes.zip as a zip file] and may serve as a starting points for your own applications.
+
+__TOC__
+
+== Creation of user-specfic alphabet ==
+In this example, we create a new [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/ComplementableDiscreteAlphabet.html ComplementableDiscreteAlphabet] using the generic implementation. We then use this [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/Alphabet.html Alphabet] to create a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] and compute its reverse complement.
+
+
+<source lang="java5" enclose="div">
+String[] symbols = {"A", "C", "G", "T", "-"};
+//new alphabet
+DiscreteAlphabet abc = new DiscreteAlphabet( true, symbols );
+
+//new alphabet that allows to build the reverse complement of a sequence
+int[] revComp = new int[symbols.length];
+revComp[0] = 3; //symbols[0]^rc = symbols[3]
+revComp[1] = 2; //symbols[1]^rc = symbols[2]
+revComp[2] = 1; //symbols[2]^rc = symbols[1]
+revComp[3] = 0; //symbols[3]^rc = symbols[0]
+revComp[4] = 4; //symbols[4]^rc = symbols[4]
+GenericComplementableDiscreteAlphabet abc2 = new GenericComplementableDiscreteAlphabet( true, symbols, revComp );
+
+Sequence seq = Sequence.create( new AlphabetContainer( abc2 ), "ACGT-" );
+Sequence rc = seq.reverseComplement();
+System.out.println( seq );
+System.out.println( rc );
+</source>
+
+
+== Creating Data sets ==
+In this example, we show different ways of creating a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] in Jstacs from plain text and FastA files and using the adaptor to BioJava.
+
+
+<source lang="java5" enclose="div">
+String home = args[0];
+
+//load DNA sequences in FastA-format
+DataSet data = new DNADataSet( home+"myfile.fa" ); 
+
+//create a DNA-alphabet
+AlphabetContainer container = DNAAlphabetContainer.SINGLETON;
+
+//create a DataSet using the alphabet from above in FastA-format
+data = new DataSet( container, new SparseStringExtractor( home+"myfile.fa", StringExtractor.FASTA ));
+
+//create a DataSet using the alphabet from above
+data = new DataSet( container, new SparseStringExtractor( home+"myfile.txt" ));
+
+//defining the ids, we want to obtain from NCBI Genbank:
+GenbankRichSequenceDB db = new GenbankRichSequenceDB();
+
+SimpleSequenceIterator it = new SimpleSequenceIterator(
+		db.getRichSequence( "NC_001284.2" ),
+		db.getRichSequence( "NC_000932.1" )
+		);
+ 
+//conversion to Jstacs DataSet
+data = BioJavaAdapter.sequenceIteratorToDataSet( it, null );
+</source>
+
+
+== Using TrainSMBasedClassifier ==
+In this example, we show how to create a [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier] using to position weight matrices, train this classifier, classify previously unlabeled data, store the classifier to its XML representation, and load it back into Jstacs.
+
+
+<source lang="java5" enclose="div">
+String home = args[0];
+
+//create a DataSet for each class from the input data, using the DNA alphabet
+DataSet[] data = new DataSet[2];
+data[0] = new DNADataSet( args[1] );
+
+//the length of our input sequences
+int length = data[0].getElementLength();
+
+data[1] = new DataSet( new DNADataSet( args[2] ), length );
+ 
+//create a new PWM
+BayesianNetworkTrainSM pwm = new BayesianNetworkTrainSM( new BayesianNetworkTrainSMParameterSet(
+		//the alphabet and the length of the model:
+		data[0].getAlphabetContainer(), length, 
+		//the equivalent sample size to compute hyper-parameters
+		4, 
+		//some identifier for the model
+		"my PWM", 
+		//we want a PWM, which is an inhomogeneous Markov model (IMM) of order 0
+		ModelType.IMM, (byte) 0, 
+		//we want to estimate the MAP-parameters
+		LearningType.ML_OR_MAP ) );
+ 
+//create a new classifier
+TrainSMBasedClassifier classifier = new TrainSMBasedClassifier( pwm, pwm );
+//train the classifier
+classifier.train( data );
+//sequences that will be classified
+DataSet toClassify = new DNADataSet( args[3] );
+ 
+//use the trained classifier to classify new sequences
+byte[] result = classifier.classify( toClassify ); 
+System.out.println( Arrays.toString( result ) );
+ 
+//create the XML-representation of the classifier
+StringBuffer buf = new StringBuffer();
+XMLParser.appendObjectWithTags( buf, classifier, "classifier" );
+ 
+//write it to disk
+FileManager.writeFile( new File(home+"myClassifier.xml"), buf );
+
+//read XML-representation from disk
+StringBuffer buf2 = FileManager.readFile( new File(home+"myClassifier.xml") );
+ 
+//create new classifier from read StringBuffer containing XML-code
+AbstractClassifier trainedClassifier = (AbstractClassifier) XMLParser.extractObjectForTags(buf2, "classifier");	
+</source>
+
+
+== Using GenDisMixClassifier ==
+In this example, we show how to create [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] s using two position weight matrices. We show how [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier] s can be created for all basic learning principles (ML, MAP, MCL, MSP), and how these classifiers can be trained and assessed.
+
+
+<source lang="java5" enclose="div">
+//read FastA-files
+DataSet[] data = {
+         new DNADataSet( args[0] ),
+         new DNADataSet( args[1] )
+};
+AlphabetContainer container = data[0].getAlphabetContainer();
+int length = data[0].getElementLength();
+
+//equivalent sample size =^= ESS
+double essFg = 4, essBg = 4;
+//create DifferentiableSequenceScore, here PWM
+DifferentiableStatisticalModel pwmFg = new BayesianNetworkDiffSM( container, length, essFg, true, new InhomogeneousMarkov(0) );
+DifferentiableStatisticalModel pwmBg = new BayesianNetworkDiffSM( container, length, essBg, true, new InhomogeneousMarkov(0) );
+
+//create parameters of the classifier
+GenDisMixClassifierParameterSet cps = new GenDisMixClassifierParameterSet(
+		container,//the used alphabets
+		length,//sequence length that can be modeled/classified
+		Optimizer.QUASI_NEWTON_BFGS, 1E-1, 1E-1, 1,//optimization parameter
+		false,//use free parameters or all
+		KindOfParameter.PLUGIN,//how to start the numerical optimization
+		true,//use a normalized objective function
+		AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors()//number of compute threads		
+);
+
+//create classifiers
+LearningPrinciple[] lp = LearningPrinciple.values();
+GenDisMixClassifier[] cl = new GenDisMixClassifier[lp.length+1];
+//elementary learning principles
+int i = 0;
+for( ; i < cl.length-1; i++ ){
+	System.out.println( "classifier " + i + " uses " + lp[i] );
+	cl[i] = new GenDisMixClassifier( cps, new CompositeLogPrior(), lp[i], pwmFg, pwmBg );
+}
+
+//use some weighted version of log conditional likelihood, log likelihood, and log prior
+double[] beta = {0.3,0.3,0.4};
+System.out.println( "classifier " + i + " uses the weights " + Arrays.toString( beta ) );
+cl[i] = new GenDisMixClassifier( cps, new CompositeLogPrior(), beta, pwmFg, pwmBg );
+
+//do what ever you like
+
+//e.g., train
+for( i = 0; i < cl.length; i++ ){
+	cl[i].train( data );
+}
+
+//e.g., evaluate (normally done on a test data set)
+PerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters();
+for( i = 0; i < cl.length; i++ ){
+	System.out.println( cl[i].evaluate( mp, true, data ) );
+}
+</source>
+
+
+== Accessing R from Jstacs ==
+Here, we show a number of examples how R can be used from within Jstacs using RServe.
+
+
+<source lang="java5" enclose="div">
+REnvironment e = null;
+try {
+	//create a connection to R with YOUR server name, login and password
+	e = new REnvironment();//might be adjusted
+ 
+	System.out.println( "java: " + System.getProperty( "java.version" ) );
+	System.out.println();
+	System.out.println( e.getVersionInformation() );
+ 
+	// compute something in R
+	REXP erg = e.eval( "sin(10)" );
+	System.out.println( erg.asDouble() );
+ 
+	//create a histrgram in R in 3 steps
+	//1) create the data
+	e.voidEval( "a = 100;" );
+	e.voidEval( "n = rnorm(a)" );
+	//2) create the plot command
+	String plotCmd = "hist(n,breaks=a/5)";
+	//3a) plot as pdf
+	e.plotToPDF( plotCmd, args[0]+"/test.pdf", true );
+	//or
+	//3b) create an image and show it
+	BufferedImage i = e.plot( plotCmd, 640, 480 );
+	REnvironment.showImage( "histogramm", i, JFrame.EXIT_ON_CLOSE );
+ 
+} catch ( Exception ex ) {
+	ex.printStackTrace();
+} finally {
+	if( e != null ) {
+		try {
+			//close REnvironment correctly
+			e.close();
+		} catch ( Exception e1 ) {
+			System.err.println( "could not close REnvironment." );
+			e1.printStackTrace();
+		}
+	}
+}
+</source>
+
+
+== Getting ROC and PR curve from a classifier ==
+In this example, we show how a classifier (loaded from disk) can be assessed on test data, and how we can plot ROC and PR curves of this classifier and test data set.
+
+
+<source lang="java5" enclose="div">
+public static void main(String[] args) throws Exception {
+	//read XML-representation from disk
+	StringBuffer buf2 = FileManager.readFile( new File(args[0]+"myClassifier.xml") );
+	 
+	//create new classifier from read StringBuffer containing XML-code
+	AbstractClassifier trainedClassifier = (AbstractClassifier) XMLParser.extractObjectForTags(buf2, "classifier");	
+
+	//create a DataSet for each class from the input data, using the DNA alphabet
+	DataSet[] test = new DataSet[2];
+	test[0] = new DNADataSet( args[1] );
+	
+	//the length of our input sequences
+	int length = test[0].getElementLength();
+
+	test[1] = new DataSet( new DNADataSet( args[2] ), length );
+	
+	 
+	AbstractPerformanceMeasure[] m = { new PRCurve(), new ROCCurve() };
+	PerformanceMeasureParameterSet mp = new PerformanceMeasureParameterSet( m );
+	ResultSet rs = trainedClassifier.evaluate( mp, true, test );
+	 
+	REnvironment r = null;
+	try {
+		r = new REnvironment();//might be adjusted
+		for( int i = 0; i < rs.getNumberOfResults(); i++ )  {
+			Result res = rs.getResultAt(i);
+			if( res instanceof DoubleTableResult ) {
+				DoubleTableResult dtr = (DoubleTableResult) res;
+				ImageResult ir = DoubleTableResult.plot( r, dtr );
+				REnvironment.showImage( dtr.getName(), ir.getValue() );
+			} else {
+				System.out.println( res );
+			}
+		}
+	} catch( Exception e ) {
+		e.printStackTrace();
+	} finally {
+		if( r != null ) {
+			r.close();
+		}
+</source>
+
+
+== Performing crossvalidation ==
+In this example, we show how we can compare classifiers built on different types of models and using different learning principles in a cross validation. Specifically, we create a position weight matrix, use that matrix to create a mixture model, and we create an inhomogeneous Markov model of order <math>3</math>. We do so in the world of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s and in the world of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s. We then use the mixture model as foreground model and the inhomogeneous Markov model as the background model when building classifiers. The classifiers are learned by the generative MAP principle and the discriminative MSP principle, respectively. 
+We then assess these classifiers in a <math>10</math>-fold cross validation.
+
+
+<source lang="java5" enclose="div">
+//create a DataSet for each class from the input data, using the DNA alphabet
+DataSet[] data = new DataSet[2];
+data[0] = new DNADataSet( args[0] );
+
+//the length of our input sequences
+int length = data[0].getElementLength();
+
+data[1] = new DataSet( new DNADataSet( args[1] ), length );
+ 
+AlphabetContainer container = data[0].getAlphabetContainer();
+
+//create a new PWM
+BayesianNetworkTrainSM pwm = new BayesianNetworkTrainSM( new BayesianNetworkTrainSMParameterSet(
+		//the alphabet and the length of the model:
+		container, length, 
+		//the equivalent sample size to compute hyper-parameters
+		4, 
+		//some identifier for the model
+		"my PWM", 
+		//we want a PWM, which is an inhomogeneous Markov model (IMM) of order 0
+		ModelType.IMM, (byte) 0, 
+		//we want to estimate the MAP-parameters
+		LearningType.ML_OR_MAP ) );
+ 
+//create a new mixture model using 2 PWMs
+MixtureTrainSM mixPwms = new MixtureTrainSM(
+		//the length of the mixture model
+		length, 
+		//the two components, which are PWMs
+		new TrainableStatisticalModel[]{pwm,pwm},
+		//the number of starts of the EM
+		10,
+		//the equivalent sample sizes
+		new double[]{pwm.getESS(),pwm.getESS()},
+		//the hyper-parameters to draw the initial sequence-specific component weights (hidden variables)
+		1,
+		//stopping criterion
+		new SmallDifferenceOfFunctionEvaluationsCondition(1E-6),
+		//parameterization of the model, LAMBDA complies with the
+		//parameterization by log-probabilities
+		Parameterization.LAMBDA);
+ 
+//create a new inhomogeneous Markov model of order 3
+BayesianNetworkTrainSM mm = new BayesianNetworkTrainSM( 
+		new BayesianNetworkTrainSMParameterSet( container, length, 256, "my iMM(3)", ModelType.IMM, (byte) 3, LearningType.ML_OR_MAP ) );
+ 
+//create a new PWM scoring function
+BayesianNetworkDiffSM dPwm = new BayesianNetworkDiffSM(
+		//the alphabet and the length of the scoring function
+		container, length, 
+		//the equivalent sample size for the plug-in parameters
+		4, 
+		//we use plug-in parameters
+		true, 
+		//a PWM is an inhomogeneous Markov model of order 0
+		new InhomogeneousMarkov(0));
+ 
+//create a new mixture scoring function
+MixtureDiffSM dMixPwms = new MixtureDiffSM(
+		//the number of starts
+		2,
+		//we use plug-in parameters
+		true,
+		//the two components, which are PWMs
+		dPwm,dPwm);
+ 
+//create a new scoring function that is an inhomogeneous Markov model of order 3
+BayesianNetworkDiffSM dMm = new BayesianNetworkDiffSM(container, length, 4, true, new InhomogeneousMarkov(3));
+ 
+//create the classifiers
+int threads = AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors();
+AbstractScoreBasedClassifier[] classifiers = new AbstractScoreBasedClassifier[]{
+							   //model based with mixture model and Markov model
+							   new TrainSMBasedClassifier( mixPwms, mm ),
+							   //conditional likelihood based classifier
+							   new MSPClassifier( new GenDisMixClassifierParameterSet(container, length, 
+									   //method for optimizing the conditional likelihood and 
+									   //other parameters of the numerical optimization
+									   Optimizer.QUASI_NEWTON_BFGS, 1E-2, 1E-2, 1, true, KindOfParameter.PLUGIN, false, threads),
+									   //mixture scoring function and Markov model scoring function
+									   dMixPwms,dMm )
+};
+ 
+//create an new k-fold cross validation using above classifiers
+KFoldCrossValidation cv = new KFoldCrossValidation( classifiers );
+ 
+//we use a specificity of 0.999 to compute the sensitivity and a sensitivity of 0.95 to compute FPR and PPV
+NumericalPerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters();
+//we do a 10-fold cross validation and partition the data by means of the number of symbols
+KFoldCrossValidationAssessParameterSet cvpars = new KFoldCrossValidationAssessParameterSet(PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, length, true, 10);
+ 
+//compute the result of the cross validation and print them to System.out
+System.out.println( cv.assess( mp, cvpars, data ) );
+</source>
+
+
+== Implementing a TrainableStatisticalModel ==
+In this example, we show how to implement a new [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel]. Here, we implement a simple homogeneous Markov models of order <math>0</math> to focus on the technical side of the implementation. A homogeneous Markov model of order <math>0</math> has parameters <math>\theta_a</math> where <math>a</math> is a symbol of the alphabet <math>\Sigma</math> and <math>\sum_{a \in \Sigma} \theta_a = 1</math>. For an input sequence <math>\mathbf{x} = x_1,\ldots,x_L</math> it models the likelihood
+
+<math>\begin{align}
+
+P(\mathbf{x}|\boldsymbol{\theta}) &= \prod_{l=1}^{L} \theta_{x_l}.
+
+\end{align}</math>
+
+In the implementation, we use log-parameters <math>\log \theta_a</math>.
+
+
+<source lang="java5" enclose="div">
+public class HomogeneousMarkovModel extends AbstractTrainableStatisticalModel {
+ 
+	private double[] logProbs;//array for the parameters, i.e. the probabilities for each symbol
+ 
+	public HomogeneousMarkovModel( AlphabetContainer alphabets ) throws Exception {
+		super( alphabets, 0 ); //we have a homogeneous TrainableStatisticalModel, hence the length is set to 0
+		//a homogeneous TrainableStatisticalModel can only handle simple alphabets
+		if(! (alphabets.isSimple() && alphabets.isDiscrete()) ){
+			throw new Exception("Only simple and discrete alphabets allowed");
+		}
+		//initialize parameter array
+		this.logProbs = new double[(int) alphabets.getAlphabetLengthAt( 0 )];
+		Arrays.fill( logProbs, -Math.log(logProbs.length) );
+	}
+ 
+	public HomogeneousMarkovModel( StringBuffer stringBuff ) throws NonParsableException { 
+        super( stringBuff ); 
+    }
+ 
+	protected void fromXML( StringBuffer xml ) throws NonParsableException {
+		//extract our XML-code
+		xml = XMLParser.extractForTag( xml, "homogeneousMarkovModel" );
+		//extract all the variables using XMLParser
+		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabets" );
+		length = XMLParser.extractObjectForTags( xml, "length", int.class );
+		logProbs = XMLParser.extractObjectForTags( xml, "logProbs", double[].class );
+	}
+ 
+	public StringBuffer toXML() {
+		StringBuffer buf = new StringBuffer();
+		//pack all the variables using XMLParser
+		XMLParser.appendObjectWithTags( buf, alphabets, "alphabets" );
+		XMLParser.appendObjectWithTags( buf, length, "length" );
+		XMLParser.appendObjectWithTags( buf, logProbs, "logProbs" );
+		//add our own tag
+		XMLParser.addTags( buf, "homogeneousMarkovModel" );
+		return buf;
+	}
+ 
+	public String getInstanceName() { 
+            return "Homogeneous Markov model of order 0"; 
+        }
+ 
+	public double getLogPriorTerm() throws Exception { 
+            //we use ML-estimation, hence no prior term
+            return 0; 
+        } 
+ 
+	public NumericalResultSet getNumericalCharacteristics() throws Exception {
+		//we do not have much to tell here
+		return new NumericalResultSet(new NumericalResult("Number of parameters","The number of parameters this model uses",logProbs.length));
+	}
+ 
+	public double getLogProbFor( Sequence sequence, int startpos, int endpos ) throws NotTrainedException, Exception {
+		double seqLogProb = 0.0;
+		//compute the log-probability of the sequence between startpos and endpos (inclusive)
+		//as sum of the single symbol log-probabilities
+		for(int i=startpos;i<=endpos;i++){
+			//directly access the array by the numerical representation of the symbols
+			seqLogProb += logProbs[sequence.discreteVal( i )];
+		}
+		return seqLogProb;
+	}
+ 
+	public boolean isInitialized() {
+        return true; 
+    }
+ 
+	public void train( DataSet data, double[] weights ) throws Exception {
+		//reset the parameter array
+		Arrays.fill( logProbs, 0.0 );
+		//default sequence weight
+		double w = 1;
+		//for each sequence in the data set
+		for(int i=0;i<data.getNumberOfElements();i++){
+			//retrieve sequence
+			Sequence seq = data.getElementAt( i );
+			//if we do have any weights, use them
+			if(weights != null){
+				w = weights[i];
+			}
+			//for each position in the sequence
+			for(int j=0;j<seq.getLength();j++){
+				//count symbols, weighted by weights
+				logProbs[ seq.discreteVal( j ) ] += w;
+			}
+		}
+		//compute normalization
+		double norm = 0.0;
+		for(int i=0;i<logProbs.length;i++){ norm += logProbs[i]; }
+		//normalize probs to obtain proper probabilities
+		for(int i=0;i<logProbs.length;i++){ logProbs[i] = Math.log( logProbs[i]/norm ); }
+	} 
+}
+</source>
+
+
+== Implementing a DifferentiableStatisticalModel ==
+In this example, we show how to implement a new [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel]. Here, we implement a simple position weight matrix, i.e., an inhomogeneous Markov model of order <math>0</math>. Since we want to use this position weight matrix in numerical optimization, we parameterize it in the so called &quot;natural parameterization&quot;, where the probability of symbol <math>a</math> at position <math>l</math> is <math>P(X_l=a | \boldsymbol{\lambda}) = \frac{\exp(\lambda_{l,a})}{ \sum_{\tilde{a}} \exp(\lambda_{l,\tilde{a}}) }</math>. Since we use a product-Dirichlet prior on the parameters, we transformed this prior to the parameterization we use.
+
+Here, the method <code>getLogScore</code> returns a log-score that can be normalized to a proper log-likelihood by subtracting a log-normalization constant.
+The log-score for an input sequence <math>\mathbf{x} = x_1,\ldots,x_L</math> essentially is
+
+<math>\begin{align}
+
+S(\mathbf{x}|\boldsymbol{\lambda}) &= \sum_{l=1}^{L} \lambda_{l,x_l}.
+
+\end{align}</math>
+
+The normalization constant is a partition function, i.e., the sum of the scores over all possible input sequences:
+
+<math>\begin{align}
+
+Z(\boldsymbol{\lambda}) &= \sum_{\mathbf{x} \in \Sigma^L} \exp( S(\mathbf{x}|\boldsymbol{\lambda}) )
+
+&= \sum_{\mathbf{x} \in \Sigma^L} \prod_{l=1}^{L} \exp(\lambda_{l,x_l})
+
+&= \prod_{l=1}^{L} \sum_{a \in \Sigma} \exp(\lambda_{l,a})
+
+\end{align}</math>
+
+Thus, the likelihood is defined as
+
+<math>\begin{align}
+
+P(\mathbf{x}|\lambda) &= \frac{\exp(S(\mathbf{x}|\boldsymbol{\lambda}))}{Z(\boldsymbol{\lambda})}
+
+\end{align}</math>
+
+and
+
+<math>\begin{align}
+
+\log P(\mathbf{x}|\lambda) &= S(\mathbf{x}|\boldsymbol{\lambda})) - \log Z(\boldsymbol{\lambda}).
+
+\end{align}</math>
+
+
+
+<source lang="java5" enclose="div">
+
+public class PositionWeightMatrixDiffSM extends AbstractDifferentiableStatisticalModel {
+
+	private double[][] parameters;// array for the parameters of the PWM in natural parameterization
+	private double ess;// the equivalent sample size
+	private boolean isInitialized;// if the parameters of this PWM are initialized
+	private Double norm;// normalization constant, must be reset for new parameter values
+	
+	public PositionWeightMatrixDiffSM( AlphabetContainer alphabets, int length, double ess ) throws IllegalArgumentException {
+		super( alphabets, length );
+		//we allow only discrete alphabets with the same symbols at all positions
+		if(!alphabets.isSimple() || !alphabets.isDiscrete()){
+			throw new IllegalArgumentException( "This PWM can handle only discrete alphabets with the same alphabet at each position." );
+		}
+		//create parameter-array
+		this.parameters = new double[length][(int)alphabets.getAlphabetLengthAt( 0 )];
+		//set fields
+		this.ess = ess;
+		this.isInitialized = false;
+		this.norm = null;
+	}
+
+	/**
+	 * @param xml
+	 * @throws NonParsableException
+	 */
+	public PositionWeightMatrixDiffSM( StringBuffer xml ) throws NonParsableException {
+		//super-constructor in the end calls fromXML(StringBuffer)
+		//and checks that alphabet and length are set
+		super( xml );
+	}
+
+	@Override
+	public int getSizeOfEventSpaceForRandomVariablesOfParameter( int index ) {
+		//the event space are the symbols of the alphabet
+		return parameters[0].length;
+	}
+
+	@Override
+	public double getLogNormalizationConstant() {
+		//only depends on current parameters
+		//-> compute only once
+		if(this.norm == null){
+			norm = 0.0;
+			//sum over all sequences of product over all positions
+			//can be re-ordered for a PWM to the product over all positions
+			//of the sum over the symbols. In log-space the outer
+			//product becomes a sum, the inner sum must be computed
+			//by getLogSum(double[])
+			for(int i=0;i<parameters.length;i++){
+				norm += Normalisation.getLogSum( parameters[i] );
+			}
+		}
+		return norm;
+	}
+
+	@Override
+	public double getLogPartialNormalizationConstant( int parameterIndex ) throws Exception {
+		//norm computed?
+		if(norm == null){
+			getLogNormalizationConstant();
+		}
+		//row and column of the parameter
+		//in the PWM
+		int symbol = parameterIndex%(int)alphabets.getAlphabetLengthAt( 0 );
+		int position = parameterIndex/(int)alphabets.getAlphabetLengthAt( 0 );
+		//partial derivation only at current position, rest is factor
+		return norm - Normalisation.getLogSum( parameters[position] ) + parameters[position][symbol];
+	}
+
+	@Override
+	public double getLogPriorTerm() {
+		double logPrior = 0;
+		for(int i=0;i<parameters.length;i++){
+			for(int j=0;j<parameters[i].length;j++){
+				//prior without gamma-normalization (only depends on hyper-parameters),
+				//uniform hyper-parameters (BDeu), tranformed prior density,
+				//without normalization constant (getLogNormalizationConstant()*ess subtracted later)
+				logPrior += ess/alphabets.getAlphabetLengthAt( 0 ) * parameters[i][j];
+			}
+		}
+		return logPrior;
+	}
+
+	@Override
+	public void addGradientOfLogPriorTerm( double[] grad, int start ) throws Exception {
+		for(int i=0;i<parameters.length;i++){
+			for(int j=0;j<parameters[i].length;j++,start++){
+				//partial derivations of the logPriorTerm above
+				grad[start] = ess/alphabets.getAlphabetLengthAt( 0 );
+			}
+		}
+	}
+
+	@Override
+	public double getESS() {
+		return ess;
+	}
+
+	@Override
+	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
+		if(!data[index].getAlphabetContainer().checkConsistency( alphabets ) || 
+				data[index].getElementLength() != length){
+			throw new IllegalArgumentException( "Alphabet or length to not match." );
+		}
+		//initially set pseudo-counts
+		for(int i=0;i<parameters.length;i++){
+			Arrays.fill( parameters[i], ess/alphabets.getAlphabetLengthAt( 0 ) );
+		}
+		//counts in data
+		for(int i=0;i<data[index].getNumberOfElements();i++){
+			Sequence seq = data[index].getElementAt( i );
+			for(int j=0;j<seq.getLength();j++){
+				parameters[j][ seq.discreteVal( j ) ] += weights[index][i];
+			}
+		}
+		for(int i=0;i<parameters.length;i++){
+			//normalize -> MAP estimation
+			Normalisation.sumNormalisation( parameters[i] );
+			//parameters are log-probabilities from MAP estimation
+			for(int j=0;j<parameters[i].length;j++){
+				parameters[i][j] = Math.log( parameters[i][j] );
+			}
+		}
+		norm = null;
+		isInitialized = true;
+	}
+
+	@Override
+	public void initializeFunctionRandomly( boolean freeParams ) throws Exception {
+		int al = (int)alphabets.getAlphabetLengthAt( 0 );
+		//draw parameters from prior density -> Dirichlet
+		DirichletMRGParams pars = new DirichletMRGParams( ess/al, al );
+		for(int i=0;i<parameters.length;i++){
+			parameters[i] = DirichletMRG.DEFAULT_INSTANCE.generate( al, pars );
+			//parameters are log-probabilities
+			for(int j=0;j<parameters[i].length;j++){
+				parameters[i][j] = Math.log( parameters[i][j] );
+			}
+		}
+		norm = null;
+		isInitialized = true;
+	}
+	
+
+	@Override
+	public double getLogScoreFor( Sequence seq, int start ) {
+		double score = 0.0;
+		//log-score is sum of parameter values used
+		//normalization to likelihood can be achieved
+		//by subtracting getLogNormalizationConstant
+		for(int i=0;i<parameters.length;i++){
+			score += parameters[i][ seq.discreteVal( i+start ) ];
+		}
+		return score;
+	}
+
+	@Override
+	public double getLogScoreAndPartialDerivation( Sequence seq, int start, IntList indices, DoubleList partialDer ) {
+		double score = 0.0;
+		int off = 0;
+		for(int i=0;i<parameters.length;i++){
+			int v = seq.discreteVal( i+start );
+			score += parameters[i][ v ];
+			//add index of parameter used to indices
+			indices.add( off + v );
+			//derivations are just one
+			partialDer.add( 1 );
+			off += parameters[i].length;
+		}
+		return score;
+	}
+
+	@Override
+	public int getNumberOfParameters() {
+		int num = 0;
+		for(int i=0;i<parameters.length;i++){
+			num += parameters[i].length;
+		}
+		return num;
+	}
+
+	@Override
+	public double[] getCurrentParameterValues() throws Exception {
+		double[] pars = new double[getNumberOfParameters()];
+		for(int i=0,k=0;i<parameters.length;i++){
+			for(int j=0;j<parameters[i].length;j++,k++){
+				pars[k] = parameters[i][j];
+			}
+		}
+		return pars;
+	}
+
+	@Override
+	public void setParameters( double[] params, int start ) {
+		for(int i=0;i<parameters.length;i++){
+			for(int j=0;j<parameters[i].length;j++,start++){
+				parameters[i][j] = params[start];
+			}
+		}
+		norm = null;
+	}
+
+	@Override
+	public String getInstanceName() {
+		return "Position weight matrix";
+	}
+
+
+	@Override
+	public boolean isInitialized() {
+		return isInitialized;
+	}
+
+	@Override
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		//store all fields with XML parser
+		//including alphabet and length of the super-class
+		XMLParser.appendObjectWithTags( xml, alphabets, "alphabets" );
+		XMLParser.appendObjectWithTags( xml, length, "length" );
+		XMLParser.appendObjectWithTags( xml, parameters, "parameters" );
+		XMLParser.appendObjectWithTags( xml, isInitialized, "isInitialized" );
+		XMLParser.appendObjectWithTags( xml, ess, "ess" );
+		XMLParser.addTags( xml, "PWM" );
+		return xml;
+	}
+
+	@Override
+	protected void fromXML( StringBuffer xml ) throws NonParsableException {
+		xml = XMLParser.extractForTag( xml, "PWM" );
+		//extract all fields
+		alphabets = (AlphabetContainer)XMLParser.extractObjectForTags( xml, "alphabets" );
+		length = XMLParser.extractObjectForTags( xml, "length", int.class );
+		parameters = (double[][])XMLParser.extractObjectForTags( xml, "parameters" );
+		isInitialized = XMLParser.extractObjectForTags( xml, "isInitialized", boolean.class );
+		ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
+	}
+
+</source>

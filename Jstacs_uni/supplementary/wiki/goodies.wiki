@@ -1,0 +1,192 @@
+<span id="goodies"> </span>
+
+In this section, we present a motley composition of interesting classes of Jstacs.
+
+== Alignments ==
+
+In this subsection, we present how to compute Alignments using Jstacs.
+
+If we like to compute an alignment, we first have to define the costs for match, mismatch, and gaps. In Jstacs, we provide the interface [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/alignment/cost/Costs.html Costs] that declares all necessary method used during the alignment. In this example, we restrict to simple costs that are 0 for match, 1 for match, 0.5 for a gap.
+ 
+
+<source lang="java5" enclose="div">
+Costs costs = new SimpleCosts( 0, 1, 0.5 );
+</source>
+
+
+Second, we have to provide an instance of [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/alignment/Alignment.html Alignment]. This instance contains all information needed for an alignment and stores for instance matrices used for dynamic programming. When creating an instance, we have to specify which kind of alignment we like to have. Jstacs supports local, global and semi-global alignments (cf. [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/alignment/Alignment.AlignmentType.html Alignment.AlignmentType]).  
+
+
+<source lang="java5" enclose="div">
+Alignment align = new Alignment( AlignmentType.GLOBAL, costs );
+</source>
+
+
+In second constructor it is also possible to specify the number of off-diagonals to be used in the alignment leading to a potential speedup. 
+
+Finally, we can compute the optimal alignment between two [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s and write the result to the standard output.
+
+
+<source lang="java5" enclose="div">
+System.out.println( align.getAlignment( seq1, seq2 ) );
+</source>
+
+
+The alignment instance can be reused for aligning further sequences.
+
+In Jstacs, we also provide the possibility of computing optimal alignments with affine gap costs. For this reason, we implement the class [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/alignment/cost/AffineCosts.html AffineCosts] that is used to specify the cost for a gap opening. The costs for gap elongation are given by the gap costs of the internally used instance of [http://www.jstacs.de/api-2.0//de/jstacs/algorithms/alignment/cost/Costs.html Costs].
+
+
+<source lang="java5" enclose="div">
+
+costs = new AffineCosts( 1, costs );
+align = new Alignment( AlignmentType.GLOBAL, costs );
+System.out.println( align.getAlignment( seq1, seq2 ) );
+</source>
+
+
+
+== REnvironment: Connection to R ==
+
+In this subsection, we show how to access R (cf. [http://www.r-project.org/ http://www.r-project.org/]) from Jstacs. R is a project for statistical computing that allows for performing complex computations and creating nice plots.
+
+In some cases, it is reasonable to use R from within Jstacs. To do so, we have to create a connection to R. We utilize the package <code>Rserve</code> (cf. [http://www.rforge.net/Rserve/ http://www.rforge.net/Rserve/]) of R that allows to communicate between Java and R. Having a running instance of <code>Rserve</code>, we can create a connection via  
+
+
+<source lang="java5" enclose="div">
+REnvironment re = new REnvironment();
+</source>
+
+
+However, in some cases we have to specify the login name, a password, and the port for the communication which is possible via alternative constructors.
+
+Now, we are able to do diverse things in R. Here, we only present three methods, but [http://www.jstacs.de/api-2.0//de/jstacs/utils/REnvironment.html REnvironment] provides more functionality. First, we copy an array of <code>double</code>s from Java to R 
+
+
+<source lang="java5" enclose="div">
+re.createVector( "values", values );
+</source>
+
+
+and second, we modify it 
+
+
+<source lang="java5" enclose="div">
+re.voidEval( "values=rnorm(length(values));" );
+</source>
+
+
+Finally, the [http://www.jstacs.de/api-2.0//de/jstacs/utils/REnvironment.html REnvironment] allows to create plots as PDF, TeX, or <code>BufferedImage</code>. 
+
+
+<source lang="java5" enclose="div">
+re.plotToPDF( "plot(values,t=\"l\");", "values.pdf", true );
+</source>
+
+
+== ArrayHandler: Handling arrays ==
+
+In this subsection, we present a way to easily handle arrays in Java, i.e., to cast, clone, and create arrays with elements of generic type. To this end, we implement the class [http://www.jstacs.de/api-2.0//de/jstacs/io/ArrayHandler.html ArrayHandler] in Jstacs. 
+
+Let's assume we have a two dimensional array of either primitives of some Java class and we like to create a deep clone as it is necessary for member fields in clone methods.
+
+
+<source lang="java5" enclose="div">
+double[][] twodim = new double[5][5];
+</source>
+
+
+Traditionally, we would have to implement <code>for</code>-loops to do so. However, the [http://www.jstacs.de/api-2.0//de/jstacs/io/ArrayHandler.html ArrayHandler] implements this functionality in a generic manner providing one method for this purpose.
+
+
+<source lang="java5" enclose="div">
+double[][] clone = ArrayHandler.clone( twodim );
+</source>
+
+
+A second use case, is the creation of arrays, where each and every entry is a clone of some instance.
+
+
+<source lang="java5" enclose="div">
+TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, 10, 4.0 );
+TrainableStatisticalModel[] models = ArrayHandler.createArrayOf( pwm, 10 );
+</source>
+
+
+The third use case is to cast an array. Even if all elements of the array are from the same class, the component type of the array might be different (some super class). A simple cast will fail in those cases. However, the [http://www.jstacs.de/api-2.0//de/jstacs/io/ArrayHandler.html ArrayHandler] provides two methods for casting arrays. Here, we present the more important method, which allows to specify the array component type and performs the cast operation.
+
+
+<source lang="java5" enclose="div">
+Object[] m = new Object[]{
+    TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, 10, 4.0 ),
+    TrainableStatisticalModelFactory.createHomogeneousMarkovModel( DNAAlphabetContainer.SINGLETON, 40.0, (byte)0 )
+};
+TrainableStatisticalModel[] sms = ArrayHandler.cast( TrainableStatisticalModel.class, models );
+</source>
+
+
+== ToolBox ==
+
+The class [http://www.jstacs.de/api-2.0//de/jstacs/utils/ToolBox.html ToolBox] contains several static methods for recurring tasks. 
+For example, you can compute the maximum of an array of <code>double</code>s
+
+<source lang="java5" enclose="div">
+double max = ToolBox.max( values );
+</source>
+
+or the sum of the values
+
+<source lang="java5" enclose="div">
+double sum = ToolBox.sum( values );
+</source>
+
+or you can obtain the index of the first maximum value in the provided array
+
+<source lang="java5" enclose="div">
+int maxIndex = ToolBox.getMaxIndex( values );
+</source>
+
+
+== Normalisation ==
+
+Another frequently needed functionality is the handling of log-values. Assume that we have an array <code>values</code> containing a number of log-probabilities <math>l_i</math>. What we want to compute is the logarithm of the sum of the original probabilities, i.e., <math>\log(\sum_i \exp(l_i))</math>. The naive computation of this sum often results in numerical problems, especially, if the original probabilities are very different.
+A more exact solution is provided by the static method <code>getLogSum</code> of the class [http://www.jstacs.de/api-2.0//de/jstacs/utils/Normalisation.html Normalisation], which can be accessed by calling
+
+<source lang="java5" enclose="div">
+double logSum = Normalisation.getLogSum( values );
+</source>
+
+Of course, this method does not only work for probabilities, but for general log-values.
+
+Sometimes, we also want to normalize the given probabilities. That means, given the log-probabilities <math>l_i</math>, we want to obtain normalized probabilities <math>p_i = \frac{\exp(l_i)}{\sum_j \exp(l_j)}</math>. This normalization is performed by calling
+
+<source lang="java5" enclose="div">
+Normalisation.logSumNormalisation( values );
+</source>
+
+and after the call, the array <code>values</code> contains the normalized probabilities (not log-probabilities!).
+
+Finally, we might want to do the same for probabilities, i.e. given probabilities <math>q_i</math> in an array <code>values</code>, we want to compute <math>p_i = \frac{q_i}{\sum_j q_j}</math> using
+
+<source lang="java5" enclose="div">
+Normalisation.sumNormalisation( values );
+</source>
+
+A typical application for the last two methods are (log) joint probabilities that we want use to compute conditional probabilities by dividing by a marginal probability.
+
+== Goodies ==
+The class [http://www.jstacs.de/api-2.0//de/jstacs/utils/SafeOutputStream.html SafeOutputStream] is a simple way to switch between writing outputs of a program to standard out, to a file, or to completely suppress output. This class is basically a wrapper for other output streams that can handle <code>null</code> values. You can create a [http://www.jstacs.de/api-2.0//de/jstacs/utils/SafeOutputStream.html SafeOutputStream] writing to standard out with
+
+<source lang="java5" enclose="div">
+OutputStream stream = SafeOutputStream.getSafeOutputStream( System.out );
+</source>
+
+If you provided <code>null</code> to the factory method instead, output would be suppressed, while no modifications in code using this [http://www.jstacs.de/api-2.0//de/jstacs/utils/SafeOutputStream.html SafeOutputStream] †would be necessary.
+
+Finally, the class [http://www.jstacs.de/api-2.0//de/jstacs/utils/SubclassFinder.html SubclassFinder] can be used to search for all subclasses of a given class in a specified package and its sub-packages. For example, if we want to find all concrete sub-classes of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel], i.e., classes that are not abstract and can be instantiated, in all sub-packages of <code>de.jstacs</code>, we call
+
+<source lang="java5" enclose="div">
+LinkedList<Class<? extends TrainableStatisticalModel>> list = SubclassFinder.findInstantiableSubclasses( TrainableStatisticalModel.class, "de.jstacs" );
+</source>
+
+and obtain a linked list containing all such classes. Other methods in [http://www.jstacs.de/api-2.0//de/jstacs/utils/SubclassFinder.html SubclassFinder] allow for searching for general sub-types including interfaces and abstract classes, or for filtering the results by further required interfaces.

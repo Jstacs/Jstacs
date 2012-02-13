@@ -1,0 +1,363 @@
+<span id="data"> </span>
+
+In Jstacs, data is organized at three levels:
+
+* [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/Alphabet.html Alphabet] s for defining single symbols, and [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] s for defining aggregate alphabets,
+* [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s for defining sequences of symbols over a given alphabet,
+* [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] s for defining sets of sequences.
+
+Sequences are implemented as numerical values. In case of discrete sequences over some symbolic alphabet,
+the symbols are mapped to contiguous discrete values starting at <math>0</math>, which can be mapped back to the original symbols
+using the alphabet. This mapping is also used for the <code>toString()</code> method, e.g., for printing a sequence. The actual 
+data type, i.e. byte, short, or integer, used to represented the symbols is chosen internally depending on the size of 
+the alphabet. [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/Alphabet.html Alphabet] s, [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s, and [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] s are immutable for reasons of security and data consistency. That means, an instance of those
+classes cannot be modified once it has been created.
+
+__TOC__
+
+== Alphabets ==
+
+Since Jstacs is tailored at sequence analysis in bioinformatics, the most prominent alphabet is the [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet], which is a singleton instance that can be accessed by:
+
+<source lang="java5" enclose="div">
+DNAAlphabet dna = DNAAlphabet.SINGLETON;
+</source>
+
+For general discrete alphabets, i.e., any kind of categorical data, you can use a [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DiscreteAlphabet.html DiscreteAlphabet]. Such an alphabet can be constructed in case-sensitive and insensitive variants (first argument) using a list of symbols.
+In this example, we create a case-sensitive alphabet with symbols "W", "S", "w", and "x":
+
+<source lang="java5" enclose="div">
+DiscreteAlphabet discrete = new DiscreteAlphabet( false, "W", "S", "w", "x" );
+</source>
+
+If you rather want to define an alphabet over contiguous discrete numerical values, you can do so by calling a constructor that takes
+the minimum and maximum value of the desired range, and defines the alphabet as all integer values between minimum and
+maximum (inclusive). For example, to create a discrete alphabet over the values from <math>3</math> to <math>10</math>, you can call
+
+<source lang="java5" enclose="div">
+DiscreteAlphabet numerical = new DiscreteAlphabet( 3, 10 );
+</source>
+
+Continuous alphabets are defined over all reals (minus infinity to infinity) by default (see first line in the following example).
+However, if you want to define the continuous alphabet over a specific interval, you can specify the maximum and the minimum value of that interval. In the example, we define a continuous alphabet spanning all reals between <math>0</math> and <math>100</math>:
+
+<source lang="java5" enclose="div">
+ContinuousAlphabet continuousInf = new ContinuousAlphabet();
+ContinuousAlphabet continuousPos = new ContinuousAlphabet( 0.0, 100.0 );
+</source>
+
+
+For the DNA alphabet, each symbols has a complementary counterpart. Since in some cases, a similar complementarity
+can also be defined for symbols other than DNA-nucleotides (e.g., for RNA sequences containing U instead of T), Jstacs
+allows to define generic complementable alphabets. These allow for example the generation of reverse complementary sequences
+out of an existing sequence. Here, we define a binary alphabet of symbols &quot;A&quot; and &quot;B&quot;, where &quot;A&quot; is the complement of &quot;B&quot; and vice versa.
+
+<source lang="java5" enclose="div">
+GenericComplementableDiscreteAlphabet complementable = new GenericComplementableDiscreteAlphabet( true, new String[]{"A","B"}, new int[]{1,0} );
+</source>
+
+The first parameter again defines if this alphabet is case-insensitive (which is the case), the second parameter defines the symbols of the alphabet, and the third parameter specifies the index of the complementary symbol. For instance, the symbol at position <math>1</math> (&quot;B&quot;) is set as the complement of the symbol at position 0 (&quot;A&quot;) by setting the <math>0</math>-th value of the integer array to <math>1</math>.
+
+After the definition of single alphabets, we switch to the creation of aggregate alphabets. Almost everywhere in Jstacs, we use aggregate alphabets
+to maintain generalizability. Since the aggregate alphabet containing only a [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet] is always the same, a singleton for such an [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] is pre-defined:
+
+<source lang="java5" enclose="div">
+AlphabetContainer dnaContainer = DNAAlphabetContainer.SINGLETON;
+</source>
+
+We can explicitly define an [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] using a simple continuous alphabet by calling:
+
+<source lang="java5" enclose="div">
+AlphabetContainer contContainer = new AlphabetContainer( continuousInf );
+</source>
+
+
+Aggregate alphabets become interesting if we need different symbols at different positions of a sequence, or even a mixture of discrete and continuous values.
+For example, we might want to represent sequences that consist of a DNA-nucleotide at the first position, some other discrete symbol at the second position, and  a real number stemming from some measurement at the third position. Using the [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet], the discrete [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/Alphabet.html Alphabet], and the continuous [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/Alphabet.html Alphabet] defined
+above, we can define such an aggregate alphabet by calling
+
+<source lang="java5" enclose="div">
+AlphabetContainer mixedContainer = new AlphabetContainer(dna, discrete, continuousPos);
+</source>
+
+To save memory, we can also re-use the same alphabet at different position of the aggregate alphabet. If we want to use a [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet] at positions <math>0</math>, <math>1</math>, and <math>3</math>, and a continuous alphabet at positions <math>2</math>, <math>4</math>, and <math>5</math>, we can use a constructor that takes the alphabets as the first argument and the assignment to the positions as the second argument:
+
+<source lang="java5" enclose="div">
+AlphabetContainer complex = new AlphabetContainer( new Alphabet[]{dna,continuousInf}, new int[]{0,0,1,0,1,1} );		
+</source>
+
+The alphabets are assigned to specific positions by their index in the array of the first argument.
+
+== Sequences ==
+
+Single sequences can be created from an [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] and a string. However, in most cases, we load the data from some file, which will be explained
+in the next sub-section.
+For creating a DNA sequence, we use a [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet] like the one defined above and a string over the DNA alphabet:
+
+<source lang="java5" enclose="div">
+Sequence dnaSeq = Sequence.create( dnaContainer, "ACGTACGTACGT" );
+</source>
+
+In a similar manner, we define a continuous sequence. In this case, a single value is represented by more than one letter in the string. Hence, 
+we need to define a delimiter between the values as a third argument, which is a space in the example.
+
+<source lang="java5" enclose="div">
+Sequence contSeq = Sequence.create( contContainer, "0.5 1.32642 99.5 20.4 5 7.7" , " " );
+</source>
+
+We can also create sequences over the mixed alphabet defined above. In the example, the single values are delimited by a &quot;;&quot;.
+
+<source lang="java5" enclose="div">
+Sequence mixedSeq = Sequence.create( mixedContainer, "C;x;5.67" , ";" );
+</source>
+
+For very large amounts of data or very long sequences, even the representation of symbols by byte values can be too memory-consuming. Hence, 
+Jstacs also offers a representation of DNA sequences in a sparse encoding as bits of long values. You can create such a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/SparseSequence.html SparseSequence] from a [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet] 
+and a string:
+
+<source lang="java5" enclose="div">
+Sequence sparse = new SparseSequence( dnaContainer, "ACGTACGTACGT" );
+</source>
+
+However, the reduced memory footprint comes at the expense of a slightly increased runtime for accessing symbols of a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/SparseSequence.html SparseSequence]. Hence, it is not the default representation in Jstacs.
+
+After we learned how to create sequences, we now want to work with them. First of all, you can obtain the length of a sequence
+from its <code>getLength()</code> method:
+
+<source lang="java5" enclose="div">
+int length = dnaSeq.getLength();
+</source>
+
+Since on the abstract level of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] we do not distinguish between discrete and continuous sequences (and we also may have mixed sequences), there are
+two alternative methods to obtain one element of a sequence regardless of its content. With the first method, we can obtain the discrete value at a certain position (2 in the example):
+
+<source lang="java5" enclose="div">
+int value = dnaSeq.discreteVal( 2 );
+</source>
+
+If the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] contains a continuous value at this position, it is discretized by default by returning the distance to the minimum value of the continuous alphabet
+at this position casted to an integer. If the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] contains a discrete value, that value is just returned in the encoding according to the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer].
+In a similar manner, we can obtain the continuous value at a position (5 in the example)
+
+<source lang="java5" enclose="div">
+double value2 = contSeq.continuousVal( 5 );
+</source>
+
+where discrete values are just casted to <code>double</code>s.
+
+We can obtain a sub-sequence of a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] using the method <code>getSubSequence(int,int)</code>, where the first parameter is the start position within the sequence, counting from <math>0</math>, and the second
+parameter is the length of the extracted sub-sequence. So the following line of code would extract a sub-sequence of length <math>3</math> starting at position <math>2</math> of the original sequence or, stated differently,
+we skip the first two elements, extract the following three elements, and again skip everything after position <math>4</math>.
+
+<source lang="java5" enclose="div">
+Sequence contSub = contSeq.getSubSequence( 2, 3 );
+</source>
+
+Since [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s in Jstacs are immutable, this method returns a new instance of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence], which is assigned to a variable <code>contSub</code> in the example. Hence, in cases where you need
+the same sub-sequences frequently in your code, for example in a ZOOPS-model or other models using sliding windows on a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence], we recommend to precompute these sub-sequences and store them in some auxiliary data structure in order to invest runtime in computations rather than garbage collection. Internally, sub-sequences only hold a reference on the original sequences and the start position and length within that sequence to keep the memory overhead of sub-sequences at a low level.
+
+For [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s defined over a [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/ComplementableDiscreteAlphabet.html ComplementableDiscreteAlphabet] like the [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/DNAAlphabet.html DNAAlphabet], we can also obtain the (reverse) complement of a sequence. For example, to create
+the reverse complementary sequence of a complete sequence, we call
+
+<source lang="java5" enclose="div">
+Sequence revComp = dnaSeq.reverseComplement();
+</source>
+
+For the complement of a sub-sequence of length <math>6</math> starting at position <math>3</math> of the original sequence, we use
+
+<source lang="java5" enclose="div">
+Sequence subComp = dnaSeq.complement( 3, 6 );
+</source>
+
+
+For some analyses, for instance permutation tests or for estimating false-positive rates of predictions, it is useful to create permuted variants of an original sequence.
+To this end, Jstacs provides a class [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/PermutedSequence.html PermutedSequence] that creates a randomly permuted variant using the constructor
+
+<source lang="java5" enclose="div">
+PermutedSequence permuted = new PermutedSequence( dnaSeq );
+</source>
+
+or a user-defined permutation by an alternative constructor. In the randomized variant, the positions of the original sequence are permuted independently of each other, which means that higher order properties of the sequence like di-nucleotide content are not preserved. If you want to create sequences with similar higher-order properties, have a look at the <code>emitSample()</code> method of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/discrete/homogeneous/HomogeneousModel.html HomogeneousModel].
+
+Often, we want to add additional annotations to a sequence, for instance the occurrences of some binding motif, start and end positions of introns, or just the species a sequence is stemming from. To this end, Jstacs provides a number of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SequenceAnnotation.html SequenceAnnotation] s that can be added to a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] (or read from a FastA-file as we will see later).
+For instance, we can add the annotation for binding site of a motif called &quot;new motif&quot; of length <math>5</math> starting at position <math>3</math> of the forward strand of sequence <code>dnaSeq</code> using the <code>annotate</code> method of that sequence:
+
+<source lang="java5" enclose="div">
+Sequence annotatedDnaSeq = dnaSeq.annotate( true, new MotifAnnotation( "new motif", 3, 5, Strand.FORWARD ) );
+</source>
+
+Again, this method creates a new [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] object due to [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s being immutable.
+After we added several [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SequenceAnnotation.html SequenceAnnotation] s to a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence], we can obtain all those annotations by calling
+
+<source lang="java5" enclose="div">
+SequenceAnnotation[] allAnnotations = annotatedDnaSeq.getAnnotation();
+</source>
+
+For retrieving annotations of a specific type, we can use the method <code>getSequenceAnnotationByType</code>
+
+<source lang="java5" enclose="div">
+MotifAnnotation motif = (MotifAnnotation) annotatedDnaSeq.getSequenceAnnotationByType( "Motif", 0 );
+</source>
+
+to, for instance, obtain the first (index <math>0</math>) annotation of type &quot;Motif&quot;.
+
+== DataSets ==
+In most cases, we want to load [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s from some FastA or plain text file instead of creating [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s manually from strings. In Jstacs, collections of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s are represented by
+[http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] s. The class [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] (and [http://www.jstacs.de/api-2.0//de/jstacs/data/DNADataSet.html DNADataSet]) provide constructors that work on a file or the path to a file, and parse the contents of the file to a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet], i.e. a collection of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s.
+
+The most simple case is to create a [http://www.jstacs.de/api-2.0//de/jstacs/data/DNADataSet.html DNADataSet] from a FastA file. To do so, we call the constructor of [http://www.jstacs.de/api-2.0//de/jstacs/data/DNADataSet.html DNADataSet] with the (absolute or relative) path to the FastA file:
+
+<source lang="java5" enclose="div">
+DNADataSet dnaDataSet = new DNADataSet( "myfile.fa" );
+</source>
+
+For other file formats and types of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s, [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] provides another constructor that works on the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] for the data in the file, a [http://www.jstacs.de/api-2.0//de/jstacs/io/StringExtractor.html StringExtractor] that handles the extraction of
+the strings representing single sequences and skipping comment lines, and a delimiter between the elements of a sequence. Hence, the [http://www.jstacs.de/api-2.0//de/jstacs/io/StringExtractor.html StringExtractor], a [http://www.jstacs.de/api-2.0//de/jstacs/io/SparseStringExtractor.html SparseStringExtractor] in the example, requires the specification of the path to the file and the symbol that indicates comment line. For example, if we want to create a sample of continuous sequences stored in a tab-separated plain text file &quot;myfile.tab&quot;, we use the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] with a continuous [http://www.jstacs.de/api-2.0//de/jstacs/data/alphabets/Alphabet.html Alphabet] from above, a [http://www.jstacs.de/api-2.0//de/jstacs/io/StringExtractor.html StringExtractor] with a hash as the comment symbol, and a tab as the delimiter:
+
+<source lang="java5" enclose="div">
+DataSet contDataSet = new DataSet( contContainer, new SparseStringExtractor( "myfile.tab", '#' ), "\t" );
+</source>
+
+The [http://www.jstacs.de/api-2.0//de/jstacs/io/SparseStringExtractor.html SparseStringExtractor] is tailored to files containing many sequences, and reads the file line by line, where each line is converted to a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] and discarded before the next line is parsed.
+
+Since [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/SparseSequence.html SparseSequence] s are not one of the default representations of sequence in Jstacs (see above), these are not created by the constructors of [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] or [http://www.jstacs.de/api-2.0//de/jstacs/data/DNADataSet.html DNADataSet]. However, the class [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/SparseSequence.html SparseSequence] provides a method <code>getSample</code> that takes the same arguments as the constructor of [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet], for example
+
+<source lang="java5" enclose="div">
+DataSet sparseDataSet = SparseSequence.getDataSet( dnaContainer, new SparseStringExtractor( "myfile.fa", '>' ) );
+</source>
+
+for reading DNA sequences from a FastA file, and returns a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] containing [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/SparseSequence.html SparseSequence] s.
+
+After we successfully created a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet], we want to access and use the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s within this [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet]. We retrieve a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] of a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] using the method <code>getElementAt(int)</code>. For instance,
+we get the fifth [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] of <code>dnaSample</code> by calling
+
+<source lang="java5" enclose="div">
+Sequence fifth = dnaDataSet.getElementAt( 5 );
+</source>
+
+We can also request the number of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s in a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] by the method <code>getNumberOfElements()</code> and use this information, for instance, to
+iterate over all [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s. In the example, we just print the retrieved [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s to standard out
+
+<source lang="java5" enclose="div">
+for(int i=0;i<dnaDataSet.getNumberOfElements();i++){
+	System.out.println(dnaDataSet.getElementAt( i ));
+}
+</source>
+
+where the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s are printed in their original alphabet since their <code>toString()</code> method is overridden accordingly.
+
+As an alternative to the iteration by explicit calls to these methods, [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] also implements the <code>Iterable</code> interface, which facilitates the Java variant
+of foreach-loops as in the following example:
+
+<source lang="java5" enclose="div">
+for(Sequence seq : contDataSet){
+	System.out.println(seq.getLength());
+}
+</source>
+
+Here, we just print the length of each [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] in <code>contSample</code> to standard out.
+
+We can also apply some of the sequence-level operations to all [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s of a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet], and obtain a new [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] containing the modified sequences. For example, we get a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] containing 
+the sub-sequences of length <math>10</math> starting at position <math>3</math> of each sequence by calling
+
+<source lang="java5" enclose="div">
+DataSet infix = dnaDataSet.getInfixDataSet( 3, 10 );
+</source>
+
+a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] of all suffixes starting at position <math>7</math> from
+
+<source lang="java5" enclose="div">
+DataSet suffix = dnaDataSet.getSuffixDataSet( 7 );
+</source>
+
+or a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] containing all reverse complementary [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s using
+
+<source lang="java5" enclose="div">
+DataSet allRevComplements = dnaDataSet.getReverseComplementaryDataSet();
+</source>
+
+
+For cross-validation experiments, hold-out samplings, or similar procedures (cf. [http://www.jstacs.de/api-2.0/ de/jstacs/classifier/assessment/package-summary.html package assessment]), it is useful to partition a sample randomly. [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] s in Jstacs support two types of partitionings.
+The first is to partition a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] into <math>k</math> almost equally sized parts. What is &quot;equally sized&quot; can either be determined by the number of sequences or by the number of symbols of all sequences in a sample. Both measures are supported by Jstacs. 
+
+The second partitioning method creates partitions of a user-defined fraction of the original sample. For example, we partition the [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] <code>dnaSample</code> into five equally sized parts according to the number of sequences in that [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] by calling
+
+<source lang="java5" enclose="div">
+DataSet[] fiveParts = dnaDataSet.partition( 5, PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS );
+</source>
+
+and we partition the same sample into parts containing <math>10</math>, <math>20</math>, and <math>70</math> percent of the symbols of the original [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] by calling
+
+<source lang="java5" enclose="div">
+DataSet[] randParts = dnaDataSet.partition( PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, 0.1, 0.2, 0.7 );
+</source>
+
+In both cases, the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s in the [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] are partitioned as atomic elements. That means, a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] is not cut into several parts to obtain exactly equally sized parts, but the size of a part may slightly (depending on the number of sequences and lengths of those sequences) differ from the specified percentages.
+
+To create a new [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] that contains all sub-sequences of a user-defined length of the original [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] s, we can use another constructor of [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet]. The sub-sequences are extracted in the same manner as we would do by shifting a sliding window over each sequence, extracting the sub-sequence under this window, and build a new [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] of the extracted sub-sequences.
+For instance, we obtain a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] with all sub-sequences of length <math>8</math> using
+
+<source lang="java5" enclose="div">
+DataSet sliding = new DataSet( dnaDataSet, 8 );
+</source>
+
+
+In the previous sub-section, we learned how to add [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SequenceAnnotation.html SequenceAnnotation] s to a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence]. Often, we want to use the annotation that is already present in an input file, for example
+the comment line of a FastA file. We can do so by specifying a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SequenceAnnotationParser.html SequenceAnnotationParser] in the constructor of the [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet]. The simplest type of [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SequenceAnnotationParser.html SequenceAnnotationParser] †is the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SimpleSequenceAnnotationParser.html SimpleSequenceAnnotationParser], which just extracts the complete comment line preceding a sequence.
+
+<source lang="java5" enclose="div">
+DNADataSet dnaWithComments = new DNADataSet( "myfile.fa", '>', new SimpleSequenceAnnotationParser() );
+</source>
+
+Although the specification of the parser is quite simple, the extraction of the comment line as a string is a bit lengthy. We first obtain the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/Sequence.html Sequence] from the [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet], get the annotation of that sequence, obtain the first comment, called &quot;result&quot; in the hierarchy of Jstacs (you see in [[Intermediate course: XMLParser, Parameters, and Results]], why), and convert the corresponding result object to a string.
+
+<source lang="java5" enclose="div">
+String comment = dnaWithComments.getElementAt( 0 ).getAnnotation()[0].getResultAt( 0 ).getValue().toString();
+</source>
+
+
+If your comment line is defined in a &quot;key-value&quot; format with some generic delimiter between entries, you can Jstacs let parse the entries to distinct annotations. For instance, if the comment line has some format <code>key1=value1; key2=value2;...</code>, we can parse that comment line using the [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SplitSequenceAnnotationParser.html SplitSequenceAnnotationParser]. This parser only requires the specification of the delimiter between key and value (&quot;=&quot; in the example) and the delimiter between different entries (&quot;;&quot; in the example). Like before, we instantiate a [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SplitSequenceAnnotationParser.html SplitSequenceAnnotationParser] as the last argument of the [http://www.jstacs.de/api-2.0//de/jstacs/data/DNADataSet.html DNADataSet] constructor:
+
+<source lang="java5" enclose="div">
+DNADataSet dnaWithParsedComments = new DNADataSet( "myfile.fa", '>', new SplitSequenceAnnotationParser("=",";") );
+</source>
+
+We can now access all parsed annotations by the <code>getAnnotation()</code> method
+
+<source lang="java5" enclose="div">
+SequenceAnnotation[] allAnnotations2 = dnaWithParsedComments.getElementAt( 0 ).getAnnotation();
+</source>
+
+or, for instance, the <code>getSequenceAnnotationByType</code> introduced in the previous section, where the type corresponds to the key in the comment line, and the identifier of the retrieved [http://www.jstacs.de/api-2.0//de/jstacs/data/sequences/annotation/SequenceAnnotation.html SequenceAnnotation] is identical to the value for that key in the comment line.
+
+Jstacs only supports FastA and plain text files directly. However, you can access other formats or even databases like Genbank using an adaptor to BioJava.
+
+For example, we can use BioJava to load two sequences from Genbank.
+
+<source lang="java5" enclose="div">
+GenbankRichSequenceDB db = new GenbankRichSequenceDB();
+
+SequenceIterator dbIterator = new SimpleSequenceIterator( 
+		db.getRichSequence( "NC_001284" ), 
+		db.getRichSequence( "NC_000932" ) 
+);
+
+</source>
+
+As a result, we obtain a <code>RichSequenceIterator</code>, which implements the <code>SequenceIterator</code> interface of BioJava. We can use a
+<code>SequenceIterator</code> in an adaptor method to obtain a Jstacs [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] including converted annotations:
+
+<source lang="java5" enclose="div">
+DataSet fromBioJava = BioJavaAdapter.sequenceIteratorToDataSet( dbIterator, null );
+</source>
+
+The second argument of the method allows for filtering for specific annotations using a BioJava <code>FeatureFilter</code>.
+
+Vice versa, we can convert a Jstacs [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] to a BioJava <code>SequenceIterator</code> by an analogous adaptor method:
+
+<source lang="java5" enclose="div">
+SequenceIterator backFromJstacs = BioJavaAdapter.dataSetToSequenceIterator( fromBioJava, true );
+</source>
+
+
+By means of these two methods, we can use all BioJava facilities for loading and storing data from and to diverse file formats and loading data from data bases in our Jstacs applications.
