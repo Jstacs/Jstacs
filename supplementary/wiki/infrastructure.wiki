@@ -1,0 +1,206 @@
+<span id="sec:xmlparres"> </span>
+
+In the early days of Jstacs, we stored models, classifiers, and other Jstacs objects using the standard serialization of Java. However, this mechanism made it impossible to load objects of earlier versions of a class and the files where not human-readable. Hence, we started to create a facility for storing objects to XML representations. In the current version of Jstacs, this is accomplished by an interface [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] for objects that can be converted to and from their XML representation, and a class [http://www.jstacs.de/api-2.0//de/jstacs/io/XMLParser.html XMLParser] that can handle such [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] s, [http://www.jstacs.de/api-2.0//de/jstacs//Singleton.html Singleton] s, Strings, Classes, primitives, and arrays thereof. In the first sub-section, we give examples how to use the [http://www.jstacs.de/api-2.0//de/jstacs/io/XMLParser.html XMLParser].
+
+Another problem we wanted to handle has been the documentation of (external) parameters of models, classifiers, or other classes. Although documentation exists in the Javadocs, these are inaccessible from the code. Hence, we created classes for the documentation of parameters and sets of parameters, namely the subclasses of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] and [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet]. A [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] at least provides the name of and a comment on the parameter that is described. In sub-classes, other values are also available like, for instance, the set or a range of allowed values. Such a description of parameters allows for manifold generic convenience applications. Current examples are the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSetTagger.html ParameterSetTagger], which facilitates the documentation of command line arguments on basis of a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet], or the [http://www.jstacs.de/api-2.0//de/jstacs/utils/galaxy/GalaxyAdaptor.html GalaxyAdaptor], which allows for an easy integration of Jstacs applications into the Galaxy webserver. We give examples for the use and creation of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] s and [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s in the second sub-section.
+
+Finally, the same problem also occurrs for the results of computations. With a generic documentation, these results can be displayed together with some annotation in a way that is appropriate for the current application. In Jstacs, we use [http://www.jstacs.de/api-2.0//de/jstacs/results/Result.html Result] s and [http://www.jstacs.de/api-2.0//de/jstacs/results/ResultSet.html ResultSet] s for this purpose, and we show how to use these in the third sub-section.
+
+__TOC__
+
+== XMLParser ==
+<span id="sec:xmlparser"> </span>
+In the following examples, let <code>buffer</code> be some <code>StringBuffer</code>. 
+All kinds of primitives or [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] s are appended to an existing <code>StringBuffer</code> surrounded by the specified XML tags by the static method <code>appendObjectWithTags</code> of [http://www.jstacs.de/api-2.0//de/jstacs/io/XMLParser.html XMLParser]. For example, the following two lines append an integer with the value <math>5</math> using the tag <code>integer</code>, and a <code>String</code> with the tag <code>foo</code>:
+
+<source lang="java5" enclose="div">
+int integer = 5;
+XMLParser.appendObjectWithTags( buffer, integer, "integer" );
+String bar = "hello world";
+XMLParser.appendObjectWithTags( buffer, bar, "foo" );
+</source>
+
+If we assume that <code>buffer</code> was an empty <code>StringBuffer</code> before appending these two elements, the resulting XML text will be
+<source lang="XML" enclose="div">
+<integer><className>java.lang.Integer</className>5</integer>
+<foo><className>java.lang.String</className>hello world</foo>
+</source>
+In exactly the same manner, we can append XML representations of arrays of primitives, for example a two-dimensional array of <code>double</code> s
+
+<source lang="java5" enclose="div">
+double[][] da = new double[4][6];
+XMLParser.appendObjectWithTags( buffer, da, "da" );
+</source>
+
+or complete Jstacs models that implement the [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] interface
+
+<source lang="java5" enclose="div">
+HomogeneousMM hMM = new HomogeneousMM( new HomMMParameterSet( DNAAlphabetContainer.SINGLETON, 4, "hmm(0)", (byte) 0 ) );
+XMLParser.appendObjectWithTags( buffer, hMM, "hMM" );
+</source>
+
+or even arrays of [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] s:
+
+<source lang="java5" enclose="div">
+Storable[] storAr = ArrayHandler.createArrayOf( hMM, 5 );
+XMLParser.appendObjectWithTags( buffer, storAr, "storAr" );
+</source>
+
+The interface [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] only defines two things: first, an implementing class must provide a public method <code>toXML()</code> that returns the XML representation of this class as a <code>StringBuffer</code>, and second, it must provide a constructor that takes a single <code>StringBuffer</code> as its argument and re-creates an object out of this representation. The only exception from this rule are singletons, i.e., classes that implement the [http://www.jstacs.de/api-2.0//de/jstacs//Singleton.html Singleton] interface.
+
+Of course, you can use the <code>appendObjectWithTags</code> method of the [http://www.jstacs.de/api-2.0//de/jstacs/io/XMLParser.html XMLParser] inside the <code>toXML</code> method. By this means, it is possible to break down the conversion of complex models into smaller pieces if the building-blocks of a model are also [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] s.
+
+In analogy to storing objects, the [http://www.jstacs.de/api-2.0//de/jstacs/io/XMLParser.html XMLParser] also provides facilities for loading primitives and [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] s from their XML representation. These can also be used in the constructor according to the [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] interface. For example, we can load the value of the integer, we stored a few lines ago by calling
+
+<source lang="java5" enclose="div">
+integer = (Integer) XMLParser.extractObjectForTags( buffer, "integer" );
+</source>
+
+where the second argument of <code>extractObjectForTags</code> is the tag surrounding the value and, of course, must be identical to the tag we specified when storing the value. Since <code>extractObjectForTags</code> is a generic method, we must explicitly cast the returned value to an <code>Integer</code>. As an alternative, we can also specify the class of the return type as a third argument like in the following example
+
+<source lang="java5" enclose="div">
+da = XMLParser.extractObjectForTags( buffer, "da", double[][].class );
+</source>
+
+Here, we load the two-dimensional array of <code>double</code>s that we stored a few lines ago.
+In perfect analogy, we can also load a single instance of a class implementing [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable]
+
+<source lang="java5" enclose="div">
+hMM = XMLParser.extractObjectForTags( buffer, "hMM", HomogeneousMM.class );
+</source>
+
+where in this case we again specify the class of the return type in the third argument, or arrays of [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable]
+
+<source lang="java5" enclose="div">
+storAr = (Storable[]) XMLParser.extractObjectForTags( buffer, "storAr" );
+</source>
+
+
+Of course, we can also specify the concrete sub-class of [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] for an array, if all instances are of the same class like in the following example:
+
+<source lang="java5" enclose="div">
+HomogeneousMM[] hmAr = ArrayHandler.createArrayOf( hMM, 5 );
+XMLParser.appendObjectWithTags( buffer, hmAr, "hmAr" );
+hmAr = (HomogeneousMM[]) XMLParser.extractObjectForTags( buffer, "hmAr" );
+</source>
+
+
+== Parameters & ParameterSets ==
+
+Parameters in Jstacs are represented by different sub-classes of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter], which define different types of parameters. Parameters that take primitives or strings as values are defined by the class [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SimpleParameter.html SimpleParameter], parameters that accept values from some <code>enum</code> type are defined by [http://www.jstacs.de/api-2.0//de/jstacs/parameters/EnumParameter.html EnumParameter], parameters where the user can select from a number of predefined values are defined by [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SelectionParameter.html SelectionParameter], parameters that represent a file argument are defined by [http://www.jstacs.de/api-2.0//de/jstacs/parameters/FileParameter.html FileParameter], and parameters that represent a range of values are represented by [http://www.jstacs.de/api-2.0//de/jstacs/parameters/RangeParameter.html RangeParameter].
+In the following, we give some examples for the creation of parameter objects. Let us assume, we want to define a parameter for the length of the sequences accepted by some model. The maximum sequence length this model can handle is <math>100</math> and, of course, lengths cannot be negative. We create such a parameter object by the following lines of code:
+
+<source lang="java5" enclose="div">
+SimpleParameter simplePar = new SimpleParameter( DataType.INT, "Sequence length", "The required length of a sequence", true, new NumberValidator<Integer>( 1, 100 ), 10 );
+</source>
+
+The first argument of the constructor defines the data type of the accepted values, which is an <code>int</code> in the example. The next two arguments are the name of and the comment for the parameter. The following boolean specifies if this parameter is required (<code>true</code>) or optional (<code>false</code>). The [http://www.jstacs.de/api-2.0//de/jstacs/parameters/validation/NumberValidator.html NumberValidator] in the fifth argument allows for specifying the range of allowed values, which is <math>0</math> to <math>100</math> (inclusive) in the example. Finally, we define a default value for this parameter, which is <math>10</math> in the example.
+Similarly, we can define a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SimpleParameter.html SimpleParameter] †for some optional parameter that takes strings as values by the following line:
+
+<source lang="java5" enclose="div">
+SimpleParameter simplePar2 = new SimpleParameter( DataType.STRING, "Name", "The name of the game", false );
+</source>
+
+Again, the second and third arguments are the name and the comment, respectively.
+
+We can define an [http://www.jstacs.de/api-2.0//de/jstacs/parameters/EnumParameter.html EnumParameter], which accept values from some <code>enum</code> type as follows
+
+<source lang="java5" enclose="div">
+EnumParameter enumpar = new EnumParameter( DataType.class, "Data types", true );
+</source>
+
+where the first argument defines the class of the <code>enum</code> type, the second is the name of that collection of values, and the third argument again specifies if this parameter is required.
+
+A [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SelectionParameter.html SelectionParameter] accepts values from a pre-defined collection of values. For instance, if we want the user to select from two double values <math>5.0</math> and <math>5E6</math>, which are named &quot;small&quot; and &quot;large&quot;, we can do so as follows:
+
+<source lang="java5" enclose="div">
+SelectionParameter collPar = new SelectionParameter( DataType.DOUBLE, new String[]{"small", "large"}, new Double[]{5.0,5E6}, "Numbers", "A selection of numbers", true );
+</source>
+
+
+For the special case, where the user shall select the concrete implementation of an abstract class of interface, Jstacs provides a static convenience method <code>getSelectionParameter</code> in the class [http://www.jstacs.de/api-2.0//de/jstacs/utils/SubclassFinder.html SubclassFinder]. This method requires the specification of the super-class of the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] that can be used to instantiate the implementations, the root package in which sub-classes or implementations shall be found, and, again, a name, a comment, and if this parameter is required.
+For example, we can find all classes that can be instantiated by a sub-class of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SequenceScoringParameterSet.html SequenceScoringParameterSet] the package <code>de</code> and its sub-packages by calling
+
+<source lang="java5" enclose="div">
+collPar = SubclassFinder.getSelectionParameter( SequenceScoringParameterSet.class, "de", "Sequence scores", "All Sequence scores in Jstacs that can be created from parameter sets", true );
+</source>
+
+The method returns a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SelectionParameter.html SelectionParameter] from which a user can select the appropriate implementation.
+Classes that can be found in this manner must implement an additional interface called [http://www.jstacs.de/api-2.0//de/jstacs//InstantiableFromParameterSet.html InstantiableFromParameterSet]. The main purpose of this interface is that implementing classes must provide a constructor that takes a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/InstanceParameterSet.html InstanceParameterSet] as its only argument in analogy to the constructor of [http://www.jstacs.de/api-2.0//de/jstacs//Storable.html Storable] working on a <code>StringBuffer</code>. [http://www.jstacs.de/api-2.0//de/jstacs/parameters/InstanceParameterSet.html InstanceParameterSet] s will be explained a few lines below.
+
+As the name suggests, [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s represent sets of such parameters. The most simple implementation of a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] is the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SimpleParameterSet.html SimpleParameterSet], which can be created just from a number of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] s like in the following example:
+
+<source lang="java5" enclose="div">
+SimpleParameterSet parSet = new SimpleParameterSet( simplePar,collPar );
+</source>
+
+Other [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s are the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ExpandableParameterSet.html ExpandableParameterSet] and [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ArrayParameterSet.html ArrayParameterSet], which can handle series of identical parameter types.
+
+One special case of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s is the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/InstanceParameterSet.html InstanceParameterSet], which has several sub-classes that can be used to instantiate new Jstacs objects like statistical models or classifiers. If a new model, say an implementation of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] interface, shall be found via the [http://www.jstacs.de/api-2.0//de/jstacs/utils/SubclassFinder.html SubclassFinder], or its parameters shall be set in a command line program using the [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSetTagger.html ParameterSetTagger] or in Galaxy, we need to create a new sub-class of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/InstanceParameterSet.html InstanceParameterSet] that represents all (external) parameters of this model. In this sub-class we must basically implement two methods: <code>getInstanceName</code> and <code>getInstanceComment</code> return the name of and a comment on the model class (i.e., in the example, the model we just implemented) that may be of help for a potential user. The constructor does the main work. By a call to the super-constructor, it initializes the list of parameters in this set and then adds the parameters of the model.
+
+
+For implementations of the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] interface we may also extend [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SequenceScoringParameterSet.html SequenceScoringParameterSet], which already handles the [http://www.jstacs.de/api-2.0//de/jstacs/data/AlphabetContainer.html AlphabetContainer] and length of this model.
+
+Not always do we have flat hierarchies of parameters. For instance, the choice of subsequent parameters may depend on the selection from some [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SelectionParameter.html SelectionParameter]. For this purpose, Jstacs provides a sub-class of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] that only serves as a container for a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] and is called [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSetContainer.html ParameterSetContainer]. Like other parameters, this container takes a name and a comment in its constructor, whereas the third argument is a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet]:
+
+<source lang="java5" enclose="div">
+ParameterSetContainer container = new ParameterSetContainer( "Set", "A set of parameters", parSet );
+</source>
+
+Since such a [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSetContainer.html ParameterSetContainer] can itself be part of another [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet], we can build hierarchies or trees of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] s and [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s. [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSetContainer.html ParameterSetContainer]s are also used internally to create [http://www.jstacs.de/api-2.0//de/jstacs/parameters/SelectionParameter.html SelectionParameter] s from an array of [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s, e.g., for <code>getSelectionParameter</code> in the [http://www.jstacs.de/api-2.0//de/jstacs/utils/SubclassFinder.html SubclassFinder].
+
+== Results & ResultSets ==
+
+In Jstacs, several types of [http://www.jstacs.de/api-2.0//de/jstacs/results/Result.html Result] s are implemented. The two basic [http://www.jstacs.de/api-2.0//de/jstacs/results/Result.html Result] types are [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResult.html NumericalResult] s and [http://www.jstacs.de/api-2.0//de/jstacs/results/CategoricalResult.html CategoricalResult] s. The first are results containing numerical values, which can be aggregated, for instance averaged, while the latter are results of categorical values like strings or booleans. 
+For example, we can create a [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResult.html NumericalResult] containing a single <code>double</code> value by the following line
+
+<source lang="java5" enclose="div">
+NumericalResult res = new NumericalResult( "A double result", "This result contains some double value", 5.0 );
+</source>
+
+where, in analogy to [http://www.jstacs.de/api-2.0//de/jstacs/parameters/Parameter.html Parameter] s, the first and the second argument are the name of and a comment on the result, respectively.
+
+Similarly, we create a [http://www.jstacs.de/api-2.0//de/jstacs/results/CategoricalResult.html CategoricalResult] by the following line
+
+<source lang="java5" enclose="div">
+CategoricalResult catRes = new CategoricalResult( "A boolean result", "This result contains some boolean", true );
+</source>
+
+for a result that is a single <code>boolean</code> value.
+
+As for [http://www.jstacs.de/api-2.0//de/jstacs/parameters/ParameterSet.html ParameterSet] s, we can create sets of results using the class [http://www.jstacs.de/api-2.0//de/jstacs/results/ResultSet.html ResultSet]
+
+<source lang="java5" enclose="div">
+ResultSet resSet = new ResultSet( new Result[]{res,catRes} );
+</source>
+
+where we may also combine [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResult.html NumericalResult] s and [http://www.jstacs.de/api-2.0//de/jstacs/results/CategoricalResult.html CategoricalResult] s into a single set. Besides simple [http://www.jstacs.de/api-2.0//de/jstacs/results/ResultSet.html ResultSet] s, Jstacs comprises
+[http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResultSet.html NumericalResultSet] s for combining only [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResult.html NumericalResult] s, which can be created in complete analogy to [http://www.jstacs.de/api-2.0//de/jstacs/results/ResultSet.html ResultSet] s.
+
+Jstacs also provides a special class for averaging [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResult.html NumericalResult]. 
+This class is called [http://www.jstacs.de/api-2.0//de/jstacs/results/MeanResultSet.html MeanResultSet], and computes the average and standard error of the corresponding values of a number of [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResultSet.html NumericalResultSet] s. The corresponding [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResult.html NumericalResult] s in the [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResultSet.html NumericalResultSet] are identified by their name as specified upon creation.
+
+We first create an empty [http://www.jstacs.de/api-2.0//de/jstacs/results/MeanResultSet.html MeanResultSet] by calling its default constructor
+
+<source lang="java5" enclose="div">
+MeanResultSet mrs = new MeanResultSet();
+</source>
+
+and subsequently add a number of [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResultSet.html NumericalResultSet] s to this [http://www.jstacs.de/api-2.0//de/jstacs/results/MeanResultSet.html MeanResultSet].
+
+<source lang="java5" enclose="div">
+Random r = new Random();
+for(int i=0;i<10;i++){
+	mrs.addResults( new NumericalResultSet( new NumericalResult( "Single", "A single result to be aggregated", r.nextDouble() ) ) );
+}
+</source>
+
+In the example, these are just 10 uniformly distributed random numbers.
+
+Finally, we call the method <code>getStatistics</code> of [http://www.jstacs.de/api-2.0//de/jstacs/results/MeanResultSet.html MeanResultSet] to obtain the mean and standard error of the previously added values.
+
+<source lang="java5" enclose="div">
+System.out.println( mrs.getStatistics() );
+</source>
+
+the result of this method is again returned as a [http://www.jstacs.de/api-2.0//de/jstacs/results/NumericalResultSet.html NumericalResultSet]. In the example, it is just printed to standard out.

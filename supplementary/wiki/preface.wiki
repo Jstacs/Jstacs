@@ -1,0 +1,46 @@
+''You can also download a [http://www.jstacs.de/downloads/Cookbook.pdf PDF version] of this cookbook.''
+
+A coarse view on the structure of Jstacs is presented in the Figure below.
+Being a library for statistical analysis and classification of sequence data, Jstacs is organized around the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier], the interface [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] and its two sub-interfaces [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel], and [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel].
+
+[[File:Classes.png|frame|center|Part of the class structure of Jstacs. Interfaces are depicted in red, abstract classes in blue, concrete classes in green, and enums in orange. Continuous transitions represent inheritance, whereas arrows represent usage.]]
+
+[http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] s represent statistical models in general, which can compute the log-likelihood of a given input sequence and define prior densities on their parameters. The abstract implementation [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/AbstractTrainSM.html AbstractTrainSM] of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] is the base class of many generatively learned models such as Bayesian networks, hidden Markov models, or mixture models, and can be learned from a single input data set. In constrast, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s provide all facilities for numerical optimization of parameters, which is especially necessary for discriminative parameter learning. The abstract base class of all [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] implementations is [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/AbstractDifferentiableStatisticalModel.html AbstractDifferentiableStatisticalModel]. Currently, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s include Bayesian networks, Markov models, a ZOOPS model, and mixture models.
+
+[http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier] defines the general properties of a classifier. Its sub-class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractScoreBasedClassifier.html AbstractScoreBasedClassifier] adds additional methods for the classification of sequences based on a sequence and class-specific score.
+Two concrete sub-classes of [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractScoreBasedClassifier.html AbstractScoreBasedClassifier] are the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html TrainSMBasedClassifier], which works on [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] s, and the [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html GenDisMixClassifier], which works on [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel].
+
+[http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier] s can be assessed either on dedicated training and test data sets or in [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/ClassifierAssessment.html ClassifierAssessment] s like [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/KFoldCrossValidation.html KFoldCrossValidation] or [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/assessment/RepeatedHoldOutExperiment.html RepeatedHoldOutExperiment]. The performance measures used in such an assessment are collected in [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/PerformanceMeasureParameterSet.html PerformanceMeasureParameterSet] s containing sub-classes of the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/performanceMeasures/AbstractPerformanceMeasure.html AbstractPerformanceMeasure].
+
+A more detailed view on all of these classes will be given in the remainder of this cookbook.
+
+== About this cookbook ==
+
+This document is not a cookbook in the sense of a collection of recipes. The intention of this cookbook is rather to learn how to cook with the ingredients and tools provided by Jstacs.
+
+Nonetheless, we present a collection of recipes in the last section, where you find the code of executable code examples that can also be downloaded [http://www.jstacs.de/downloads/recipes.zip as a zip file].
+
+We are aware that a library of this size seems daunting on first sight -- and on second sight as well. However, we hope that despite the inevitable complexity and size of such a library, this cookbook may help to get a picture of the structure, design principles, and capabilities of Jstacs.
+
+This cookbook is structured as follows: in the section [[Starter: Data handling]], we explain how data are represented in Jstacs, and how you can read data from files. 
+
+In section [[Intermediate course: XMLParser, Parameters, and Results]], we present some facilities, an XML parser and the representation of parameters and results, that are used frequently within Jstacs and are necessary for the following parts. 
+
+In section [[First main course: SequenceScores]], we present sequence scores, statistical models, and their sub-interfaces and sub-classes. We explain the methods defined in these interfaces and classes, and we show how you can create and use their existing implementations.
+
+In section [[Second main course: Classifiers]], we explain classifiers and assessment of classifiers using different performance measures.
+
+In section [[Intermediate course: Optimization]] we present the facilities for numerical optimization.
+
+In section [[Dessert: Alignments, Utils, and goodies]], we list utility classes and methods, that we think might be of help for your own implementations.
+
+Finally, in section [[Recipes]], we give a number of executable code examples that may serve as a starting point of your own classes and applications.
+
+== Contents ==
+* [[Starter: Data handling]]
+* [[Intermediate course: XMLParser, Parameters, and Results]]
+* [[First main course: SequenceScores]]
+* [[Second main course: Classifiers]]
+* [[Intermediate course: Optimization]]
+* [[Dessert: Alignments, Utils, and goodies]]
+* [[Recipes]]
