@@ -235,11 +235,11 @@ public class Dispom {
 	
 	private static DataSet getSample( AlphabetContainer con, String fileName, char ignore ) throws FileNotFoundException, WrongAlphabetException, EmptyDataSetException, WrongLengthException, IOException {
 		return new DataSet( con, 
-				new LimitedStringExtractor(
-					new InfixStringExtractor(//TODO
+				//new LimitedStringExtractor(
+					//new InfixStringExtractor(//TODO
 							new SparseStringExtractor( fileName, ignore ) 
-					, 900, 100)
-				, 100 )
+					//, 900, 100)
+				//, 100 )
 		);
 	}
 	
