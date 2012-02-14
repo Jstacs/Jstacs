@@ -315,9 +315,10 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 		String s, annot = null;
 		for( int i = 0; i < se.length; i++ ) { 
 			while( se[i].hasMoreElements() ) {
+				SequenceAnnotation[] anns = se[i].getCurrentSequenceAnnotations();
 				s = se[i].nextElement();
 				symEx.setStringToBeParsed( s );
-				list.add(  new ArbitraryFloatSequence( con, se[i].getCurrentSequenceAnnotations(), symEx ) );
+				list.add(  new ArbitraryFloatSequence( con, anns, symEx ) );
 			}
 			if( i == 0 ) {
 				annot = se[i].getAnnotation();
