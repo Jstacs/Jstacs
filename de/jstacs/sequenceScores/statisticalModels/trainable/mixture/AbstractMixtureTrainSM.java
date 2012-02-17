@@ -1898,7 +1898,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 		for( int i = 0; i < model.length; i++ ) {
 			if( optimizeModel[i] && !( model[i] instanceof GibbsSamplingModel ) ) {
 				throw new IllegalArgumentException( "The model for component " + i
-													+ " doesn't implement the interface GibbsSamplingComponent!" );
+													+ " doesn't implement the interface GibbsSamplingModel!" );
 			}
 		}
 	}
@@ -2020,7 +2020,9 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 				parsed &= ( (SamplingComponent)model[i] ).parseParameterSet( sampling, burnInIteration );
 			}
 		}
-		parsed &= parseComponentParameterSet( sampling, burnInIteration );
+		if( estimateComponentProbs ) {
+			parsed &= parseComponentParameterSet( sampling, burnInIteration );
+		}
 		return parsed;
 	}
 
@@ -2059,12 +2061,13 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 *             parameter set
 	 */
 	protected boolean parseNextParameterSet() throws Exception {
-		String str = filereader.readLine();
-		if( str == null ) {
-			return false;
+		if( estimateComponentProbs ) {
+			String str = filereader.readLine();
+			if( str == null ) {
+				return false;
+			}
+			parse( str );
 		}
-		parse( str );
-
 		boolean parsed = true;
 		for( int i = 0; i < model.length && parsed; i++ ) {
 			if( optimizeModel[i] ) {
