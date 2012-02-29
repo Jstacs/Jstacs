@@ -422,7 +422,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	protected void createStructure( DataSet[] data, double[][] weights, boolean initRandomly ) throws Exception {
 		boolean freeParams = params.useOnlyFreeParameter();
 		DataSet[] d;
-		if( data.length == 1 && weights != null && weights.length > 1 ) {
+		if( !initRandomly && data.length == 1 && weights != null && weights.length > 1 ) {
 			d = new DataSet[weights.length];
 			Arrays.fill( d, data );
 		} else {
