@@ -17,22 +17,21 @@
  */
 package de.jstacs.classifiers.performanceMeasures;
 
-import java.util.Arrays;
-
 import de.jstacs.io.NonParsableException;
 import de.jstacs.results.ResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class is the abstract super class of any performance measure that can only be computed for binary classifiers.
  *  
  * @author Jan Grau, Jens Keilwagen
  */
-public abstract class TwoClassAbstractPerformanceMeasure extends AbstractPerformanceMeasure {
+public abstract class AbstractTwoClassPerformanceMeasure extends AbstractPerformanceMeasure {
 
 	/**
 	 * Constructs a new {@link TwoClassAbstractPerformanceMeasure} with empty parameter values.
 	 */
-	protected TwoClassAbstractPerformanceMeasure() {}	
+	protected AbstractTwoClassPerformanceMeasure() {}	
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -45,12 +44,12 @@ public abstract class TwoClassAbstractPerformanceMeasure extends AbstractPerform
 	 *             if the {@link TwoClassAbstractPerformanceMeasure} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
-	protected TwoClassAbstractPerformanceMeasure( StringBuffer xml ) throws NonParsableException {
+	protected AbstractTwoClassPerformanceMeasure( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 	}
 
 	@Override
-	public ResultSet compute( double[][][] classSpecificScores ) {
+	public ResultSet compute( double[][][] classSpecificScores, double[][] weights ) {
 		if(classSpecificScores.length != 2){
 			throw new RuntimeException( "Only two classes possible for "+ getName() );
 		}
@@ -63,9 +62,13 @@ public abstract class TwoClassAbstractPerformanceMeasure extends AbstractPerform
 				}
 				classificationScores[i][j] = classSpecificScores[i][j][0] - classSpecificScores[i][j][1];
 			}
-			Arrays.sort( classificationScores[i] );
+			ToolBox.sortAlongWith( classificationScores[i], weights == null ? null : weights[i] );
 		}
-		return compute( classificationScores[0], classificationScores[1] );
+		if( weights != null ) {
+			return compute( classificationScores[0], weights[0], classificationScores[1], weights[1] );
+		} else {
+			return compute( classificationScores[0], null, classificationScores[1], null );
+		}
 	}
 
 	@Override

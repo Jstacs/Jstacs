@@ -24,6 +24,7 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements the positive predictive value for a fixed sensitivity.
@@ -34,7 +35,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
+public class PositivePredictiveValueForFixedSensitivity extends AbstractNumericalTwoClassPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link PositivePredictiveValueForFixedSensitivity} with empty parameter values.
@@ -79,30 +80,27 @@ public class PositivePredictiveValueForFixedSensitivity extends TwoClassAbstract
 	}
 
 	@Override
-	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 ) {
 		double sensitivity = (Double)getParameterAt( 0 ).getValue();
-		int d = sortedScoresClass1.length, j = (int)Math.ceil( ( 1 - sensitivity ) * ( sortedScoresClass0.length - 1 ) ), i = d - 1;
-		double threshold = sortedScoresClass0[j];
-		while( j >= 0 && sortedScoresClass0[j] == threshold ) {
-			j--;
+		double threshold = findThreshold( sortedScoresClass0, sortedScoresClass1, weightsClass0, 1-sensitivity, false );
+		double tp;
+		int j = findSplitIndex( sortedScoresClass0, threshold );
+		if( weightsClass0 == null ) {
+			tp = sortedScoresClass0.length - j;
+		} else {
+			tp = ToolBox.sum( j, sortedScoresClass0.length, weightsClass0 );
 		}
-		// => (j+1) false negatives
-		// => (scoresClass0.length-1-j) true positives
-		j = sortedScoresClass0.length - 1 - j; // true positives
-		while( i >= 0 && sortedScoresClass1[i] >= threshold ) {
-			i--;
+		
+		double fp;
+		int i = findSplitIndex( sortedScoresClass1, threshold );
+		if( weightsClass1 == null ) {
+			fp = sortedScoresClass1.length - i;
+		} else {
+			fp = ToolBox.sum( i, sortedScoresClass1.length, weightsClass1 );
 		}
-		// => (i+1) true negatives
-		// => (d-1-i) false positives
-		i = d - 1 - i; // false positives
 		return new NumericalResultSet(new NumericalResult[]{
-				new NumericalResult( getName() + " of "+sensitivity, "", ( (double)j ) / (double)( i + j ) ),
+				new NumericalResult( getName() + " of "+sensitivity, "", tp / (tp+fp) ),
 				new NumericalResult( "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, "", threshold ),
 		});
 	}
-	
-	public NumericalResultSet compute( double[][][] classSpecificScores ) {
-		return (NumericalResultSet) super.compute( classSpecificScores );
-	}
-
 }

@@ -24,6 +24,7 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements the false positive rate for a fixed sensitivity.
@@ -34,7 +35,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
+public class FalsePositiveRateForFixedSensitivity extends AbstractNumericalTwoClassPerformanceMeasure implements NumericalPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link FalsePositiveRateForFixedSensitivity} with empty parameter values.
@@ -79,23 +80,22 @@ public class FalsePositiveRateForFixedSensitivity extends TwoClassAbstractPerfor
 	}
 
 	@Override
-	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 ) {
 		double sensitivity = (Double)getParameterAt( 0 ).getValue();
-		int d = sortedScoresClass1.length, i = d - 1;
-		double threshold = sortedScoresClass0[(int)Math.ceil( ( 1 - sensitivity ) * ( sortedScoresClass0.length - 1 ) )];
-		while( i >= 0 && sortedScoresClass1[i] >= threshold ) {
-			i--;
+		double threshold = findThreshold( sortedScoresClass0, sortedScoresClass1, weightsClass0, 1-sensitivity, false );
+		double fpr;
+		int i = findSplitIndex( sortedScoresClass1, threshold );
+		int d = sortedScoresClass1.length;
+		if( weightsClass1 == null ) {
+			fpr = (double)( d - i ) / (double)d;
+		} else {
+			fpr = ToolBox.sum( i, d, weightsClass1 );
+			fpr = fpr / (ToolBox.sum( 0, i, weightsClass1 ) + fpr); 
 		}
 
 		return new NumericalResultSet( new NumericalResult[]{
-				new NumericalResult( getName() + " of "+sensitivity, "", (double)( d - 1 - i ) / (double)d ),
+				new NumericalResult( getName() + " of "+sensitivity, "", fpr ),
 				new NumericalResult( "Threshold for the " + getName().toLowerCase() + " of "+sensitivity, "", threshold )
 		});
 	}
-	
-	public NumericalResultSet compute( double[][][] classSpecificScores ) {
-		return (NumericalResultSet) super.compute( classSpecificScores );
-	}
-
-
 }

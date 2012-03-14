@@ -420,5 +420,21 @@ public class ToolBox {
 		}
 		return vals2;
 	}
-	
+
+	public static void sortAlongWith( double[] arrayToBeSorted, double[] alongWith ) {
+		if( alongWith == null ) {
+			Arrays.sort( arrayToBeSorted );
+		} else {
+			double[][] h = new double[arrayToBeSorted.length][2];
+			for( int i = 0; i < h.length; i++ ) {
+				h[i][0] = arrayToBeSorted[i];
+				h[i][1] = alongWith[i];
+			}
+			Arrays.sort( h, new DoubleArrayComparator() );
+			for( int i = 0; i < h.length; i++ ) {
+				arrayToBeSorted[i] = h[i][0];
+				alongWith[i] = h[i][1];
+			}
+		}		
+	}	
 }

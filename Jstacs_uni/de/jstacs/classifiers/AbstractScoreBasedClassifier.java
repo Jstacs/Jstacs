@@ -42,6 +42,7 @@ import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.REnvironment;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class is the main class for all score based classifiers. Score based
@@ -202,21 +203,32 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
-			return super.getResults( list, s, params, exceptionIfNotComputeable );
+			return super.getResults( list, s, weights, params, exceptionIfNotComputeable );
 		} else {
 			if( s.length != getNumberOfClasses() ) {
 				throw new ClassDimensionException();
 			}
-			double[][] scores = getSortedTwoClassScores( s );
+			//TODO
+			double[][] scores = new double[2][];
+			double[][] w = new double[2][];
+			for( int i = 0; i < s.length; i++ ) {
+				if( weights[i]!= null ) {
+					w[i] = weights[i].clone(); 
+				} else {
+					w[i] = null;
+				}
+				scores[i] = getScores( s[i] );
+				ToolBox.sortAlongWith( scores[i], w[i] );
+			}
 
 			boolean isNumeric = true;
 			AbstractPerformanceMeasure[] m = params.getAllMeasures();
 			for( AbstractPerformanceMeasure current : m ) {
 				ResultSet r = null;
 				try {
-					r = current.compute( scores[0], scores[1] );
+					r = current.compute( scores[0], w[0], scores[1], w[1] );
 				} catch( Exception e ) {
 					if( exceptionIfNotComputeable ) {
 						throw e;
@@ -661,15 +673,6 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		double[] scores = getScores( bg );
 		Arrays.sort( scores );
 		// System.out.println( scores[0] + " " + scores[scores.length-1] );
-		return scores;
-	}
-
-	private double[][] getSortedTwoClassScores( DataSet[] s ) throws Exception {
-		double[][] scores = new double[][]{ getScores( s[0] ), getScores( s[1] ) };
-		Arrays.sort( scores[0] );
-		Arrays.sort( scores[1] );
-		//System.out.println( "class 0: " + scores[0][0] + " to " + scores[0][scores[0].length-1] );
-		//System.out.println( "class 1: " + scores[1][0] + " to " + scores[1][scores[1].length-1] );
 		return scores;
 	}
 

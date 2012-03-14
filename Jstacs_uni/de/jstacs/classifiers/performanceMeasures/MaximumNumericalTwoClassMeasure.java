@@ -20,13 +20,14 @@ package de.jstacs.classifiers.performanceMeasures;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class prepares everything for an easy implementation of a maximum of any numerical performance measure.
  * 
  * @author Jens Keilwagen
  */
-public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
+public abstract class MaximumNumericalTwoClassMeasure extends AbstractNumericalTwoClassPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link MaximumNumericalTwoClassMeasure}.
@@ -82,15 +83,27 @@ public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPe
 	protected abstract double getMeasure( double tp, double fp, double fn, double tn );
 	
 	@Override
-	public NumericalResultSet compute(double[] sortedScoresClass0, double[] sortedScoresClass1) {
+	public NumericalResultSet compute(double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 ) {
 		int i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
+		double pos, neg, tn = 0, fn = 0, w;
+		if( weightsClass0 == null ) {
+			pos = m;
+		} else {
+			pos = ToolBox.sum( 0, m, weightsClass0 );
+		}
+		if( weightsClass1 == null ) {
+			neg = d;
+		} else {
+			neg = ToolBox.sum( 0, d, weightsClass1 );
+		}
+		double tp = pos, fp = neg;
 		double[] current = new double[2];
 		current[0] = Math.min( sortedScoresClass0[i], sortedScoresClass1[j] );
 		double[] erg = new double[]{ Double.NaN, Double.NaN };
 		
 		while( i < m || j < d ) {
 			// compute CC
-			current[1] = getMeasure( m - i, d - j, i, j );
+			current[1] = getMeasure( tp, fp, fn, tn );
 			if( Double.isNaN(erg[1]) || current[1] > erg[1] ) {
 				erg[0] = current[0];
 				erg[1] = current[1];
@@ -98,9 +111,15 @@ public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPe
 	
 			//find next threshold
 			while( j < d && sortedScoresClass1[j] == current[0] ) {
+				w=getWeight( weightsClass1, j );
+				tn += w;
+				fp -= w;
 				j++;
 			}
 			while( i < m && sortedScoresClass0[i] == current[0] ) {
+				w = getWeight( weightsClass0, i );
+				tp -= w;
+				fn += w;
 				i++;
 			}
 			if( i < m && j < d ) {
@@ -128,9 +147,5 @@ public abstract class MaximumNumericalTwoClassMeasure extends TwoClassAbstractPe
 				new NumericalResult( "Maximum "+ getSpecificName(), "The maximal value of the " + getSpecificName().toLowerCase(), erg[1] ),
 				new NumericalResult( "Threshold for the maximum "  + getSpecificName().toLowerCase(), "", erg[0] )
 		});
-	}
-
-	public NumericalResultSet compute(double[][][] classSpecificScores) {
-		return (NumericalResultSet) super.compute( classSpecificScores );
 	}
 }
