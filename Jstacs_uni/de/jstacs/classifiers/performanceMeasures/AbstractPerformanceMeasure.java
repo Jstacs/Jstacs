@@ -183,7 +183,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 			i++;
 		}
 
-		//skip all items with the same threshold
+		//skip all items with the same score
 		if( atLeast ) {
 			while( i+1 < sortedReferenceScores.length && sortedReferenceScores[i] == sortedReferenceScores[i+1] ) {
 				i++;
