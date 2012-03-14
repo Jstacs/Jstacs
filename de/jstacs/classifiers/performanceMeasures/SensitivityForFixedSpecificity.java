@@ -24,6 +24,7 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements the sensitivity for a fixed specificity.
@@ -32,7 +33,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceMeasure implements NumericalPerformanceMeasure {
+public class SensitivityForFixedSpecificity extends AbstractNumericalTwoClassPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link SensitivityForFixedSpecificity} with empty parameter values.
@@ -77,21 +78,20 @@ public class SensitivityForFixedSpecificity extends TwoClassAbstractPerformanceM
 	}
 
 	@Override
-	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] weightClass0, double[] sortedScoresClass1, double[] weightClass1 ) {
 		double specificity = (Double)getParameterAt( 0 ).getValue();
-		int i = 0, m = sortedScoresClass0.length;
-		double threshold = sortedScoresClass1[(int)Math.ceil( specificity * ( sortedScoresClass1.length - 1 ) )];
-		while( i < m && sortedScoresClass0[i] <= threshold ) {
-			i++;
+		double threshold = findThreshold( sortedScoresClass1, sortedScoresClass0, weightClass1, specificity, true );
+		int m = sortedScoresClass0.length, i = findSplitIndex( sortedScoresClass0, threshold );
+		double sn;
+		if( weightClass0 == null ) {
+			sn = (double)( m - i ) / (double)m;
+		} else {
+			sn = ToolBox.sum( i, m, weightClass0 );
+			sn = sn / (sn + ToolBox.sum( 0, i, weightClass0 ) );
 		}
-		
 		return new NumericalResultSet(new NumericalResult[]{
-				new NumericalResult( getName() +" of "+specificity, "", (double)( m - i ) / (double)m  ),
+				new NumericalResult( getName() +" of "+specificity, "", sn  ),
 				new NumericalResult( "Threshold for the "+getName().toLowerCase() +" of "+specificity, "", threshold )
 		});
-	}
-
-	public NumericalResultSet compute( double[][][] classSpecificScores ) {
-		return (NumericalResultSet) super.compute( classSpecificScores );
 	}
 }

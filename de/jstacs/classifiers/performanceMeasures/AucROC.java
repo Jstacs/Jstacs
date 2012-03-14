@@ -24,7 +24,8 @@ import de.jstacs.results.NumericalResultSet;
  * This class implements the area under curve of the Receiver Operating Characteristics curve.
  * 
  * @author Jan Grau, Jens Keilwagen
- * @see AucROC
+ * 
+ * @see ROCCurve
  */
 public class AucROC extends ROCCurve implements NumericalPerformanceMeasure {
 
@@ -56,6 +57,14 @@ public class AucROC extends ROCCurve implements NumericalPerformanceMeasure {
 
 	public NumericalResultSet compute( double[][][] classSpecificScores ) {
 		return (NumericalResultSet) super.compute( classSpecificScores );
+	}
+	
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 ) {
+		return (NumericalResultSet) super.compute( sortedScoresClass0, weightsClass0, sortedScoresClass1, weightsClass1 );
+	}
+
+	public NumericalResultSet compute( double[][][] classSpecificScores, double[][] weights ) {
+		return (NumericalResultSet) super.compute( classSpecificScores, weights );
 	}
 	
 	@Override

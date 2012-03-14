@@ -53,40 +53,70 @@ public class ClassificationRate extends AbstractPerformanceMeasure implements Nu
 	public String getName() {
 		return "Classification rate";
 	}
+	
+	public NumericalResultSet compute(double[] sortedScoresClass0, double[] sortedScoresClass1) {
+		return compute( sortedScoresClass0, null, sortedScoresClass1, null) ;
+	}
 
-	@Override
-	public NumericalResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
-		int i = 0, m = sortedScoresClass0.length;
-		while( i < m && sortedScoresClass0[i] < 0 ) {
-			i++;
-		}
-
-		int d = sortedScoresClass1.length, j = d - 1;
-		while( j >= 0 && sortedScoresClass1[j] >= 0 ) {
-			j--;
-		}
-
-		return new NumericalResultSet(new NumericalResult("Classification rate", "Classification rate for two classes.",( ( m - i ) + j + 1 ) / (double)( m + d )));
+	public NumericalResultSet compute(double[][][] classSpecificScores) {
+		return compute( classSpecificScores, null );
 	}
 
 	@Override
-	public NumericalResultSet compute( double[][][] classSpecificScores ) {
-		int corr = 0, fals = 0;
+	public NumericalResultSet compute( double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 ) {
+		double corr = 0, fals = 0, w;
+		
+		w = 1;
+		for( int i = 0; i < sortedScoresClass0.length; i++ ) {
+			if( weightsClass0 != null ) {
+				w = weightsClass0[i];
+			}
+			if( sortedScoresClass0[i] >= 0 ) {
+				corr += w;	
+			} else {
+				fals +=w;
+			}
+		}
+		
+		w = 1;
+		for( int i = 0; i < sortedScoresClass1.length; i++ ) {
+			if( weightsClass1 != null ) {
+				w = weightsClass1[i];
+			}
+			if( sortedScoresClass1[i] < 0 ) {
+				corr += w;	
+			} else {
+				fals +=w;
+			}
+		}
+		return getResult( 2, corr, fals );
+	}
+
+	@Override
+	public NumericalResultSet compute( double[][][] classSpecificScores, double[][] weights ) {
+		double corr = 0, fals = 0, w;
 		for(int i=0;i<classSpecificScores.length;i++){
+			w = 1;
 			for(int j=0;j<classSpecificScores[i].length;j++){
+				if( weights != null && weights[i] != null ) {
+					w = weights[i][j];
+				}
 				if(ToolBox.getMaxIndex( classSpecificScores[i][j] ) == i){
-					corr++;
+					corr += w;
 				}else{
-					fals++;
+					fals += w;
 				}
 			}
 		}
-		return new NumericalResultSet(new NumericalResult(getName(),getName() + " for "+classSpecificScores[0][0].length+" classes.",(double)corr/(double)(corr+fals)));
+		return getResult( classSpecificScores.length, corr, fals );
+	}
+	
+	private NumericalResultSet getResult( int classes, double corr, double fals ) {
+		return new NumericalResultSet( new NumericalResult( getName(), getName() + " for "+classes+" classes.", corr/(corr+fals) ) );
 	}
 
 	@Override
 	public int getAllowedNumberOfClasses() {
 		return 0;
 	}
-
 }

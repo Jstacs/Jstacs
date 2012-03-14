@@ -25,6 +25,7 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements the Receiver Operating Characteristics curve and the area under the curve.
@@ -35,7 +36,7 @@ import de.jstacs.results.ResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
+public class ROCCurve extends AbstractTwoClassPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link ROCCurve}.
@@ -70,14 +71,24 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 	}
 
 	@Override
-	public ResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
-		
+	public ResultSet compute( double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 ) {
 		ArrayList<double[]> list = null;
 		if( !(this instanceof NumericalPerformanceMeasure) ){
 			list = new ArrayList<double[]>();
 		}
 		
 		int i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
+		double pos, neg, fn = 0, tn = 0;//TODO
+		if( weightsClass0 == null ) {
+			pos = m;
+		} else {
+			pos = ToolBox.sum( 0, m, weightsClass0 );
+		}
+		if( weightsClass1 == null ) {
+			neg = d;
+		} else {
+			neg = ToolBox.sum( 0, d, weightsClass1 );
+		}
 		double erg = 0, help1, help2;
 		double[] p = new double[]{ 1, 1 };
 
@@ -102,27 +113,33 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 			if( unique ) {
 				if( fromMotif ) {
 					while( i < m && sortedScoresClass0[i] < sortedScoresClass1[j] ) {
+						fn += getWeight( weightsClass0, i );
 						i++;
 					}
 				} else {
 					while( j < d && sortedScoresClass0[i] > sortedScoresClass1[j] ) {
+						tn += getWeight( weightsClass1, j );
 						j++;
 					}
 				}
 			} else {
 				while( i + 1 < m && sortedScoresClass0[i] == sortedScoresClass0[i + 1] ) {
+					fn += getWeight( weightsClass0, i );
 					i++;
 				}
 				while( j + 1 < d && sortedScoresClass1[j] == sortedScoresClass1[j + 1] ) {
+					tn += getWeight( weightsClass1, j );
 					j++;
 				}
+				fn += getWeight( weightsClass0, i );
+				tn += getWeight( weightsClass1, j );
 				i++;
 				j++;
 			}
 
 			// erg += height * width
-			help1 = (double)( d - j ) / (double)d;
-			help2 = (double)( m - i ) / (double)m;
+			help1 = (neg-tn) / neg;
+			help2 = (pos-fn) / pos;
 			erg += ( p[1] + help2 ) / 2d * ( p[0] - help1 );
 			p[0] = help1;
 			p[1] = help2;
@@ -147,13 +164,13 @@ public class ROCCurve extends TwoClassAbstractPerformanceMeasure {
 		if( list != null ) {
 			list.add( new double[]{ 0, 0 } );
 		}
-		NumericalResult auc = new NumericalResult( "AUC-ROC", "Area under the " + getName(), erg );
+		NumericalResult auc = new NumericalResult( "AUC-ROC", getName(), erg );
 		if(list == null){
 			return new NumericalResultSet( auc );
 		}else{
 			return new ResultSet( new Result[]{
-			                                   auc,
-			                                   new AbstractScoreBasedClassifier.DoubleTableResult(getName(), getName(), list)
+               auc,
+               new AbstractScoreBasedClassifier.DoubleTableResult(getName(), getName(), list)
 			} );
 		}
 	}

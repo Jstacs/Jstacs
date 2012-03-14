@@ -25,6 +25,7 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements the precision-recall curve and its area under the curve.
@@ -35,7 +36,7 @@ import de.jstacs.results.ResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class PRCurve extends TwoClassAbstractPerformanceMeasure {
+public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 
 	/**
 	 * Constructs a new instance of the performance measure {@link PRCurve}.
@@ -68,9 +69,10 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 	public String getName() {
 		return NAME;
 	}
-
+	
 	@Override
-	public ResultSet compute( double[] sortedScoresClass0, double[] sortedScoresClass1 ) {
+	public ResultSet compute( double[] sortedScoresClass0, double[] weightClass0, double[] sortedScoresClass1, double[] weightClass1 ) {
+		boolean goadrichAndDavis = simpleWeights( weightClass0 ) && simpleWeights( weightClass1 );
 		
 		ArrayList<double[]> list = null;
 		if( !(this instanceof NumericalPerformanceMeasure) ){
@@ -79,14 +81,26 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 		
 		int i_old = 0, j_old = 0, i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
 		double helpJ, propTerm;
-		double erg = 0, help1 = 0, help2 = 0;
+		double help1 = 0, help2 = 0;
+		double aucGD = 0, aucIntegral = 0, pos, neg, fn = 0, tn = 0, tn_old, fn_old;
+		if( weightClass0 == null ) {
+			pos = m;
+		} else {
+			pos = ToolBox.sum( weightClass0 );
+		}
+		if( weightClass1 == null ) {
+			neg = d;
+		} else {
+			neg = ToolBox.sum( weightClass1 );
+		}
 
 		// find correct start point
 		while( ( j < d ) && ( sortedScoresClass0[i] > sortedScoresClass1[j] ) ) {
+			tn += getWeight( weightClass1, j );
 			j++;
 		}
 		//i is zero, so p[0] = 1 ...
-		double[] p = new double[]{ ( m - i ) / (double)m, ( m - i ) / ( (double)( m - i + d - j ) ) };
+		double[] p = new double[]{ ( pos-fn ) / pos, ( pos-fn ) / ( pos-fn + neg-tn ) };
 		if( list != null ) {
 			list.add( p.clone() );
 		}
@@ -102,24 +116,32 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 		while( i < m && j < d ) {
 			i_old = i;
 			j_old = j;
+			tn_old = tn;
+			fn_old = fn;
 			// find next possible threshold
 			if( unique ) {
 				if( fromMotif ) {
 					while( i < m && sortedScoresClass1[j] > sortedScoresClass0[i] ) {
+						fn += getWeight( weightClass0, i );
 						i++;
 					}
 				} else {
 					while( j < d && sortedScoresClass0[i] > sortedScoresClass1[j] ) {
+						tn += getWeight( weightClass1, j );
 						j++;
 					}
 				}
 			} else {
 				while( i + 1 < m && sortedScoresClass0[i] == sortedScoresClass0[i + 1] ) {
+					fn += getWeight( weightClass0, i );
 					i++;
 				}
 				while( j + 1 < d && sortedScoresClass1[j] == sortedScoresClass1[j + 1] ) {
+					tn += getWeight( weightClass1, j );
 					j++;
 				}
+				fn += getWeight( weightClass0, i );
+				tn += getWeight( weightClass1, j );
 				i++;
 				j++;
 			}
@@ -127,47 +149,92 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 			// now we have (i_old,j_old) and (i,j) with i_old <= i and j_old <= j
 			if( i == i_old ) {
 				//only the number of fp changes
-				p[1] = (double)( m - i ) / (double)( m - i + d - j );
+				p[1] = ( pos-fn ) / ( pos-fn + neg-tn );
 				//add point
 				if( list != null ) {
 					list.add( p.clone() );
 				}
 			} else {
-				if( i < m || j < d ) {
-					// the interpolation between point A (i,j) and B (i_old, j_old)
+				// the interpolation between point A (i,j) and B (i_old, j_old)
+				
+				//point A =^= new point
+				//point B =^= old point
+				
+				double pB = p[0];
+				double pA = ( pos-fn ) / pos;
+				
+				//unweighted
+				// FP_A => d-j, FP_B => d-j_old
+				// ==> FP_B-FP_A = j - j_old
 
-					// FP_A => d-j, FP_B => d-j_old
-					// ==> FP_B-FP_A = j - j_old
+				// TP_A => m-i, TP_B => m-i_old
+				// ==> TP_B - TP_A = i - i_old
+								
+				if( goadrichAndDavis ) {
+					if( i < m || j < d ) {
+	
+						propTerm = ( j - j_old ) / (double)( i - i_old );
+						double h1 = p[0], h2 = p[1];
+						int c = i_old+1;
+						for( helpJ = j_old + propTerm; c <= i; c++ ) {
+							// compute sn and ppv
+							help1 = (double)( m - c ) / (double)m;
+							help2 = (double)( m - c ) / (double)( m - c + d - helpJ );
+							helpJ += propTerm;
+	
+							// compute AUC
+							aucGD += ( h2 + help2 ) / 2d * ( h1 - help1 );
+							h1 = help1;
+							h2 = help2;
+						}
+					} else {
+						aucGD += p[1] * p[0];
+					}
+				}
+				
+				//integral
+				
+				//weighted
+				// FP_A => neg-tn, FP_B => neg-tn_old
+				// ==> FP_B-FP_A = tn - tn_old
 
-					// TP_A => m-i, TP_B => m-i_old
-					// ==> TP_B - TP_A = i - i_old 
+				// TP_A => pos-fn, TP_B => pos-fn_old
+				// ==> TP_B - TP_A = fn - fn_old
 
-					propTerm = ( j - j_old ) / (double)( i - i_old );
-					for( i_old++, helpJ = j_old + propTerm; i_old <= i; i_old++ ) {
+				double h = (tn-tn_old) / (fn-fn_old);
+				double a = 1 + h;
+				double b = (neg-tn - h * (pos-fn) ) / pos;
+				
+				//System.out.println( a + "\t" + b + "\t" + h);
+				if( b != 0 ) {
+					aucIntegral += (pB / a - b/(a*a)*Math.log(a*pB+b)) - (pA / a - b/(a*a)*Math.log(a*pA+b));
+				} else {
+					aucIntegral += pB / a  - pA / a;
+				}
+			
+				//curve
+				if( list != null ) {
+					propTerm = Math.min( (fn - fn_old) / (i - i_old), 1 );
+					double helpI = fn_old + propTerm;
+					for( i_old++, helpJ = tn_old + h; helpI < fn; helpJ += h, helpI += propTerm ) {
 						// compute sn and ppv
-						help1 = (double)( m - i_old ) / (double)m;
-						help2 = (double)( m - i_old ) / (double)( m - i_old + d - helpJ );
-						helpJ += propTerm;
-
-						// compute AUC
-						erg += ( p[1] + help2 ) / 2d * ( p[0] - help1 );
-						p[0] = help1;
-						p[1] = help2;
+						p[0] = ( pos - helpI ) / pos;
+						p[1] = ( pos - helpI ) / ( pos - helpI + neg - helpJ );
 
 						// add point
-						if( list != null ) {
-							list.add( p.clone() );
-						}
+						list.add( p.clone() );
 					}
-				} else {
-					erg += p[1] * p[0];
-					p[0] = 0;
-
+				}
+				if( pA != p[0] ) {
+					p[0] = pA;
+					p[1] = ( pos-fn ) / ( pos-fn + neg-tn );
 					if( list != null ) {
 						list.add( p.clone() );
 					}
 				}
 			}
+			
+			//System.out.println( i + "\t" + i_old + "\t" + j + "\t" + j_old + "\t" + aucGD + "\t" + aucIntegral );
 
 			if( i < m && j < d ) {
 				//next
@@ -186,24 +253,42 @@ public class PRCurve extends TwoClassAbstractPerformanceMeasure {
 
 		// left side of the plot
 		if( i < m ) {
-			help1 = 0;
-			//compute AUC
-			erg += p[1] * ( p[0] - help1 );
-			p[0] = help1;
-
+			if( goadrichAndDavis ) {
+				help1 = 0;
+				//compute AUC
+				aucGD += p[1] * ( p[0] - help1 );
+			}
+			
+			aucIntegral += p[1] * ( p[0] - help1 );
+			
 			// add point
+			p[0] = help1;
 			if( list != null ) {
 				list.add( p.clone() );
 			}
 		}
-		NumericalResult auc = new NumericalResult( "AUC-PR", "Area under the " + getName(), erg );
+		NumericalResult auc1 = new NumericalResult( "AUC-PR (Davis and Goadrich)", getName(), aucGD ); 
+		NumericalResult auc2 = new NumericalResult( "AUC-PR (Integral)", getName(), aucIntegral );
 		if(list == null){
-			return new NumericalResultSet( auc );
+			if( goadrichAndDavis ) {
+				return new NumericalResultSet( new NumericalResult[]{auc1, auc2} );
+			} else {
+				return new NumericalResultSet( auc2 );
+			}
 		}else{
-			return new ResultSet( new Result[]{
-			                                   auc,
-			                                   new AbstractScoreBasedClassifier.DoubleTableResult(getName(), getName(), list)
-			} );
+			Result curve = new AbstractScoreBasedClassifier.DoubleTableResult(getName(), getName(), list);
+			if( goadrichAndDavis ) {
+				return new ResultSet( new Result[]{
+	               auc1,
+	               auc2,
+	               curve
+				} );
+			} else {
+				return new ResultSet( new Result[]{
+	               auc2,
+	               curve
+				} );
+			}
 		}
 	}
 

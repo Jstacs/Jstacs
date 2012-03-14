@@ -205,6 +205,40 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
+	 * @see #evaluate(PerformanceMeasureParameterSet, boolean, DataSet[], double[][])
+	 */
+	@SuppressWarnings( "unchecked" )
+	public final ResultSet evaluate( PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
+		return evaluate( params, exceptionIfNotComputeable, s, null );
+	}
+	
+	/**
+	 * This method evaluates the classifier and computes, for instance, the sensitivity for a given specificity, the
+	 * area under the ROC curve and so on. This method should be used in any
+	 * kind of {@link de.jstacs.classifiers.assessment.ClassifierAssessment} as, for instance, crossvalidation, hold out
+	 * sampling, ... .
+	 * 
+	 * <br>
+	 * <br>
+	 * 
+	 * For two classes it is highly recommended to set the foreground as first
+	 * class and the second class as background, i.e. the first sample should be
+	 * the foreground sample and the second should be background sample. See
+	 * also <a href="#order">this comment</a>.
+	 * 
+	 * @param params
+	 *            the current parameters defining the set of {@link AbstractPerformanceMeasure}s to be evaluated
+	 * @param exceptionIfNotComputeable
+	 *            indicates that the method throws an {@link Exception} if a measure
+	 *            could not be computed
+	 * @param s
+	 *            the array of {@link DataSet}s
+	 * 
+	 * @return a set of results, if all results are scalars the return type is {@link NumericalResultSet}, otherwise {@link ResultSet}
+	 * 
+	 * @throws Exception
+	 *             if something went wrong
+	 * 
 	 * @see NumericalResultSet
 	 * @see ResultSet
 	 * @see #getResults(LinkedList, DataSet[], PerformanceMeasureParameterSet, boolean)
@@ -212,10 +246,9 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @see de.jstacs.classifiers.assessment.ClassifierAssessment
 	 * @see de.jstacs.classifiers.assessment.ClassifierAssessment#assess(de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet, de.jstacs.classifiers.assessment.ClassifierAssessmentAssessParameterSet, DataSet...)
 	 */
-	@SuppressWarnings( "unchecked" )
-	public final ResultSet evaluate( PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable, DataSet... s ) throws Exception {
+	public final ResultSet evaluate( PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable, DataSet[] s, double[][] weights ) throws Exception {
 		LinkedList list = new LinkedList();
-		boolean isNumeric = getResults( list, s, params, exceptionIfNotComputeable );
+		boolean isNumeric = getResults( list, s, weights, params, exceptionIfNotComputeable );
 		if( isNumeric ) {
 			return new NumericalResultSet( (LinkedList<NumericalResult>) list );
 		} else {
@@ -246,7 +279,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * @see Result
 	 */
 	@SuppressWarnings( "unchecked" )
-	protected boolean getResults( LinkedList list, DataSet[] s, de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != getNumberOfClasses() ) {
 			throw new ClassDimensionException();
 		}
@@ -257,7 +290,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 		for( AbstractPerformanceMeasure current : m ) {
 			ResultSet r = null;
 			try {
-				r = current.compute( scores );
+				r = current.compute( scores, weights );
 			} catch( Exception e ) {
 				if( exceptionIfNotComputeable ) {
 					throw e;

@@ -53,34 +53,58 @@ public class ConfusionMatrix extends AbstractPerformanceMeasure {
 	}
 
 	@Override
-	public ResultSet compute(double[] sortedScoresClass0, double[] sortedScoresClass1) {
-		int i = 0, m = sortedScoresClass0.length;
-		while( i < m && sortedScoresClass0[i] < 0 ) {
-			i++;
+	public ResultSet compute(double[] sortedScoresClass0, double[] weightClass0, double[] sortedScoresClass1, double[] weightClass1) {
+		double tp =0, fn=0, fp=0, tn = 0, w;
+		
+		w=1;
+		for( int i = 0; i < sortedScoresClass0.length; i++ ) {
+			if( weightClass0 != null ) {
+				w = weightClass0[i];
+			}
+			if( sortedScoresClass0[i] >= 0 ) {
+				tp += w;
+			} else {
+				fn += w;
+			}
 		}
 
-		int d = sortedScoresClass1.length, j = d - 1;
-		while( j >= 0 && sortedScoresClass1[j] >= 0 ) {
-			j--;
+		w=1;
+		for( int i = 0; i < sortedScoresClass1.length; i++ ) {
+			if( weightClass1 != null ) {
+				w = weightClass1[i];
+			}
+			if( sortedScoresClass0[i] >= 0 ) {
+				fp += w;
+			} else {
+				tn += w;
+			}
 		}
+		
 		return new ResultSet(new ListResult( getName(), getName()+" for two classes.", null, 
-				new NumericalResultSet( new NumericalResult[]{new NumericalResult( "TP", "true positives", sortedScoresClass0.length-i ),
-				                            new NumericalResult( "FN", "false negatives", i )
+				new NumericalResultSet( new NumericalResult[]{
+						new NumericalResult( "TP", "true positives", tp ),
+						new NumericalResult( "FN", "false negatives", fn )
 				} ),
-			    new NumericalResultSet( new NumericalResult[]{new NumericalResult( "FP", "false positives", j+1 ),
-			                                new NumericalResult( "TN", "true negatives", d-(j+1) )
+			    new NumericalResultSet( new NumericalResult[]{
+			    		new NumericalResult( "FP", "false positives", fp ),
+			    		new NumericalResult( "TN", "true negatives", tn )
 			                                
 			    } )
 		) );
 	}
 
 	@Override
-	public ResultSet compute(double[][][] classSpecificScores) {
-		int[][] res = new int[classSpecificScores.length][classSpecificScores.length];
+	public ResultSet compute(double[][][] classSpecificScores, double[][] weights ) {
+		double[][] res = new double[classSpecificScores.length][classSpecificScores.length];
+		double w;
 		for(int i=0;i<classSpecificScores.length;i++){
+			w = 1;
 			for(int j=0;j<classSpecificScores[i].length;j++){
+				if( weights[i] != null ) {
+					w = weights[i][j];
+				}
 				int predicted = ToolBox.getMaxIndex( classSpecificScores[i][j] );
-				res[i][predicted]++;
+				res[i][predicted] += w;
 			}
 		}
 		NumericalResultSet[] sets = new NumericalResultSet[classSpecificScores.length];
