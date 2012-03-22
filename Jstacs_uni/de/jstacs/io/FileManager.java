@@ -255,7 +255,7 @@ public class FileManager {
 	 * @see #readFile(File)
 	 * @see #write(Writer, StringBuffer)
 	 */
-	public static void writeFile( File outputFile, StringBuffer buffer ) throws IOException {
+	public static void writeFile( File outputFile, CharSequence buffer ) throws IOException {
 		write( new FileWriter( outputFile ), buffer );
 	}
 		
@@ -274,7 +274,7 @@ public class FileManager {
 	 * @see #write(Writer, StringBuffer)
 	 * @see OutputStreamWriter
 	 */
-	public static void writeOutputStream( OutputStream outStream, StringBuffer buffer ) throws IOException {
+	public static void writeOutputStream( OutputStream outStream, CharSequence buffer ) throws IOException {
 		write( new OutputStreamWriter( outStream ), buffer );
 	}
 	
@@ -292,7 +292,7 @@ public class FileManager {
 	 * @see #read(Reader)
 	 * @see BufferedWriter
 	 */
-	public static void write( Writer writer, StringBuffer buffer ) throws IOException {
+	public static void write( Writer writer, CharSequence buffer ) throws IOException {
 		BufferedWriter w = new BufferedWriter( writer );
 		w.write( buffer.toString() );
 		w.close();
