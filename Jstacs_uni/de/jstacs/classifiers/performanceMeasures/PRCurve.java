@@ -207,9 +207,9 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 				
 				//System.out.println( a + "\t" + b + "\t" + h);
 				if( b != 0 ) {
-					aucIntegral += (pB / a - b/(a*a)*Math.log(a*pB+b)) - (pA / a - b/(a*a)*Math.log(a*pA+b));
+					aucIntegral += (pB - pA - b/a*(Math.log(a*pB+b) - Math.log(a*pA+b)))/a;
 				} else {
-					aucIntegral += pB / a  - pA / a;
+					aucIntegral += (pB - pA) / a;
 				}
 			
 				//curve
