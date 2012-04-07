@@ -166,7 +166,7 @@ public class ListResult extends Result {
 		} catch (NonParsableException e) {
 			annotation = null;
 		}
-		list = XMLParser.extractObjectForTags(representation, "list", ResultSet[].class );
+		list = (ResultSet[])XMLParser.extractObjectForTags(representation, "list" );
 	}
 
 	/*
