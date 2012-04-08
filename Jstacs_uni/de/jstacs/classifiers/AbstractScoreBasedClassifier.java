@@ -214,7 +214,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 			double[][] scores = new double[2][];
 			double[][] w = new double[2][];
 			for( int i = 0; i < s.length; i++ ) {
-				if( weights[i]!= null ) {
+				if( weights != null && weights[i]!= null ) {
 					w[i] = weights[i].clone(); 
 				} else {
 					w[i] = null;
