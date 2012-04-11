@@ -57,8 +57,10 @@ import de.jstacs.utils.ProgressUpdater;
  * 
  * @author Andre Gohr (bioinf (nospam:.) ag (nospam:@) googlemail (nospam:.)
  *         com), Jens Keilwagen
+ *         
+ * @param <T> the type of the parameter set for the assessment
  */
-public abstract class ClassifierAssessment {
+public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessParameterSet> {
 
 	// ***********************
 	// static variables
@@ -563,9 +565,9 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
 	 * 
-	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)
+	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet[])
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, T assessPS, DataSet[] s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		return assess( mp, assessPS, null, s );
@@ -629,12 +631,88 @@ public abstract class ClassifierAssessment {
 	 *             {@link AlphabetContainer} as contained classifiers/models
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
+	 *           
+	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[], double[][])
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, T assessPS, ProgressUpdater pU, DataSet[] s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
+		return assess( mp, assessPS, pU, s, null );
+	}
+	
+	
+	/**
+	 * Assesses the contained classifiers.
+	 * 
+	 * @param mp
+	 *            defines which performance measure should be used to assess
+	 *            classifiers
+	 * @param assessPS
+	 *            contains some parameters necessary for assessment (depends on
+	 *            the kind of assessment!)
+	 * @param pU
+	 *            this {@link ProgressUpdater} may be used to cancel this method
+	 *            <code>assess()</code> by setting
+	 *            <code>pU.isCancelled()=true</code>. In that case,
+	 *            <code>assess()</code> will abort but return results already
+	 *            computed.<br>
+	 *            In certain cases aborting a classifier assessment will not be
+	 *            allowed for example in case of {@link KFoldCrossValidation}.
+	 *            In this case it might be wise to override this method such
+	 *            that it just returns an error message. <br>
+	 *            <code>pU</code> is allowed to be <code>null</code> although in
+	 *            this case it may be more convenient to use the second method
+	 *            <code>code()</code> not requiring a {@link ProgressUpdater} .
+	 * @param s
+	 *            contains the data to be used for assessment. The order of the
+	 *            samples is important. <br>
+	 *            If model based classifiers are trained, the order of the
+	 *            models in the classifiers determines which model will be
+	 *            trained using which sample. The first model in the classifier
+	 *            will be trained using the first sample in <code>s</code>. If
+	 *            the models are trained directly, the order of given models
+	 *            during initiation of this assessment object determines, which
+	 *            sample will be used for training which model. In general the
+	 *            first model will be trained using the first sample in
+	 *            <code>s</code>... . <br>
+	 *            For a two-class problem, it is recommended
+	 *            <ul>
+	 *            <li>to initiate the classifiers with models in order
+	 *            (foreground model (positive class), background model (negative
+	 *            class))
+	 *            <li>to initiate an assessment object using models in order
+	 *            (foreground model (positive class), background model (negative
+	 *            class))
+	 *            <li>to give data <code>s</code> in order (<code>s[0]</code>
+	 *            contains foreground data, <code>s[1]</code> contains
+	 *            background data)
+	 *            </ul>
+	 * @param weights
+	 *            the (non-negative) weights for the data;
+	 *            weight for each data set (first dimension) and each sequence (second dimension),
+	 *            can be <code>null</code> which is the same as weight 1 for all sequences in all data sets
+	 *            
+	 * @return a {@link ListResult} that contains the results (mean and standard
+	 *         errors) of user specified performance measures. These performance
+	 *         measures are user specified via the given
+	 *         {@link NumericalPerformanceMeasureParameterSet}.
+	 * @throws IllegalArgumentException
+	 *             if the given <code>assessPS</code> is not of the right type
+	 *             (see method <code>evaluateClassifier( ... )</code>)
+	 * @throws WrongAlphabetException
+	 *             if the given samples <code>s</code> do not use the same
+	 *             {@link AlphabetContainer} as contained classifiers/models
+	 * @throws Exception
+	 *             forwarded from training/testing of classifiers/models
+	 */
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, T assessPS, ProgressUpdater pU, DataSet[] s, double[][] weights ) throws IllegalArgumentException,
+		WrongAlphabetException,
+		Exception {
 		if( pU == null ) {
 			pU = NullProgressUpdater.getImmutableInstance();
+		}
+		if( weights == null ) {
+			weights = new double[s.length][];
 		}
 
 		prepareAssessment( s );
@@ -644,7 +722,7 @@ public abstract class ClassifierAssessment {
 		annotation.addAll( assessPS.getAnnotation() );
 		annotation.add( new CategoricalResult( "samples", "annotation of used samples", DataSet.getAnnotation( s ) ) );
 
-		this.evaluateClassifier( mp, assessPS, s, pU );
+		this.evaluateClassifier( mp, assessPS, s, weights, pU );
 
 		return new ListResult( this.getNameOfAssessment(),
 				"the results of a " + this.getNameOfAssessment(),
@@ -699,7 +777,7 @@ public abstract class ClassifierAssessment {
 	 *             forwarded from training/testing of classifiers/models
 	 * 
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, ProgressUpdater pU, DataSet[][]... s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, T assessPS, ProgressUpdater pU, DataSet[][]... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		if( pU == null ) {
@@ -716,6 +794,7 @@ public abstract class ClassifierAssessment {
 		boolean exceptionIfMPNotComputable = assessPS.getExceptionIfMPNotComputable();
 
 		DataSet[][][] correctedS = new DataSet[s.length][2][s[0][0].length];
+		double[][][][] correctedW = new double[s.length][2][s[0][0].length][];
 
 		AlphabetContainer abc = this.myAbstractClassifier[0].getAlphabetContainer();
 		for( i = 0; i < s.length; i++ ) {
@@ -758,8 +837,8 @@ public abstract class ClassifierAssessment {
 		pU.setMax( s.length );
 
 		for( i = 0; i < s.length; i++ ) {
-			this.train( correctedS[i][0] );
-			this.test( mp, exceptionIfMPNotComputable, correctedS[i][1] );
+			this.train( correctedS[i][0], correctedW[i][0] );
+			this.test( mp, exceptionIfMPNotComputable, correctedS[i][1], correctedW[i][1] );
 
 			pU.setValue( i + 1 );
 			if( pU.isCancelled() ) {
@@ -817,6 +896,10 @@ public abstract class ClassifierAssessment {
 	 *            iterations of a k-fold-crossvalidation)
 	 * @param s
 	 *            data to be used for assessment (both: test and train data)
+	 * @param weights
+	 *            the (non-negative) weights for the data;
+	 *            weight for each data set (first dimension) and each sequence (second dimension),
+	 *            can be <code>null</code> which is the same as weight 1 for all sequences in all data sets
 	 * @param pU
 	 *            a {@link ProgressUpdater} that mainly has to be used to allow
 	 *            the user to cancel a current running classifier assessment.
@@ -848,8 +931,8 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             that occurred during training or using classifiers/models
 	 */
-	protected abstract void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s,
-			ProgressUpdater pU ) throws IllegalArgumentException, Exception;
+	protected abstract void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, T assessPS, DataSet[] s,
+			double[][] weights, ProgressUpdater pU ) throws IllegalArgumentException, Exception;
 
 	/**
 	 * Prepares an assessment. If the given {@link DataSet} may not be used for
@@ -906,6 +989,10 @@ public abstract class ClassifierAssessment {
 	 * @param testS
 	 *            samples used as test sets (has to contain one {@link DataSet}
 	 *            for each class)
+	 * @param weights
+	 *            the (non-negative) weights for the data;
+	 *            weight for each data set (first dimension) and each sequence (second dimension),
+	 *            can be <code>null</code> which is the same as weight 1 for all sequences in all data sets
 	 * 
 	 * @throws IllegalValueException
 	 *             if a parameter is not valid
@@ -924,7 +1011,7 @@ public abstract class ClassifierAssessment {
 	 * 
 	 * @see AbstractClassifier#evaluate(de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet, boolean, DataSet...)
 	 */
-	protected void test( NumericalPerformanceMeasureParameterSet mp, boolean exception, DataSet... testS ) throws IllegalValueException,
+	protected void test( NumericalPerformanceMeasureParameterSet mp, boolean exception, DataSet[] testS, double[][] weights ) throws IllegalValueException,
 			InconsistentResultNumberException,
 			AdditionImpossibleException,
 			Exception {
@@ -934,7 +1021,7 @@ public abstract class ClassifierAssessment {
 		}
 
 		for( int i = 0; i < this.myAbstractClassifier.length; i++ ) {
-			this.myTempMeanResultSets[i].addResults( (NumericalResultSet) this.myAbstractClassifier[i].evaluate( mp, exception, testS ),
+			this.myTempMeanResultSets[i].addResults( (NumericalResultSet) this.myAbstractClassifier[i].evaluate( mp, exception, testS, weights ),
 					this.myAbstractClassifier[i].getNumericalCharacteristics() );
 
 		}
@@ -952,6 +1039,10 @@ public abstract class ClassifierAssessment {
 	 * @param trainS
 	 *            samples used as training sets (has to contain one
 	 *            {@link DataSet} for each class)
+	 * @param weights
+	 *            the (non-negative) weights for the data;
+	 *            weight for each data set (first dimension) and each sequence (second dimension),
+	 *            can be <code>null</code> which is the same as weight 1 for all sequences in all data sets
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if the length of <code>trainS</code> is not equal to the
@@ -961,14 +1052,14 @@ public abstract class ClassifierAssessment {
 	 * @throws Exception
 	 *             if necessary
 	 */
-	protected void train( DataSet... trainS ) throws IllegalArgumentException, Exception {
+	protected void train( DataSet[] trainS, double[][] weights ) throws IllegalArgumentException, Exception {
 
 		if( trainS.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
 			throw new IllegalArgumentException( "Dimension of given trainDataSet-array is not " + "equal to problem-dimension (classifier.getNumberOfClasses)." );
 		}
 
 		for( int i = 0; i < this.myAbstractClassifier.length - this.skipLastClassifiersDuringClassifierTraining; i++ ) {
-			this.myAbstractClassifier[i].train( trainS );
+			this.myAbstractClassifier[i].train( trainS, weights );
 		}
 
 		//FIXME 
@@ -981,6 +1072,20 @@ public abstract class ClassifierAssessment {
 			for( int models = 0; models < this.myModel[classes].length; this.myModel[classes][models++].train( trainS[classes] ) );
 		}
 	}
+	
+	/**
+	 * This method returns an instance of {@link ClassifierAssessmentAssessParameterSet} that can be used in the <code>assess</code> methods.
+	 * 
+	 * @return an instance of {@link ClassifierAssessmentAssessParameterSet} that can be used in the <code>assess</code> methods.
+	 * 
+	 * @throws Exception if the parameter set could not be created properly
+	 * 
+	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)
+	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet...)
+	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[][]...)
+	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[], double[][])
+	 */
+	public abstract T getAssessParameterSet() throws Exception;
 
 	/**
 	 * Used only in {@link ClassifierAssessment} to allow the construction of

@@ -33,6 +33,7 @@ import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.utils.Pair;
 import de.jstacs.utils.ProgressUpdater;
 
 /**
@@ -49,7 +50,7 @@ import de.jstacs.utils.ProgressUpdater;
  * @author Andre Gohr (bioinf (nospam:.) ag (nospam:@) googlemail (nospam:.)
  *         com), Jens Keilwagen
  */
-public class KFoldCrossValidation extends ClassifierAssessment {
+public class KFoldCrossValidation extends ClassifierAssessment<KFoldCrossValidationAssessParameterSet> {
 
 	//	**********************
 	//	class variables
@@ -346,29 +347,25 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see ClassifierAssessment#evaluateClassifier(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet[], ProgressUpdater)
+	 * @see ClassifierAssessment#evaluateClassifier(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet[], double[][], ProgressUpdater)
 	 * 
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, KFoldCrossValidationAssessParameterSet assessPS, DataSet[] s, double[][] weights, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
-		KFoldCrossValidationAssessParameterSet tempAssessPS = null;
-
-		try {
-			tempAssessPS = (KFoldCrossValidationAssessParameterSet)assessPS;
-		} catch ( ClassCastException e ) {
-			throw new IllegalArgumentException( "Given AssessParameterSet is not of type " + "KFoldCVAssessParameterSet." );
-		}
-
-		PartitionMethod splitMethod = tempAssessPS.getDataSplitMethod();
-		int k = tempAssessPS.getK();
+		PartitionMethod splitMethod = assessPS.getDataSplitMethod();
+		int k = assessPS.getK();
 
 		DataSet[][] sInParts = new DataSet[s.length][];
+		double[][][] weightsInParts = new double[s.length][][];
 		try {
-			for( int i = 0; i < sInParts.length;
 			//im bg-Fall sollte das Sample aus den unterschiedlichen grossen Sequenzen bestehen
-			sInParts[i] = s[i++].partition( k, splitMethod ) );
+			for( int i = 0; i < sInParts.length; i++ ) {
+				Pair<DataSet[], double[][]> p = s[i].partition( weights[i], splitMethod, k );
+				sInParts[i] = p.getFirstElement();
+				weightsInParts[i] = p.getSecondElement();
+			}
 		} catch ( EmptyDataSetException e ) {
 			throw new IllegalArgumentException( "Given DataSet s seems to contain to few elements " + "for a "
 												+ k
@@ -377,7 +374,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 												+ k
 												+ " non-overlapping parts." );
 		}
-		evaluate( mp, tempAssessPS, pU, sInParts );
+		evaluate( mp, assessPS, pU, sInParts, weightsInParts );
 	}
 
 	/**
@@ -400,12 +397,13 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	private void evaluate( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU, DataSet[]... splitData ) throws Exception {
+	private void evaluate( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU, DataSet[][] splitData, double[][][] splitWeights ) throws Exception {
 		int subSeqL = caaps.getElementLength();
 		boolean exceptionIfMPNotComputable = caaps.getExceptionIfMPNotComputable();
 
 		int clazz = splitData.length, k = splitData[0].length, j = 1;
 		DataSet[][] sTrainTestClassWise = new DataSet[2][clazz];
+		double[][][] weightsTrainTestClassWise = new double[2][clazz][];
 		boolean[] tempBool = new boolean[k];
 		java.util.Arrays.fill( tempBool, true );
 		while( j < splitData.length && splitData[j].length == k ) {
@@ -415,6 +413,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 			throw new IllegalArgumentException( "Please check the number of predefined splits per class. Compare class 0 with class " + j );
 		}
 		pU.setMax( k );
+		Pair<DataSet,double[]> p;
 		for( int i = 0; i < k; i++ ) {
 			//prepare data
 			tempBool[i] = false;
@@ -424,18 +423,22 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 				//im bg-Fall beinhalten die Teil-Mengen die gesamten unterschiedlichen Langen Sequenzen
 				//das bedeutet, dass nach der Anzahl der Symbole zu urteilen, die Partitionen sehr
 				//wahrscheinlich nicht gleich gross sind
-				sTrainTestClassWise[0][j] = DataSet.union( splitData[j], tempBool );
-
+				p = DataSet.union( splitData[j], splitWeights[j], tempBool );
+				sTrainTestClassWise[0][j] = p.getFirstElement();
+				weightsTrainTestClassWise[0][j] = p.getSecondElement();
+				
 				//test-data
 				//muss auf richtige subSeqL gesetzt werden, damit auch die fg-Modelle
 				//auf diese angewendet werden koennen.
-				sTrainTestClassWise[1][j] = new DataSet( splitData[j][i], subSeqL );
+				p = splitData[j][i].resize( splitWeights[j][i], subSeqL );
+				sTrainTestClassWise[1][j] = p.getFirstElement();
+				weightsTrainTestClassWise[1][j] = p.getSecondElement();
 			}
 			tempBool[i] = true;
 
-			train( sTrainTestClassWise[0] );
+			train( sTrainTestClassWise[0], weightsTrainTestClassWise[0] );
 
-			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1] );
+			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1], weightsTrainTestClassWise[1] );
 			pU.setValue( i + 1 );
 		}
 	}
@@ -458,18 +461,23 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 	 *            the previously split data; <code>splitData[i]</code> contains
 	 *            the splits for class <code>i</code>; therefore the length of
 	 *            each subarray <code>splitData[i]</code> has to to be identical
-	 * 
+	 * @param splitWeights 
+	 *            the (non-negative) weights for the previously split data;
+	 *            weight for each split (first dimension) of each data set (second dimension) and each sequence (third dimension),
+	 *            can be <code>null</code> which is the same as weight 1 for all sequences in all data sets
 	 * @return the result packed in a {@link ListResult}
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-
 	public ListResult assessWithPredefinedSplits( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet caaps, ProgressUpdater pU,
-			DataSet[]... splitData ) throws Exception {
+			DataSet[][] splitData, double[][][] splitWeights ) throws Exception {
 		int clazz = myAbstractClassifier[0].getNumberOfClasses();
 		if( splitData.length != clazz ) {
 			throw new IllegalArgumentException( "The number of classes in the data array and the classifier differs." );
+		}
+		if( splitWeights == null ) {
+			splitWeights = new double[clazz][][];
 		}
 
 		this.myTempMeanResultSets = new MeanResultSet[this.myAbstractClassifier.length];
@@ -477,7 +485,7 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 			myTempMeanResultSets[i] = new MeanResultSet( myAbstractClassifier[i].getClassifierAnnotation() );
 		}
 
-		evaluate( mp, caaps, pU, splitData );
+		evaluate( mp, caaps, pU, splitData, splitWeights );
 
 		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment", "a description or name of the assessment", getNameOfAssessment() ) );
@@ -494,5 +502,9 @@ public class KFoldCrossValidation extends ClassifierAssessment {
 				"the results of a " + this.getNameOfAssessment() + " of predefined splits",
 				new ResultSet( annotation ),
 				this.myTempMeanResultSets );
+	}
+	
+	public KFoldCrossValidationAssessParameterSet getAssessParameterSet() throws Exception {
+		return new KFoldCrossValidationAssessParameterSet();
 	}
 }

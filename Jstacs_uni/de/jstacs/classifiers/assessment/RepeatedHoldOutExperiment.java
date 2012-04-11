@@ -25,6 +25,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.utils.Pair;
 import de.jstacs.utils.ProgressUpdater;
 
 /**
@@ -42,7 +43,7 @@ import de.jstacs.utils.ProgressUpdater;
  *         com)
  * 
  */
-public class RepeatedHoldOutExperiment extends ClassifierAssessment {
+public class RepeatedHoldOutExperiment extends ClassifierAssessment<RepeatedHoldOutAssessParameterSet> {
 
 	//	**********************
 	//	class variables
@@ -343,22 +344,14 @@ public class RepeatedHoldOutExperiment extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, RepeatedHoldOutAssessParameterSet assessPS, DataSet[] s, double[][] weights, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
-		RepeatedHoldOutAssessParameterSet tempAssessPS = null;
-
-		try {
-			tempAssessPS = (RepeatedHoldOutAssessParameterSet)assessPS;
-		} catch ( ClassCastException e ) {
-			throw new IllegalArgumentException( "Given AssessParameterSet assessPS is not of type " + "RepeatedHoldOutAssessParameterSet." );
-		}
-
-		PartitionMethod splitMethod = tempAssessPS.getDataSplitMethod();
-		int subSeqL = tempAssessPS.getElementLength();
-		boolean exceptionIfMPNotComputable = tempAssessPS.getExceptionIfMPNotComputable();
-		int repeats = tempAssessPS.getRepeats();
-		double[] percents = tempAssessPS.getPercents();
+		PartitionMethod splitMethod = assessPS.getDataSplitMethod();
+		int subSeqL = assessPS.getElementLength();
+		boolean exceptionIfMPNotComputable = assessPS.getExceptionIfMPNotComputable();
+		int repeats = assessPS.getRepeats();
+		double[] percents = assessPS.getPercents();
 
 		if( percents.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
 			throw new IllegalArgumentException( "Given RepeatedHoldOutAssessParameterSet contains " + "a invalid parameter percents. Percents (double[], percentage of test-data of all "
@@ -367,27 +360,37 @@ public class RepeatedHoldOutExperiment extends ClassifierAssessment {
 		}
 
 		DataSet[][] sTrainTestClassWise = new DataSet[2][s.length];
-		DataSet[] temp;
+		double[][][] weightsTrainTestClassWise = new double[2][s.length][];
+		Pair<DataSet[], double[][]> temp;
+		Pair<DataSet, double[]> temp2;
 
 		pU.setMax( repeats );
 
 		for( int iteration = 0; iteration < repeats; iteration++ ) {
 			for( int classes = 0; classes < s.length; classes++ ) {
-				// temp[0] -> train
-				// temp[1] -> test
-				temp = s[classes].partition( percents[classes], splitMethod, subSeqL );
-
-				sTrainTestClassWise[0][classes] = temp[0];
-				sTrainTestClassWise[1][classes] = temp[1];
+				// temp.get...[0] -> train
+				// temp.get...[1] -> test
+				temp = s[classes].partition( weights[classes], splitMethod, 1-percents[classes], percents[classes] );
+				
+				sTrainTestClassWise[0][classes] = temp.getFirstElement()[0];
+				weightsTrainTestClassWise[0][classes] = temp.getSecondElement()[0];
+				
+				temp2 = temp.getFirstElement()[1].resize( temp.getSecondElement()[1], subSeqL );
+				sTrainTestClassWise[1][classes] = temp2.getFirstElement();
+				weightsTrainTestClassWise[1][classes] = temp2.getSecondElement();
 			}
 
-			train( sTrainTestClassWise[0] );
-			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1] );
+			train( sTrainTestClassWise[0], weightsTrainTestClassWise[0] );
+			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1], weightsTrainTestClassWise[1] );
 
 			pU.setValue( iteration + 1 );
 			if( pU.isCancelled() ) {
 				break;
 			}
 		}
+	}
+	
+	public RepeatedHoldOutAssessParameterSet getAssessParameterSet() throws Exception {
+		return new RepeatedHoldOutAssessParameterSet();
 	}
 }

@@ -24,14 +24,16 @@ import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasurePara
 import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.utils.Pair;
 import de.jstacs.utils.ProgressUpdater;
 
 /**
  * This class implements a repeated subsampling experiment. A repeated
  * subsampling experiment uses the following procedure to assess classifiers.<br>
  * The user supplies datasets for each class the classifiers are capable to
- * distinguish. In each step these datasets are used to generate test and train
- * datasets by subsampling of these datasets. The user defines how many elements
+ * distinguish. In each step of the repeated subsampling these datasets are used to generate test and train
+ * datasets by subsampling of these datasets. Hence, the subsampled train and test dataset of 
+ * each class do not have to be disjoint. The user defines how many elements
  * the subsampled test and train datasets should contain. After subampling the
  * train datasets are used to train the classifiers and the test datasets are
  * used to assess the performance of the classifiers to predict the elements
@@ -43,7 +45,7 @@ import de.jstacs.utils.ProgressUpdater;
  *         com)
  * 
  */
-public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
+public class RepeatedSubSamplingExperiment extends ClassifierAssessment<RepeatedSubSamplingAssessParameterSet> {
 
 	//	**********************
 	//	class variables
@@ -348,23 +350,15 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 	 *             if something went wrong
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, RepeatedSubSamplingAssessParameterSet assessPS, DataSet[] s, double[][] weights, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 
-		RepeatedSubSamplingAssessParameterSet tempAssessPS = null;
-
-		try {
-			tempAssessPS = (RepeatedSubSamplingAssessParameterSet)assessPS;
-		} catch ( ClassCastException e ) {
-			throw new IllegalArgumentException( "Given AssessParameterSet assessPS is not of type " + "RepeatedSubSamlplingAssessParameterSet." );
-		}
-
-		int eL = tempAssessPS.getElementLength();
-		boolean exceptionIfMPNotComputable = tempAssessPS.getExceptionIfMPNotComputable();
-		int repeats = tempAssessPS.getRepeats();
-		int[] trainN = tempAssessPS.getTrain_TestNumbers( true );
-		int[] testN = tempAssessPS.getTrain_TestNumbers( false );
-		int subSeqL = tempAssessPS.getElementLength();
+		int eL = assessPS.getElementLength();
+		boolean exceptionIfMPNotComputable = assessPS.getExceptionIfMPNotComputable();
+		int repeats = assessPS.getRepeats();
+		double[] trainN = assessPS.getTrain_TestNumbers( true );
+		double[] testN = assessPS.getTrain_TestNumbers( false );
+		int subSeqL = assessPS.getElementLength();
 
 		if( trainN.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
 			throw new IllegalArgumentException( "Given RepeatedSubSamlpingAssessParameterSet contains " + "a invalid parameter trainDataNumbers. trainDataNumbers (int[], number of train-data items that should be subsampled "
@@ -378,32 +372,28 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 												+ "as classes the local classifers are able to distinguish." );
 		}
 
-		DataSet[] tempS = new DataSet[s.length];
-
-		for( int i = 0; i < tempS.length; i++ ) {
-
-			if( s[i].getElementLength() != eL ) {
-				tempS[i] = new DataSet( s[i], eL );
-			} else {
-				tempS[i] = s[i];
-			}
-		}
-
 		DataSet[][] sTrainTestClassWise = new DataSet[2][s.length];
+		double[][][] weightsTrainTestClassWise = new double[2][s.length][];
 
 		pU.setMax( repeats );
 
+		Pair<DataSet, double[]> p;
 		for( int iteration = 0; iteration < repeats; iteration++ ) {
 			for( int classes = 0; classes < s.length; classes++ ) {
 				//train
-				sTrainTestClassWise[0][classes] = tempS[classes].subSampling( trainN[classes] );
+				p = s[classes].subSampling(trainN[classes], weights[classes]);
+				sTrainTestClassWise[0][classes] = p.getFirstElement();
+				weightsTrainTestClassWise[0][classes] = p.getSecondElement();
 
 				//test
-				sTrainTestClassWise[1][classes] = new DataSet( tempS[classes].subSampling( testN[classes] ), subSeqL );
+				p = s[classes].subSampling(testN[classes], weights[classes]);
+				p = p.getFirstElement().resize( p.getSecondElement(), subSeqL );
+				sTrainTestClassWise[1][classes] = p.getFirstElement();
+				weightsTrainTestClassWise[1][classes] = p.getSecondElement();				
 			}
 
-			train( sTrainTestClassWise[0] );
-			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1] );
+			train( sTrainTestClassWise[0], weightsTrainTestClassWise[0] );
+			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1], weightsTrainTestClassWise[1] );
 
 			pU.setValue( iteration + 1 );
 			if( pU.isCancelled() ) {
@@ -412,4 +402,7 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment {
 		}
 	}
 
+	public RepeatedSubSamplingAssessParameterSet getAssessParameterSet() throws Exception {
+		return new RepeatedSubSamplingAssessParameterSet();
+	}
 }

@@ -125,20 +125,20 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * @see ClassifierAssessmentAssessParameterSet#ClassifierAssessmentAssessParameterSet(int,
 	 *      boolean)
 	 */
-	public RepeatedSubSamplingAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable, int repeats, int[] trainNumbers,
-													int[] testNumbers ) throws IllegalValueException, CloneNotSupportedException {
+	public RepeatedSubSamplingAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable, int repeats, double[] trainNumbers,
+													double[] testNumbers ) throws IllegalValueException, CloneNotSupportedException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
 		
-		this.parameters.get( 2 ).setValue( new Integer( repeats ) );
+		this.parameters.get( 2 ).setValue( repeats );
 
 		ParameterSet[] tempPSA = new ParameterSet[trainNumbers.length];
-		for( int i = 0; i < tempPSA.length; tempPSA[i] = getParameterSetContainingASingleIntValue( trainNumbers[i++], "training" ) );
+		for( int i = 0; i < tempPSA.length; tempPSA[i] = getParameterSetContainingASingleDoubleValue( trainNumbers[i++], "training" ) );
 
 		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( 3 ) ) ).getValue() ) ).replaceContentWith( tempPSA );
 
 		ParameterSet[] tempPSA2 = new ParameterSet[testNumbers.length];
-		for( int i = 0; i < tempPSA2.length; tempPSA2[i] = getParameterSetContainingASingleIntValue( testNumbers[i++], "testing" ) );
+		for( int i = 0; i < tempPSA2.length; tempPSA2[i] = getParameterSetContainingASingleDoubleValue( testNumbers[i++], "testing" ) );
 
 		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( 4 ) ) ).getValue() ) ).replaceContentWith( tempPSA2 );
 
@@ -149,27 +149,27 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	//	**********************
 
 	/**
-	 * Creates a new {@link ParameterSet} containing a single <code>int</code>-
+	 * Creates a new {@link ParameterSet} containing a single <code>double</code>-
 	 * {@link SimpleParameter}. This {@link ParameterSet} is used as a part of
 	 * the {@link ExpandableParameterSet} that contains the test data for a
 	 * specific class.
 	 * @throws DatatypeNotValidException 
 	 */
-	private ParameterSet getParameterSetContainingASingleIntValue( int num, final String train_test ) throws IllegalValueException {
+	private ParameterSet getParameterSetContainingASingleDoubleValue( double num, final String train_test ) throws IllegalValueException {
 
 		ParameterSet ret;
 		try {
-			ret = new SimpleParameterSet(new SimpleParameter( DataType.INT,
+			ret = new SimpleParameterSet(new SimpleParameter( DataType.DOUBLE,
 							"number",
 							"Defines a number of elements of data used as " + train_test
 									+ " items (class-specific) during a SubSamplingAssessment",
 							true,
-							new NumberValidator<Integer>( 1, Integer.MAX_VALUE ) ) );
+							new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
 		} catch ( DatatypeNotValidException doesnothappen ) {
 			throw new RuntimeException( doesnothappen );
 		}
 
-		ret.getParameterAt( 0 ).setValue( new Integer( num ) );
+		ret.getParameterAt( 0 ).setValue( num );
 
 		return ret;
 	}
@@ -194,7 +194,7 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 						+ "contains an ExpandableParameterSet that contains for each class "
 						+ "the number of the items (for each class), that should be subsampled "
 						+ "and used as training-data.",
-				new ExpandableParameterSet( getParameterSetContainingASingleIntValue( 1, "training" ),
+				new ExpandableParameterSet( getParameterSetContainingASingleDoubleValue( 1, "training" ),
 						"number",
 						"At pos i in this Expandable ParameterSet " + "defines the number of subsampled items, "
 								+ "that should be used as train-data for class "
@@ -209,7 +209,7 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 						+ "contains an ExpandableParameterSet that contains for each class "
 						+ "the number of the items (for each class), that should be subsampled "
 						+ "and used as test-data.",
-				new ExpandableParameterSet( getParameterSetContainingASingleIntValue( 1, "testing" ),
+				new ExpandableParameterSet( getParameterSetContainingASingleDoubleValue( 1, "testing" ),
 						"number",
 						"At pos i in this Expandable ParameterSet " + "defines the number of subsampled items, "
 								+ "that should be used as test-data for class "
@@ -248,7 +248,7 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 * @return an array class-wise containing the number of elements the
 	 *         subsampled (train | test) datasets should consist of
 	 */
-	public int[] getTrain_TestNumbers( boolean train_case ) {
+	public double[] getTrain_TestNumbers( boolean train_case ) {
 
 		int pos;
 		if( train_case ) {
@@ -259,10 +259,10 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 
 		ExpandableParameterSet tempEPS = (ExpandableParameterSet)( this.getParameterAt( pos ).getValue() );
 
-		int[] ret = new int[tempEPS.getNumberOfParameters()];
+		double[] ret = new double[tempEPS.getNumberOfParameters()];
 
 		for( int i = 0; i < ret.length; i++ ) {
-			ret[i] = ( (Integer)( ( (ParameterSet)( tempEPS.getParameterAt( i ).getValue() ) ).getParameterAt( 0 ).getValue() ) ).intValue();
+			ret[i] = (Double)( ( (ParameterSet)( tempEPS.getParameterAt( i ).getValue() ) ).getParameterAt( 0 ).getValue() );
 		};
 
 		return ret;
