@@ -29,7 +29,9 @@ import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.DataSet.PartitionMethod;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.utils.Pair;
 import de.jstacs.utils.ProgressUpdater;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class is a special {@link ClassifierAssessment} that partitions the data
@@ -42,7 +44,7 @@ import de.jstacs.utils.ProgressUpdater;
  * 
  * @see Sampled_RepeatedHoldOutAssessParameterSet
  */
-public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
+public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment<Sampled_RepeatedHoldOutAssessParameterSet> {
 
 	/**
 	 * Creates a new {@link Sampled_RepeatedHoldOutExperiment} from an array of
@@ -279,12 +281,13 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 																																ClassDimensionException {
 		super( aCs, buildClassifiersByCrossProduct, aMs );
 	}
-
-	/* (non-Javadoc)
-	 * @see de.jstacs.classifiers.assessment.ClassifierAssessment#evaluateClassifier(de.jstacs.classifiers.MeasureParameters, de.jstacs.classifiers.assessment.ClassifierAssessmentAssessParameterSet, de.jstacs.data.DataSet[], de.jstacs.utils.ProgressUpdater)
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.classifiers.assessment.ClassifierAssessment#evaluateClassifier(de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet, de.jstacs.classifiers.assessment.ClassifierAssessmentAssessParameterSet, de.jstacs.data.DataSet[], double[][], de.jstacs.utils.ProgressUpdater)
 	 */
 	@Override
-	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, ClassifierAssessmentAssessParameterSet assessPS, DataSet[] s, ProgressUpdater pU ) throws IllegalArgumentException,
+	protected void evaluateClassifier( NumericalPerformanceMeasureParameterSet mp, Sampled_RepeatedHoldOutAssessParameterSet assessPS, DataSet[] s, double[][] weights, ProgressUpdater pU ) throws IllegalArgumentException,
 			Exception {
 		if( s.length != 2 ) {
 			throw new IllegalArgumentException( "This class can only handle two classes" );
@@ -304,60 +307,90 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 		double percents = tempAssessPS.getPercent();
 
 		DataSet[][] sTrainTestClassWise = new DataSet[2][s.length];
-		DataSet[] temp;
+		double[][][] weightsTrainTestClassWise = new double[2][s.length][];
+		Pair<DataSet[], double[][]> temp;
+		Pair<DataSet, double[]> temp2;
 
 		pU.setMax( repeats );
 
-		int j = 0, k = 0, clazz, l, iteration = 0, index, length;
+		int j = 0, k, clazz, l, iteration = 0, length;
 		int[] number = new int[2];
 		Random r = new Random();
-		Sequence[][] all = new Sequence[s.length][];
 		Sequence[][][] part = new Sequence[2][s.length][];
 		AlphabetContainer[] abc = new AlphabetContainer[s.length];
-
-		// cache all elements and alphabets
-		for( ; j < all.length; j++ ) {
-			if( j != referenceClass ) {
-				all[j] = s[j].getAllElements();
-				abc[j] = s[j].getAlphabetContainer();
-			} else {
-				all[j] = null;
-				abc[j] = null;
+		
+		int[][] seqIdx = new int[s.length][];
+		double[] sum = new double[s.length], h = sum.clone();
+		double index;
+		for( k = 0; k < seqIdx.length; k++ ) {
+			if( k != referenceClass ) {
+				seqIdx[k] = new int[s[k].getNumberOfElements()];
+				sum[k] = weights==null || weights[k] == null ? seqIdx[k].length : ToolBox.sum(0, seqIdx[k].length, weights[k] ); 
 			}
 		}
 
 		for( ; iteration < repeats; iteration++ ) {
 			// split data of reference class
-			temp = s[referenceClass].partition( percents, splitMethod, subSeqL );
-			sTrainTestClassWise[0][referenceClass] = temp[0];
-			sTrainTestClassWise[1][referenceClass] = temp[1];
-
-			// create arrays for other classes
-			if( iteration == 0 ) {
-				number[0] = temp[0].getNumberOfElements();
-				number[1] = temp[1].getNumberOfElements();
-				for( ; k < s.length; k++ ) {
-					if( k != referenceClass ) {
-						part[0][k] = new Sequence[number[0]];
-						part[1][k] = new Sequence[number[1]];
+			temp = s[referenceClass].partition( weights[referenceClass], splitMethod, 1-percents, percents );
+			sTrainTestClassWise[0][referenceClass] = temp.getFirstElement()[0];
+			weightsTrainTestClassWise[0][referenceClass] = temp.getSecondElement()[0];
+			
+			temp2 = temp.getFirstElement()[1].resize( temp.getSecondElement()[1], subSeqL );
+			sTrainTestClassWise[1][referenceClass] = temp2.getFirstElement();
+			weightsTrainTestClassWise[1][referenceClass] = temp2.getSecondElement();
+			
+			//prepare
+			System.arraycopy( sum, 0, h, 0, h.length );
+			for( k = 0; k < seqIdx.length; k++ ) {
+				if( k != referenceClass ) {
+					for( int i = 0; i < seqIdx[k].length; i++ ) {
+						seqIdx[k][i] = i;
 					}
 				}
 			}
 
-			// create samples for other classes
+			// create arrays for other classes
+			if( iteration == 0 || number[0] != sTrainTestClassWise[0][referenceClass].getNumberOfElements()) {
+				number[0] = sTrainTestClassWise[0][referenceClass].getNumberOfElements();
+				number[1] = sTrainTestClassWise[1][referenceClass].getNumberOfElements();
+				for( k = 0; k < s.length; k++ ) {
+					if( k != referenceClass ) {
+						for( int m = 0; m < 2; m++ ) {
+							part[m][k] = new Sequence[number[m]];
+							if( weights != null && weights[k] != null ) {
+								weightsTrainTestClassWise[m][k] = new double[number[m]];
+							}
+						}
+					}
+				}
+			}
+
+			// create data sets for other classes
 			for( l = 0, j = 0; j < 2; j++ ) // train/test dataset
 			{
 				for( k = 0; k < number[j]; k++, l++ ) // number of sequences
 				{
-					length = temp[j].getElementAt( k ).getLength();
+					length = sTrainTestClassWise[j][referenceClass].getElementAt( k ).getLength();
 					for( clazz = 0; clazz < s.length; clazz++ ) // class of data
 					{
 						if( clazz != referenceClass ) {
-							index = r.nextInt( all[clazz].length - l );
-							part[j][clazz][k] = all[clazz][index];
-							all[clazz][index] = all[clazz][all[clazz].length - l - 1];
-							all[clazz][all[clazz].length - l - 1] = part[j][clazz][k];
-
+							index = r.nextDouble() * h[clazz];
+							double w = weights != null && weights[clazz] != null ? weights[clazz][seqIdx[clazz][0]] : 1;
+							int i = 0;
+							while( w < index ) {
+								index -= w;
+								i++;
+								if( weights != null && weights[clazz] != null ) {
+									w = weights[clazz][seqIdx[clazz][i]];
+								}
+							}
+							part[j][clazz][k] = s[clazz].getElementAt( seqIdx[clazz][i] );
+							if( weightsTrainTestClassWise[j][clazz] != null ) {
+								weightsTrainTestClassWise[j][clazz][k] = w;
+							}
+							h[clazz] -= seqIdx[clazz][i];
+							seqIdx[clazz][i] = seqIdx[clazz][seqIdx[clazz].length-l-1];
+							
 							// truncate sequences if necessary
 							if( sameLength ) {
 								part[j][clazz][k] = part[j][clazz][k].getSubSequence( abc[clazz],
@@ -380,8 +413,8 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 			}
 
 			// train and test on the partitions
-			train( sTrainTestClassWise[0] );
-			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1] );
+			train( sTrainTestClassWise[0], weightsTrainTestClassWise[0] );
+			test( mp, exceptionIfMPNotComputable, sTrainTestClassWise[1], weightsTrainTestClassWise[1] );
 
 			// progress updater
 			pU.setValue( iteration + 1 );
@@ -389,5 +422,9 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment {
 				break;
 			}
 		}
+	}
+	
+	public Sampled_RepeatedHoldOutAssessParameterSet getAssessParameterSet() throws Exception {
+		return new Sampled_RepeatedHoldOutAssessParameterSet();
 	}
 }
