@@ -1120,13 +1120,14 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			if( states.length > 1 ) {
 				double sum = 0;
 				for( int i = 0; i < statistic.length; i++ ) {
-					sum += statistic[i];
+					parameters[i] = statistic[i] + hyperParameters[i];
+					sum += parameters[i];
 				}
 				DirichletMRGParams par;
 				if( sum == 0 ) {
 					par = new DirichletMRGParams( 1, states.length );
 				} else {
-					par = new DirichletMRGParams( statistic );
+					par = new DirichletMRGParams( parameters );
 				}
 				DirichletMRG.DEFAULT_INSTANCE.generateLog(parameters, 0, parameters.length, par);
 			} else {
