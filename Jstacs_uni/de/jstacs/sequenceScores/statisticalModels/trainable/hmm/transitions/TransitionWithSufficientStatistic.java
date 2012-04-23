@@ -59,11 +59,11 @@ public interface TransitionWithSufficientStatistic extends Transition {
 	public abstract void joinStatistics(Transition... transitions);
 	
 	/**
-         * This method calculates a score for the current statistics, which is independent from the current parameters
-         *
-         * In general the gamma-score is a product of gamma-functions parameterized with the current statistics
-         *
-         * @return the logarithm of the gamma-score for the current statistics
-         */
+     * This method calculates a score for the current statistics, which is independent from the current parameters
+     *
+     * In general the gamma-score is a product of gamma-functions parameterized with the current statistics
+     *
+     * @return the logarithm of the gamma-score for the current statistics
+     */
 	public double getLogGammaScoreFromStatistic();
 }

@@ -658,7 +658,12 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	}
 	
     public void drawParametersFromStatistic() {
-    	drawParameters( statistic, false );
+    	for(int j=0;j<probs.length;j++){
+    		for( int i = 0; i < statistic[j].length; i++ ) {
+    			params[i][j] = statistic[i][j] + hyperParams[i][j];
+    		}
+		}
+    	drawParameters( params, false );
 	}
 
     public double getLogGammaScoreFromStatistic() {
