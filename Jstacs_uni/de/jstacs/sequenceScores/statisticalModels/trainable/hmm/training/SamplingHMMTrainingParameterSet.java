@@ -133,6 +133,6 @@ public class SamplingHMMTrainingParameterSet extends HMMTrainingParameterSet {
 	 * @throws NotInstantiableException if the burn in test could not be created 
 	 */
 	public AbstractBurnInTest getBurnInTest() throws NotInstantiableException {
-		return (AbstractBurnInTest)((AbstractBurnInTestParameterSet)getParameterForName( AbstractBurnInTest.class.getSimpleName() ).getValue()).getInstance();
+		return (AbstractBurnInTest)((AbstractBurnInTestParameterSet)getParameterForName( "Burn in test parameters" ).getValue()).getInstance();
 	}
 }
