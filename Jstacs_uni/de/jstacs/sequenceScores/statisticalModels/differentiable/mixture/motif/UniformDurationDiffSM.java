@@ -71,6 +71,14 @@ public final class UniformDurationDiffSM extends DurationDiffSM
 		computeLogP();
 	}
 	
+	
+	
+	@Override
+	public void modify( int delta ) {
+		super.modify( delta );
+		computeLogP();
+	}
+
 	private void computeLogP()
 	{
 		logP = -Math.log( delta + 1 );
