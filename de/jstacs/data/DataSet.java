@@ -52,6 +52,7 @@ import de.jstacs.io.AbstractStringExtractor;
 import de.jstacs.io.SymbolExtractor;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This is the class for any data set of {@link Sequence}s. All {@link Sequence}s
@@ -325,7 +326,7 @@ public class DataSet implements Iterable<Sequence>{
 	 */
 	public static final DataSet union( DataSet[] s, boolean[] in ) throws IllegalArgumentException, EmptyDataSetException {
 		try {
-			return union( s, in, 0 );
+			return union( s, null, in ).getFirstElement();
 		} catch ( WrongLengthException doesNotHappen ) {
 			IllegalArgumentException i = new IllegalArgumentException( doesNotHappen.getMessage() );
 			i.setStackTrace( doesNotHappen.getStackTrace() );
@@ -368,12 +369,12 @@ public class DataSet implements Iterable<Sequence>{
 	 * 
 	 * @param s
 	 *            the array of {@link DataSet}s
+	 * @param weights
+	 *            the weights of the sequences in each data set can be <code>null</code>
 	 * @param in
 	 *            an array indicating which {@link DataSet} is used in the union,
 	 *            if <code>in[i]==true</code> the {@link DataSet}
 	 *            <code>s[i]</code> is used
-	 * @param subsequenceLength
-	 *            the length of the elements in the united {@link DataSet}
 	 * 
 	 * @return the united {@link DataSet}
 	 * 
@@ -386,39 +387,32 @@ public class DataSet implements Iterable<Sequence>{
 	 *             if the united {@link DataSet} does not support this
 	 *             <code>subsequenceLength</code>
 	 */
-	public static final DataSet union( DataSet[] s, boolean[] in, int subsequenceLength ) throws IllegalArgumentException,
+	public static final Pair<DataSet, double[]> union( DataSet[] s, double[][] weights, boolean[] in ) throws IllegalArgumentException,
 			EmptyDataSetException,
 			WrongLengthException {
 		if( s == null || s.length == 0 ) {
-			return null;
+			return new Pair<DataSet, double[]>( null, null );
 		} else {
-			if( in.length != s.length ) {
+			if( (weights != null && weights.length != s.length) || in.length != s.length ) {
 				throw new IllegalArgumentException( "The arrays have to have the same dimension." );
 			}
-			int i = 0, l = s.length, len, anz, start;
+			int i = 0, j, l = s.length, len, anz, start;
 			while( i < l && !in[i] ) {
 				i++;
 			}
 			if( i == l ) {
-				return null;
+				return new Pair<DataSet, double[]>( null, null );
 			}
-			start = i;
-			len = s[i].getElementLength();
-			anz = s[i].getNumberOfElements();
-			String annot = "the union of [" + s[i].getAnnotation();
-			boolean seq = s[i++].indexOfFirstSubseq == null, subseq = !seq;
+			start = i++;
+			len = s[start].getElementLength();
+			anz = s[start].getNumberOfElements();
+			String annot = "the union of [" + s[start].getAnnotation();
 			while( i < l && ( !in[i] || s[start].alphabetContainer.checkConsistency( s[i].alphabetContainer ) ) ) {
 				if( in[i] ) {
-					if( s[i].getMinimalElementLength() < subsequenceLength ) {
-						// would be asked later anyway, but saves time to do now
-						throw new WrongLengthException( subsequenceLength );
-					}
 					anz += s[i].getNumberOfElements();
 					if( len != 0 && len != s[i].getElementLength() ) {
 						len = 0;
 					}
-					seq &= s[i].indexOfFirstSubseq == null;
-					subseq &= s[i].indexOfFirstSubseq != null;
 					annot += ", " + s[i].getAnnotation();
 				}
 				i++;
@@ -430,54 +424,30 @@ public class DataSet implements Iterable<Sequence>{
 			Sequence[] seqs = new Sequence[anz];
 			ElementEnumerator ei;
 			anz = 0;
+			DoubleList w = new DoubleList();
 			for( i = 0; i < l; i++ ) {
 				if( in[i] ) {
+					j = 0;
 					ei = new ElementEnumerator( s[i] );
 					while( ei.hasMoreElements() ) {
 						seqs[anz++] = ei.nextElement();
+						if( weights != null && weights[i] != null ) {
+							w.add( weights[i][j++] );
+						}
 					}
 				}
 			}
 
 			DataSet res = new DataSet( s[start].alphabetContainer, seqs, len, annot + "]" );
-			res.setSubsequenceLength( subsequenceLength );
-
-			return res;
-		}
-	}
-
-	/**
-	 * This method unites all {@link DataSet}s of the array <code>s</code> and
-	 * sets the element length in the united sample to
-	 * <code>subsequenceLength</code>.
-	 * 
-	 * @param s
-	 *            the array of {@link DataSet}s
-	 * @param subsequenceLength
-	 *            the length of the elements in the united {@link DataSet}
-	 * 
-	 * @return the united {@link DataSet}
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if the {@link de.jstacs.data.alphabets.Alphabet}s do not match
-	 * @throws WrongLengthException
-	 *             if the united {@link DataSet} does not support this
-	 *             <code>subsequenceLength</code>
-	 * 
-	 * @see DataSet#union(DataSet[], boolean[], int)
-	 */
-	public static final DataSet union( DataSet[] s, int subsequenceLength ) throws IllegalArgumentException, WrongLengthException {
-		if( s == null || s.length == 0 ) {
-			return null;
-		} else {
-			boolean[] in = new boolean[s.length];
-			Arrays.fill( in, true );
-			try {
-				return union( s, in, subsequenceLength );
-			} catch ( EmptyDataSetException doesNotHappen ) {
-				// since each given sample is not empty, the union can't be empty
-				return null;
+			Pair<DataSet, double[]> p = null;
+			if( w.length() == 0 ) {
+				p =  new Pair<DataSet, double[]>( res, null );
+			} else if ( w.length() == seqs.length ){
+				p = new Pair<DataSet, double[]>( res, w.toArray() );
+			} else {
+				throw new IllegalArgumentException( "Some of the weight arrays are null and others not." );
 			}
+			return p;
 		}
 	}
 
@@ -545,7 +515,7 @@ public class DataSet implements Iterable<Sequence>{
 		this.length = length;
 		this.annotation = annotation;
 	}
-
+	
 	/**
 	 * Creates a new {@link DataSet} from a {@link de.jstacs.io.StringExtractor}
 	 * using the given {@link AlphabetContainer}.
@@ -1252,49 +1222,6 @@ public class DataSet implements Iterable<Sequence>{
 		}
 		return res;
 	}
-	
-	/**
-	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
-	 * {@link DataSet} in two distinct parts. The second part (test sample) holds
-	 * the percentage of <code>p</code>, the first the rest (train sample). The
-	 * first part has element length as the current {@link DataSet}, the second
-	 * has element length <code>subsequenceLength</code>, which might be
-	 * necessary for testing.
-	 * 
-	 * @param p
-	 *            the percentage for the second part, the second part holds at
-	 *            least this percentage of the full {@link DataSet}
-	 * @param method
-	 *            the method how to partition the sample (partitioning
-	 *            criterion)
-	 * @param subsequenceLength
-	 *            the element length of the second part, if 0 (zero) then the
-	 *            sequences are used as given in this {@link DataSet}
-	 * 
-	 * @return the array of partitioned {@link DataSet}s
-	 * 
-	 * @throws WrongLengthException
-	 *             if something is wrong with <code>subsequenceLength</code>
-	 * @throws UnsupportedOperationException
-	 *             if the {@link DataSet} is not simple
-	 * @throws EmptyDataSetException
-	 *             if at least one of the created partitions is empty
-	 * 
-	 * @see DataSet.PartitionMethod
-	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
-	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
-	 * @see DataSet#partition(PartitionMethod, double...)
-	 */
-	public DataSet[] partition( double p, PartitionMethod method, int subsequenceLength ) throws WrongLengthException,
-			UnsupportedOperationException,
-			EmptyDataSetException {
-		if( !isSimpleDataSet() && length != subsequenceLength ) {
-			throw new UnsupportedOperationException( "This method can only be used for simple data sets." );
-		}
-		DataSet[] parts = partition( method, 1d - p, p );
-		parts[1].setSubsequenceLength( subsequenceLength );
-		return parts;
-	}
 
 	/**
 	 * This method partitions the elements, i.e. the {@link Sequence}s, of the
@@ -1429,8 +1356,8 @@ public class DataSet implements Iterable<Sequence>{
 	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
 	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
 	 */
-	public DataSet[] partition( int k, PartitionMethod method ) throws IllegalArgumentException, EmptyDataSetException {
-		return partition(null, k, method).getFirstElement();
+	public DataSet[] partition( PartitionMethod method, int k ) throws IllegalArgumentException, EmptyDataSetException {
+		return partition(null, method, k).getFirstElement();
 	}
 	
 	/**
@@ -1456,7 +1383,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_ELEMENTS
 	 * @see DataSet.PartitionMethod#PARTITION_BY_NUMBER_OF_SYMBOLS
 	 */
-	public Pair<DataSet[],double[][]> partition( double[] sequenceWeights, int k, PartitionMethod method ) throws IllegalArgumentException, EmptyDataSetException {
+	public Pair<DataSet[],double[][]> partition( double[] sequenceWeights, PartitionMethod method, int k ) throws IllegalArgumentException, EmptyDataSetException {
 		if( k < 1 ) {
 			throw new IllegalArgumentException( "Can't partition in " + k + " parts." );
 		}
@@ -1525,20 +1452,64 @@ public class DataSet implements Iterable<Sequence>{
 	 * @throws EmptyDataSetException
 	 *             if <code>number</code> is not positive
 	 */
-	public DataSet subSampling( int number ) throws EmptyDataSetException {
+	public DataSet subSampling( double number ) throws EmptyDataSetException {
+		return subSampling( number, null ).getFirstElement();
+	}
+	
+	public Pair<DataSet, double[]> subSampling( double number, double[] weights ) throws EmptyDataSetException {
 		if( number <= 0 ) {
 			throw new EmptyDataSetException();
 		}
 		Random r = new Random();
-		Sequence subsampled_seqs[] = new Sequence[number];
+		LinkedList<Sequence> subsampled_seqs = new LinkedList<Sequence>();
+		DoubleList w = new DoubleList();
 
 		int numOfElements = this.getNumberOfElements();
-
-		for( int i = 0; i < subsampled_seqs.length; i++ ) {
-			subsampled_seqs[i] = this.getElementAt( r.nextInt( numOfElements ) );
+		double current = 0, sum = weights == null ? numOfElements : ToolBox.sum( 0, numOfElements, weights );
+		
+		if( weights == null ) {
+			for( current = 0; current < sum; current++ ) {
+				subsampled_seqs.add( this.getElementAt( r.nextInt( numOfElements ) ) );
+			}
+		} else {
+			while( current < sum ) {
+				double idx = r.nextDouble()*sum;
+				int j = 0;
+				while( weights[j] < idx ) {
+					idx -= weights[j];
+					j++;
+				}
+				subsampled_seqs.add( this.getElementAt( j ) );
+				w.add( weights[j] );
+				current += weights[j];
+			}
 		}
-
-		return new DataSet( this.alphabetContainer, subsampled_seqs, this.length, "subsample of " + annotation );
+		
+		DataSet res = new DataSet( this.alphabetContainer, subsampled_seqs.toArray(new Sequence[0]), this.length, "subsample of " + annotation );
+		if( w.length() == 0 ) {
+			return new Pair<DataSet, double[]>( res, null );
+		} else {// ( w.length() == subsampled_seqs.size() )
+			return new Pair<DataSet, double[]>( res, w.toArray() );
+		}
+	}
+	
+	public final Pair<DataSet, double[]> resize( double[] weights, int subsequenceLength ) throws WrongLengthException {
+		if( subsequenceLength == 0 || getElementLength() == subsequenceLength ) {
+			return new Pair<DataSet, double[]>( this, weights ); 
+		}
+		DataSet d = new DataSet( this, subsequenceLength );
+		if( weights == null ) {
+			return new Pair<DataSet, double[]>( d, null );
+		} else {
+			double[] w = new double[d.getNumberOfElements()];
+			for( int i = 0, j = 0, k; i < getNumberOfElements(); i++ ) {
+				Sequence seq = getElementAt(i);
+				k = seq.getLength()-subsequenceLength+1;
+				Arrays.fill( w, j, j+k, weights[i] );
+				j = j+k;
+			}
+			return new Pair<DataSet, double[]>( d, w );
+		}
 	}
 
 	/**
