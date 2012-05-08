@@ -1,0 +1,37 @@
+\section{Quick start: Jstacs in a nut shell}
+
+This section is for unpatient newbies which like to directly start using Jstacs without reading the complete cook book. If you do not belong to this group, you can skip this section.
+
+Here, we provide code snippets for simple task including reading a data set, creating models and classifiers which might be frequently used.
+
+For reading a FastA file, we call the constructor of the \DNADataSet~with the (absolute or relative) path to the FastA file.
+\addtocounter{off}{224}
+\code{0}
+\addtocounter{off}{-224}
+For more detailed information about data sets, sequences, and alphabets, we refer to section~\ref{data}.
+
+\subsection{Statistical models and classifiers using generative learning principles}
+
+In Jstacs, statistical models that use generative learning principle to infer their parameters implement the interface \TrainSM. For convenience we implemented the \TrainSMFactory, wich allows for creating various simple models in an easy manner. Creating for instance a PWM model is just one line of code.
+\addtocounter{off}{397}
+\code{0}
+\addtocounter{off}{-397}
+
+Similarily other models including inhomogeneous Markov models, permuted Markov models, Bayesian networks, homogeneous Markov models, ZOOPS models, and hidden Mrakov models can be created using the \TrainSMFactory~and the \HMMFactory, respectively.
+
+Given some model \lstinline+pwm+, we can directly infer the model parameters based on some data set \lstinline+ds+ using the \lstinline+train+ method.
+\addtocounter{off}{404}
+\code{0}
+\addtocounter{off}{-404}
+
+After the model has been trained, it can be used to score sequence using the \lstinline+getLogProbFor+ method. More information about the interface \TrainSM~can be found in subsubsection \ref{tsm}.
+
+Based on a set of \TrainSM for instance two PWM models, we can build a classifier.
+\setcounter{off}{553}
+\code{0}
+\setcounter{off}{-553}
+This classifier can be used to predict the class label of a sequence using the \lstinline+classify+ method.
+
+\subsection{Further statistical models and classifiers}
+
+\subsection{Assessing classifiers}

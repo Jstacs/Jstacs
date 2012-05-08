@@ -252,7 +252,7 @@ public class Cookbook {
 		DataSet allRevComplements = dnaDataSet.getReverseComplementaryDataSet();
 		
 		//partition
-		DataSet[] fiveParts = dnaDataSet.partition( 5, PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS );
+		DataSet[] fiveParts = dnaDataSet.partition( PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS, 5 );
 		DataSet[] randParts = dnaDataSet.partition( PartitionMethod.PARTITION_BY_NUMBER_OF_SYMBOLS, 0.1, 0.2, 0.7 );
 		
 		//sub-sequences of user-defined length

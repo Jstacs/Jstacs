@@ -1,7 +1,7 @@
 \section{Second main course: Classifiers}\label{classifier}
 
 \renewcommand{\codefile}{../../de/jstacs/classifiers/AbstractClassifier.java}
-\setcounter{off}{422}
+\setcounter{off}{455}
 
 Classifiers allow to classify, i.e., label, previously uncharacterized data. In Jstacs, we provide the abstract class \AbstractClassifier~that declares three important methods besides several others. 
 
@@ -10,7 +10,7 @@ The first method trains a classifier, i.e., it somehow adjusts to the train data
 
 The second method classifies a given \Sequence:
   
-  \addtocounter{off}{-274}
+  \addtocounter{off}{-307}
   \code{0}
 
 \renewcommand{\codefile}{\defaultcodefile}
@@ -20,18 +20,18 @@ If we like to classify for instance the first sequence of a data set, we might u
 In addition to this method, another method \lstinline+classify(DataSet)+ exists that performs a classification for all \Sequence s in a \DataSet.
 
 \renewcommand{\codefile}{../../de/jstacs/classifiers/AbstractClassifier.java}
-\setcounter{off}{216}
+\setcounter{off}{211}
 The third method allows for assessing the performance. Typically this is done on test data
   \code{0}
   
   where \lstinline+params+ is a \ParameterSet~of performance measures (cf. subsection~\ref{Performance}), \lstinline+exceptionIfNotComputeable+ indicates if an exception should be thrown if a performance measure could not be computed, and \lstinline+s+ is an array of data sets, where dimension \lstinline+i+ contains data of class \lstinline+i+.
 
-The abstract sub-class \AbstractScoreBasedClassifier~ of \AbstractClassifier~adds an additional method for computing a joint score for an input \Sequence~ and a given class:
+The abstract sub-class \AbstractScoreBasedClassifier~of \AbstractClassifier~adds an additional method for computing a joint score for an input \Sequence~ and a given class:
 \renewcommand{\codefile}{../../de/jstacs/classifiers/AbstractScoreBasedClassifier.java}
-\setcounter{off}{274}
+\setcounter{off}{286}
  \code{0}
 Similar to the \lstinline+classify+ method. For two-class problems, the method
-\setcounter{off}{560}
+\setcounter{off}{572}
  \code{0}
 allows for computing the score-differences given foreground and background class for all \Sequence s in the \DataSet~\lstinline+s+. Such scores are typically the sum of the a-priori class log-score or log-probability and the score returned by \lstinline+getLogScore+ of \SeqScore~ or \lstinline+getLogProb+ of \StatMod.
 
