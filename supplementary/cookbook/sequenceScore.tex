@@ -171,7 +171,7 @@ The last method defined in \StatMod~ is
 which returns the maximum number of preceeding positions that are considered for (conditional) probabilities.
 For instance, for a position weight matrix, this method should return 0, whereas for a homogeneous Markov model of order 2, it should return 2.
 
-\subsubsection{TrainableStatisticalModels}
+\subsubsection{TrainableStatisticalModels}\label{tsm}
 
 Statistical models that can be learned on a single input data set are represented by the interface \TrainSM~of Jstacs. In most cases, such models are learned by generative learning principles like maximum likelihood (ML) or maximum a-posteriori (MAP). For models that are learned from multiple data sets, commonly by discriminative learning principles, Jstacs provides another interface \DiffSM, which will be presented in the next sub-section.
 
