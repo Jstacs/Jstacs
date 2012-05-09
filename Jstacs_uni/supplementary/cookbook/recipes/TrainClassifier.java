@@ -1,5 +1,7 @@
 package supplementary.cookbook.recipes;
 
+import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
+import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
@@ -30,11 +32,15 @@ public class TrainClassifier {
 		
 		//print the trained classifier
 		System.out.println(cl);
+		
 		//classify one of the sequences
 		Sequence seq = data[0].getElementAt( 0 );
 		byte res = cl.classify( seq );
 		//print sequence and classification result
 		System.out.println(seq+" -> "+res);
+		
+		//evaluate
+		NumericalPerformanceMeasureParameterSet params = PerformanceMeasureParameterSet.createFilledParameters();
+		System.out.println( cl.evaluate(params, true, data) );
 	}
-
 }
