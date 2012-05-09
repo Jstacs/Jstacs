@@ -32,14 +32,15 @@ public class TrainClassifier {
 		
 		//print the trained classifier
 		System.out.println(cl);
-		
 		//classify one of the sequences
-		byte res = cl.classify( data[0].getElementAt( 0 ) );
+		Sequence seq = data[0].getElementAt( 0 );
+		byte res = cl.classify( seq );
 		//print sequence and classification result
-		System.out.println(data[0].getElementAt( 0 )+" -> "+res);
+		System.out.println(seq+" -> "+res);
 		
 		//evaluate
 		NumericalPerformanceMeasureParameterSet params = PerformanceMeasureParameterSet.createFilledParameters();
 		System.out.println( cl.evaluate(params, true, data) );
 	}
+
 }
