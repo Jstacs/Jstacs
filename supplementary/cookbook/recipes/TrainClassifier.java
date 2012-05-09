@@ -34,10 +34,9 @@ public class TrainClassifier {
 		System.out.println(cl);
 		
 		//classify one of the sequences
-		Sequence seq = data[0].getElementAt( 0 );
-		byte res = cl.classify( seq );
+		byte res = cl.classify( data[0].getElementAt( 0 ) );
 		//print sequence and classification result
-		System.out.println(seq+" -> "+res);
+		System.out.println(data[0].getElementAt( 0 )+" -> "+res);
 		
 		//evaluate
 		NumericalPerformanceMeasureParameterSet params = PerformanceMeasureParameterSet.createFilledParameters();
