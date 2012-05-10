@@ -47,7 +47,6 @@ public class CreateMSPClassifier {
 		
 		//define differentiable PWM model
 		DifferentiableStatisticalModel pwm = DifferentiableStatisticalModelFactory.createPWM(con, 10, 4);
-		
 		//parameters for numerical optimization
 		GenDisMixClassifierParameterSet pars = new GenDisMixClassifierParameterSet(con,10,(byte)10,1E-9,1E-10,1, false,KindOfParameter.PLUGIN,true,1);
 		//define and train classifier
