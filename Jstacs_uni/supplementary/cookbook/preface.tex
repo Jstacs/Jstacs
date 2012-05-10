@@ -15,7 +15,7 @@ Being a library for statistical analysis and classification of sequence data, Js
 
 \begin{figure}
 \input{classes.tex}
-\caption{Part of the class structure of Jstacs. Interfaces are depicted in red, abstract classes in blue, concrete classes in green, and enums in orange. Continuous transitions represent inheritance, whereas arrows represent usage. \label{fig:classes}}
+\caption{Part of the class structure of Jstacs. Interfaces are depicted in red, abstract classes in blue, concrete classes in green, and enums in orange. Continuous transitions represent inheritance, whereas arrows with diamond heads represent usage. \label{fig:classes}}
 \end{figure}
 
 \StatMod s represent statistical models in general, which can compute the log-likelihood of a given input sequence and define prior densities on their parameters. The abstract implementation \AbstractTrainSM~of \TrainSM is the base class of many generatively learned models such as Bayesian networks, hidden Markov models, or mixture models, and can be learned from a single input data set. In constrast, \DiffSM s provide all facilities for numerical optimization of parameters, which is especially necessary for discriminative parameter learning. The abstract base class of all \DiffSM~implementations is \AbstractDiffSM. Currently, \DiffSM s include Bayesian networks, Markov models, a ZOOPS model, and mixture models.

@@ -9,6 +9,42 @@ breakatwhitespace=true}
 
 In this section, we show some more complex code examples. All these code examples can be downloaded \href{http://www.jstacs.de/downloads/recipes.zip}{as a zip file} and may serve as a starting points for your own applications.
 
+\subsection{Learning a position weight matrix from data}
+In this example, we show how to load sequence data into Jstacs and how to learn a position weight matrix (inhomogeneous Markov model of order 0) on these data.
+\renewcommand{\codefile}{./recipes/TrainPWM.java}
+\setcounter{off}{36}
+\code{9}
+
+\subsection{Learning a homogeneous Markov model from data}
+In this example, we show how to load sequence data into Jstacs and how to learn a homogeneous Markov model of order 1 on these data.
+\renewcommand{\codefile}{./recipes/TrainHomogeneousMM.java}
+\setcounter{off}{35}
+\code{8}
+
+\subsection{Learning a mixture model from data}
+In this example, we show how to load sequence data into Jstacs and how to learn a mixture model of two position weight matrices on these data using the expectation maximization algorithm.
+\renewcommand{\codefile}{./recipes/CreateMixtureModel.java}
+\setcounter{off}{35}
+\code{10}
+
+\subsection{Analysing data with different models}
+In this example, we show how to use the \TrainSMFactory~to create inhomogeneous and homogeneous Markov models, and Bayesian trees, and how to learn these models on a common data set.
+\renewcommand{\codefile}{./recipes/AnalyseDataWithDifferentModels.java}
+\setcounter{off}{35}
+\code{24}
+
+\subsection{Learning a classifier using the generative maximum a-posteriori principle}
+In this example, we show how to train a classifier based on a position weight matrix model and a homogeneous Markov model on training data, and how to use the trained classifier to classify sequences.
+\renewcommand{\codefile}{./recipes/TrainClassifier.java}
+\setcounter{off}{40}
+\code{25}
+
+\subsection{Learning a classifier using the discriminative maximum supervised posterior principle}
+In this example, we show how to use the \DiffSMFactory~to create a position weight matrix and how to learn a classifier based on two position weight matrices using the discriminative maximum supervised posterior principle.
+\renewcommand{\codefile}{./recipes/CreateMSPClassifier.java}
+\setcounter{off}{42}
+\code{16}
+
 \subsection{Creation of user-specfic alphabet}
 In this example, we create a new \ComplementableDiscreteAlphabet~using the generic implementation. We then use this \Alphabet~to create a \Sequence~and compute its reverse complement.
 \renewcommand{\codefile}{./recipes/AlphabetCreation.java}
