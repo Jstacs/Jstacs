@@ -14,6 +14,12 @@ If the libraries are not located in the same directory as the Java source file, 
 
 The code examples
 * AlphabetCreation,
+* TrainPWM,
+* TrainHomogeneousMM,
+* CreateMixtureModel,
+* AnalyseDataWithDifferentModels,
+* TrainClassifier,
+* CreateMSPClassifier,
 * CrossValidation,
 * CurvePlotter,
 * DataLoader,
@@ -41,6 +47,91 @@ We then use this Alphabet to create a Sequence and compute its reverse complemen
 
 === Run ===
  java -cp .:jstacs-2.0.jar AlphabetCreation
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== TrainPWM ==
+In this example, we show how to load sequence data into Jstacs and how to learn a position weight 
+matrix (inhomogeneous Markov model of order 0) on these data.
+
+=== Compile ===
+javac -cp jstacs-2.0.jar TrainPWM.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar TrainPWM fg.fa
+where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== TrainHomogeneousMM ==
+In this example, we show how to load sequence data into Jstacs and how to learn a 
+homogeneous Markov model of order 1 on these data.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar TrainHomogeneousMM.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar TrainHomogeneousMM fg.fa
+where "fg.fa" may be replaced by any FastA file.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== CreateMixtureModel ==
+In this example, we show how to load sequence data into Jstacs and how to learn a 
+mixture model of two position weight matrices on these data using the expectation 
+maximization algorithm.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar CreateMixtureModel.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar CreateMixtureModel fg.fa
+where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== AnalyseDataWithDifferentModels ==
+In this example, we show how to use the TrainableStatisticalModelFactory to create 
+inhomogeneous and homogeneous Markov models, and Bayesian trees, and how to learn 
+these models on a common data set.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar AnalyseDataWithDifferentModels.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar AnalyseDataWithDifferentModels fg.fa
+where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== TrainClassifier ==
+In this example, we show how to train a classifier based on a position weight matrix 
+model and a homogeneous Markov model on training data, and how to use the trained 
+classifier to classify sequences.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar TrainClassifier.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar TrainClassifier fg.fa bg.fa
+where "fg.fa" may be replaced by any FastA file containing fixed-length sequences,
+and "bg.fa" may be replaced by any FastA file.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== CreateMSPClassifier ==
+
+In this example, we show how to use the \DiffSMFactory~to create a position weight 
+matrix and how to learn a classifier based on two position weight matrices using the 
+discriminative maximum supervised posterior principle.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar CreateMSPClassifier.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar CreateMSPClassifier fg.fa bg.fa
+where "fg.fa" may be replaced by any FastA file containing fixed-length sequences,
+and "bg.fa" may be replaced by any FastA file.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -126,8 +217,11 @@ We then assess these classifiers in a 10-fold cross validation.
  javac -cp jstacs-2.0.jar:numericalMethods.jar CrossValidation.java
 
 === Run ===
- java -cp .:jstacs-2.0.jar:numericalMethods.jar CrossValidation
+ java -cp .:jstacs-2.0.jar:numericalMethods.jar CrossValidation fg.fa bg.fa
+where "fg.fa" may be replaced by any FastA file containing fixed-length sequences,
+and "bg.fa" may be replaced by any FastA file.
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 == HomogeneousMarkovModel ==
 In this example, we show how to implement a new TrainableStatisticalModel. Here, we implement a simple homogeneous 
