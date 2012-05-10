@@ -30,7 +30,11 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatistical
 public class TrainClassifier {
 
 	/**
-	 * @param args
+	 * @param args 
+	 * <ul>
+	 * <li>args[0] contains the path to the foreground data set</li>
+	 * <li>args[1] contains the path to the background data set</li>
+	 * </ul>
 	 */
 	public static void main( String[] args ) throws Exception {
 		//read data from FastA files
