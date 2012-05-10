@@ -22,6 +22,8 @@ import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunctio
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.msp.MSPClassifier;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.DNADataSet;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModelFactory;
@@ -30,12 +32,28 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableS
 public class CreateMSPClassifier {
 
 	/**
-	 * @param args
+	 * @param args 
+	 * <ul>
+	 * <li>args[0] contains the path to the foreground data set</li>
+	 * <li>args[1] contains the path to the background data set</li>
+	 * </ul>
 	 */
 	public static void main( String[] args ) throws Exception {
-		AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
+		//read data from FastA files
+		DataSet[] data = new DataSet[2];
+		data[0] = new DNADataSet( args[0] );
+		data[1] = new DNADataSet( args[1] );
+		AlphabetContainer con = data[0].getAlphabetContainer();
+		
+		//define differentiable PWM model
 		DifferentiableStatisticalModel pwm = DifferentiableStatisticalModelFactory.createPWM(con, 10, 4);
+		
+		//parameters for numerical optimization
 		GenDisMixClassifierParameterSet pars = new GenDisMixClassifierParameterSet(con,10,(byte)10,1E-9,1E-10,1, false,KindOfParameter.PLUGIN,true,1);
+		//define and train classifier
 		AbstractClassifier cl = new MSPClassifier( pars, pwm, pwm );
+		cl.train( data );
+		
+		System.out.println(cl);
 	}
 }
