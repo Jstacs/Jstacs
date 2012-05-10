@@ -24,8 +24,11 @@ import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 
 /**
  * The interface for normalizable {@link DifferentiableSequenceScore}s.
+ * For creating simple differentiable statistical models please check {@link DifferentiableStatisticalModelFactory}.
  * 
  * @author Jens Keilwagen, Jan Grau
+ * 
+ * @see DifferentiableStatisticalModelFactory
  */
 public interface DifferentiableStatisticalModel extends DifferentiableSequenceScore, StatisticalModel {
 	/**
