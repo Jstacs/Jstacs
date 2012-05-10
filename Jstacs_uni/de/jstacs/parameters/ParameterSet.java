@@ -448,7 +448,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 			throws NonParsableException {
 		representation = XMLParser.extractForTag(representation, "parameterSet");	
 		StringBuffer buf = XMLParser.extractForTag(representation, "set");
-		if (!buf.toString().equalsIgnoreCase("null")) {
+		if (buf != null && !buf.toString().equalsIgnoreCase("null")) {
 			int numPars = XMLParser.extractObjectForTags(buf, "numberOfParameters", int.class );
 			parameters = new ParameterList(numPars);
 			for (int i = 0; i < numPars; i++) {

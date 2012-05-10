@@ -147,7 +147,9 @@ public class EnumParameter extends SelectionParameter {
 			}
 			setValue(XMLParser.extractObjectForTags(buf, "selectedEnum", String.class ));
 		} catch (Exception e) {
-			throw new NonParsableException(e.getMessage());
+			NonParsableException ex = new NonParsableException(e.getMessage());
+			ex.setStackTrace( e.getStackTrace() );
+			throw ex;
 		}
 	}
 
