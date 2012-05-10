@@ -1,25 +1,25 @@
-\section{Quick start: Jstacs in a nut shell}
+\section{Quick start: Jstacs in a nut shell}\label{start}
 \renewcommand{\codefile}{recipes/TrainPWM.java}
-This section is for unpatient newbies which like to directly start using Jstacs without reading the complete cook book. If you do not belong to this group, you can skip this section.
+This section is for unpatient newbies which like to directly start using Jstacs without reading the complete cookbook. If you do not belong to this group, you can skip this section.
 
 Here, we provide code snippets for simple task including reading a data set, creating models and classifiers which might be frequently used.
 
-For reading a FastA file, we call the constructor of the \DNADataSet~with the (absolute or relative) path to the FastA file.
-\setcounter{off}{19}
-\code{0}
+For reading a FastA file, we call the constructor of the \DNADataSet~with the (absolute or relative) path to the FastA file. Subsequently, we can determine the alphabets used.
+\setcounter{off}{20}
+\code{1}
 For more detailed information about data sets, sequences, and alphabets, we refer to section~\ref{data}.
 
 \subsection{Statistical models and classifiers using generative learning principles}
 
 In Jstacs, statistical models that use generative learning principle to infer their parameters implement the interface \TrainSM. For convenience we implemented the \TrainSMFactory, wich allows for creating various simple models in an easy manner. Creating for instance a PWM model is just one line of code.
-\addtocounter{off}{2}
+\addtocounter{off}{3}
 \code{0}
 Similarily other models including inhomogeneous Markov models, permuted Markov models, Bayesian networks, homogeneous Markov models, ZOOPS models, and hidden Mrakov models can be created using the \TrainSMFactory~and the \HMMFactory, respectively.
 
 Given some model \lstinline+pwm+, we can directly infer the model parameters based on some data set \lstinline+ds+ using the \lstinline+train+ method.
 \addtocounter{off}{2}
 \code{0}
-After the model has been trained, it can be used to score sequence using the \lstinline+getLogProbFor+ method. More information about the interface \TrainSM~can be found in subsubsection \ref{tsm}.
+After the model has been trained, it can be used to score sequences using the \lstinline+getLogProbFor+ methods. More information about the interface \TrainSM~can be found in subsubsection \ref{tsm}.
 
 Based on a set of \TrainSM~for instance two PWM models, we can build a classifier.
 \renewcommand{\codefile}{\defaultcodefile}
@@ -28,10 +28,10 @@ Based on a set of \TrainSM~for instance two PWM models, we can build a classifie
 
 \subsection{Further statistical models and classifiers}
 
-Sometimes, we like to utilize statistical models for other learning principles. For this purpose, Jstacs provides the interface \DiffSM~and the factory \DiffSMFactory~in close analogy to \TrainSM~and \TrainSMFactory. Creating a classifier using two PWM models and the maximum supervised posterior learning principle, we be accomplished by calling
+Sometimes, we like to utilize statistical models for other learning principles. For this purpose, Jstacs provides the interface \DiffSM~and the factory \DiffSMFactory~in close analogy to \TrainSM~and \TrainSMFactory~(cf. \ref{dsm}). Creating a classifier using two PWM models and the maximum supervised posterior learning principle, we be accomplished by calling
 \renewcommand{\codefile}{recipes/CreateMSPClassifier.java}
-\setcounter{off}{19}
-\code{4}
+\setcounter{off}{20}
+\code{2}
 
 \subsection{Classifiers}
 
@@ -39,19 +39,16 @@ Sometimes, we like to utilize statistical models for other learning principles. 
 Based on statistical models, we can build classifiers as we have seen in the previous subsections. The main functionality is predicting the class label of a sequence and assessing the performance of a classifier. For these tasks Jstacs provides the methods \lstinline+classify+ and \lstinline+evaluate+, respectively.
 
 For classifying a sequence, we just call
-\setcounter{off}{37}
-\code{0}
-for a trained classifier. The method return values between 0 and the specified number of classes. 
+\setcounter{off}{36}
+\code{1}
+for a trained classifier. The method return values greater or equal to 0 and smaller than the specified number of classes. 
 
-For evaluating the performance of a classifier, we have to determine the performance measures which should be computed. For convenience, Jstacs provides the possibility of getting a bunch of standard measures including percentages and areas under curves (cf. \ref{Performance}).
-\addtocounter{off}{5}
-\code{0}
-Based on such measures, we can directly determine the performance of the classifier calling
-\addtocounter{off}{1}
-\code{0}
-where \lstinline+true+ indicates that an Exception should be thrown if a measure could not be computed and \lstinline+data+ is an array of data sets, where the dimension of the array encodes for the class.
+For evaluating the performance of a classifier, we have to determine the performance measures which should be computed. For convenience, Jstacs provides the possibility of getting a bunch of standard measures including percentages and areas under curves (cf. \ref{Performance}). Based on such measures, we can directly determine the performance of the classifier.
+\addtocounter{off}{6}
+\code{1}
+Thereby, \lstinline+true+ indicates that an Exception should be thrown if a measure could not be computed and \lstinline+data+ is an array of data sets, where the dimension of the array encodes for the class.
 
-For assessing the performance of a classifier using some repeated procedure of training an testing, Jstacs provides the class \ClassifierAssessment~(cf. \ref{Assessment}).
+For assessing the performance of a classifier using some repeated procedure of training and testing, Jstacs provides the class \ClassifierAssessment~(cf. \ref{Assessment}).
 
 \renewcommand{\codefile}{\defaultcodefile}
 \setcounter{off}{1}
