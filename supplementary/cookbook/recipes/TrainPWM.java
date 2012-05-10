@@ -1,5 +1,6 @@
 package supplementary.cookbook.recipes;
 
+import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModelFactory;
@@ -17,8 +18,9 @@ public class TrainPWM {
 		
 		//read data from FastA file
 		DNADataSet ds = new DNADataSet( args[0] );
+		AlphabetContainer con = ds.getAlphabetContainer();
 		//create position weight matrix model
-		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( ds.getAlphabetContainer(), ds.getElementLength(), 4 );
+		TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( con, ds.getElementLength(), 4 );
 		//train it on the input data
 		pwm.train( ds );
 		//print the trained model

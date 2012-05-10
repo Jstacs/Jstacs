@@ -18,7 +18,7 @@ public class CreateMSPClassifier {
 	public static void main( String[] args ) throws Exception {
 		AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
 		DifferentiableStatisticalModel pwm = DifferentiableStatisticalModelFactory.createPWM(con, 10, 4);
-		GenDisMixClassifierParameterSet pars = new GenDisMixClassifierParameterSet(con,10,(byte)10,1E-9,1E-10,1,false,KindOfParameter.PLUGIN,true,1);
+		GenDisMixClassifierParameterSet pars = new GenDisMixClassifierParameterSet(con,10,(byte)10,1E-9,1E-10,1, false,KindOfParameter.PLUGIN,true,1);
 		AbstractClassifier cl = new MSPClassifier( pars, pwm, pwm );
 	}
 }
