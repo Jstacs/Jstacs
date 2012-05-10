@@ -9,6 +9,12 @@ breakatwhitespace=true}
 
 In this section, we show some more complex code examples. All these code examples can be downloaded \href{http://www.jstacs.de/downloads/recipes.zip}{as a zip file} and may serve as a starting points for your own applications.
 
+\subsection{Creation of user-specfic alphabet}
+In this example, we create a new \ComplementableDiscreteAlphabet~using the generic implementation. We then use this \Alphabet~to create a \Sequence~and compute its reverse complement.
+\renewcommand{\codefile}{./recipes/AlphabetCreation.java}
+\setcounter{off}{33}
+\code{16}
+
 \subsection{Learning a position weight matrix from data}
 In this example, we show how to load sequence data into Jstacs and how to learn a position weight matrix (inhomogeneous Markov model of order 0) on these data.
 \renewcommand{\codefile}{./recipes/TrainPWM.java}
@@ -43,12 +49,6 @@ In this example, we show how to train a classifier based on a position weight ma
 In this example, we show how to use the \DiffSMFactory~to create a position weight matrix and how to learn a classifier based on two position weight matrices using the discriminative maximum supervised posterior principle.
 \renewcommand{\codefile}{./recipes/CreateMSPClassifier.java}
 \setcounter{off}{42}
-\code{16}
-
-\subsection{Creation of user-specfic alphabet}
-In this example, we create a new \ComplementableDiscreteAlphabet~using the generic implementation. We then use this \Alphabet~to create a \Sequence~and compute its reverse complement.
-\renewcommand{\codefile}{./recipes/AlphabetCreation.java}
-\setcounter{off}{33}
 \code{16}
 
 \subsection{Creating Data sets}
