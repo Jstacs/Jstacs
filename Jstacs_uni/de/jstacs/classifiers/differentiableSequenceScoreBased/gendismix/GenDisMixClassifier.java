@@ -405,6 +405,11 @@ public class GenDisMixClassifier extends ScoreClassifier
 			sb.append( heading + i );
 			sb.append( "\n" + score[i].toString() + "\n" );
 		}
+		sb.append( "class weights: " );
+		for(int i=0;i<getNumberOfClasses();i++){
+			sb.append( getClassWeight( i )+" " );
+		}
+		sb.append( "\n" );
 		return sb.toString();
 	}
 	
