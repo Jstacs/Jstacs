@@ -5,7 +5,7 @@ This section is for unpatient newbies which like to directly start using Jstacs 
 Here, we provide code snippets for simple task including reading a data set, creating models and classifiers which might be frequently used.
 
 For reading a FastA file, we call the constructor of the \DNADataSet~with the (absolute or relative) path to the FastA file. Subsequently, we can determine the alphabets used.
-\setcounter{off}{20}
+\setcounter{off}{37}
 \code{1}
 For more detailed information about data sets, sequences, and alphabets, we refer to section~\ref{data}.
 
@@ -30,7 +30,7 @@ Based on a set of \TrainSM~for instance two PWM models, we can build a classifie
 
 Sometimes, we like to utilize statistical models for other learning principles. For this purpose, Jstacs provides the interface \DiffSM~and the factory \DiffSMFactory~in close analogy to \TrainSM~and \TrainSMFactory~(cf. \ref{dsm}). Creating a classifier using two PWM models and the maximum supervised posterior learning principle, we be accomplished by calling
 \renewcommand{\codefile}{recipes/CreateMSPClassifier.java}
-\setcounter{off}{20}
+\setcounter{off}{37}
 \code{2}
 
 \subsection{Classifiers}
@@ -39,7 +39,7 @@ Sometimes, we like to utilize statistical models for other learning principles. 
 Based on statistical models, we can build classifiers as we have seen in the previous subsections. The main functionality is predicting the class label of a sequence and assessing the performance of a classifier. For these tasks Jstacs provides the methods \lstinline+classify+ and \lstinline+evaluate+, respectively.
 
 For classifying a sequence, we just call
-\setcounter{off}{36}
+\setcounter{off}{53}
 \code{1}
 for a trained classifier. The method return values greater or equal to 0 and smaller than the specified number of classes. 
 
