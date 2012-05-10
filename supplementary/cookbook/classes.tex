@@ -1,0 +1,114 @@
+\colorlet{interface}{red!20}
+\colorlet{abstract}{blue!20}
+\colorlet{class}{green!30}
+\colorlet{enum}{orange!30}
+\colorlet{useedge}{gray!40}
+
+\newcommand{\inher}[2]{\begin{scope}[opacity=.35,transparency group]\draw[-open triangle 60,shorten >= -7pt, shorten <= 7pt, line width=1.4pt, color=white] (#1) to (#2);\end{scope}}
+
+\begin{tikzpicture}[scale=0.51,transform shape,root concept/.append style={minimum size=1cm,font=\Large},level 1 concept/.append style={font=\large},mindmap,concept color=abstract]
+
+ 	\node[concept,concept color=abstract] (classifier) at(-2.5,-7.5) {Abstract\-Classifier};
+ 	\node[concept,concept color=abstract] (asbc) at(0,-3) {Abstract\-ScoreBased\-Classifier}
+ 		[clockwise from=200]
+ 		child[concept color=class] {node[concept] (mbc) at (200:-0.5) {TrainSM\-Based\-Classifier}}
+ 		child[concept color=class,sibling angle=220] {node[concept] (gdmc) at (-20:-0.5) {GenDisMix\-Classifier}};
+ 	\path (classifier) to[circle connection bar switch color=from (abstract) to (abstract)] (asbc);
+ 	\inher{asbc}{classifier}
+ 	\inher{mbc}{asbc}
+ 	\inher{gdmc}{asbc}
+ 	 
+ 	\node[extra concept, concept color=enum] (lp) at(7.1,-3.2) {Learning\-Principle};
+ 
+  	\node[concept,concept color=abstract] (class) at(-7.5,-7.5) {Classifier\-Assessment}
+  		[clockwise from=-160]
+  		child[concept color=class!30,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+ 		child[concept color=class!50,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+  		child[concept color=class,sibling angle=7,level distance=4.5cm] {node[concept] (kfcv) {KFoldCross\-Validation}}
+  		child[concept color=class,sibling angle=15.5,level distance=4.5cm] {node[concept] (rho) {Repeated\-HoldOut\-Experiment}};
+  	\inher{kfcv}{class}
+  	\inher{rho}{class}
+
+	\node[concept, concept color=interface] (statmod) at (0,2) {Statistical\-Model};
+	
+	\node[concept,concept color=interface] (model) at (-4.5,0) {Trainable\-Statistical\-Model};
+	\path (statmod) to[circle connection bar switch color=from (interface) to (interface)] (model);
+	\inher{model}{statmod}
+	
+ 	\node[concept,concept color=abstract] (am) at (-10,-1) {Abstract\-Trainable\-Statistical\-Model}
+ 		[clockwise from=140]
+ 		child[concept color=class!30,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+ 		child[concept color=class!50,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+ 		child[concept color=class,sibling angle=7,level distance=4.5cm] {node[concept] (bntsm) {Bayesian\-Network\-TrainSM}}
+ 		child[concept color=class,sibling angle=16.5,level distance=4.5cm] {node[concept] (hmm) {Higher\-OrderHMM}}
+ 		child[concept color=class,sibling angle=20.5,level distance=4.5cm] {node[concept] (mixmod) {Mixture\-TrainSM}}
+ %		child[concept color=class,sibling angle=30] {node[concept] {Homoge\-neous\-MM}}
+ 		
+		;
+	\inher{bntsm}{am}
+	\inher{hmm}{am}
+	\inher{mixmod}{am}
+ 	\path (model) to[circle connection bar switch color=from (interface) to (abstract)] (am);
+	\inher{am}{model}
+	
+	\node[concept,concept color=interface] (sf) at (4.5,0){Differentiable\-Statistical\-Model};
+	\path (statmod) to[circle connection bar switch color=from (interface) to (interface)] (sf);
+	\inher{sf}{statmod}
+	
+ 	\node[concept,concept color=abstract] (ansf) at (10,-1) {Abstract\-Differentiable\-Statistical\-Model}
+ 		[counterclockwise from=40]
+ 		child[concept color=class!30,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+ 		child[concept color=class!50,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+ 		child[concept color=class,sibling angle=7,level distance=4.5cm] {node[concept] (bnsf) {Bayesian\-Network-\\DiffSM}}
+ 		child[concept color=class,sibling angle=16.5,level distance=4.5cm] {node[concept] (motif) {Extended\-ZOOPS\-DiffSM}}
+ 		child[concept color=class,sibling angle=20.5,level distance=4.5cm] {node[concept] (mixsf) {Mixture\-DiffSM}}
+		;
+		
+	\inher{bnsf}{ansf}
+	\inher{mixsf}{ansf}
+	\inher{motif}{ansf}
+	\node[concept,concept color=class] (pmps) at(2.5,-7.5){Performance\-Measure\-ParameterSet};
+	
+	
+	\node[concept,concept color=abstract] (apm) at(7.9,-7.5){Abstract\-Performance\-Measure}
+		[counterclockwise from=-20]
+		child[concept color=class!30,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+ 		child[concept color=class!50,sibling angle=7,level distance=4.5cm] {node[concept] {}}
+		child[concept color=class,sibling angle=7,level distance=4.5cm] {node[concept](roc){AucROC}}
+		child[concept color=class,sibling angle=15.5,level distance=4.5cm] {node[concept](sn){Sensitivity\-ForFixed\-Specificity}}
+		;
+% 		
+	\inher{roc}{apm}
+	\inher{sn}{apm}
+ 	\path (sf) to[circle connection bar switch color=from (interface) to (abstract)] (ansf);
+ 	\inher{ansf}{sf}
+% 	\path (sf) to[circle connection bar switch color=from (interface) to (class)] (hmm);
+% 	
+
+\newcommand{\cu}[2]{\draw[-open diamond,color=useedge] (#1) to (#2);}
+\newcommand{\cub}[4]{\draw[-open diamond,color=useedge,out=#3,in=#4] (#1) to (#2);}
+
+	\cu{classifier}{class}
+% 	\draw[-open diamond,color=useedge] (classifier) to (class);
+	%\draw[->,color=useedge] (statmod) to (asbc);
+ 	\cu{model}{mbc}
+ 	\cu{sf}{gdmc}
+ 	\cu{model}{mixmod}
+ 	\cu{sf}{mixsf}
+ 	\cub{sf}{motif}{90}{150}
+ 	\cu{lp}{gdmc}
+ 	\cu{pmps}{classifier}
+ 	\cub{pmps}{class}{220}{320}
+ 	\cu{apm}{pmps}
+%  	\draw[-open diamond,color=useedge] (sf) to (gdmc);
+%  	\draw[-open diamond,color=useedge] (model) to (mixmod);
+%  	\draw[-open diamond,color=useedge,out=90,in=135] (sf) to (mixsf);
+%  	\draw[-open diamond,color=useedge] (sf) to (motif);
+%  	\draw[-open diamond,color=useedge] (lp) to (gdmc);
+%  	\draw[-open diamond,color=useedge] (pmps) to (classifier);
+%  	\draw[-open diamond,color=useedge,out=220,in=320] (pmps) to (class);
+% 	\draw[-open diamond,color=useedge] (apm) to (pmps);
+	%\node[concept,concept color=class] (seq) at(-3,0) {Sequence};
+	%\node[concept,concept color=class] (sam) at(-3,0) {Sample};
+\end{tikzpicture}
+%\vspace{-1cm}
