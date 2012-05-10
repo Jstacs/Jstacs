@@ -614,7 +614,7 @@ public final class XMLParser {
 			try {
 				k = (Class<T>) Class.forName( className );
 			}catch( Exception e ) {
-				throw getNonParsableException( "Class not found.", e );
+				throw getNonParsableException( "Class \""+className+"\" not found.", e );
 			}
 		}
 		if( k.isArray() ){
