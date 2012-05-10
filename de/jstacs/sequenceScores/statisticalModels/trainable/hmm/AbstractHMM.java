@@ -54,12 +54,14 @@ import de.jstacs.utils.ToolBox;
 /**
  * This class is the super class of all implementations hidden Markov models (HMMs) in Jstacs.
  * The training algorithm of the the HMM is determined by a specialized {@link de.jstacs.parameters.ParameterSet}
- * denoted as {@link HMMTrainingParameterSet}. 
+ * denoted as {@link HMMTrainingParameterSet}.
+ * For creating frequently used HMMs please check {@link HMMFactory}.
  * 
  * @author Jan Grau, Jens Keilwagen, Michael Scharfe
  * 
  * @see State
  * @see Transition
+ * @see HMMFactory
  */
 public abstract class AbstractHMM extends AbstractTrainableStatisticalModel implements Cloneable, Storable {
 

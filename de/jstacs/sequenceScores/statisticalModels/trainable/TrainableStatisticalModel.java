@@ -24,8 +24,11 @@ import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 
 /**
  * This interface defines all methods for a probabilistic model.
+ * For creating simple trainable statistical models please check {@link TrainableStatisticalModelFactory}.
  * 
  * @author Andre Gohr, Jan Grau, Jens Keilwagen
+ * 
+ * @see TrainableStatisticalModelFactory
  */
 public interface TrainableStatisticalModel extends StatisticalModel {
 
