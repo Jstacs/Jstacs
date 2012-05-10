@@ -25,7 +25,10 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatistical
 public class CreateMixtureModel {
 
 	/**
-	 * @param args
+	 * @param args 
+	 * <ul>
+	 * <li>args[0] contains the path to the training data set</li>
+	 * </ul>
 	 */
 	public static void main( String[] args ) throws Exception {
 		
