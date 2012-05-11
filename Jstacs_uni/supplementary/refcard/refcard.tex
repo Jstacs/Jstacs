@@ -59,21 +59,20 @@
 
 \entry{\DataSet}{.getInfixDataSet(start,length)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
 
-\section{XMLParser}
-
-\entry{\Storable}{}{Interface of objects that can be stored to XML}
-
-\entry{\XMLParser}{.appendObjectWithTags(buffer,storable,tag)}{Append storable object to StringBuffer with given tags}
-
-\entry{\XMLParser}{.extractObjectForTags(buffer,tag)}{Extract storable object within tags from StringBuffer}
 
 \section{Statistical models}
 
 \entry{\StatMod}{}{Interface for all statistical models}
 
+\entry{\StatMod}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
+
+\entry{\StatMod}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
+
 ~
 
 \entry{\TrainSM}{}{Interface for statistical models that can be trained from a single data set}
+
+\entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
 
 \entry{\AbstractTrainSM}{}{Abstract class for statistical models that can be trained from a single data set}
 
@@ -89,19 +88,19 @@
 
 ~
 
-\entry{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}
-
-~
-
 \entry{\DiffSM}{}{Interface for statistical models that can be trained using gradient-based methods}
+
+\entry{\DiffSM}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
+
+\entry{\DiffSM}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+
+\entry{\DiffSM}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
 
 \entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
 
 \entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
 
 \entry{\DiffSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
-
-~
 
 \entry{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabet,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
 
@@ -111,30 +110,11 @@
 
 ~
 
-\entry{\StatMod}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
-
-\entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
-
-\entry{\TrainSM}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
-
-\entry{\DiffSM}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
-
-\entry{\DiffSM}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
-
-\entry{\DiffSM}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
-
+\entry{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}
 
 \section{Classifiers}
 
 \entry{\AbstractClassifier}{}{Abstract class of a classifier}
-
-\entry{new \TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
-
-\entry{new \MSPClassifier}{(params,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
-
-\entry{\GenDisMixClassifier}{}{Classifier that learns \DiffSM s using a unified learning principle}
-
-~
 
 \entry{\AbstractClassifier}{.train(dataSets)}{Train a classifier from training data sets}
 
@@ -144,23 +124,41 @@
 
 ~
 
+\entry{new \TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
+
+\entry{new \MSPClassifier}{(params,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+
+%\TODO{\entry{\GenDisMixClassifier}{}{Classifier that learns \DiffSM s using a unified learning principle}}
+
+~
+
 \entry{\AbstractPerformanceMeasure}{}{Abstract class of all performance measures}
 
-\entry{new \NumericalPerformanceMeasureParameterSet}{()}{Create a set of standard performance measures that are applicable to two-class problems (binary classification)}
+\entry{new \NumericalPerformanceMeasureParameterSet}{()}{Create a set of scalar standard performance measures that are applicable to two-class problems (binary classification)}
 
 \entry{new \PerformanceMeasureParameterSet}{(measures)}{Create a set of performance measures}
 
+\entry{\PerformanceMeasureParameterSet}{.createFilledParameters()}{Create a set of scalar standard performance measures for binary classification problems that can immediately be used}
+
+\section{XMLParser}
+
+\entry{\Storable}{}{Interface of objects that can be stored to XML}
+
+\entry{\XMLParser}{.appendObjectWithTags(buffer,storable,tag)}{Append storable object to StringBuffer with given tags}
+
+\entry{\XMLParser}{.extractObjectForTags(buffer,tag)}{Extract storable object within tags from StringBuffer}
+
 \section{Utils}
 
-\entry{new \Alignment}{(\AlignmentType,costs)}{Create an object for alignments of sequences}
+\entry{new \Alignment}{(type,costs)}{Create an object for alignments of sequences}
 
-\entry{\Alignment}{.getAlignment(seq1,seq2)}{Align to sequences}
+\entry{\Alignment}{.getAlignment(seq1,seq2)}{Align two sequences}
 
 ~
 
 \entry{\ArrayHandler}{.clone(array)}{Deep clone multi-dimensional array}
 
-\entry{\ArrayHandler}{.createArrayOf(template,num)}{Create an array containing num copies of a (cloneable) template}
+\entry{\ArrayHandler}{.createArrayOf(template,num)}{Create an array containing num clones of a template}
 
 ~
 
@@ -168,7 +166,7 @@
 
 \entry{\ToolBox}{.getMaxIndex(doubles)}{Get the index of the maximum value in an array}
 
-~ 
+~
 
 \entry{\Normalisation}{.getLogSum(doubles)}{Compute the logarithm of a sum of values given as their logs}
 
