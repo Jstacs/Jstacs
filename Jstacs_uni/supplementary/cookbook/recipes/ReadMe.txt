@@ -29,7 +29,7 @@ The code examples
 * RserveTest
 contain a main-method. Hence, after compilation, you can directly run them as a program, e.g.,
 
- java -cp .:jstacs-2.0.jar:RClient-0.6.7.jar RserveTest
+ java -cp .:jstacs-2.0.jar:RClient-0.6.7.jar RserveTest ./
 
 The remaining two examples
 * HomogeneousMarkovModel and
@@ -56,10 +56,10 @@ In this example, we show how to load sequence data into Jstacs and how to learn 
 matrix (inhomogeneous Markov model of order 0) on these data.
 
 === Compile ===
-javac -cp jstacs-2.0.jar TrainPWM.java
+ javac -cp jstacs-2.0.jar TrainPWM.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar TrainPWM fg.fa
+ java -cp .:jstacs-2.0.jar TrainPWM fg.fa
 where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -69,10 +69,10 @@ In this example, we show how to load sequence data into Jstacs and how to learn 
 homogeneous Markov model of order 1 on these data.
 
 === Compile === 
-javac -cp jstacs-2.0.jar TrainHomogeneousMM.java
+ javac -cp jstacs-2.0.jar TrainHomogeneousMM.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar TrainHomogeneousMM fg.fa
+ java -cp .:jstacs-2.0.jar TrainHomogeneousMM fg.fa
 where "fg.fa" may be replaced by any FastA file.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -83,10 +83,10 @@ from data (similar to the previous example), and use the learned model to genera
 new data following the same distribution as the original data.
 
 === Compile === 
-javac -cp jstacs-2.0.jar GenerateData.java
+ javac -cp jstacs-2.0.jar GenerateData.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar GenerateData fg.fa generated.txt
+ java -cp .:jstacs-2.0.jar GenerateData fg.fa generated.txt
 where "fg.fa" may be replaced by any FastA file, and after running the program,
 "generated.txt" contains the generated data as plain text.
 
@@ -98,10 +98,10 @@ mixture model of two position weight matrices on these data using the expectatio
 maximization algorithm.
 
 === Compile === 
-javac -cp jstacs-2.0.jar CreateMixtureModel.java
+ javac -cp jstacs-2.0.jar:numericalMethods.jar CreateMixtureModel.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar CreateMixtureModel fg.fa
+ java -cp .:jstacs-2.0.jar:numericalMethods.jar CreateMixtureModel fg.fa
 where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -112,10 +112,10 @@ inhomogeneous and homogeneous Markov models, and Bayesian trees, and how to lear
 these models on a common data set.
 
 === Compile === 
-javac -cp jstacs-2.0.jar AnalyseDataWithDifferentModels.java
+ javac -cp jstacs-2.0.jar:numericalMethods.jar AnalyseDataWithDifferentModels.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar AnalyseDataWithDifferentModels fg.fa
+ java -cp .:jstacs-2.0.jar:numericalMethods.jar AnalyseDataWithDifferentModels fg.fa
 where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -129,10 +129,10 @@ After training the HMM, we show how to compute and output the Viterbi paths for 
 sequences, which give an indication of the position of motif occurrences.
 
 === Compile === 
-javac -cp jstacs-2.0.jar DeNovoSunflower.java
+ javac -cp jstacs-2.0.jar DeNovoSunflower.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar DeNovoSunflower promoters.fa
+ java -cp .:jstacs-2.0.jar DeNovoSunflower promoters.fa
 where "promoters.fa" may be replaced by any FastA file containing sequences with
 a hidden motif. The example data set "promoters.fa" contains artificial sequences
 drawn from a uniform distribution with hidden binding sites extracted from Jaspar
@@ -146,10 +146,10 @@ model and a homogeneous Markov model on training data, and how to use the traine
 classifier to classify sequences.
 
 === Compile === 
-javac -cp jstacs-2.0.jar TrainClassifier.java
+ javac -cp jstacs-2.0.jar TrainClassifier.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar TrainClassifier fg.fa bg.fa
+ java -cp .:jstacs-2.0.jar TrainClassifier fg.fa bg.fa
 where "fg.fa" may be replaced by any FastA file containing fixed-length sequences,
 and "bg.fa" may be replaced by any FastA file.
 
@@ -162,10 +162,10 @@ matrix and how to learn a classifier based on two position weight matrices using
 discriminative maximum supervised posterior principle.
 
 === Compile === 
-javac -cp jstacs-2.0.jar CreateMSPClassifier.java
+ javac -cp jstacs-2.0.jar CreateMSPClassifier.java
 
 === Run ===
-java -cp .:jstacs-2.0.jar CreateMSPClassifier fg.fa bg.fa
+ java -cp .:jstacs-2.0.jar CreateMSPClassifier fg.fa bg.fa
 where "fg.fa" may be replaced by any FastA file containing fixed-length sequences,
 and "bg.fa" may be replaced by any FastA file.
 
