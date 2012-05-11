@@ -74,6 +74,8 @@
 
 \entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
 
+~
+
 \entry{\AbstractTrainSM}{}{Abstract class for statistical models that can be trained from a single data set}
 
 \entry{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
@@ -95,6 +97,8 @@
 \entry{\DiffSM}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
 
 \entry{\DiffSM}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
+
+~
 
 \entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
 
@@ -124,11 +128,11 @@
 
 ~
 
-\entry{new \TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
+\entry{\TrainSMBasedClassifier}{}{Create a classifier from \TrainSM s that is learned by ML or MAP}
 
-\entry{new \MSPClassifier}{(params,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+\entry{\MSPClassifier}{}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
 
-%\TODO{\entry{\GenDisMixClassifier}{}{Classifier that learns \DiffSM s using a unified learning principle}}
+\entry{\GenDisMixClassifier}{}{Create a classifier from \DiffSM s that is learned using a unified learning principle}}
 
 ~
 
