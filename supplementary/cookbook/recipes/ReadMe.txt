@@ -18,6 +18,7 @@ The code examples
 * TrainHomogeneousMM,
 * CreateMixtureModel,
 * AnalyseDataWithDifferentModels,
+* DeNovoSunflower,
 * TrainClassifier,
 * CreateMSPClassifier,
 * CrossValidation,
@@ -76,6 +77,21 @@ where "fg.fa" may be replaced by any FastA file.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+== GenerateData ==
+In this example, we show how to learn a homogeneous Markov model of order 2 
+from data (similar to the previous example), and use the learned model to generate 
+new data following the same distribution as the original data.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar GenerateData.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar GenerateData fg.fa generated.txt
+where "fg.fa" may be replaced by any FastA file, and after running the program,
+"generated.txt" contains the generated data as plain text.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 == CreateMixtureModel ==
 In this example, we show how to load sequence data into Jstacs and how to learn a 
 mixture model of two position weight matrices on these data using the expectation 
@@ -101,6 +117,26 @@ javac -cp jstacs-2.0.jar AnalyseDataWithDifferentModels.java
 === Run ===
 java -cp .:jstacs-2.0.jar AnalyseDataWithDifferentModels fg.fa
 where "fg.fa" may be replaced by any FastA file containing fixed-length sequences.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+== DeNovoSunflower ==
+In this example, we show how to use the HMMFactory to create a sunflower hidden 
+Markov model (HMM) with two motifs of different lengths. We show how to train the 
+sunflower HMM on input data, which are typically long sequences containing an 
+over-represented motif.
+After training the HMM, we show how to compute and output the Viterbi paths for all 
+sequences, which give an indication of the position of motif occurrences.
+
+=== Compile === 
+javac -cp jstacs-2.0.jar DeNovoSunflower.java
+
+=== Run ===
+java -cp .:jstacs-2.0.jar DeNovoSunflower promoters.fa
+where "promoters.fa" may be replaced by any FastA file containing sequences with
+a hidden motif. The example data set "promoters.fa" contains artificial sequences
+drawn from a uniform distribution with hidden binding sites extracted from Jaspar
+(http://jaspar.genereg.net/).
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
