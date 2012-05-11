@@ -44,7 +44,8 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 	
 	/**
 	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} that can be used for classifiers that
-	 * handle the given number of classes.
+	 * handle the given number of classes. Automatically includes all {@link AbstractPerformanceMeasure}s that can be
+	 * computed for the given number of classes.
 	 * 
 	 * @param numClasses the number of classes
 	 *  
@@ -59,7 +60,8 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 	}
 	
 	/**
-	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} that can be used for binary classifiers.
+	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} that can be used for binary classifiers. Automatically 
+	 * includes all {@link AbstractPerformanceMeasure}s that can be computed for two-class problems.
 	 * 
 	 * @throws Exception if something went wrong
 	 * 
