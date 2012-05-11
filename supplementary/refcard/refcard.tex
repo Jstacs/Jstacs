@@ -14,10 +14,9 @@
 
 
 \renewcommand{\section}[1]{{
+~\vspace{-0.1cm}
 
-~
-
-\Large\sfb #1\vspace{0.1cm}\\}
+\large\sfb #1\vspace{0.1cm}\\}
 
 
 }
@@ -90,7 +89,9 @@
 
 ~
 
+\entry{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}
 
+~
 
 \entry{\DiffSM}{}{Interface for statistical models that can be trained using gradient-based methods}
 
@@ -99,6 +100,8 @@
 \entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
 
 \entry{\DiffSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+
+~
 
 \entry{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabet,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
 
