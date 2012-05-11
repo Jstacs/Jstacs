@@ -37,13 +37,25 @@
 
 ~
 
-\entry{\Sequence}{.create(alphabet,string)}{Create a sequence from a string}
+\entry{\Sequence}{ s}{Repesenting a biological sequence}
 
-\entry{\Sequence}{.getLength()}{Obtain the length of a sequence}
+\entry{s}{.create(alphabet,string)}{Create a sequence from a string}
 
-\entry{\Sequence}{.discreteVal(pos)}{Obtain the discrete value at a position (counting from 0) of a sequence}
+\entry{s}{.getLength()}{Obtain the length of a sequence}
 
-\entry{\Sequence}{.continuousVal(pos)}{Obtain the continuous value at a position (counting from 0) of a sequence}
+\entry{s}{.discreteVal(pos)}{Obtain the discrete value at a position (counting from 0) of a sequence}
+
+\entry{s}{.continuousVal(pos)}{Obtain the continuous value at a position (counting from 0) of a sequence}
+
+~
+
+\entry{\DataSet}{ d}{A set of sequences}
+
+\entry{d}{.getNumberOfElements()}{Obtain the number of sequences in a data set}
+
+\entry{d}{.getElementAt(index)}{Obtain the sequence at index from a data set}
+
+\entry{d}{.getInfixDataSet(start,length)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
 
 ~
 
@@ -51,28 +63,19 @@
 
 \entry{new \DNADataSet}{(filename)}{Create a data set of DNA sequences from a FastA file}
 
-~
-
-\entry{\DataSet}{.getNumberOfElements()}{Obtain the number of sequences in a data set}
-
-\entry{\DataSet}{.getElementAt(index)}{Obtain the sequence at index from a data set}
-
-\entry{\DataSet}{.getInfixDataSet(start,length)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
-
-
 \section{Statistical models}
 
-\entry{\StatMod}{}{Interface for all statistical models}
+\entry{\StatMod}{ s}{Interface for all statistical models}
 
-\entry{\StatMod}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
+\entry{s}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
 
-\entry{\StatMod}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
+\entry{s}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
 
 ~
 
-\entry{\TrainSM}{}{Interface for statistical models that can be trained from a single data set}
+\entry{\TrainSM}{ t}{Interface for statistical models that can be trained from a single data set}
 
-\entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
+\entry{t}{.train(data)}{Train a \TrainSM~from a data set}
 
 ~
 
@@ -90,13 +93,13 @@
 
 ~
 
-\entry{\DiffSM}{}{Interface for statistical models that can be trained using gradient-based methods}
+\entry{\DiffSM}{ d}{Interface for statistical models that can be trained using gradient-based methods}
 
-\entry{\DiffSM}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
+\entry{d}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
 
-\entry{\DiffSM}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+\entry{d}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
 
-\entry{\DiffSM}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
+\entry{d}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
 
 ~
 
@@ -118,13 +121,13 @@
 
 \section{Classifiers}
 
-\entry{\AbstractClassifier}{}{Abstract class of a classifier}
+\entry{\AbstractClassifier}{ a}{Abstract class of a classifier}
 
-\entry{\AbstractClassifier}{.train(dataSets)}{Train a classifier from training data sets}
+\entry{a}{.train(dataSets)}{Train a classifier from training data sets}
 
-\entry{\AbstractClassifier}{.classify(sequence)}{Classify a sequence}
+\entry{a}{.classify(sequence)}{Classify a sequence}
 
-\entry{\AbstractClassifier}{.evaluate(performanceMeasures,exc,dataSet)}{Evaluate performance measures for a given classifier on test data sets}
+\entry{a}{.evaluate(performanceMeasures,exc,dataSet)}{Evaluate performance measures for a given classifier on test data sets}
 
 ~
 
@@ -132,7 +135,7 @@
 
 \entry{\MSPClassifier}{}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
 
-\entry{\GenDisMixClassifier}{}{Create a classifier from \DiffSM s that is learned using a unified learning principle}}
+\entry{\GenDisMixClassifier}{}{Create a classifier from \DiffSM s that is learned using a unified learning principle}
 
 ~
 
