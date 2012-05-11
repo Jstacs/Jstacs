@@ -17,14 +17,19 @@
  */
 package supplementary.cookbook.recipes;
 
-import org.biojavax.bio.db.ncbi.GenbankRichSequenceDB;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
+import org.biojava.bio.seq.db.GenbankSequenceDB;
+import org.biojavax.bio.seq.RichSequence.IOTools;
+import org.biojavax.bio.seq.RichSequenceIterator;
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.bioJava.BioJavaAdapter;
-import de.jstacs.data.bioJava.SimpleSequenceIterator;
 import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.io.StringExtractor;
 
@@ -36,10 +41,10 @@ import de.jstacs.io.StringExtractor;
 public class DataLoader {
 
 	/**
-	 * @param args args[0] contains the home path, i.e., the path to myfile.fa
+	 * @param args args[0] contains the home path, i.e., the path to myfile.fa and example.gb
 	 */
 	public static void main(String[] args) throws Exception {
-		String home = args[0];
+		String home = args[0]+File.separator;
 		
 		//load DNA sequences in FastA-format
 		DataSet data = new DNADataSet( home+"myfile.fa" ); 
@@ -54,14 +59,20 @@ public class DataLoader {
 		data = new DataSet( container, new SparseStringExtractor( home+"myfile.txt" ));
 		
 		//defining the ids, we want to obtain from NCBI Genbank:
-		GenbankRichSequenceDB db = new GenbankRichSequenceDB();
+		GenbankSequenceDB db = new GenbankSequenceDB();
 		
-		SimpleSequenceIterator it = new SimpleSequenceIterator(
-				db.getRichSequence( "NC_001284.2" ),
-				db.getRichSequence( "NC_000932.1" )
+		//at the moment the following fails due to a problem in BioJava hopefully fixed in the next legacy release
+		//this may fail if BioJava fails to load the sequence, e.g. if you are not connected to the internet
+		/*SimpleSequenceIterator it = new SimpleSequenceIterator(
+				db.getSequence( "NC_001284.2" ),
+				db.getSequence( "NC_000932.1" )
 				);
-		 
+		 */
+		
+		RichSequenceIterator it = IOTools.readGenbankDNA( new BufferedReader( new FileReader( home+"example.gb" ) ), null );
+		
 		//conversion to Jstacs DataSet
 		data = BioJavaAdapter.sequenceIteratorToDataSet( it, null );
+		System.out.println(data);
 	}
 }

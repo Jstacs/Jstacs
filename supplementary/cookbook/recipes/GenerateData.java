@@ -47,6 +47,7 @@ public class GenerateData {
 		DataSet generated = hmm.emitDataSet( 100, 20 );
 		//print these data
 		System.out.println(generated);
+		//and save them to a plain text file
 		generated.save( new File(args[1]) );
 	}
 
