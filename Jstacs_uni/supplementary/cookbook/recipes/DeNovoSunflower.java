@@ -18,6 +18,7 @@
 package supplementary.cookbook.recipes;
 
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.AbstractMultiThreadedOptimizableFunction;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
@@ -38,8 +39,8 @@ public class DeNovoSunflower {
 	public static void main(String[] args) throws Exception {
 		//load data
 		DataSet data = new DNADataSet(args[0]);
-		//define parameters of Baum-Welch training
-		BaumWelchParameterSet pars = new BaumWelchParameterSet(10, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), 2);
+		//define parameters of Baum-Welch training using all available processor cores
+		BaumWelchParameterSet pars = new BaumWelchParameterSet(10, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors());
 		//create sunflower HMM with motifs of length 8 and 12
 		AbstractHMM hmm = HMMFactory.createSunflowerHMM(pars, data.getAlphabetContainer(), 0, data.getElementLength(), true, 8,12);
 		//train the HMM using Baum-Welch
