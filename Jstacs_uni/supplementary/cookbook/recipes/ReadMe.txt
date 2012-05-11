@@ -173,14 +173,14 @@ and "bg.fa" may be replaced by any FastA file.
 
 == DataLoader ==
 In this example, we show different ways of creating a DataSet in Jstacs from plain text and FastA 
-files and using the adaptor to BioJava.
+files, and using the adaptor to BioJava.
 
 === Compile ===
  javac -cp jstacs-2.0.jar:biojava-live.jar:bytecode.jar DataLoader.java
 
 === Run ===
  java -cp .:jstacs-2.0.jar:biojava-live.jar:bytecode.jar DataLoader ./
-where the files "myfile.fa" and "myfile.txt" must be located in the working directory.
+where the files "myfile.fa", "myfile.txt", and "example.gb" must be located in the working directory.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
