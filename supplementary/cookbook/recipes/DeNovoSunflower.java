@@ -33,7 +33,7 @@ public class DeNovoSunflower {
 	/**
 	 * @param args 
 	 * <ul>
-	 * <li>args[0] contains the path to the training data set, which typicall contains longer sequences with hidden motifs</li>
+	 * <li>args[0] contains the path to the training data set, which typically contains longer sequences with hidden motifs</li>
 	 * </ul>
 	 */
 	public static void main(String[] args) throws Exception {
