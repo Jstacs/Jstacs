@@ -27,6 +27,12 @@ In this example, we show how to load sequence data into Jstacs and how to learn 
 \setcounter{off}{35}
 \code{8}
 
+\subsection{Generating data from a homogeneous Markov model}
+In this example, we show how to learn a homogeneous Markov model of order 2 from data (similar to the previous example), and use the learned model to generate new data following the same distribution as the original data.
+\renewcommand{\codefile}{./recipes/GenerateData.java}
+\setcounter{off}{39}
+\code{12}
+
 \subsection{Learning a mixture model from data}
 In this example, we show how to load sequence data into Jstacs and how to learn a mixture model of two position weight matrices on these data using the expectation maximization algorithm.
 \renewcommand{\codefile}{./recipes/CreateMixtureModel.java}
@@ -38,6 +44,12 @@ In this example, we show how to use the \TrainSMFactory~to create inhomogeneous 
 \renewcommand{\codefile}{./recipes/AnalyseDataWithDifferentModels.java}
 \setcounter{off}{35}
 \code{24}
+
+\subsection{De-novo motif discovery with a sunflower hidden Markov model)}
+In this example, we show how to use the \HMMFactory~to create a sunflower hidden Markov model (HMM) with two motifs of different lengths. We show how to train the sunflower HMM on input data, which are typically long sequences containing an over-represented motif. After training the HMM, we show how to compute and output the Viterbi paths for all sequences, which give an indication of the position of motif occurrences.
+\renewcommand{\codefile}{./recipes/DeNovoSunflower.java}
+\setcounter{off}{39}
+\code{15}
 
 \subsection{Learning a classifier using the generative maximum a-posteriori principle}
 In this example, we show how to train a classifier based on a position weight matrix model and a homogeneous Markov model on training data, and how to use the trained classifier to classify sequences.
