@@ -179,6 +179,7 @@ public class Tex2Wiki {
 		createWiki( false, "defs", System.out );
 		
 		createWiki( true, "preface", System.out );
+		createWiki( true, "quickstart", System.out );
 		createWiki( true, "data", System.out );
 		createWiki( true, "infrastructure", System.out );
 		createWiki( true, "sequenceScore", System.out );
