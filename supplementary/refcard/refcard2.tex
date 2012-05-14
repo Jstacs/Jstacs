@@ -38,9 +38,9 @@
 
 \entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}
 
-\entryn{\AlphabetContainer}{(alphabets)}{Create an aggregate alphabet out of \Alphabet s}\sep
+\entryn{\AlphabetContainer}{(alphabets)}{Create a set of \Alphabet s assigned to positions}\sep
 
-\entrys{\Sequence}{.create(alphabet,string)}{Create a sequence from a string}
+\entrys{\Sequence}{.create(alphabets,string)}{Create a sequence from a string}
 
 \entry{\Sequence}{.getLength()}{Obtain the length of a sequence}
 
@@ -67,45 +67,45 @@
 
 \entry{\TrainSM}{}{Interface for statistical models that are trained from a single data set}
 
-\entry{\AbstractTrainSM}{}{Abstract class for statistical models that are trained from a single data set}
+%\entry{\AbstractTrainSM}{}{Abstract class for statistical models that are trained from a single data set}
 
-\entry{\DiffSM}{}{Interface for statistical models that can be trained using gradient-based methods}
+\entry{\DiffSM}{}{Interface for statistical models that can be trained using gradient-based methods}\sep
 
-\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}\sep
+%\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
 
 \entry{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
 
-\entrys{\TrainSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+\entrys{\TrainSMFactory}{.createPWM(alphabets,length,ess)}{Create a PWM model of a given length}
 
-\entrys{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabet,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
+\entrys{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabets,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
 
-\entrys{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabet,ess,order)}{Create a homogeneous Markov model of a given order}
+\entrys{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,\\order)}{Create a homogeneous Markov model of a given order}
 
 \entrys{\TrainSMFactory}{.createMixtureModel(hyperpars,models)}{Create a mixture model from \TrainSM s}\sep
 
 \entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
 
-\entrys{\DiffSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+\entrys{\DiffSMFactory}{.createPWM(alphabets,length,ess)}{Create a PWM model of a given length}
 
-\entrys{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabet,\\length,ess,order)}{Create an inhomogeneous Markov model of a given length and order}
+\entrys{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabets,\\length,ess,order)}{Create an inhomogeneous Markov model of a given length and order}
 
-\entrys{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabet,ess,\\order,priorLength)}{Create a homogeneous Markov model of a given order}
+\entrys{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,\\order,priorLength)}{Create a homogeneous Markov model of a given order}
 
 \entrys{\DiffSMFactory}{.createMixtureModel(models)}{Create a mixture model from \DiffSM s}\sep
 
 \entry{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}\sep
 
-\entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
-
 \entry{\StatMod}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
 
 \entry{\StatMod}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
 
-\entry{\DiffSS}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
+\entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
 
-\entry{\DiffSS}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+\entry{\DiffSM}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
 
-\entry{\DiffSS}{.getLogScoreAndPartialDerivation(sequence,indices,\\partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
+\entry{\DiffSM}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+
+\entry{\DiffSM}{.getLogScoreAndPartialDerivation(sequence,indices,\\partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
 
 \end{itemize*}
 
@@ -117,7 +117,7 @@
 
 \entryn{\TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
 
-\entryn{\MSPClassifier}{(params,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+\entryn{\MSPClassifier}{(params,prior,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
 
 \entryn{\GenDisMixClassifier}{(params,prior,learnPrinc,models)}{Classifier that learns \DiffSM s using a unified learning principle}\sep
 
@@ -137,7 +137,7 @@
 
 \end{itemize*}
 
-\section{XMLParser \& Utils}
+\section{Utilities}
 
 \begin{itemize*}
 
