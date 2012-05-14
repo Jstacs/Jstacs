@@ -27,12 +27,197 @@ System.out.println( rc );
 </source>
 
 
+== Learning a position weight matrix from data ==
+In this example, we show how to load sequence data into Jstacs and how to learn a position weight matrix (inhomogeneous Markov model of order 0) on these data.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA file
+DNADataSet ds = new DNADataSet( args[0] );
+AlphabetContainer con = ds.getAlphabetContainer();
+//create position weight matrix model
+TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( con, ds.getElementLength(), 4 );
+//train it on the input data
+pwm.train( ds );
+//print the trained model
+System.out.println(pwm);
+
+</source>
+
+
+== Learning a homogeneous Markov model from data ==
+In this example, we show how to load sequence data into Jstacs and how to learn a homogeneous Markov model of order 1 on these data.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA file
+DNADataSet ds = new DNADataSet( args[0] );
+//create homogeneous Markov model of order 1
+TrainableStatisticalModel hmm = TrainableStatisticalModelFactory.createHomogeneousMarkovModel( ds.getAlphabetContainer(), 4, (byte)1 );
+//train it on the input data
+hmm.train( ds );
+//print the trained model
+System.out.println(hmm);
+</source>
+
+
+== Generating data from a homogeneous Markov model ==
+In this example, we show how to learn a homogeneous Markov model of order 2 from data (similar to the previous example), and use the learned model to generate new data following the same distribution as the original data.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA file
+DNADataSet ds = new DNADataSet( args[0] );
+//create homogeneous Markov model of order 2
+TrainableStatisticalModel hmm = TrainableStatisticalModelFactory.createHomogeneousMarkovModel( ds.getAlphabetContainer(), 4, (byte)2 );
+//train it on the input data
+hmm.train( ds );
+
+//generate 100 sequences of length 20
+DataSet generated = hmm.emitDataSet( 100, 20 );
+//print these data
+System.out.println(generated);
+//and save them to a plain text file
+generated.save( new File(args[1]) );
+</source>
+
+
+== Learning a mixture model from data ==
+In this example, we show how to load sequence data into Jstacs and how to learn a mixture model of two position weight matrices on these data using the expectation maximization algorithm.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA file
+DNADataSet ds = new DNADataSet( args[0] );
+//create position weight matrix model
+TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( ds.getAlphabetContainer(), ds.getElementLength(), 4 );
+//create mixture model of two position weight matrices
+TrainableStatisticalModel mixture = TrainableStatisticalModelFactory.createMixtureModel( new double[]{4,4}, new TrainableStatisticalModel[]{pwm,pwm} );
+//train it on the input data using EM
+mixture.train( ds );
+//print the trained model
+System.out.println(mixture);
+
+</source>
+
+
+== Analysing data with different models ==
+In this example, we show how to use the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModelFactory.html TrainableStatisticalModelFactory] to create inhomogeneous and homogeneous Markov models, and Bayesian trees, and how to learn these models on a common data set.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA file
+DNADataSet ds = new DNADataSet( args[0] );
+
+//get alphabet, length from data
+AlphabetContainer alphabet = ds.getAlphabetContainer();
+int length = ds.getElementLength();
+//set ESS used for all models
+double ess = 4;
+
+TrainableStatisticalModel[] models = new TrainableStatisticalModel[4];
+//create position weight matrix
+models[0] = TrainableStatisticalModelFactory.createPWM( alphabet, length, 4 );
+//create inhomogeneous Markov model of order 1 (WAM)
+models[1] = TrainableStatisticalModelFactory.createInhomogeneousMarkovModel( alphabet, length, ess, (byte)1 );
+//create Bayesian tree
+models[2] = TrainableStatisticalModelFactory.createBayesianNetworkModel( alphabet, length, ess, (byte)1 );
+//create homogeneous Markov model of order 2
+models[3] = TrainableStatisticalModelFactory.createHomogeneousMarkovModel( alphabet, ess, (byte)2 );
+
+//train and print all models
+for(int i=0;i<models.length;i++){
+	models[i].train( ds );
+	System.out.println(models[i]);
+}
+</source>
+
+
+== De-novo motif discovery with a sunflower hidden Markov model) ==
+In this example, we show how to use the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/hmm/HMMFactory.html HMMFactory] to create a sunflower hidden Markov model (HMM) with two motifs of different lengths. We show how to train the sunflower HMM on input data, which are typically long sequences containing an over-represented motif. After training the HMM, we show how to compute and output the Viterbi paths for all sequences, which give an indication of the position of motif occurrences.
+
+
+<source lang="java5" enclose="div">
+//load data
+DataSet data = new DNADataSet(args[0]);
+//define parameters of Baum-Welch training using all available processor cores
+BaumWelchParameterSet pars = new BaumWelchParameterSet(10, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors());
+//create sunflower HMM with motifs of length 8 and 12
+AbstractHMM hmm = HMMFactory.createSunflowerHMM(pars, data.getAlphabetContainer(), 0, data.getElementLength(), true, 8,12);
+//train the HMM using Baum-Welch
+hmm.train(data);
+//print the trained HMM
+System.out.println(hmm);
+//print Viterbi paths of all sequences
+for(int i=0;i<data.getNumberOfElements();i++){
+	Pair<IntList,Double> p = hmm.getViterbiPathFor(data.getElementAt(i));
+	System.out.println(p.getSecondElement()+"\t"+p.getFirstElement());
+}
+</source>
+
+
+== Learning a classifier using the generative maximum a-posteriori principle ==
+In this example, we show how to train a classifier based on a position weight matrix model and a homogeneous Markov model on training data, and how to use the trained classifier to classify sequences.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA files
+DataSet[] data = new DataSet[2];
+data[0] = new DNADataSet( args[0] );
+data[1] = new DNADataSet( args[1] );
+
+//create position weight matrix model
+TrainableStatisticalModel pwm = TrainableStatisticalModelFactory.createPWM( data[0].getAlphabetContainer(), data[0].getElementLength(), 4 );
+//create homogeneous Markov model of order 1
+TrainableStatisticalModel hmm = TrainableStatisticalModelFactory.createHomogeneousMarkovModel( data[1].getAlphabetContainer(), 4, (byte)1 );
+//build a classifier using these models
+TrainSMBasedClassifier cl = new TrainSMBasedClassifier( pwm, hmm );
+//train it on the training data
+cl.train( data );
+
+//print the trained classifier
+System.out.println(cl);
+//classify one of the sequences
+Sequence seq = data[0].getElementAt( 0 );
+byte res = cl.classify( seq );
+//print sequence and classification result
+System.out.println(seq+" -> "+res);
+
+//evaluate
+NumericalPerformanceMeasureParameterSet params = PerformanceMeasureParameterSet.createFilledParameters();
+System.out.println( cl.evaluate(params, true, data) );
+</source>
+
+
+== Learning a classifier using the discriminative maximum supervised posterior principle ==
+In this example, we show how to use the [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModelFactory.html DifferentiableStatisticalModelFactory] to create a position weight matrix and how to learn a classifier based on two position weight matrices using the discriminative maximum supervised posterior principle.
+
+
+<source lang="java5" enclose="div">
+//read data from FastA files
+DataSet[] data = new DataSet[2];
+data[0] = new DNADataSet( args[0] );
+data[1] = new DNADataSet( args[1] );
+AlphabetContainer con = data[0].getAlphabetContainer();
+
+//define differentiable PWM model
+DifferentiableStatisticalModel pwm = DifferentiableStatisticalModelFactory.createPWM(con, 10, 4);
+//parameters for numerical optimization
+GenDisMixClassifierParameterSet pars = new GenDisMixClassifierParameterSet(con,10,(byte)10,1E-9,1E-10,1, false,KindOfParameter.PLUGIN,true,1);
+//define and train classifier
+AbstractClassifier cl = new MSPClassifier( pars, pwm, pwm );
+cl.train( data );
+
+System.out.println(cl);
+</source>
+
+
 == Creating Data sets ==
 In this example, we show different ways of creating a [http://www.jstacs.de/api-2.0//de/jstacs/data/DataSet.html DataSet] in Jstacs from plain text and FastA files and using the adaptor to BioJava.
 
 
 <source lang="java5" enclose="div">
-String home = args[0];
+String home = args[0]+File.separator;
 
 //load DNA sequences in FastA-format
 DataSet data = new DNADataSet( home+"myfile.fa" ); 
@@ -47,15 +232,21 @@ data = new DataSet( container, new SparseStringExtractor( home+"myfile.fa", Stri
 data = new DataSet( container, new SparseStringExtractor( home+"myfile.txt" ));
 
 //defining the ids, we want to obtain from NCBI Genbank:
-GenbankRichSequenceDB db = new GenbankRichSequenceDB();
+GenbankSequenceDB db = new GenbankSequenceDB();
 
-SimpleSequenceIterator it = new SimpleSequenceIterator(
-		db.getRichSequence( "NC_001284.2" ),
-		db.getRichSequence( "NC_000932.1" )
+//at the moment the following fails due to a problem in BioJava hopefully fixed in the next legacy release
+//this may fail if BioJava fails to load the sequence, e.g. if you are not connected to the internet
+/*SimpleSequenceIterator it = new SimpleSequenceIterator(
+		db.getSequence( "NC_001284.2" ),
+		db.getSequence( "NC_000932.1" )
 		);
- 
+ */
+
+RichSequenceIterator it = IOTools.readGenbankDNA( new BufferedReader( new FileReader( home+"example.gb" ) ), null );
+
 //conversion to Jstacs DataSet
 data = BioJavaAdapter.sequenceIteratorToDataSet( it, null );
+System.out.println(data);
 </source>
 
 
@@ -764,3 +955,4 @@ public class PositionWeightMatrixDiffSM extends AbstractDifferentiableStatistica
 	}
 
 </source>
+
