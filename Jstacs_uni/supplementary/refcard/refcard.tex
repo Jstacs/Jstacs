@@ -35,7 +35,7 @@
 
 ~
 
-\entry{\AlphabetContainer}{}{A set of \Alphabet s and their assigments to position}
+\entry{\AlphabetContainer}{}{A set of \Alphabet s and their assigments to positions}
 
 \entry{new \AlphabetContainer}{(alphabets)}{Create an aggregate alphabet out of \Alphabet s}
 
@@ -46,7 +46,7 @@
 
 \entry{\Sequence}{ s}{Repesenting a biological sequence}
 
-\entry{Sequence}{.create(alphabet,string)}{Create a sequence from a string}
+\entry{Sequence}{.create(alphabets,string)}{Create a sequence from a string}
 
 \entry{s}{.getLength()}{Obtain the length of a sequence}
 
@@ -56,7 +56,7 @@
 
 ~
 
-\entry{\DataSet}{ d}{A set of sequences}
+\entry{\DataSet}{ d}{A set of sequences using the same \AlphabetContainer}
 
 \entry{d}{.getNumberOfElements()}{Obtain the number of sequences in a data set}
 
@@ -88,11 +88,11 @@
 %
 \entry{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
 
-\entry{\TrainSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+\entry{\TrainSMFactory}{.createPWM(alphabets,length,ess)}{Create a PWM model of a given length}
 
-\entry{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabet,length,ess,\\order)}{Create an inhomogeneous Markov model of a given length and order}
+\entry{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabets,length,ess,\\order)}{Create an inhomogeneous Markov model of a given length and order}
 
-\entry{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabet,ess,order)}{Create a homogeneous Markov model of a given order}
+\entry{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,order)}{Create a homogeneous Markov model of a given order}
 
 \entry{\TrainSMFactory}{.createMixtureModel(hyperpars,models)}{Create a mixture model from \TrainSM s}
 
@@ -112,11 +112,11 @@
 %
 \entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
 
-\entry{\DiffSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+\entry{\DiffSMFactory}{.createPWM(alphabets,length,ess)}{Create a PWM model of a given length}
 
-\entry{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabet,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
+\entry{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabets,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
 
-\entry{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabet,ess,order,\\priorLength)}{Create a homogeneous Markov model of a given order}
+\entry{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,order,\\priorLength)}{Create a homogeneous Markov model of a given order}
 
 \entry{\DiffSMFactory}{.createMixtureModel(models)}{Create a mixture model from \DiffSM s}
 
@@ -136,11 +136,11 @@
 
 ~
 
-\entry{\TrainSMBasedClassifier}{}{Create a classifier from \TrainSM s that is learned by ML or MAP}
+\entry{new \TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
 
-\entry{\MSPClassifier}{}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+\entry{new \MSPClassifier}{(params,prior,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
 
-\entry{\GenDisMixClassifier}{}{Create a classifier from \DiffSM s that is learned using a unified learning principle}
+\entry{new \GenDisMixClassifier}{(params,prior,learnPrinc,models)}{Classifier that learns \DiffSM s using a unified learning principle}
 
 ~
 
