@@ -1,0 +1,170 @@
+\documentclass[10pt]{scrartcl}
+
+\usepackage[landscape]{geometry}
+\usepackage{multicol}
+\usepackage{mdwlist}
+\input{../cookbook/defs.tex}
+%\leftskip 0.1in
+%\parindent -0.1in
+\newcommand{\entry}[3]{{\item[]\bfseries #1#2}: #3}
+\newcommand{\entrys}[3]{\item[\emph{static}] {\bfseries {#1#2}}: #3}
+\newcommand{\entryn}[3]{\item[new] {\bfseries {#1#2}}: #3}
+
+\newcommand{\sep}{\\~\vspace{-0.1cm}}
+
+\geometry{a4paper,left=5mm,right=5mm, top=5mm, bottom=1cm}
+\begin{document}
+\thispagestyle{empty}
+\twocolumn[{\begin{center}\Huge\sfb Jstacs reference card\end{center}}]
+
+
+\renewcommand{\section}[1]{{
+~\vspace{-0.2cm}
+
+\large\sfb #1\\}
+
+
+}
+\begin{flushleft}
+%\begin{multicols}{3}
+\footnotesize
+\section{Data handling}
+\begin{itemize*}
+\entry{\DNAAlphabet}{.SINGLETON}{Singleton instance of a DNA-alphabet}
+
+\entryn{\DiscreteAlphabet}{(caseInsensitive,alphabet)}{Create an arbitrary discrete alphabet}
+
+\entryn{\ContinuousAlphabet}{(min,max)}{Create a continuous alphabet between min and max}
+
+\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}
+
+\entryn{\AlphabetContainer}{(alphabets)}{Create an aggregate alphabet out of \Alphabet s}\sep
+
+\entrys{\Sequence}{.create(alphabet,string)}{Create a sequence from a string}
+
+\entry{\Sequence}{.getLength()}{Obtain the length of a sequence}
+
+\entry{\Sequence}{.discreteVal(pos)}{Obtain the discrete value at a position (counting from 0) of a sequence}
+
+\entry{\Sequence}{.continuousVal(pos)}{Obtain the continuous value at a position (counting from 0) of a sequence}\sep
+
+\entryn{\DataSet}{(annotation,sequences)}{Create a data set from sequences}
+
+\entryn{\DNADataSet}{(filename)}{Create a data set of DNA sequences from a FastA file}\sep
+
+\entry{\DataSet}{.getNumberOfElements()}{Obtain the number of sequences in a data set}
+
+\entry{\DataSet}{.getElementAt(index)}{Obtain the sequence at index from a data set}
+
+\entry{\DataSet}{.getInfixDataSet(start,length)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
+\end{itemize*}
+
+\section{Statistical models}
+
+\begin{itemize*}
+
+\entry{\StatMod}{}{Interface for all statistical models}
+
+\entry{\TrainSM}{}{Interface for statistical models that are trained from a single data set}
+
+\entry{\AbstractTrainSM}{}{Abstract class for statistical models that are trained from a single data set}
+
+\entry{\DiffSM}{}{Interface for statistical models that can be trained using gradient-based methods}
+
+\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}\sep
+
+\entry{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
+
+\entrys{\TrainSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+
+\entrys{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabet,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
+
+\entrys{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabet,ess,order)}{Create a homogeneous Markov model of a given order}
+
+\entrys{\TrainSMFactory}{.createMixtureModel(hyperpars,models)}{Create a mixture model from \TrainSM s}\sep
+
+\entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
+
+\entrys{\DiffSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
+
+\entrys{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabet,\\length,ess,order)}{Create an inhomogeneous Markov model of a given length and order}
+
+\entrys{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabet,ess,\\order,priorLength)}{Create a homogeneous Markov model of a given order}
+
+\entrys{\DiffSMFactory}{.createMixtureModel(models)}{Create a mixture model from \DiffSM s}\sep
+
+\entry{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}\sep
+
+\entry{\TrainSM}{.train(data)}{Train a \TrainSM~from a data set}
+
+\entry{\StatMod}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
+
+\entry{\StatMod}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
+
+\entry{\DiffSS}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
+
+\entry{\DiffSS}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+
+\entry{\DiffSS}{.getLogScoreAndPartialDerivation(sequence,indices,\\partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
+
+\end{itemize*}
+
+\section{Classifiers}
+
+\begin{itemize*}
+
+\entry{\AbstractClassifier}{}{Abstract class of a classifier}
+
+\entryn{\TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
+
+\entryn{\MSPClassifier}{(params,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+
+\entryn{\GenDisMixClassifier}{(params,prior,learnPrinc,models)}{Classifier that learns \DiffSM s using a unified learning principle}\sep
+
+\entry{\AbstractClassifier}{.train(dataSets)}{Train a classifier from training data sets}
+
+\entry{\AbstractClassifier}{.classify(sequence)}{Classify a sequence}
+
+\entry{\AbstractClassifier}{.evaluate(performanceMeasures,exc,dataSet)}{Evaluate performance measures for a given classifier on test data sets}\sep
+
+\entry{\AbstractPerformanceMeasure}{}{Abstract class of all performance measures}
+
+\entryn{\NumericalPerformanceMeasureParameterSet}{()}{Create a set of scalar standard performance measures that are applicable to two-class problems (binary classification)}
+
+\entryn{\PerformanceMeasureParameterSet}{(measures)}{Create a set of performance measures}
+
+\entrys{\PerformanceMeasureParameterSet}{.createFilledParameters()}{Create a set of scalar standard performance measures for binary classification problems that can be used instantly}
+
+\end{itemize*}
+
+\section{XMLParser \& Utils}
+
+\begin{itemize*}
+
+\entry{\Storable}{}{Interface of objects that can be stored to XML}
+
+\entrys{\XMLParser}{.appendObjectWithTags(buffer,storable,tag)}{Append storable object to StringBuffer with given tags}
+
+\entrys{\XMLParser}{.extractObjectForTags(buffer,tag)}{Extract storable object within tags from StringBuffer}\sep
+
+\entryn{\Alignment}{(type,costs)}{Create an object for alignments of sequences}
+
+\entry{\Alignment}{.getAlignment(seq1,seq2)}{Align two sequences}\sep
+
+\entrys{\ArrayHandler}{.clone(array)}{Deep clone a multi-dimensional array}
+
+\entrys{\ArrayHandler}{.createArrayOf(template,num)}{Create an array containing num clones of a template}\sep
+
+\entrys{\ToolBox}{.sum(doubles)}{Compute the sum of all elements in an array}
+
+\entrys{\ToolBox}{.getMaxIndex(doubles)}{Get the index of the maximum value in an array}\sep
+
+\entrys{\Normalisation}{.getLogSum(doubles)}{Compute the logarithm of a sum of values given as logs}
+
+\entrys{\Normalisation}{.sumNormalisation(double)}{Normalize a given array to probabilities}
+
+\end{itemize*}
+
+\end{flushleft}
+%\end{multicols}
+\end{document}
