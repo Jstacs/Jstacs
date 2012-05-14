@@ -178,7 +178,7 @@ Statistical models that can be learned on a single input data set are represente
 In the following, we briefly describe all methods that are defined in the \TrainSM~interface. For convenience, an abstract implementation \AbstractTrainSM~of \TrainSM~exists, which provides standard implementations for many of these methods.
 
 \renewcommand{\codefile}{../../de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.java}
-\setcounter{off}{58}
+\setcounter{off}{61}
 
 The parameters of statistical models are typically learned from some training data set. For this purpose, \TrainSM~specifies a method \lstinline+train+
 \code{0}
@@ -284,7 +284,7 @@ where the first argument is the component \TrainSM, the second is the number of 
 \setcounter{tempcounter}{\arabic{off}}
 
 \renewcommand{\codefile}{../../de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.java}
-\setcounter{off}{50}
+\setcounter{off}{53}
 
 \DiffSM s are \StatMod s that also inherit the properties of \DiffSS s. That means, \DiffSM s define a proper likelihood over the input sequences and at the same time can compute partial derivations w.r.t. their parameters.
 
