@@ -30,15 +30,21 @@
 \footnotesize
 \section{Data handling}
 \begin{itemize*}
-\entry{\DNAAlphabet}{.SINGLETON}{Singleton instance of a DNA-alphabet}
+\entry{\Alphabet}{}{A set of symbols}
 
 \entryn{\DiscreteAlphabet}{(caseInsensitive,alphabet)}{Create an arbitrary discrete alphabet}
 
 \entryn{\ContinuousAlphabet}{(min,max)}{Create a continuous alphabet between min and max}
 
-\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}
+\entry{\DNAAlphabet}{.SINGLETON}{Singleton instance of a DNA-alphabet}\sep
 
-\entryn{\AlphabetContainer}{(alphabets)}{Create a set of \Alphabet s assigned to positions}\sep
+\entry{\AlphabetContainer}{}{A set of \Alphabet s and their assigments to positions}
+
+\entryn{\AlphabetContainer}{(alphabets)}{Create a set of \Alphabet s assigned to positions}
+
+\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}\sep
+
+\entry{\Sequence}{}{Repesenting a biological sequence}
 
 \entrys{\Sequence}{.create(alphabets,string)}{Create a sequence from a string}
 
@@ -47,6 +53,8 @@
 \entry{\Sequence}{.discreteVal(pos)}{Obtain the discrete value at a position (counting from 0) of a sequence}
 
 \entry{\Sequence}{.continuousVal(pos)}{Obtain the continuous value at a position (counting from 0) of a sequence}\sep
+
+\entry{\DataSet}{}{A set of sequences using the same \AlphabetContainer}
 
 \entryn{\DataSet}{(annotation,sequences)}{Create a data set from sequences}
 
