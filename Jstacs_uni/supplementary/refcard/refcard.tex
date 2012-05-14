@@ -25,21 +25,28 @@
 \footnotesize
 \section{Data handling}
 
+\entry{\DNAAlphabet}{}{A set of symbols}
+
 \entry{\DNAAlphabet}{.SINGLETON}{Singleton instance of a DNA-alphabet}
 
 \entry{new \DiscreteAlphabet}{(caseInsensitive,alphabet)}{Create an arbitrary discrete alphabet}
 
 \entry{new \ContinuousAlphabet}{(min,max)}{Create a continuous alphabet between min and max}
 
-\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}
+~
+
+\entry{\AlphabetContainer}{}{A set of \Alphabet s and their assigments to position}
 
 \entry{new \AlphabetContainer}{(alphabets)}{Create an aggregate alphabet out of \Alphabet s}
+
+\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}
+
 
 ~
 
 \entry{\Sequence}{ s}{Repesenting a biological sequence}
 
-\entry{s}{.create(alphabet,string)}{Create a sequence from a string}
+\entry{Sequence}{.create(alphabet,string)}{Create a sequence from a string}
 
 \entry{s}{.getLength()}{Obtain the length of a sequence}
 
@@ -56,8 +63,6 @@
 \entry{d}{.getElementAt(index)}{Obtain the sequence at index from a data set}
 
 \entry{d}{.getInfixDataSet(start,length)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
-
-~
 
 \entry{new \DataSet}{(annotation,sequences)}{Create a data set from sequences}
 
@@ -79,8 +84,8 @@
 
 ~
 
-\entry{\AbstractTrainSM}{}{Abstract class for statistical models that can be trained from a single data set}
-
+%\entry{\AbstractTrainSM}{}{Abstract class for statistical models that can be trained from a single data set}
+%
 \entry{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
 
 \entry{\TrainSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
@@ -103,8 +108,8 @@
 
 ~
 
-\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
-
+%\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
+%
 \entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
 
 \entry{\DiffSMFactory}{.createPWM(alphabet,length,ess)}{Create a PWM model of a given length}
