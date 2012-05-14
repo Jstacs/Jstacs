@@ -1,9 +1,19 @@
 ''You can also download a [http://www.jstacs.de/downloads/Cookbook.pdf PDF version] of this cookbook.''
 
-A coarse view on the structure of Jstacs is presented in the Figure below.
+Sequence analysis is one of the major subjects of bioinformatics. Several existing libraries combine the representation of biological sequences with exact and approximate pattern matching as well as alignment algorithms. We present Jstacs, an open source Java library, which focuses on the statistical analysis of biological sequences instead. Jstacs comprises an efficient representation of sequence data and provides implementations of many statistical models with generative and discriminative approaches for parameter learning. Using Jstacs, classifiers can be assessed and compared on test datasets or by cross-validation experiments evaluating several performance measures. Due to its strictly object-oriented design Jstacs is easy to use and readily extensible.
+
+Jstacs is a joint project of the groups [http://www.informatik.uni-halle.de/arbeitsgruppen/bioinformatik/ Bioinformatics] and [http://www.informatik.uni-halle.de/arbeitsgruppen/mustererkennung/ Pattern Recognition and Bioinformatics] at the [http://www.informatik.uni-halle.de/ Institute of Computer Science] of [http://www.uni-halle.de/ Martin Luther University Halle-Wittenberg] and the [http://dig.ipk-gatersleben.de/ Research Group Data Inspection] at the [http://www.ipk-gatersleben.de/ Leibniz Institute of Plant Genetics and Crop Plant Research].
+
+Jstacs is listed in the [http://mloss.org/software/ machine learning open-source software (mloss)] repository.
+
+The complete API documentation can be found at [http://www.jstacs.de/api-2.0/ http://www.jstacs.de/api-2.0/].
+
+== General structure of Jstacs ==
+
+A coarse view on the structure of Jstacs is presented in Figure below.
 Being a library for statistical analysis and classification of sequence data, Jstacs is organized around the abstract class [http://www.jstacs.de/api-2.0//de/jstacs/classifiers/AbstractClassifier.html AbstractClassifier], the interface [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] and its two sub-interfaces [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel], and [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel].
 
-[[File:Classes.png|frame|center|Part of the class structure of Jstacs. Interfaces are depicted in red, abstract classes in blue, concrete classes in green, and enums in orange. Continuous transitions represent inheritance, whereas arrows represent usage.]]
+[[File:Classes.png|frame|center|Part of the class structure of Jstacs. Interfaces are depicted in red, abstract classes in blue, concrete classes in green, and enums in orange. Continuous transitions represent inheritance, whereas arrows with diamond heads represent usage.]] 
 
 [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html StatisticalModel] s represent statistical models in general, which can compute the log-likelihood of a given input sequence and define prior densities on their parameters. The abstract implementation [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/AbstractTrainSM.html AbstractTrainSM] of [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html TrainableStatisticalModel] is the base class of many generatively learned models such as Bayesian networks, hidden Markov models, or mixture models, and can be learned from a single input data set. In constrast, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s provide all facilities for numerical optimization of parameters, which is especially necessary for discriminative parameter learning. The abstract base class of all [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] implementations is [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/AbstractDifferentiableStatisticalModel.html AbstractDifferentiableStatisticalModel]. Currently, [http://www.jstacs.de/api-2.0//de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModel.html DifferentiableStatisticalModel] s include Bayesian networks, Markov models, a ZOOPS model, and mixture models.
 
@@ -22,7 +32,9 @@ Nonetheless, we present a collection of recipes in the last section, where you f
 
 We are aware that a library of this size seems daunting on first sight -- and on second sight as well. However, we hope that despite the inevitable complexity and size of such a library, this cookbook may help to get a picture of the structure, design principles, and capabilities of Jstacs.
 
-This cookbook is structured as follows: in the section [[Starter: Data handling]], we explain how data are represented in Jstacs, and how you can read data from files. 
+This cookbook is structured as follows: in the section [[Quick start: Jstacs in a nutshell]], we give a very brief introduction to Jstacs enabling to run first programs without reading the complete cookbook. 
+
+In section [[Starter: Data handling]], we explain how data are represented in Jstacs, and how you can read data from files. 
 
 In section [[Intermediate course: XMLParser, Parameters, and Results]], we present some facilities, an XML parser and the representation of parameters and results, that are used frequently within Jstacs and are necessary for the following parts. 
 
@@ -37,6 +49,7 @@ In section [[Dessert: Alignments, Utils, and goodies]], we list utility classes 
 Finally, in section [[Recipes]], we give a number of executable code examples that may serve as a starting point of your own classes and applications.
 
 == Contents ==
+* [[Quick start: Jstacs in a nutshell]]
 * [[Starter: Data handling]]
 * [[Intermediate course: XMLParser, Parameters, and Results]]
 * [[First main course: SequenceScores]]
