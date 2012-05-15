@@ -1,0 +1,193 @@
+\documentclass[10pt]{scrartcl}
+
+\usepackage[landscape]{geometry}
+\usepackage{multicol}
+\input{../cookbook/defs.tex}
+%\leftskip 0.1in
+%\parindent -0.1in
+\newcommand{\entryh}[3]{{\sfb #1#2}: #3}
+\newcommand{\entry}[3]{{\bfseries #1#2}: #3}
+\newcommand{\entrys}[4]{{\bfseries #1\href{\APIhome/#3}{#2}}: #4}
+\newcommand{\entryc}[3]{{\bfseries \href{\APIhome/#2}{#1}}: #3}
+
+\geometry{a4paper,left=5mm,right=5mm, top=5mm, bottom=1cm}
+\begin{document}
+\thispagestyle{empty}
+\twocolumn[{\begin{center}\Huge\sfb Jstacs reference card\end{center}}]
+
+
+\renewcommand{\section}[1]{{
+~\vspace{-0.1cm}
+
+\large\sfb #1\vspace{0.1cm}\\}
+
+
+}
+\begin{flushleft}
+%\begin{multicols}{3}
+\footnotesize
+\section{Data handling}
+
+\entryh{\Alphabet}{}{A set of symbols}
+
+\entryc{new DiscreteAlphabet(caseInsensitive,alphabet)}{de/jstacs/data/alphabets/DiscreteAlphabet.html\#DiscreteAlphabet(boolean,\%20java.lang.String...)}{Create an arbitrary discrete alphabet}
+
+\entryc{new ContinuousAlphabet(min,max)}{de/jstacs/data/alphabets/ContinuousAlphabet.html\#ContinuousAlphabet(double,\%20double)}{Create a continuous alphabet between min and max}
+
+\entry{\DNAAlphabet}{.SINGLETON}{Singleton instance of a DNA-alphabet}
+
+~
+
+\entryh{\AlphabetContainer}{}{A set of \Alphabet s and their assigment to positions}
+
+\entryc{new AlphabetContainer(alphabets)}{de/jstacs/data/AlphabetContainer.html\#AlphabetContainer(de.jstacs.data.alphabets.Alphabet...)}{Create an aggregate alphabet out of \Alphabet s}
+
+\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}
+
+
+~
+
+\entryh{\Sequence}{ seq}{Repesenting a biological sequence}
+
+\entrys{\Sequence}{.create(alphabets,string)}{de/jstacs/data/sequences/Sequence.html\#create(de.jstacs.data.AlphabetContainer,\%20java.lang.String)}{Create a sequence from a string}
+
+\entrys{seq}{.getLength()}{de/jstacs/data/sequences/Sequence.html\#getLength()}{Obtain the length of a sequence}
+
+\entrys{seq}{.discreteVal(pos)}{de/jstacs/data/sequences/Sequence.html\#discreteVal(int)}{Obtain the discrete value at a position (counting from 0) of a sequence}
+
+\entrys{seq}{.continuousVal(pos)}{de/jstacs/data/sequences/Sequence.html\#continuousVal(int)}{Obtain the continuous value at a position (counting from 0) of a sequence}
+
+~
+
+\entryh{\DataSet}{ data}{A set of sequences using the same \AlphabetContainer}
+
+\entrys{data}{.getNumberOfElements()}{de/jstacs/data/DataSet.html\#getNumberOfElements()}{Obtain the number of sequences in a data set}
+
+\entry{data}{.getElementAt(index)}{de/jstacs/data/DataSet.html\#getElementAt(int)}{Obtain the sequence at index from a data set}
+
+\entry{d}{.getInfixDataSet(start,length)}{de/jstacs/data/DataSet.html\#getInfixDataSet(int,\%20int)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
+
+~
+
+\entry{new \DataSet}{(annotation,sequences)}{Create a data set from sequences}
+
+\entry{new \DNADataSet}{(filename)}{Create a data set of DNA sequences from a FastA file}
+
+\section{Statistical models}
+
+\entry{\StatMod}{ s}{Interface for all statistical models}
+
+\entry{s}{.emitDataSet(number,length)}{Generate a given number of sequences with specified length from the model using the current parameter values}
+
+\entry{s}{.getLogProbFor(sequence)}{Obtain the log probility (likelihood) of a sequence for a given model}
+
+~
+
+\entry{\TrainSM}{ t}{Interface for statistical models that can be trained from a single data set}
+
+\entry{t}{.train(data)}{Train a \TrainSM~from a data set}
+
+~
+
+%\entry{\AbstractTrainSM}{}{Abstract class for statistical models that can be trained from a single data set}
+%
+\entry{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
+
+\entry{\TrainSMFactory}{.createPWM(alphabets,length,ess)}{Create a PWM model of a given length}
+
+\entry{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabets,length,ess,\\order)}{Create an inhomogeneous Markov model of a given length and order}
+
+\entry{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,order)}{Create a homogeneous Markov model of a given order}
+
+\entry{\TrainSMFactory}{.createMixtureModel(hyperpars,models)}{Create a mixture model from \TrainSM s}
+
+~
+
+\entry{\DiffSM}{ d}{Interface for statistical models that can be trained using gradient-based methods}
+
+\entry{d}{.initializeFunctionRandomly()}{Initialize the parameters of this model randomly}
+
+\entry{d}{.getLogScoreFor(sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+
+\entry{d}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
+
+~
+
+%\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
+%
+\entry{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
+
+\entry{\DiffSMFactory}{.createPWM(alphabets,length,ess)}{Create a PWM model of a given length}
+
+\entry{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabets,length,\\ess,order)}{Create an inhomogeneous Markov model of a given length and order}
+
+\entry{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,order,\\priorLength)}{Create a homogeneous Markov model of a given order}
+
+\entry{\DiffSMFactory}{.createMixtureModel(models)}{Create a mixture model from \DiffSM s}
+
+~
+
+\entry{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}
+
+\section{Classifiers}
+
+\entry{\AbstractClassifier}{ a}{Abstract class of a classifier}
+
+\entry{a}{.train(dataSets)}{Train a classifier from training data sets}
+
+\entry{a}{.classify(sequence)}{Classify a sequence}
+
+\entry{a}{.evaluate(performanceMeasures,exc,dataSet)}{Evaluate performance measures for a given classifier on test data sets}
+
+~
+
+\entry{new \TrainSMBasedClassifier}{(models)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
+
+\entry{new \MSPClassifier}{(params,prior,models)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+
+\entry{new \GenDisMixClassifier}{(params,prior,learnPrinc,models)}{Classifier that learns \DiffSM s using a unified learning principle}
+
+~
+
+\entry{\AbstractPerformanceMeasure}{}{Abstract class of all performance measures}
+
+\entry{new \NumericalPerformanceMeasureParameterSet}{()}{Create a set of scalar standard performance measures that are applicable to two-class problems (binary classification)}
+
+\entry{new \PerformanceMeasureParameterSet}{(measures)}{Create a set of performance measures}
+
+\entry{\PerformanceMeasureParameterSet}{.createFilledParameters()}{Create a set of scalar standard performance measures for binary classification problems that can immediately be used}
+
+\section{XMLParser}
+
+\entry{\Storable}{}{Interface of objects that can be stored to XML}
+
+\entry{\XMLParser}{.appendObjectWithTags(buffer,storable,tag)}{Append storable object to StringBuffer with given tags}
+
+\entry{\XMLParser}{.extractObjectForTags(buffer,tag)}{Extract storable object within tags from StringBuffer}
+
+\section{Utils}
+
+\entry{new \Alignment}{(type,costs)}{Create an object for alignments of sequences}
+
+\entry{\Alignment}{.getAlignment(seq1,seq2)}{Align two sequences}
+
+~
+
+\entry{\ArrayHandler}{.clone(array)}{Deep clone multi-dimensional array}
+
+\entry{\ArrayHandler}{.createArrayOf(template,num)}{Create an array containing num clones of a template}
+
+~
+
+\entry{\ToolBox}{.sum(doubles)}{Compute the sum of all elements in an array}
+
+\entry{\ToolBox}{.getMaxIndex(doubles)}{Get the index of the maximum value in an array}
+
+~
+
+\entry{\Normalisation}{.getLogSum(doubles)}{Compute the logarithm of a sum of values given as their logs}
+
+\entry{\Normalisation}{.sumNormalisation(double)}{Normalize a given array to probabilities}
+\end{flushleft}
+%\end{multicols}
+\end{document}
