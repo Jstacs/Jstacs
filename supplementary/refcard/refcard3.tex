@@ -1,0 +1,179 @@
+\documentclass[10pt]{scrartcl}
+
+\usepackage[landscape]{geometry}
+\usepackage{hanging}
+\input{../cookbook/defs.tex}
+%\leftskip 0.1in
+%\parindent -0.1in
+\newcommand{\entryh}[3]{{\sfb #1}{\bfseries #2}: #3}
+\newcommand{\entry}[3]{\hangpara{.75cm}{1}{\bfseries #1#2}: #3}
+\newcommand{\entrys}[4]{\hangpara{.75cm}{1}{\bfseries #1\href{\APIhome/#3}{#2}}: #4}
+%\newcommand{\entryc}[3]{{\bfseries \href{\APIhome/#2}{#1}}: #3}
+
+\geometry{a4paper,left=8mm,right=8mm, top=5mm, bottom=10mm, columnsep=1.3cm}
+\begin{document}
+\thispagestyle{empty}
+\twocolumn[{\begin{center}\Huge\sfb Jstacs reference card\end{center}}]
+
+\newcommand{\sep}{\\~\vspace{-0.1cm}}
+
+\renewcommand{\section}[1]{{
+~%\vspace{-0.1cm}
+
+{\large\sfb #1}\vspace{0.1cm}\\}
+
+
+}
+\begin{flushleft}
+%\begin{multicols}{3}
+\footnotesize
+
+\section{Data handling}
+
+\entryh{\Alphabet}{}{A set of symbols}
+
+\entrys{new }{DiscreteAlphabet(caseInsensitive,alphabet)}{de/jstacs/data/alphabets/DiscreteAlphabet.html\#DiscreteAlphabet(boolean,\%20java.lang.String...)}{Create an arbitrary discrete alphabet}
+
+\entrys{new }{ContinuousAlphabet(min,max)}{de/jstacs/data/alphabets/ContinuousAlphabet.html\#ContinuousAlphabet(double,\%20double)}{Create a continuous alphabet between min and max}
+
+\entry{\DNAAlphabet}{.SINGLETON}{Singleton instance of a DNA-alphabet}\sep
+
+
+\entryh{\AlphabetContainer}{}{A set of \Alphabet s and their assigment to positions}
+
+\entrys{new }{AlphabetContainer(alphabets)}{de/jstacs/data/AlphabetContainer.html\#AlphabetContainer(de.jstacs.data.alphabets.Alphabet...)}{Create an aggregate alphabet out of \Alphabet s}
+
+\entry{\DNAAlphabetContainer}{.SINGLETON}{Singleton instance of aggregate DNA-alphabet}\sep
+
+
+\entryh{\Sequence}{ seq}{Repesenting a biological sequence}
+
+\entrys{\Sequence}{.create(alphabets,string)}{de/jstacs/data/sequences/Sequence.html\#create(de.jstacs.data.AlphabetContainer,\%20java.lang.String)}{Create a sequence from a string}
+
+\entrys{seq}{.getLength()}{de/jstacs/data/sequences/Sequence.html\#getLength()}{Obtain the length of a sequence}
+
+\entrys{seq}{.discreteVal(pos)}{de/jstacs/data/sequences/Sequence.html\#discreteVal(int)}{Obtain the discrete value at a position (counting from 0) of a sequence}
+
+\entrys{seq}{.continuousVal(pos)}{de/jstacs/data/sequences/Sequence.html\#continuousVal(int)}{Obtain the continuous value at a position (counting from 0) of a sequence}\sep
+
+
+\entryh{\DataSet}{ data}{A set of sequences using the same \AlphabetContainer}
+
+\entrys{new }{DataSet(annotation,sequences)}{de/jstacs/data/DataSet.html\#DataSet(java.lang.String,\%20de.jstacs.data.sequences.Sequence...)}{Create a data set from sequences}
+
+\entrys{new }{DNADataSet(filename)}{de/jstacs/data/DNADataSet.html\#DNADataSet(java.lang.String)}{Create a data set of DNA sequences from a FastA file}
+
+\entrys{data}{.getNumberOfElements()}{de/jstacs/data/DataSet.html\#getNumberOfElements()}{Obtain the number of sequences in a data set}
+
+\entrys{data}{.getElementAt(index)}{de/jstacs/data/DataSet.html\#getElementAt(int)}{Obtain the sequence at index from a data set}
+
+\entrys{data}{.getInfixDataSet(start,length)}{de/jstacs/data/DataSet.html\#getInfixDataSet(int,\%20int)}{Get a data set containing all infixes of a given length starting at a given position of all sequences in the current data set}
+
+\section{Statistical models}
+
+\entryh{\StatMod}{ statMod}{Interface for all statistical models}
+
+\entryh{\TrainSM}{ trainSM}{Interface for statistical models that can be trained from a single data set}
+
+\entryh{\DiffSM}{ diffSM}{Interface for statistical models that can be trained using gradient-based methods}\sep
+
+
+%\entry{\AbstractTrainSM}{}{Abstract class for statistical models that can be trained from a single data set}
+%
+\entryh{\TrainSMFactory}{}{Factory for standard implementations of \TrainSM s}
+
+\entrys{\TrainSMFactory}{.createPWM(alphabets,length,ess)}{de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModelFactory.html\#createPWM(de.jstacs.data.AlphabetContainer,\%20int,\%20double)}{Create a PWM model of a given length}
+
+\entrys{\TrainSMFactory}{.createInhomogeneousMarkovModel(alphabets,length,ess, order)}{de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModelFactory.html\#createInhomogeneousMarkovModel(de.jstacs.data.AlphabetContainer,\%20int,\%20double,\%20byte)}{Create an inhomogeneous Markov model of a given length and order}
+
+\entrys{\TrainSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,order)}{de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModelFactory.html\#createHomogeneousMarkovModel(de.jstacs.data.AlphabetContainer,\%20double,\%20byte)}{Create a homogeneous Markov model of a given order}
+
+\entrys{\TrainSMFactory}{.createMixtureModel(hyperpars,models)}{de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModelFactory.html\#createMixtureModel(double[],\%20de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel[])}{Create a mixture model from \TrainSM s}\sep
+
+
+%\entry{\AbstractDiffSM}{}{Abstract class for statistical models that can be trained using gradient-based methods}
+%
+\entryh{\DiffSMFactory}{}{Factory for standard implementations of \DiffSM s}
+
+\entrys{\DiffSMFactory}{.createPWM(alphabets,length,ess)}{de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModelFactory.html\#createPWM(de.jstacs.data.AlphabetContainer,\%20int,\%20double)}{Create a PWM model of a given length}
+
+\entrys{\DiffSMFactory}{.createInhomogeneousMarkovModel(alphabets,length, ess,order)}{de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModelFactory.html\#createInhomogeneousMarkovModel(de.jstacs.data.AlphabetContainer,\%20int,\%20double,\%20int)}{Create an inhomogeneous Markov model of a given length and order}
+
+\entrys{\DiffSMFactory}{.createHomogeneousMarkovModel(alphabets,ess,order, priorLength)}{de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModelFactory.html\#createHomogeneousMarkovModel(de.jstacs.data.AlphabetContainer,\%20double,\%20int,\%20int)}{Create a homogeneous Markov model of a given order}
+
+\entrys{\DiffSMFactory}{.createMixtureModel(models)}{de/jstacs/sequenceScores/statisticalModels/differentiable/DifferentiableStatisticalModelFactory.html\#createMixtureModel(de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel[])}{Create a mixture model from \DiffSM s}\sep
+
+
+\entryh{\HMMFactory}{}{Factory for standard implementations of hidden Markov models}\sep
+
+\entrys{statMod}{.emitDataSet(number,length)}{de/jstacs/sequenceScores/statisticalModels/StatisticalModel.html\#emitDataSet(int,\%20int...)}{Generate a given number of sequences with specified length from the model using the current parameter values}
+
+\entrys{statMod}{.getLogProbFor(sequence)}{de/jstacs/sequenceScores/statisticalModels/StatisticalModel.htm\#getLogProbFor(de.jstacs.data.sequences.Sequence)}{Obtain the log probability (likelihood) of a sequence for a given model}
+
+\entrys{trainSM}{.train(data)}{de/jstacs/sequenceScores/statisticalModels/trainable/TrainableStatisticalModel.html\#train(de.jstacs.data.DataSet)}{Train a \TrainSM~from a data set}
+
+\entrys{diffSM}{.initializeFunctionRandomly()}{de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html\#initializeFunctionRandomly(boolean)}{Initialize the parameters of this model randomly}
+
+\entrys{diffSM}{.getLogScoreFor(sequence)}{de/jstacs/sequenceScores/SequenceScore.html\#getLogScoreFor(de.jstacs.data.sequences.Sequence)}{Obtain a log score (typically proportional to the log-likelihood) of a sequence for a given model}
+
+\entrys{diffSM}{.getLogScoreAndPartialDerivation(sequence,indices,partialDers)}{de/jstacs/sequenceScores/differentiable/DifferentiableSequenceScore.html\#getLogScoreAndPartialDerivation(de.jstacs.data.sequences.Sequence,\%20de.jstacs.utils.IntList,\%20de.jstacs.utils.DoubleList)}{Compute the partial derivations wrt. all parameters for the given sequences and store the parameter indexes and corresponding partial derivations in given lists}
+
+\section{Classifiers}
+
+\entryh{\AbstractClassifier}{ classif}{Abstract class of a classifier}
+
+\entrys{new }{TrainSMBasedClassifier(models)}{de/jstacs/classifiers/trainSMBased/TrainSMBasedClassifier.html\#TrainSMBasedClassifier(de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel...)}{Create a classifier from \TrainSM s that is learned by ML or MAP}
+
+\entrys{new }{MSPClassifier(params,prior,models)}{de/jstacs/classifiers/differentiableSequenceScoreBased/msp/MSPClassifier.html\#MSPClassifier(de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet,\%20de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior,\%20de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore...)}{Create a classifier from \DiffSM s that is learned by MCL or MSP}
+
+\entrys{new }{GenDisMixClassifier(params,prior,learnPrinc,models)}{de/jstacs/classifiers/differentiableSequenceScoreBased/gendismix/GenDisMixClassifier.html\#GenDisMixClassifier(de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet,\%20de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior,\%20de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple,\%20de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel...)}{Classifier that learns \DiffSM s using a unified learning principle}\sep
+
+
+\entrys{classif}{.train(dataSets)}{de/jstacs/classifiers/AbstractClassifier.html\#train(de.jstacs.data.DataSet...)}{Train a classifier from training data sets}
+
+\entrys{classif}{.classify(sequence)}{de/jstacs/classifiers/AbstractClassifier.html\#classify(de.jstacs.data.sequences.Sequence)}{Classify a sequence}
+
+\entrys{classif}{.evaluate(performanceMeasures,exc,dataSet)}{de/jstacs/classifiers/AbstractClassifier.html\#evaluate(de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet,\%20boolean,\%20de.jstacs.data.DataSet...)}{Evaluate performance measures for a given classifier on test data sets}\sep
+
+
+\entryh{\AbstractPerformanceMeasure}{}{Abstract class of all performance measures}
+
+\entrys{new }{NumericalPerformanceMeasureParameterSet()}{de/jstacs/classifiers/performanceMeasures/NumericalPerformanceMeasureParameterSet.html\#NumericalPerformanceMeasureParameterSet()}{Create a set of scalar standard performance measures that are applicable to two-class problems (binary classification)}
+
+\entrys{new }{PerformanceMeasureParameterSet(measures)}{de/jstacs/classifiers/performanceMeasures/PerformanceMeasureParameterSet.html\#PerformanceMeasureParameterSet(de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure...)}{Create a set of performance measures}
+
+\entrys{\PerformanceMeasureParameterSet}{.createFilledParameters()}{de/jstacs/classifiers/performanceMeasures/PerformanceMeasureParameterSet.html\#createFilledParameters()}{Create a set of scalar standard performance measures for binary classification problems that can immediately be used}
+
+\section{Utilities}
+
+\entryh{\Storable}{}{Interface of objects that can be stored to XML}
+
+\entrys{\XMLParser}{.appendObjectWithTags(buffer,storable,tag)}{de/jstacs/io/XMLParser.html\#appendObjectWithTags(java.lang.StringBuffer,\%20java.lang.Object,\%20java.lang.String)}{Append storable object to StringBuffer with given tags}
+
+\entrys{\XMLParser}{.extractObjectForTags(buffer,tag)}{de/jstacs/io/XMLParser.html\#extractObjectForTags(java.lang.StringBuffer,\%20java.lang.String)}{Extract storable object within tags from StringBuffer}\sep
+
+
+\entryh{\Alignment}{ align}{Class for optimal alignments of sequences}
+
+\entrys{new }{Alignment(type,costs)}{de/jstacs/algorithms/alignment/Alignment.html\#Alignment(de.jstacs.algorithms.alignment.Alignment.AlignmentType,\%20de.jstacs.algorithms.alignment.cost.Costs)}{Create an object for alignments of sequences}
+
+\entrys{align}{.getAlignment(seq1,seq2)}{de/jstacs/algorithms/alignment/Alignment.html\#getAlignment(de.jstacs.data.sequences.Sequence,\%20de.jstacs.data.sequences.Sequence)}{Align two sequences}\sep
+
+
+\entrys{\ArrayHandler}{.clone(array)}{de/jstacs/io/ArrayHandler.html\#clone(T...)}{Deep clone a multi-dimensional array}
+
+\entrys{\ArrayHandler}{.createArrayOf(template,num)}{de/jstacs/io/ArrayHandler.html\#createArrayOf(T,\%20int)}{Create an array containing num clones of a template}\sep
+
+
+\entrys{\ToolBox}{.sum(doubles)}{de/jstacs/utils/ToolBox.html\#sum(double...)}{Compute the sum of all elements in an array}
+
+\entrys{\ToolBox}{.getMaxIndex(doubles)}{de/jstacs/utils/ToolBox.html\#getMaxIndex(double[])}{Get the index of the maximum value in an array}\sep
+
+
+\entrys{\Normalisation}{.getLogSum(doubles)}{de/jstacs/utils/Normalisation.html\#getLogSum(double...)}{Compute the logarithm of a sum of values given as their logs}
+
+\entrys{\Normalisation}{.sumNormalisation(double)}{de/jstacs/utils/Normalisation.html\#sumNormalisation(double[])}{Normalize a given array to probabilities}
+
+\end{flushleft}
+%\end{multicols}
+\end{document}
