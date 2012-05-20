@@ -211,23 +211,28 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 				} else {
 					aucIntegral += (pB - pA) / a;
 				}
-			
+
 				//curve
 				if( list != null ) {
 					propTerm = Math.min( (fn - fn_old) / (i - i_old), 1 );
+					h *= propTerm ;
 					double helpI = fn_old + propTerm;
+
 					for( i_old++, helpJ = tn_old + h; helpI < fn; helpJ += h, helpI += propTerm ) {
 						// compute sn and ppv
 						p[0] = ( pos - helpI ) / pos;
 						p[1] = ( pos - helpI ) / ( pos - helpI + neg - helpJ );
-
+						
 						// add point
 						list.add( p.clone() );
 					}
 				}
 				if( pA != p[0] ) {
 					p[0] = pA;
-					p[1] = ( pos-fn ) / ( pos-fn + neg-tn );
+					double temp = ( pos-fn ) / ( pos-fn + neg-tn );
+					if(!Double.isNaN( temp )){
+						p[1] = temp;
+					}
 					if( list != null ) {
 						list.add( p.clone() );
 					}
