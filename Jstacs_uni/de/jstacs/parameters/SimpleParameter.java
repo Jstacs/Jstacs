@@ -665,7 +665,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		if(validator != null && validator instanceof GalaxyConvertible){
 			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null );
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();
