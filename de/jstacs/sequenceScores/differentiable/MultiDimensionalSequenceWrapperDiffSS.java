@@ -15,7 +15,7 @@
  * 
  * For more information on Jstacs, visit http://www.jstacs.de
  */
-package de.jstacs.sequenceScores.statisticalModels.differentiable;
+package de.jstacs.sequenceScores.differentiable;
 
 import java.util.Arrays;
 
@@ -24,8 +24,6 @@ import de.jstacs.data.sequences.MultiDimensionalSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
-import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
@@ -39,12 +37,12 @@ import de.jstacs.utils.IntList;
  * 
  * @see MultiDimensionalSequence
  */
-public class MultiDimensionalSequenceWrapperDiffSM extends AbstractDifferentiableSequenceScore {
+public class MultiDimensionalSequenceWrapperDiffSS extends AbstractDifferentiableSequenceScore {
 
 	private DifferentiableSequenceScore function;
 	private IntList iList;
 	private DoubleList dList;
-	private double[] gradient;
+	private double[] gradient, help;
 	
 	/**
 	 * The main constructor.
@@ -56,7 +54,7 @@ public class MultiDimensionalSequenceWrapperDiffSM extends AbstractDifferentiabl
 	 * @throws CloneNotSupportedException
 	 *            if the function can not be cloned properly
 	 */
-	public MultiDimensionalSequenceWrapperDiffSM( DifferentiableSequenceScore function ) throws IllegalArgumentException, CloneNotSupportedException {
+	public MultiDimensionalSequenceWrapperDiffSS( DifferentiableSequenceScore function ) throws IllegalArgumentException, CloneNotSupportedException {
 		super( function.getAlphabetContainer(), function.getLength() );
 		this.function = function.clone();
 	}
@@ -72,11 +70,11 @@ public class MultiDimensionalSequenceWrapperDiffSM extends AbstractDifferentiabl
 	 * @throws NonParsableException
 	 *             if the XML representation could not be parsed
 	 */
-	public MultiDimensionalSequenceWrapperDiffSM( StringBuffer xml ) throws NonParsableException {
+	public MultiDimensionalSequenceWrapperDiffSS( StringBuffer xml ) throws NonParsableException {
 		super(xml);
 	}
 
-	private static final String XML_TAG = MultiDimensionalSequenceWrapperDiffSM.class.getSimpleName();
+	private static final String XML_TAG = MultiDimensionalSequenceWrapperDiffSS.class.getSimpleName();
 	
 	/*
 	 * (non-Javadoc)
@@ -102,8 +100,8 @@ public class MultiDimensionalSequenceWrapperDiffSM extends AbstractDifferentiabl
 		return xml;
 	}
 
-	public MultiDimensionalSequenceWrapperDiffSM clone() throws CloneNotSupportedException {
-		MultiDimensionalSequenceWrapperDiffSM clone = (MultiDimensionalSequenceWrapperDiffSM) super.clone();
+	public MultiDimensionalSequenceWrapperDiffSS clone() throws CloneNotSupportedException {
+		MultiDimensionalSequenceWrapperDiffSS clone = (MultiDimensionalSequenceWrapperDiffSS) super.clone();
 		clone.function = function.clone();
 		if( gradient != null ) {
 			clone.gradient = gradient.clone();
@@ -146,6 +144,17 @@ public class MultiDimensionalSequenceWrapperDiffSM extends AbstractDifferentiabl
 				res += function.getLogScoreFor( mdSeq.getSequence( i ), start );
 			}
 			res /= n;
+			
+			
+			/*//TODO
+			if( help == null || help.length < n ) {
+				help = new double[n];
+			}
+			for( int i = 0; i < n; i++ ) {
+				help[i] = function.getLogScoreFor( mdSeq.getSequence( i ), start );
+			}
+			res = Normalisation.getLogSum( 0, n, help) - Math.log(n);
+			*/
 		} else {
 			res = function.getLogScoreFor( seq, start );
 		}
