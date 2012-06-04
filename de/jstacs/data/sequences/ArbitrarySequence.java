@@ -53,7 +53,7 @@ public class ArbitrarySequence extends Sequence<double[]> {
 	 * @see de.jstacs.sequenceScores.statisticalModels.StatisticalModel#emitDataSet(int, int...)
 	 * @see Sequence#Sequence(AlphabetContainer, SequenceAnnotation[])
 	 */
-	public ArbitrarySequence( AlphabetContainer alphabetContainer, double[] content ) throws WrongAlphabetException,
+	public ArbitrarySequence( AlphabetContainer alphabetContainer, double... content ) throws WrongAlphabetException,
 																						WrongSequenceTypeException {
 		super( alphabetContainer, null );
 		this.content = new double[content.length];
@@ -66,7 +66,7 @@ public class ArbitrarySequence extends Sequence<double[]> {
 		}
 	}
 
-	private ArbitrarySequence( AlphabetContainer cont, SequenceAnnotation[] annotation, double[] content ) {
+	private ArbitrarySequence( AlphabetContainer cont, SequenceAnnotation[] annotation, double... content ) {
 		super( cont, annotation );
 		this.content = content;
 	}
