@@ -210,7 +210,7 @@ public class ListResult extends Result {
 			}
 		}
 		if (list != null) {
-			writer.println("# ");
+			//writer.println("# ");//TODO
 			ResultSet[] res = getValue();
 			boolean newNames;
 			int i = 0, j, k;
