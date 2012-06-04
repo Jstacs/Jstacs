@@ -250,6 +250,28 @@ public final class DoubleList implements Storable, Cloneable {
 	}
 	
 	/**
+	 * This method computes the standard deviation of a part of the list. Please note that
+	 * <code>start</code> has to be smaller than <code>end</code> and
+	 * <code>end</code> has to be smaller than {@link DoubleList#length()}.
+	 * 
+	 * @param start
+	 *            the start index (inclusive)
+	 * @param end
+	 *            the end index (exclusive)
+	 * 
+	 * @return the standard deviation of the part of the list
+	 */
+	public double sd( int start, int end ) {
+		double mean = mean( start, end );
+		double var = 0, h;
+		for( int k = start; k < end; k++ ) {
+			h = mean - array[k];
+			var += h*h;
+		}
+		return Math.sqrt( var / (double)( end - start ) );
+	}
+	
+	/**
 	 * This method computes the minimum of a part of the list. Please note that
 	 * <code>start</code> has to be smaller than <code>end</code> and
 	 * <code>end</code> has to be smaller than {@link DoubleList#length()}.
