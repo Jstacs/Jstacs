@@ -197,7 +197,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		} else if (value != null && value instanceof FileRepresentation) {
 			FileRepresentation f = (FileRepresentation) value;
 			if (f.getFilename() != null && f.getFilename().length() != 0
-					&& f.getContent() != null && f.getContent().length() != 0) {
+					|| f.getContent() != null && f.getContent().length() != 0) {
 				errorMessage = null;
 				return true;
 			} else {
@@ -331,7 +331,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer  ) {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mime+"\" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
 		descBuffer.append( buf );
 		buf = new StringBuffer();
 		buf.append( "${"+configPrefix+namePrefix+"}" );
