@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 import de.jstacs.data.sequences.annotation.NullSequenceAnnotationParser;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -229,11 +230,33 @@ public class SparseStringExtractor extends AbstractStringExtractor {
 	 *             if the {@link java.io.File} could not be read
 	 */
 	public SparseStringExtractor( File f, char ignore, String annotation, SequenceAnnotationParser parser ) throws IOException {
+		this( new FileReader( f ), ignore, annotation, parser );
+	}
+	
+	/**
+	 * A constructor that reads the lines from a {@link Reader}, ignores those
+	 * starting with the comment character <code>ignore</code> and sets the
+	 * annotation of the source to <code>annotation</code>.
+	 * 
+	 * @param reader
+	 *            the {@link Reader} to be read from
+	 * @param ignore
+	 *            the first character of lines that should be treated as
+	 *            comments
+	 * @param annotation
+	 *            the annotation for the source
+	 * @param parser
+	 * 			  the {@link SequenceAnnotationParser} for the comment lines
+	 * 
+	 * @throws IOException
+	 *             if the {@link java.io.File} could not be read
+	 */
+	public SparseStringExtractor( Reader reader, char ignore, String annotation, SequenceAnnotationParser parser ) throws IOException {
 		super( ignore );
 		this.annotationParser = parser == null ? NullSequenceAnnotationParser.DEFAULT_INSTANCE : parser;
 		this.annotationParser.clearAnnotation();
 		old = null;
-		reader = new BufferedReader( new FileReader( f ) );
+		this.reader = new BufferedReader(reader); 
 		help = new StringBuffer();
 		next = getNext();
 		this.annotation = annotation;
