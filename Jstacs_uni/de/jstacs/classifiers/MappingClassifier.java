@@ -209,14 +209,16 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see de.jstacs.classifiers.AbstractScoreBasedClassifier#getResults(java.util.LinkedList, de.jstacs.data.DataSet[], de.jstacs.classifiers.measures.MeasureParameters, boolean)
+	 * @see de.jstacs.classifiers.AbstractScoreBasedClassifier#getResults(java.util.LinkedList, de.jstacs.data.DataSet[], double[][], de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet, boolean)
 	 */
 	@Override
-	protected boolean getResults( LinkedList list, DataSet[] s, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length == getNumberOfClasses() ) {
-			return super.getResults( list, s, params, exceptionIfNotComputeable );
+			return super.getResults( list, s, weights, params, exceptionIfNotComputeable );
 		} else {
-			return super.getResults( list, mapDataSet( s ), params, exceptionIfNotComputeable );
+			
+			
+			return super.getResults( list, mapDataSet( s ), mapWeights(weights), params, exceptionIfNotComputeable );
 		}
 	}
 
@@ -242,6 +244,32 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 		} catch ( Exception e ) {
 			// does not happen
 			throw new RuntimeException();
+		}
+		return mapped;
+	}
+	
+	/**
+	 * This method maps the given {@link Sequence} weights to the internal classes.
+	 * 
+	 * @param w
+	 *            the array of weights
+	 * 
+	 * @return the array of weights corresponding to the classes
+	 */
+	public double[][] mapWeights( double[][] w ) {
+		double[][] mapped = new double[classMapping.length][];
+		for( int j, i = 0; i < mapped.length; i++ ) {
+			int anz = 0;
+			for( j = 0; j < classMapping[i].length; j++ ) {
+				anz += w[classMapping[i][j]].length;
+			}
+			mapped[i] = new double[anz];
+			anz = 0;
+			for( j = 0; j < classMapping[i].length; j++ ) {
+				int current = w[classMapping[i][j]].length;
+				System.arraycopy( w[classMapping[i][j]], 0, mapped[i], anz, current );
+				anz += current;
+			}
 		}
 		return mapped;
 	}
