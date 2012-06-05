@@ -70,7 +70,7 @@ public interface NumericalPerformanceMeasure {
 	 * 
 	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[])
 	 */
-	public NumericalResultSet compute(double[] sortedScoresClass0, double[] weightClass0, double[] sortedScoresClass1, double[] weightsClass1 );
+	public NumericalResultSet compute(double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 );
 
 	/**
 	 * This method allows to compute the performance measure of given class specific scores.

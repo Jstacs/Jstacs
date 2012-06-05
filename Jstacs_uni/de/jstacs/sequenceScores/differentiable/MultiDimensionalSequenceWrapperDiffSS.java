@@ -30,7 +30,7 @@ import de.jstacs.utils.IntList;
 /**
  * This class implements a simple wrapper for multidimensional sequences.
  * 
- * The logarithm of the score given by {@link MultiDimensionalSequenceWrapperDiffSM#getLogScoreFor(Sequence)} is defined as
+ * The logarithm of the score given by {@link MultiDimensionalSequenceWrapperDiffSS#getLogScoreFor(Sequence)} is defined as
  * {@latex.ilb \\[\\frac{1}{N}\\sum_{n=0}^N \\log p(\\underline{x_n} | \\underline{\\lambda}).\\]}
  * 
  * @author Jens Keilwagen
@@ -61,7 +61,7 @@ public class MultiDimensionalSequenceWrapperDiffSS extends AbstractDifferentiabl
 
 	/**
 	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
-	 * {@link MultiDimensionalSequenceWrapperDiffSM} out of a {@link StringBuffer}
+	 * {@link MultiDimensionalSequenceWrapperDiffSS} out of a {@link StringBuffer}
 	 * .
 	 * 
 	 * @param xml

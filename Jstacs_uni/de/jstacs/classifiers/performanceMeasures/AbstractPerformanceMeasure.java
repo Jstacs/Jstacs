@@ -112,7 +112,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 	 * 
 	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[])
 	 */
-	public abstract ResultSet compute(double[] sortedScoresClass0, double[] weightClass0, double[] sortedScoresClass1, double[] weightsClass1 );
+	public abstract ResultSet compute(double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 );
 
 	/**
 	 * This method allows to compute the performance measure of given class specific scores.
