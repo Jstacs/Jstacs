@@ -29,19 +29,19 @@ import de.jstacs.utils.ToolBox;
 public abstract class AbstractTwoClassPerformanceMeasure extends AbstractPerformanceMeasure {
 
 	/**
-	 * Constructs a new {@link TwoClassAbstractPerformanceMeasure} with empty parameter values.
+	 * Constructs a new {@link AbstractTwoClassPerformanceMeasure} with empty parameter values.
 	 */
 	protected AbstractTwoClassPerformanceMeasure() {}	
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
-	 * Constructs a {@link TwoClassAbstractPerformanceMeasure} out of an XML representation.
+	 * Constructs a {@link AbstractTwoClassPerformanceMeasure} out of an XML representation.
 	 * 
 	 * @param xml
 	 *            the XML representation as {@link StringBuffer}
 	 * 
 	 * @throws NonParsableException
-	 *             if the {@link TwoClassAbstractPerformanceMeasure} could not be reconstructed out of
+	 *             if the {@link AbstractTwoClassPerformanceMeasure} could not be reconstructed out of
 	 *             the {@link StringBuffer} <code>xml</code>
 	 */
 	protected AbstractTwoClassPerformanceMeasure( StringBuffer xml ) throws NonParsableException {

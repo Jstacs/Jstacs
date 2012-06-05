@@ -94,10 +94,9 @@ public class DataSet implements Iterable<Sequence>{
 	 * @author Jens Keilwagen
 	 * 
 	 * @see DataSet#partition(PartitionMethod, double...)
-	 * @see DataSet#partition(int, PartitionMethod)
-	 * @see DataSet#partition(double, PartitionMethod, int)
+	 * @see DataSet#partition(PartitionMethod, int)
 	 * @see DataSet#partition(double[], PartitionMethod, double...)
-	 * @see DataSet#partition(double[], int, PartitionMethod)
+	 * @see DataSet#partition(double[], PartitionMethod, int)
 	 */
 	public static enum PartitionMethod {
 		/**
@@ -117,7 +116,7 @@ public class DataSet implements Iterable<Sequence>{
 		 * If this is not possible (e.g. <code>weights == null</code>), it works like {@link #PARTITION_BY_NUMBER_OF_ELEMENTS}.
 		 * 
 		 * @see DataSet#partition(double[], PartitionMethod, double...)
-		 * @see DataSet#partition(double[], int, PartitionMethod)
+		 * @see DataSet#partition(double[], PartitionMethod, int)
 		 */
 		PARTITION_BY_WEIGHTS;
 	}
@@ -322,7 +321,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @throws EmptyDataSetException
 	 *             if the union is empty
 	 * 
-	 * @see DataSet#union(DataSet[], boolean[], int)
+	 * @see DataSet#union(DataSet[], double[][], boolean[])
 	 */
 	public static final DataSet union( DataSet[] s, boolean[] in ) throws IllegalArgumentException, EmptyDataSetException {
 		try {

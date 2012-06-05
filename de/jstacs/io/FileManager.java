@@ -169,7 +169,7 @@ public class FileManager {
 	 * @throws IOException
 	 *             if something went wrong with the {@link File}
 	 * 
-	 * @see #writeFile(File, StringBuffer)
+	 * @see #writeFile(File, CharSequence)
 	 * @see #read(Reader)
 	 * @see FileReader
 	 */
@@ -189,7 +189,7 @@ public class FileManager {
 	 * @throws IOException
 	 *             if something went wrong with the {@link File}
 	 * 
-	 * @see #writeFile(File, StringBuffer)
+	 * @see #writeFile(File, CharSequence)
 	 * @see #read(Reader)
 	 * @see FileReader
 	 */
@@ -208,7 +208,7 @@ public class FileManager {
 	 * @throws IOException
 	 *             if something went wrong with the {@link InputStream}
 	 * 
-	 * @see #writeOutputStream(OutputStream, StringBuffer)
+	 * @see #writeOutputStream(OutputStream, CharSequence)
 	 * @see #read(Reader)
 	 * @see InputStreamReader
 	 */
@@ -227,7 +227,7 @@ public class FileManager {
 	 * @throws IOException
 	 *             if something went wrong with the {@link Reader}
 	 * 
-	 * @see #write(Writer, StringBuffer)
+	 * @see #write(Writer, CharSequence)
 	 * @see BufferedReader
 	 */
 	public static StringBuffer read( Reader reader ) throws IOException {
@@ -253,7 +253,7 @@ public class FileManager {
 	 *             if something went wrong with the {@link File}
 	 * 
 	 * @see #readFile(File)
-	 * @see #write(Writer, StringBuffer)
+	 * @see #write(Writer, CharSequence)
 	 */
 	public static void writeFile( File outputFile, CharSequence buffer ) throws IOException {
 		write( new FileWriter( outputFile ), buffer );
@@ -271,7 +271,7 @@ public class FileManager {
 	 *             if something went wrong with the {@link OutputStream}
 	 * 
 	 * @see #readInputStream(InputStream)
-	 * @see #write(Writer, StringBuffer)
+	 * @see #write(Writer, CharSequence)
 	 * @see OutputStreamWriter
 	 */
 	public static void writeOutputStream( OutputStream outStream, CharSequence buffer ) throws IOException {
