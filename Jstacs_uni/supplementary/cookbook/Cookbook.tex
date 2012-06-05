@@ -1,7 +1,7 @@
 \documentclass[a4paper,halfparskip]{scrartcl}
 \pagestyle{plain}
 
-\usepackage{listings,xcolor,tikz}
+\usepackage{listings,xcolor,tikz,pdfpages}
 
 \usetikzlibrary{mindmap,positioning,calc,arrows,decorations.markings,shadings}
 
@@ -20,7 +20,7 @@ breakatwhitespace=true}
 
 \input{defs}
 \hypersetup{
-	pdfauthor = {Jan Grau and Jens Keilwagen}, pdftitle = Jstacs Cookbook
+	pdfauthor = {Jan Grau and Jens Keilwagen}, pdftitle = Jstacs Cookbook, linkcolor=blue
 }
 \author{Jan Grau and Jens Keilwagen}
 \title{Jstacs Cookbook}
@@ -55,5 +55,5 @@ breakatwhitespace=true}
 \input{goodies}\clearpage
 \addtocontents{toc}{\newpage}
 \input{recipes}
-
+\includepdf[pages=-,angle=90,pagecommand={\hypertarget{refcard}{}}]{../refcard/refcard.pdf}
 \end{document}
