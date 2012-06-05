@@ -41,7 +41,10 @@ import de.jstacs.utils.IntList;
 public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 
 	private LogisticConstraint[] constraint;
-	private double[] parameter;
+	/**
+	 * the parameters of the logistic regression
+	 */
+	protected double[] parameter;
 	
 	/**
 	 * This is the main constructor to create {@link LogisticDiffSS} instance.
