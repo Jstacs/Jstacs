@@ -803,6 +803,25 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 		return StationaryDistribution.getAllConditionalStationaryDistributions(
 				probs[order], powers[1]);
 	}
+	
+	/**
+	 * Sets all parameters of the initial distributions (i.e., all below the current order)
+	 * to those corresponding to the conditional stationary distributions computed from the
+	 * transition matrix of the current order.
+	 */
+	public void setStartParamsToConditionalStationaryDistributions() {
+		double[][][] p = getAllConditionalStationaryDistributions();
+		for( int h, o = 0; o < order; o++ ) {
+			h = 0;
+			for( int i = 0; i < p[o].length; i++ ) {
+				for( int j = 0; j < p[o][i].length; j++, h++ ) {
+					probs[o][h] = p[o][i][j];
+					params[o][h] = Math.log(p[o][i][j]);
+				}
+				logNorm[o][i] = 0;
+			}
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
