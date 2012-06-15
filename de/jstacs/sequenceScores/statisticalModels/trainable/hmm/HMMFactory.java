@@ -891,7 +891,7 @@ public class HMMFactory {
 		TransitionElement[] t = new TransitionElement[list.size()];
 		for( int i = 0; i < list.size(); i++ ) {
 			PseudoTransitionElement current = list.get(i);
-			t[i] = new TransitionElement( current.context, current.states, current.prob, current.weights );
+			t[i] = new TransitionElement( current.context, current.states, hyperParams[i], current.weights );
 		}
 		return t;
 	}
