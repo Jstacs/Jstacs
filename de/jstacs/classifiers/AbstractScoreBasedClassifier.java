@@ -916,8 +916,8 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 			}
 
 			StringBuffer p = new StringBuffer( dtr.length * 200 );
-			p.append( "plot( dtr0[,1], dtr0[,2], col="+((colors == null || colors.length==0) ? 1 : ("\"" + colors[0] + "\"") )+", type=\"l\"" + plotOptions + " );" );
-			for( i = 1; i < dtr.length; ) {
+			p.append( "plot( 0:1,0:1, col=0, " + plotOptions + " );" );
+			for( i = 0; i < dtr.length; ) {
 				p.append( "\nlines( dtr" + i + "[,1], dtr" + i + "[,2], col=" + ((colors == null|| colors.length==0) ? ++i : ("\"" + colors[i++] + "\"") ) + ", lwd=3 );" );
 			}
 			return p;
