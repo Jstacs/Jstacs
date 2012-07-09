@@ -239,19 +239,15 @@ class DispomPredictorParameterSet extends ParameterSet {
 	public static final String ONEHIST = "one-histogram";
 	
 	public DispomPredictorParameterSet() throws Exception {
-		super();
-	}
-
-	
-	protected void loadParameters() throws Exception {
-		parameters = new ParameterList( 16 );
-		parameters.add( new SimpleParameter( DataType.STRING, "home directory", "the path to the data directory", true, "./" ) );
-		parameters.add( new SimpleParameter( DataType.CHAR, "the ignore char for the data files", "the char that is used to mask comment lines in data files, e.g., '>' in a FASTA-file", true, '>' ) );
-		parameters.add( new SimpleParameter( DataType.STRING, "foreground file", "the file name of the foreground data file (the file containing sequences which are expected to contain binding sites of a common motif)", true ) );
-		parameters.add( new SimpleParameter( DataType.STRING, "background file", "the file name of the background data file", false ) );
-		parameters.add( new SimpleParameter( DataType.STRING, "classifier xml-file", "the file name of the xml file containing the classifier", true, "./classifier.xml" ) );
-		parameters.add( new SimpleParameter( DataType.DOUBLE, "p-value", "a p-value for predicting binding sites", true, new NumberValidator<Double>(0d,1d), new Double(1E-4) ) );
-		parameters.add( new SimpleParameter( DataType.BOOLEAN, "one histogram","If no background file is specificed, p-values are computed either using a joint histogram (true), or a sequence-wise histogram (false)",false,new Boolean( true ) ) );
+		super(
+				new SimpleParameter( DataType.STRING, "home directory", "the path to the data directory", true, "./" ),
+				new SimpleParameter( DataType.CHAR, "the ignore char for the data files", "the char that is used to mask comment lines in data files, e.g., '>' in a FASTA-file", true, '>' ),
+				new SimpleParameter( DataType.STRING, "foreground file", "the file name of the foreground data file (the file containing sequences which are expected to contain binding sites of a common motif)", true ),
+				new SimpleParameter( DataType.STRING, "background file", "the file name of the background data file", false ),
+				new SimpleParameter( DataType.STRING, "classifier xml-file", "the file name of the xml file containing the classifier", true, "./classifier.xml" ),
+				new SimpleParameter( DataType.DOUBLE, "p-value", "a p-value for predicting binding sites", true, new NumberValidator<Double>(0d,1d), new Double(1E-4) ),
+				new SimpleParameter( DataType.BOOLEAN, "one histogram","If no background file is specificed, p-values are computed either using a joint histogram (true), or a sequence-wise histogram (false)",false,new Boolean( true ) )
+		);
 	}
 }
 
