@@ -303,7 +303,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	 * @param parameters
 	 *            the {@link Parameter}s
 	 */
-	protected ParameterSet(Parameter[] parameters) {
+	protected ParameterSet(Parameter... parameters) {
 		initParameterList(parameters.length);
 		for (int i = 0; i < parameters.length; i++) {
 			this.parameters.add(parameters[i]);
