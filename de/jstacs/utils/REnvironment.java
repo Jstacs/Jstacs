@@ -45,6 +45,7 @@ import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
 import de.jstacs.io.RegExFilenameFilter;
+import de.jstacs.io.RegExFilenameFilter.Directory;
 
 /**
  * This is an environment class for <a href="http://www.r-project.org/">R</a> and <a href="http://www.rforge.net/Rserve/">Rserve</a> that helps you to handle all things in a
@@ -493,8 +494,8 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public REXP eval( String cmd ) throws Exception {
-		return c.eval( cmd );
+	public REXP eval( CharSequence cmd ) throws Exception {
+		return c.eval( cmd.toString() );
 	}
 
 	/**
@@ -557,7 +558,7 @@ public class REnvironment {
 	 * @see REnvironment#showImage(String, BufferedImage)
 	 * @see ImageIO#write(java.awt.image.RenderedImage, String, File)
 	 */
-	public BufferedImage plot( String pltcmd ) throws Exception {
+	public BufferedImage plot( CharSequence pltcmd ) throws Exception {
 		return plot( pltcmd, -1, -1 );
 	}
 
@@ -588,7 +589,7 @@ public class REnvironment {
 	 * @see ImageIO#write(java.awt.image.RenderedImage, java.lang.String,
 	 *      java.io.File)
 	 */
-	public BufferedImage plot( String pltcmd, double width, double height ) throws Exception {
+	public BufferedImage plot( CharSequence pltcmd, double width, double height ) throws Exception {
 		String serverFileName = "help-" + System.currentTimeMillis();
 		if( windows ) {
 			if( pngOkay ) {
@@ -663,7 +664,7 @@ public class REnvironment {
 	 * 
 	 * @see ImageIO#write(java.awt.image.RenderedImage, String, OutputStream)
 	 */
-	public void plot( String pltcmd, double width, double height, String formatName, OutputStream out ) throws IOException, Exception {
+	public void plot( CharSequence pltcmd, double width, double height, String formatName, OutputStream out ) throws IOException, Exception {
 		ImageIO.write( plot( pltcmd, width, height ), formatName, out );
 	}
 
@@ -683,7 +684,7 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public boolean plotToPDF( String pltcmd, String fileName, boolean overwriteExistingFile ) throws Exception {
+	public boolean plotToPDF( CharSequence pltcmd, String fileName, boolean overwriteExistingFile ) throws Exception {
 		return plotToPDF( pltcmd, -1, -1, fileName, overwriteExistingFile );
 	}
 
@@ -707,7 +708,7 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public boolean plotToPDF( String pltcmd, double width, double height, String fileName, boolean overwriteExistingFile ) throws Exception {
+	public boolean plotToPDF( CharSequence pltcmd, double width, double height, String fileName, boolean overwriteExistingFile ) throws Exception {
 		String graphicTyp = "pdf", serverFileName = "tmp-" + System.currentTimeMillis() + "." + graphicTyp;
 		if( height > 0 && width > 0 ) {
 			return plotToFile( eval( "try( pdf( \"" + serverFileName + "\", width = " + width + ", height = " + height + " ) )" ),
@@ -742,7 +743,7 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public boolean plotToTexFile( String pltcmd, String fileName, boolean overwriteExistingFile ) throws Exception {
+	public boolean plotToTexFile( CharSequence pltcmd, String fileName, boolean overwriteExistingFile ) throws Exception {
 		return plotToTexFile( pltcmd, -1, -1, fileName, overwriteExistingFile );
 	}
 
@@ -766,7 +767,7 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public boolean plotToTexFile( String pltcmd, double width, double height, String fileName, boolean overwriteExistingFile ) throws Exception {
+	public boolean plotToTexFile( CharSequence pltcmd, double width, double height, String fileName, boolean overwriteExistingFile ) throws Exception {
 		String graphicTyp = "tex", serverFileName = "tmp-" + System.currentTimeMillis() + "." + graphicTyp;
 		if( height > 0 && width > 0 ) {
 			return plotToFile( eval( "try( pictex( \"" + serverFileName + "\", width = " + width + ", height = " + height + " ) )" ),
@@ -794,8 +795,8 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public void voidEval( String cmd ) throws Exception {
-		c.voidEval( cmd );
+	public void voidEval( CharSequence cmd ) throws Exception {
+		c.voidEval( cmd.toString() );
 	}
 
 	/* (non-Javadoc)
@@ -807,7 +808,7 @@ public class REnvironment {
 		super.finalize();
 	}
 
-	private boolean plotToFile( REXP xp, String pltcmd, String fileName, String serverFileName, String graphicTyp,
+	private boolean plotToFile( REXP xp, CharSequence pltcmd, String fileName, String serverFileName, String graphicTyp,
 			boolean overwriteExistingFile ) throws Exception {
 		filesOnTheServer.add( serverFileName );
 		plot( xp, pltcmd, graphicTyp );
@@ -815,7 +816,7 @@ public class REnvironment {
 		return b;
 	}
 
-	private void plot( REXP xp, String pltcmd, String graphicTyp ) throws Exception {
+	private void plot( REXP xp, CharSequence pltcmd, String graphicTyp ) throws Exception {
 		if( !xp.isNull() ) {
 			// if there's a string then we have a problem, R sent an error
 			String msg = "Can't open " + graphicTyp + " graphics device:\n\t" + xp.asString();
@@ -947,7 +948,7 @@ public class REnvironment {
 			public void mouseClicked( MouseEvent e ) {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setAcceptAllFileFilterUsed( false );
-				chooser.setFileFilter( new RegExFilenameFilter( "png-image", true, false, ".*\\.png" ) );
+				chooser.setFileFilter( new RegExFilenameFilter( "png-image", Directory.ALLOWED, false, ".*\\.png" ) );
 				chooser.setMultiSelectionEnabled( false );
 				if( chooser.showSaveDialog( new JFrame() ) == JFileChooser.APPROVE_OPTION ) {
 					try {
