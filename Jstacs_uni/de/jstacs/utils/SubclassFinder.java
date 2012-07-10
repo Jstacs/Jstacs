@@ -39,6 +39,7 @@ import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Singleton;
 import de.jstacs.Singleton.SingletonHandler;
 import de.jstacs.io.RegExFilenameFilter;
+import de.jstacs.io.RegExFilenameFilter.Directory;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
@@ -297,7 +298,7 @@ public class SubclassFinder {
 			for(String dir : extDirs){
 				File temp = new File(dir);
 				if(temp.isDirectory()){
-					File[] jars = temp.listFiles( (FileFilter) new RegExFilenameFilter( "", false, true, ".*(\\.jar|\\.zip)" ) );
+					File[] jars = temp.listFiles( (FileFilter) new RegExFilenameFilter( "", Directory.FORBIDDEN, true, ".*(\\.jar|\\.zip)" ) );
 					for(File jar : jars){
 						url = new URL("jar:file:"+jar.getAbsolutePath()+"!"+startPackage);
 						try{

@@ -39,7 +39,19 @@ public class RegExFilenameFilter extends FileFilter implements java.io.FileFilte
 
 	private Pattern[] regex;
 
-	private boolean dir, ignoreCase;
+	private Directory dir;
+	private boolean ignoreCase;
+	
+	/**
+	 * A switch to decide whether the results of a {@link RegExFilenameFilter} are forbidden, allowed or required to be a directory.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	public static enum Directory {
+		FORBIDDEN,
+		ALLOWED,
+		REQUIRED
+	}
 
 	/**
 	 * Creates a new {@link RegExFilenameFilter} with given
@@ -50,14 +62,14 @@ public class RegExFilenameFilter extends FileFilter implements java.io.FileFilte
 	 *            the description of the filter, e.g. &quot;text-files
 	 *            (*.txt)&quot;
 	 * @param dir
-	 *            a switch whether to accept/reject <b>all</b> directories
+	 *            a switch whether the results are forbidden, allowed or required to be a directory
 	 * @param ignoreCase
 	 *            indicates whether to ignore the case of the file names or not
 	 * @param regex
 	 *            an array of regular expressions; at least one regular expression has to match
 	 *            the file name
 	 */
-	public RegExFilenameFilter( String desc, boolean dir, boolean ignoreCase, String... regex ) {
+	public RegExFilenameFilter( String desc, Directory dir, boolean ignoreCase, String... regex ) {
 		this.desc = desc;
 		this.dir = dir;
 		this.ignoreCase = ignoreCase;
@@ -72,8 +84,9 @@ public class RegExFilenameFilter extends FileFilter implements java.io.FileFilte
 	 */
 	@Override
 	public boolean accept( File arg0 ) {
-		if( arg0.isDirectory() ) {
-			return dir;
+		boolean isDir = arg0.isDirectory();
+		if( (isDir && dir == Directory.FORBIDDEN) || (!isDir && dir == Directory.REQUIRED) ) {
+			return false;
 		} else {
 			String name = arg0.getName();
 			if( ignoreCase ) {

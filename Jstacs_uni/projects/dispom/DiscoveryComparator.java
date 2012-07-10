@@ -50,6 +50,7 @@ import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.RegExFilenameFilter;
 import de.jstacs.io.SparseStringExtractor;
+import de.jstacs.io.RegExFilenameFilter.Directory;
 import de.jstacs.motifDiscovery.MotifDiscoveryAssessment;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.results.ResultSet;
@@ -177,7 +178,7 @@ public class DiscoveryComparator {
 					pred = ParserToolBox.annotateWithMemeResults( data, false, HOME + "results/" + DATATYPE + TOOLS + "meme/" + strings[0] );
 					break;
 				case MOAN:
-					pred = ParserToolBox.annotateWithMoAnResults( data, false, (new File(HOME + "results/" + DATATYPE + TOOLS + "moan/")).listFiles( (FileFilter) new RegExFilenameFilter( "", false, true, strings[0] ) ) );
+					pred = ParserToolBox.annotateWithMoAnResults( data, false, (new File(HOME + "results/" + DATATYPE + TOOLS + "moan/")).listFiles( (FileFilter) new RegExFilenameFilter( "", Directory.FORBIDDEN, true, strings[0] ) ) );
 					break;
 				case WEEDER:
 				    pred = ParserToolBox.annotateWithWeederResults( data, false, HOME + "results/" + DATATYPE + TOOLS + "weeder/" + strings[0] /*, Integer.parseInt( strings[1] )*/ );//TODO
@@ -883,8 +884,8 @@ public class DiscoveryComparator {
 		}*/
 		
 		FileFilter regExFF = givenLength
-		    ? new RegExFilenameFilter("",false,true,".*classifier-"+prefix+"\\..*_"+ infix +"\\..*-length-"+length+"-adjust-false.*" ) 
-			: new RegExFilenameFilter("",false,true,".*classifier-"+prefix+"\\..*_"+ infix +"\\..*-adjust-true.*" );
+		    ? new RegExFilenameFilter("",Directory.FORBIDDEN,true,".*classifier-"+prefix+"\\..*_"+ infix +"\\..*-length-"+length+"-adjust-false.*" ) 
+			: new RegExFilenameFilter("",Directory.FORBIDDEN,true,".*classifier-"+prefix+"\\..*_"+ infix +"\\..*-adjust-true.*" );
 		File[] temp = new File( HOME+"results/" + DATATYPE + TOOLS+"/" + tool + "/" ).listFiles( regExFF );
 		
 		if( temp.length == 0 ) {
