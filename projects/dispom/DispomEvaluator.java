@@ -37,6 +37,7 @@ import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWith
 import de.jstacs.io.FileManager;
 import de.jstacs.io.RegExFilenameFilter;
 import de.jstacs.io.SparseStringExtractor;
+import de.jstacs.io.RegExFilenameFilter.Directory;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder.RandomSeqType;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
@@ -99,7 +100,7 @@ public class DispomEvaluator {
 			File f = new File( args[0] );
 			System.out.println( f.getAbsolutePath() );
 			
-			File[] all = f.listFiles( (FilenameFilter) new RegExFilenameFilter("xml",false,true,".*\\.xml") );
+			File[] all = f.listFiles( (FilenameFilter) new RegExFilenameFilter("xml",Directory.FORBIDDEN,true,".*\\.xml") );
 			System.out.println( "files: " + all.length );
 			Arrays.sort( all, new FileComparator() );
 			
