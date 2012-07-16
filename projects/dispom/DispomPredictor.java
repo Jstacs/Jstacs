@@ -36,6 +36,7 @@ import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
+import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
@@ -125,7 +126,8 @@ public class DispomPredictor {
 
 		// show
 		System.out.println("_________________________________");
-		System.out.println( bestNSF[0] );
+		MotifDiscoverer md = (MotifDiscoverer) bestNSF[0];
+		System.out.println( md );
 		System.out.println( "result: " + cl.getLastScore() );
 		
 		// predict BSs
@@ -133,7 +135,7 @@ public class DispomPredictor {
 		System.out.println("_________________________________");
 		SignificantMotifOccurrencesFinder smof;
 		if( anz > 1 ) {
-			smof = new SignificantMotifOccurrencesFinder( (MotifDiscoverer) bestNSF[0], data[1], null, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );			
+			smof = new SignificantMotifOccurrencesFinder( md, data[1], null, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );			
 		} else if(params.getValueFromTag( DispomPredictorParameterSet.ONEHIST, Boolean.class )){
 			Random r = new Random();
 			Sequence[] seqs = new Sequence[1000];
@@ -142,61 +144,74 @@ public class DispomPredictor {
 				seqs[n] = new PermutedSequence( data[0].getElementAt( r.nextInt( numFg ) ) );
 			}
 			DataSet bg = new DataSet("permuted",seqs);
-			smof = new SignificantMotifOccurrencesFinder( (MotifDiscoverer) bestNSF[0], bg, null, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );
+			smof = new SignificantMotifOccurrencesFinder( md, bg, null, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );
 		} else {
-			smof = new SignificantMotifOccurrencesFinder( (MotifDiscoverer) bestNSF[0], RandomSeqType.PERMUTED, false, 1000, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );
+			smof = new SignificantMotifOccurrencesFinder( md, RandomSeqType.PERMUTED, false, 1000, params.getValueFromTag( DispomPredictorParameterSet.P_VALUE, Double.class ) );
 		}
-		Sequence seq, site;
-		MotifAnnotation[] ma;
-		System.out.println( "prediction" );
-		System.out.println();
-		System.out.println( "sequence\tposition\tstrand\tbinding site\tp-value" );
-		System.out.println( "------------------------------------------------------------------------");
+		Sequence seq, site, adjusted;
+		MotifAnnotation ma;
 		LinkedList<Sequence> list = new LinkedList<Sequence>();
-		for( int j, i = 0; i < data[0].getNumberOfElements(); i++ ) {
-			seq = data[0].getElementAt( i );
-			ma = smof.findSignificantMotifOccurrences( 0, seq, 0 );
-			if( !(ma == null || ma.length == 0) ) {
-				for( j = 0; j < ma.length; j++ ) {
-					site = seq.getSubSequence( ma[j].getPosition(), ma[j].getLength() );
-					if(ma[j].getStrandedness() == Strand.REVERSE){
-						list.add( site.reverseComplement() );
-					}else{
-						list.add( site );
+		SequenceAnnotation[] seqAn;
+		int start, end;
+		for( int m = 0; m < md.getNumberOfMotifs(); m++ ) {
+			list.clear();
+			System.out.println();
+			System.out.println( "predictions for motif " + m );
+			System.out.println( "sequence\tposition\tstrand\tbinding site\tadjusted binding site\tp-value" );
+			System.out.println( "------------------------------------------------------------------------");
+			DataSet annotated = smof.annotateMotif(data[0], m);
+			for( int j, i = 0; i < annotated.getNumberOfElements(); i++ ) {
+				seqAn = data[0].getElementAt( i ).getAnnotation();
+				start = seqAn == null ? 0 : seqAn.length;
+				seq = annotated.getElementAt( i );
+				seqAn = seq.getAnnotation();
+				
+				end = (seqAn == null ? 0 : seqAn.length);
+				
+				if( end - start > 0 ) {
+					for( j = start; j < end; j++ ) {
+						ma = (MotifAnnotation) seqAn[j];
+						site = seq.getSubSequence( ma.getPosition(), ma.getLength() );
+						adjusted = site;
+						if(ma.getStrandedness() == Strand.REVERSE){
+							adjusted = adjusted.reverseComplement();
+						}
+						list.add( adjusted );
+						System.out.println( i + "\t" + ma.getPosition() + "\t" + ma.getStrandedness() + "\t" + site + "\t" + adjusted + "\t" + ma.getAnnotations()[1].getValue() );
 					}
-					
-					System.out.println( i + "\t" + ma[j].getPosition() + "\t" + ma[j].getStrandedness() + "\t" + site + "\t" + ma[j].getAnnotations()[1].getValue() );
 				}
 			}
-		}
-		double[][] pfm = getPFM( new DataSet("",list.toArray(new Sequence[0])) );
-		System.out.println( "------------------------------------------------------------------------");
-		System.out.println("Position frequency matrix of sites: ");
-		for(int i=0;i<pfm.length;i++){
-			System.out.print("\t"+i);
-		}
-		System.out.println();
-		for(int j=0;j<pfm[0].length;j++){
-			System.out.print(DNAAlphabet.SINGLETON.getSymbolAt( j ));
-			for(int i=0;i<pfm.length;i++){
-				System.out.print("\t"+pfm[i][j]);
+			if( list.size() >  0 ) {
+				double[][] pfm = getPFM( new DataSet("",list.toArray(new Sequence[0])) );
+				System.out.println( "------------------------------------------------------------------------");
+				System.out.println("Position frequency matrix of sites: ");
+				for(int i=0;i<pfm.length;i++){
+					System.out.print("\t"+i);
+				}
+				System.out.println();
+				for(int j=0;j<pfm[0].length;j++){
+					System.out.print(DNAAlphabet.SINGLETON.getSymbolAt( j ));
+					for(int i=0;i<pfm.length;i++){
+						System.out.print("\t"+pfm[i][j]);
+					}
+					System.out.println();
+				}
+				System.out.println();
+				System.out.println( "------------------------------------------------------------------------");
+				System.out.println("Position weight matrix of sites: ");
+				for(int i=0;i<pfm.length;i++){
+					System.out.print("\t"+i);
+				}
+				System.out.println();
+				double s = list.size();
+				for(int j=0;j<pfm[0].length;j++){
+					System.out.print(DNAAlphabet.SINGLETON.getSymbolAt( j ));
+					for(int i=0;i<pfm.length;i++){
+						System.out.print("\t"+(pfm[i][j]/s));
+					}
+					System.out.println();
+				}
 			}
-			System.out.println();
-		}
-		System.out.println();
-		System.out.println( "------------------------------------------------------------------------");
-		System.out.println("Position weight matrix of sites: ");
-		for(int i=0;i<pfm.length;i++){
-			System.out.print("\t"+i);
-		}
-		System.out.println();
-		double s = list.size();
-		for(int j=0;j<pfm[0].length;j++){
-			System.out.print(DNAAlphabet.SINGLETON.getSymbolAt( j ));
-			for(int i=0;i<pfm.length;i++){
-				System.out.print("\t"+(pfm[i][j]/s));
-			}
-			System.out.println();
 		}
 	}
 	
@@ -250,4 +265,3 @@ class DispomPredictorParameterSet extends ParameterSet {
 		);
 	}
 }
-
