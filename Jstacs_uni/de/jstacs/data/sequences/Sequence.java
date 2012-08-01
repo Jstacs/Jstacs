@@ -147,9 +147,11 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	* @return the first {@link SequenceAnnotation} that meets the criteria
 	*/
 	public SequenceAnnotation getSequenceAnnotationByTypeAndIdentifier( String type, String identifier ) {
-		for(SequenceAnnotation ann : annotation){
-			if(ann.getType().equals( type ) && ann.getIdentifier().equals( identifier )){
-				return ann;
+		if( annotation != null ) {
+			for(SequenceAnnotation ann : annotation){
+				if(ann.getType().equals( type ) && ann.getIdentifier().equals( identifier )){
+					return ann;
+				}
 			}
 		}
 		return null;
@@ -163,13 +165,15 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	* @return the {@link SequenceAnnotation} no. <code>idx</code> with type <code>type</code>
 	*/
 	public SequenceAnnotation getSequenceAnnotationByType(String type, int idx){
-		int i=0;
-		for(SequenceAnnotation ann : annotation){
-			if(ann.getType().equals( type )){
-				if(i==idx){
-					return ann;
+		if( annotation != null ) {
+			int i=0;
+			for(SequenceAnnotation ann : annotation){
+				if(ann.getType().equals( type )){
+					if(i==idx){
+						return ann;
+					}
+					i++;
 				}
-				i++;
 			}
 		}
 		return null;
@@ -182,9 +186,11 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 */
 	public int getNumberOfSequenceAnnotationsByType(String type){
 		int i=0;
-		for(SequenceAnnotation ann : annotation){
-			if(ann.getType().equals( type )){
-				i++;
+		if( annotation != null ) {
+			for(SequenceAnnotation ann : annotation){
+				if(ann.getType().equals( type )){
+					i++;
+				}
 			}
 		}
 		return i;
