@@ -258,6 +258,24 @@ public class FileManager {
 	public static void writeFile( File outputFile, CharSequence buffer ) throws IOException {
 		write( new FileWriter( outputFile ), buffer );
 	}
+	
+	/**
+	 * This method saves a {@link StringBuffer} to a {@link File} with user-specified file name.
+	 * 
+	 * @param fName
+	 *            the name of the file to be written
+	 * @param buffer
+	 *            the buffer to be written in the {@link File}
+	 * 
+	 * @throws IOException
+	 *             if something went wrong with the {@link File}
+	 * 
+	 * @see #readFile(File)
+	 * @see #writeFile(File, CharSequence)
+	 */
+	public static void writeFile( String fName, CharSequence buffer ) throws IOException {
+		writeFile( new File( fName ), buffer );
+	}
 		
 	/**
 	 * This method saves a {@link StringBuffer} to a given {@link OutputStream}.
