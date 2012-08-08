@@ -332,11 +332,15 @@ public final class SparseSequence extends SimpleDiscreteSequence {
 		LinkedList<SparseSequence> list = new LinkedList<SparseSequence>();
 		SymbolExtractor symEx = new SymbolExtractor( con.getDelim() );
 		String s, annot = null;
+		SequenceAnnotation[] seqAn;
 		for( int i = 0; i < se.length; i++ ) { 
 			while( se[i].hasMoreElements() ) {
+				seqAn = se[i].getCurrentSequenceAnnotations();
 				s = se[i].nextElement();
 				symEx.setStringToBeParsed( s );
-				list.add(  new SparseSequence( con, symEx ) );
+				SparseSequence x = new SparseSequence( con, symEx );
+				x.annotation = seqAn;
+				list.add( x );
 			}
 			if( i == 0 ) {
 				annot = se[i].getAnnotation();
