@@ -89,7 +89,7 @@ public class SmallGradientConditon extends AbstractTerminationCondition {
 		for(int i=0; i < gradient.length; i++){
 			sum += Math.abs( gradient[i] );
 		}
-		System.out.println("sum " + sum);
+		//System.out.println("sum " + sum);
 		return sum >= eps;
 	}
 
