@@ -106,7 +106,7 @@ public class CombinedCondition extends AbstractTerminationCondition {
 	public boolean doNextIteration( int iteration, double f_last, double f_current, double[] gradient, double[] direction, double alpha,
 			Time t ) {
 		int positive = 0;
-		for( int i = 0; i < condition.length; i++ ) {
+		for( int i = 0; i < condition.length  && positive < threshold; i++ ) {
 			if( condition[i].doNextIteration( iteration, f_last, f_current, gradient, direction, alpha, t ) ){
 				positive++;
 			}
