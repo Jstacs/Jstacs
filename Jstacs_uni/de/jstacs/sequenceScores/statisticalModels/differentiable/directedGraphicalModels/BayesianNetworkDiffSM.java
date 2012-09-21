@@ -990,6 +990,42 @@ public class BayesianNetworkDiffSM extends
 		}
 		return pwm;
 	}
+	
+	
+	
+	@Override
+	public byte getMaximalMarkovOrder() throws UnsupportedOperationException {
+		byte max = 0, temp = 0;
+		
+		for(int i=0;i<trees.length;i++){
+			temp = trees[i].getMaximalMarkovOrder();
+			if(temp > max){
+				max = temp;
+			}
+		}
+		return max;
+	}
+
+	/**
+	 * Returns the maximum score of this {@link BayesianNetworkDiffSM} returned for a
+	 * admissible input sequence. Currently only implemented for position weight matrices.
+	 * @return the maximum score
+	 * @throws Exception if the model is of higher order than 0
+	 */
+	public double getMaximumScore() throws Exception {
+		if (this.getMaximalMarkovOrder() > 0) {
+			throw new Exception();
+		}
+		if (logNormalizationConstant == null) {
+			precomputeNormalization();
+		}
+		double score = 0;
+		for(int i=0;i<trees.length;i++){
+			score += trees[i].getMaximumScore();
+		}
+		return score;
+	}
+	
 
 	/*
 	 * (non-Javadoc)

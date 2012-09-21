@@ -1429,6 +1429,29 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 			}
 		}
 
+		private byte getMaximalMarkovOrder( byte i ) {
+			if(this.children != null){
+				return this.children[0].getMaximalMarkovOrder( (byte) (i+1) );
+			}else{
+				return i;
+			}
+		}
+
+		private double getMaximumScore() {
+			if(this.children != null){
+				throw new RuntimeException("Not implemented");
+			}else{
+				double max = Double.NEGATIVE_INFINITY, temp;
+				for(int i=0;i<pars.length;i++){
+					temp = pars[i].getValue();
+					if(temp > max){
+						max = temp;
+					}
+				}
+				return max;
+			}
+		}
+
 	}
 
 	/**
@@ -1462,6 +1485,14 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 	
 	public void emitSymbol( int[] content ) {
 		root.emitSymbol( content);
+	}
+
+	public byte getMaximalMarkovOrder() {
+		return root.getMaximalMarkovOrder((byte)0);
+	}
+
+	public double getMaximumScore() {
+		return root.getMaximumScore();
 	}
 
 }
