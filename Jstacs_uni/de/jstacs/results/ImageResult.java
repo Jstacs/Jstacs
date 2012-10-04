@@ -25,8 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import javax.xml.bind.DatatypeConverter;
 
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
@@ -107,7 +106,7 @@ public class ImageResult extends Result {
 		} catch ( IOException e ) {
 			throw new RuntimeException( e.getMessage() );
 		}
-		XMLParser.appendObjectWithTags(xml, Base64.encode(baos.toByteArray()), "image");
+		XMLParser.appendObjectWithTags(xml, DatatypeConverter.printBase64Binary(baos.toByteArray()), "image");
 	}
 
 	/*
@@ -117,7 +116,7 @@ public class ImageResult extends Result {
 	@Override
 	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		try {
-			byte[] bytearray = Base64.decode( (String) XMLParser.extractObjectForTags( representation, "image" ) );
+			byte[] bytearray = DatatypeConverter.parseBase64Binary( (String) XMLParser.extractObjectForTags( representation, "image" ) );
 			image = ImageIO.read( new ByteArrayInputStream( bytearray ) );
 		} catch (Exception e) {
 			throw new NonParsableException( e.getMessage() );
