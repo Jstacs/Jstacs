@@ -85,18 +85,22 @@ public class RegExFilenameFilter extends FileFilter implements java.io.FileFilte
 	@Override
 	public boolean accept( File arg0 ) {
 		boolean isDir = arg0.isDirectory();
-		if( (isDir && dir == Directory.FORBIDDEN) || (!isDir && dir == Directory.REQUIRED) ) {
-			return false;
+		if( isDir ) {
+			return dir != Directory.FORBIDDEN;
 		} else {
-			String name = arg0.getName();
-			if( ignoreCase ) {
-				name = name.toLowerCase();
+			if( dir == Directory.REQUIRED ) {
+				return false;
+			} else {
+				String name = arg0.getName();
+				if( ignoreCase ) {
+					name = name.toLowerCase();
+				}
+				int i = 0;
+				while( i < regex.length && !regex[i].matcher( name ).matches() ) {
+						i++;
+				}
+				return i < regex.length;
 			}
-			int i = 0;
-			while( i < regex.length && !regex[i].matcher( name ).matches() ) {
-					i++;
-			}
-			return i < regex.length;
 		}
 	}
 
