@@ -567,7 +567,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * 
 	 * @see ClassifierAssessment#assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet[])
 	 */
-	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, T assessPS, DataSet[] s ) throws IllegalArgumentException,
+	public ListResult assess( NumericalPerformanceMeasureParameterSet mp, T assessPS, DataSet... s ) throws IllegalArgumentException,
 			WrongAlphabetException,
 			Exception {
 		return assess( mp, assessPS, null, s );
