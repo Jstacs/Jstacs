@@ -70,6 +70,8 @@ public class FileManager {
 	 * @param filter
 	 *            a {@link FileFilter} for the {@link File}s that enables the
 	 *            user to copy only specific {@link File}s
+	 * @param newer
+	 * 			  a switch allowing to copy only files from the source directory that are newer than those in the target directory
 	 * 
 	 * @return the number of copied {@link File}s
 	 * 
@@ -83,7 +85,7 @@ public class FileManager {
 	 * @see File
 	 * @see FileFilter
 	 */
-	public static int copy( File source, File target, FileFilter filter ) throws IllegalArgumentException,
+	public static int copy( File source, File target, FileFilter filter, boolean newer ) throws IllegalArgumentException,
 			IOException {
 		if( !source.isDirectory() || (target.exists() && !target.isDirectory()) ) {
 			throw new IllegalArgumentException( "The source and the target have to be directories. (" + source.getAbsolutePath() + ", " + target.getAbsolutePath() );
@@ -92,13 +94,18 @@ public class FileManager {
 		int anz = 0;
 		for( File f : files ) {
 			if( f.isDirectory() ) {
-				anz += copy( f, new File( target.getAbsolutePath() + "/" + f.getName() ), filter );
+				anz += copy( f, new File( target.getAbsolutePath() + "/" + f.getName() ), filter, newer );
 			} else {
-				if( !target.exists() ) {
-					target.mkdirs();
+				String current = target.getAbsolutePath() + "/" + f.getName();
+				File h = new File( current );
+				if( !h.exists() || !newer || f.lastModified() > h.lastModified() ) {
+					if( !target.exists() ) {
+						target.mkdirs();
+					}
+					copy( f.getAbsolutePath(), current );
+					//System.out.println(current);
+					anz++;
 				}
-				copy( f.getAbsolutePath(), target.getAbsolutePath() + "/" + f.getName() );
-				anz++;
 			}
 		}
 		return anz;
