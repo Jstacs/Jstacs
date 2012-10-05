@@ -25,8 +25,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 import de.jstacs.io.RegExFilenameFilter;
+import de.jstacs.io.RegExFilenameFilter.Directory;
 
 public class PreambleChecker {
 
@@ -54,51 +56,57 @@ public class PreambleChecker {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		RegExFilenameFilter filter = new RegExFilenameFilter("java",true,true,".*\\.java");
 		File dir = new File( "./" );
 		
-		check( filter, dir );
+		System.out.println( "java: " + check( new RegExFilenameFilter("java",Directory.ALLOWED,true,".*\\.java"), dir, null, null ) );
+		System.out.println( "html: " + check( new RegExFilenameFilter("html",Directory.ALLOWED,true,".*\\.html"), dir, "<!--", "--!>", "<head>" ) );
 	}
 	
-	private static void check( FilenameFilter filter, File dir ) throws Exception {
+	private static int check( FilenameFilter filter, File dir, String addStart, String addEnd, String... before ) throws Exception {
 		File[] f = dir.listFiles(filter);
+		int anz = 0;
 		for( File g : f ) {
 			if( g.isDirectory() ) {
-				check( filter, g );
+				anz += check( filter, g, addStart, addEnd, before );
 			} else {
 				BufferedReader r = new BufferedReader( new FileReader( g ) );
-				String line = r.readLine();
+				String line;
+				int i = 0, k = 0;
+				while( (line = r.readLine()) != null && i < before.length ) {
+					if( line.startsWith( before[i] ) ) {
+						i++;
+					}
+					k += line.length() + 1;
+				}
+				boolean missingPreamble;
+				if( addStart == null ) {
+					missingPreamble = line != null && !line.startsWith("/*");
+				} else {
+					missingPreamble = line != null && !line.startsWith( addStart );
+				}
 				r.close();
-				if( !line.startsWith("/*") ) {
+				if( missingPreamble ) {
 					//copy preamble
 					File h = new File( g.getAbsolutePath() + ".preamble" );
 					BufferedInputStream bis = new BufferedInputStream( new FileInputStream(g) );
 					BufferedOutputStream bos = new BufferedOutputStream( new FileOutputStream(h) );
-					for( String s : preamble ) {
-						bos.write( s.getBytes() );
-						bos.write( '\n' );
+					int j = 0;
+					while( j < k ) {
+						bos.write(bis.read());
+						j++;
 					}
-					int i;
+					if( addStart != null ) {
+						write( bos, addStart );
+					}
+					for( String s : preamble ) {
+						write( bos, s );
+					}
+					write( bos, addEnd );
 					while( (i=bis.read()) > 0 ) {
 						bos.write(i);
 					}
 					bis.close();
 					bos.close();
-					/*
-					BufferedWriter w = new BufferedWriter( new FileWriter( h ) );
-					for( String s : preamble ) {
-						w.write( s );
-						w.newLine();
-					}
-					w.write( line );
-					w.newLine();
-					while( (line=r.readLine()) != null ) {
-						w.write( line );
-						w.newLine();
-					}
-					w.close();
-					r.close();
-					*/
 					
 					//rename
 					boolean b;
@@ -110,8 +118,18 @@ public class PreambleChecker {
 					if( !b ) {
 						h.delete();
 					}
+					
+					anz++;
 				}
 			}
+		}
+		return anz;
+	}
+	
+	private static void write( BufferedOutputStream bos, String s ) throws IOException {
+		if( s != null ) {
+			bos.write( s.getBytes() );
+			bos.write( '\n' );
 		}
 	}
 }
