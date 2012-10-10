@@ -19,6 +19,7 @@
 package de.jstacs.data;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -115,6 +116,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 *         * @throws InstantiationException if any
 		 *         {@link InstanceParameterSet} has no nullary constructor; or
 		 *         if the instantiation fails for some other reason
+		 *         
 		 * @throws IllegalAccessException
 		 *             if any {@link InstanceParameterSet} or its nullary
 		 *             constructor is not accessible
@@ -125,9 +127,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 *             if the classes are searched for in a jar file, but that
 		 *             file could not be accessed or read
 		 */
-		public LinkedList<InstanceParameterSet> getInstanceParameterSets()
-				throws ClassNotFoundException, IOException,
-				InstantiationException, IllegalAccessException {
+		public LinkedList<InstanceParameterSet> getInstanceParameterSets() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException, URISyntaxException  {
 			LinkedList<InstanceParameterSet> list = new LinkedList<InstanceParameterSet>();
 			if (this != CONTINUOUS) {
 				list.addAll(SubclassFinder.getInstanceParameterSets( DiscreteAlphabet.class, DiscreteAlphabet.class.getPackage().getName() ));
