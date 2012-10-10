@@ -79,7 +79,7 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 			list = new ArrayList<double[]>();
 		}
 		
-		int i_old = 0, j_old = 0, i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
+		int k, i_old = 0, j_old = 0, i = 0, j = 0, d = sortedScoresClass1.length, m = sortedScoresClass0.length;
 		double helpJ, propTerm;
 		double help1 = 0, help2 = 0;
 		double aucGD = 0, aucIntegral = 0, pos, neg, fn = 0, tn = 0, tn_old, fn_old;
@@ -105,45 +105,45 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 			list.add( p.clone() );
 		}
 
+		// Do positive and negative have different scores 
+		boolean unique = !( j < d && sortedScoresClass0[i] == sortedScoresClass1[j] );
 		// which class defines the threshold
-		boolean unique, fromMotif = false;
-		if( j < d && sortedScoresClass0[i] == sortedScoresClass1[j] ) {
-			unique = false;
-		} else {
-			unique = true;
-			fromMotif = true;
-		}
+		boolean fromMotif = unique;
 		while( i < m && j < d ) {
 			i_old = i;
 			j_old = j;
 			tn_old = tn;
 			fn_old = fn;
+			
 			// find next possible threshold
-			if( unique ) {
-				if( fromMotif ) {
-					while( i < m && sortedScoresClass1[j] > sortedScoresClass0[i] ) {
-						fn += getWeight( weightClass0, i );
-						i++;
-					}
-				} else {
-					while( j < d && sortedScoresClass0[i] > sortedScoresClass1[j] ) {
-						tn += getWeight( weightClass1, j );
-						j++;
-					}
-				}
-			} else {
+			if( !unique || fromMotif ) {
 				while( i + 1 < m && sortedScoresClass0[i] == sortedScoresClass0[i + 1] ) {
 					fn += getWeight( weightClass0, i );
 					i++;
 				}
+				fn += getWeight( weightClass0, i );
+				i++;
+			}
+			if( !unique || !fromMotif ) {
 				while( j + 1 < d && sortedScoresClass1[j] == sortedScoresClass1[j + 1] ) {
 					tn += getWeight( weightClass1, j );
 					j++;
 				}
-				fn += getWeight( weightClass0, i );
 				tn += getWeight( weightClass1, j );
-				i++;
 				j++;
+			}
+			if( i < m && j < d ) {
+				//next
+				if( sortedScoresClass0[i] == sortedScoresClass1[j] ) {
+					unique = false;
+				} else {
+					unique = true;
+					if( sortedScoresClass0[i] < sortedScoresClass1[j] ) {
+						fromMotif = true;
+					} else {
+						fromMotif = false;
+					}
+				}
 			}
 
 			// now we have (i_old,j_old) and (i,j) with i_old <= i and j_old <= j
@@ -172,7 +172,7 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 								
 				if( goadrichAndDavis ) {
 					if( i < m || j < d ) {
-	
+		
 						propTerm = ( j - j_old ) / (double)( i - i_old );
 						double h1 = p[0], h2 = p[1];
 						int c = i_old+1;
@@ -181,13 +181,14 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 							help1 = (double)( m - c ) / (double)m;
 							help2 = (double)( m - c ) / (double)( m - c + d - helpJ );
 							helpJ += propTerm;
-	
+		
 							// compute AUC
 							aucGD += ( h2 + help2 ) / 2d * ( h1 - help1 );
 							h1 = help1;
 							h2 = help2;
 						}
 					} else {
+						//i != i_old, i == m && j == d
 						aucGD += p[1] * p[0];
 					}
 				}
@@ -214,17 +215,22 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 
 				//curve
 				if( list != null ) {
-					propTerm = Math.min( (fn - fn_old) / (i - i_old), 1 );
+					propTerm = Math.min( (fn - fn_old) / (i - i_old), minStepSize );
 					h *= propTerm ;
 					double helpI = fn_old + propTerm;
-
-					for( i_old++, helpJ = tn_old + h; helpI < fn; helpJ += h, helpI += propTerm ) {
+					helpJ = tn_old + h;
+					k=1;
+					while( helpI < fn ) {
 						// compute sn and ppv
 						p[0] = ( pos - helpI ) / pos;
 						p[1] = ( pos - helpI ) / ( pos - helpI + neg - helpJ );
 						
 						// add point
 						list.add( p.clone() );
+						
+						k++;
+						helpJ = tn_old + k*h;
+						helpI = fn_old + k*propTerm;
 					}
 				}
 				if( pA != p[0] ) {
@@ -239,27 +245,19 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 				}
 			}
 			
-			//System.out.println( i + "\t" + i_old + "\t" + j + "\t" + j_old + "\t" + aucGD + "\t" + aucIntegral );
-
-			if( i < m && j < d ) {
-				//next
-				if( sortedScoresClass0[i] == sortedScoresClass1[j] ) {
-					unique = false;
-				} else {
-					unique = true;
-					if( sortedScoresClass0[i] < sortedScoresClass1[j] ) {
-						fromMotif = true;
-					} else {
-						fromMotif = false;
-					}
-				}
-			}
+			/*
+			out( sortedScoresClass0, i );
+			out( sortedScoresClass1, j );
+			out( sortedScoresClass0, i_old );
+			out( sortedScoresClass1, j_old );
+			System.out.println( aucGD + "\t" + aucIntegral );
+			*/
 		}
 
 		// left side of the plot
 		if( i < m ) {
+			help1 = 0;
 			if( goadrichAndDavis ) {
-				help1 = 0;
 				//compute AUC
 				aucGD += p[1] * ( p[0] - help1 );
 			}
@@ -296,5 +294,10 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 			}
 		}
 	}
-
+		
+	public static double minStepSize=1;
+	
+	private void out( double[] array, int index ) {
+		System.out.print( index + " (" + (index < array.length ? array[index] : "###" ) + ")\t" );
+	}
 }
