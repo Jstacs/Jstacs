@@ -147,7 +147,7 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 			}
 
 			// now we have (i_old,j_old) and (i,j) with i_old <= i and j_old <= j
-			if( i == i_old ) {
+			if( fn == fn_old ) {//i == i_old ) {
 				//only the number of fp changes
 				p[1] = ( pos-fn ) / ( pos-fn + neg-tn );
 				//add point
