@@ -302,7 +302,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 			erg[i] = new ComparableElement<double[],Double>( params, c );			
 		}
 		Arrays.sort( erg );
-		info.writeln( "[" + erg[0].getWeight() + " .. " + erg[n-1].getWeight() + "]" );
+		info.writeln( "interval [" + erg[0].getWeight() + " .. " + erg[n-1].getWeight() + "]" );
 		return erg;
 	}
 	
