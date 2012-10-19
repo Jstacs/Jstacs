@@ -138,7 +138,7 @@ public interface MotifDiscoverer extends Cloneable, Storable {
 	 * and motif <code>motif</code> at all possible start positions of the motif
 	 * in the sequence <code>sequence</code> beginning at <code>startpos</code>.
 	 * This array should be of length <br>
-	 * <code>sequence.length() - startpos - motifs[motif].length() + 1</code>.
+	 * <code>sequence.length() - startpos - motifs[motif].getLength() + 1</code>.
 	 * 
 	 * <br>
 	 * 
