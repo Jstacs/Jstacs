@@ -331,7 +331,7 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment<Samp
 
 		for( ; iteration < repeats; iteration++ ) {
 			// split data of reference class
-			temp = s[referenceClass].partition( weights[referenceClass], splitMethod, 1-percents, percents );
+			temp = s[referenceClass].partition( weights == null ? null : weights[referenceClass], splitMethod, 1-percents, percents );
 			sTrainTestClassWise[0][referenceClass] = temp.getFirstElement()[0];
 			weightsTrainTestClassWise[0][referenceClass] = temp.getSecondElement()[0];
 			
