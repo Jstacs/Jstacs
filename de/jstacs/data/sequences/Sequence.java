@@ -18,6 +18,8 @@
 
 package de.jstacs.data.sequences;
 
+import java.util.Arrays;
+
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.AlphabetContainer;
@@ -894,8 +896,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 			hashCode = 31 * hashCode + hashCodeForPos( i );
 		}
 		if( annotation != null ) {
-			//TODO does not check individual annotations
-			hashCode = 31*hashCode + annotation.hashCode();
+			hashCode = 31*hashCode + Arrays.hashCode( annotation );
 		}
 		this.hashCode = hashCode;
 		return hashCode;
