@@ -300,9 +300,11 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 					throw e;
 				}
 			}
-			isNumeric &= r instanceof NumericalResultSet;
-			for( int j = 0; j < r.getNumberOfResults(); j++ ) {
-				list.add( r.getResultAt(j) );
+			if( r != null ) {
+				isNumeric &= r instanceof NumericalResultSet;
+				for( int j = 0; j < r.getNumberOfResults(); j++ ) {
+					list.add( r.getResultAt(j) );
+				}
 			}
 		}
 		return isNumeric;
