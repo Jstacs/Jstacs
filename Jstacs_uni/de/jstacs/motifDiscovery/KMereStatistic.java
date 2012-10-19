@@ -504,8 +504,11 @@ public final class KMereStatistic {
 		Sequence s1, s2, rc = null;
 		BitSet[] b1, b2, o1, o2;
 		int idx, d;
+				
+		Entry<Sequence,BitSet[]>[] array = new Entry[set.size()];
+		set.toArray( array );
+		//Entry<Sequence,BitSet[]>[] array = (Entry<Sequence,BitSet[]>[]) ArrayHandler.cast( s );
 		
-		Entry<Sequence,BitSet[]>[] array = (Entry<Sequence,BitSet[]>[]) ArrayHandler.cast( set.toArray() );
 		for( int i = 0; i < array.length; i++ ) {
 			res.put( array[i].getKey(), ArrayHandler.clone( array[i].getValue() ) );
 		}
