@@ -338,7 +338,7 @@ public class DiscreteAlphabet extends Alphabet {
 	 *         alphabet, <code>false</code> otherwise
 	 */
 	public final boolean isSymbol( String candidat ) {
-		return hash.contains( caseInsensitive ? candidat.toUpperCase() : candidat );
+		return hash.containsKey( caseInsensitive ? candidat.toUpperCase() : candidat );
 	}
 
 	/**
