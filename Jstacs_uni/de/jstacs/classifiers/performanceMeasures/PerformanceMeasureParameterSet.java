@@ -117,10 +117,11 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 
 	private static ParameterSet[] getParameterSets(int numClasses, SelectionParameter selection, AbstractPerformanceMeasure... measures) throws Exception {
 		ParameterSet template = new SimpleParameterSet( selection );
-		ParameterSet[] pars = new ParameterSet[measures == null || measures.length== 0 ? 1 : measures.length];
+		int n = measures == null || measures.length== 0 ? 0 : measures.length;
+		ParameterSet[] pars = new ParameterSet[Math.max(1,n)];
 		pars[0] = template;
 		
-		for(int i=0;i<measures.length;i++){
+		for(int i=0;i<n;i++){
 			if(measures[i].getAllowedNumberOfClasses() != 0 && measures[i].getAllowedNumberOfClasses() != numClasses){
 				throw new Exception("Provided measure "+measures[i].getName()+" not allowed for "+numClasses+" classes.");
 			}
