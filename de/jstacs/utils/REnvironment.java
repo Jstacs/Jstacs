@@ -285,25 +285,29 @@ public class REnvironment {
 	 *             if <code>matrix[i].length != matrix[j].length</code>
 	 */
 	public REXP createMatrix( String matrixName, int[][] matrix ) throws RserveException, IllegalArgumentException {
-		StringBuffer cmd = new StringBuffer( matrix.length * matrix[0].length * 20 );
-		cmd.append( matrixName + " = matrix( c(" );
-		int rows = matrix.length, columns = matrix[0].length, counter1 = 0, counter2;
-		while( counter1 < rows ) {
-			counter2 = 0;
-			if( columns != matrix[0].length ) {
-				throw new IllegalArgumentException( "The matrix is not rectangular" );
-			}
-			while( counter2 < columns ) {
-				if( counter1 == 0 && counter2 == 0 ) {
-					cmd.append( matrix[counter1][counter2] );
-				} else {
-					cmd.append( ", " + matrix[counter1][counter2] );
+		if( matrix == null ) {
+			return c.eval( matrixName + " = NULL;" );
+		} else {		
+			StringBuffer cmd = new StringBuffer( matrix.length * matrix[0].length * 20 );
+			cmd.append( matrixName + " = matrix( c(" );
+			int rows = matrix.length, columns = matrix[0].length, counter1 = 0, counter2;
+			while( counter1 < rows ) {
+				counter2 = 0;
+				if( columns != matrix[0].length ) {
+					throw new IllegalArgumentException( "The matrix is not rectangular" );
 				}
-				counter2++;
+				while( counter2 < columns ) {
+					if( counter1 == 0 && counter2 == 0 ) {
+						cmd.append( matrix[counter1][counter2] );
+					} else {
+						cmd.append( ", " + matrix[counter1][counter2] );
+					}
+					counter2++;
+				}
+				counter1++;
 			}
-			counter1++;
+			return c.eval( cmd + "), nrow = " + rows + ", ncol = " + columns + ", byrow = TRUE );" );
 		}
-		return c.eval( cmd + "), nrow = " + rows + ", ncol = " + columns + ", byrow = TRUE );" );
 	}
 
 	/**
@@ -322,26 +326,30 @@ public class REnvironment {
 	 *             if <code>matrix[i].length != matrix[j].length</code>
 	 */
 	public REXP createMatrix( String matrixName, double[][] matrix ) throws RserveException, IllegalArgumentException {
-		StringBuffer cmd = new StringBuffer( matrix.length * matrix[0].length * 20 );
-		cmd.append( matrixName + " = matrix( c(" );
-		int rows = matrix.length, columns = matrix[0].length, counter1 = 0, counter2;
-		while( counter1 < rows ) {
-			counter2 = 0;
-			if( columns != matrix[0].length ) {
-				throw new IllegalArgumentException( "The matrix is not rectangular" );
-			}
-			while( counter2 < columns ) {
-				if( counter1 == 0 && counter2 == 0 ) {
-					cmd.append( getDoubleVal( matrix[counter1][counter2] ) );
-				} else {
-					cmd.append( ", " + getDoubleVal( matrix[counter1][counter2] ) );
+		if( matrix == null ) {
+			return c.eval( matrixName + " = NULL;" );
+		} else {		
+			StringBuffer cmd = new StringBuffer( matrix.length * matrix[0].length * 20 );
+			cmd.append( matrixName + " = matrix( c(" );
+			int rows = matrix.length, columns = matrix[0].length, counter1 = 0, counter2;
+			while( counter1 < rows ) {
+				counter2 = 0;
+				if( columns != matrix[0].length ) {
+					throw new IllegalArgumentException( "The matrix is not rectangular" );
 				}
-				counter2++;
+				while( counter2 < columns ) {
+					if( counter1 == 0 && counter2 == 0 ) {
+						cmd.append( getDoubleVal( matrix[counter1][counter2] ) );
+					} else {
+						cmd.append( ", " + getDoubleVal( matrix[counter1][counter2] ) );
+					}
+					counter2++;
+				}
+				counter1++;
 			}
-			counter1++;
+			cmd.append( "), nrow = " + rows + ", ncol = " + columns + ", byrow = TRUE );" );
+			return c.eval( cmd.toString() );
 		}
-		cmd.append( "), nrow = " + rows + ", ncol = " + columns + ", byrow = TRUE );" );
-		return c.eval( cmd.toString() );
 	}
 
 	private String getDoubleVal( double val ) {
@@ -370,15 +378,19 @@ public class REnvironment {
 	 *             if something with Rserve went wrong
 	 */
 	public REXP createVector( String vectorName, String[] vector ) throws RserveException {
-		StringBuffer cmd = new StringBuffer( vector.length * 100 );
-		cmd.append( vectorName + " = c(" );
-		if( vector != null && vector.length > 0 ) {
-			cmd.append( "\"" + vector[0] + "\"" );
-			for( int i = 1; i < vector.length; i++ ) {
-				cmd.append( ", \"" + vector[i] + "\"" );
+		if( vector == null ) {
+			return c.eval( vectorName + " = NULL;" );
+		} else {
+			StringBuffer cmd = new StringBuffer( vector.length * 100 );
+			cmd.append( vectorName + " = c(" );
+			if( vector != null && vector.length > 0 ) {
+				cmd.append( "\"" + vector[0] + "\"" );
+				for( int i = 1; i < vector.length; i++ ) {
+					cmd.append( ", \"" + vector[i] + "\"" );
+				}
 			}
+			return c.eval( cmd + ");" );
 		}
-		return c.eval( cmd + ");" );
 	}
 
 	/**
@@ -395,15 +407,19 @@ public class REnvironment {
 	 *             if something with Rserve went wrong
 	 */
 	public REXP createVector( String vectorName, int[] vector ) throws RserveException {
-		StringBuffer cmd = new StringBuffer( vector.length * 20 );
-		cmd.append( vectorName + " = c(" );
-		if( vector != null && vector.length > 0 ) {
-			cmd.append( vector[0] );
-			for( int i = 1; i < vector.length; i++ ) {
-				cmd.append( ", " + vector[i] );
+		if( vector == null ) {
+			return c.eval( vectorName + " = NULL;" );
+		} else {
+			StringBuffer cmd = new StringBuffer( vector.length * 20 );
+			cmd.append( vectorName + " = c(" );
+			if( vector != null && vector.length > 0 ) {
+				cmd.append( vector[0] );
+				for( int i = 1; i < vector.length; i++ ) {
+					cmd.append( ", " + vector[i] );
+				}
 			}
+			return c.eval( cmd + ");" );
 		}
-		return c.eval( cmd + ");" );
 	}
 
 	/**
@@ -420,15 +436,19 @@ public class REnvironment {
 	 *             if something with Rserve went wrong
 	 */
 	public REXP createVector( String vectorName, long[] vector ) throws RserveException {
-		StringBuffer cmd = new StringBuffer( vector.length * 20 );
-		cmd.append( vectorName + " = c(" );
-		if( vector != null && vector.length > 0 ) {
-			cmd.append( vector[0] );
-			for( int i = 1; i < vector.length; i++ ) {
-				cmd.append( ", " + vector[i] );
+		if( vector == null ) {
+			return c.eval( vectorName + " = NULL;" );
+		} else {
+			StringBuffer cmd = new StringBuffer( vector.length * 20 );
+			cmd.append( vectorName + " = c(" );
+			if( vector != null && vector.length > 0 ) {
+				cmd.append( vector[0] );
+				for( int i = 1; i < vector.length; i++ ) {
+					cmd.append( ", " + vector[i] );
+				}
 			}
+			return c.eval( cmd + ");" );
 		}
-		return c.eval( cmd + ");" );
 	}
 
 	/**
@@ -445,15 +465,19 @@ public class REnvironment {
 	 *             if something with Rserve went wrong
 	 */
 	public REXP createVector( String vectorName, double[] vector ) throws RserveException {
-		StringBuffer cmd = new StringBuffer( vector.length * 20 );
-		cmd.append( vectorName + " = c(" );
-		if( vector != null && vector.length > 0 ) {
-			cmd.append( getDoubleVal( vector[0] ) );
-			for( int i = 1; i < vector.length; i++ ) {
-				cmd.append( ", " + getDoubleVal( vector[i] ) );
+		if( vector == null ) {
+			return c.eval( vectorName + " = NULL;" );
+		} else {
+			StringBuffer cmd = new StringBuffer( vector.length * 20 );
+			cmd.append( vectorName + " = c(" );
+			if( vector != null && vector.length > 0 ) {
+				cmd.append( getDoubleVal( vector[0] ) );
+				for( int i = 1; i < vector.length; i++ ) {
+					cmd.append( ", " + getDoubleVal( vector[i] ) );
+				}
 			}
+			return c.eval( cmd + ");" );
 		}
-		return c.eval( cmd + ");" );
 	}
 
 	/**
