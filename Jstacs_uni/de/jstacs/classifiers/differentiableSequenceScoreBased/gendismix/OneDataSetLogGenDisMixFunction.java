@@ -113,6 +113,9 @@ public class OneDataSetLogGenDisMixFunction extends LogGenDisMixFunction
 			}
 			sum[cl] += sum[i];
 		}
+		if( worker != null ) {
+			prepareThreads();
+		}
 	}
 	
 	public DataSet[] getData() {
