@@ -52,7 +52,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	private Worker[] worker;
+	protected Worker[] worker;
 	
 	/**
 	 * This is a pointer for the current parameters.
@@ -95,7 +95,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	}
 	
 	//assigns parts of the data to the threads
-	private void prepareThreads() {
+	protected void prepareThreads() {
 		int i = 0, anz = 0;
 		for( ; i < data.length; i++ )
 		{
