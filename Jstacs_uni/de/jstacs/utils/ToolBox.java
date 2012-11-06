@@ -32,6 +32,27 @@ import java.util.Iterator;
  */
 public class ToolBox {
 
+	/**
+	 * Handling of tied ranks in {@link ToolBox#rank(double[], TiedRanks)}.
+	 * 
+	 * @author Jan Grau
+	 *
+	 */
+	public enum TiedRanks{
+		/**
+		 * Identical values obtain different ranks. The ranks are assigned in the order of the input array.
+		 */
+		IN_ORDER,
+		/**
+		 * Identical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by the multiplicity.
+		 */
+		SPORTS,
+		/**
+		 * Indentical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by one.
+		 */
+		CONTIGUOUS
+	}
+	
 	
 	/**
 	 * This method converts a {@link HashSet} in a {@link Hashtable} with unique indices starting at 0.
@@ -214,6 +235,22 @@ public class ToolBox {
 		}
 	}
 	
+	public static double percentile( double[] array, double percent ) {
+		return percentile( 0, array.length, array, percent );
+	}
+	
+	public static double percentile( int start, int end, double[] array, double percent ) {
+		if( end <= start || percent < 0 || percent > 1 ) {
+			throw new IllegalArgumentException();
+		} else {
+			double[] ar2 = new double[end-start];
+			System.arraycopy( array, start, ar2, 0, ar2.length );
+			Arrays.sort( ar2 );
+			int idx = (int)Math.ceil( percent*ar2.length );
+			return ar2[idx];
+		}
+	}
+	
 	/**
 	 * Ranks the values in <code>values</code>, where the greatest value obtains the lowest rank.
 	 * The boolean <code>sameRank</code> allows to decide whether tied values should obtain the same rank.
@@ -223,6 +260,19 @@ public class ToolBox {
 	 * @return the ranks
 	 */
 	public static final int[] rank( double[] values, boolean sameRank ){
+		return rank(values, sameRank ? TiedRanks.CONTIGUOUS : TiedRanks.IN_ORDER);
+	}
+	
+	/**
+	 * Ranks the values in <code>values</code>, where the greatest value obtains the lowest rank.
+	 * The enum <code>ties</code> allows to choose how tied ranks are handled.
+	 * 
+	 * @param values the values
+	 * @param ties a switch how to handle tied ranks
+	 * @return the ranks
+	 * @see TiedRanks
+	 */
+	public static final int[] rank( double[] values, TiedRanks ties ){
 		
 		int n = values.length;
 		double[][] help= new double[n][2];
@@ -234,28 +284,21 @@ public class ToolBox {
 		int[] ranks = new int[n];
 		n--;
 		int rank = 0;
+		int temp = 0;
 		for(int i=n;i>=0;i--){
 			ranks[(int)Math.round(help[i][1])] = rank; 
-			if( !sameRank || (i > 0 && help[i][0] != help[i-1][0]) ){
-				rank++;
+			if( ties == TiedRanks.IN_ORDER || (i > 0 && help[i][0] != help[i-1][0]) ){
+				rank+= temp + 1;
+				temp = 0;
+			}else if(ties == TiedRanks.CONTIGUOUS){
+				temp = 0;
+			}else if(ties == TiedRanks.SPORTS){
+				temp++;
+			}else{
+				throw new RuntimeException( ties.name()+" not supported." );
 			}
 		}
-		/*
-		double[] v = values.clone();
-		int[] ranks = new int[v.length];
-		int rank = -1;
-		double last = Double.NEGATIVE_INFINITY;
-		int maxIdx = 0;
-		for(int i=0;i<v.length;i++){
-			maxIdx = getMaxIndex( v );
-			if(v[maxIdx] != last){
-				rank++;
-			}
-			ranks[maxIdx] = rank;
-			last = v[maxIdx];
-			v[maxIdx] = Double.NEGATIVE_INFINITY;
-		}
-		*/
+		
 		return ranks;
 	}
 	
