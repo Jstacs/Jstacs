@@ -88,7 +88,7 @@ public class SeqLogoPlotter {
 	 * @param ps the position weight matrix
 	 */
 	public static void plotLogo(Graphics2D g, int h, double[][] ps){
-		plotLogo( g, h, ps, null, "Positions", "bits" );
+		plotLogo( g, h, ps, null, "Position", "bits" );
 	}
 	
 	/**
