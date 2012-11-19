@@ -588,13 +588,18 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 
 		private void insertProbs(double[] probs) throws Exception {
 			if (children != null) {
-				throw new Exception("Not implemented");
-			} else {
-				for (int i = 0; i < pars.length; i++) {
-					probs[i] = pars[i].getValue() + pars[i].getLogZ();
+				for(int i=0;i<children.length;i++){
+					children[i].insertProbs( probs );
 				}
-				Normalisation.logSumNormalisation(probs);
-
+			} else {
+				double[] myProbs = new double[pars.length];
+				for (int i = 0; i < pars.length; i++) {
+					myProbs[i] = pars[i].getValue() + pars[i].getLogZ();
+				}
+				Normalisation.logSumNormalisation(myProbs);
+				for(int i=0;i<probs.length;i++){
+					probs[i] += getContextProbability()*myProbs[i];
+				}
 			}
 		}
 
