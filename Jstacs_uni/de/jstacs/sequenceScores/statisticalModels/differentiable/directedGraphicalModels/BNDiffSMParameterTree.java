@@ -1179,9 +1179,14 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 
 		private double getContextProbability() {
 			if (this.children == null) {
+				double[] norms = new double[pars.length];;
+				for (int i = 0; i < pars.length; i++) {
+					norms[i] = pars[i].getValue() + pars[i].getLogZ();
+				}
+				double logNorm = Normalisation.getLogSum( norms );
 				double[] vals = new double[pars.length];
 				for (int i = 0; i < pars.length; i++) {
-					vals[i] = pars[i].getValue() + pars[i].getLogT();
+					vals[i] = pars[i].getValue() + pars[i].getLogZ() - logNorm + pars[i].getLogT();
 				}
 				return Math.exp(Normalisation.getLogSum(vals));
 			} else {
