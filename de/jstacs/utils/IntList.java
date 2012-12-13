@@ -193,8 +193,9 @@ public final class IntList implements Cloneable {
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
+		sb.append( "[" );
 		for( int i = 0; i < size; i++) {
-			sb.append( i==0 ? "[" : ", " );
+			sb.append( i==0 ? "" : ", " );
 			sb.append( array[i] );
 		}
 		sb.append( "]" );
