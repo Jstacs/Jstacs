@@ -193,7 +193,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 				curr -= getWeight( referenceWeights, i );
 				i--;
 			}
-			if( curr != hypThreshWeight ){
+			if( i > 0 && curr != hypThreshWeight ){
 				// We did not exactly meet the percentage and want that percentage at most.
 				// Since we are a bit above the percentage now, we decrease i.
 				i--;
