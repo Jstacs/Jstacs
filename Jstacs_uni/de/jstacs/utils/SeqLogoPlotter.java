@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -14,6 +15,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -56,6 +58,15 @@ public class SeqLogoPlotter {
 		ImageIO.write( pair.getFirstElement(), "png", new File(path) );
 	}
 	
+	public static BufferedImage plotLogoToBufferedImage(int height, double[][] ps) throws IOException{
+		Pair<BufferedImage, Graphics2D> pair = getBufferedImageAndGraphics( height, ps );
+		Graphics2D g = pair.getSecondElement();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		plotLogo( g, height, ps );
+		return pair.getFirstElement();
+	}
+	
 	/**
 	 * Creates a new {@link BufferedImage} with given height and width chosen automatically according to the number of rows
 	 * of <code>ps</code>, and returns this {@link BufferedImage} and its {@link Graphics2D} object.
@@ -65,7 +76,7 @@ public class SeqLogoPlotter {
 	 * @return the created {@link BufferedImage} and its {@link Graphics2D} object
 	 */
 	public static Pair<BufferedImage,Graphics2D> getBufferedImageAndGraphics(int height,double[][] ps){
-		int w = (int)(height/4.0*(ps.length+1.5));
+		int w = getWidth( height, ps );
 		BufferedImage img = new BufferedImage( w, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D)img.getGraphics();
 		
@@ -107,8 +118,22 @@ public class SeqLogoPlotter {
 	 * @param labY the label of the y-axis
 	 */
 	public static void plotLogo(Graphics2D g, int height, double[][] ps, String[] labels, String labX, String labY){
-		int w = (int)(height/4.0*(ps.length+1.5));
+		int w = getWidth( height, ps );
 		plotLogo( g, w, height, ps, labels, labX, labY );
+	}
+	
+	/**
+	 * Returns the automatically chosen width for a given height and position weight matrix.
+	 * @param height the height
+	 * @param ps the position weight matrix
+	 * @return the width
+	 */
+	public static int getWidth(int height, double[][] ps){
+		return (int)(height/6.0*(ps.length+1.5));
+	}
+	
+	public static int getHeight(int width, double[][] ps){
+		return (int)(width*6.0/(ps.length+1.5));
 	}
 	
 	/**
@@ -149,7 +174,6 @@ public class SeqLogoPlotter {
 		g.setColor( Color.WHITE );
 		g.fillRect( x, y-h, w, h );
 		
-
 		Font font = new Font(g.getFont().getName(),Font.BOLD,h/17);
 		g.setFont( font );
 		
@@ -161,8 +185,10 @@ public class SeqLogoPlotter {
 		}
 		
 
-		double w2 = w/(ps.length+1.5);
-		double x2 = x + w2*1.3;
+		double wl = h*0.25;
+		
+		double w2 = (w-wl)/(ps.length);
+		double x2 = x + wl*0.9;
 		
 		double h2 = h*0.7;
 		double y2 = y*0.75;
@@ -195,6 +221,116 @@ public class SeqLogoPlotter {
 		}
 	}
 	
+	public static void plotTALgetterLogoToPNG(String path, int height, double[][] ps, double[] imp, String[] lab) throws IOException{
+		Pair<BufferedImage, Graphics2D> pair = getBufferedImageAndGraphics( height, ps );
+		Graphics2D g = pair.getSecondElement();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		int w = getWidth( height, ps );
+		
+		plotTALgetterLogo( g, 0, height, w, height, ps, imp, lab, "RVD", "bits", "Importance" );
+		ImageIO.write( pair.getFirstElement(), "png", new File(path) );
+	}
+	
+	public static BufferedImage plotTALgetterLogoToBufferedImage(int height, double[][] ps, double[] imp, String[] lab) throws IOException{
+		Pair<BufferedImage, Graphics2D> pair = getBufferedImageAndGraphics( height, ps );
+		Graphics2D g = pair.getSecondElement();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		int w = getWidth( height, ps );
+		
+		plotTALgetterLogo( g, 0, height, w, height, ps, imp, lab, "RVD", "bits", "Importance" );
+		return pair.getFirstElement();
+	}
+	
+	public static void plotTALgetterLogo(Graphics2D g, int x, int y, int w, int h, double[][] ps, double[] imp, String[] labels, String labX, String labY, String labY2){
+		g.setColor( Color.WHITE );
+		g.fillRect( x, y-h, w, h );
+		
+
+		Font font = new Font(g.getFont().getName(),Font.BOLD,h/17);
+		g.setFont( font );
+		
+		if(labels == null){
+			labels = new String[ps.length];
+			for(int i=0;i<ps.length;i++){
+				labels[i] = (i+1)+"";
+			}
+		}
+		
+
+		double wl = h*0.5;
+		
+		double w2 = (w-wl)/(ps.length);
+		double x2 = x + wl*0.45;
+		
+		double h2 = h*0.7;
+		double y2 = y*0.75;
+		
+		g.setColor( Color.BLACK );
+		g.setStroke( new BasicStroke( h/400+1 ) );
+		g.drawLine( (int)x2, (int)(y2*1.04)+1, (int)(x2+w2*ps.length), (int)(y2*1.04)+1 );
+		g.drawLine( (int)(x2*0.94)-1, (int)y2, (int)(x2*0.94)-1, (int)(y2-h2) );
+		String[] labs = {"0", "0.5", "1", "1.5", "2"};
+		for(int i=0;i<=4;i++){
+			g.drawLine( (int)(x2*0.7), (int)(y2-i*h2/4.0), (int)(x2*0.94)-1, (int)(y2-i*h2/4.0) );
+			Rectangle2D rect = g.getFontMetrics().getStringBounds( labs[i], g );
+			g.drawString( labs[i], (int)(x2*0.6-rect.getWidth()-2), (int)(y2-i*h2/4.0 - rect.getCenterY()) );
+		}
+		AffineTransform back = g.getTransform();
+		g.rotate( -Math.PI/2 );
+		Rectangle2D rect = g.getFontMetrics().getStringBounds( labY, g );
+
+		g.drawString(labY,-(int)(y2-2*h2/4.0 + rect.getCenterX()), (int)(x+rect.getHeight()));
+		g.setTransform( back );
+		
+		
+		rect = g.getFontMetrics().getStringBounds( labX, g );
+		g.drawString( labX, (int)(x2+w2*ps.length/2.0-rect.getCenterX()), (int)(y-0.3*rect.getHeight()) );
+		for(int i=0;i<ps.length;i++){
+			plotLogo( g, x2, y2, w2, h2, ps[i] );
+			g.setColor( Color.BLACK );
+			rect = g.getFontMetrics().getStringBounds( labels[i], g );
+			g.drawString( labels[i], (float)(x2+w2/2d-rect.getCenterX()), (float)(y2+2*rect.getHeight()) );
+			x2 += w2;
+		}
+		
+		g.drawLine( (int)(x2+w2*0.1)+1, (int)y2, (int)(x2+w2*0.1)+1, (int)(y2-h2) );
+		labs = new String[]{"0", "0.5", "1"};
+		Rectangle2D rect2 = g.getFontMetrics().getStringBounds( "0.5", g );
+		for(int i=0;i<=2;i++){
+			g.drawLine( (int)(x2+w2*0.34)+2, (int)(y2-i*h2/2.0), (int)(x2+w2*0.1)+1, (int)(y2-i*h2/2.0) );
+			//rect = g.getFontMetrics().getStringBounds( labs[i], g );
+			g.drawString( labs[i], (int)((x2+w2*0.5)+2), (int)(y2-i*h2/2.0 - rect.getCenterY()) );
+		}
+		
+		back = g.getTransform();
+		g.rotate( -Math.PI/2 );
+		rect = g.getFontMetrics().getStringBounds( labY2, g );
+
+		g.drawString(labY2,-(int)(y2-2*h2/4.0 + rect.getCenterX()), (int)(w-rect.getHeight()/2d));
+		g.setTransform( back );
+		
+		x2 = x + wl*0.45 + 2*w2;
+		
+
+		g.setColor( Color.GRAY );
+		for(int i=1;i<imp.length;i++){
+			g.drawLine( (int)(x2-w2/2d + w2/20d),(int)(y2-h2*imp[i-1]+w2/20d) , (int)(x2+w2/2d - w2/20d), (int)(y2-h2*imp[i]+w2/20d) );
+			x2 += w2;
+		}
+		
+		x2 = x + wl*0.45 + w2;
+		
+		g.setColor( Color.BLUE );
+		for(int i=0;i<imp.length;i++){
+			
+			g.fillRect( (int)(x2+w2/2d - w2/20d), (int)(y2-h2*imp[i]) , (int)(w2/10d), (int)(w2/10d) );
+			x2 += w2;
+		}
+		
+	}
+	
 	private static void plotLogo(Graphics2D g, double x, double y, double w, double h, double[] p){
 		
 		//y += h;
@@ -207,7 +343,6 @@ public class SeqLogoPlotter {
 		}
 		ic /= 2.0;
 		h *= ic;
-		//System.out.println("ic: "+ic);
 		//System.out.println("h: "+h);
 		
 		double[] mp = p.clone();
