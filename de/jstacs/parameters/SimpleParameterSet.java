@@ -71,4 +71,13 @@ public class SimpleParameterSet extends ParameterSet{
             parameters.get( i ).reset();
         }
     }
+    
+    
+    public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean[] addLine ) throws Exception {
+		for(int i=0;i<getNumberOfParameters();i++){
+			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, addLine == null ? false : addLine[i] );
+			descBuffer.append( "\n" );
+			configBuffer.append( "\n" );
+		}	
+	}
 }
