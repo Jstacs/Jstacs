@@ -598,7 +598,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
 		StringBuffer buf = new StringBuffer();
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		
@@ -609,7 +609,12 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 				XMLParser.appendObjectWithTagsAndAttributes( buf, parameters.getParameterAt( i ).getName() , "option", "value=\""+parameters.getParameterAt( i ).getName()+"\"", false );
 			}
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"select\" format=\"text\" name=\""+namePrefix+"\" label=\""+getName()+"\" optional=\""+(!isRequired())+"\" help=\""+getComment()+"\"" );
+		String line = "";
+		if(addLine){
+			//line = "&lt;hr style=&quot;height:2px;background-color:"+GalaxyAdaptor.getColor( depth+2 )+";color:"+GalaxyAdaptor.getColor( depth )+";border:none&quot; /&gt;";
+			line = "&lt;hr /&gt;";
+		}
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"select\" format=\"text\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" optional=\""+(!isRequired())+"\" help=\""+getComment()/*+(isAtomic() ? "" : "&lt;hr /&gt;")*/+"\"" );
 	
 		StringBuffer buf3 = new StringBuffer("${"+configPrefix+(isAtomic() ? "" : namePrefix+"_cond.")+namePrefix+"}");
 		XMLParser.addTags( buf3, namePrefix );
@@ -618,7 +623,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
 				StringBuffer temp = new StringBuffer();
 				StringBuffer temp2 = new StringBuffer();
-				((GalaxyConvertible)parameters.getParameterAt( i )).toGalaxy( namePrefix+"_opt"+i, configPrefix+namePrefix+"_cond.", depth+1, temp, temp2 );
+				((GalaxyConvertible)parameters.getParameterAt( i )).toGalaxy( namePrefix+"_opt"+i, configPrefix+namePrefix+"_cond.", depth+1, temp, temp2, false );
 				XMLParser.addTagsAndAttributes( temp, "when", "value=\""+parameters.getParameterAt( i ).getName()+"\"" );
 				buf.append( temp );
 				configBuffer.append( (i== 0 ? "#if " : "#elif ")+"$"+configPrefix+namePrefix+"_cond."+namePrefix+" == \""+parameters.getParameterAt( i ).getName()+"\"\n" );

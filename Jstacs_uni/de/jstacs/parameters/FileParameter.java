@@ -328,10 +328,15 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	}
 	
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer  ) {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine  ) {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mime+"\" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		String line = "";
+		if(addLine){
+			//line = "&lt;hr style=&quot;height:2px;background-color:"+GalaxyAdaptor.getColor( depth )+";color:"+GalaxyAdaptor.getColor( depth )+";border:none&quot; /&gt;";
+			line = "&lt;hr /&gt;";
+		}
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mime+"\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
 		descBuffer.append( buf );
 		buf = new StringBuffer();
 		buf.append( "${"+configPrefix+namePrefix+"}" );
