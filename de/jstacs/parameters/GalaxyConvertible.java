@@ -41,9 +41,10 @@ public interface GalaxyConvertible {
 	 * @param depth the depth in the parameter hierarchy, used for graphical representation of nesting
 	 * @param descBuffer the buffer for the parameter description
 	 * @param configBuffer the buffer for the configuration line
+	 * @param addLine if true, a line is added before the title of a parameter
 	 * @throws Exception if the conversion fails
 	 */
-	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer) throws Exception;
+	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine) throws Exception;
 	
 	/**
 	 * Parses the contents of <code>command</code> in the format defined by <code>configBuffer</code> of {@link GalaxyConvertible#toGalaxy(String, String, int, StringBuffer, StringBuffer)}

@@ -284,11 +284,11 @@ public class ExpandableParameterSet extends ParameterSet {
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
 		namePrefix = namePrefix+"_"+nameTemplate.replaceAll( "\\s", "_" );
 		
 		for(int i=0;i<this.getNumberOfParameters()-count;i++){
-			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer );
+			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, false );
 		}
 		
 		StringBuffer buf = new StringBuffer();
@@ -298,7 +298,7 @@ public class ExpandableParameterSet extends ParameterSet {
 		buf2.append( "\n" );
 		buf2.append( "#for $"+namePrefix+"_i, $"+namePrefix+"_run in enumerate($"+configPrefix+namePrefix+")\n" );
 		
-		template.toGalaxy( namePrefix, namePrefix+"_run.", depth+1, buf, buf2 );
+		template.toGalaxy( namePrefix, namePrefix+"_run.", depth+1, buf, buf2, false );
 		
 		buf2.append( "#end for" );
 		
