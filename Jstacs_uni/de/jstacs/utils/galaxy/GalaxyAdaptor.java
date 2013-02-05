@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -38,6 +40,7 @@ import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.DataSetResult;
 import de.jstacs.results.ImageResult;
@@ -71,11 +74,17 @@ import de.jstacs.results.StorableResult;
 public class GalaxyAdaptor {
 
 	private ParameterSet parameters;
+	private boolean[] addLine;
 	private String toolname;
 	private String description;
 	private String help;
 	private String command;
 	private String version;
+	
+	private NumberFormat format;
+	private NumberFormat expFormat;
+	
+	private String labelName;
 	
 	private Protocol protocol;
 	private boolean exportProtocol;
@@ -115,18 +124,27 @@ public class GalaxyAdaptor {
 	 * Additionally, the user must provide the command to run this program. For instance, if the program is bundled into
 	 * a jar <code>MyJar.jar</code>, this command could be <code>java -jar MyJar.jar</code>.
 	 * @param parameters the parameters of the program
+	 * @param addLine indicates for each parameter in <code>parameters</code> if a line is displayed before its name, ignored if <code>parameters</code> is not a {@link SimpleParameterSet}. May be <code>null</code>.
 	 * @param toolname the name of the program
 	 * @param description a description of the program, may be supplemented by additional help provided by {@link GalaxyAdaptor#setHelp(File)} or {@link GalaxyAdaptor#setHelp(String)}
 	 * @param version the version of the program
 	 * @param command the command to run the program
+	 * @param labelName if <code>null</code>, the default names of Galaxy are used, otherwise a field &quot;Job name&quot; 
+	 *     is added as first parameter of the tool with internal name <code>labelName</code>. The internal name must not collide with the name of any other parameter.
 	 */
-	public GalaxyAdaptor(ParameterSet parameters, String toolname, String description, String version, String command){
+	public GalaxyAdaptor(ParameterSet parameters, boolean[] addLine, String toolname, String description, String version, String command, String labelName){
 		this.parameters = parameters;
+		this.addLine = addLine == null ? null : addLine.clone();
 		this.toolname = toolname;
 		this.description = description;
 		this.version = version;
 		this.help = description;
 		this.command = command;
+		this.labelName = labelName;
+		this.format = NumberFormat.getNumberInstance();
+		this.format.setMaximumFractionDigits( 3 );
+		this.format.setMinimumFractionDigits( 3 );
+		this.expFormat = new DecimalFormat("0.00E0");
 	}
 
 	/**
@@ -184,8 +202,15 @@ public class GalaxyAdaptor {
 		StringBuffer descBuffer = new StringBuffer();
 		StringBuffer confBuffer = new StringBuffer();
 		
-		parameters.toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer );
+		if(labelName != null){
+			XMLParser.addTagsAndAttributes( descBuffer, "param", "type=\"text\" size=\"40\" name=\""+getLegalName( toolname )+"_"+labelName+"\" label=\"Job name\" value=\"\" optional=\"true\" help=\"Please enter a name for your job that should be used in the history (optional)\"" );
+		}
 		
+		if(parameters instanceof SimpleParameterSet){
+			((SimpleParameterSet)parameters).toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, addLine );
+		}else{
+			parameters.toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, false );
+		}
 		XMLParser.addTags( descBuffer, "inputs" );
 		
 		confBuffer = escape( confBuffer );
@@ -195,7 +220,11 @@ public class GalaxyAdaptor {
 		allBuffer.append( confBuffer );
 		
 		StringBuffer outBuf = new StringBuffer();
-		XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\"" );
+		if(labelName != null){
+			XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\" label=\"#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string else $"+getLegalName( toolname )+"_"+labelName+"#\"" );
+		}else{
+			XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\"" );
+		}
 		XMLParser.addTags( outBuf, "outputs" );
 		
 		allBuffer.append( outBuf );
@@ -279,7 +308,16 @@ public class GalaxyAdaptor {
 				list.append( "<tr>" );
 				for (j = 0; j <= k; j++) {
 					if(res[i].getResultAt(j) instanceof SimpleResult){
-						list.append("<td>"+res[i].getResultAt(j).getValue()+"</td>");
+						if(res[i].getResultAt( j ).getDatatype() == DataType.DOUBLE || res[i].getResultAt( j ).getDatatype() == DataType.FLOAT){
+							double d = ((Number)res[i].getResultAt( j ).getValue()).doubleValue();
+							if(Math.abs( d )<0.01 && d != 0){
+								list.append( "<td>"+expFormat.format( d )+"</td>"  );
+							}else{	
+								list.append( "<td>"+format.format( d )+"</td>" );
+							}
+						}else{
+							list.append("<td>"+res[i].getResultAt(j).getValue()+"</td>");
+						}
 					}else{
 						list.append("<td>"+getOutput( res[i].getResultAt(j) )+"</td>");
 					}
@@ -506,14 +544,14 @@ public class GalaxyAdaptor {
 				exported = true;
 				if(res instanceof Result){
 					i++;
-					String name = i+"";
+					String name = i+": "+((Result)res).getName();
 					String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res );
 				}else{
 					ResultSet rs = (ResultSet)res;
 					for(int j=0;j<rs.getNumberOfResults();j++){
 						i++;
-						String name = i+"";
-						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( i ) );
+						String name = i+": "+rs.getResultAt( j ).getName();
+						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ) );
 					}
 				}
 			}
