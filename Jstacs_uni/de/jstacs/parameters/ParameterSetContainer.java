@@ -315,22 +315,23 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	
 		if(parameters == null){
 			loadParameters();
 		}
 		StringBuffer pars = new StringBuffer();
-		((GalaxyConvertible)parameters).toGalaxy( namePrefix, configPrefix, depth+1, pars, configBuffer );
-		String color = GalaxyAdaptor.getColor( depth );
+		((GalaxyConvertible)parameters).toGalaxy( namePrefix, configPrefix, depth, pars, configBuffer, false );
+		//String color = GalaxyAdaptor.getColor( depth );
 		
-		StringBuffer buf = new StringBuffer();
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"hidden\" name=\""+namePrefix+"_contbegin"+"\" help=\"&lt;hr style=&quot;height:2px;background-color:"+color+";color:"+color+";border:none&quot; /&gt;\"" );
+	/*	StringBuffer buf = new StringBuffer();
+		//XMLParser.addTagsAndAttributes( buf, "param", "type=\"hidden\" name=\""+namePrefix+"_contbegin"+"\" help=\"&lt;hr style=&quot;height:2px;background-color:"+color+";color:"+color+";border:none&quot; /&gt;\"" );
 		buf.append( pars );
 		StringBuffer buf2 = new StringBuffer();
-		XMLParser.addTagsAndAttributes( buf2, "param", "type=\"hidden\" name=\""+namePrefix+"_contend"+"\" help=\"&lt;hr style=&quot;height:2px;background-color:"+color+";color:"+color+";border:none&quot; /&gt;\"" );
-		buf.append( buf2 );
+		//XMLParser.addTagsAndAttributes( buf2, "param", "type=\"hidden\" name=\""+namePrefix+"_contend"+"\" help=\"&lt;hr style=&quot;height:2px;background-color:"+color+";color:"+color+";border:none&quot; /&gt;\"" );
+		buf.append( buf2 );*/
 		
-		descBuffer.append( buf );
+		descBuffer.append( pars );
 	}
 
 	@Override

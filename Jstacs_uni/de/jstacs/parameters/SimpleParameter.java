@@ -659,13 +659,19 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
 		if(validator != null && validator instanceof GalaxyConvertible){
-			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null );
+			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false );
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		
+		String line = "";
+		if(addLine){
+			line = "&lt;hr /&gt;";
+		}
+		
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" "+(datatype == DataType.BOOLEAN ? "checked" : "value")+"=\""+(defaultValue == null ? "" : (datatype == DataType.BOOLEAN ? (defaultValue.equals( true ) ? "True" : "False") : defaultValue) )+"\" optional=\""+(!isRequired())+"\"" );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();

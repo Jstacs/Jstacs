@@ -983,7 +983,7 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
 		
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		configPrefix = configPrefix+namePrefix+".";
@@ -991,28 +991,28 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 		StringBuffer buf = new StringBuffer();
 		
 		EnumParameter temp = new EnumParameter( RangeType.class, "Define a single value (NO), a list of values (LIST) or a range of values (RANGE) for "+rangedParameter.getName(), true );
-		temp.toGalaxy( namePrefix, configPrefix, depth+1, buf, configBuffer );
+		temp.toGalaxy( namePrefix, configPrefix, depth+1, buf, configBuffer, false );
 		
 		
 		StringBuffer tmp = new StringBuffer();
 		configBuffer.append( "#if $"+configPrefix+namePrefix+"_RangeType == \"NO\"\n" );
-		rangedParameter.toGalaxy( namePrefix+"_NO", configPrefix, depth+1, tmp, configBuffer );
+		rangedParameter.toGalaxy( namePrefix+"_NO", configPrefix, depth+1, tmp, configBuffer, addLine );
 		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"NO\"");
 		buf.append( tmp );
 		
 		tmp = new StringBuffer();
 		configBuffer.append( "#elif $"+configPrefix+namePrefix+"_RangeType == \"LIST\"\n" );
-		(new SimpleParameter( DataType.STRING, rangedParameter.getName(), "Please enter a comma-separated list of values. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_LIST", configPrefix, depth+1, tmp, configBuffer );
+		(new SimpleParameter( DataType.STRING, rangedParameter.getName(), "Please enter a comma-separated list of values. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_LIST", configPrefix, depth+1, tmp, configBuffer, addLine );
 		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"LIST\"");
 		buf.append( tmp );
 		
 		tmp = new StringBuffer();
 		configBuffer.append( "#elif $"+configPrefix+namePrefix+"_RangeType == \"RANGE\"\n" );
-		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": start value", "Please enter the start value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer);
-		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": end value", "Please enter the end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer );
-		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": steps", "Please enter the number of steps between start and end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer );
+		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": start value", "Please enter the start value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true);
+		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": end value", "Please enter the end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true );
+		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": steps", "Please enter the number of steps between start and end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true );
 		temp = new EnumParameter( Scale.class, "Select a scaling between start and end value.", true );
-		temp.toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer );
+		temp.toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, false );
 		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"RANGE\"" );
 		buf.append( tmp );
 		configBuffer.append( "#end if\n" );
