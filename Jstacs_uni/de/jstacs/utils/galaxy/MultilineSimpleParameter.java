@@ -1,5 +1,7 @@
 package de.jstacs.utils.galaxy;
 
+import java.io.PrintWriter;
+
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -126,13 +128,17 @@ public class MultilineSimpleParameter extends SimpleParameter {
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
 		if(validator != null && validator instanceof GalaxyConvertible){
-			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null );
+			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false );
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"text\" area=\"true\" size=\"10x80\" name=\""+namePrefix+"\" label=\""+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		String line = "";
+		if(addLine){
+			line = "&lt;hr /&gt;";
+		}
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"text\" area=\"true\" size=\"10x80\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();
@@ -145,6 +151,7 @@ public class MultilineSimpleParameter extends SimpleParameter {
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		String val = XMLParser.extractForTag( command, namePrefix ).toString();
+		
 		val = unescape( val );
 		this.setValue( val );
 	}
