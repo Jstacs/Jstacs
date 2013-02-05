@@ -199,8 +199,8 @@ public class GaussianEmission implements DifferentiableEmission {
 
 	
 	public void setParameter( double[] params, int offset ) {
-		mu = params[offset];
-		logPrecision = params[offset+1];
+		mu = params[this.offset+offset];
+		logPrecision = params[this.offset+offset+1];
 		precision = Math.exp( logPrecision );
 		precompute();
 	}
