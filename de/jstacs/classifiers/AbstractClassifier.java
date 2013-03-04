@@ -43,7 +43,7 @@ import de.jstacs.results.StorableResult;
  * <br>
  * 
  * <a name="order"> The order of the classes is never changed inside the
- * classifier. The samples you put in the methods like <code>train, test</code>
+ * classifier. The data sets you put in the methods like <code>train, test</code>
  * and <code>evaluate</code> should always have the same order that you have
  * used while instantiation of the object.</a>
  * 
@@ -148,13 +148,13 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	public abstract byte classify( Sequence seq ) throws Exception;
 
 	/**
-	 * This method classifies all sequences of a sample and returns an array of
+	 * This method classifies all sequences of a data set and returns an array of
 	 * indices of the classes to which the respective sequences are assigned
 	 * with for each index <code>i</code> in the array
 	 * <code>0 &lt; i &lt; getNumberOfClasses()</code>.
 	 * 
 	 * @param s
-	 *            the sample to be classified
+	 *            the data set to be classified
 	 * 
 	 * @return an array of class assignments
 	 * 
@@ -188,8 +188,8 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * <br>
 	 * 
 	 * For two classes it is highly recommended to set the foreground as first
-	 * class and the second class as background, i.e. the first sample should be
-	 * the foreground sample and the second should be background sample. See
+	 * class and the second class as background, i.e. the first data set should be
+	 * the foreground data set and the second should be background data set. See
 	 * also <a href="#order">this comment</a>.
 	 * 
 	 * @param params
@@ -222,8 +222,8 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * <br>
 	 * 
 	 * For two classes it is highly recommended to set the foreground as first
-	 * class and the second class as background, i.e. the first sample should be
-	 * the foreground sample and the second should be background sample. See
+	 * class and the second class as background, i.e. the first data set should be
+	 * the foreground data set and the second should be background data set. See
 	 * also <a href="#order">this comment</a>.
 	 * 
 	 * @param params

@@ -137,7 +137,7 @@ public class GenDisMixClassifierParameterSet extends ScoreClassifierParameterSet
 		super( instanceClass, alphabet, length, algo, eps, lineps, startD, free, kind );
 		parameters.add( new SimpleParameter( DataType.BOOLEAN,
 				"Normalize",
-				"If true the conditional likelihood will be normalized to the number of samples.",
+				"If true the conditional likelihood will be normalized to the number of data sets.",
 				true,
 				new Boolean( true ) ) );
 		parameters.add( getThreadsParameter() );

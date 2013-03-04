@@ -262,14 +262,14 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		int j = 0;
 		for( int l = getLength(), i = 0; i < score.length; i++ ) {
 			if( weights[i] != null && data[j].getNumberOfElements() != weights[i].length ) {
-				throw new IllegalArgumentException( "At least for one sample: The dimension of the sample and the weight do not match." );
+				throw new IllegalArgumentException( "At least for one data set: The dimension of the data set and the weight do not match." );
 			}
 			if( i == 0 || data.length > 1 ) {
 				if( !abc.checkConsistency( data[j].getAlphabetContainer() ) ) {
-					throw new IllegalArgumentException( "At least one sample is not defined over the correct alphabets." );
+					throw new IllegalArgumentException( "At least one data set is not defined over the correct alphabets." );
 				}
 				if( data[i].getElementLength() != l ) {
-					// throw new IllegalArgumentException( "At least one sample has not the correct length." );
+					// throw new IllegalArgumentException( "At least one data set has not the correct length." );
 					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[i], weights[i], l );
 				} else {
 					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[i], weights[i] );
@@ -279,7 +279,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 			} else {
 				
 				if( data[j].getElementLength() != l ) {
-					// throw new IllegalArgumentException( "At least one sample has not the correct length." );
+					// throw new IllegalArgumentException( "At least one data set has not the correct length." );
 					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[j], weights[i], l );
 				} else {
 					wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data[j], weights[i] );
@@ -299,7 +299,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * This method does the optimization of the <code>train</code>-method
 	 * 
 	 * @param reduced
-	 *            the samples
+	 *            the data sets
 	 * @param newWeights
 	 *            the weights
 	 * 
@@ -487,9 +487,9 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	 * Returns the function that should be optimized.
 	 * 
 	 * @param data
-	 *            the samples
+	 *            the data sets
 	 * @param weights
-	 *            the weights of the sequences of the samples
+	 *            the weights of the sequences of the data sets
 	 * 
 	 * @return the function that should be optimized
 	 * 

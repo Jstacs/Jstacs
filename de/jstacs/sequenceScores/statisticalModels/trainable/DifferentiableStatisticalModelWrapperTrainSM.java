@@ -142,11 +142,11 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	{
 		if( !data.getAlphabetContainer().checkConsistency( alphabets ) )
 		{
-			throw new WrongAlphabetException( "The AlphabetConatainer of the sample and the model do not match." );
+			throw new WrongAlphabetException( "The AlphabetConatainer of the data set and the model do not match." );
 		}
 		if( length != 0 && length != data.getElementLength() )
 		{
-			throw new WrongLengthException( "The length of the elements of the sample is not suitable for the model." );
+			throw new WrongLengthException( "The length of the elements of the data set is not suitable for the model." );
 		}
 		
 		if( nsf instanceof IndependentProductDiffSM ) {

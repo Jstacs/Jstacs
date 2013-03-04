@@ -44,7 +44,7 @@ public class InfixStringExtractor extends AbstractStringExtractor {
 		this.se = se;
 		this.start = start;
 		this.end = start+length;
-		annotation = "infix sample (start=" + start +", length=" + length + ") of " + se.getAnnotation();
+		annotation = "infix data set (start=" + start +", length=" + length + ") of " + se.getAnnotation();
 	}
 
 	public boolean hasMoreElements() {

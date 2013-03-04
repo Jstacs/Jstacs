@@ -33,7 +33,7 @@ import de.jstacs.io.SparseStringExtractor;
 public class DNADataSet extends DataSet {
 
 	/**
-	 * Creates a new sample of DNA sequence from a FASTA file with file name <code>fName</code>.
+	 * Creates a new data set of DNA sequence from a FASTA file with file name <code>fName</code>.
 	 * 
 	 * @param fName the file name
 	 * 
@@ -58,7 +58,7 @@ public class DNADataSet extends DataSet {
 	}
 	
 	/**
-	 * Creates a new sample of DNA sequence from a file with file name <code>fName</code>.
+	 * Creates a new data set of DNA sequence from a file with file name <code>fName</code>.
 	 * 
 	 * @param fName the file name
 	 * @param ignore the first character of lines that should be treated as comments
@@ -86,7 +86,7 @@ public class DNADataSet extends DataSet {
 	}
 	
 	/**
-	 * Creates a new sample of DNA sequence from a file with file name <code>fName</code> using the given <code>parser</code>.
+	 * Creates a new data set of DNA sequence from a file with file name <code>fName</code> using the given <code>parser</code>.
 	 * 
 	 * @param fName the file name
 	 * @param ignore the first character of lines that should be treated as comments

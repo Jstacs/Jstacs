@@ -37,7 +37,7 @@ import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
  */
 public class DiscreteInhomogenousDataSetEmitter {
 	/**
-	 * This method emits a sample with
+	 * This method emits a data set with
 	 * <code>n<code> sequences from the discrete inhomogeneous model <code>m</code>
 	 * .
 	 * 
@@ -46,7 +46,7 @@ public class DiscreteInhomogenousDataSetEmitter {
 	 * @param n
 	 *            the number of sequences
 	 * 
-	 * @return the synthetic sample
+	 * @return the synthetic data set
 	 * 
 	 * @throws NotTrainedException
 	 *             if the model is not trained
@@ -82,7 +82,7 @@ public class DiscreteInhomogenousDataSetEmitter {
 					il2 *= alphabetLength[counter1];
 				} else {
 					new IllegalArgumentException(
-							"It is not possible to emit a sample of sequences with this length and alphabets by this implementation. (needs to much memory)");
+							"It is not possible to emit a data set of sequences with this length and alphabets by this implementation. (needs to much memory)");
 				}
 			}
 		}
