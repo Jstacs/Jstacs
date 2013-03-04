@@ -156,7 +156,7 @@ public interface StatisticalModel extends SequenceScore {
 	 * <br>
 	 * <br>
 	 * 
-	 * There are two different possibilities to create a sample for a model with
+	 * There are two different possibilities to create a data set for a model with
 	 * length 0 (homogeneous models).
 	 * <ol>
 	 * <li> <code>emitDataSet( int n, int l )</code> should return a data set with
@@ -168,10 +168,10 @@ public interface StatisticalModel extends SequenceScore {
 	 * 
 	 * <br>
 	 * 
-	 * There are two different possibilities to create a sample for a model with
+	 * There are two different possibilities to create a data set for a model with
 	 * length greater than 0 (inhomogeneous models).<br>
 	 * <code>emitDataSet( int n )</code> and
-	 * <code>emitDataSet( int n, null )</code> should return a sample with
+	 * <code>emitDataSet( int n, null )</code> should return a data set with
 	 * <code>n</code> sequences of length of the model (
 	 * {@link StatisticalModel#getLength()}).
 	 * 
@@ -182,7 +182,7 @@ public interface StatisticalModel extends SequenceScore {
 	 * 
 	 * @param numberOfSequences
 	 *            the number of sequences that should be contained in the
-	 *            returned sample
+	 *            returned data set
 	 * @param seqLength
 	 *            the length of the sequences for a homogeneous model; for an
 	 *            inhomogeneous model this parameter should be <code>null</code>

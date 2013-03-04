@@ -140,21 +140,21 @@ public interface SequenceScore extends Cloneable, Storable {
 	
 	/**
 	 * This method computes the logarithm of the scores of all sequences
-	 * in the given sample. The values are stored in an array according to the
-	 * index of the respective sequence in the sample.
+	 * in the given data set. The values are stored in an array according to the
+	 * index of the respective sequence in the data set.
 	 * 
 	 * <br>
 	 * <br>
 	 * 
 	 * The score for any sequence shall be computed independent of all
-	 * other sequences in the sample. So the result should be exactly the same
+	 * other sequences in the data set. So the result should be exactly the same
 	 * as for the method {@link #getLogScoreFor(Sequence)}.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * 
 	 * @return an array containing the logarithm of the score of all
-	 *         sequences of the sample
+	 *         sequences of the data set
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
@@ -165,21 +165,21 @@ public interface SequenceScore extends Cloneable, Storable {
 
 	/**
 	 * This method computes and stores the logarithm of the scores for
-	 * any sequence in the sample in the given <code>double</code>-array.
+	 * any sequence in the data set in the given <code>double</code>-array.
 	 * 
 	 * <br>
 	 * <br>
 	 * 
 	 * The score for any sequence shall be computed independent of all
-	 * other sequences in the sample. So the result should be exactly the same
+	 * other sequences in the data set. So the result should be exactly the same
 	 * as for the method {@link #getLogScoreFor(Sequence)}.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param res
 	 *            the array for the results, has to have length
 	 *            <code>data.getNumberOfElements()</code> (which returns the
-	 *            number of sequences in the sample)
+	 *            number of sequences in the data set)
 	 * 
 	 * @throws Exception
 	 *             if something went wrong

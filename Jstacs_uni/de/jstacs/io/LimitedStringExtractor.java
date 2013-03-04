@@ -45,7 +45,7 @@ public class LimitedStringExtractor extends AbstractStringExtractor {
 		}
 		this.num = num;
 		current = 0;
-		annotation = "limited sample (max=" + num + ") of " + se.getAnnotation();
+		annotation = "limited data set (max=" + num + ") of " + se.getAnnotation();
 	}
 
 	public boolean hasMoreElements() {

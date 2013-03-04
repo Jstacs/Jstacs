@@ -505,7 +505,7 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 			seq[2 * i] = s.getElementAt( i );
 			seq[2 * i + 1] = seq[2 * i].reverseComplement();
 		}
-		sample = new DataSet[]{ new DataSet( "sample of both strands from " + s.getAnnotation(), seq ) };
+		sample = new DataSet[]{ new DataSet( "data set of both strands from " + s.getAnnotation(), seq ) };
 	}
 
 	/* (non-Javadoc)

@@ -97,7 +97,7 @@ public class OneDataSetLogGenDisMixFunction extends LogGenDisMixFunction
 	
 	public void setDataAndWeights( DataSet[] data, double[][] weights ) throws IllegalArgumentException {
 		if( data.length != 1 || weights == null || weights.length != cl ) {
-			throw new IllegalArgumentException( "The dimension of the sample or weights (array) is not correct."  );
+			throw new IllegalArgumentException( "The dimension of the data set or weights (array) is not correct."  );
 		}
 		this.data = data;
 		this.weights = weights;

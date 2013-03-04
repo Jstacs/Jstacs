@@ -40,7 +40,7 @@ import de.jstacs.utils.Normalisation;
  * classes, but likes to evaluate whether the classifier is able to discriminate
  * between class 1 and class 2 and 3. This is a good example where to use this
  * class. The user has to create its 3-class-classifier, create an instance of
- * this class using its classifier, map the test samples together (
+ * this class using its classifier, map the test data sets together (
  * {@link MappingClassifier#mapDataSet(DataSet[])}) and invoke
  * {@link AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, DataSet...)}
  * with these mapped {@link DataSet}. Alternatively, the method
@@ -228,7 +228,7 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	 * @param s
 	 *            the array of {@link DataSet}s
 	 * 
-	 * @return the array of samples corresponding to the classes
+	 * @return the array of data sets corresponding to the classes
 	 */
 	public DataSet[] mapDataSet( DataSet[] s ) {
 		boolean[] in = new boolean[classifier.getNumberOfClasses()];

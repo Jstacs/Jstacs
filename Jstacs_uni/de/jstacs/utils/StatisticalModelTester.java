@@ -158,7 +158,7 @@ public class StatisticalModelTester {
 			}
 		} else if (d != weights.length) {
 			throw new IllegalArgumentException(
-					"The weights and the sample does not match.");
+					"The weights and the data set does not match.");
 		} else {
 			for (counter = 0; counter < d; counter++) {
 				erg += weights[counter] * m.getLogProbFor(ei.nextElement());

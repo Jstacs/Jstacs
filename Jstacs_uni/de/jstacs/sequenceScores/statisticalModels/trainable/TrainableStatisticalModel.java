@@ -64,7 +64,7 @@ public interface TrainableStatisticalModel extends StatisticalModel {
 	 * Trains the {@link TrainableStatisticalModel} object given the data as {@link DataSet} using
 	 * the specified weights. The weight at position i belongs to the element at
 	 * position i. So the array <code>weight</code> should have the number of
-	 * sequences in the sample as dimension. (Optionally it is possible to use
+	 * sequences in the data set as dimension. (Optionally it is possible to use
 	 * <code>weight == null</code> if all weights have the value one.)<br>
 	 * This method should work non-incrementally. That means the result of the
 	 * following series: <code>train(data1)</code>; <code>train(data2)</code>
@@ -80,7 +80,7 @@ public interface TrainableStatisticalModel extends StatisticalModel {
 	 * @throws Exception
 	 *             if the training did not succeed (e.g. the dimension of
 	 *             <code>weights</code> and the number of sequences in the
-	 *             sample do not match)
+	 *             data set do not match)
 	 * 
 	 * @see DataSet#getElementAt(int)
 	 * @see de.jstacs.data.DataSet.ElementEnumerator

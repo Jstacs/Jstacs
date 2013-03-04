@@ -593,9 +593,9 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 * hypothesis how the components should look like.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param dataWeights
-	 *            <code>null</code> or the weights of each element of the sample
+	 *            <code>null</code> or the weights of each element of the data set
 	 * @param partitioning
 	 *            a kind of partitioning
 	 *            <ol>

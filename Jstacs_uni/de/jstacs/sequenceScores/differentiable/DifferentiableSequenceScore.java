@@ -58,9 +58,9 @@ public interface DifferentiableSequenceScore extends SequenceScore {
 	 * @param freeParams
 	 *            indicates whether the (reduced) parameterization is used
 	 * @param data
-	 *            the samples
+	 *            the data sets
 	 * @param weights
-	 *            the weights of the sequences in the samples
+	 *            the weights of the sequences in the data sets
 	 * 
 	 * @throws Exception
 	 *             if something went wrong

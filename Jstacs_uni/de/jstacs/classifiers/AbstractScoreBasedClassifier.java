@@ -648,7 +648,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * @param candidates
 	 *            the {@link DataSet} with candidate sequences
 	 * @param bg
-	 *            the background sample
+	 *            the background data set
 	 * 
 	 * @return the p-values for all sequences in <code>candidates</code>
 	 * 

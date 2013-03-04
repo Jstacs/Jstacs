@@ -80,7 +80,7 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  * <br>
  * <br>
  * 
- * The model stores a reference to the last sample used in <code>train</code>.
+ * The model stores a reference to the last data set used in <code>train</code>.
  * This enables the user to estimate the parameters iteratively beginning with
  * the current set of parameters. Therefore you can use the method
  * {@link AbstractMixtureTrainSM#continueIterations(double[], double[][], int, int)}
@@ -106,7 +106,7 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  * <br>
  * <br>
  * 
- * <b>The reference to the internal sample is not stored if the model is stored
+ * <b>The reference to the internal data set is not stored if the model is stored
  * in a {@link StringBuffer}. So you can use these methods only after training
  * the parameters after (re)creating a model.</b>
  * 
@@ -216,7 +216,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	protected SafeOutputStream sostream;
 
 	/**
-	 * The sample that was used in the last training. Will not be stored in the
+	 * The data set that was used in the last training. Will not be stored in the
 	 * {@link StringBuffer} when invoking {@link #toXML()}.
 	 */
 	protected DataSet[] sample;
@@ -648,10 +648,10 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 
 	/**
 	 * This method is invoked by the <code>train</code>-method and sets for a
-	 * given sample the sample that should be used for <code>train</code>.
+	 * given data set the data set that should be used for <code>train</code>.
 	 * 
 	 * @param data
-	 *            the given sample of sequences
+	 *            the given data set of sequences
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
@@ -673,7 +673,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 * This method runs the train algorithm for the current model.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param dataWeights
 	 *            the weights for each sequence or <code>null</code>
 	 * @param m
@@ -749,9 +749,9 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 * membership. This is useful when nothing is known about the problem.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param dataWeights
-	 *            <code>null</code> or the weights of each element of the sample
+	 *            <code>null</code> or the weights of each element of the data set
 	 * 
 	 * @return the weighting array used to initialize, this array can be reused
 	 *         in the following iterations
@@ -771,9 +771,9 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 * membership. This is useful when nothing is known about the problem.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param dataWeights
-	 *            <code>null</code> or the weights of each element of the sample
+	 *            <code>null</code> or the weights of each element of the data set
 	 * @param m
 	 *            the multivariate random generator
 	 * @param params
@@ -794,12 +794,12 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 
 	/**
 	 * This method will do the first step in the train algorithm for the current
-	 * model on the internal sample. The initialization will be done by randomly
+	 * model on the internal data set. The initialization will be done by randomly
 	 * setting the component membership. This is useful when nothing is known
 	 * about the problem.
 	 * 
 	 * @param dataWeights
-	 *            <code>null</code> or the weights of each element of the sample
+	 *            <code>null</code> or the weights of each element of the data set
 	 * @param m
 	 *            the multivariate random generator
 	 * @param params
@@ -815,7 +815,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	
 	/**
 	 * This method will run the train algorithm for the current model on the
-	 * internal sample. The initialization will be done by using the models of
+	 * internal data set. The initialization will be done by using the models of
 	 * the {@link AbstractMixtureTrainSM}. So in this case the models have to be
 	 * trained already. This method is useful for restarting the train algorithm
 	 * at a certain point. The algorithm will stop if the difference between the
@@ -829,7 +829,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 * 
 	 * @param dataWeights
 	 *            <code>null</code> or the weights of each element of the
-	 *            internal sample (last sample the {@link AbstractMixtureTrainSM}
+	 *            internal data set (last data set the {@link AbstractMixtureTrainSM}
 	 *            was trained on)
 	 * @param seqweights
 	 *            <code>null</code> or an array for weighting the sequences, see
@@ -842,7 +842,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 */
 	protected double continueIterations( double[] dataWeights, double[][] seqweights ) throws Exception {
 		if( sample == null ) {
-			throw new OperationNotSupportedException( "There is no reference to an internal sample, so you can not go on with training." );
+			throw new OperationNotSupportedException( "There is no reference to an internal data set, so you can not go on with training." );
 		}
 		int i = 0;
 		double[] w = new double[dimension];
@@ -935,7 +935,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 			burnInTest.setCurrentSamplingIndex( start );
 		}
 		if( sample == null ) {
-			throw new OperationNotSupportedException( "There is no reference to an internal sample, so you can not go on with training." );
+			throw new OperationNotSupportedException( "There is no reference to an internal data set, so you can not go on with training." );
 		}
 		double[] w = new double[dimension];
 		if( seqweights == null ) {
@@ -963,7 +963,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	}
 
 	/**
-	 * This method trains the internal models on the internal sample and the
+	 * This method trains the internal models on the internal data set and the
 	 * given weights.
 	 * 
 	 * @param iteration
@@ -985,7 +985,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 
 	/**
 	 * This method trains the internal model with index <code>modelIndex</code>
-	 * on the internal sample and the given weights.
+	 * on the internal data set and the given weights.
 	 * 
 	 * @param modelIndex
 	 *            the index of the model
@@ -993,7 +993,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 *            the number of times this method has been invoked for this
 	 *            model
 	 * @param sampleIndex
-	 *            the index of the internal sample that should be used
+	 *            the index of the internal data set that should be used
 	 * @param seqWeights
 	 *            the weights for each sequence
 	 * 
@@ -1033,7 +1033,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 * Computes sequence weights and returns the score.
 	 * 
 	 * @param dataWeights
-	 *            the weights for the internal sample (should not be changed)
+	 *            the weights for the internal data set (should not be changed)
 	 * @param w
 	 *            the array for the statistic of the component parameters (shall
 	 *            be filled)

@@ -35,7 +35,7 @@ public final class WrongLengthException extends Exception {
 	 *            the length that was not supported
 	 */
 	public WrongLengthException( int length ) {
-		super( "The subsequence length of " + length + " is not supported by this sample set." );
+		super( "The subsequence length of " + length + " is not supported by this data set." );
 	}
 
 	/**
