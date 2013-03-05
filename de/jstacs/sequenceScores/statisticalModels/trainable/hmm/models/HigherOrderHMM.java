@@ -784,11 +784,11 @@ public class HigherOrderHMM extends AbstractHMM {
 	@Override
 	public void getLogScoreFor(DataSet data, double[] res) throws Exception {
 		if( !data.getAlphabetContainer().checkConsistency(getAlphabetContainer()) ) {
-			throw new WrongAlphabetException( "The AlphabetContainer of the sample and the model do not match." );
+			throw new WrongAlphabetException( "The AlphabetContainer of the data set and the model do not match." );
 		}
 		int len = getLength(), l = data.getElementLength();
 		if( len != 0 && l != len ) {
-			throw new WrongLengthException( "The length of the sample and the model do not match." );
+			throw new WrongLengthException( "The length of the data set and the model do not match." );
 		}
 		Sequence seq;
 		for( int n = 0; n < data.getNumberOfElements(); n++ ) {

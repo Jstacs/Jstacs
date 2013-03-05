@@ -195,7 +195,7 @@ public class DataSet implements Iterable<Sequence>{
 				}
 			}
 		}
-		// create new sample
+		// create new data set
 		Sequence[] seqs = new Sequence[anz];
 		Iterator<Entry<Sequence,int[]>> it = hash.entrySet().iterator();
 		Entry<Sequence,int[]> current;
@@ -355,7 +355,7 @@ public class DataSet implements Iterable<Sequence>{
 			try {
 				return union( s, in );
 			} catch ( EmptyDataSetException doesNotHappen ) {
-				// since each given sample is not empty, the union can't be empty
+				// since each given data set is not empty, the union can't be empty
 				return null;
 			}
 		}
@@ -634,7 +634,7 @@ public class DataSet implements Iterable<Sequence>{
 		
 		try {
 			if( alphabetContainer.isDiscrete() ) {
-				// create pure discrete sample
+				// create pure discrete data set
 				int l = (int)alphabetContainer.getMaximalAlphabetLength();
 				if( l <= Byte.MAX_VALUE ) {
 					while( se.hasMoreElements() ) {
@@ -673,7 +673,7 @@ public class DataSet implements Iterable<Sequence>{
 					throw new WrongAlphabetException( "Could not encode. Too many symbols." );
 				}
 			} else {
-				// create hybrid or pure continuous sample
+				// create hybrid or pure continuous data set
 				if( delim.length() == 0 ) {
 					throw new IllegalArgumentException( "delim has to be not empty" );
 				}
@@ -898,7 +898,7 @@ public class DataSet implements Iterable<Sequence>{
 												+ ") of "
 												+ annotation );
 		} catch ( EmptyDataSetException doesNotHappen ) {
-			// since the current sample is not empty, a sample of infixes can't be empty
+			// since the current data set is not empty, a sample of infixes can't be empty
 			return null;
 		}
 	}
@@ -994,7 +994,7 @@ public class DataSet implements Iterable<Sequence>{
 				try {
 					return new DataSet( abc, n, length, "infix data set (start=" + start + ", length=" + length + ") of " + annotation );
 				} catch ( EmptyDataSetException doesNotHappen ) {
-					// since the current sample is not empty, a sample of infixes can't be empty
+					// since the current data set is not empty, a data set of infixes can't be empty
 					return null;
 				}
 			}
@@ -1018,7 +1018,7 @@ public class DataSet implements Iterable<Sequence>{
 		try{
 			return new DataSet(annotation == null ? null : "reverse complement of "+annotation,rc);
 		}catch (EmptyDataSetException e) {
-			//cannot happen since this sample is not empty
+			//cannot happen since this data set is not empty
 			return null;
 		}catch(WrongAlphabetException ex){
 			//cannot happen since alphabet constructed
@@ -1116,7 +1116,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @param len
 	 *            the length of the elements
 	 * @param weights
-	 *            the weights of each element of the sample (see {@link #getElementAt(int)}), can be <code>null</code>
+	 *            the weights of each element of the data set (see {@link #getElementAt(int)}), can be <code>null</code>
 	 * 
 	 * @return the weighted number of elements with the specified length
 	 * 
@@ -1184,7 +1184,7 @@ public class DataSet implements Iterable<Sequence>{
 		try {
 			return new DataSet( abc, n, l, "suffix data set (start=" + start + ") of " + annotation );
 		} catch ( EmptyDataSetException doesNotHappen ) {
-			// since the current sample is not empty, a sample of suffixes can't be empty
+			// since the current data set is not empty, a data set of suffixes can't be empty
 			return null;
 		}
 	}

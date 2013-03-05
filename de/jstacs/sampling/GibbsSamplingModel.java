@@ -52,9 +52,9 @@ public interface GibbsSamplingModel extends SamplingComponent {
 	 * called.
 	 * 
 	 * @param data
-	 *            a sample
+	 *            a data set
 	 * @param weights
-	 *            the (non-negative) weights for each sequence of the sample
+	 *            the (non-negative) weights for each sequence of the data set
 	 * 
 	 * @throws Exception
 	 *             if there is a problem with drawing the parameters, the model

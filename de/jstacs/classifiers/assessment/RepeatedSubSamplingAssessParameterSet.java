@@ -105,18 +105,18 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 *            parameters that could not be computed.
 	 * @param repeats
 	 *            the number of repeats of each iteration (subsample test and
-	 *            train datasets from user supplied data, train classifiers
-	 *            using train datasets and test them using test datasets) of
+	 *            train data sets from user supplied data, train classifiers
+	 *            using train data sets and test them using test data sets) of
 	 *            that {@link RepeatedHoldOutExperiment} this
 	 *            {@link RepeatedSubSamplingAssessParameterSet} is used with
 	 * @param trainNumbers
 	 *            an array containing for each class (the classifiers to be
 	 *            assessed are capable to distinguish) the number of elements
-	 *            the subsampled train datasets should contain
+	 *            the subsampled train data sets should contain
 	 * @param testNumbers
 	 *            an array containing for each class (the classifiers to be
 	 *            assessed are capable to distinguish) the number of elements
-	 *            the subsampled test datasets should contain
+	 *            the subsampled test data sets should contain
 	 * 
 	 * @throws IllegalValueException
 	 *             in case of out-of-range or invalid given parameters
@@ -239,14 +239,14 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 
 	/**
 	 * Returns an array containing the number of elements the subsampled (train
-	 * | test) datasets should consist of.
+	 * | test) data sets should consist of.
 	 * 
 	 * @param train_case
 	 *            if <code>true</code> then <code>(train | test)=train</code>
 	 *            else <code>(train | test)=test</code>
 	 * 
 	 * @return an array class-wise containing the number of elements the
-	 *         subsampled (train | test) datasets should consist of
+	 *         subsampled (train | test) data sets should consist of
 	 */
 	public double[] getTrain_TestNumbers( boolean train_case ) {
 

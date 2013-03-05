@@ -635,7 +635,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	}
 	
 	/**
-	 * This method returns the log state posteriors for all sequences of the sample <code>data</code>.
+	 * This method returns the log state posteriors for all sequences of the data set <code>data</code>.
 	 * 
 	 * @param data the sequences
 	 * 
@@ -655,7 +655,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	}
 	
 	/**
-	 * This method returns the state posteriors for all sequences of the sample <code>data</code>.
+	 * This method returns the state posteriors for all sequences of the data set <code>data</code>.
 	 * 
 	 * @param data the sequences
 	 * 
@@ -698,7 +698,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	}
 	
 	/**
-	 * This method returns the viterbi paths and scores for all sequences of the sample <code>data</code>.
+	 * This method returns the viterbi paths and scores for all sequences of the data set <code>data</code>.
 	 * 
 	 * @param data the sequences
 	 * 

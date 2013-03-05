@@ -380,7 +380,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
     /**
      * This methods initialize the training procedure with the given training data
      *
-     * @param data the sample used for training
+     * @param data the data set used for training
      * @param weights the weight for each sequence
      * @throws Exception if the transition or emissions could not be initialized
      */
@@ -397,9 +397,9 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
     }
 
     /**
-     * This method allows the implementation of further initialisations
+     * This method allows the implementation of further initializations
      *
-     * @param data the current sample
+     * @param data the current data set
      * @param weights the weight for each sequence
      * @throws Exception if the init steps did not succeed
      */

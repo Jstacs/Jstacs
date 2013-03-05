@@ -21,11 +21,11 @@ package de.jstacs.motifDiscovery;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.classifiers.utils.PValueComputation;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
 import de.jstacs.data.sequences.PermutedSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.MotifAnnotation;
@@ -37,6 +37,7 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.Hom
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 
 
@@ -247,48 +248,145 @@ public class SignificantMotifOccurrencesFinder {
 		return joinMethod.joinProfiles( profiles );
 	}
 	
+public void test() throws Exception {
+	fillSortedScoresArray(0, 0);
+	System.out.println("0: " + Arrays.toString(sortedScores[0]));
+	System.out.println("1: " + Arrays.toString(sortedScores[1]));
+	for( int i = 0; i < sortedScores[0].length; i++ ) {
+		System.out.println( i 
+				+ "\t" + (sortedScores[0][i]*0.99) + "\t" + getPValue(sortedScores[0], sortedScores[0][i]*0.99, sortedScores[1])
+				+ "\t" + (sortedScores[0][i]) + "\t" + getPValue(sortedScores[0], sortedScores[0][i], sortedScores[1])
+				+ "\t" + (sortedScores[0][i]*1.01) + "\t" + getPValue(sortedScores[0], sortedScores[0][i]*1.01, sortedScores[1])
+		);
+	}
+}
+	
 	private void fillSortedScoresArray( int motif, int start ) throws Exception {
-		int num = 0, i = 0;
+//XXX von hier
+		int num = 0, i;
 		Sequence bgSeq = null;
-		LinkedList<double[]> scoreList = new LinkedList<double[]>();
 		double[] temp = null;
-		for( ; i<numSequences; i++ ){
+		double sum = 0;
+		
+		int h = start+disc.getMotifLength( motif )-1, t;
+		double w, thresh;
+		for( i = 0; i<numSequences; i++ ){
+			w = weights==null?1:weights[i];
+			bgSeq = bg.getElementAt( i );
+			t = bgSeq.getLength() - h;
+			num +=  t;
+			sum += t*w;
+		}
+		
+		thresh = sum * sign;
+		num = (int)Math.ceil( sign * num );
+		sortedScores = new double[2][num];
+
+		sortedScores[0][0] = Double.NEGATIVE_INFINITY;
+		Arrays.fill( sortedScores[1], 0 );
+		
+		int stop = 1;
+		double partSum = 0;
+		for( i = 0 ; i<numSequences; i++ ){
 			bgSeq = bg.getElementAt( i );
 			temp = getJointProfileOfScoresFor( motif, bgSeq, start );
-			scoreList.add( temp );
-			num += temp.length;
-		}
-		
-		sortedScores = new double[2][num];
-		Iterator<double[]> it = scoreList.iterator();
-		i = num = 0;
-		while(it.hasNext()){
-			temp = it.next();
-			System.arraycopy( temp, 0, sortedScores[0], num, temp.length );
-			Arrays.fill( sortedScores[1], num, num+temp.length, weights==null?1:weights[i] );
-			num += temp.length;
-			i++;
-		}
-		
-		int[] rank = ToolBox.rank(sortedScores[0],false);
-		double[] help = new double[num], h2;
-		int n = rank.length-1;
-		for( int j = 0; j < 2; j++ ) {
-			for( i = 0; i<num; i++ ){
-				help[n-rank[i]] = sortedScores[j][i];
+			Arrays.sort(temp);
+			w = weights==null?1:weights[i];
+			
+//XXX gain performance for first insertions?
+			
+			//add in sorted list
+			for( t = temp.length-1; t >= 0; t-- ) {
+				//find position
+				int idx = Arrays.binarySearch( sortedScores[0], 0, stop, temp[t] );
+				boolean match = idx >= 0; 
+				//compute insertion point => sortedScores[0][index-1] < temp[t] <= sortedScores[0][index]
+				int index = !match ? (-idx - 1) : idx;
+				//System.out.println(stop + "\t" + temp[t] + "\t" + sortedScores[0][0] + "\t" + sortedScores[0][stop-1] + "\t" + sum + "\t" + all );
+				if( index == 0 ) {
+					//below the significance threshold
+					break;
+				} else if( index == 1 && partSum > thresh && !match ) {
+					//new the significance threshold
+					
+					//sortedScores[0][0] < temp[t] < sortedScores[0][1]
+					sortedScores[0][0] = temp[t];
+					break;
+				} else {
+					partSum+=w;
+					//determine how elements that can be integrated into sortedScores[][0]
+					int j = 1;
+					double del = 0;
+					while( j < index && partSum - (del + sortedScores[1][j]) > thresh ) {
+						del += sortedScores[1][j];
+						j++;
+					}
+					if( j > 1 ) {
+						sortedScores[0][0] = sortedScores[0][j-1];
+						sortedScores[1][0] += del;
+						partSum -= del;
+					}
+					
+					//keep everything from j to stop
+					
+					//expand if: stop-(j-1)+(match?0:1) > sortedScores[0].length
+					if( stop == sortedScores[0].length && !match && j==1 ) {
+						double[][] help = new double[2][2*sortedScores[0].length];
+						System.arraycopy( sortedScores[0], 0, help[0], 0, stop );
+						System.arraycopy( sortedScores[1], 0, help[1], 0, stop );
+						sortedScores = help;
+					}
+					
+					//shift lower part
+					if( j != 1 ) {
+						System.arraycopy( sortedScores[0], j, sortedScores[0], 1, index-1-j+1 );
+						System.arraycopy( sortedScores[1], j, sortedScores[1], 1, index-1-j+1 );
+					}
+					
+					//shift upper part
+					int s= index-j+1 + (match?0:1);
+					if( s != index ) {
+						System.arraycopy( sortedScores[0], index, sortedScores[0], s, stop-index );
+						System.arraycopy( sortedScores[1], index, sortedScores[1], s, stop-index );
+					}
+					
+					//set/insert
+					if( match ) {
+						sortedScores[1][s] += w;	
+					} else {
+						s--;
+						sortedScores[0][s] = temp[t];
+						sortedScores[1][s] = w;
+					}
+					stop = stop-(j-1)+(match?0:1);
+				}
 			}
-			h2 = sortedScores[j];
-			sortedScores[j] = help;
-			help = h2;
+			if( t >= 0 ) {
+				//above the significance threshold
+				sortedScores[1][0] += w*(t+1);
+			}
 		}
-		double sum = 0;
-		for( i = 0; i<num; i++ ){
+		
+		//cut down;
+		if( stop < sortedScores[0].length ); {
+			double[][] help = new double[2][stop];
+			System.arraycopy( sortedScores[0], 0, help[0], 0, stop );
+			System.arraycopy( sortedScores[1], 0, help[1], 0, stop );
+			sortedScores = help;
+		}
+		
+		
+		sum = 0;
+		for( i = sortedScores[0].length-1; i>=0; i-- ){
 			sum += sortedScores[1][i];
 			sortedScores[1][i] = sum;			
 		}
-		for( i = 0; i<num; i++ ){
-			sortedScores[1][i] = /*1d -*/ sortedScores[1][i]/sum;			
+		
+		for( i = sortedScores[0].length-1; i>0; i-- ){
+			sortedScores[1][i] = sortedScores[1][i]/sum;		
 		}
+		sortedScores[1][0] = Double.NaN;
+//XXX bis hier
 	}
 	
 	private void findSignificantMotifOccurrences(int motif, Sequence seq, int start, AbstractList<MotifAnnotation> annotation, int addMax, AbstractList<Sequence> sites, int addLeftSymbols, int addRightSymbols ) throws Exception {
@@ -302,8 +400,7 @@ public class SignificantMotifOccurrencesFinder {
 		double[][] allProfs = getAllProfilesOfScoresFor( motif, seq, start );
 		double[] joined = joinMethod.joinProfiles( allProfs );
 
-		int signIndex = PValueComputation.getIndex(sortedScores[1], 1-sign, 0);
-		double thresh = sortedScores[0][signIndex], pVal;
+		double thresh = sortedScores[0][1], pVal;
 		//XXX Problem
 		/*
 		System.out.println( sign + "\t" + signIndex + "\t" + thresh + "\t" + sortedScores[1][signIndex]);
@@ -341,7 +438,7 @@ public class SignificantMotifOccurrencesFinder {
 						}
 						sites.add( site );
 					}
-					pVal = getPValue(sortedScores[0],signIndex,joined[j],sortedScores[1]);
+					pVal = getPValue(sortedScores[0],joined[j],sortedScores[1]);
 					pValues.add( pVal );
 					if( annotation != null ) {
 						annotation.add( new MotifAnnotation( "motif* " + motif, j+start, length,
@@ -385,9 +482,9 @@ public class SignificantMotifOccurrencesFinder {
 		}
 	}
 	
-	private static double getPValue( double[] sortedScores, int signIndex, double myScore, double[] cumulative ) {
-		int idx = PValueComputation.getIndex( sortedScores, myScore, signIndex );
-		return idx >= cumulative.length ? 0 : 1-cumulative[idx];
+	private static double getPValue( double[] sortedScores, double myScore, double[] cumulative ) {
+		int idx = PValueComputation.getIndex( sortedScores, myScore, 0 );
+		return idx >= cumulative.length ? 0 : cumulative[idx];
 	}
 	
 	private int getLocalIndexOfMotifInComponent(int component, int motif){
@@ -464,6 +561,182 @@ public class SignificantMotifOccurrencesFinder {
 		findSignificantMotifOccurrences( motif, seq, start,list, addMax, null, 0, 0 );
 		return list.toArray( new MotifAnnotation[0] );
 	}	
+	
+	public double[][] getPWM( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
+		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
+		if(oneHistogram){
+			fillSortedScoresArray( motif, 0 );
+		}
+		double w = 1;
+		ComplementableDiscreteAlphabet abc = null;
+		try {
+			abc = (ComplementableDiscreteAlphabet) data.getAlphabetContainer().getAlphabetAt(0);
+		} catch( Exception e ) {}
+		double[][] pwm = new double[addLeft+addRight+disc.getMotifLength(motif)][(int)data.getAlphabetContainer().getAlphabetLengthAt(0)];
+		for( int i = 0; i < data.getNumberOfElements(); i++ ) {
+			if( weights != null ) {
+				w = weights[i];
+			}
+			Sequence seq = data.getElementAt(i);
+			findSignificantMotifOccurrences( motif, seq, 0, list, Integer.MAX_VALUE, null, 0, 0 );
+			for( int l, j = 0; j < list.size(); j++ ) {
+				MotifAnnotation ma = list.get(j);
+				int start = ma.getPosition() - addLeft;
+				int end = ma.getEnd() + addRight;
+				Strand strand = ma.getStrandedness();
+				switch( strand ) { 
+					case FORWARD: 
+						l = 0;
+						while( start < end && start < seq.getLength() ) {
+							if( start >= 0 ) {
+								pwm[l][seq.discreteVal(start)] += w;
+							}
+							l++;
+							start++;
+						}
+						break;
+					case REVERSE:
+						l = pwm.length-1;
+						while( start < end && start < seq.getLength() ) {
+							if( start >= 0 ) {
+								pwm[l][abc.getComplementaryCode( seq.discreteVal(start) )] += w;
+							}
+							l--;
+							start++;
+						}
+						break;
+					default: throw new RuntimeException();
+				}
+			}
+			list.clear();
+		}
+		for( int i = 0; i < pwm.length; i++ ) {
+			Normalisation.sumNormalisation(pwm[i]);
+		}
+		return pwm;
+	}
+	
+	
+	public Pair<double[][], int[][]> getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
+		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
+		if(oneHistogram){
+			fillSortedScoresArray( motif, 0 );
+		}
+		int[][] positions = new int[data.getNumberOfElements()][];
+		double w = 1;
+		ComplementableDiscreteAlphabet abc = null;
+		try {
+			abc = (ComplementableDiscreteAlphabet) data.getAlphabetContainer().getAlphabetAt(0);
+		} catch( Exception e ) {}
+		int nbs = 0;
+		double[][] pwm = new double[addLeft+addRight+disc.getMotifLength(motif)][(int)data.getAlphabetContainer().getAlphabetLengthAt(0)];
+		for( int i = 0; i < data.getNumberOfElements(); i++ ) {
+			if( weights != null ) {
+				w = weights[i];
+			}
+			Sequence seq = data.getElementAt(i);
+			findSignificantMotifOccurrences( motif, seq, 0, list, Integer.MAX_VALUE, null, 0, 0 );
+			positions[i] = new int[list.size()];
+			for( int l, j = 0; j < list.size(); j++ ) {
+				nbs++;
+				MotifAnnotation ma = list.get(j);
+				positions[i][j] = ma.getPosition();
+				int start = ma.getPosition() - addLeft;
+				int end = ma.getEnd() + addRight;
+				Strand strand = ma.getStrandedness();
+				switch( strand ) { 
+					case FORWARD: 
+						l = 0;
+						while( start < end && start < seq.getLength() ) {
+							if( start >= 0 ) {
+								pwm[l][seq.discreteVal(start)] += w;
+							}
+							l++;
+							start++;
+						}
+						break;
+					case REVERSE:
+						l = pwm.length-1;
+						while( start < end && start < seq.getLength() ) {
+							if( start >= 0 ) {
+								pwm[l][abc.getComplementaryCode( seq.discreteVal(start) )] += w;
+							}
+							l--;
+							start++;
+						}
+						break;
+					default: throw new RuntimeException();
+				}
+			}
+			list.clear();
+		}
+		System.out.println("nbs: "+nbs);
+		for( int i = 0; i < pwm.length; i++ ) {
+			Normalisation.sumNormalisation(pwm[i]);
+		}
+		return new Pair<double[][],int[][]>(pwm,positions);
+	}
+	
+	public Pair<double[][], double[]> getPWMAndPosDist( int motif, DataSet data, double[] weights, double[] mean, int addLeft, int addRight ) throws Exception {
+		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
+		if(oneHistogram){
+			fillSortedScoresArray( motif, 0 );
+		}
+		double sd = 0, n = 0;
+		int nbs = 0;
+		double w = 1;
+		ComplementableDiscreteAlphabet abc = null;
+		try {
+			abc = (ComplementableDiscreteAlphabet) data.getAlphabetContainer().getAlphabetAt(0);
+		} catch( Exception e ) {}
+		double[][] pwm = new double[addLeft+addRight+disc.getMotifLength(motif)][(int)data.getAlphabetContainer().getAlphabetLengthAt(0)];
+		for( int i = 0; i < data.getNumberOfElements(); i++ ) {
+			if( weights != null ) {
+				w = weights[i];
+			}
+			Sequence seq = data.getElementAt(i);
+			findSignificantMotifOccurrences( motif, seq, 0, list, Integer.MAX_VALUE, null, 0, 0 );
+			w /= list.size();
+			for( int l, j = 0; j < list.size(); j++ ) {
+				MotifAnnotation ma = list.get(j);
+				int start = ma.getPosition() - addLeft;
+				sd += w*(start-mean[i])*(start-mean[i]);
+				n += w;
+				nbs++;
+				int end = ma.getEnd() + addRight;
+				Strand strand = ma.getStrandedness();
+				switch( strand ) { 
+					case FORWARD: 
+						l = 0;
+						while( start < end && start < seq.getLength() ) {
+							if( start >= 0 ) {
+								pwm[l][seq.discreteVal(start)] += w;
+							}
+							l++;
+							start++;
+						}
+						break;
+					case REVERSE:
+						l = pwm.length-1;
+						while( start < end && start < seq.getLength() ) {
+							if( start >= 0 ) {
+								pwm[l][abc.getComplementaryCode( seq.discreteVal(start) )] += w;
+							}
+							l--;
+							start++;
+						}
+						break;
+					default: throw new RuntimeException();
+				}
+			}
+			list.clear();
+		}
+		System.out.println("nbs: "+nbs);
+		for( int i = 0; i < pwm.length; i++ ) {
+			Normalisation.sumNormalisation(pwm[i]);
+		}
+		return new Pair<double[][],double[]>(pwm,new double[]{Math.sqrt( sd/n )});
+	}
 	
 	/**
 	 * This method annotates a {@link DataSet}.
@@ -687,7 +960,7 @@ public class SignificantMotifOccurrencesFinder {
 			res = new double[seq.getLength()-start];
 			Arrays.fill( res, oneHistogram? Double.NEGATIVE_INFINITY : 1 );
 			int idx = getIndexOfMax( temp );
-			double best = oneHistogram ? temp[idx] : getPValue(sortedScores[0],0,temp[idx],sortedScores[1]);
+			double best = oneHistogram ? temp[idx] : getPValue(sortedScores[0],temp[idx],sortedScores[1]);
 			for( i = 0; i < length; i++ ){
 				res[idx+i] = best;
 			}
@@ -695,7 +968,7 @@ public class SignificantMotifOccurrencesFinder {
 			res = smooth( temp, seq.getLength()-start, length );
 			if( !oneHistogram ) {
 				for(i=0;i<temp.length;i++){
-					res[i] = getPValue(sortedScores[0],0,temp[i],sortedScores[1]);
+					res[i] = getPValue(sortedScores[0],temp[i],sortedScores[1]);
 				}
 			}
 		}

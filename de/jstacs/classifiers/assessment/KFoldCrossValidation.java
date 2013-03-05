@@ -128,7 +128,7 @@ public class KFoldCrossValidation extends ClassifierAssessment<KFoldCrossValidat
 	 *            contains the classifiers to be assessed.<br>
 	 *            If model based classifiers are trained, the order of models in
 	 *            classifiers determines, which model will be trained using
-	 *            which sample in method <code>assess( ... )</code>.<br>
+	 *            which data set in method <code>assess( ... )</code>.<br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -191,9 +191,9 @@ public class KFoldCrossValidation extends ClassifierAssessment<KFoldCrossValidat
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -263,9 +263,9 @@ public class KFoldCrossValidation extends ClassifierAssessment<KFoldCrossValidat
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -315,15 +315,15 @@ public class KFoldCrossValidation extends ClassifierAssessment<KFoldCrossValidat
 	 *            crossvalidation
 	 * @param s
 	 *            contains the data to be used for assessment. The order of
-	 *            samples is important. <br>
+	 *            data sets is important. <br>
 	 *            If model based classifiers are trained, the order of the
 	 *            models in the classifiers determines, which model will be
-	 *            trained using which sample. The first model in the classifier
-	 *            will be trained using the first sample in <code>s</code>. If
+	 *            trained using which data set. The first model in the classifier
+	 *            will be trained using the first data set in <code>s</code>. If
 	 *            the models are trained directly, the order of the given models
 	 *            during initiation of this assessment object determines, which
-	 *            sample will be used for training which model. In general the
-	 *            first model will be trained using the first sample in
+	 *            data set will be used for training which model. In general the
+	 *            first model will be trained using the first data set in
 	 *            <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
@@ -496,7 +496,7 @@ public class KFoldCrossValidation extends ClassifierAssessment<KFoldCrossValidat
 			sb.append( ", " + DataSet.getAnnotation( splitData[i] ) );
 		}
 		sb.append( "]" );
-		annotation.add( new CategoricalResult( "samples", "annotation of used samples", "predefined splits: " + sb ) );
+		annotation.add( new CategoricalResult( "data sets", "annotation of used data sets", "predefined splits: " + sb ) );
 
 		return new ListResult( this.getNameOfAssessment(),
 				"the results of a " + this.getNameOfAssessment() + " of predefined splits",

@@ -63,7 +63,7 @@ public final class KMereStatistic {
 		abc = data.getAlphabetContainer();
 		length = data.getElementLength();
 		if( !abc.isSimple() || length == 0 ) {
-			throw new IllegalArgumentException( "Can not compute the statistic: check the sample" );
+			throw new IllegalArgumentException( "Can not compute the statistic: check the data set" );
 		}
 		if( k < 1 || k >= length ) {
 			throw new IllegalArgumentException( "Can not compute the statistic: check the order" );
@@ -178,22 +178,22 @@ public final class KMereStatistic {
 	}
 
 	/**
-	 * This method returns an array of strings of length
-	 * <code>motifLength</code> so that each String is contained in all
-	 * sequences of the sample respectively in the sample and the reverse
-	 * complementary sample.
+	 * This method returns an array of sequences of length
+	 * <code>motifLength</code> so that each string is contained in all
+	 * sequences of the data set, more precisely in the data set or the reverse
+	 * complementary data set.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param motifLength
 	 *            the motif length
 	 * @param bothStrands
 	 *            the switch for using both strand <code>true</code> or only
 	 *            forward strand <code>false</code>
 	 * 
-	 * @return an array of Strings of length <code>motifLength</code> so that
-	 *         each String is contained in <code>data</code> respectively on
-	 *         one strand of the <code>data</code>
+	 * @return an array of sequences of length <code>motifLength</code> so that
+	 *         each sequence is contained in <code>data</code> on
+	 *         either strand
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
@@ -254,7 +254,7 @@ public final class KMereStatistic {
 	 * <code>k</code>-mere in the complete <code>data</code>.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param k
 	 *            the motif length
 	 * @param bothStrands
@@ -284,7 +284,7 @@ public final class KMereStatistic {
 	 * <code>k</code>-mere in the complete <code>data</code>.
 	 * 
 	 * @param data
-	 *            the sample of sequences
+	 *            the data set of sequences
 	 * @param k
 	 *            the motif length
 	 * @param bothStrands

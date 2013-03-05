@@ -30,12 +30,12 @@ import de.jstacs.utils.ProgressUpdater;
 /**
  * This class implements a repeated subsampling experiment. A repeated
  * subsampling experiment uses the following procedure to assess classifiers.<br>
- * The user supplies datasets for each class the classifiers are capable to
- * distinguish. In each step of the repeated subsampling these datasets are used to generate test and train
- * datasets by subsampling of these datasets. Hence, the subsampled train and test dataset of 
+ * The user supplies data sets for each class the classifiers are capable to
+ * distinguish. In each step of the repeated subsampling these data sets are used to generate test and train
+ * data sets by subsampling of these data sets. Hence, the subsampled train and test data set of 
  * each class do not have to be disjoint. The user defines how many elements
- * the subsampled test and train datasets should contain. After subampling the
- * train datasets are used to train the classifiers and the test datasets are
+ * the subsampled test and train data sets should contain. After subampling the
+ * train data sets are used to train the classifiers and the test data sets are
  * used to assess the performance of the classifiers to predict the elements
  * therein. Additionally the user defines how often these procedure should be
  * repeated and which assessment measures are used to assess the classifiers.
@@ -125,8 +125,8 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment<Repeated
 	 * @param aCs
 	 *            contains the classifiers to be assessed.<br>
 	 *            If model based classifiers are trained, the order of the
-	 *            models in the lassifiers determines, which model will be
-	 *            trained using which sample in method
+	 *            models in the classifiers determines, which model will be
+	 *            trained using which data set in method
 	 *            <code>assess( ... )</code>.<br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
@@ -189,9 +189,9 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment<Repeated
 	 *            models according to class <code>i</code>.<br>
 	 *            If the models are trained directly (during assessment), the
 	 *            order of given models during initiation of this assessment
-	 *            object determines, which sample will be used for training
+	 *            object determines, which data set will be used for training
 	 *            which model. In general the first model will be trained using
-	 *            the first sample in <code>s</code>... . <br>
+	 *            the first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -262,9 +262,9 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment<Repeated
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -316,15 +316,15 @@ public class RepeatedSubSamplingExperiment extends ClassifierAssessment<Repeated
 	 *            assessment is continued afterwards this assessment stops.
 	 * @param s
 	 *            contains the data to be used for assessment. The order of the
-	 *            samples is important. <br>
+	 *            data sets is important. <br>
 	 *            If model based classifiers are trained, the order of the
 	 *            models in the classifiers determines, which model will be
-	 *            trained using which sample. The first model in the classifier
-	 *            will be trained using the first sample in <code>s</code>. If
+	 *            trained using which data set. The first model in the classifier
+	 *            will be trained using the first data set in <code>s</code>. If
 	 *            the models are trained directly, the order of given models
 	 *            during initiation of this assessment object determines, which
-	 *            sample will be used for training which model. In general the
-	 *            first model will be trained using the first sample in
+	 *            data set will be used for training which model. In general the
+	 *            first model will be trained using the first data set in
 	 *            <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
