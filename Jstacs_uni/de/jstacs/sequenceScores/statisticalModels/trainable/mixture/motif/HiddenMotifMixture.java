@@ -227,7 +227,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureTrainSM implemen
 	@Override
 	public void train( DataSet data, double[] weights ) throws Exception {
 		if( data.getMinimalElementLength() < getMinimalSequenceLength() ) {
-			throw new IllegalArgumentException( "The sample contains sequence that are not allowed in this MotifDiscoverer. The minimal length is " + getMinimalSequenceLength()
+			throw new IllegalArgumentException( "The data set contains sequence that are not allowed in this MotifDiscoverer. The minimal length is " + getMinimalSequenceLength()
 												+ "." );
 		}
 		super.train( data, weights );
@@ -245,7 +245,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureTrainSM implemen
 	 * background model is not trained during the EM-algorithm.
 	 * 
 	 * @param data
-	 *            the sample
+	 *            the data set
 	 * @param weights
 	 *            the weights
 	 * 
@@ -272,9 +272,9 @@ public abstract class HiddenMotifMixture extends AbstractMixtureTrainSM implemen
 	}
 
 	/**
-	 * Returns the minimal length a sequence respectively a sample has to have.
+	 * Returns the minimal length a sequence respectively a data set has to have.
 	 * 
-	 * @return the minimal length a sequence respectively a sample has to have
+	 * @return the minimal length a sequence respectively a data set has to have
 	 */
 	public abstract int getMinimalSequenceLength();
 

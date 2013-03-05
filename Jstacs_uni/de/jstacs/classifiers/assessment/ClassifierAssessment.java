@@ -343,7 +343,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *            contains the classifiers to be assessed.<br>
 	 *            If model based classifiers are trained, the order of models in
 	 *            classifiers determines, which model will be trained using
-	 *            which sample in method <code>assess( ... )</code>.<br>
+	 *            which data set in method <code>assess( ... )</code>.<br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -407,9 +407,9 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -476,9 +476,9 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -522,15 +522,15 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * 
 	 * @param s
 	 *            contains the data to be used for assessment. The order of the
-	 *            samples is important. <br>
+	 *            data sets is important. <br>
 	 *            If model based classifiers are trained, the order of the
 	 *            models in the classifiers determines, which model will be
-	 *            trained using which sample. The first model in the classifier
-	 *            will be trained using the first sample in <code>s</code>. If
+	 *            trained using which data set. The first model in the classifier
+	 *            will be trained using the first data set in <code>s</code>. If
 	 *            the models are trained directly, the order of given models
 	 *            during initiation of this assessment object determines, which
-	 *            sample will be used for training which model. In general the
-	 *            first model will be trained using the first sample in
+	 *            data set will be used for training which model. In general the
+	 *            first model will be trained using the first data set in
 	 *            <code>s</code> ... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
@@ -578,15 +578,15 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * 
 	 * @param s
 	 *            contains the data to be used for assessment. The order of the
-	 *            samples is important. <br>
+	 *            data sets is important. <br>
 	 *            If model based classifiers are trained, the order of the
 	 *            models in the classifiers determines which model will be
-	 *            trained using which sample. The first model in the classifier
-	 *            will be trained using the first sample in <code>s</code>. If
+	 *            trained using which data set. The first model in the classifier
+	 *            will be trained using the first data set in <code>s</code>. If
 	 *            the models are trained directly, the order of given models
 	 *            during initiation of this assessment object determines, which
-	 *            sample will be used for training which model. In general the
-	 *            first model will be trained using the first sample in
+	 *            data set will be used for training which model. In general the
+	 *            first model will be trained using the first data set in
 	 *            <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
@@ -627,7 +627,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
 	 * @throws WrongAlphabetException
-	 *             if the given samples <code>s</code> do not use the same
+	 *             if the given data sets <code>s</code> do not use the same
 	 *             {@link AlphabetContainer} as contained classifiers/models
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
@@ -665,15 +665,15 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *            <code>code()</code> not requiring a {@link ProgressUpdater} .
 	 * @param s
 	 *            contains the data to be used for assessment. The order of the
-	 *            samples is important. <br>
+	 *            data sets is important. <br>
 	 *            If model based classifiers are trained, the order of the
 	 *            models in the classifiers determines which model will be
-	 *            trained using which sample. The first model in the classifier
-	 *            will be trained using the first sample in <code>s</code>. If
+	 *            trained using which data set. The first model in the classifier
+	 *            will be trained using the first data set in <code>s</code>. If
 	 *            the models are trained directly, the order of given models
 	 *            during initiation of this assessment object determines, which
-	 *            sample will be used for training which model. In general the
-	 *            first model will be trained using the first sample in
+	 *            data set will be used for training which model. In general the
+	 *            first model will be trained using the first data set in
 	 *            <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
@@ -700,7 +700,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
 	 * @throws WrongAlphabetException
-	 *             if the given samples <code>s</code> do not use the same
+	 *             if the given data sets <code>s</code> do not use the same
 	 *             {@link AlphabetContainer} as contained classifiers/models
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
@@ -720,7 +720,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment", "a description or name of the assessment", getNameOfAssessment() ) );
 		annotation.addAll( assessPS.getAnnotation() );
-		annotation.add( new CategoricalResult( "samples", "annotation of used samples", DataSet.getAnnotation( s ) ) );
+		annotation.add( new CategoricalResult( "data sets", "annotation of used data sets", DataSet.getAnnotation( s ) ) );
 
 		this.evaluateClassifier( mp, assessPS, s, weights, pU );
 
@@ -737,15 +737,15 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * 
 	 * @param s
 	 *            contains the data to be used for assessment.<br>
-	 *            The order of the samples in <code>s</code> are important.<br>
+	 *            The order of the data sets in <code>s</code> are important.<br>
 	 *            <code>s[iter][train/test][]</code> -> the first dimension
-	 *            codes for which samples (train, test) are used in iteration
+	 *            codes for which data sets (train, test) are used in iteration
 	 *            <code>iter</code>. <br>
 	 *            The second dimension codes for training:
 	 *            <code>s[iter][0]</code> or test: <code>s[iter][1]</code>.
 	 *            <code>s[iter][0]</code> contains for each class a training
-	 *            sample. Analog <code>s[iter][1]</code> contains the test
-	 *            samples. The order of the samples is important. For further
+	 *            data set. Analog <code>s[iter][1]</code> contains the test
+	 *            data sets. The order of the data sets is important. For further
 	 *            details see comment of method
 	 *            {@link #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)}
 	 *            .<br>
@@ -771,7 +771,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *             if the given <code>assessPS</code> is not of the right type
 	 *             (see method <code>evaluateClassifier( ... )</code>)
 	 * @throws WrongAlphabetException
-	 *             if the given samples <code>s</code> do not use the same
+	 *             if the given data sets <code>s</code> do not use the same
 	 *             {@link AlphabetContainer} as contained classifiers/models
 	 * @throws Exception
 	 *             forwarded from training/testing of classifiers/models
@@ -785,7 +785,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 		}
 
 		if( s == null ) {
-			throw new IllegalArgumentException( "Please check the input: No samples are given!" );
+			throw new IllegalArgumentException( "Please check the input: No data sets are given!" );
 		}
 
 		int i, j;
@@ -799,15 +799,15 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 		AlphabetContainer abc = this.myAbstractClassifier[0].getAlphabetContainer();
 		for( i = 0; i < s.length; i++ ) {
 			if( s[i].length != 2 ) {
-				throw new IllegalArgumentException( "For each iteration the given sample-3d-array has to contain " + "exactly one array of training-samples and one array of test-samples but it doesn't." );
+				throw new IllegalArgumentException( "For each iteration the given data set-3d-array has to contain " + "exactly one array of training-samples and one array of test-samples but it doesn't." );
 			}
 
 			if( s[i][0].length != numOfClasses ) {
-				throw new IllegalArgumentException( "For each iteration the given sample-3d-array has to contain " + "a array of training-samples containing one training-sample for each class but it doesn't." );
+				throw new IllegalArgumentException( "For each iteration the given data set-3d-array has to contain " + "a array of training-samples containing one training-sample for each class but it doesn't." );
 			}
 
 			if( s[i][1].length != numOfClasses ) {
-				throw new IllegalArgumentException( "For each iteration the given sample-3d-array has to contain " + "a array of test-samples containing one test-sample for each class but it doesn't." );
+				throw new IllegalArgumentException( "For each iteration the given data set-3d-array has to contain " + "a array of test-samples containing one test-sample for each class but it doesn't." );
 			}
 
 			for( j = 0; j < s[i][0].length; j++ ) {
@@ -953,12 +953,12 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *             classifiers</li>
 	 *             </ol>
 	 * @throws IllegalArgumentException
-	 * 				if the given samples are not suitable
+	 * 				if the given data sets are not suitable
 	 */
 	protected void prepareAssessment( DataSet... s ) throws IllegalArgumentException, WrongAlphabetException {
 
 		if( s == null || s.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
-			throw new IllegalArgumentException( "Either no samples are given or the number of samples " + "is not equal to the number of different classes "
+			throw new IllegalArgumentException( "Either no data sets are given or the number of data sets " + "is not equal to the number of different classes "
 												+ "the local classifiers are able to distinguish" );
 		}
 
@@ -974,7 +974,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	}
 
 	/**
-	 * Uses the given test samples to call the <code>evaluate( ... )</code>
+	 * Uses the given test data sets to call the <code>evaluate( ... )</code>
 	 * -methods of the local {@link AbstractClassifier}s. The returned
 	 * {@link de.jstacs.results.NumericalResult}s as well as the numerical
 	 * characteristics are added to each classifiers {@link MeanResultSet}. <br>
@@ -987,7 +987,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *            whether an {@link Exception} should be thrown if some
 	 *            {@link de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure} could not be evaluated
 	 * @param testS
-	 *            samples used as test sets (has to contain one {@link DataSet}
+	 *            data sets used as test sets (has to contain one {@link DataSet}
 	 *            for each class)
 	 * @param weights
 	 *            the (non-negative) weights for the data;
@@ -1028,7 +1028,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	}
 
 	/**
-	 * Trains the local classifiers using the given training samples. <br>
+	 * Trains the local classifiers using the given training data sets. <br>
 	 * The classifiers are either directly trained or via training of the local
 	 * models. The second option always is used if the
 	 * {@link ClassifierAssessment}-object was constructed using
@@ -1037,7 +1037,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * It should not be necessary to override this method in subclasses.
 	 * 
 	 * @param trainS
-	 *            samples used as training sets (has to contain one
+	 *            data sets used as training sets (has to contain one
 	 *            {@link DataSet} for each class)
 	 * @param weights
 	 *            the (non-negative) weights for the data;

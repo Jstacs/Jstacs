@@ -118,7 +118,7 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 			len[i] = mmd[classIndex[i]].getMotifLength( motifIndex[i] );
 			rse[i].reset();
 			seq[i] = rse[i].nextElement();
-			s[i] = new DataSet( "sample " + i, seq[i] );
+			s[i] = new DataSet( "data set " + i, seq[i] );
 		}
 		idx = classIndex.length-1;
 		
@@ -145,19 +145,19 @@ public final class MutableMotifDiscovererToolbox extends MotifDiscovererToolBox 
 			while( idx < rse.length && !rse[idx].hasMoreElements() ) {
 				rse[idx].reset();
 				seq[idx] = rse[idx].nextElement();
-				s[idx] = new DataSet( "sample " + idx, seq[idx] );
+				s[idx] = new DataSet( "data set " + idx, seq[idx] );
 				idx++;
 			}
 			if( idx < rse.length ){
 				seq[idx] = rse[idx].nextElement();
-				s[idx] = new DataSet( "sample " + idx, seq[idx] );
+				s[idx] = new DataSet( "data set " + idx, seq[idx] );
 			} else {
 				break;
 			}
 		}
 		out.write( ( "best: " + Arrays.toString( bestSeq ) + " " + best + "\n" ).getBytes() );
 		for( i = 0; i < classIndex.length; i++ ) {
-			s[i] = new DataSet( "sample " + i, bestSeq[i] );
+			s[i] = new DataSet( "data set " + i, bestSeq[i] );
 		}
 		initMotif( classIndex.length-1, classIndex, motifIndex, s, weights, adjust, mmd, len, data, dataWeights );
 		

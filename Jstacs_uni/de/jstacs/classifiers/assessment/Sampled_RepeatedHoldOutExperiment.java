@@ -36,9 +36,9 @@ import de.jstacs.utils.ToolBox;
 /**
  * This class is a special {@link ClassifierAssessment} that partitions the data
  * of a user-specified reference class (typically the smallest class) and
- * samples non-overlapping for all other classes, so that one gets the same
+ * data sets non-overlapping for all other classes, so that one gets the same
  * number of sequences (and the same lengths of the sequences) in each train and
- * test dataset.
+ * test data set.
  * 
  * @author Jens Keilwagen
  * 
@@ -171,9 +171,9 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment<Samp
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order
@@ -244,9 +244,9 @@ public class Sampled_RepeatedHoldOutExperiment extends ClassifierAssessment<Samp
 	 *            models according to class <code>i</code>.<br>
 	 *            If models are trained directly (during assessment), the order
 	 *            of given models during initiation of this assessment object
-	 *            determines, which sample will be used for training which
+	 *            determines, which data set will be used for training which
 	 *            model. In general the first model will be trained using the
-	 *            first sample in <code>s</code>... . <br>
+	 *            first data set in <code>s</code>... . <br>
 	 *            For a two-class problem, it is recommended
 	 *            <ul>
 	 *            <li>to initiate the classifiers with models in order

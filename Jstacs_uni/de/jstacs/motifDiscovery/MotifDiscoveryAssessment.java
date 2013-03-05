@@ -70,7 +70,7 @@ public class MotifDiscoveryAssessment {
 			seqT = truth.getElementAt( i );
 			seqP = prediction.getElementAt( i );
 			if( !seqT.equals( seqP ) ) {
-				throw new Exception( "samples incomparable: check sequence " + i );
+				throw new Exception( "data sets incomparable: check sequence " + i );
 			}
 			
 			SequenceAnnotation[] ann = seqT.getAnnotation();

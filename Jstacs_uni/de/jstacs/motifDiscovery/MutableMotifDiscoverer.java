@@ -49,10 +49,10 @@ public interface MutableMotifDiscoverer extends MotifDiscoverer {
 	public boolean modifyMotif( int motifIndex, int offsetLeft, int offsetRight ) throws Exception;
 	
 	/**
-	 * This method allows to initialize the model of a motif manually using a weighted sample.
+	 * This method allows to initialize the model of a motif manually using a weighted data set.
 	 * 
 	 * @param motifIndex the index of the motif in the motif discoverer
-	 * @param data the sample of sequences
+	 * @param data the data set of sequences
 	 * @param weights either <code>null</code> or an array of length <code>data.getNumberofElements()</code> with non-negative weights.
 	 * 
 	 * @throws Exception if initialize was not possible

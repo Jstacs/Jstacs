@@ -106,9 +106,9 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *            parameters that could not be computed.
 	 * @param repeats
 	 *            the number of repeats of each iteration (mutually exclusive,
-	 *            randomly split data to obtain test and train datasets, train
-	 *            classifiers using train datasets and test them using test
-	 *            datasets) of that {@link RepeatedHoldOutExperiment} this
+	 *            randomly split data to obtain test and train data sets, train
+	 *            classifiers using train data sets and test them using test
+	 *            data sets) of that {@link RepeatedHoldOutExperiment} this
 	 *            {@link Sampled_RepeatedHoldOutAssessParameterSet} is used with
 	 * @param referenceClass
 	 *            the index of the class for which the complete data set is
@@ -118,7 +118,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *            the percentage of the <code>referenceClass</code> data that
 	 *            should be used as test data in each iteration
 	 * @param sameLength
-	 *            if <code>true</code> for test and train dataset the sequences
+	 *            if <code>true</code> for test and train data set the sequences
 	 *            of the non-reference classes have the same length as the
 	 *            corresponding sequence of the reference class
 	 * @throws ParameterException if the parameter for the percentages could not be created
@@ -199,10 +199,10 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 
 	/**
 	 * Returns the percentage of user supplied data that is used in each
-	 * iteration as test dataset.
+	 * iteration as test data set.
 	 * 
 	 * @return the percentage of user supplied data that is used in each
-	 *         iteration as test dataset
+	 *         iteration as test data set
 	 */
 	public double getPercent() {
 		return (Double)( this.getParameterAt( 4 ).getValue() );
@@ -222,7 +222,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	}
 
 	/**
-	 * Returns <code>true</code> if for test and train dataset the sequences of
+	 * Returns <code>true</code> if for test and train data set the sequences of
 	 * the non-reference classes have the same length as the corresponding
 	 * sequence of the reference class.
 	 * 

@@ -637,7 +637,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 			IllegalArgumentException {
 		try {
 			if( con.isDiscrete() ) {
-				// create pure discrete sample
+				// create pure discrete sequence
 				int l = (int)con.getMaximalAlphabetLength();
 				if( l <= Byte.MAX_VALUE ) {
 					return new ByteSequence( con, annotation, sequence, delim );
@@ -649,7 +649,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 					throw new WrongAlphabetException( "Could not encode. Too many symbols." );
 				}
 			} else {
-				// create hybrid or pure continuous sample
+				// create hybrid or pure continuous sequence
 				return new ArbitrarySequence( con, annotation, sequence, delim );
 			}
 		} catch ( WrongSequenceTypeException e ) {
