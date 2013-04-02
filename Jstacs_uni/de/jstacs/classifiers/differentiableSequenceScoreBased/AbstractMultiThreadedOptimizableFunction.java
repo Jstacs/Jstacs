@@ -123,7 +123,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 				}
 				endSeq += c;
 				if( endClass >= data.length || startClass == endClass && startSeq == endSeq ) {
-					throw new IllegalArgumentException( "There are less sequence than threads used for the optimization. This seems to be unlikely. Please check your data or reduce the number of threads." );
+					throw new IllegalArgumentException( "There are less sequence ("+anz+") than threads ("+worker.length+") used for the optimization. This seems to be unlikely. Please check your data or reduce the number of threads." );
 				}
 			}
 			//System.out.println("split " + j + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq );
