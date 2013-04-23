@@ -107,12 +107,12 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		{
 			startSeq = endSeq;
 			startClass = endClass;
-			if( i == worker.length-1 )
+			/*if( i == worker.length-1 )
 			{
 				endClass = data.length-1;
 				endSeq = data[endClass].getNumberOfElements();
 			}
-			else
+			else*/
 			{
 				c = anz;
 				while( endClass < data.length && data[endClass].getNumberOfElements()- endSeq < c )
@@ -122,8 +122,12 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 					endClass++;
 				}
 				endSeq += c;
-				if( endClass >= data.length || startClass == endClass && startSeq == endSeq ) {
-					throw new IllegalArgumentException( "There are less sequence ("+anz+") than threads ("+worker.length+") used for the optimization. This seems to be unlikely. Please check your data or reduce the number of threads." );
+				if( endClass >= data.length ) {
+					endClass = data.length-1;
+					endSeq = data[endClass].getNumberOfElements();
+					if( startClass == endClass && startSeq == endSeq ) {
+						System.out.println( "Warning: There are less sequence ("+anz+") than threads ("+worker.length+") used for the optimization. This seems to be unlikely. Please check your data or reduce the number of threads." );
+					}
 				}
 			}
 			//System.out.println("split " + j + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq );
