@@ -17,7 +17,10 @@
  */
 package de.jstacs.classifiers.performanceMeasures;
 
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
+import de.jstacs.parameters.SelectionParameter;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * This class implements a container for {@link NumericalPerformanceMeasure}s that can be used, for instance, in an repeated assessment,
@@ -70,4 +73,28 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 	public NumericalPerformanceMeasureParameterSet() throws Exception {
 		this( 2 );
 	}
+
+	/**
+	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} with the given performance measures.
+	 * The number of classes this {@link NumericalPerformanceMeasureParameterSet} can be used for is determined from
+	 * the given {@link NumericalPerformanceMeasure}s.
+	 * 
+	 * @param measures the {@link NumericalPerformanceMeasure}s that shall be used, must also extend {@link AbstractPerformanceMeasure}
+	 *  
+	 * @throws Exception if something went wrong, e.g. the provided {@link NumericalPerformanceMeasure}s are not {@link AbstractPerformanceMeasure}s
+	 */
+	public NumericalPerformanceMeasureParameterSet( NumericalPerformanceMeasure... measures ) throws Exception {
+		super( ArrayHandler.cast( AbstractPerformanceMeasure.class, measures ) );
+	}
+
+	@Override
+	public void addMeasure( AbstractPerformanceMeasure measure ) throws CloneNotSupportedException, IllegalValueException {
+		if(! (measure instanceof NumericalPerformanceMeasure)){
+			throw new IllegalValueException( "Only NumericalPerformanceMeasures allowed." );
+		}
+		super.addMeasure( measure );
+	}
+	
+	
+	
 }

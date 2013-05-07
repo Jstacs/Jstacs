@@ -206,7 +206,7 @@ public class PerformanceMeasureParameterSet extends ExpandableParameterSet {
 	 * @throws CloneNotSupportedException if the template could not be cloned (forwarded from {@link ExpandableParameterSet#addParameterToSet()}
 	 * @throws IllegalValueException forwarded from {@link #setMeasure(AbstractPerformanceMeasure)}
 	 */
-	@Deprecated
+	//@Deprecated
 	public void addMeasure(AbstractPerformanceMeasure measure) throws CloneNotSupportedException, IllegalValueException{
 		this.addParameterToSet();
 		setMeasure( measure );
