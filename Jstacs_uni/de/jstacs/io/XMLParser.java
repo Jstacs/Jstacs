@@ -21,15 +21,18 @@ package de.jstacs.io;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 import de.jstacs.Singleton;
-import de.jstacs.Storable;
 import de.jstacs.Singleton.SingletonHandler;
+import de.jstacs.Storable;
 
 /**
  * Class for parsing standard data types and arrays in and out of an XML
@@ -121,6 +124,8 @@ public final class XMLParser {
 	 *            the tags by which the {@link StringBuffer} should be framed
 	 * @param attributes
 	 *            <code>null<code> or some attributes, i.e. <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
+	 *            
+	 * @see #parseAttributes(Map)
 	 */
 	public static void addTagsAndAttributes( StringBuffer source, String tag, String attributes ) {
 		source.insert( 0, "<" + tag + (attributes==null?"":(" " + attributes)) +  ">\n" );
@@ -139,6 +144,7 @@ public final class XMLParser {
 	 * @param tag
 	 *            the tags by which the value should be framed
 	 *            
+	 * @see #parseAttributes(Map)
 	 * @see XMLParser#appendObjectWithTagsAndAttributes(StringBuffer, Object, String, String, boolean)
 	 */
 	public static void appendObjectWithTags( StringBuffer xml, Object s, String tag ) {
@@ -159,6 +165,7 @@ public final class XMLParser {
 	 * @param attributes
 	 *            <code>null<code> or some attributes, e.g., <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
 	 *            
+	 * @see #parseAttributes(Map)           
 	 * @see XMLParser#appendObjectWithTagsAndAttributes(StringBuffer, Object, String, String, boolean)
 	 */
 	public static void appendObjectWithTagsAndAttributes( StringBuffer xml, Object s, String tag, String attributes ) {
@@ -181,6 +188,7 @@ public final class XMLParser {
 	 * @param writeClassInfo
 	 *            a boolean to enable to write class information (e.g. {@link Class#getSimpleName()}) of the {@link Object} <code>s</code> into the XML.
 	 *            
+	 * @see #parseAttributes(Map)           
 	 * @see XMLParser#extractObjectAndAttributesForTags(StringBuffer, String, Map, Map, Class)
 	 */
 	@SuppressWarnings( "unchecked" )
@@ -221,15 +229,34 @@ public final class XMLParser {
 		xml.append( "</" + tag + ">" );
 	}
 	
+	private static String[] split( String attrib ) {//TODO return list?
+		ArrayList<String> res = new ArrayList<String>();
+		int idx, start = -1, next;
+		while( (idx = attrib.indexOf( '=',start+1 )) >= 0 ) {
+			//there is another attribute
+			char c = attrib.charAt(idx+1);
+			next = idx+1;
+			do {
+				next = attrib.indexOf(c,next+1);
+			}while( next+1 < attrib.length() && attrib.charAt(next+1) != ' ' );
+			
+			res.add( attrib.substring(start+1,next+1) );
+			start = next+1;
+		}
+		return res.toArray(new String[0]);
+	}
+	
 	/**
 	 * Parses the XML-attributes given in <code>attrs</code> and returns a {@link Map} of attributed names and associated values (as {@link String}s).
 	 * @param attrs the list of XML-attributes
 	 * @return the {@link Map} of attribute names and values
 	 * @throws NonParsableException if any of the attributes does not have a value
+	 * 
+	 * @see #parseAttributes(Map)
 	 */
 	private static Map<String, String> parseAttributes( String attrs ) throws NonParsableException {
 		Map<String, String> map = new TreeMap<String, String>();
-		String[] parts = attrs.split( "(?<!=)\\s+(?!=)" );
+		String[] parts = split( attrs );//attrs.split( "(?<!=)\\s+(?!=)" );
 		int vallength = 0;
 		for( String part : parts ) {
 			part = part.trim();
@@ -241,13 +268,38 @@ public final class XMLParser {
 				keyVal[0] = keyVal[0].trim();
 				keyVal[1] = keyVal[1].trim();
 				vallength = keyVal[1].length();
-				if( keyVal[1].charAt( 0 ) == '"' && keyVal[1].charAt( vallength - 1 ) == '"' ) {
+				char c = keyVal[1].charAt( 0 );
+				if( (c == '"' || c == '\'') && keyVal[1].charAt( vallength - 1 ) == c ) {
 					keyVal[1] = keyVal[1].substring( 1, vallength - 1 );
 				}
 				map.put( keyVal[0], keyVal[1] );
 			}
 		}
 		return map;
+	}
+	
+	/**
+	 * This method parses a map of attribute, i.e. key-value-pairs, to a String representation that is used
+	 * for encoding XML.
+	 * 
+	 * @param map the {@link Map} of attribute names and values
+	 * @return the {@link String} representation of the attributes
+	 * 
+	 * @see #parseAttributes(String)
+	 */
+	public static String parseAttributes( Map<String, String> map ) {
+		Iterator<Entry<String,String>> it = map.entrySet().iterator();
+		Entry<String,String> e;
+		StringBuffer res = new StringBuffer();
+		while( it.hasNext() ) {
+			e = it.next();
+			res.append( e.getKey() + "=\"" + e.getValue() + "\" " );
+		}
+		int l = res.length();
+		if( l > 0 ) {
+			l--;
+		}
+		return res.substring(0, l);
 	}
 
 	/**

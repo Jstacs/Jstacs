@@ -33,7 +33,7 @@ public interface GalaxyConvertible {
 
 	/**
 	 * Creates an Galaxy XML-representation of the parameters and appends it to <code>descBuffer</code>
-	 * and variable configuration and appends it to <code>configBuffer</code>. The variable configuation
+	 * and variable configuration and appends it to <code>configBuffer</code>. The variable configuration
 	 * is also used to parse user-supplied values returned by Galaxy.
 	 * 
 	 * @param namePrefix the prefix of the variable name used in Galaxy
@@ -47,7 +47,7 @@ public interface GalaxyConvertible {
 	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine) throws Exception;
 	
 	/**
-	 * Parses the contents of <code>command</code> in the format defined by <code>configBuffer</code> of {@link GalaxyConvertible#toGalaxy(String, String, int, StringBuffer, StringBuffer)}
+	 * Parses the contents of <code>command</code> in the format defined by <code>configBuffer</code> of {@link GalaxyConvertible#toGalaxy(String, String, int, StringBuffer, StringBuffer, boolean)}
 	 * and sets the values of the {@link Parameter} or {@link ParameterSet} accordingly.
 	 * @param namePrefix the prefix of the variable name
 	 * @param command the command string

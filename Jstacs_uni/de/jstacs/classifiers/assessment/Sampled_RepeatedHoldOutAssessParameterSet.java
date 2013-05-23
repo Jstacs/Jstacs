@@ -130,11 +130,11 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 														double percentage, boolean sameLength ) throws ParameterException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
-		this.parameters.get( 2 ).setValue( repeats );
-		this.parameters.get( 3 ).setValue( referenceClass );
-		this.parameters.get( 4 ).setValue( percentage );
-		this.parameters.get( 5 ).setValue( dataSplitMethod );
-		this.parameters.get( 6 ).setValue( sameLength );
+		this.parameters.get( "repeats" ).setValue( repeats );
+		this.parameters.get( "reference class" ).setValue( referenceClass );
+		this.parameters.get( "testDataPercentage" ).setValue( percentage );
+		this.parameters.get( PartitionMethod.class.getSimpleName() ).setValue( dataSplitMethod );
+		this.parameters.get( "sameLength" ).setValue( sameLength );
 	}
 
 	private void addParameters() throws ParameterException {
@@ -185,7 +185,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *         are performed)
 	 */
 	public int getRepeats() {
-		return (Integer)( this.getParameterAt( 2 ).getValue() );
+		return (Integer)( this.getParameterForName( "repeats" ).getValue() );
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 * @return the index of the reference class
 	 */
 	public int getReferenceClass() {
-		return (Integer)( this.getParameterAt( 3 ).getValue() );
+		return (Integer)( this.getParameterForName( "reference class" ).getValue() );
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *         iteration as test data set
 	 */
 	public double getPercent() {
-		return (Double)( this.getParameterAt( 4 ).getValue() );
+		return (Double)( this.getParameterForName( "testDataPercentage" ).getValue() );
 	}
 
 	/**
@@ -218,7 +218,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public PartitionMethod getDataSplitMethod() {
-		return (PartitionMethod)( (EnumParameter)getParameterAt( 5 ) ).getValue();
+		return (PartitionMethod)( (EnumParameter)getParameterForName( PartitionMethod.class.getSimpleName() ) ).getValue();
 	}
 
 	/**
@@ -231,7 +231,7 @@ public class Sampled_RepeatedHoldOutAssessParameterSet extends ClassifierAssessm
 	 *         the corresponding sequence of the reference class
 	 */
 	public boolean sameLength() {
-		return (Boolean)( getParameterAt( 6 ).getValue() );
+		return (Boolean)( getParameterForName( "sameLength" ).getValue() );
 	}
 
 	/* (non-Javadoc)

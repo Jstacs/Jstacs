@@ -207,7 +207,7 @@ public class ToolBox {
 	}
 	
 	/**
-	 * This method returns the medin of the elements of an <code>array</code>
+	 * This method returns the median of the elements of an <code>array</code>
 	 * between <code>start</code> and <code>end</code>.
 	 * 
 	 * @param start
@@ -235,6 +235,53 @@ public class ToolBox {
 		}
 	}
 	
+	/**
+	 * This method returns the mean of the elements of an <code>array</code>
+	 * between <code>start</code> and <code>end</code>.
+	 * 
+	 * @param start
+	 *            start position (inclusive)
+	 * @param end
+	 *            end position (exclusive)
+	 * @param array
+	 *            the array of values
+	 * 
+	 * @return the mean
+	 */
+	public static double mean( double[] array, int start, int end ) {
+		if( start >= end ) {
+			throw new IllegalArgumentException( "The start index has to be smaller than the end index." );
+		}
+		double sum = 0;
+		for( int k = start; k < end; k++ ) {
+			sum += array[k];
+		}
+		return sum / (double)( end - start );
+	}
+	
+	/**
+	 * This method returns the standard deviation of the elements of an <code>array</code>
+	 * between <code>start</code> and <code>end</code>.
+	 * 
+	 * @param start
+	 *            start position (inclusive)
+	 * @param end
+	 *            end position (exclusive)
+	 * @param array
+	 *            the array of values
+	 * 
+	 * @return the standard deviation
+	 */
+	public static double sd( double[] array, int start, int end ) {
+		double mean = mean( array, start, end );
+		double var = 0, h;
+		for( int k = start; k < end; k++ ) {
+			h = mean - array[k];
+			var += h*h;
+		}
+		return Math.sqrt( var / (double)( end - start ) );
+	}
+	
 	public static double percentile( double[] array, double percent ) {
 		return percentile( 0, array.length, array, percent );
 	}
@@ -251,6 +298,19 @@ public class ToolBox {
 		}
 	}
 	
+	public static double weightPercentile(double[] array, double percent){
+		double t = ToolBox.sum( array )*percent;
+		double[] ar2 = new double[array.length];
+		System.arraycopy( array, 0, ar2, 0, array.length );
+		Arrays.sort( ar2 );
+		int j=ar2.length-1;
+		while( j >= 0 && (t - ar2[j]) > 0 ){
+			t -= ar2[j];
+			j--;
+		}
+		return ar2[j];
+	}
+	
 	/**
 	 * Ranks the values in <code>values</code>, where the greatest value obtains the lowest rank.
 	 * The boolean <code>sameRank</code> allows to decide whether tied values should obtain the same rank.
@@ -261,6 +321,28 @@ public class ToolBox {
 	 */
 	public static final int[] rank( double[] values, boolean sameRank ){
 		return rank(values, sameRank ? TiedRanks.CONTIGUOUS : TiedRanks.IN_ORDER);
+	}
+	
+	/**
+	 * This method computes the order of the elements to obtain a sorted array.
+	 * 
+	 * @param values the array
+	 * @param ascending a switch whether the array should be sorted ascending or descending
+	 * 
+	 * @return the array containing the indices of the elements to obtain a sorted array
+	 */
+	public static final int[] order(double[] values, boolean ascending){
+		ComparableElement<Integer, Double>[] comp = new ComparableElement[values.length];
+		for(int i=0;i<values.length;i++){
+			comp[i] = new ComparableElement<Integer, Double>(i, ascending ? -values[i] : values[i] );
+		}
+		
+		Arrays.sort(comp);
+		int[] res = new int[values.length];
+		for(int i=0;i<res.length;i++){
+			res[ i ] = comp[i].getElement();
+		}
+		return res;
 	}
 	
 	/**
@@ -280,7 +362,7 @@ public class ToolBox {
 			help[i][0] = values[i];
 			help[i][1] = i;
 		}
-		Arrays.sort( help, new DoubleArrayComparator() );
+		Arrays.sort( help, new DoubleArrayComparator(0) );
 		int[] ranks = new int[n];
 		n--;
 		int rank = 0;
@@ -300,14 +382,6 @@ public class ToolBox {
 		}
 		
 		return ranks;
-	}
-	
-	
-	private static class DoubleArrayComparator implements Comparator<double[]> {
-		public int compare(double[] o1, double[] o2) {
-			return (int) Math.signum( o1[0] - o2[0] );
-		}
-		
 	}
 	
 	/**
@@ -374,6 +448,63 @@ public class ToolBox {
 			sqTruth += v2[i]*v2[i];
 			sqPred += v1[i]*v1[i];
 			cross += v2[i]*v1[i];
+		}
+		
+		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
+	}
+
+	/**
+	 * The method computes the Pearson correlation of two vectors beginning at specific offsets.
+	 * 	
+	 * @param v1 the first vector
+	 * @param v2 the second vector
+	 * @param off1 the offset for the first vector
+	 * @param off2 the offset for the second vector
+	 * 
+	 * @return the Pearson correlation of the two vectors
+	 * 
+	 * @throws Exception if the vectors have different length
+	 */
+	public static double pearsonCorrelation(double[] v1, double[] v2, int off1, int off2) throws Exception{
+		int l1 = v1.length-off1;
+		int l2 = v2.length-off2;
+		if(l1 < 1 || l2 < 1){
+			return 0;
+		}
+		return pearsonCorrelation( v1, v2, off1, off2, Math.min( l1, l2 ) );
+	}
+	
+	/**
+	 * The method computes the Pearson correlation of two vectors beginning at specific offsets and using a given number of entries.
+	 * 	
+	 * @param v1 the first vector
+	 * @param v2 the second vector
+	 * @param off1 the offset for the first vector
+	 * @param off2 the offset for the second vector
+	 * @param length the number of elements to be used for computing the correlation
+	 * 
+	 * @return the Pearson correlation of the two vectors
+	 * 
+	 * @throws Exception if the vectors have different length
+	 */
+	public static double pearsonCorrelation(double[] v1, double[] v2, int off1, int off2, int length) throws Exception{
+		if(length < 1 || v1.length < off1+length || v2.length < off2+length){
+			throw new Exception("Wrong length");
+		}
+		
+		double sumTruth = 0;
+		double sumPred = 0;
+		double sqTruth = 0;
+		double sqPred = 0;
+		double cross = 0;
+		double n = length;
+		
+		for(int i=0;i<length;i++){
+			sumTruth += v2[off2+i];
+			sumPred += v1[off1+i];
+			sqTruth += v2[off2+i]*v2[off2+i];
+			sqPred += v1[off1+i]*v1[off1+i];
+			cross += v2[off2+i]*v1[off1+i];
 		}
 		
 		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
@@ -464,19 +595,41 @@ public class ToolBox {
 		return vals2;
 	}
 
-	public static void sortAlongWith( double[] arrayToBeSorted, double[] alongWith ) {
-		if( alongWith == null ) {
+	/**
+	 * This method implements a sort algorithm on the array <code>arrayToBeSorted</code>.
+	 * However, the entries of the array <code>alongWith</code> are reordered in the same way as<code>arrayToBeSorted</code>.
+	 * 
+	 * @param arrayToBeSorted the array to be sorted
+	 * @param alongWith a series of arrays that is in the same way reordered as <code>arrayToBeSorted</code>.
+	 * 
+	 * @see Arrays#sort(Object[], Comparator)
+	 * @see DoubleArrayComparator
+	 */
+	public static void sortAlongWith( double[] arrayToBeSorted, double[]... alongWith ) {
+		boolean simple = alongWith == null;
+		if( !simple ) {
+			int i = 0; 
+			while( i < alongWith.length && alongWith[i] == null ) {
+				i++;
+			}
+			simple = alongWith.length == i;
+		}
+		if( simple ) {
 			Arrays.sort( arrayToBeSorted );
 		} else {
-			double[][] h = new double[arrayToBeSorted.length][2];
+			double[][] h = new double[arrayToBeSorted.length][1+alongWith.length];
 			for( int i = 0; i < h.length; i++ ) {
 				h[i][0] = arrayToBeSorted[i];
-				h[i][1] = alongWith[i];
+				for( int j = 1; j <= alongWith.length; j++ ) {
+					h[i][j] = alongWith[j-1][i];
+				}
 			}
-			Arrays.sort( h, new DoubleArrayComparator() );
+			Arrays.sort( h, new DoubleArrayComparator(0) );
 			for( int i = 0; i < h.length; i++ ) {
 				arrayToBeSorted[i] = h[i][0];
-				alongWith[i] = h[i][1];
+				for( int j = 1; j <= alongWith.length; j++ ) {
+					alongWith[j-1][i] = h[i][j];
+				}
 			}
 		}		
 	}	

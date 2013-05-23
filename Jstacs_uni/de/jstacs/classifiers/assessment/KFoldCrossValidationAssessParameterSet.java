@@ -121,9 +121,9 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	public KFoldCrossValidationAssessParameterSet( PartitionMethod dataSplitMethod, int elementLength, boolean exceptionIfMPNotComputable, int k ) throws ParameterException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
-		( this.parameters.get( 2 ) ).setValue( new Integer( k ) );
+		( this.parameters.get( "k" ) ).setValue( new Integer( k ) );
 
-		( this.parameters.get( 3 ) ).setValue( dataSplitMethod );
+		( this.parameters.get( PartitionMethod.class.getSimpleName() ) ).setValue( dataSplitMethod );
 	}
 
 	//	**********************
@@ -155,7 +155,7 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 *         data defined by this {@link KFoldCrossValidationAssessParameterSet}
 	 */
 	public int getK() {
-		return ( (Integer)( this.getParameterAt( 2 ).getValue() ) ).intValue();
+		return ( (Integer)( this.getParameterForName("k").getValue() ) ).intValue();
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class KFoldCrossValidationAssessParameterSet extends ClassifierAssessment
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public PartitionMethod getDataSplitMethod() {
-		return (PartitionMethod)( (EnumParameter)getParameterAt( 3 ) ).getValue();
+		return (PartitionMethod)( (EnumParameter)getParameterForName(PartitionMethod.class.getSimpleName()) ).getValue();
 	}
 
 	/* (non-Javadoc)

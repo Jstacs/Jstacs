@@ -188,7 +188,7 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 			while( i+1 < sortedReferenceScores.length && sortedReferenceScores[i] == sortedReferenceScores[i+1] ) {
 				i++;
 			}
-		} else {
+		} else if( i < sortedReferenceScores.length ) {
 			while( i-1 >= 0 && sortedReferenceScores[i] == sortedReferenceScores[i-1] ) {
 				curr -= getWeight( referenceWeights, i );
 				i--;
@@ -280,6 +280,11 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet {
 		}
 	}
 	
+	/**
+	 * This method determines whether a given weight is simple or nor, i.e., the array is null or all values have to be one. 
+	 * @param weight the weight array
+	 * @return <code>true</code> if the weights are simple
+	 */
 	public static boolean simpleWeights( double[] weight ) {
 		if( weight != null ) {
 			for( int i = 0; i < weight.length; i++ ) {

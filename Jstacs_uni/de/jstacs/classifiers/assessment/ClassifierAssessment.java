@@ -20,6 +20,8 @@ package de.jstacs.classifiers.assessment;
 
 import java.util.LinkedList;
 
+import org.biojava.bio.program.tagvalue.Aggregator;
+
 import de.jstacs.classifiers.AbstractClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
 import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
@@ -715,7 +717,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 			weights = new double[s.length][];
 		}
 
-		prepareAssessment( s );
+		prepareAssessment( assessPS.getStoreAll(), s );
 
 		LinkedList<Result> annotation = new LinkedList<Result>();
 		annotation.add( new CategoricalResult( "kind of assessment", "a description or name of the assessment", getNameOfAssessment() ) );
@@ -824,7 +826,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 
 		this.myTempMeanResultSets = new MeanResultSet[this.myAbstractClassifier.length];
 		for( i = 0; i < this.myAbstractClassifier.length; i++ ) {
-			this.myTempMeanResultSets[i] = new MeanResultSet( this.myAbstractClassifier[i].getClassifierAnnotation() );
+			this.myTempMeanResultSets[i] = new MeanResultSet( assessPS.getStoreAll(), this.myAbstractClassifier[i].getClassifierAnnotation() );
 		}
 
 		// evaluate
@@ -942,6 +944,9 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * 
 	 * @param s
 	 *            the {@link DataSet} to be checked
+	 * @param storeAll
+	 *            a switch for storing all individual performance measure vales of each iteration
+	 *            (cf. {@link MeanResultSet#MeanResultSet(boolean, de.jstacs.results.SimpleResult...)})
 	 *            
 	 * @throws WrongAlphabetException
 	 *             if <br>
@@ -954,8 +959,10 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *             </ol>
 	 * @throws IllegalArgumentException
 	 * 				if the given data sets are not suitable
+	 * 
+	 * @see MeanResultSet#MeanResultSet(boolean, de.jstacs.results.SimpleResult...)
 	 */
-	protected void prepareAssessment( DataSet... s ) throws IllegalArgumentException, WrongAlphabetException {
+	protected void prepareAssessment( boolean storeAll, DataSet... s ) throws IllegalArgumentException, WrongAlphabetException {
 
 		if( s == null || s.length != this.myAbstractClassifier[0].getNumberOfClasses() ) {
 			throw new IllegalArgumentException( "Either no data sets are given or the number of data sets " + "is not equal to the number of different classes "
@@ -970,7 +977,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 		}
 
 		this.myTempMeanResultSets = new MeanResultSet[this.myAbstractClassifier.length];
-		for( int i = 0; i < this.myAbstractClassifier.length; this.myTempMeanResultSets[i] = new MeanResultSet( this.myAbstractClassifier[i++].getClassifierAnnotation() ) );
+		for( int i = 0; i < this.myAbstractClassifier.length; this.myTempMeanResultSets[i] = new MeanResultSet( storeAll, this.myAbstractClassifier[i++].getClassifierAnnotation() ) );
 	}
 
 	/**

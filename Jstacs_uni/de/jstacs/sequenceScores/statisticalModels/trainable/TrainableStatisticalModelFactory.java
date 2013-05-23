@@ -58,7 +58,7 @@ public class TrainableStatisticalModelFactory {
 	public static FSDAGTrainSM createPWM( AlphabetContainer con, int length, double ess ) throws Exception {
 		FSDAGTrainSMParameterSet ps = 
 			//new FSDAGTrainSMParameterSet( con, length, ess, null, "" );
-			new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, null, "" );
+			new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, "PWM", "" );
 		return (FSDAGTrainSM) ps.getInstance();
 	}
 	
@@ -95,7 +95,7 @@ public class TrainableStatisticalModelFactory {
 				}
 			}
 		}
-		FSDAGModelForGibbsSamplingParameterSet ps = new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, null, graph );
+		FSDAGModelForGibbsSamplingParameterSet ps = new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, "IMM", graph );
 		return (FSDAGTrainSM) ps.getInstance();
 	}
 	
