@@ -305,4 +305,15 @@ public class SequenceAnnotation extends ResultSet {
 		return identifier;
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = identifier.hashCode() + 31*type.hashCode();
+		for(int i=0;i<results.size();i++){
+			hash = 31*hash + results.get( i ).hashCode();
+		}
+		return hash;
+	}
+	
+	
+
 }
