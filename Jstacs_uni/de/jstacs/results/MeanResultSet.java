@@ -158,7 +158,7 @@ public class MeanResultSet extends NumericalResultSet {
 		for (int i = 0; i < infos.length; i++) {
 			infos[i] = (SimpleResult) infosTemp[i];
 		}
-		aggregateAll = (boolean) XMLParser.extractObjectForTags( representation, "aggregateAll" );
+		aggregateAll = (Boolean) XMLParser.extractObjectForTags( representation, "aggregateAll" );
 		count = (Integer) infos[infos.length - 1].getValue();
 		if( count > 0 ) {
 			squares = XMLParser.extractObjectForTags(representation, "squares", double[].class );
