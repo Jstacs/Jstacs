@@ -94,7 +94,14 @@ public class GalaxyAdaptor {
 	private String outfileId;
 	private String newFilePath;
 	private String htmlFilesPath;
-	private static String stylesheetURL = "/static/style/base.css";
+	public static String stylesheet = "<style type=\"text/css\">" +
+			"body{font-family:sans-serif;font-size:10pt}\n" +
+			"table{font-size:10pt;border-spacing:0px}\n" +
+			"th{font-weight:bold}\n" +
+			"div.head{font-size:15px;line-height:24px;padding:5px 10px;background:#ebd9b2;border-bottom:solid #d8b365 1px;font-weight:bold}\n" +
+			"div.comment{color:grey}\n" +
+			"h2{text-align:center}" +
+			"</style>";
 	private static int htmlId = 0;
 	
 	private static String[] colors = new String[]{"#99FFFF","#CCCCFF", "#99FFCC", "#CCFF99", "#FFCC99"};
@@ -334,7 +341,8 @@ public class GalaxyAdaptor {
 		StringBuffer buf = new StringBuffer();
 		StringBuffer temp2 = new StringBuffer();
 		temp2.append( res.getName() );
-		XMLParser.addTagsAndAttributes( temp2, "div", "class=\"toolFormTitle\"" );
+		XMLParser.addTagsAndAttributes( temp2, "div", "class=\"head\"" );
+		temp2.append( "<br />" );
 		if(res instanceof SimpleResult){
 			StringBuffer temp = new StringBuffer();
 			temp.append( res.getValue().toString().replaceAll( "\\n", "<br />" ) );
@@ -358,19 +366,20 @@ public class GalaxyAdaptor {
 		if(res instanceof LinkedImageResult){
 			temp.append("<br />Obtain &quot;"+((LinkedImageResult)res).getLink().getName()+"&quot; ("+((LinkedImageResult)res).getLink().getComment()+") by clicking on the image");
 		}
-		XMLParser.addTagsAndAttributes( temp, "div", "class=\"toolParamHelp\"" );
+		XMLParser.addTagsAndAttributes( temp, "div", "class=\"comment\"" );
+		temp.append( "<br />" );
 		buf.append( temp );
-		XMLParser.addTagsAndAttributes( buf, "div", "class=\"form-row\"" );
-		XMLParser.addTagsAndAttributes( buf, "div", "class=\"toolFormBody\"" );
+		//XMLParser.addTagsAndAttributes( buf, "div", "class=\"form-row\"" );
+		//XMLParser.addTagsAndAttributes( buf, "div", "class=\"toolFormBody\"" );
 		temp2.append( buf );
-		XMLParser.addTagsAndAttributes( temp2, "div", "class=\"toolForm\"" );
+	//	XMLParser.addTagsAndAttributes( temp2, "div", "class=\"toolForm\"" );
 		return temp2.toString();
 	}
 
 	private String getDTROutput( DoubleTableResult res ) {
 		double[][] r = res.getValue();
 		StringBuffer sb = new StringBuffer();
-		sb.append( "<table>" );
+		sb.append( "<table border=\"1\">" );
 		for(int i=0;i<r.length;i++){
 			sb.append( "<tr>" );
 			for(int j=0;j<r[i].length;j++){
@@ -407,7 +416,7 @@ public class GalaxyAdaptor {
 	
 	private String getStorableOutput( StorableResult res ) throws IOException {
 		String name = getLegalName( res.getName() )+getHtmlId()+".";
-		String ext = export( htmlFilesPath+System.getProperty( "file.separator" )+name, res );
+		String ext = export( htmlFilesPath+System.getProperty( "file.separator" )+name, res, null );
 		return "<a href=\""+name+ext+"\">"+res.getName()+"</a>";
 	}
 
@@ -445,43 +454,59 @@ public class GalaxyAdaptor {
 	 * @return the data type
 	 * @throws IOException if the contents of <code>res</code> could not be written to the file
 	 */
-	public String export(String filename, Result res) throws IOException{
+	public String export(String filename, Result res, String exportExtension) throws IOException{
+		String ee = exportExtension;
 		if(res instanceof SimpleResult){
-			File f = new File(filename+"txt");
+			if(ee == null){
+				ee = "txt";
+			}
+			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
-			PrintWriter pw = new PrintWriter( filename+"txt" );
+			PrintWriter pw = new PrintWriter( filename+ee );
 			pw.println(res.toString());
 			pw.close();
-			return "txt";
+			return ee;
 		}else if(res instanceof ListResult){
-			File f = new File(filename+"tabular");
+			if(ee == null){
+				ee = "tabular";
+			}
+			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
-			PrintWriter pw = new PrintWriter( filename+"tabular" );
+			PrintWriter pw = new PrintWriter( filename+ee );
 			((ListResult)res).print( pw );
 			pw.close();
-			return "tabular";
+			return ee;
 		}else if(res instanceof DataSetResult){
-			File f = new File(filename+"fasta");
+			if(ee == null){
+				ee = "fasta";
+			}
+			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
-			FileOutputStream fos = new FileOutputStream( filename+"fasta" );
+			FileOutputStream fos = new FileOutputStream( filename+ee );
 			if( ((DataSetResult)res).getParser() == null ){
 				((DataSetResult)res).getValue().save(fos,'>',new SplitSequenceAnnotationParser( ":", ";" ) );
 			}else{
 				((DataSetResult)res).getValue().save(fos,'>', ((DataSetResult)res).getParser() );
 			}
 			fos.close();
-			return "fasta";
+			return ee;
 		}else if(res instanceof StorableResult){
-			File f = new File(filename+"xml");
+			if(ee == null){
+				ee = "xml";
+			}
+			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
-			PrintWriter pw = new PrintWriter( filename+"xml" );
+			PrintWriter pw = new PrintWriter( filename+ee );
 			pw.println(((StorableResult)res).getValue());
 			pw.close();
-			return "xml";
+			return ee;
 		}else if(res instanceof DoubleTableResult){
-			File f = new File(filename+"tabular");
+			if(ee == null){
+				ee = "tabular";
+			}
+			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
-			PrintWriter pw = new PrintWriter( filename+"tabular" );
+			PrintWriter pw = new PrintWriter( filename+ee );
 			double[][] tab = ((DoubleTableResult)res).getValue();
 			for(int i=0;i<tab.length;i++){
 				for(int j=0;j<tab[i].length-1;j++){
@@ -494,21 +519,24 @@ public class GalaxyAdaptor {
 				}
 			}
 			pw.close();
-			return "tabular";
+			return ee;
 		}else if(res instanceof LinkedImageResult){
-			return export( filename, ((LinkedImageResult)res).getLink() );
+			return export( filename, ((LinkedImageResult)res).getLink(), exportExtension );
 		}else if(res instanceof ImageResult){
-			File f = new File(filename+"png");
+			if(ee == null){
+				ee = "png";
+			}
+			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
 			BufferedImage img = ((ImageResult)res).getValue();
-			ImageIO.write( img, "png", new File(filename+"png") );
-			return "png";
+			ImageIO.write( img, ee, new File(filename+ee) );
+			return ee;
 		}else if(res instanceof FileResult){
 			String ext = ((FileResult)res).getExtension();
 			File f = new File(filename+ext);
 			f.getParentFile().mkdirs();
 			FileManager.copy( ((FileResult)res).getValue().getAbsolutePath(), f.getAbsolutePath() );
-			System.out.println("exported "+f.getAbsolutePath());
+			//System.out.println("exported "+f.getAbsolutePath());
 			return ext;
 		}
 		return null;
@@ -545,13 +573,13 @@ public class GalaxyAdaptor {
 				if(res instanceof Result){
 					i++;
 					String name = i+": "+((Result)res).getName();
-					String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res );
+					String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res, el.exportExtension );
 				}else{
 					ResultSet rs = (ResultSet)res;
 					for(int j=0;j<rs.getNumberOfResults();j++){
 						i++;
 						String name = i+": "+rs.getResultAt( j ).getName();
-						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ) );
+						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ), el.exportExtension );
 					}
 				}
 			}
@@ -562,7 +590,7 @@ public class GalaxyAdaptor {
 			summary.append( getOutput( prot ) );
 			if(exportProtocol){
 				i++;
-				export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+i+"_visible_", prot );
+				export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+i+"_visible_", prot, null );
 			}
 		}
 		XMLParser.addTags( summary, "body" );
@@ -572,17 +600,19 @@ public class GalaxyAdaptor {
 		head.append( "Summary of "+toolname+" results" );
 		XMLParser.addTags( head, "title" );
 		all.append( head );
-		head = new StringBuffer();
-		XMLParser.addTagsAndAttributes( head, "link", "href=\""+stylesheetURL +"\" rel=\"stylesheet\" type=\"text/css\"" );
-		all.append( head );
+		//head = new StringBuffer();
+		//XMLParser.addTagsAndAttributes( head, "link", "href=\""+stylesheetURL +"\" rel=\"stylesheet\" type=\"text/css\"" );
+		//all.append( head );
+		all.append( stylesheet );
 		XMLParser.addTags( all, "head" );
-		
+		all.append( "<h2>"+head+"</h2>" );
 		all.append( summary );
 		
 		XMLParser.addTags( all, "html" );
 		
 		PrintWriter wr = new PrintWriter( outfile );
 		wr.println(all);
+		
 		wr.close();
 		
 	}
@@ -622,7 +652,18 @@ public class GalaxyAdaptor {
 	 * @param includeInSummary if <code>true</code> the result is shown on the summary page
 	 */
 	public void addResult(Result res, boolean export, boolean includeInSummary){
-		list.add( new OutputElement( res, export, includeInSummary ) );
+		list.add( new OutputElement( res, export, includeInSummary, null ) );
+	}
+	
+	/**
+	 * Adds a result to the results of a program run.
+	 * @param res the result
+	 * @param export if <code>true</code> the result is exported to its own Galaxy result, e.g. for
+	 * 				evaluation in other application within Galaxy
+	 * @param includeInSummary if <code>true</code> the result is shown on the summary page
+	 */
+	public void addResult(Result res, boolean export, boolean includeInSummary, String exportExtension){
+		list.add( new OutputElement( res, export, includeInSummary, exportExtension ) );
 	}
 	
 	/**
@@ -633,7 +674,7 @@ public class GalaxyAdaptor {
 	 * @param includeInSummary if <code>true</code> the results are shown on the summary page
 	 */
 	public void addResultSet(ResultSet res, boolean exportAll, boolean includeInSummary){
-		list.add( new OutputElement( res, exportAll, includeInSummary ) );
+		list.add( new OutputElement( res, exportAll, includeInSummary, null ) );
 	}
 	
 	/**
@@ -945,16 +986,18 @@ public class GalaxyAdaptor {
 		private Object result;
 		private boolean export;
 		private boolean includeInSummary;
+		private String exportExtension;
 		
 		/**
 		 * @param result
 		 * @param export
 		 * @param includeInSummary
 		 */
-		private OutputElement( Object result, boolean export, boolean includeInSummary ) {
+		private OutputElement( Object result, boolean export, boolean includeInSummary, String exportExtension ) {
 			this.result = result;
 			this.export = export;
 			this.includeInSummary = includeInSummary;
+			this.exportExtension = exportExtension;
 		}
 		
 		
