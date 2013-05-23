@@ -19,11 +19,16 @@
 
 package de.jstacs.parameters;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.validation.ParameterValidator;
 import de.jstacs.utils.galaxy.GalaxyAdaptor;
 
@@ -186,7 +191,11 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 */
 	@Override
 	public boolean checkValue(Object value) {
+		if(value instanceof String){
+			value = new FileRepresentation( (String)value );
+		}
 		if (valid != null) {
+			
 			if (valid.checkValue(value)) {
 				errorMessage = null;
 				return true;
@@ -195,6 +204,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 				return false;
 			}
 		} else if (value != null && value instanceof FileRepresentation) {
+
 			FileRepresentation f = (FileRepresentation) value;
 			if (f.getFilename() != null && f.getFilename().length() != 0
 					|| f.getContent() != null && f.getContent().length() != 0) {
@@ -217,6 +227,9 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 */
 	@Override
 	public void setDefault(Object defaultValue) throws IllegalValueException {
+		if(defaultValue instanceof String){
+			defaultValue = new FileRepresentation( (String)defaultValue );
+		}
 		if (checkValue(defaultValue)) {
 			this.defaultValue = (FileRepresentation) defaultValue;
 			setValue(defaultValue);
@@ -233,6 +246,9 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 */
 	@Override
 	public void setValue(Object value) throws IllegalValueException {
+		if(value instanceof String){
+			value = new FileRepresentation( (String)value );
+		}
 		if (!checkValue(value)) {
 			throw new IllegalValueException(errorMessage);
 		}
@@ -340,15 +356,34 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		descBuffer.append( buf );
 		buf = new StringBuffer();
 		buf.append( "${"+configPrefix+namePrefix+"}" );
+		XMLParser.addTags( buf, "value" );
+		StringBuffer buf2 = new StringBuffer();
+		buf2.append( "${"+configPrefix+namePrefix+".ext}" );
+		XMLParser.addTags( buf2, "extension" );
+		buf.append( buf2 );
 		XMLParser.addTags( buf, namePrefix );
 		configBuffer.append( buf );
 	}
 
+	public String toString(){
+		return name + " (" + comment
+				+ (defaultValue!=null?", default = " + defaultValue.getFilename():"")
+				+ (required ? "" : ", OPTIONAL" )
+				+ ")\t= " + (value != null ? value.getFilename() : "null");
+	}
+	
 	@Override
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
-		String val = XMLParser.extractForTag( command, namePrefix ).toString();
-		this.value = new FileRepresentation( val );
+		StringBuffer cont = XMLParser.extractForTag( command, namePrefix );
+		try{
+			String val = XMLParser.extractForTag( cont, "value" ).toString();
+			String ext = XMLParser.extractForTag( cont, "extension" ).toString().trim();
+			this.value = new FileRepresentation( val );
+			this.value.setExtension( ext );
+		}catch(NonParsableException e){
+			this.value = new FileRepresentation( cont.toString() );
+		}
 		this.isSet = true;
 	}
 	
@@ -363,6 +398,9 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 * The name of the file
 		 */
 		private String filename;
+		
+		private String ext;
+		
 		/**
 		 * The contents of the file
 		 */
@@ -380,6 +418,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		public FileRepresentation(String filename, String content) {
 			this.filename = filename;
 			this.content = content;
+			int idx = filename.lastIndexOf( '.' );
+			if(idx >= 0){
+				this.ext = filename.substring( idx+1 );
+			}
 		}
 		
 		/**
@@ -388,6 +430,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		public FileRepresentation(String filename){
 			this.filename = filename;
+			int idx = filename.lastIndexOf( '.' );
+			if(idx >= 0){
+				this.ext = filename.substring( idx+1 );
+			}
 		}
 
 		/**
@@ -429,7 +475,32 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 * @return the content of the file
 		 */
 		public String getContent() {
+			if(content == null){
+				if(filename != null){
+					try{
+						BufferedReader reader = new BufferedReader( new FileReader( filename ) );
+						StringBuffer sb = new StringBuffer();
+						String str = "";
+						while( (str = reader.readLine()) != null ){
+							sb.append( reader.readLine() );
+							sb.append( "\n" );
+						}
+						reader.close();
+						return sb.toString();
+					}catch(IOException e){
+						return null;
+					}
+				}
+			}
 			return content;
+		}
+		
+		public void setExtension(String ext){
+			this.ext = ext;
+		}
+		
+		public String getExtension(){
+			return ext;
 		}
 
 		/*
@@ -452,6 +523,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 					"fileRepresentation");
 			filename = XMLParser.extractObjectForTags(representation, "filename", String.class );
 			content = XMLParser.extractObjectForTags(representation, "content", String.class );
+			int idx = filename.lastIndexOf( '.' );
+			if(idx >= 0){
+				this.ext = filename.substring( idx+1 );
+			}
 		}
 
 	}
