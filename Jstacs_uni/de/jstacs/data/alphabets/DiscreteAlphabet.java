@@ -264,7 +264,7 @@ public class DiscreteAlphabet extends Alphabet {
 	 * @throws WrongAlphabetException
 	 *             if the symbol is not defined in the alphabet
 	 */
-	public final int getCode( String symbol ) throws WrongAlphabetException {
+	public int getCode( String symbol ) throws WrongAlphabetException {
 		if( caseInsensitive ) {
 			symbol = symbol.toUpperCase();
 		}
