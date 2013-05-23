@@ -260,7 +260,8 @@ public void test() throws Exception {
 		);
 	}
 }
-*/	
+*/
+	
 	private void fillSortedScoresArray( int motif, int start ) throws Exception {
 //XXX von hier
 		int num = 0, i;
@@ -368,7 +369,7 @@ public void test() throws Exception {
 		}
 		
 		//cut down;
-		if( stop < sortedScores[0].length ); {
+		if( stop < sortedScores[0].length ) {
 			double[][] help = new double[2][stop];
 			System.arraycopy( sortedScores[0], 0, help[0], 0, stop );
 			System.arraycopy( sortedScores[1], 0, help[1], 0, stop );
@@ -562,28 +563,113 @@ public void test() throws Exception {
 		return list.toArray( new MotifAnnotation[0] );
 	}	
 	
+	/**
+	 * Returns the Position weight matrix (PWM) of the binding sites of motif <code>motif</code> 
+	 * in the data set <code>data</code> of the {@link MotifDiscoverer} of this {@link SignificantMotifOccurrencesFinder}.
+	 * 
+	 * @param motif the index of the motif
+	 * @param data the data set
+	 * @param weights the weights on the individual sequences of the data set
+	 * @param addLeft the number of positions to add to the left side of motif occurrences
+	 * @param addRight the number of positions to add to the right side of motif occurrences
+	 * @return the PWM
+	 * @throws Exception if something went wrong
+	 */
 	public double[][] getPWM( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
+		return getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, null, null );
+	}
+	
+	
+	/**
+	 * Returns the Position weight matrix (PWM) of the binding sites of motif <code>motif</code> 
+	 * in the data set <code>data</code> of the {@link MotifDiscoverer} of this {@link SignificantMotifOccurrencesFinder}
+	 * together with the positions of the binding sites within the sequences of <code>data</code> and the corresponding p-values.
+	 * 
+	 * @param motif the index of the motif
+	 * @param data the data set
+	 * @param weights the weights on the individual sequences of the data set
+	 * @param addLeft the number of positions to add to the left side of motif occurrences
+	 * @param addRight the number of positions to add to the right side of motif occurrences
+	 * @return a {@link Pair} containing the PWM at index 0 of the first element, the p-values at index 1 of the first element, 
+	 *    and the positions as second element. P-value and position arrays are indexed by the index of the corresponding sequence in <code>data</code>.
+	 * @throws Exception if something went wrong
+	 */
+	public Pair<double[][][], int[][]> getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
+		int[][] positions = new int[data.getNumberOfElements()][];
+		double[][] pvals = new double[data.getNumberOfElements()][];
+		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, positions, pvals, null, null );
+		
+		return new Pair<double[][][],int[][]>(new double[][][]{pwm,pvals},positions);
+	}
+	
+	/**
+	 * Returns the Position weight matrix (PWM) of the binding sites of motif <code>motif</code> 
+	 * in the data set <code>data</code> of the {@link MotifDiscoverer} of this {@link SignificantMotifOccurrencesFinder}
+	 * and fills with the positions of the binding sites within the sequences of <code>data</code> and the corresponding p-values into the corresponding arrays.
+	 * Additionally, the standard deviation of binding site positions is computed using the provided <code>mean</code> values for each sequence.
+	 * 
+	 * @param motif the index of the motif
+	 * @param data the data set
+	 * @param weights the weights on the individual sequences of the data set
+	 * @param addLeft the number of positions to add to the left side of motif occurrences
+	 * @param addRight the number of positions to add to the right side of motif occurrences
+	 * @param positions the array filled with the positions. First dimension must contain as many entries as <code>data</code> has sequences. May be null.
+	 * @param pvals the array filled with the p-values. First dimension must contain as many entries as <code>data</code> has sequences. May be null.
+	 * @param mean the means for the individual sequences. May be null.
+	 * @param sd array of lenght 1 filled with the determined standard deviation. May be null.
+	 * @return the PWM
+	 * @throws Exception if something went wrong
+	 */
+	protected double[][] getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight, int[][] positions, double[][] pvals, double[] mean, double[] sd ) throws Exception {
 		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
 		if(oneHistogram){
 			fillSortedScoresArray( motif, 0 );
+		}
+		double n=0;
+		if(mean != null && sd != null){
+			sd[0] = 0;
 		}
 		double w = 1;
 		ComplementableDiscreteAlphabet abc = null;
 		try {
 			abc = (ComplementableDiscreteAlphabet) data.getAlphabetContainer().getAlphabetAt(0);
 		} catch( Exception e ) {}
+
 		double[][] pwm = new double[addLeft+addRight+disc.getMotifLength(motif)][(int)data.getAlphabetContainer().getAlphabetLengthAt(0)];
+		
 		for( int i = 0; i < data.getNumberOfElements(); i++ ) {
 			if( weights != null ) {
 				w = weights[i];
 			}
 			Sequence seq = data.getElementAt(i);
 			findSignificantMotifOccurrences( motif, seq, 0, list, Integer.MAX_VALUE, null, 0, 0 );
+			if(positions != null){
+				positions[i] = new int[list.size()];
+			}
+			if(pvals != null){
+				pvals[i] = new double[list.size()];
+			}
+			if(mean != null && sd != null){
+				w /= list.size();
+			}
 			for( int l, j = 0; j < list.size(); j++ ) {
 				MotifAnnotation ma = list.get(j);
+				if(positions != null){
+					positions[i][j] = ma.getPosition();
+				}
+				if(pvals != null){
+					pvals[i][j] = (Double)ma.getResultForName( "p-value" ).getValue();
+				}
 				int start = ma.getPosition() - addLeft;
+				if(mean != null && sd != null){
+					sd[0] += w/list.size()*(start-mean[i])*(start-mean[i]);
+					n += w/list.size();
+				}
 				int end = ma.getEnd() + addRight;
 				Strand strand = ma.getStrandedness();
+				if(positions != null && strand == Strand.REVERSE){
+					positions[i][j] = -positions[i][j]-1;
+				}
 				switch( strand ) { 
 					case FORWARD: 
 						l = 0;
@@ -609,6 +695,9 @@ public void test() throws Exception {
 				}
 			}
 			list.clear();
+		}
+		if(mean != null && sd != null){
+			sd[0] = Math.sqrt( sd[0]/n );
 		}
 		for( int i = 0; i < pwm.length; i++ ) {
 			Normalisation.sumNormalisation(pwm[i]);
@@ -616,126 +705,25 @@ public void test() throws Exception {
 		return pwm;
 	}
 	
-	
-	public Pair<double[][], int[][]> getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
-		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
-		if(oneHistogram){
-			fillSortedScoresArray( motif, 0 );
-		}
-		int[][] positions = new int[data.getNumberOfElements()][];
-		double w = 1;
-		ComplementableDiscreteAlphabet abc = null;
-		try {
-			abc = (ComplementableDiscreteAlphabet) data.getAlphabetContainer().getAlphabetAt(0);
-		} catch( Exception e ) {}
-		int nbs = 0;
-		double[][] pwm = new double[addLeft+addRight+disc.getMotifLength(motif)][(int)data.getAlphabetContainer().getAlphabetLengthAt(0)];
-		for( int i = 0; i < data.getNumberOfElements(); i++ ) {
-			if( weights != null ) {
-				w = weights[i];
-			}
-			Sequence seq = data.getElementAt(i);
-			findSignificantMotifOccurrences( motif, seq, 0, list, Integer.MAX_VALUE, null, 0, 0 );
-			positions[i] = new int[list.size()];
-			for( int l, j = 0; j < list.size(); j++ ) {
-				nbs++;
-				MotifAnnotation ma = list.get(j);
-				positions[i][j] = ma.getPosition();
-				int start = ma.getPosition() - addLeft;
-				int end = ma.getEnd() + addRight;
-				Strand strand = ma.getStrandedness();
-				switch( strand ) { 
-					case FORWARD: 
-						l = 0;
-						while( start < end && start < seq.getLength() ) {
-							if( start >= 0 ) {
-								pwm[l][seq.discreteVal(start)] += w;
-							}
-							l++;
-							start++;
-						}
-						break;
-					case REVERSE:
-						l = pwm.length-1;
-						while( start < end && start < seq.getLength() ) {
-							if( start >= 0 ) {
-								pwm[l][abc.getComplementaryCode( seq.discreteVal(start) )] += w;
-							}
-							l--;
-							start++;
-						}
-						break;
-					default: throw new RuntimeException();
-				}
-			}
-			list.clear();
-		}
-		System.out.println("nbs: "+nbs);
-		for( int i = 0; i < pwm.length; i++ ) {
-			Normalisation.sumNormalisation(pwm[i]);
-		}
-		return new Pair<double[][],int[][]>(pwm,positions);
-	}
-	
+	/**
+	 * Returns the Position weight matrix (PWM) of the binding sites of motif <code>motif</code> 
+	 * in the data set <code>data</code> of the {@link MotifDiscoverer} of this {@link SignificantMotifOccurrencesFinder}
+	 * together with standard deviation of binding site positions computed using the provided <code>mean</code> values for each sequence.
+	 * 
+	 * @param motif the index of the motif
+	 * @param data the data set
+	 * @param weights the weights on the individual sequences of the data set
+	 * @param mean the means for the individual sequences. Must be as long as <code>data</code> has sequences.
+	 * @param addLeft the number of positions to add to the left side of motif occurrences
+	 * @param addRight the number of positions to add to the right side of motif occurrences
+	 * @return a {@link Pair} containing the PWM as first element and standard deviation in array of length 1 as second element.
+	 * @throws Exception if something went wrong
+	 */
 	public Pair<double[][], double[]> getPWMAndPosDist( int motif, DataSet data, double[] weights, double[] mean, int addLeft, int addRight ) throws Exception {
-		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
-		if(oneHistogram){
-			fillSortedScoresArray( motif, 0 );
-		}
-		double sd = 0, n = 0;
-		int nbs = 0;
-		double w = 1;
-		ComplementableDiscreteAlphabet abc = null;
-		try {
-			abc = (ComplementableDiscreteAlphabet) data.getAlphabetContainer().getAlphabetAt(0);
-		} catch( Exception e ) {}
-		double[][] pwm = new double[addLeft+addRight+disc.getMotifLength(motif)][(int)data.getAlphabetContainer().getAlphabetLengthAt(0)];
-		for( int i = 0; i < data.getNumberOfElements(); i++ ) {
-			if( weights != null ) {
-				w = weights[i];
-			}
-			Sequence seq = data.getElementAt(i);
-			findSignificantMotifOccurrences( motif, seq, 0, list, Integer.MAX_VALUE, null, 0, 0 );
-			w /= list.size();
-			for( int l, j = 0; j < list.size(); j++ ) {
-				MotifAnnotation ma = list.get(j);
-				int start = ma.getPosition() - addLeft;
-				sd += w*(start-mean[i])*(start-mean[i]);
-				n += w;
-				nbs++;
-				int end = ma.getEnd() + addRight;
-				Strand strand = ma.getStrandedness();
-				switch( strand ) { 
-					case FORWARD: 
-						l = 0;
-						while( start < end && start < seq.getLength() ) {
-							if( start >= 0 ) {
-								pwm[l][seq.discreteVal(start)] += w;
-							}
-							l++;
-							start++;
-						}
-						break;
-					case REVERSE:
-						l = pwm.length-1;
-						while( start < end && start < seq.getLength() ) {
-							if( start >= 0 ) {
-								pwm[l][abc.getComplementaryCode( seq.discreteVal(start) )] += w;
-							}
-							l--;
-							start++;
-						}
-						break;
-					default: throw new RuntimeException();
-				}
-			}
-			list.clear();
-		}
-		System.out.println("nbs: "+nbs);
-		for( int i = 0; i < pwm.length; i++ ) {
-			Normalisation.sumNormalisation(pwm[i]);
-		}
-		return new Pair<double[][],double[]>(pwm,new double[]{Math.sqrt( sd/n )});
+		double[] sd = new double[1];
+		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, mean, sd );
+		
+		return new Pair<double[][],double[]>(pwm,sd);
 	}
 	
 	/**
