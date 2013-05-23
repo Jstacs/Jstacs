@@ -509,7 +509,7 @@ public class ToolBox {
 		
 		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
 	}
-
+	
 	/**
 	 * Computes the sum of the values in <code>array</code>
 	 * @param array the array
