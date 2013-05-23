@@ -719,10 +719,13 @@ public final class XMLParser {
 					throw getNonParsableException( "problem at " + k.getName() + ": " + e.getClass().getSimpleName() + ": " + e.getCause().toString()+"\n"+Arrays.toString( e.getCause().getStackTrace() ).replaceAll( "(,|\\[|\\])", "\n-- " )+"]]", e );
 				}
 			} else if( k == Class.class ) {
+				String str = null;
+				String temp = ex.toString();
 				try {
-					erg = (T) Class.forName( extractObjectAndAttributesForTags( ex, ENUM/*TODO*/, null, null, String.class, null, null, null ) );
+					str = extractObjectAndAttributesForTags( ex, ENUM/*TODO*/, null, null, String.class, null, null, null );
+					erg = (T) Class.forName( str );
 				} catch ( ClassNotFoundException e ) {
-					throw getNonParsableException( "Could not find the specified class.", e );
+					throw getNonParsableException( "Could not find the specified class: "+str+" ("+k+": "+temp+").", e );
 				}
 			} else {
 				throw new NonParsableException( "Could not parse the object with tag \"" + tag + "\" and class \"" + k + "\"." );
