@@ -117,6 +117,19 @@ public final class IntList implements Cloneable {
 	}
 	
 	/**
+	 * Returns the last element and removes it from the list.
+	 * 
+	 * @return the last element
+	 */
+	public int pop(){
+		int temp = array[size-1];
+		if(size > 0){
+			size--;
+		}
+		return temp;
+	}
+	
+	/**
 	 * Checks if <code>val</code> is already returned in the list.
 	 * @param val the value
 	 * @return the index of <code>val</code> if it is contained in the list and -1 otherwise
