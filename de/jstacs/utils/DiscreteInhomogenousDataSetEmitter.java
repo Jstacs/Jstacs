@@ -81,7 +81,7 @@ public class DiscreteInhomogenousDataSetEmitter {
 				if (il2 < Integer.MAX_VALUE / alphabetLength[counter1]) {
 					il2 *= alphabetLength[counter1];
 				} else {
-					new IllegalArgumentException(
+					throw new IllegalArgumentException(
 							"It is not possible to emit a data set of sequences with this length and alphabets by this implementation. (needs to much memory)");
 				}
 			}
