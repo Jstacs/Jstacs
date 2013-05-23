@@ -157,7 +157,12 @@ public class ParameterSetTagger {
 	 * @see Parameter#setValue(Object)
 	 */
 	public void setValueFromTag( String tag, Object value ) throws IllegalValueException {
-		Parameter p = getParameterFromTag( tag );
+		Parameter p = null;
+		try{
+			p = getParameterFromTag( tag );
+		}catch(NullPointerException ex){
+			throw new IllegalValueException( "No parameter with tag \""+tag+"\" in set of parameters." );
+		}
 		if( p.getDatatype() != DataType.STRING && value instanceof String && ((String)value).length()==0 ) {
 			value = null;
 		}
