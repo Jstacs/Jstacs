@@ -76,6 +76,8 @@ public abstract class OneDimensionalFunction implements Function {
 	 * @see Optimizer
 	 */
 	public double[] findMin( double lower, double fLower, double eps, double startDistance ) throws EvaluationException {
+		//necessary for heuristic methods, additional runtime should be negligible
+		fLower = this.evaluateFunction(lower);//TODO
 		double[] bracket = Optimizer.findBracket( this, lower, fLower, startDistance );
 		return Optimizer.brentsMethod( this, bracket[0], bracket[2], bracket[3], bracket[4], eps );
 	}
