@@ -84,13 +84,15 @@ public class ReferenceSequenceAnnotationParser extends SplitSequenceAnnotationPa
 		res.append(  commentChar );
 		if( annotations != null && annotations.length > 0 ) {
 			if(annotations[0] instanceof ReferenceSequenceAnnotation){
-				res.append( annotations[0].getIdentifier() + keyValueDelimiter + ((ReferenceSequenceAnnotation)annotations[0]).getReferenceSequence() );
+				Sequence rs = ((ReferenceSequenceAnnotation)annotations[0]).getReferenceSequence();
+				res.append( annotations[0].getIdentifier() + keyValueDelimiter + rs.toString( delim, 0, rs.getLength() ) );
 			}else{
 				res.append( annotations[0].getType() + keyValueDelimiter + annotations[0].getIdentifier() );
 			}
 			for( int i = 1; i < annotations.length; i++ ) {
 				if(annotations[i] instanceof ReferenceSequenceAnnotation){
-					res.append( annotationDelimiter + " " + annotations[i].getIdentifier() + keyValueDelimiter + ((ReferenceSequenceAnnotation)annotations[i]).getReferenceSequence() );
+					Sequence rs = ((ReferenceSequenceAnnotation)annotations[i]).getReferenceSequence();
+					res.append( annotationDelimiter + " " + annotations[i].getIdentifier() + keyValueDelimiter + rs.toString( delim, 0, rs.getLength() ) );
 				}else{
 					res.append( annotationDelimiter + " " + annotations[i].getType() + keyValueDelimiter + annotations[i].getIdentifier() );
 				}
