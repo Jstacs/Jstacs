@@ -72,7 +72,19 @@ public class SimpleParameterSet extends ParameterSet{
         }
     }
     
-    
+    /**
+	 * Creates an Galaxy XML-representation of the parameters and appends it to <code>descBuffer</code>
+	 * and variable configuration and appends it to <code>configBuffer</code>. The variable configuration
+	 * is also used to parse user-supplied values returned by Galaxy.
+	 * 
+	 * @param namePrefix the prefix of the variable name used in Galaxy
+	 * @param configPrefix the prefix for conditionals
+	 * @param depth the depth in the parameter hierarchy, used for graphical representation of nesting
+	 * @param descBuffer the buffer for the parameter description
+	 * @param configBuffer the buffer for the configuration line
+	 * @param addLine if true, a line is added before the title of a parameter with the corresponding index
+	 * @throws Exception if the conversion fails
+	 */
     public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean[] addLine ) throws Exception {
 		for(int i=0;i<getNumberOfParameters();i++){
 			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, addLine == null ? false : addLine[i] );
