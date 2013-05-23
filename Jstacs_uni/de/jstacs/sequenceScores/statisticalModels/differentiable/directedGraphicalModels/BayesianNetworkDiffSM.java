@@ -19,6 +19,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -977,9 +978,9 @@ public class BayesianNetworkDiffSM extends
 	 *             {@link BayesianNetworkDiffSM} that is not a PWM
 	 */
 	public double[][] getPWM() throws Exception {
-		if (!(this.structureMeasure instanceof InhomogeneousMarkov)) {
+		/*if (!(this.structureMeasure instanceof InhomogeneousMarkov)) {
 			throw new Exception();
-		}
+		}*/
 		if (logNormalizationConstant == null) {
 			precomputeNormalization();
 		}
@@ -1060,6 +1061,23 @@ public class BayesianNetworkDiffSM extends
 			seqs[i] = new IntSequence( alphabets, content );
 		}
 		return new DataSet("", seqs);
+	}
+
+	public String toHtml( NumberFormat nf ) {
+		
+		if (trees != null) {
+			if (logNormalizationConstant == null) {
+				precomputeNormalization();
+			}
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < trees.length; i++) {
+				buf.append(trees[i].toHtml(nf));
+			}
+			return buf.toString();
+		} else {
+			return getClass().getSimpleName() + " of length " + length + ": not initialized";
+		}
+		
 	}
 	
 	
