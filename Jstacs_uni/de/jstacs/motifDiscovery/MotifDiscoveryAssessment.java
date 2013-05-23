@@ -323,7 +323,7 @@ public class MotifDiscoveryAssessment {
 		}
 		
 		public void addIdentifier(LocatedSequenceAnnotation ann) throws Exception{
-			if(ann.getType() != type){
+			if(!ann.getType().equals( type )){
 				throw new Exception("Wrong type");
 			}
 			String id = ann.getIdentifier();
