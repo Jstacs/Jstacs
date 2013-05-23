@@ -48,7 +48,7 @@ public class ToolBox {
 		 */
 		SPORTS,
 		/**
-		 * Indentical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by one.
+		 * Identical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by one.
 		 */
 		CONTIGUOUS
 	}
