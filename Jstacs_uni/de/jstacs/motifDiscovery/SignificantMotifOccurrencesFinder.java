@@ -649,7 +649,7 @@ public void test() throws Exception {
 			if(pvals != null){
 				pvals[i] = new double[list.size()];
 			}
-			if(mean != null && sd != null){
+			if(mean != null && sd != null){//TODO creates inconsistent behaviour between getPWM and getPWMAndPosDist
 				w /= list.size();
 			}
 			for( int l, j = 0; j < list.size(); j++ ) {
