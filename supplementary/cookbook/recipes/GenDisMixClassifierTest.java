@@ -26,7 +26,7 @@ import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMi
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
-import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
@@ -99,7 +99,7 @@ public class GenDisMixClassifierTest {
 		}
 		
 		//e.g., evaluate (normally done on a test data set)
-		PerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters();
+		AbstractPerformanceMeasureParameterSet mp = AbstractPerformanceMeasureParameterSet.createFilledParameters();
 		for( i = 0; i < cl.length; i++ ){
 			System.out.println( cl[i].evaluate( mp, true, data ) );
 		}

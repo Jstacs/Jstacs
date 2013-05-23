@@ -27,7 +27,9 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.DataType;
 import de.jstacs.NotTrainedException;
 import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.PRCurve;
+import de.jstacs.classifiers.performanceMeasures.PerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.ROCCurve;
 import de.jstacs.classifiers.utils.PValueComputation;
@@ -203,7 +205,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, AbstractPerformanceMeasureParameterSet<? extends PerformanceMeasure> params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length != 2 ) {
 			return super.getResults( list, s, weights, params, exceptionIfNotComputeable );
 		} else {

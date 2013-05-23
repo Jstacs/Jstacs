@@ -29,7 +29,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public interface NumericalPerformanceMeasure {
+public interface NumericalPerformanceMeasure extends PerformanceMeasure {
 
 	/**
 	 * This method allows to compute the performance measure of given sorted score ratios.
