@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -820,6 +821,46 @@ public class DataSet implements Iterable<Sequence>{
 			if( !alphabetContainer.checkConsistency( seqs[i++].getAlphabetContainer() ) ) {
 				throw new WrongAlphabetException( "The sequences are not defined over the same AlphabetContainer." );
 			}
+		}
+		indexOfFirstSubseq = null;
+		this.annotation = annotation;
+	}
+	
+	/**
+	 * Creates a new {@link DataSet} from a {@link Collection} of {@link Sequence}s and a
+	 * given annotation.
+	 *  
+	 * @param annotation
+	 *            the annotation of the {@link DataSet}
+	 * @param seqs
+	 *            the {@link Sequence}(s)
+	 * 
+	 * @throws EmptyDataSetException
+	 *             if the array <code>seqs</code> is <code>null</code> or the
+	 *             length is 0
+	 * @throws WrongAlphabetException
+	 *             if the {@link AlphabetContainer}s do not match
+	 */
+	public DataSet( String annotation, Collection<Sequence> seqs ) throws EmptyDataSetException, WrongAlphabetException {
+		if( seqs == null || seqs.size() == 0 ) {
+			throw new EmptyDataSetException();
+		}
+		this.seqs = new Sequence[seqs.size()];
+		Iterator<Sequence> it = seqs.iterator();
+		this.seqs[0] = it.next();
+		this.alphabetContainer = this.seqs[0].getAlphabetContainer();
+		
+		int i = 1;
+		length = this.seqs[0].getLength();
+		while( it.hasNext() ) {
+			this.seqs[i] = it.next();
+			if( length != 0 && length != this.seqs[i].getLength() ) {
+				length = 0;
+			}
+			if( !alphabetContainer.checkConsistency( this.seqs[i].getAlphabetContainer() ) ) {
+				throw new WrongAlphabetException( "The sequences are not defined over the same AlphabetContainer." );
+			}
+			i++;
 		}
 		indexOfFirstSubseq = null;
 		this.annotation = annotation;
