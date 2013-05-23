@@ -475,7 +475,7 @@ public class BioJavaAdapter {
 						setName = true;
 					} else if( res[i].getName().equals( "ID" ) ) {
 						builder.setIdentifier( res[i].getValue().toString() );
-					} else if( res[i].equals( "Version" ) ) {
+					} else if( res[i].getName().equals( "Version" ) ) {
 						builder.setVersion( Integer.parseInt( res[i].getValue().toString() ) );
 					}
 				}
