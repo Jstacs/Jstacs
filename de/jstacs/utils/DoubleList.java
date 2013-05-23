@@ -191,6 +191,26 @@ public final class DoubleList implements Storable, Cloneable {
 		System.arraycopy( array, 0, erg, 0, size );
 		return erg;
 	}
+	
+	/**
+	 * This method returns a <code>double</code> array containing all elements
+	 * of the list between start and end (exclusive).
+	 * 
+	 * @param start the first position to consider
+	 * @param end the index after the last position to consider
+	 * 
+	 * @return a <code>double</code> array containing the elements of the list
+	 */
+	public double[] toArray(int start, int end){
+		if(start < 0 || start> end || end >= size){
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		double[] erg = new double[end-start];
+		if(erg.length>0){
+			System.arraycopy( array, start, erg, 0, end-start );
+		}
+		return erg;
+	}
 
 	/**
 	 * Multiplies all values in the list from index <code>start</code> to
