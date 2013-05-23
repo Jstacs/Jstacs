@@ -29,8 +29,6 @@ import java.util.LinkedList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
-import projects.dispom.PFMComparator.NormalizedEuclideanDistance;
-import projects.dispom.PFMComparator.PFMDistance;
 import de.jstacs.DataType;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.Optimizer;
@@ -93,7 +91,10 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.S
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.UniformDurationDiffSM;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.DoubleList;
+import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.SafeOutputStream;
+import de.jstacs.utils.PFMComparator.NormalizedEuclideanDistance;
+import de.jstacs.utils.PFMComparator.PFMDistance;
 
 /**
  * Discriminative de-novo position distribution and motif finder.

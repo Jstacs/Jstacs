@@ -27,7 +27,6 @@ import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
 
-import projects.dispom.PFMComparator.PFMDistance;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.ScoreClassifier;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
@@ -58,7 +57,9 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.D
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.ExtendedZOOPSDiffSM;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
+import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.REnvironment;
+import de.jstacs.utils.PFMComparator.PFMDistance;
 
 /** 
  * A comparator for the results of different de-novo motif discoverer.

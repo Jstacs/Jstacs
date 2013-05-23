@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.AbstractMap.SimpleEntry;
 
-import projects.dispom.PFMComparator.NormalizedEuclideanDistance;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -47,7 +46,9 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandD
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif.ExtendedZOOPSDiffSM;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
+import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.REnvironment;
+import de.jstacs.utils.PFMComparator.NormalizedEuclideanDistance;
 
 /**
  * Test for single hidden motifs.
