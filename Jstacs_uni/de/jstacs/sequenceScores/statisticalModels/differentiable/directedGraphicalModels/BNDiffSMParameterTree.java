@@ -19,12 +19,14 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -1462,6 +1464,32 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 			}
 		}
 
+		private void appendHtmlToBuffer( StringBuffer all, String after, NumberFormat nf ) {
+			if (children != null) {
+				for (int i = 0; i < children.length; i++) {
+					children[i].appendHtmlToBuffer(all, after + (after.length() == 0 ? "" : ", " ) + "X_" + contextPos
+							+ " = " + alphabet.getSymbol(contextPos, i), nf);
+				}
+			} else {
+				double[] norms = new double[pars.length];;
+				for (int i = 0; i < pars.length; i++) {
+					norms[i] = pars[i].getValue() + pars[i].getLogZ();
+				}
+				double logNorm = Normalisation.getLogSum( norms );
+				if(getNumberOfParents() > 0){
+					all.append( "<tr><td>"+after+"</td>" );
+				}else{
+					all.append( "<tr>" );
+				}
+				for (int i = 0; i < pars.length; i++) {
+					double tempTheta = Math.exp(pars[i].getValue() + pars[i].getLogZ()
+							- logNorm);
+					all.append("<td>"+nf.format( tempTheta )+"</td>");
+				}
+				all.append("</tr>");
+			}
+		}
+
 	}
 
 	/**
@@ -1503,6 +1531,22 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 
 	public double getMaximumScore() {
 		return root.getMaximumScore();
+	}
+
+	public String toHtml( NumberFormat nf ) {
+		StringBuffer all = new StringBuffer();
+		all.append("<p><strong>Probabilities at position " + pos + ":<strong><br/>");
+		all.append( "<table border=\"1\"><tr>" );
+		if(this.getNumberOfParents() > 0){
+			all.append( "<th>context</th>" );
+		}
+		for(int i=0;i<alphabet.getAlphabetLengthAt( pos );i++){
+			all.append( "<th>"+((DiscreteAlphabet)alphabet.getAlphabetAt( pos )).getSymbolAt( i )+"</th>" );
+		}
+		all.append( "</tr>" );
+		root.appendHtmlToBuffer(all,"",nf);
+		all.append( "</table></p>" );
+		return all.toString();
 	}
 
 }
