@@ -27,8 +27,8 @@ import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunctio
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.msp.MSPClassifier;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
-import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DataSet;
@@ -160,7 +160,7 @@ public class MiMBExample {
 		cl.train( fgSplit[0], bgSplit[0] );
 		
 		//define the measures that shall be evaluated
-		PerformanceMeasureParameterSet mp = PerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
+		AbstractPerformanceMeasureParameterSet mp = AbstractPerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
 		
 		//evaluates the classifier
 		ResultSet rs = cl.evaluate(
@@ -200,7 +200,7 @@ public class MiMBExample {
 		/* hold-out sampling */
 		
 		//define the measures that shall be evaluated
-		mp = PerformanceMeasureParameterSet.createFilledParameters();
+		mp = AbstractPerformanceMeasureParameterSet.createFilledParameters();
 		
 		//create the parameters for the hold-out sampling
 		RepeatedHoldOutAssessParameterSet parsA = new RepeatedHoldOutAssessParameterSet(

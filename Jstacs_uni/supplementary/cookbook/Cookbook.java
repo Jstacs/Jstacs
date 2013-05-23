@@ -18,14 +18,11 @@
 package supplementary.cookbook;
 
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 
 import org.biojava.bio.seq.SequenceIterator;
-import org.biojavax.bio.db.RichSequenceDB;
 import org.biojavax.bio.db.ncbi.GenbankRichSequenceDB;
-import org.biojavax.bio.seq.RichSequenceIterator;
 
 import de.jstacs.DataType;
 import de.jstacs.Storable;
@@ -57,11 +54,11 @@ import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.Learning
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
-import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.AucPR;
 import de.jstacs.classifiers.performanceMeasures.AucROC;
+import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
-import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DNADataSet;
@@ -134,9 +131,9 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWel
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.StrandTrainSM;
-import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif.ZOOPSTrainSM;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.REnvironment;
@@ -578,15 +575,15 @@ public class Cookbook {
 		System.out.println( cl.classify( data[0].getElementAt(0) ) );
 		
 		//define performance measures
-		PerformanceMeasureParameterSet measures = PerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
-		AbstractPerformanceMeasure[] m = {new AucROC(), new AucPR()};
-		measures = new PerformanceMeasureParameterSet( m );
+		AbstractPerformanceMeasureParameterSet measures = AbstractPerformanceMeasureParameterSet.createFilledParameters( false, 0.999, 0.95, 0.95, 1 );
+		NumericalPerformanceMeasure[] m = {new AucROC(), new AucPR()};
+		measures = new NumericalPerformanceMeasureParameterSet( m );
 		
 		//assess model based classifier on test data
 		System.out.println( cl.evaluate( measures, true, data ) );
 		
 		//assess classifiers in CV
-		NumericalPerformanceMeasureParameterSet numMeasures = PerformanceMeasureParameterSet.createFilledParameters();
+		NumericalPerformanceMeasureParameterSet numMeasures = AbstractPerformanceMeasureParameterSet.createFilledParameters();
 		
 		ClassifierAssessment assessment = new KFoldCrossValidation( cl );
 		KFoldCrossValidationAssessParameterSet params = new KFoldCrossValidationAssessParameterSet( PartitionMethod.PARTITION_BY_NUMBER_OF_ELEMENTS, cl.getLength(), true, 10 );

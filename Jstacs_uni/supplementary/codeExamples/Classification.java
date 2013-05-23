@@ -26,7 +26,7 @@ import java.util.Arrays;
 
 import de.jstacs.classifiers.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
-import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.io.FileManager;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
@@ -74,7 +74,7 @@ public class Classification {
 	 * @throws Exception
 	 *             if the performance measures could not be computed
 	 * 
-	 * @see PerformanceMeasureParameterSet
+	 * @see AbstractPerformanceMeasureParameterSet
 	 */
 	public static void main( String[] args ) throws Exception {
 		double[] fg = getSortedValues( args[0] );
@@ -99,7 +99,7 @@ public class Classification {
 				}
 			}
 			
-			PerformanceMeasureParameterSet performance = PerformanceMeasureParameterSet.createFilledParameters( plot, 0.999, 0.95, 0.95, 1 );
+			AbstractPerformanceMeasureParameterSet performance = AbstractPerformanceMeasureParameterSet.createFilledParameters( plot, 0.999, 0.95, 0.95, 1 );
 			boolean isNumeric = true;
 			AbstractPerformanceMeasure[] m = performance.getAllMeasures();
 			ResultSet rs;

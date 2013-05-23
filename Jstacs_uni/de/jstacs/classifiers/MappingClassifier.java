@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import de.jstacs.NotTrainedException;
+import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
+import de.jstacs.classifiers.performanceMeasures.PerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
@@ -212,7 +214,7 @@ public class MappingClassifier extends AbstractScoreBasedClassifier {
 	 * @see de.jstacs.classifiers.AbstractScoreBasedClassifier#getResults(java.util.LinkedList, de.jstacs.data.DataSet[], double[][], de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet, boolean)
 	 */
 	@Override
-	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, PerformanceMeasureParameterSet params, boolean exceptionIfNotComputeable ) throws Exception {
+	protected boolean getResults( LinkedList list, DataSet[] s, double[][] weights, AbstractPerformanceMeasureParameterSet<? extends PerformanceMeasure> params, boolean exceptionIfNotComputeable ) throws Exception {
 		if( s.length == getNumberOfClasses() ) {
 			return super.getResults( list, s, weights, params, exceptionIfNotComputeable );
 		} else {

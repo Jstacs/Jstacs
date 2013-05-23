@@ -17,10 +17,7 @@
  */
 package de.jstacs.classifiers.performanceMeasures;
 
-import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
-import de.jstacs.parameters.SelectionParameter;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
  * This class implements a container for {@link NumericalPerformanceMeasure}s that can be used, for instance, in an repeated assessment,
@@ -28,7 +25,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * 
  * @author Jens Keilwagen
  */
-public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureParameterSet {
+public class NumericalPerformanceMeasureParameterSet extends AbstractPerformanceMeasureParameterSet<NumericalPerformanceMeasure> {
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -55,46 +52,22 @@ public class NumericalPerformanceMeasureParameterSet extends PerformanceMeasureP
 	 * @throws Exception if something went wrong
 	 * 
 	 * @see de.jstacs.classifiers.AbstractClassifier#getNumberOfClasses()
-	 * @see AbstractPerformanceMeasure#getCollectionOfAllMeasures(int, boolean)
-	 * @see PerformanceMeasureParameterSet#PerformanceMeasureParameterSet(int, de.jstacs.parameters.SelectionParameter, AbstractPerformanceMeasure...)
 	 */
 	public NumericalPerformanceMeasureParameterSet( int numClasses ) throws Exception {
-		super( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, true ), new AbstractPerformanceMeasure[0] );
+		super( numClasses, true, new NumericalPerformanceMeasure[0] );
 	}
 	
-	/**
-	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} that can be used for binary classifiers. Automatically 
-	 * includes all {@link AbstractPerformanceMeasure}s that can be computed for two-class problems.
-	 * 
-	 * @throws Exception if something went wrong
-	 * 
-	 * @see #NumericalPerformanceMeasureParameterSet(int)
-	 */
-	public NumericalPerformanceMeasureParameterSet() throws Exception {
-		this( 2 );
-	}
-
 	/**
 	 * Constructs a new {@link NumericalPerformanceMeasureParameterSet} with the given performance measures.
 	 * The number of classes this {@link NumericalPerformanceMeasureParameterSet} can be used for is determined from
-	 * the given {@link NumericalPerformanceMeasure}s.
+	 * the given {@link NumericalPerformanceMeasure}s. If no measure is given, a new
+	 * {@link NumericalPerformanceMeasureParameterSet} for binary classifiers is created.
 	 * 
-	 * @param measures the {@link NumericalPerformanceMeasure}s that shall be used, must also extend {@link AbstractPerformanceMeasure}
+	 * @param measures the {@link NumericalPerformanceMeasure} that shall be used
 	 *  
-	 * @throws Exception if something went wrong, e.g. the provided {@link NumericalPerformanceMeasure}s are not {@link AbstractPerformanceMeasure}s
+	 * @throws Exception if something went wrong
 	 */
 	public NumericalPerformanceMeasureParameterSet( NumericalPerformanceMeasure... measures ) throws Exception {
-		super( ArrayHandler.cast( AbstractPerformanceMeasure.class, measures ) );
+		super( getNumberOfClasses( measures ), false, measures );
 	}
-
-	@Override
-	public void addMeasure( AbstractPerformanceMeasure measure ) throws CloneNotSupportedException, IllegalValueException {
-		if(! (measure instanceof NumericalPerformanceMeasure)){
-			throw new IllegalValueException( "Only NumericalPerformanceMeasures allowed." );
-		}
-		super.addMeasure( measure );
-	}
-	
-	
-	
 }
