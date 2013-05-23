@@ -19,6 +19,7 @@
 package de.jstacs.data.alphabets;
 
 import de.jstacs.Singleton;
+import de.jstacs.data.WrongAlphabetException;
 
 /**
  * This class implements the discrete alphabet that is used for DNA.
@@ -68,6 +69,26 @@ public final class DNAAlphabet extends ComplementableDiscreteAlphabet implements
 		return 3 - code;
 	}
 
+	public final int getCode( String symbol ) throws WrongAlphabetException {
+		char ch = symbol.charAt( 0 );
+		switch(ch){
+			case 'A':
+			case 'a':
+				return 0;
+			case 'C':
+			case 'c':
+				return 1;
+			case 'G':
+			case 'g':
+				return 2;
+			case 'T':
+			case 't':
+				return 3;
+			default: throw new WrongAlphabetException( "Symbol \"" + symbol + "\" from input not defined in alphabet." );
+		}
+
+	}
+	
 	/**
 	 * The parameter set for a {@link DNAAlphabet}.
 	 * 
