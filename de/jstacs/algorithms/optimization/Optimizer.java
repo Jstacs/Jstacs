@@ -126,7 +126,7 @@ public class Optimizer {
 				erg[5] = erg[3];
 				erg[2] = erg[0] + ( 1 - limFib ) * ( erg[2] - erg[0] );
 				erg[3] = f.evaluateFunction( erg[2] );
-			} while( erg[1] < erg[3] );
+			} while( erg[0] != erg[2] && erg[1] < erg[3] );
 			return erg;
 		} else {
 			do {
