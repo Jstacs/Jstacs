@@ -113,7 +113,7 @@ public final class MixtureEmission implements Emission {
 	public MixtureEmission clone() throws CloneNotSupportedException {
 		MixtureEmission clone = (MixtureEmission) super.clone();
 		clone.emission = ArrayHandler.clone( emission );
-		clone.help = clone.help;
+		clone.help = help.clone();
 		clone.hyper = hyper.clone();
 		clone.logProb = logProb.clone();
 		clone.statistic = statistic.clone();
