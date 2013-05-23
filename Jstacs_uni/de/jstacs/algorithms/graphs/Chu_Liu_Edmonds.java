@@ -90,7 +90,7 @@ public class Chu_Liu_Edmonds {
 		byte root = -1;
 		double[][] optimalResult = null;
 		// die Wurzel spielt keine Rolle
-		if( rootWeights.length == 0 || rootWeights == null ) {
+		if( rootWeights == null || rootWeights.length == 0 ) {
 			// graph wird waehrend Abarbeitung veraendert
 			optimalResult = Chu_Liu_Edmonds_Algo( copyGraph( graph, type ), root, type );
 		} else {
