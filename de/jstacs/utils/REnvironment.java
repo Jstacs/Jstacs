@@ -578,7 +578,7 @@ public class REnvironment {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see REnvironment#plot(String, double, double)
+	 * @see REnvironment#plot(CharSequence, double, double)
 	 * @see REnvironment#showImage(String, BufferedImage)
 	 * @see ImageIO#write(java.awt.image.RenderedImage, String, File)
 	 */
@@ -684,7 +684,7 @@ public class REnvironment {
 	 * @param out the {@link OutputStream} used for writing the image
 	 * 
 	 * @throws IOException see {@link ImageIO#write(java.awt.image.RenderedImage, String, OutputStream)}
-	 * @throws Exception see {@link #plot(String, double, double)}
+	 * @throws Exception see {@link #plot(CharSequence, double, double)}
 	 * 
 	 * @see ImageIO#write(java.awt.image.RenderedImage, String, OutputStream)
 	 */

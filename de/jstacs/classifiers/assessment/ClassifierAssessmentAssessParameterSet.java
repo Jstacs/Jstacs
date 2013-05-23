@@ -27,6 +27,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 
 /**
@@ -50,6 +51,18 @@ import de.jstacs.results.Result;
  */
 public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 
+	private void extend() {
+		try {
+			parameters.add(0, new SimpleParameter( DataType.BOOLEAN,
+					"storeAll",
+					"store all performance measures in each iteration seperately",
+					true, false )
+			);
+		} catch ( Exception e ) {
+			throw new RuntimeException( e );
+		}
+	}
+	
 	/**
 	 * Constructs a new {@link ClassifierAssessmentAssessParameterSet} with
 	 * empty parameter values.
@@ -63,6 +76,7 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	public ClassifierAssessmentAssessParameterSet() throws UnsupportedOperationException {
 		super();
 		try{
+			extend();
 			//0-subSequenceLength
 			this.parameters.add( new SimpleParameter( DataType.INT,
 					"elementLength",
@@ -98,6 +112,9 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 */
 	public ClassifierAssessmentAssessParameterSet( StringBuffer representation ) throws NonParsableException {
 		super( representation );
+		if( parameters.get("storeAll")==null ) {
+			extend();
+		}
 	}
 
 	/**
@@ -125,8 +142,8 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 */
 	public ClassifierAssessmentAssessParameterSet( int elementLength, boolean exceptionIfMPNotComputable ) throws IllegalValueException, UnsupportedOperationException {
 		this();
-		( this.parameters.get( 0 ) ).setValue( new Integer( elementLength ) );
-		( this.parameters.get( 1 ) ).setValue( new Boolean( exceptionIfMPNotComputable ) );
+		this.parameters.get( "elementLength" ).setValue( new Integer( elementLength ) );
+		this.parameters.get( "exceptionIfMeasureParamaterNotComputable" ).setValue( new Boolean( exceptionIfMPNotComputable ) );
 	}
 
 	//	**********************
@@ -142,7 +159,7 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 *         {@link ClassifierAssessmentAssessParameterSet}
 	 */
 	public int getElementLength() {
-		return ( (Integer)( this.getParameterAt( 0 ).getValue() ) ).intValue();
+		return ( (Integer)( this.getParameterForName( "elementLength" ).getValue() ) ).intValue();
 	}
 
 	/**
@@ -156,7 +173,23 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 *         thrown)
 	 */
 	public boolean getExceptionIfMPNotComputable() {
-		return ( (Boolean)( getParameterAt( 1 ).getValue() ) ).booleanValue();
+		return ( (Boolean)( getParameterForName( "exceptionIfMeasureParamaterNotComputable" ).getValue() ) ).booleanValue();
+	}
+	
+	/**
+	 * Returns the flag for storing all performance measures in each iteration defined by this
+	 * {@link ClassifierAssessmentAssessParameterSet}.
+	 * 
+	 * @return the flag defined by this
+	 *         {@link ClassifierAssessmentAssessParameterSet} 
+	 *         (<code>true</code>: all performance measures in each iteration are stored separately,
+	 *         <code>false</code>: only values need for mean and standard error are stored)
+	 *         
+	 * @see MeanResultSet#MeanResultSet(boolean, de.jstacs.results.SimpleResult...)
+	 * @see MeanResultSet#getAllValues(int)
+	 */
+	public boolean getStoreAll() {
+		return ( (Boolean)( getParameterForName( "storeAll" ).getValue() ) ).booleanValue();
 	}
 
 	/**
@@ -168,5 +201,14 @@ public class ClassifierAssessmentAssessParameterSet extends ParameterSet {
 	 */
 	public Collection<Result> getAnnotation() {
 		return new ArrayList<Result>( 0 );
+	}
+
+	/**
+	 * This method allows to set the switch for storing all individual performance measure values of each iteration of the {@link ClassifierAssessment}.
+	 * @param b the value to be set
+	 * @throws IllegalValueException if the parameter could not be set
+	 */
+	public void setStoreAll( boolean b ) throws IllegalValueException {
+		 getParameterForName( "storeAll" ).setValue(b);		
 	}
 }

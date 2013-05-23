@@ -247,7 +247,7 @@ public class SignificantMotifOccurrencesFinder {
 		double[][] profiles = getAllProfilesOfScoresFor( motif, seq, start );
 		return joinMethod.joinProfiles( profiles );
 	}
-	
+/*	
 public void test() throws Exception {
 	fillSortedScoresArray(0, 0);
 	System.out.println("0: " + Arrays.toString(sortedScores[0]));
@@ -260,7 +260,7 @@ public void test() throws Exception {
 		);
 	}
 }
-	
+*/	
 	private void fillSortedScoresArray( int motif, int start ) throws Exception {
 //XXX von hier
 		int num = 0, i;

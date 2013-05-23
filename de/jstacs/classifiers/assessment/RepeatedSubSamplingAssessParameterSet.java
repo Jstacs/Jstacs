@@ -130,17 +130,17 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
 		
-		this.parameters.get( 2 ).setValue( repeats );
+		this.parameters.get( "repeats" ).setValue( repeats );
 
 		ParameterSet[] tempPSA = new ParameterSet[trainNumbers.length];
 		for( int i = 0; i < tempPSA.length; tempPSA[i] = getParameterSetContainingASingleDoubleValue( trainNumbers[i++], "training" ) );
 
-		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( 3 ) ) ).getValue() ) ).replaceContentWith( tempPSA );
+		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( "trainDataNumbers" ) ) ).getValue() ) ).replaceContentWith( tempPSA );
 
 		ParameterSet[] tempPSA2 = new ParameterSet[testNumbers.length];
 		for( int i = 0; i < tempPSA2.length; tempPSA2[i] = getParameterSetContainingASingleDoubleValue( testNumbers[i++], "testing" ) );
 
-		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( 4 ) ) ).getValue() ) ).replaceContentWith( tempPSA2 );
+		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( "testDataNumbers" ) ) ).getValue() ) ).replaceContentWith( tempPSA2 );
 
 	}
 
@@ -234,7 +234,7 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 *         performed)
 	 */
 	public int getRepeats() {
-		return ( (Integer)( this.getParameterAt( 2 ).getValue() ) ).intValue();
+		return ( (Integer)( this.getParameterForName( "repeats" ).getValue() ) ).intValue();
 	}
 
 	/**
@@ -250,14 +250,14 @@ public class RepeatedSubSamplingAssessParameterSet extends ClassifierAssessmentA
 	 */
 	public double[] getTrain_TestNumbers( boolean train_case ) {
 
-		int pos;
+		String pos;
 		if( train_case ) {
-			pos = 3;
+			pos = "trainDataNumbers";
 		} else {
-			pos = 4;
+			pos = "testDataNumbers";
 		}
 
-		ExpandableParameterSet tempEPS = (ExpandableParameterSet)( this.getParameterAt( pos ).getValue() );
+		ExpandableParameterSet tempEPS = (ExpandableParameterSet)( this.getParameterForName( pos ).getValue() );
 
 		double[] ret = new double[tempEPS.getNumberOfParameters()];
 

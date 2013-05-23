@@ -134,14 +134,14 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 												int repeats, double[] percents ) throws ParameterException, CloneNotSupportedException {
 		super( elementLength, exceptionIfMPNotComputable );
 		addParameters();
-		this.parameters.get( 2 ).setValue( new Integer( repeats ) );
+		this.parameters.get( "repeats" ).setValue( new Integer( repeats ) );
 
 		ParameterSet[] tempPSA = new ParameterSet[percents.length];
 		for( int i = 0; i < tempPSA.length; tempPSA[i] = getParameterSetContainingASingleDoubleValue( percents[i++] ) );
 
-		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( 3 ) ) ).getValue() ) ).replaceContentWith( tempPSA );
+		( (ExpandableParameterSet)( ( (ParameterSetContainer)( this.parameters.get( "testDataPercentage" ) ) ).getValue() ) ).replaceContentWith( tempPSA );
 
-		( this.parameters.get( 4 ) ).setValue( dataSplitMethod );
+		( this.parameters.get( PartitionMethod.class.getSimpleName() ) ).setValue( dataSplitMethod );
 
 	}
 
@@ -162,6 +162,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 *            values are contained in the returned {@link ParameterSet}.
 	 *            (The {@link SimpleParameter} contained in the returned
 	 *            {@link ParameterSet} contains no value).
+	 * @return a {@link SimpleParameter}
 	 * 
 	 * @throws IllegalValueException
 	 *             if something went wrong
@@ -230,7 +231,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 *         performed)
 	 */
 	public int getRepeats() {
-		return ( (Integer)( this.getParameterAt( 2 ).getValue() ) ).intValue();
+		return ( (Integer)( this.getParameterForName("repeats").getValue() ) ).intValue();
 	}
 
 	/**
@@ -242,7 +243,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 */
 	public double[] getPercents() {
 
-		ExpandableParameterSet tempEPS = (ExpandableParameterSet)( this.getParameterAt( 3 ).getValue() );
+		ExpandableParameterSet tempEPS = (ExpandableParameterSet)( this.getParameterForName("testDataPercentage").getValue() );
 
 		double[] ret = new double[tempEPS.getNumberOfParameters()];
 
@@ -263,7 +264,7 @@ public class RepeatedHoldOutAssessParameterSet extends ClassifierAssessmentAsses
 	 * @see de.jstacs.data.DataSet.PartitionMethod
 	 */
 	public PartitionMethod getDataSplitMethod() {
-		return (PartitionMethod)( (EnumParameter)getParameterAt( 4 ) ).getValue();
+		return (PartitionMethod)( (EnumParameter)getParameterForName( PartitionMethod.class.getSimpleName() ) ).getValue();
 	}
 
 	/* (non-Javadoc)

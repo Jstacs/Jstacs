@@ -25,6 +25,7 @@ import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.utils.DoubleList;
 
 /**
  * Class that computes the mean and the standard error of a series of
@@ -52,15 +53,38 @@ public class MeanResultSet extends NumericalResultSet {
 	 */
 	private SimpleResult[] infos;
 
+	private boolean aggregateAll;
+	private DoubleList[] allValues;
+
 	private MeanResultSet(NumericalResult[] res, SimpleResult[] infos,
-			double[] squares, int count) {
+			double[] squares, int count, boolean aggregateAll, DoubleList[] allValues) {
 		super(res);
 		this.count = count;
 		this.infos = new SimpleResult[infos.length];
 		this.squares = squares;
+		this.aggregateAll = aggregateAll;
+		this.allValues = allValues;		
 		System.arraycopy(infos, 0, this.infos, 0, infos.length);
 	}
 
+	/**
+	 * Constructs a new {@link MeanResultSet} with an empty set of
+	 * {@link NumericalResultSet}s and allows to collect all
+	 * values via the switch <code>aggregateAll</code>.
+	 * 
+	 * @param infos
+	 *            some information to this {@link MeanResultSet}
+	 * @param aggregateAll
+	 *			  a switch to decide whether all values should be collected
+	 */
+	public MeanResultSet(boolean aggregateAll, SimpleResult... infos) {
+		super();
+		count = 0;
+		this.infos = new SimpleResult[infos.length + 1];
+		System.arraycopy(infos, 0, this.infos, 0, infos.length);
+		this.aggregateAll = aggregateAll;
+	}
+	
 	/**
 	 * Constructs a new {@link MeanResultSet} with an empty set of
 	 * {@link NumericalResultSet}s.
@@ -69,10 +93,7 @@ public class MeanResultSet extends NumericalResultSet {
 	 *            some information to this {@link MeanResultSet}
 	 */
 	public MeanResultSet(SimpleResult... infos) {
-		super();
-		count = 0;
-		this.infos = new SimpleResult[infos.length + 1];
-		System.arraycopy(infos, 0, this.infos, 0, infos.length);
+		this( false, infos );
 	}
 
 	/**
@@ -111,8 +132,10 @@ public class MeanResultSet extends NumericalResultSet {
 		XMLParser.addTags(buf, "superSet");
 		setCount();
 		XMLParser.appendObjectWithTags(buf, infos, "infos");
+		XMLParser.appendObjectWithTags( buf, aggregateAll, "aggregateAll" );
 		if( count > 0 ) {
 			XMLParser.appendObjectWithTags(buf, squares, "squares");
+			XMLParser.appendObjectWithTags(buf, allValues, "allValues");
 		}
 		XMLParser.addTags(buf, "meanResultSet");
 
@@ -135,9 +158,11 @@ public class MeanResultSet extends NumericalResultSet {
 		for (int i = 0; i < infos.length; i++) {
 			infos[i] = (SimpleResult) infosTemp[i];
 		}
+		aggregateAll = (boolean) XMLParser.extractObjectForTags( representation, "aggregateAll" );
 		count = (Integer) infos[infos.length - 1].getValue();
 		if( count > 0 ) {
 			squares = XMLParser.extractObjectForTags(representation, "squares", double[].class );
+			allValues = (DoubleList[]) XMLParser.extractObjectForTags( representation, "allValues" );
 		}
 	}
 
@@ -166,9 +191,16 @@ public class MeanResultSet extends NumericalResultSet {
 		if (i != r1.infos.length - 1) {
 			throw new AdditionImpossibleException();
 		}
+		boolean aggregateAll = r1.aggregateAll && r2.aggregateAll;
 		NumericalResult[] results = new NumericalResult[r1.getNumberOfResults()];
 		double[] squares = new double[r1.getNumberOfResults()];
-
+		DoubleList[] allValues = null;
+		if( aggregateAll ) {
+			allValues = new DoubleList[squares.length];
+			for( i = 0; i < allValues.length; i++ ) {
+				allValues[i] = new DoubleList();
+			}
+		}
 		NumericalResult curr1, curr2;
 		for (i = 0; i < results.length; i++) {
 			curr1 = r1.getResultAt(i);
@@ -181,9 +213,14 @@ public class MeanResultSet extends NumericalResultSet {
 			results[i] = new NumericalResult(curr1.getName(), curr1
 					.getComment(), ((Double) curr1.getValue())
 					+ ((Double) curr2.getValue()));
+			if( aggregateAll ) {
+				allValues[i].addAll( r1.allValues[i] );
+				allValues[i].addAll( r2.allValues[i] );
+			}
 		}
-		return new MeanResultSet(results, r1.infos, squares, r1.count
-				+ r2.count);
+		MeanResultSet mrs = new MeanResultSet(results, r1.infos, squares, r1.count
+				+ r2.count, aggregateAll, allValues );
+		return mrs;
 	}
 
 	/**
@@ -217,6 +254,12 @@ public class MeanResultSet extends NumericalResultSet {
 		if ( first ) {
 			results = new AnnotatedEntityList<Result>( anz );
 			squares = new double[anz];
+			if( aggregateAll ) {
+				allValues = new DoubleList[squares.length];
+				for( i = 0; i < allValues.length; i++ ) {
+					allValues[i] = new DoubleList();
+				}
+			}
 		} else if (anz != this.getNumberOfResults()) {
 			throw new InconsistentResultNumberException();
 		}
@@ -232,6 +275,9 @@ public class MeanResultSet extends NumericalResultSet {
 						currVal = (Double) curr.getValue();
 					} else {
 						currVal = (Integer) curr.getValue();
+					}
+					if( allValues != null ) {
+						allValues[idx].add( currVal );
 					}
 					squares[idx] += currVal * currVal;
 					if ( first ) {
@@ -284,6 +330,21 @@ public class MeanResultSet extends NumericalResultSet {
 		}
 
 		return new NumericalResultSet(resultsTemp);
+	}
+	
+	/**
+	 * Returns all values of the result with index <code>index</code> if available otherwise <code>null</code>.
+	 * 
+	 * @param index the index of the result
+	 * 
+	 * @return all values if available otherwise <code>null</code>
+	 */
+	public double[] getAllValues( int index ) {
+		if( allValues == null ) {
+			return null;
+		} else {
+			return allValues[index].toArray();
+		}
 	}
 
 	private void setCount() {

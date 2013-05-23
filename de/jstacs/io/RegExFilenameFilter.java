@@ -48,8 +48,17 @@ public class RegExFilenameFilter extends FileFilter implements java.io.FileFilte
 	 * @author Jens Keilwagen
 	 */
 	public static enum Directory {
+		/**
+		 * Directories will not show up when filtering.
+		 */
 		FORBIDDEN,
+		/**
+		 * Directories can not show up when filtering.
+		 */
 		ALLOWED,
+		/**
+		 * Only directories will not show up when filtering.
+		 */
 		REQUIRED
 	}
 

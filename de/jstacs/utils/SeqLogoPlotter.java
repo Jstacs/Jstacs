@@ -95,7 +95,7 @@ public class SeqLogoPlotter {
 	 * The sequence logo is written to the {@link Graphics2D} object given in <code>g</code>.
 	 * 
 	 * @param g the {@link Graphics2D} object
-	 * @param height the height of the sequence logo
+	 * @param h the height of the sequence logo
 	 * @param ps the position weight matrix
 	 */
 	public static void plotLogo(Graphics2D g, int h, double[][] ps){
