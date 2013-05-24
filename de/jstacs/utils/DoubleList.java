@@ -245,7 +245,7 @@ public final class DoubleList implements Storable, Cloneable {
 			array[start++] += summand;
 		}
 	}
-
+	
 	/**
 	 * This method computes the mean of a part of the list. Please note that
 	 * <code>start</code> has to be smaller than <code>end</code> and
@@ -259,14 +259,7 @@ public final class DoubleList implements Storable, Cloneable {
 	 * @return the mean of the part of the list
 	 */
 	public double mean( int start, int end ) {
-		if( start >= end ) {
-			throw new IllegalArgumentException( "The start index has to be smaller than the end index." );
-		}
-		double sum = 0;
-		for( int k = start; k < end; k++ ) {
-			sum += array[k];
-		}
-		return sum / (double)( end - start );
+		return ToolBox.mean( start, end, array );
 	}
 	
 	/**
@@ -282,13 +275,7 @@ public final class DoubleList implements Storable, Cloneable {
 	 * @return the standard deviation of the part of the list
 	 */
 	public double sd( int start, int end ) {
-		double mean = mean( start, end );
-		double var = 0, h;
-		for( int k = start; k < end; k++ ) {
-			h = mean - array[k];
-			var += h*h;
-		}
-		return Math.sqrt( var / (double)( end - start ) );
+		return ToolBox.sd( start, end, array );
 	}
 	
 	/**
@@ -304,16 +291,7 @@ public final class DoubleList implements Storable, Cloneable {
 	 * @return the minimum of the part of the list
 	 */
 	public double min( int start, int end ) {
-		if( start >= end ) {
-			throw new IllegalArgumentException( "The start index has to be smaller than the end index." );
-		}
-		double min = array[start];
-		for( int k = start+1; k < end; k++ ) {
-			if( array[k] < min ) {
-				min = array[k];
-			}
-		}
-		return min;
+		return ToolBox.min( start, end, array );
 	}
 	
 	/**
@@ -329,17 +307,7 @@ public final class DoubleList implements Storable, Cloneable {
 	 * @return the median of the part of the list
 	 */
 	public double median( int start, int end ) {
-		if( start >= end ) {
-			throw new IllegalArgumentException( "The start index has to be smaller than the end index." );
-		}
-		double[] part = new double[end-start];
-		System.arraycopy( array, start, part, 0, part.length );
-		Arrays.sort( part );
-		if(part.length % 2 == 0){
-			return (part[part.length/2] + part[part.length/2 - 1])/2.0;
-		}else{
-			return part[(part.length-1)/2];
-		}
+		return ToolBox.median( start, end, array );
 	}
 
 	/* (non-Javadoc)
