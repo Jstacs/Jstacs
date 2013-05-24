@@ -18,6 +18,7 @@
 
 package supplementary.cookbook.recipes;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.NotTrainedException;
@@ -29,6 +30,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
+import de.jstacs.utils.ToolBox;
  
  
  
@@ -124,5 +126,10 @@ public class HomogeneousMarkovModel extends AbstractTrainableStatisticalModel {
 		for(int i=0;i<logProbs.length;i++){ norm += logProbs[i]; }
 		//normalize probs to obtain proper probabilities
 		for(int i=0;i<logProbs.length;i++){ logProbs[i] = Math.log( logProbs[i]/norm ); }
+	}
+
+	@Override
+	public String toString(NumberFormat nf) {
+		return ToolBox.toString(logProbs, nf);
 	} 
 }

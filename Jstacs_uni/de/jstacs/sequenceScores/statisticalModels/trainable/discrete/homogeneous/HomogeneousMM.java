@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous;
 
+import java.text.NumberFormat;
 import java.util.Random;
 
 import de.jstacs.NotTrainedException;
@@ -160,16 +161,17 @@ public class HomogeneousMM extends HomogeneousTrainSM {
 		return erg;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM#toString()
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		String erg = "description: " + getDescription();
 		if( trained ) {
 			erg += "\n\nprobabilities:\n";
 			for( int i = 0; i <= order; i++ ) {
-				erg += condProb[i].getFreqInfo( alphabets ) + "\n";
+				erg += condProb[i].getFreqInfo( alphabets, nf ) + "\n";
 			}
 		}
 		return erg;

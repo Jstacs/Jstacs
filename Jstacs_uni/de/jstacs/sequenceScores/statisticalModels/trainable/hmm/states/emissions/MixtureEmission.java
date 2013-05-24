@@ -252,4 +252,17 @@ public final class MixtureEmission implements Emission {
 			emission[i].setParameters( tt.emission[i] );
 		}		
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission#toString(java.text.NumberFormat)
+	 */
+	@Override
+	public String toString(NumberFormat nf) {
+		StringBuffer sb = new StringBuffer( emission.length * 100000 );
+		for( int i = 0; i < emission.length; i++ ) {
+				sb.append( nf.format( Math.exp(logProb[i]) ) + "\n" + emission[i].toString(nf) );
+		}
+		return null;
+	}
 }

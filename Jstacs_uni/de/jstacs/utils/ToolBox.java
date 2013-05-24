@@ -19,6 +19,7 @@
 
 package de.jstacs.utils;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -632,5 +633,26 @@ public class ToolBox {
 				}
 			}
 		}		
-	}	
+	}
+	
+	/**
+	 * This methods returns a {@link String} representation of a double array using the specified {@link NumberFormat}.
+	 * 
+	 * @param array the array to be represented
+	 * @param nf the {@link NumberFormat} to be used
+	 * 
+	 * @return a {@link String} representation
+	 */
+	public static String toString( double[] array, NumberFormat nf ) {
+		if( array == null ) {
+			return "null";
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append("[");
+		for( int i = 0; i < array.length; i++ ) {
+			sb.append( (i==0?"":", ") + nf.format(array[i]) );
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }

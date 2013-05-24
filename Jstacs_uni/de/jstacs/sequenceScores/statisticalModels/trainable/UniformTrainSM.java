@@ -20,6 +20,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Random;
 
 import de.jstacs.data.AlphabetContainer;
@@ -169,7 +170,7 @@ public class UniformTrainSM extends AbstractTrainableStatisticalModel
 	 * Returns the String &quot;&quot;.
 	 */
 	@Override
-	public String toString()
+	public String toString( NumberFormat nf )
 	{
 		return "";
 	}

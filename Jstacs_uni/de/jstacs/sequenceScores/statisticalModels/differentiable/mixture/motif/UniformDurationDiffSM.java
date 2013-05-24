@@ -18,6 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.DataSet;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.utils.DoubleList;
@@ -103,7 +105,7 @@ public final class UniformDurationDiffSM extends DurationDiffSM
 		// does nothing
 	}
 	
-	protected String getRNotation( String distributionName )
+	protected String getRNotation( String distributionName, NumberFormat nf )
 	{
 		return "l = " + min + ":" + max + "; n = length(l); " + distributionName + " = rep(1,n)/n;";
 	}

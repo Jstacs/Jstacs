@@ -19,6 +19,9 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif;
 
+import java.text.NumberFormat;
+import java.util.HashSet;
+
 import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.io.ArrayHandler;
@@ -147,9 +150,31 @@ public class MixtureDurationDiffSM extends DurationDiffSM {
 	public void adjust( int[] length, double[] weight ) {
 		double[][] assignedWeights = new double[function.length][];
 		double[] stat = new double[hiddenParams.length];
-		double all = 0;		
-		for( int i = 0; i < function.length; i++ ) {
-			function[i].adjust( length, weight ); //FIXME: problem if identical components
+		double all = 0;
+		
+		int i = 0;
+		HashSet<Class> names = new HashSet<Class>();
+		while( i < function.length ) {
+			Class c = function[i].getClass();
+			if( names.contains(c) ) {
+				break;
+			} else {
+				names.add( c );
+				i++;
+			}
+		}
+		boolean init = i < function.length;
+		
+		for( i = 0; i < function.length; i++ ) {
+			if( init ) {
+				try {
+					function[i].initializeFunctionRandomly(false);
+				} catch (Exception e) {
+					throw new RuntimeException();
+				}
+			} else {
+				function[i].adjust( length, weight );
+			}
 			hiddenParams[i] = 0;
 			assignedWeights[i] = new double[weight.length];
 			stat[i] = function[i].getESS();
@@ -161,18 +186,18 @@ public class MixtureDurationDiffSM extends DurationDiffSM {
 		int[] values = new int[1];
 		for( int l = 0; l < length.length; l++ ) {
 			values[0] = length[l];
-			for( int i = 0; i < function.length; i++ ) {
+			for( i = 0; i < function.length; i++ ) {
 				scores[i] = hiddenParams[i] + function[i].getLogScore( values );
 			}
 			Normalisation.logSumNormalisation( scores );
-			for( int i = 0; i < function.length; i++ ) {
+			for( i = 0; i < function.length; i++ ) {
 				assignedWeights[i][l] = weight[l] * scores[i];
 				stat[i] += weight[l] * scores[i];
 			}
 			all += weight[l];
 		}
 
-		for( int i = 0; i < function.length; i++ ) {
+		for( i = 0; i < function.length; i++ ) {
 			function[i].adjust( length, assignedWeights[i] );
 			hiddenParams[i] = Math.log( stat[i]/all );
 		}
@@ -290,7 +315,6 @@ public class MixtureDurationDiffSM extends DurationDiffSM {
 		}
 		for( i = 0; i < function.length; i++ ) {
 			weights[index] = componentWeights[i];
-			function[i].initializeFunction( index, freeParams, data, weights );
 			//System.out.println( hiddenParams[i] / all );
 			hiddenParams[i] = Math.log( hiddenParams[i] / all );
 		}
@@ -347,15 +371,16 @@ public class MixtureDurationDiffSM extends DurationDiffSM {
 	}
 
 	@Override
-	protected String getRNotation( String distributionName ) {
+	protected String getRNotation( String distributionName, NumberFormat nf ) {
 		String r = "", sum = null;
 		for( int i = 0; i < function.length; i++ ) {
-			r += function[i].getRNotation( distributionName + i ) + "\n";
+			r += function[i].getRNotation( distributionName + i, nf ) + "\n";
 			if( sum == null ) {
-				sum = distributionName + " = " + Math.exp( hiddenParams[i] - logNorm ) + " * " + distributionName + i;  
+				sum = distributionName + " = ";  
 			} else {
-				sum += " + " + Math.exp( hiddenParams[i] - logNorm ) + " * " + distributionName + i;
+				sum += " + ";
 			}
+			sum += nf.format(Math.exp( hiddenParams[i] - logNorm )) + " * " + distributionName + i;
 		}
 		return r + sum  + ";";
 	}

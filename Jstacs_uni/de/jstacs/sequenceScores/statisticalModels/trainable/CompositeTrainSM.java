@@ -20,6 +20,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.LinkedList;
 
 import de.jstacs.NotTrainedException;
@@ -403,15 +404,14 @@ public class CompositeTrainSM extends AbstractTrainableStatisticalModel {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		String erg = "";
 		for (int i = 0; i < models.length; i++) {
 			erg += "model: " + i + "\n";
-			erg += models[i] + "\n\n";
+			erg += models[i].toString(nf) + "\n\n";
 		}
 		return erg;
 	}

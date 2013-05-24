@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
@@ -321,19 +322,18 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		if( Double.isNaN( norm ) ) {
 			precomputeNorm();
 		}
 		
 		StringBuffer erg = new StringBuffer( function.length * 1000 );
 		for( int i = 0; i < function.length; i++ ) {
-			erg.append( "p(" + i + ") = " + (isNormalized()?hiddenPotential[i]:Math.exp( partNorm[i] - norm )) + "\n"
-						+ function[i].toString()
+			erg.append( "p(" + i + ") = " + nf.format(isNormalized()?hiddenPotential[i]:Math.exp( partNorm[i] - norm )) + "\n"
+						+ function[i].toString(nf)
 						+ "\n" );
 		}
 		return erg.toString();

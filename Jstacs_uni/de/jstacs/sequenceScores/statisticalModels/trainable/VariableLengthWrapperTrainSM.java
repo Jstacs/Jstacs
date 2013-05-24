@@ -19,6 +19,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
+import java.text.NumberFormat;
+
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
@@ -116,5 +118,10 @@ public class VariableLengthWrapperTrainSM extends AbstractTrainableStatisticalMo
 	public void train( DataSet data, double[] weights ) throws Exception {
 		WeightedDataSetFactory wsf = new WeightedDataSetFactory(SortOperation.NO_SORT,data,weights,length);
 		m.train( wsf.getDataSet(), wsf.getWeights() );
+	}
+
+	@Override
+	public String toString(NumberFormat nf) {
+		return m.toString(nf);
 	}
 }

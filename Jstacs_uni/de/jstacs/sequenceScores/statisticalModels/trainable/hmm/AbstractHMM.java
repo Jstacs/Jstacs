@@ -928,11 +928,16 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		return res;
 	}
 	
-	public String toString() {
-		String res = "Transition:\n-----------\n" + transition.toString( name ); 
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
+	 */
+	@Override
+	public String toString( NumberFormat nf ) {
+		String res = "Transition:\n-----------\n" + transition.toString( name, nf ); 
 		res += "\nStates:\n-------\n";
 		for( int e = 0; e < states.length; e++ ) {
-			res += states[e] + "\n";
+			res += states[e].toString( nf ) + "\n";
 		}		
 		return res;
 	}

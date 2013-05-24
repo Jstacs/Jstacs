@@ -17,6 +17,7 @@
  */
 package supplementary.cookbook.recipes;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
@@ -28,16 +29,17 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDiffere
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
 
 
 public class PositionWeightMatrixDiffSM extends AbstractDifferentiableStatisticalModel {
 
-	private double[][] parameters;// array for the parameters of the PWM in natural parameterization
+	protected double[][] parameters;// array for the parameters of the PWM in natural parameterization
 	private double ess;// the equivalent sample size
 	private boolean isInitialized;// if the parameters of this PWM are initialized
-	private Double norm;// normalization constant, must be reset for new parameter values
+	protected Double norm;// normalization constant, must be reset for new parameter values
 	
 	public PositionWeightMatrixDiffSM( AlphabetContainer alphabets, int length, double ess ) throws IllegalArgumentException {
 		super( alphabets, length );
@@ -270,4 +272,17 @@ public class PositionWeightMatrixDiffSM extends AbstractDifferentiableStatistica
 		ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
 	}
 
+	@Override
+	public String toString(NumberFormat nf) {
+		String res = "";
+		for( int l = 0; l < parameters.length; l++ ) {
+			double norm = Normalisation.getLogSum(parameters[l]);
+			res += l;
+			for( int i = 0; i < parameters[l].length; i++ ) {
+				res +=  "\t" + nf.format(Math.exp( parameters[l][i] - norm ));
+			}
+			res += "\n";
+		}
+		return res;
+	}
 }

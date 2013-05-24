@@ -19,6 +19,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -878,7 +879,7 @@ public class CyclicMarkovModelDiffSM extends AbstractVariableLengthDiffSM implem
 		return ess;
 	}
 	
-	public String toString()
+	public String toString( NumberFormat nf )
 	{
 		DiscreteAlphabet abc =(DiscreteAlphabet) alphabets.getAlphabetAt( 0 ); 
 		int i = 0, o, p, index, l = (int)abc.length();
@@ -893,7 +894,7 @@ public class CyclicMarkovModelDiffSM extends AbstractVariableLengthDiffSM implem
 		int[] context = new int[order+1];
 		for( p = 0; p < period; p++ )
 		{
-			info.append( "frame " + p + ": p("+p+") = " + frameProbs[p] + "\n" );
+			info.append( "frame " + p + ": p("+p+") = " + nf.format(frameProbs[p]) + "\n" );
 			for( i = 0; i <= l; i++ )
 			{
 				info.append( "\t" + sym[i] );
@@ -924,7 +925,7 @@ public class CyclicMarkovModelDiffSM extends AbstractVariableLengthDiffSM implem
 					}
 					for( i = 0; i <= l; i++, index++ )
 					{
-						info.append( "\t" + probs[p][o][index] + "\t("+hyper[p][o][index]+")" );
+						info.append( "\t" + nf.format(probs[p][o][index]) + "\t("+nf.format(hyper[p][o][index])+")" );
 					}
 					info.append( "\n" );
 					

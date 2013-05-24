@@ -19,6 +19,10 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import de.jstacs.NotTrainedException;
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
@@ -315,4 +319,10 @@ public abstract class AbstractTrainableStatisticalModel implements Cloneable, St
 	 * @see AbstractTrainableStatisticalModel#AbstractTrainableStatisticalModel(StringBuffer)
 	 */
 	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
+
+	public final String toString() {
+		NumberFormat nf = NumberFormat.getInstance(Locale.US);
+		nf.setMaximumFractionDigits(3);
+		return toString(nf);
+	}
 }

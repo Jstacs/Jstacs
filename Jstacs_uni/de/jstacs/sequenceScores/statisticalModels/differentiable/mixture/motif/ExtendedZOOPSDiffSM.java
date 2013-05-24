@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
@@ -625,26 +626,26 @@ public class ExtendedZOOPSDiffSM extends AbstractMixtureDiffSM implements Mutabl
 		return logScore;
 	}
 
-	public String toString()
+	public String toString( NumberFormat nf )
 	{
 		if( Double.isNaN( norm ) )
 		{
 			precomputeNorm();
 		}
 		StringBuffer erg = new StringBuffer( function.length * 1000 );
-		erg.append( "bg:\n" + bg.toString() + "\n" );
+		erg.append( "bg:\n" + bg.toString(nf) + "\n" );
 		if( type == CONTAINS_SOMETIMES_A_MOTIF )
 		{
-			erg.append( "\nno motif: " + Math.exp(partNorm[bgIndex / 2] - norm) + "\texp(" +partNorm[bgIndex / 2] + " - " + norm + ")\t" + logHiddenPotential[bgIndex/2] + "\n" );
+			erg.append( "\nno motif: " + nf.format(Math.exp(partNorm[bgIndex / 2]) - norm) + "\texp(" +partNorm[bgIndex / 2] + " - " + norm + ")\t" + logHiddenPotential[bgIndex/2] + "\n" );
 		}
 		for( int i = 0; i < bgIndex; i += 2 )
 		{
 			erg.append( "\nmotif " + (i / 2) + ": " );
 			if( hiddenPotential.length > 1 )
 			{
-				erg.append( Math.exp(partNorm[i / 2] - norm) +"\texp(" +partNorm[i / 2] + " - " + norm + ")\t" + logHiddenPotential[i/2] );
+				nf.format(erg.append( Math.exp(partNorm[i / 2] - norm)) +"\texp(" +partNorm[i / 2] + " - " + norm + ")\t" + logHiddenPotential[i/2] );
 			}
-			erg.append( "\n" + function[i].toString() + "\n" + function[i + 1].toString() + "\n" );
+			erg.append( "\n" + function[i].toString(nf) + "\n" + function[i + 1].toString(nf) + "\n" );
 		}
 		return erg.toString();
 	}

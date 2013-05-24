@@ -121,7 +121,7 @@ public final class SilentEmission implements DifferentiableEmission, SamplingEmi
 	
 	public double getLogPosteriorFromStatistic() { return 0; }
 	
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		return this.getClass().getSimpleName() + "\n";
 	}
 

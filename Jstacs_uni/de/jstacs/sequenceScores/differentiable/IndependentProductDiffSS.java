@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.differentiable;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
@@ -630,13 +631,13 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 
 	/*
 	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		StringBuffer sb = new StringBuffer( 100000 );
 		for( int i = 0; i < score.length; i++ ) {
 			sb.append( "DifferentiableSequenceScore " + i + ": " + score[i].getInstanceName() + "\n" );
-			sb.append( score[i].toString() + "\n" );
+			sb.append( score[i].toString(nf) + "\n" );
 		}
 		sb.append( "digraph {\n\trankdir=LR\n" );
 		sb.append( "\tn" + 0 + "[shape=house, orientation=" + (reverse[0]?90:-90) + ", label=\"emission: " + index[0] + "\\nduration: " + partialLength[0] + "\"]\n" );

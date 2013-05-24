@@ -19,6 +19,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
 import java.io.OutputStream;
+import java.text.NumberFormat;
 
 import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.LimitedMedianStartDistance;
@@ -255,9 +256,9 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		return null;
 	}
 
-	public String toString()
+	public String toString( NumberFormat nf )
 	{
-		return nsf.toString();
+		return nsf.toString( nf );
 	}
 
 	private static final String XML_TAG = "DifferentiableStatisticalModelWrapperTrainSM";

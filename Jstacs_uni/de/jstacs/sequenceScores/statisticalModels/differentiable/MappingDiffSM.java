@@ -18,6 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.EmptyDataSetException;
@@ -221,8 +223,8 @@ public final class MappingDiffSM extends AbstractDifferentiableStatisticalModel 
 		nsf.setParameters( params, start );
 	}
 
-	public String toString() {
-		return getInstanceName() + "\n" + nsf.toString();
+	public String toString(NumberFormat nf) {
+		return getInstanceName() + "\n" + nsf.toString(nf);
 	}
 
 	/**

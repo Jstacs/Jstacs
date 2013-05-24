@@ -603,10 +603,6 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		}
 	}
 	
-	
-	
-	public abstract String toString();
-	
 	public void setParameter( double[] params, int offset ) {
 		for( int i = 0; i < this.params.length; i++ ) {
 			for( int j = 0; j < this.params[i].length; j++, offset++) {

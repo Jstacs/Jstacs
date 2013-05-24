@@ -18,6 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete;
 
+import java.text.NumberFormat;
+
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.sequences.Sequence;
@@ -160,11 +162,12 @@ public abstract class DiscreteGraphicalTrainSM extends AbstractTrainableStatisti
 		return trained;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		return getDescription();
 	}
 

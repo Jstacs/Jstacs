@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -230,18 +231,19 @@ public abstract class DAGTrainSM extends InhomogeneousDGTrainSM {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM#toString()
+	/* 
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		String erg = "description: " + getDescription();
 		if( trained ) {
 			try {
 				erg += "\n\nstructure:\n" + getStructure();
 				StringBuffer all = new StringBuffer();
 				for( int counter1 = 0; counter1 < constraints.length; counter1++ ) {
-					all.append( constraints[counter1].getFreqInfo( alphabets ) + "\n" );
+					all.append( constraints[counter1].getFreqInfo( alphabets, nf ) + "\n" );
 				}
 				erg += "\nprobabilities:\n" + all.toString();				
 			} catch ( NotTrainedException impossible ) {
