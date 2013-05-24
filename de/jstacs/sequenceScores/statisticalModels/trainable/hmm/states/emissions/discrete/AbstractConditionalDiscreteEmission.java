@@ -633,7 +633,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		return offset;
 	}
 	
-	private void drawParameters( double[][] hyper, boolean uniformBackup ) {
+	protected void drawParameters( double[][] hyper, boolean uniformBackup ) {
 		double ess;
 		DiMRGParams p;
     	for(int j=0;j<probs.length;j++){
@@ -866,6 +866,9 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 			
 			DiscreteAlphabet abc = (DiscreteAlphabet) con.getAlphabetAt(0);
 			buf.append( "<tr>" );
+			if(probs.length>1){
+				buf.append( "<td></td>" );
+			}
 			for(int j=0;j<probs[0].length;j++){
 				buf.append( "<td border=\"0\">" );
 				if(weight < 0.5){
