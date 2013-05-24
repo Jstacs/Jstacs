@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.data.DataSet;
@@ -445,13 +446,13 @@ public class StrandDiffSM extends AbstractMixtureDiffSM implements Mutable
 		super.init( freeParams );
 	}
 	
-	public String toString()
+	public String toString( NumberFormat nf )
 	{
 		StringBuffer erg = new StringBuffer( 1500 );
 		double d = hiddenPotential[0]+hiddenPotential[1];
-		erg.append( "forward: " + (hiddenPotential[0]/d) + "\n" );
-		erg.append( "reverse: " + (hiddenPotential[1]/d) + "\n\n" );
-		erg.append( function[0].toString() );
+		erg.append( "forward: " + nf.format(hiddenPotential[0]/d) + "\n" );
+		erg.append( "reverse: " + nf.format(hiddenPotential[1]/d) + "\n\n" );
+		erg.append( function[0].toString(nf) );
 		return erg.toString();
 	}
 	

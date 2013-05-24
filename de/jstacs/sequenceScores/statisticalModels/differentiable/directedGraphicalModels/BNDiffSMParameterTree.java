@@ -125,14 +125,10 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		this.root.cloneRest(temp);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		StringBuffer all = new StringBuffer();
 		all.append("Probabilities at position " + pos + ":\n");
-		root.appendToBuffer(all, "");
+		root.appendToBuffer(all, "", nf);
 		return all.toString();
 	}
 
@@ -537,11 +533,11 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 			}
 		}
 
-		private void appendToBuffer(StringBuffer all, String after) {
+		private void appendToBuffer(StringBuffer all, String after, NumberFormat nf ) {
 			if (children != null) {
 				for (int i = 0; i < children.length; i++) {
 					children[i].appendToBuffer(all, after + "X_" + contextPos
-							+ " = " + alphabet.getSymbol(contextPos, i) + ", ");
+							+ " = " + alphabet.getSymbol(contextPos, i) + ", ", nf);
 				}
 			} else {
 				double[] norms = new double[pars.length];;
@@ -554,7 +550,7 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 							- logNorm);
 					all.append("P(X_" + pos + " = "
 							+ alphabet.getSymbol(pos, i) + " | " + after
-							+ "c)=" + tempTheta);
+							+ "c)=" + nf.format(tempTheta) );
 					if (i < pars.length - 1) {
 						all.append("\t");
 					}

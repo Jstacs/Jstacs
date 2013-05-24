@@ -71,4 +71,13 @@ public interface State  {
 	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SilentEmission
 	 */
 	public boolean isSilent();
+	
+	/**
+	 * This method returns a {@link String} representation of the instance.
+	 * 
+	 * @param nf the {@link NumberFormat} for the {@link String} representation of parameters or probabilities
+	 * 
+	 * @return a {@link String} representation of the instance
+	 */
+	public String toString( NumberFormat nf );
 }

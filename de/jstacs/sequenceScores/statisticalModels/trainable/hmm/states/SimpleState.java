@@ -81,8 +81,8 @@ public class SimpleState implements TrainableState {
 		return e instanceof SilentEmission;
 	}
 	
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		AlphabetContainer con = e.getAlphabetContainer();
-		return "state " + name + ( con == null || !con.isDiscrete() ? "" : " " + (forward?"forward":"reverse")) + "\n" + e; 
+		return "state " + name + ( con == null || !con.isDiscrete() ? "" : " " + (forward?"forward":"reverse")) + "\n" + e.toString(nf); 
 	}
 }

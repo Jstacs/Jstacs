@@ -642,18 +642,17 @@ public class BayesianNetworkDiffSM extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		if (trees != null) {
 			if (logNormalizationConstant == null) {
 				precomputeNormalization();
 			}
 			StringBuffer buf = new StringBuffer();
 			for (int i = 0; i < trees.length; i++) {
-				buf.append(trees[i].toString());
+				buf.append(trees[i].toString(nf));
 				buf.append("\n");
 			}
 			return buf.toString();

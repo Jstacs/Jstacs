@@ -18,6 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
@@ -284,9 +286,9 @@ public final class NormalizedDiffSM extends AbstractDifferentiableStatisticalMod
 		return true;
 	}
 
-	public String toString()
+	public String toString( NumberFormat nf )
 	{
-		return "normalized variante of\n" + nsf.toString();
+		return "normalized variante of\n" + nsf.toString(nf);
 	}
 
 	/**

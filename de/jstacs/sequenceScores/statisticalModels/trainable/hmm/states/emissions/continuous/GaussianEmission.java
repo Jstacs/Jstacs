@@ -333,8 +333,8 @@ public class GaussianEmission implements DifferentiableEmission {
 		return con;
 	}
 	
-	public String toString() {
-		return "p = sqrt(" + precision + "/(2*pi)) * exp( -0.5 * " + precision + " * (x - " + mu + ")^2 );\n";
+	public String toString( NumberFormat nf ) {
+		return "p = sqrt(" + nf.format( precision ) + "/(2*pi)) * exp( -0.5 * " + nf.format(precision) + " * (x - " + nf.format(mu) + ")^2 );\n";
 	}
 
 	@Override

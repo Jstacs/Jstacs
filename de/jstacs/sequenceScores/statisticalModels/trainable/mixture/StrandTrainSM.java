@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.mixture;
 
+import java.text.NumberFormat;
 import java.util.Random;
 
 import de.jstacs.NotTrainedException;
@@ -570,15 +571,15 @@ public class StrandTrainSM extends AbstractMixtureTrainSM {
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		StringBuffer sb = new StringBuffer( model.length * 100000 );
 		sb.append( "Strand model with parameter estimation by " + getNameOfAlgorithm() + ": \n" );
 		sb.append( "number of starts:\t" + starts + "\n" );
 		switch( algorithm ) {
 			case EM:
-				sb.append( weights[0] + "\tforward strand\n" );
-				sb.append( weights[1] + "\tbackward strand\n\n" );
-				sb.append( model[0].toString() );
+				sb.append( nf.format( weights[0] ) + "\tforward strand\n" );
+				sb.append( nf.format( weights[1] ) + "\tbackward strand\n\n" );
+				sb.append( model[0].toString(nf) );
 				break;
 			case GIBBS_SAMPLING:
 				sb.append( "burn in test              :\t" + burnInTest.getInstanceName() + "\n" );

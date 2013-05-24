@@ -19,6 +19,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
@@ -206,12 +208,11 @@ public class UniformHomogeneousDiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
-		return p + " for each element of "
+	public String toString( NumberFormat nf ) {
+		return nf.format(p) + " for each element of "
 				+ alphabets.getAlphabetAt(0).toString();
 	}
 

@@ -18,6 +18,8 @@
 
 package de.jstacs.sequenceScores;
 
+import java.text.NumberFormat;
+
 import de.jstacs.Storable;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -197,4 +199,13 @@ public interface SequenceScore extends Cloneable, Storable {
 	 *         otherwise
 	 */
 	public boolean isInitialized();
+	
+	/**
+	 * This method returns a {@link String} representation of the instance.
+	 * 
+	 * @param nf the {@link NumberFormat} for the {@link String} representation of parameters or probabilities
+	 * 
+	 * @return a {@link String} representation of the instance
+	 */
+	public String toString( NumberFormat nf );
 }

@@ -17,6 +17,8 @@
  */
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
@@ -128,13 +130,13 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 	}
 
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		String res = "";
 		DiscreteAlphabet abc = (DiscreteAlphabet) con.getAlphabetAt( 0 );
 		DiscreteAlphabet abc2 = (DiscreteAlphabet) refCon.getAlphabetAt( 0 );
 		for( int i = 0; i < probs.length; i++ ) {
 			for(int j=0;j<probs[i].length;j++){
-				res += "P(X=" + abc.getSymbolAt( j ) + " | "+ abc2.getSymbolAt( i ) + ") = " + probs[i][j] + "\t";
+				res += "P(X=" + abc.getSymbolAt( j ) + " | "+ abc2.getSymbolAt( i ) + ") = " + nf.format(probs[i][j]) + "\t";
 			}
 			res += "\n";
 		}

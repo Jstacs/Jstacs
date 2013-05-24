@@ -17,6 +17,7 @@
  */
 package de.jstacs.sequenceScores.differentiable;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.data.DataSet;
@@ -252,10 +253,10 @@ public class MultiDimensionalSequenceWrapperDiffSS extends AbstractDifferentiabl
 	
 	/*
 	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
-		return "wrapper of " + function.getInstanceName() + ":\n" + function;
+	public String toString( NumberFormat nf ) {
+		return "wrapper of " + function.getInstanceName() + ":\n" + function.toString(nf);
 	}
 }

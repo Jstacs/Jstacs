@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif;
 
+import java.text.NumberFormat;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -437,10 +438,16 @@ public class SkewNormalLikeDurationDiffSM extends DurationDiffSM
 		return xml;
 	}
 
-	protected String getRNotation( String distributionName )
+	protected String getRNotation( String distributionName, NumberFormat nf )
 	{
-		return "l = " + min + ":" + max + "; " +
-			distributionName + " = exp( -0.5 * (l -" + mu + ")^2/" + sigma + "^2 - " + logNorm + " ) * pnorm(" + par2 +"*(l-" + mu +")/" + sigma + ");";
+		if( nf == null ) {
+			return "l = " + min + ":" + max + "; " +
+					distributionName + " = exp( -0.5 * (l -" + mu + ")^2/" + sigma + "^2 - " + logNorm + " ) * pnorm(" + par2 +"*(l-" + mu +")/" + sigma + ");";
+		} else {
+			return "l = " + min + ":" + max + "; " +
+					distributionName + " = exp( -0.5 * (l -" + nf.format(mu) + ")^2/" + nf.format(sigma) + "^2 - " + nf.format(logNorm) + " ) * pnorm(" + nf.format(par2) +"*(l-" + nf.format(mu) +")/" + nf.format(sigma) + ");";
+		}
+		
 	}
 
 	public double getLogPriorTerm()

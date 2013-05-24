@@ -19,6 +19,8 @@
 
 package de.jstacs.sequenceScores.differentiable;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
@@ -164,11 +166,10 @@ public class UniformDiffSS extends AbstractDifferentiableSequenceScore {
 	
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		return "value 0 (zero) for each sequence ";
 	}
 

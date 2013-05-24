@@ -178,4 +178,9 @@ public class UniformEmission implements DifferentiableEmission {
 			throw new IllegalArgumentException( "The transitions are not comparable." );
 		}		
 	}
+
+	@Override
+	public String toString(NumberFormat nf) {
+		return getClass().getSimpleName();
+	}
 }

@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.mixture;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
@@ -655,18 +656,19 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 		return logWeights[component] + model[component].getLogProbFor( s, start, end );
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/* 
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString(NumberFormat nf) {
 		StringBuffer sb = new StringBuffer( model.length * 100000 );
 		sb.append( "Mixture model with parameter estimation by " + getNameOfAlgorithm() + ": \n" );
 		sb.append( "number of starts:\t" + starts + "\n" );
 		switch( algorithm ) {
 			case EM:
 				for( int i = 0; i < dimension; i++ ) {
-					sb.append( weights[i] + "\t" + model[i].getInstanceName() + "\n" + model[i].toString() + "\n" );
+					sb.append( nf.format( weights[i] ) + "\t" + model[i].getInstanceName() + "\n" + model[i].toString(nf) + "\n" );
 				}
 				break;
 			case GIBBS_SAMPLING:

@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.mixture.motif;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
@@ -297,17 +298,18 @@ public abstract class HiddenMotifMixture extends AbstractMixtureTrainSM implemen
 		return erg.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/* 
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		StringBuffer sb = new StringBuffer( 100000 );
-		sb.append( weights[0] + "\tmotif\n" );
-		sb.append( weights[1] + "\tno motif\n\n" );
+		sb.append( nf.format(weights[0]) + "\tmotif\n" );
+		sb.append( nf.format(weights[1]) + "\tno motif\n\n" );
 		sb.append( "position prior: " + posPrior.getInstanceName() + "\n\n" );
 		for( int i = 0; i < dimension; i++ ) {
-			sb.append( model[i].getInstanceName() + "\n" + model[i].toString() + "\n" );
+			sb.append( model[i].getInstanceName() + "\n" + model[i].toString(nf) + "\n" );
 		}
 		return sb.toString();
 	}

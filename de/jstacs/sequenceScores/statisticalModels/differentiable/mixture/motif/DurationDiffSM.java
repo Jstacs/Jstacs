@@ -18,6 +18,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif;
 
+import java.text.NumberFormat;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.io.NonParsableException;
@@ -212,15 +214,16 @@ public abstract class DurationDiffSM extends PositionDiffSM
 	 * This method returns the distribution in <a href="http://www.r-project.org/">R</a> notation.
 	 * 
 	 * @param distributionName the name of the distribution, e.g., &quot;p&quot;
+	 * @param nf the {@link NumberFormat} to be used, can be <code>null</code>
 	 * 
 	 * @return the distribution in R notation
 	 * 
 	 * @see de.jstacs.utils.REnvironment
 	 */
-	protected abstract String getRNotation( String distributionName );
+	protected abstract String getRNotation( String distributionName, NumberFormat nf );
 
-	public String toString() {
-		return getRNotation( "p" );
+	public String toString( NumberFormat nf ) {
+		return getRNotation( "p", nf );
 	}
 	
 }

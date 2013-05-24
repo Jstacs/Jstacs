@@ -18,6 +18,7 @@
  */
 package de.jstacs.sequenceScores.differentiable.logistic;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -30,6 +31,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
+import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements a logistic function. The score is computed by the following formula
@@ -208,7 +210,12 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 	
 	private static final String XML_TAG = LogisticDiffSS.class.getSimpleName(); 
 	
-	public String toString() {
-		return Arrays.toString( parameter );
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
+	 */
+	@Override
+	public String toString( NumberFormat nf ) {
+		return ToolBox.toString(parameter,nf);
 	}
 }

@@ -588,13 +588,13 @@ public class BasicHigherOrderTransition implements TrainableTransition {
     }
     
     public String toString() {
-    	return toString( null );
+    	return toString( null, null );
     }
     
-    public String toString( String[] stateNames ) {
+    public String toString( String[] stateNames, NumberFormat nf ) {
     	StringBuffer sb = new StringBuffer();
     	for( int t = 0; t < transitions.length; t++ ) {
-        	sb.append( transitions[t].toString( stateNames ) );
+        	sb.append( transitions[t].toString( stateNames, nf ) );
         }
     	return sb.toString();
     }
@@ -1202,23 +1202,25 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		}
 		
 		public final String toString() {
-			return toString( null );
+			return toString( null, null );
 		}
 		
 		/**
 		 * This method returns a {@link String} representation of the transition element using the given names of the states.
 		 * 
 		 * @param stateNames the names of the states, can be <code>null</code>
+		 * @param nf the {@link NumberFormat} for the {@link String} representation of probabilities
 		 * 
 		 * @return a {@link String} representation of the transition element using the given names of the states
 		 */
-		public String toString( String[] stateNames ) {
+		public String toString( String[] stateNames, NumberFormat nf ) {
 			//return Arrays.toString( context ) + " -> " + Arrays.toString( states ) + " (desc: " + Arrays.toString( descendants ) + ")";
 			if( parameters.length > 0 ) {
 				StringBuffer sb = new StringBuffer();
 				String context = getContext( stateNames );
 				for( int i = 0; i < parameters.length; i++ ) {
-					sb.append("P(" + getLabel( stateNames, states[i] ) + context + ") \t= " + Math.exp( parameters[i] - logNorm ) );
+					double v = Math.exp( parameters[i] - logNorm );
+					sb.append("P(" + getLabel( stateNames, states[i] ) + context + ") \t= " + (nf==null?v:nf.format( v )) );
 					sb.append("\t");
 				}
 				sb.append( "\n" );

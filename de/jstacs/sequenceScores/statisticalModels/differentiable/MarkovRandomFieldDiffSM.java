@@ -19,29 +19,37 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
+import java.text.NumberFormat;
 import java.util.AbstractList;
 import java.util.Arrays;
 
+import javax.management.ReflectionException;
+
+import de.jstacs.NotTrainedException;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.motifDiscovery.Mutable;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.ConstraintManager;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.MEMConstraint;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.MEMTools;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.SequenceIterator;
+import de.jstacs.utils.DiscreteInhomogenousDataSetEmitter;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.StatisticalModelTester;
 
 /**
  * This class implements the scoring function for any MRF (Markov Random Field).
  * 
  * @author Jens Keilwagen
  */
-public final class MarkovRandomFieldDiffSM extends
-		AbstractDifferentiableStatisticalModel {
+public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatisticalModel  implements Mutable, SamplingDifferentiableStatisticalModel {
 	private MEMConstraint[] constr;
 
 	private String name;
@@ -69,8 +77,7 @@ public final class MarkovRandomFieldDiffSM extends
 	 * @see MarkovRandomFieldDiffSM#MarkovRandomFieldDiffSM(AlphabetContainer, int,
 	 *      double, String)
 	 */
-	public MarkovRandomFieldDiffSM(AlphabetContainer alphabets, int length,
-			String constr) {
+	public MarkovRandomFieldDiffSM(AlphabetContainer alphabets, int length, String constr) {
 		this(alphabets, length, 0, constr);
 	}
 
@@ -88,8 +95,7 @@ public final class MarkovRandomFieldDiffSM extends
 	 *            the constraints that are used for the model, see
 	 *            {@link ConstraintManager#extract(int, String)}
 	 */
-	public MarkovRandomFieldDiffSM(AlphabetContainer alphabets, int length,
-			double ess, String constr ) {
+	public MarkovRandomFieldDiffSM(AlphabetContainer alphabets, int length, double ess, String constr ) {
 		super(alphabets, length);
 		if (!alphabets.isDiscrete()) {
 			throw new IllegalArgumentException(
@@ -100,17 +106,19 @@ public final class MarkovRandomFieldDiffSM extends
 					"The ess has to be non-negative.");
 		}
 		this.ess = ess;
-		int[] aLength = new int[length];
-		for (int i = 0; i < length; aLength[i] = (int) alphabets
-				.getAlphabetLengthAt(i++))
-			;
-		AbstractList<int[]> list = ConstraintManager.extract(length, constr);
-		ConstraintManager.reduce(list);
-		this.constr = ConstraintManager.createConstraints(list, aLength);
+		this.constr = createConstraints( alphabets, length, constr );
 		this.name = constr;
 		freeParams = false;
 		getNumberOfParameters();
 		init(Double.NaN);
+	}
+
+	private static MEMConstraint[] createConstraints( AlphabetContainer alphabets, int length, String constr ) {
+		int[] aLength = new int[length];
+		for (int i = 0; i < length; aLength[i] = (int) alphabets.getAlphabetLengthAt(i++));
+		AbstractList<int[]> list = ConstraintManager.extract(length, constr);
+		ConstraintManager.reduce(list);
+		return ConstraintManager.createConstraints(list, aLength);
 	}
 
 	/**
@@ -279,20 +287,19 @@ public final class MarkovRandomFieldDiffSM extends
 		}
 	}
 
-	
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		int i = 0, j;
 		StringBuffer res = new StringBuffer();
 		res.append( getInstanceName() + "\n" );
 		for( ; i < constr.length; i++ ) {
 			res.append( constr[i] );
 			for( j = 0; j < constr[i].getNumberOfSpecificConstraints(); j++ ) {
-				res.append( "\t" + constr[i].getLambda( j ) );
+				res.append( "\t" + nf.format( constr[i].getLambda( j ) ) );
 			}
 			res.append( "\n" );
 		}
 		return res.toString();
-	}/**/
+	}
 
 	private static final String XML_TAG = "MarkovRandomFieldDiffSM";
 
@@ -327,30 +334,25 @@ public final class MarkovRandomFieldDiffSM extends
 			getNumberOfParameters();
 		}
 
-		// uniform
-		double d = 0;
-		for (int i = 0; i < length; i++) {
-			d -= Math.log(alphabets.getAlphabetLengthAt(i));
-		}
-		d /= constr.length;
-		for (int k, j, i = 0; i < constr.length; i++) {
-			k = constr[i].getNumberOfSpecificConstraints();
-			for (j = 0; j < k; j++) {
-				constr[i].setLambda(j, d);
-			}
+		int d = 1;
+		int[] alphLen = new int[length];
+		for( int l = 0; l < length; l++ ) {
+			alphLen[l] = (int) alphabets.getAlphabetLengthAt(l);
+			d *= alphLen[l];
 		}
 		
-		/*TODO
-		//somehow data specific
-		ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, constr );
-		for( int k, j, i = 0; i < constr.length; i++ ) {
-			constr[i].estimate( ess );
-			k = constr[i].getNumberOfSpecificConstraints();
-			for (j = 0; j < k; j++) {
-				constr[i].setExpLambda( j, constr[i].getFreq( j ) );
-			}
-		}/**/
-
+		if( d > 5E6 ) {
+			// uniform
+			System.out.println("uniform");
+			MEMTools.setParametersToValue( constr, 0 );
+		} else {
+			//somehow data specific
+			System.out.println("MAP");
+			ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, constr );
+			ConstraintManager.computeFreqs( ess, constr );
+			SequenceIterator sequence = new SequenceIterator( length );
+			MEMTools.train( constr, null, sequence, MEMTools.BGIS_P, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), null, alphLen );
+		}
 		norm = Double.NaN;
 	}
 
@@ -370,7 +372,7 @@ public final class MarkovRandomFieldDiffSM extends
 		for (int k, j, i = 0; i < constr.length; i++) {
 			k = constr[i].getNumberOfSpecificConstraints();
 			for (j = 0; j < k; j++) {
-				constr[i].setLambda(j, r.nextGaussian()/(double)k );
+				constr[i].setLambda(j, r.nextGaussian()/*(double)k*/ );
 			}
 		}
 		norm = Double.NaN;
@@ -503,7 +505,7 @@ public final class MarkovRandomFieldDiffSM extends
 	 * @see
 	 * de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#getCurrentParameterValues()
 	 */
-	public double[] getCurrentParameterValues() throws Exception {
+	public double[] getCurrentParameterValues() {
 		double[] start = new double[offset[constr.length]];
 		for( int j, i = 0, n = 0; i < constr.length; i++ ) {
 			for( j = 0; n < offset[i + 1]; n++, j++ ) {
@@ -516,9 +518,90 @@ public final class MarkovRandomFieldDiffSM extends
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableSequenceScore#isInitialized()
+	 * @see de.jstacs.scoringFunctions.ScoringFunction#isInitialized()
 	 */
 	public boolean isInitialized() {
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.jstacs.motifDiscovery.Mutable#modify(int, int)
+	 */
+	public boolean modify(int offsetLeft, int offsetRight) {
+		if( alphabets.isSimple() ) {
+			//save current parameters;
+			double[] oldParams = getCurrentParameterValues();
+			
+			//create new constraints
+			int newLength = length-offsetLeft+offsetRight;
+			MEMConstraint[] old = constr;
+			if( length != newLength ) {
+				constr = createConstraints( alphabets, newLength, name );
+			}
+			
+			//find corresponding constraints
+			IntList[] list = new IntList[constr.length];
+			for( int h, anz, best, c = 0; c < old.length; c++ ) {
+				//find best matching constraint
+				best = -1;
+				anz = 0;
+				for( int n = 0; n < constr.length; n++ ) {
+					h = constr[n].comparePosition(offsetLeft, old[c]);
+					if( h > 0 && h > anz ) {
+						best = n;
+						anz = h;
+					}
+				}
+				//System.out.println( constr[c] + "\t->\t" + constr[best] );
+				
+				if( best >= 0 ) {
+					if( list[best] == null ) {
+						list[best] = new IntList();
+					}
+					list[best].add(c);
+				}
+			}
+
+			//set parameters zero
+			MEMTools.setParametersToValue(constr, 0);
+			//add old parameters
+			for( int n = 0; n < constr.length; n++ ) {
+				if( list[n] != null ) {
+					constr[n].addParameters(offsetLeft, list[n], old, oldParams, offset );
+				}
+			}
+			
+			length = newLength;
+			
+			offset=null;
+			getNumberOfParameters();
+
+			partNorm=null;
+			init( Double.NaN );
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int[][] getSamplingGroups(int parameterOffset) {
+		int[][] res = new int[constr.length][];
+		for( int i = 0; i < res.length; i++ ) {
+			res[i] = new int[constr[i].getNumberOfSpecificConstraints()];
+			for( int j = 0; j < res[i].length; j++, parameterOffset++ ) {
+				res[i][j] = parameterOffset;
+			}
+		}
+		return res;
+	}
+	
+	public DataSet emitDataSet( int numberOfSequences, int... seqLength ) throws NotTrainedException, Exception {
+		if( length <= 7 ) {
+			return DiscreteInhomogenousDataSetEmitter.emitDataSet( this, numberOfSequences );
+		} else {
+			return super.emitDataSet(numberOfSequences, seqLength);
+		}
 	}
 }

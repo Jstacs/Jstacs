@@ -19,6 +19,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
@@ -375,17 +376,16 @@ public class HomogeneousMM0DiffSM extends HomogeneousDiffSM {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	 * @see de.jstacs.sequenceScores.SequenceScore#toString(java.text.NumberFormat)
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		StringBuffer info = new StringBuffer(100);
 		info.append(alphabets.getSymbol(0, 0) + ": "
-				+ (params.getExpLambda(0) / norm));
+				+ nf.format(params.getExpLambda(0) / norm));
 		for (int i = 1; i < params.getNumberOfSpecificConstraints(); i++) {
 			info.append("\t" + alphabets.getSymbol(0, i) + ": "
-					+ (params.getExpLambda(i) / norm));
+					+ nf.format(params.getExpLambda(i) / norm));
 		}
 		return info.toString();
 	}

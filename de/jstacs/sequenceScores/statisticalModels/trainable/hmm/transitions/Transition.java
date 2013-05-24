@@ -202,10 +202,11 @@ public interface Transition extends Cloneable, Storable {
 	 * This method returns a {@link String} representation of the {@link Transition} using the given names of the states.
 	 * 
 	 * @param stateNames the names of the states, can be <code>null</code>
+	 * @param nf the {@link NumberFormat} for the {@link String} representation of probabilities
 	 * 
 	 * @return a {@link String} representation of the {@link Transition} using the given names of the states
 	 */
-	public String toString( String[] stateNames );
+	public String toString( String[] stateNames, NumberFormat nf );
 	
 	/**
 	 * Set values of parameters of the instance to the value of the parameters of the given instance.

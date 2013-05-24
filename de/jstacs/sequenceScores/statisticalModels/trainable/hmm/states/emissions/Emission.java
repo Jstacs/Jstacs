@@ -132,4 +132,13 @@ public interface Emission extends Storable, Cloneable {
 	 * @throws IllegalArgumentException if the assumption about the same class for given and current instance is wrong
 	 */
 	public void setParameters( Emission t ) throws IllegalArgumentException;
+	
+	/**
+	 * This method returns a {@link String} representation of the instance.
+	 * 
+	 * @param nf the {@link NumberFormat} for the {@link String} representation of parameters or probabilities
+	 * 
+	 * @return a {@link String} representation of the instance
+	 */
+	public String toString( NumberFormat nf );
 }
