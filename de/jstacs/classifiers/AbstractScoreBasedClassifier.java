@@ -30,7 +30,6 @@ import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.PRCurve;
 import de.jstacs.classifiers.performanceMeasures.PerformanceMeasure;
-import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.ROCCurve;
 import de.jstacs.classifiers.utils.PValueComputation;
 import de.jstacs.data.AlphabetContainer;
