@@ -147,7 +147,7 @@ public class ToolBox {
 	 */
 	public static double min( int start, int end, double[] array ) {
 		if( end <= start ) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("The start index has to be smaller than the end index.");
 		} else {
 			double min = array[start];
 			start++;
@@ -222,7 +222,7 @@ public class ToolBox {
 	 */
 	public static double median( int start, int end, double[] array ) {
 		if( end <= start ) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("The start index has to be smaller than the end index.");
 		} else {
 			double[] ar2 = new double[end-start];
 			System.arraycopy( array, start, ar2, 0, ar2.length );
@@ -246,10 +246,9 @@ public class ToolBox {
 	 *            end position (exclusive)
 	 * @param array
 	 *            the array of values
-	 * 
 	 * @return the mean
 	 */
-	public static double mean( double[] array, int start, int end ) {
+	public static double mean( int start, int end, double[] array ) {
 		if( start >= end ) {
 			throw new IllegalArgumentException( "The start index has to be smaller than the end index." );
 		}
@@ -270,11 +269,10 @@ public class ToolBox {
 	 *            end position (exclusive)
 	 * @param array
 	 *            the array of values
-	 * 
 	 * @return the standard deviation
 	 */
-	public static double sd( double[] array, int start, int end ) {
-		double mean = mean( array, start, end );
+	public static double sd( int start, int end, double[] array ) {
+		double mean = mean( start, end, array );
 		double var = 0, h;
 		for( int k = start; k < end; k++ ) {
 			h = mean - array[k];
@@ -283,10 +281,28 @@ public class ToolBox {
 		return Math.sqrt( var / (double)( end - start ) );
 	}
 	
+	/**
+	 * Returns the <code>percent</code> percentile of the array, i.e.,
+	 * returns the element at <code>percent*(array.length)</code> of the sorted array.
+	 * 
+	 * @param array the array
+	 * @param percent the percentage
+	 * @return the percentile value
+	 */
 	public static double percentile( double[] array, double percent ) {
 		return percentile( 0, array.length, array, percent );
 	}
 	
+	/**
+	 * Returns the <code>percent</code> percentile of the array between start and end, i.e.,
+	 * returns the element at <code>percent*(end-start)</code> of the sorted sub-array.
+	 * 
+	 * @param start the first index to consider
+	 * @param end the end index (exclusive)
+	 * @param array the array
+	 * @param percent the percentage
+	 * @return the percentile value
+	 */
 	public static double percentile( int start, int end, double[] array, double percent ) {
 		if( end <= start || percent < 0 || percent > 1 ) {
 			throw new IllegalArgumentException();
@@ -299,6 +315,14 @@ public class ToolBox {
 		}
 	}
 	
+	/**
+	 * Returns the element in the sorted variant of <code>array</code> (considered in descending order)
+	 * that yields <code>percent</code> of the cumulative value of array elements.
+	 * 
+	 * @param array the array
+	 * @param percent the percentage
+	 * @return the element
+	 */
 	public static double weightPercentile(double[] array, double percent){
 		double t = ToolBox.sum( array )*percent;
 		double[] ar2 = new double[array.length];
