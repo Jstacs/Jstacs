@@ -18,6 +18,7 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable.discrete;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import de.jstacs.Storable;
@@ -359,15 +360,16 @@ public abstract class Constraint implements Storable {
 	 * Returns an information about the stored frequencies.
 	 * 
 	 * @param con the {@link AlphabetContainer}
+	 * @param nf {@link NumberFormat} for String representation of frequencies
 	 * 
 	 * @return an information about the stored frequencies
 	 */
-	public String getFreqInfo( AlphabetContainer con ) {
+	public String getFreqInfo( AlphabetContainer con, NumberFormat nf ) {
 		StringBuffer sb = new StringBuffer();
 		int l = (int) con.getAlphabetLengthAt( usedPositions[usedPositions.length-1] );
 		for( int i = 0; i < freq.length; ) {
 			for( int j = 0; j < l; j++, i++ ) {
-				sb.append( getDescription( con, i ) + " = " + freq[i] + "\t" );	
+				sb.append( getDescription( con, i ) + " = " + (nf!=null?nf.format(freq[i]):freq[i]) + "\t" );	
 			}
 			sb.append( "\n" );
 		}
