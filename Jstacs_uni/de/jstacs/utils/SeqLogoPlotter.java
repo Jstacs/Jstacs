@@ -39,7 +39,7 @@ public class SeqLogoPlotter {
 	 * For a given <code>height</code> (in pixels), the width is chosen automatically depending on the number of rows
 	 * in <code>ps</code>.
 	 * 
-	 * The the positions of the sequence logo are numbered contiguously from 1 to <code>ps.length</code>. The label of the
+	 * The positions of the sequence logo are numbered contiguously from 1 to <code>ps.length</code>. The label of the
 	 * x-axis is set to &quot;Position&quot;, and the label of the y-axis is set to &quot;bits&quot;.
 	 * 
 	 * The sequence logo is written to the PNG file given in <code>path</code>.
@@ -58,7 +58,22 @@ public class SeqLogoPlotter {
 		ImageIO.write( pair.getFirstElement(), "png", new File(path) );
 	}
 	
-	public static BufferedImage plotLogoToBufferedImage(int height, double[][] ps) throws IOException{
+	/**
+	 * Plots the sequence logo for the position weight matrix given in <code>ps</code>. 
+	 * The rows of <code>ps</code> correspond to positions in the sequence logo. Each row must be normalized.
+	 * For a given <code>height</code> (in pixels), the width is chosen automatically depending on the number of rows
+	 * in <code>ps</code>.
+	 * 
+	 * The positions of the sequence logo are numbered contiguously from 1 to <code>ps.length</code>. The label of the
+	 * x-axis is set to &quot;Position&quot;, and the label of the y-axis is set to &quot;bits&quot;.
+	 * 
+	 * The sequence logo is return as a {@link BufferedImage}.
+	 * 
+	 * @param height the height of the PNG image (in pixels)
+	 * @param ps the position weight matrix
+	 * @return the sequence logo
+	 */
+	public static BufferedImage plotLogoToBufferedImage(int height, double[][] ps) {
 		Pair<BufferedImage, Graphics2D> pair = getBufferedImageAndGraphics( height, ps );
 		Graphics2D g = pair.getSecondElement();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -75,7 +90,7 @@ public class SeqLogoPlotter {
 	 * @param ps the position weight matrix
 	 * @return the created {@link BufferedImage} and its {@link Graphics2D} object
 	 */
-	public static Pair<BufferedImage,Graphics2D> getBufferedImageAndGraphics(int height,double[][] ps){
+	protected static Pair<BufferedImage,Graphics2D> getBufferedImageAndGraphics(int height,double[][] ps){
 		int w = getWidth( height, ps );
 		BufferedImage img = new BufferedImage( w, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D)img.getGraphics();
@@ -89,7 +104,7 @@ public class SeqLogoPlotter {
 	 * For a given <code>height</code> (in pixels), the width is chosen automatically depending on the number of rows
 	 * in <code>ps</code>.
 	 * 
-	 * The the positions of the sequence logo are numbered contiguously from 1 to <code>ps.length</code>. The label of the
+	 * The positions of the sequence logo are numbered contiguously from 1 to <code>ps.length</code>. The label of the
 	 * x-axis is set to &quot;Position&quot;, and the label of the y-axis is set to &quot;bits&quot;.
 	 * 
 	 * The sequence logo is written to the {@link Graphics2D} object given in <code>g</code>.
@@ -132,6 +147,12 @@ public class SeqLogoPlotter {
 		return (int)(height/6.0*(ps.length+1.5));
 	}
 	
+	/**
+	 * Returns the automatically chosen height for a given width and position weight matrix.
+	 * @param width the width
+	 * @param ps the position weight matrix
+	 * @return the height
+	 */
 	public static int getHeight(int width, double[][] ps){
 		return (int)(width*6.0/(ps.length+1.5));
 	}
@@ -221,6 +242,24 @@ public class SeqLogoPlotter {
 		}
 	}
 	
+	/**
+	 * Plots the TALgetter logo for the binding specificities given in <code>ps</code>. 
+	 * The rows of <code>ps</code> correspond to specificities of the RVDs. Each row must be normalized.
+	 * For a given <code>height</code> (in pixels), the width is chosen automatically depending on the number of rows
+	 * in <code>ps</code>. In addition, the importance of RVDs is plotted as given in <code>imp</code>.
+	 * 
+	 * The labels of the RVDs are given in <code>lab</code>. The label of the
+	 * x-axis is set to &quot;RVD&quot;, and the label of the y-axes are set to &quot;bits&quot; and &quot;Importance&quot;, respectively.
+	 * 
+	 * The TALgetter logo is written to the PNG file given in <code>path</code>.
+	 * 
+	 * @param path the path to the PNG file written
+	 * @param height the height of the PNG image (in pixels)
+	 * @param ps the binding specificities of RVDs
+	 * @param imp the importance of RVDs
+	 * @param lab the amino acids of the RVDs in one-letter code
+	 * @throws IOException if the file could not be written
+	 */
 	public static void plotTALgetterLogoToPNG(String path, int height, double[][] ps, double[] imp, String[] lab) throws IOException{
 		Pair<BufferedImage, Graphics2D> pair = getBufferedImageAndGraphics( height, ps );
 		Graphics2D g = pair.getSecondElement();
@@ -232,7 +271,25 @@ public class SeqLogoPlotter {
 		ImageIO.write( pair.getFirstElement(), "png", new File(path) );
 	}
 	
-	public static BufferedImage plotTALgetterLogoToBufferedImage(int height, double[][] ps, double[] imp, String[] lab) throws IOException{
+	/**
+	 * Plots the TALgetter logo for the binding specificities given in <code>ps</code>. 
+	 * The rows of <code>ps</code> correspond to specificities of the RVDs. Each row must be normalized.
+	 * For a given <code>height</code> (in pixels), the width is chosen automatically depending on the number of rows
+	 * in <code>ps</code>. In addition, the importance of RVDs is plotted as given in <code>imp</code>.
+	 * 
+	 * The labels of the RVDs are given in <code>lab</code>. The label of the
+	 * x-axis is set to &quot;RVD&quot;, and the label of the y-axes are set to &quot;bits&quot; and &quot;Importance&quot;, respectively.
+	 * 
+	 * The TALgetter logo is returned as {@link BufferedImage}.
+	 * 
+	 * @param path the path to the PNG file written
+	 * @param height the height of the PNG image (in pixels)
+	 * @param ps the binding specificities of RVDs
+	 * @param imp the importance of RVDs
+	 * @param lab the amino acids of the RVDs in one-letter code
+	 * @return the TALgetter logo
+	 */
+	public static BufferedImage plotTALgetterLogoToBufferedImage(int height, double[][] ps, double[] imp, String[] lab) {
 		Pair<BufferedImage, Graphics2D> pair = getBufferedImageAndGraphics( height, ps );
 		Graphics2D g = pair.getSecondElement();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -243,6 +300,29 @@ public class SeqLogoPlotter {
 		return pair.getFirstElement();
 	}
 	
+	/**
+	 * Plots the TALgetter logo for the binding specificities given in <code>ps</code>. 
+	 * The rows of <code>ps</code> correspond to specificities of the RVDs. Each row must be normalized.
+	 * For a given <code>height</code> (in pixels), the width is chosen automatically depending on the number of rows
+	 * in <code>ps</code>. In addition, the importance of RVDs is plotted as given in <code>imp</code>.
+	 * 
+	 * The labels of the RVDs are given in <code>lab</code>. The label of the
+	 * x-axis is set to &quot;RVD&quot;, and the label of the y-axes are set to &quot;bits&quot; and &quot;Importance&quot;, respectively.
+	 * 
+	 * The TALgetter logo is returned as {@link BufferedImage}.
+	 * 
+	 * @param g the {@link Graphics2D} object
+	 * @param x the x-coordinate of the bottom left corner of the TALgetter logo
+	 * @param y the y-coordinate of the bottom left corner of the TALgetter logo (<code>-h</code> results in a logo spanning from <code>0</code> to <code>h</code>)
+	 * @param w the width of the TALgetter logo
+	 * @param h the height of the TALgetter logo
+	 * @param ps the binding specificities of RVDs
+	 * @param imp the importance of RVDs
+	 * @param labels the amino acids of the RVDs in one-letter code
+	 * @param labX the label of the x-axis
+	 * @param labY the label of the y-axis
+	 * @param labY2 the label of the second (importance) y-axis
+	 */
 	public static void plotTALgetterLogo(Graphics2D g, int x, int y, int w, int h, double[][] ps, double[] imp, String[] labels, String labX, String labY, String labY2){
 		g.setColor( Color.WHITE );
 		g.fillRect( x, y-h, w, h );
