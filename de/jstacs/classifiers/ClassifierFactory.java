@@ -5,9 +5,11 @@ import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunctio
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.msp.MSPClassifier;
 import de.jstacs.classifiers.trainSMBased.TrainSMBasedClassifier;
+import de.jstacs.sequenceScores.SequenceScore;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModelFactory;
@@ -46,6 +48,25 @@ public class ClassifierFactory {
 	
 	
 	/**
+	 * @return the sequence length
+	 * @throws IllegalArgumentException if the lengths of the {@link DifferentiableSequenceScore}s (see {@link DifferentiableSequenceScore#getLength()}) are incompatible
+	 */
+	private static int getLength( SequenceScore...models ) {
+		int length = models[0].getLength();
+		for(int i=1;i<models.length;i++){
+			int l = models[i].getLength();
+			if(l != length){
+				if(length == 0){
+					length = l;
+				}else if(l != 0){
+					throw new IllegalArgumentException( "Model "+i+" has different but fixed length than a previous model." );
+				}
+			}
+		}
+		return length;
+	}
+	
+	/**
 	 * Creates a classifier that is based on at least two {@link DifferentiableStatisticalModel}s. Such models can be created using the 
 	 * {@link DifferentiableStatisticalModelFactory} or by directly using constructors of sub-classes of {@link DifferentiableStatisticalModel}.
 	 * After the classifier has been created, it can be trained using the {@link AbstractClassifier#train(de.jstacs.data.DataSet...)} method using
@@ -59,19 +80,28 @@ public class ClassifierFactory {
 	 * @throws Exception if something else went wrong
 	 */
 	public static AbstractClassifier createClassifier(LearningPrinciple principle, DifferentiableStatisticalModel... models) throws IllegalArgumentException, Exception{
-		int length = models[0].getLength();
-		for(int i=1;i<models.length;i++){
-			int l = models[i].getLength();
-			if(l != length){
-				if(length == 0){
-					length = l;
-				}else if(l != 0){
-					throw new IllegalArgumentException( "Model "+i+" has different but fixed length than a previous model." );
-				}
-			}
-		}
-		GenDisMixClassifierParameterSet params = new GenDisMixClassifierParameterSet( models[0].getAlphabetContainer(), length, Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1E-6, 1E-4, false, KindOfParameter.PLUGIN, true, 1 );
-		return new GenDisMixClassifier( params, new CompositeLogPrior(), principle, models );
+		return createClassifier(LearningPrinciple.getBeta(principle), models);
+	}
+	
+	/**
+	 * Creates a classifier that is based on at least two {@link DifferentiableStatisticalModel}s. Such models can be created using the 
+	 * {@link DifferentiableStatisticalModelFactory} or by directly using constructors of sub-classes of {@link DifferentiableStatisticalModel}.
+	 * After the classifier has been created, it can be trained using the {@link AbstractClassifier#train(de.jstacs.data.DataSet...)} method using
+	 * one data set for each {@link DifferentiableStatisticalModel} provided. The <code>beta</code> array determines the employed learning principle
+	 * and must be provided as first parameter.
+	 *  
+	 * @param beta an array specifying the learning principle by weighting factors for conditional likelihood, likelihood and prior
+	 * @param models the models for the individual classes
+	 * @return the classifier
+	 * @throws IllegalArgumentException if the lengths of the {@link DifferentiableStatisticalModel}s (see {@link DifferentiableStatisticalModel#getLength()}) are incompatible
+	 * @throws Exception if something else went wrong
+	 * 
+	 * @see LearningPrinciple
+	 * @see LogGenDisMixFunction
+	 */
+	public static AbstractClassifier createClassifier(double[] beta, DifferentiableStatisticalModel... models) throws IllegalArgumentException, Exception{
+		GenDisMixClassifierParameterSet params = new GenDisMixClassifierParameterSet( models[0].getAlphabetContainer(), getLength(models), Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1E-6, 1E-4, false, KindOfParameter.PLUGIN, true, 1 );
+		return new GenDisMixClassifier( params, new CompositeLogPrior(), beta, models );
 	}
 	
 	/**
@@ -81,26 +111,13 @@ public class ClassifierFactory {
 	 * After the classifier has been created, it can be trained using the discriminative MCL principle using the {@link AbstractClassifier#train(de.jstacs.data.DataSet...)} method using
 	 * one data set for each {@link DifferentiableSequenceScore} provided.
 	 *  
-	 * @param scores the scores for the individual classes
+	 * @param models the models for the individual classes
 	 * @return the classifier
 	 * @throws IllegalArgumentException if the lengths of the {@link DifferentiableSequenceScore}s (see {@link DifferentiableSequenceScore#getLength()}) are incompatible
 	 * @throws Exception if something else went wrong
 	 */
-	public static AbstractClassifier createClassifier(DifferentiableSequenceScore... scores) throws IllegalArgumentException, Exception{
-		int length = scores[0].getLength();
-		for(int i=1;i<scores.length;i++){
-			int l = scores[i].getLength();
-			if(l != length){
-				if(length == 0){
-					length = l;
-				}else if(l != 0){
-					throw new IllegalArgumentException( "Model "+i+" has different but fixed length than a previous model." );
-				}
-			}
-		}
-		GenDisMixClassifierParameterSet params = new GenDisMixClassifierParameterSet( scores[0].getAlphabetContainer(), length, Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1E-6, 1E-4, false, KindOfParameter.PLUGIN, true, 1 );
-		return new MSPClassifier( params, scores );
+	public static AbstractClassifier createClassifier(DifferentiableSequenceScore... models) throws IllegalArgumentException, Exception{
+		GenDisMixClassifierParameterSet params = new GenDisMixClassifierParameterSet( models[0].getAlphabetContainer(), getLength(models), Optimizer.QUASI_NEWTON_BFGS, 1E-6, 1E-6, 1E-4, false, KindOfParameter.PLUGIN, true, 1 );
+		return new MSPClassifier( params, models );
 	}
-	
-	
 }
