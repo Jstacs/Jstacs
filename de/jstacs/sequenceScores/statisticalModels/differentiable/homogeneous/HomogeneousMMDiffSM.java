@@ -28,12 +28,16 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.ByteSequence;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.StationaryDistribution;
+import de.jstacs.utils.ToolBox;
+import de.jstacs.utils.random.DiMRGParams;
 import de.jstacs.utils.random.DirichletMRG;
+import de.jstacs.utils.random.DirichletMRGParams;
 import de.jstacs.utils.random.FastDirichletMRGParams;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
 
@@ -53,20 +57,19 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	private double classEss, logGammaSum;
 
 	// the index can be computed using the powers array
-	private double[][] params, probs, logNorm;
-	private double[] sumOfHyperParams;
+	private double[][] params, probs, logNorm, hyperParams;//(order, (context, symbol))
 	private int[] counter, distCounter, offset;
 
 	/**
 	 * This method returns an array that can be used in the constructor
 	 * {@link #HomogeneousMMDiffSM(AlphabetContainer, int, double, double[], boolean, boolean, int)}
-	 * containing the sums of the specific hyperparameters.
+	 * containing the sums of the specific hyper-parameters.
 	 * 
 	 * @param order the order of the model
 	 * @param length the sequence length
 	 * @param ess the class ESS
 	 * 
-	 * @return an array containing the sums of the specific hyperparameters
+	 * @return an array containing the sums of the specific hyper-parameters
 	 * 
 	 * @see #HomogeneousMMDiffSM(AlphabetContainer, int, double, double[], boolean, boolean, int)
 	 */
@@ -88,7 +91,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 * @param classEss
 	 *            the equivalent sample size (ess) of the class
 	 * @param length
-	 *            the sequence length (only used for computing the hyperparameters)
+	 *            the sequence length (only used for computing the hyper-parameters)
 	 *            
 	 * @see #getSumOfHyperParameters(int, int, double)
 	 * @see #HomogeneousMMDiffSM(AlphabetContainer, int, double, double[], boolean, boolean, int)
@@ -109,7 +112,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 * @param classEss
 	 *            the equivalent sample size (ess) of the class
 	 * @param sumOfHyperParams
-	 *            the sum of the hyperparameters for each order (length has to
+	 *            the sum of the hyper-parameters for each order (length has to
 	 *            be <code>order</code>, each entry has to be non-negative)
 	 * @param plugIn
 	 *            a switch which enables to use the MAP-parameters as plug-in
@@ -121,6 +124,45 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 */
 	public HomogeneousMMDiffSM(AlphabetContainer alphabets, int order,
 			double classEss, double[] sumOfHyperParams, boolean plugIn,
+			boolean optimize, int starts) {
+		this( alphabets, order, classEss, getHyperParams(alphabets, sumOfHyperParams), plugIn, optimize, starts );
+	}
+	
+	private static double[][] getHyperParams( AlphabetContainer alphabets, double[] sumOfHyperParams ) {
+		int al = (int) alphabets.getAlphabetLengthAt(0);
+		int i, pow = 1;
+		double[][] hyp = new double[sumOfHyperParams.length][];
+		for (i = 0; i < sumOfHyperParams.length; i++) {
+			pow *= al;
+			hyp[i] = new double[pow];
+			Arrays.fill( hyp[i], sumOfHyperParams[i]/(double)pow );
+		}
+		return hyp;
+	}
+
+	/**
+	 * This is the main constructor that creates an instance of a homogeneous
+	 * Markov model of arbitrary order with given hyper-parameters for the prior.
+	 * 
+	 * @param alphabets
+	 *            the {@link AlphabetContainer}
+	 * @param order
+	 *            the oder of the model (has to be non-negative)
+	 * @param classEss
+	 *            the equivalent sample size (ess) of the class
+	 * @param hyperParams
+	 *            the hyper-parameters for each order (length has to
+	 *            be <code>order</code>, each entry has to be non-negative)
+	 * @param plugIn
+	 *            a switch which enables to use the MAP-parameters as plug-in
+	 *            parameters
+	 * @param optimize
+	 *            a switch which enables to optimize or fix the parameters
+	 * @param starts
+	 *            the number of recommended starts
+	 */
+	public HomogeneousMMDiffSM(AlphabetContainer alphabets, int order,
+			double classEss, double[][] hyperParams, boolean plugIn,
 			boolean optimize, int starts) {
 		super(alphabets);
 		if (order < 0) {
@@ -134,28 +176,37 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 					"The ess for the class has to be non-negative.");
 		}
 		this.classEss = classEss;
-		if (sumOfHyperParams == null) {
-			sumOfHyperParams = new double[order + 1];
+		if (hyperParams == null) {
+			this.hyperParams = new double[order + 1][];
 		} else {
-			if (sumOfHyperParams.length != order + 1) {
+			if (hyperParams.length != order + 1) {
 				throw new IllegalArgumentException(
 						"Wrong dimension of the ess array.");
 			} else {
-				this.sumOfHyperParams = new double[order + 1];
+				this.hyperParams = new double[order + 1][];
+				double[] sumOfHyperParams = new double[ order + 1 ];
 				for (int i = 0; i <= order; i++) {
-					if (sumOfHyperParams[i] < 0) {
-						throw new IllegalArgumentException(
-								"The ess has to be non-negative. Violated at position "
-										+ i + ".");
+					if(hyperParams[i].length != powers[ i+1 ]){
+						throw new IllegalArgumentException( "Wrong length of hyper-parameters for order "+i );
+					}
+					sumOfHyperParams[i] = 0;
+					this.hyperParams[i] = new double[hyperParams[i].length];
+					for(int j=0;j<powers[ i+1 ];j++){
+						if (hyperParams[i][j] < 0) {
+							throw new IllegalArgumentException(
+									"The ess has to be non-negative. Violated at position "
+									+ i + ".");
+						}
+						this.hyperParams[i][j] = hyperParams[i][j];
+						sumOfHyperParams[i] += hyperParams[i][j];
 					}
 					if (i > 0 && i < order
 							&& sumOfHyperParams[i] > sumOfHyperParams[i - 1]) {
 						throw new IllegalArgumentException(
 								"The ess for start probabilities of order "
-										+ i
-										+ " is inconsistent with the ess for the probabilities of the previous order.");
+								+ i
+								+ " is inconsistent with the ess for the probabilities of the previous order.");
 					}
-					this.sumOfHyperParams[i] = sumOfHyperParams[i];
 				}
 			}
 		}
@@ -182,7 +233,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/**
 	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
-	 * {@link HomogeneousMMDiffSM} out of its XML representation as returned by
+	 * {@link HomogeneousMMDiffSM2} out of its XML representation as returned by
 	 * {@link #fromXML(StringBuffer)}.
 	 * 
 	 * @param xml
@@ -229,10 +280,10 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 			clone.probs[i] = probs[i].clone();
 			clone.logNorm[i] = logNorm[i].clone();
 		}
-		clone.sumOfHyperParams = sumOfHyperParams.clone();
 		clone.counter = counter.clone();
 		clone.distCounter = distCounter.clone();
 		clone.offset = offset.clone();
+		clone.hyperParams = ArrayHandler.clone(hyperParams);
 		return clone;
 	}
 
@@ -381,8 +432,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 		XMLParser.appendObjectWithTags(b, alphabets, "alphabets");
 		XMLParser.appendObjectWithTags(b, order, "order");
 		XMLParser.appendObjectWithTags(b, classEss, "classEss");
-		XMLParser.appendObjectWithTags(b, sumOfHyperParams,
-				"sumOfHyperParams");
+		XMLParser.appendObjectWithTags( b, hyperParams, "hyperParams" );	
 		XMLParser.appendObjectWithTags(b, params, "params");
 		XMLParser.appendObjectWithTags(b, plugIn, "plugIn");
 		XMLParser.appendObjectWithTags(b, optimize, "optimize");
@@ -426,9 +476,13 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 		if (optimize && plugIn && data != null && data[index] != null) {
 			double hyper;
 			for (int i = 0; i <= order; i++) {
-				hyper = sumOfHyperParams[i] / probs[i].length;
-				Arrays.fill(probs[i], hyper);
-				Arrays.fill(logNorm[i], hyper * powers[1]);
+				System.arraycopy(probs[i], 0, hyperParams[i], 0, probs[i].length );
+				for( int k = 0, j = 0; j < logNorm[i].length; j++ ) {
+					logNorm[i][j] = 0;
+					for( int l = 0; l < powers[1]; l++, k++ ) {
+						logNorm[i][j] += probs[i][k];
+					}
+				}
 			}
 			Sequence seq;
 			int anz = data[index].getNumberOfElements();
@@ -497,16 +551,22 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	public void initializeFunctionRandomly(boolean freeParams) {
 		if (optimize) {
 			int o, normCounter, paramCounter, len;
-			FastDirichletMRGParams hyper;
+			DiMRGParams hyper;
 			double[] p = new double[powers[1]];
-			double offset = 0;
+			double offset = 0, sum;
 			for (o = 0; o <= order; o++) {
-				hyper = new FastDirichletMRGParams(sumOfHyperParams[o] == 0 ? 1
-						: (sumOfHyperParams[o] / probs[o].length));
 				for (normCounter = paramCounter = 0; normCounter < logNorm[o].length; normCounter++) {
+					sum = 0;
+					for (len = 0; len < powers[1]; len++) {
+						p[len] = hyperParams[o][len+paramCounter];
+						sum +=p[len];
+					}
+					hyper = sum == 0
+							? new FastDirichletMRGParams(1)
+							: new DirichletMRGParams(p);
+					
 					logNorm[o][normCounter] = 0;
-					DirichletMRG.DEFAULT_INSTANCE.generate(p, 0, powers[1],
-							hyper);
+					DirichletMRG.DEFAULT_INSTANCE.generate(p, 0, powers[1], hyper);
 					if( freeParams ) {
 						offset = Math.log(p[powers[1]-1]);
 					}
@@ -535,7 +595,11 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 		order = XMLParser.extractObjectForTags(b, "order", int.class );
 		createArrays();
 		classEss = XMLParser.extractObjectForTags(b, "classEss", double.class );
-		sumOfHyperParams = XMLParser.extractObjectForTags(b, "sumOfHyperParams", double[].class );
+		if( XMLParser.hasTag(b, "hyperParams", null, null) ) {
+			hyperParams = XMLParser.extractObjectForTags( b, "hyperParams", double[][].class );
+		} else {
+			hyperParams = getHyperParams(alphabets, XMLParser.extractObjectForTags(b, "sumOfHyperParams", double[].class ));
+		}
 		params = XMLParser.extractObjectForTags(b, "params", double[][].class );
 		plugIn = XMLParser.extractObjectForTags(b, "plugIn", boolean.class );
 		optimize = XMLParser.extractObjectForTags(b, "optimize", boolean.class );
@@ -679,18 +743,15 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 */
 	public double getLogPriorTerm() {
 		if (optimize) {
-			double val = 0, hyper, hyperSum;
+			double val = 0;
 			for (int j, n, index, o = 0; o <= order; o++) {
-				hyper = sumOfHyperParams[o] / (double) params[o].length;
-				if( hyper > 0 ) {
-					hyperSum = powers[1] * hyper;
-					for (n = index = 0; n < logNorm[o].length; n++) {
-						val -= hyperSum * logNorm[o][n];
-						for (j = 0; j < powers[1]; j++, index++) {
-							val += hyper * params[o][index];
-						}
+				for (n = index = 0; n < logNorm[o].length; n++) {
+					val -= ToolBox.sum( index, index+powers[1], hyperParams[o] ) * logNorm[o][n];
+					for (j = 0; j < powers[1]; j++, index++) {
+						val += hyperParams[o][index] * params[o][index];
 					}
 				}
+
 			}
 			return val + logGammaSum;
 		} else {
@@ -702,11 +763,15 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 		double hyper;
 		logGammaSum = 0;
 		for (int o = 0; o <= order; o++) {
-			hyper = sumOfHyperParams[o] / (double) params[o].length;
-			if( hyper > 0 ) {
-				logGammaSum += logNorm[o].length
-						* Gamma.logOfGamma(powers[1] * hyper) - params[o].length
-						* Gamma.logOfGamma(hyper);
+			for(int j=0;j<powers[ o + 1 ]; j+= powers[1]){
+				double temp = ToolBox.sum( j, j+powers[1], hyperParams[o] );
+				logGammaSum += Gamma.logOfGamma( temp );
+				for(int k=0;k<powers[1];k++){
+					hyper = hyperParams[o][j+k];
+					if( hyper > 0 ){
+						logGammaSum -= Gamma.logOfGamma(hyper);
+					}
+				}
 			}
 		}
 	}
@@ -718,14 +783,14 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	@Override
 	public void addGradientOfLogPriorTerm(double[] grad, int start) {
 		if (optimize) {
-			double hyper, hyperSum;
+			double hyperSum;
 			int stop = powers[1] - (freeParams ? 1 : 0);
 			for (int j, index, o = 0; o <= order; o++) {
-				hyper = sumOfHyperParams[o] / (double) params[o].length;
-				hyperSum = powers[1] * hyper;
+				
 				for (index = 0; index < params[o].length; index += powers[1]) {
+					hyperSum = ToolBox.sum( index, index+powers[1], hyperParams[o] );
 					for (j = 0; j < stop; j++, start++) {
-						grad[start] += hyper - hyperSum * probs[o][index + j];
+						grad[start] += hyperParams[o][index + j] - hyperSum * probs[o][index + j];
 					}
 				}
 			}
@@ -804,11 +869,6 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 				probs[order], powers[1]);
 	}
 	
-	/**
-	 * Sets all parameters of the initial distributions (i.e., all below the current order)
-	 * to those corresponding to the conditional stationary distributions computed from the
-	 * transition matrix of the current order.
-	 */
 	public void setStartParamsToConditionalStationaryDistributions() {
 		double[][][] p = getAllConditionalStationaryDistributions();
 		for( int h, o = 0; o < order; o++ ) {
@@ -834,6 +894,8 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 			throw new IllegalArgumentException(
 					"The length of both arrays (length, weight) have to be identical.");
 		}
+
+		double[] sumOfHyperParams = new double[order+1];
 		Arrays.fill(sumOfHyperParams, 0);
 		for (int l, i = 0; i < length.length; i++) {
 			if (weight[i] < 0 || length[i] < 0) {
@@ -848,6 +910,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 				}
 			}
 		}
+		hyperParams = getHyperParams( alphabets, sumOfHyperParams );
 		computeConstantsOfLogPrior();
 	}
 
@@ -925,10 +988,10 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	@Override
 	public void initializeUniformly(boolean freeParams) {
-		double p = 1d / (double) powers[1];
+		double p = 1d / (double) powers[1], v = Math.log(powers[1]);
 		for( int o = 0; o <= order; o++) {
-			Arrays.fill( logNorm[o], 0 );
 			Arrays.fill( params[o], 0 );
+			Arrays.fill( logNorm[o], v );
 			Arrays.fill( probs[o], p );
 		}
 		setFreeParams(freeParams);
