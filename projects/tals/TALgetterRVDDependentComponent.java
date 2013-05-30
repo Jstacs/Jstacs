@@ -29,7 +29,6 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM2;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
@@ -49,7 +48,7 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 	/**
 	 * The models for the binding specificities of the RVDs
 	 */
-	protected HomogeneousMMDiffSM2[] hmm_c;
+	protected HomogeneousMMDiffSM[] hmm_c;
 	private boolean isInitialized=false;
 	
 	/**
@@ -72,7 +71,7 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 			for(int i=0;i<priorImp.length;i++){
 				norm += priorImp[i];
 			}
-			this.hmm_c=new HomogeneousMMDiffSM2[getNumberOfSymbols( alphabetsRVD )];
+			this.hmm_c=new HomogeneousMMDiffSM[getNumberOfSymbols( alphabetsRVD )];
 			double[][][] hypi = new double[hmm_c.length][1][(int)alphabets.getAlphabetLengthAt( 0 )];
 			double[] priorImSum = new double[hmm_c.length];
 			for(int c=0;c<alphabetsRVD.getAlphabetLengthAt( 0 );c++){
@@ -82,7 +81,7 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 				priorImSum[getMappedIndex( alphabetsRVD, c )] += priorImp[c];
 			}
 			for(int c=0;c<hmm_c.length;c++){
-				hmm_c[c]=new HomogeneousMMDiffSM2(alphabets,0,ess*priorImSum[c]/norm,hypi[c],true,true,1);
+				hmm_c[c]=new HomogeneousMMDiffSM(alphabets,0,ess*priorImSum[c]/norm,hypi[c],true,true,1);
 			}
 		}else{throw new Exception("Alphabet ist nicht OK!");}
 	}
@@ -330,7 +329,7 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 		alphabets = (AlphabetContainer)XMLParser.extractObjectForTags( xml, "alphabets" );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
-		hmm_c = (HomogeneousMMDiffSM2[])XMLParser.extractObjectForTags( xml, "hmmc" );
+		hmm_c = (HomogeneousMMDiffSM[])XMLParser.extractObjectForTags( xml, "hmmc" );
 		isInitialized = XMLParser.extractObjectForTags( xml, "isInitialized", boolean.class );
 	}
 }
