@@ -38,7 +38,6 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM2;
 import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -60,7 +59,7 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 	private TALgetterRVDDependentComponent tal_A_NSF;
 	private HomogeneousMMDiffSM tal_U_NSF;
 	private TALgetterMixture tal_M_NSF;
-	private HomogeneousMMDiffSM2 FirstPosHMM;
+	private HomogeneousMMDiffSM FirstPosHMM;
 	private boolean isInitialized=true;
 	private int Ordnung_tal_U;
 	private double Ess;
@@ -98,7 +97,7 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 		}
 		part /= priorImp.length;
 
-		this.FirstPosHMM=new HomogeneousMMDiffSM2(alphabets,0,ess,new double[][]{priorFP},true,true,1);
+		this.FirstPosHMM=new HomogeneousMMDiffSM(alphabets,0,ess,new double[][]{priorFP},true,true,1);
 		this.tal_A_NSF=getTalANsf(alphabets, alphabetsRVD, (int)midLength, ess, part, priorImp,priorPrefs);
 
 		this.tal_U_NSF=new HomogeneousMMDiffSM(alphabets, order_talU, ess*(1-part), (int)midLength);
@@ -774,7 +773,7 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 		alphabets = (AlphabetContainer)XMLParser.extractObjectForTags( xml, "alphabets" );
 		length = XMLParser.extractObjectForTags( xml, "length", int.class );
 		Ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
-		FirstPosHMM = (HomogeneousMMDiffSM2)XMLParser.extractObjectForTags( xml, "firstPosHMM" );
+		FirstPosHMM = (HomogeneousMMDiffSM)XMLParser.extractObjectForTags( xml, "firstPosHMM" );
 		isInitialized = XMLParser.extractObjectForTags( xml, "isInitialized", boolean.class );
 		Ordnung_tal_U = XMLParser.extractObjectForTags( xml, "order", int.class );
 		tal_A_NSF = (TALgetterRVDDependentComponent)XMLParser.extractObjectForTags( xml, "talansf" );
