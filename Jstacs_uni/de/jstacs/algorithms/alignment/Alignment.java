@@ -47,12 +47,16 @@ public class Alignment {
 		 */
 		SEMI_GLOBAL,
 		/**
+		 * The free shift alignment allows gaps at the begin and at the end of both sequence without any costs. Be aware that the match cost should be negative.
+		 */
+		FREE_SHIFT,
+		/**
 		 * The local version of an alignment aligns a subsequence of the first sequence with a subsequence of the second sequence.
 		 */
 		LOCAL;
 	}
 	
-	private AlignmentType type;
+	AlignmentType type;
 	
 	private int startS1, startS2;
 	
@@ -270,9 +274,10 @@ public class Alignment {
 			if( i == 0 && j == 0 ) {
 				d[0][i][j] = 0;
 			} else if( i == 0 && j > 0 ) {
-				direction = 1;
-				
-				d[0][i][j] = d[0][i][j-1]+costs.getGapCosts();
+				if( type != AlignmentType.LOCAL ) {
+					direction = 1;
+				}				
+				d[0][i][j] = type != AlignmentType.GLOBAL ? 0 : d[0][i][j-1]+costs.getGapCosts();
 			} else if( i > 0 && j == 0 ) {
 				if( type != AlignmentType.LOCAL ) {
 					direction = 2;
@@ -282,7 +287,9 @@ public class Alignment {
 				double diag = d[0][i - 1][j - 1] + costs.getCostFor( s1, s2, startS1+i, startS2+j );
 				double left = d[0][i][j - 1] + costs.getGapCosts();
 				double top = d[0][i-1][j];
-				if ( type!=AlignmentType.SEMI_GLOBAL || j != l2 ) {
+				if ( (i < l1 && j < l2) //inner part of the matrix 
+						|| !(type==AlignmentType.SEMI_GLOBAL && j == l2)
+						|| !(type==AlignmentType.FREE_SHIFT && (j==l2 || i == l1)) ) {
 					top += costs.getGapCosts();
 				}
 				
@@ -378,14 +385,17 @@ public class Alignment {
 			byte direction = -100;
 			if( j == 0 ) {
 				d[1][i][j] = Double.POSITIVE_INFINITY;
-			} else if( i == 0 && j > 0 ) {
+			} else if( i == 0 /*&& j > 0*/ ) {
 				if( type==AlignmentType.LOCAL ) {
-					d[1][i][j] = 0;
 					direction = -1;
+					d[1][i][j] = 0;
 				} else {
 					direction = 1;
-					d[1][i][j] = aCosts.getGapCostsFor( j );					
+					d[1][i][j] = type==AlignmentType.FREE_SHIFT ? 0 : aCosts.getGapCostsFor( j );					
 				}
+			} else if ( type==AlignmentType.FREE_SHIFT /*&& j > 0*/ && i == l1 ) {
+				direction = 0;//TODO
+				d[1][i][j] = d[0][i][j-1];
 			} else {
 				double elong = d[1][i][j - 1] + aCosts.getElongateCosts();
 				double start = d[0][i][j - 1] + aCosts.getGapCostsFor( 1 );
@@ -404,10 +414,10 @@ public class Alignment {
 			byte direction = -101;
 			if( i == 0 ) {
 				d[2][i][j] = Double.POSITIVE_INFINITY;
-			} else if( i > 0 && j == 0 ) {
+			} else if( /*i > 0 &&*/ j == 0 ) {
 				direction = (byte) (type==AlignmentType.LOCAL ? -1 : 2);
 				d[2][i][j] = type!=AlignmentType.GLOBAL ? 0 : aCosts.getGapCostsFor( i );
-			} else if ( type==AlignmentType.SEMI_GLOBAL && i > 0 && j == l2 ) {
+			} else if ( (type==AlignmentType.SEMI_GLOBAL || type==AlignmentType.FREE_SHIFT) /*&& i > 0*/ && j == l2 ) {
 				direction = 0;
 				d[2][i][j] = d[0][i - 1][j];
 			} else {

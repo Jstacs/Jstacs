@@ -19,6 +19,8 @@ package de.jstacs.algorithms.alignment;
 
 import java.util.List;
 
+import de.jstacs.results.Result;
+
 /**
  * Class for the representation of an alignment of {@link String}s. It
  * contains the {@link String}s that were aligned and expanded by
@@ -27,9 +29,10 @@ import java.util.List;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class StringAlignment {
+public class StringAlignment implements Comparable<StringAlignment>{
 	private String[] r;
 	private double cost;
+	private Result res;
 
 	/**
 	 * This constructor creates an instance storing the aligned Strings and the costs of the alignment.
@@ -38,8 +41,29 @@ public class StringAlignment {
 	 * @param strings the aligned and expanded Strings
 	 */
 	public StringAlignment(double cost, String... strings) {
+		this(cost, strings, (Result)null);
+	}
+	
+	/**
+	 * This constructor creates an instance storing the aligned Strings and the costs of the alignment.
+	 * 
+	 * @param cost the cost of the alignment
+	 * @param strings the aligned and expanded Strings
+	 * @param res a result describing the alignment
+	 */
+	public StringAlignment(double cost, String[] strings, Result res) {
 		this.cost = cost;
 		r = strings.clone();
+		this.res = res;
+	}
+	
+	/**
+	 * Returns the annotation result.
+	 * 
+	 * @return the annotation result
+	 */
+	public Result getAnnotationResult() {
+		return res;
 	}
 
 	/**
@@ -154,5 +178,18 @@ public class StringAlignment {
 	 */
 	public int getLength() {
 		return r[0].length();
+	}
+
+	@Override
+	public int compareTo(StringAlignment o) {
+		if( this.getNumberOfAlignedSequences() == o.getNumberOfAlignedSequences() ) {
+			int n = getNumberOfAlignedSequences(), c = 0, i = 0;
+			while( i < n && (c=r[i].compareTo(o.r[i])) == 0 ) {
+				i++;
+			}
+			return c;
+		} else {
+			return this.getNumberOfAlignedSequences() - o.getNumberOfAlignedSequences();
+		}
 	}
 }
