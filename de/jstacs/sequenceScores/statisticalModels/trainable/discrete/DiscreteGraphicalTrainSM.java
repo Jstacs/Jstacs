@@ -38,8 +38,6 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableSta
  */
 public abstract class DiscreteGraphicalTrainSM extends AbstractTrainableStatisticalModel implements InstantiableFromParameterSet {
 
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * The current parameter set of the model.
 	 */
