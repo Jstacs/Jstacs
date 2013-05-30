@@ -337,6 +337,12 @@ public class MEMConstraint extends InhConstraint {
 		}
 	}
 	
+	/**
+	 * This method computes the number of overlapping positions between the current and the given constraints.
+	 * @param offset the offset for the given constraint
+	 * @param constr the given constraint
+	 * @return the number of matching positions
+	 */
 	public int comparePosition( int offset, MEMConstraint constr ) {
 		int matching = 0;
 		for( int u1 = 0, u2 = 0; u1 < usedPositions.length; u1++ ) {
@@ -349,7 +355,16 @@ public class MEMConstraint extends InhConstraint {
 		}
 		return matching;
 	}
-
+	
+	/**
+	 * This method implements a heuristic to modify a constraint if a number of constraints should be delete.
+	 * 
+	 * @param offset the offset for the <code>constraint</code>s
+	 * @param list a list of indices of constraints that should be used in this method
+	 * @param constraint the constraints
+	 * @param params the parameters
+	 * @param start the start indices of the constraints in the <code>params</code>array
+	 */
 	public void addParameters( int offset, IntList list, MEMConstraint[] constraint, double[] params, int[] start ) {
 		int u, n, idx;
 		HashSet<Integer> hash = new HashSet<Integer>();

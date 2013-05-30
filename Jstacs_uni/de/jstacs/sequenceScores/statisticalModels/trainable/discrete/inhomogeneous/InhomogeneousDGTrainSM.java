@@ -142,10 +142,6 @@ public abstract class InhomogeneousDGTrainSM extends DiscreteGraphicalTrainSM {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DiscreteGraphicalTrainSM#set(de.jstacs.sequenceScores.statisticalModels.trainable.discrete.DGTrainSMParameterSet, boolean)
-	 */
-	@Override
 	protected void set( DGTrainSMParameterSet parameter, boolean trained ) throws CloneNotSupportedException, NonParsableException {
 		super.set( parameter, trained );
 		alphabetLength = new int[length];

@@ -34,6 +34,8 @@ import de.jstacs.parameters.validation.NumberValidator;
  * a {@link DiscreteGraphicalTrainSM}.
  * 
  * @author Jens Keilwagen
+ * 
+ * @param <T> the type of the {@link DGTrainSMParameterSet} 
  */
 public abstract class DGTrainSMParameterSet<T extends DiscreteGraphicalTrainSM> extends SequenceScoringParameterSet<T> {
 
