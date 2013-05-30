@@ -996,6 +996,59 @@ public class DataSet implements Iterable<Sequence>{
 	}
 
 	/**
+	 * Returns a new {@link DataSet} that contains all elements of this {@link DataSet} that are specified
+	 * by the supplied <code>start</code> (inclusive) and <code>end</code> (exclusive) indexes.
+	 * 
+	 * @param start the index of the first {@link Sequence}
+	 * @param end the index after the last {@link Sequence}
+	 * @return the partial {@link DataSet}
+	 * @throws EmptyDataSetException if <code>start</code> is equal to <code>end</code>
+	 */
+	public final DataSet getPartialDataSet(int start, int end) throws EmptyDataSetException{
+		return getPartialDataSet( new int[]{start, end} );
+	}
+	
+	/**
+	 * Returns a new {@link DataSet} that contains all elements of this {@link DataSet} that are specified
+	 * by the supplied pairs of start and end indexes in <code>indexes</code>.
+	 * Each <code>indexes</code> array must be of length 2, where the first entry specifies the start index
+	 * of the first sequence within this {@link DataSet} (inclusive) and the second entry specifies the end index (exclusive).
+	 * If some of the indexes specified in different <code>indexes</code> arrays overlap, the returned {@link DataSet} may
+	 * contain doublettes of {@link Sequence}s and may even be larger than this {@link DataSet}.
+	 * 
+	 * @param indexes the indexes
+	 * @return the partial {@link DataSet}
+	 * @throws EmptyDataSetException if no <code>indexes</code> array is supplied or all ends are equal to the corresponding starts
+	 */
+	public final DataSet getPartialDataSet(int[]... indexes) throws EmptyDataSetException {
+		LinkedList<Sequence> list = new LinkedList<Sequence>();
+		for(int i=0;i<indexes.length;i++){
+			if(indexes[i].length > 2){
+				throw new IllegalArgumentException( "Index array "+i+" longer than 2" );
+			}
+			if(indexes[i][0] > indexes[i][1]){
+				throw new IllegalArgumentException( "Start of index pair "+i+" greater than end" );
+			}
+			if(indexes[i][0] < 0){
+				throw new ArrayIndexOutOfBoundsException( "Start of index pair "+i+" smaller than 0" );
+			}
+			if(indexes[i][1] > this.getNumberOfElements()){
+				throw new ArrayIndexOutOfBoundsException( "End index "+i+" greater than total number of elements" );
+			}
+			for(int j=indexes[i][0];j<indexes[i][1];j++){
+				list.add( this.getElementAt( j ) );
+			}
+		}
+		DataSet part = null;
+		try{
+			part = new DataSet( "Partial data set of ("+this.getAnnotation()+")", list );
+		}catch(WrongAlphabetException doesnothappen){
+			throw new RuntimeException( doesnothappen );
+		}
+		return part;
+	}
+	
+	/**
 	 * This method enables you to use only an infix of all elements, i.e. the
 	 * {@link Sequence}s, in the current {@link DataSet}. The subsequences will
 	 * be returned in an new {@link DataSet}.
