@@ -473,6 +473,11 @@ public class GalaxyAdaptor {
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
 			PrintWriter pw = new PrintWriter( filename+ee );
+			if(ee.equalsIgnoreCase( "gff3" )){
+				pw.println("##gff-version 3");
+			}else if(ee.equalsIgnoreCase( "gff" )){
+				pw.println("##gff-version 2");
+			}
 			((ListResult)res).print( pw );
 			pw.close();
 			return ee;
