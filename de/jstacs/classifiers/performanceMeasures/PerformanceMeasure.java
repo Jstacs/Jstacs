@@ -5,7 +5,7 @@ import de.jstacs.results.ResultSet;
 /**
  * Interface of any performance measure used to evaluate
  * an {@link de.jstacs.classifiers.AbstractClassifier}. It is recommended to use the method
- * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}
+ * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}
  * for evaluating the performance of any classifier.
  * 
  * @author Jan Grau, Jens Keilwagen
@@ -60,7 +60,7 @@ public interface PerformanceMeasure {
 	 *  
 	 * @return a result set containing the results of the performance measure
 	 * 
-	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[])
+	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[]...)
 	 */
 	public abstract ResultSet compute(double[] sortedScoresClass0,
 			double[] weightsClass0, double[] sortedScoresClass1,

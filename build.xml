@@ -18,7 +18,7 @@
 				source="1.6" sourcepath="." splitindex="true" use="true" version="true" verbose="false">
 			<link href="http://www.biojava.org/docs/api16"/>
 			<link href="http://docs.oracle.com/javase/6/docs/api/"/>
-			<link href="http://rforge.net/Rserve/doc/"/>
+			<link href="http://rforge.net/org/doc/"/>
 			<link href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/"/>
 			<link href="http://www.biojava.org/docs/api16/"/>
 		</javadoc>

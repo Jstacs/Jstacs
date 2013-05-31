@@ -22,7 +22,7 @@ import de.jstacs.io.NonParsableException;
 
 /**
  * This class implements a container of {@link AbstractPerformanceMeasure}s that can be used
- * in {@link de.jstacs.classifiers.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
+ * in {@link de.jstacs.classifiers.AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
  * 
  * @author Jens Keilwagen, Jan Grau
  */
