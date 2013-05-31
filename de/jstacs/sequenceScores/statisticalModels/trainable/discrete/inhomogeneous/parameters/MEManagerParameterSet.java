@@ -87,9 +87,9 @@ public abstract class MEManagerParameterSet extends IDGTrainSMParameterSet
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see de.jstacs.models.discrete.ConstraintManager.Decomposition#DECOMPOSE_NOTHING
-	 * @see de.jstacs.models.discrete.ConstraintManager.Decomposition#DECOMPOSE_UNCONNECTED
-	 * @see de.jstacs.models.discrete.ConstraintManager.Decomposition#DECOMPOSE_LESS_CONNECTED
+	 * @see Decomposition#DECOMPOSE_NOTHING
+	 * @see Decomposition#DECOMPOSE_UNCONNECTED
+	 * @see Decomposition#DECOMPOSE_LESS_CONNECTED
 	 */
 	public MEManagerParameterSet( Class<? extends MEManager> instanceClass, AlphabetContainer alphabet, int length,
 			double ess, String description, Decomposition decomposition, boolean reduce, byte algorithm, double epsilon )
