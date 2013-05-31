@@ -227,7 +227,8 @@ public class PFMComparator {
 				}else if(files[i].getName().endsWith( ".txt" ) || files[i].getName().endsWith( ".pwm" )){
 					String annot = dir.getName()+"-"+files[i].getName().substring( 0, files[i].getName().lastIndexOf( '.' ) );
 					BufferedReader read = new BufferedReader( new FileReader( files[i] ) );
-					annot += ": "+read.readLine().trim();
+					String temp = read.readLine();
+					annot += ": "+(temp == null ? "" : temp.trim() );
 					
 					String line = null;
 					
