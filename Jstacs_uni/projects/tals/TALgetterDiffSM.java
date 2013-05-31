@@ -635,7 +635,7 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 		DoubleList partialUPos = new DoubleList();
 		DoubleList partialUNeg = new DoubleList();
 		IntList tempIndices = new IntList();
-		IntList tempIndices2 = new IntList();
+
 		int offA=FirstPosHMM.getNumberOfParameters();
 		int offM = offA+tal_A_NSF.getNumberOfParameters();
 		int offU = offM + tal_M_NSF.getNumberOfParameters();

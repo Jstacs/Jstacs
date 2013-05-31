@@ -64,7 +64,7 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 	 */
 	public TALgetterRVDDependentComponent(AlphabetContainer alphabets,AlphabetContainer alphabetsRVD, int length, double ess, double[] priorImp, double[][] priorPrefs) throws Exception{
 		super(alphabets,1);
-		if(alphabets.getAlphabetLengthAt(0)>0&alphabetsRVD.getAlphabetLengthAt(0)>0){
+		if(alphabets.getAlphabetLengthAt(0)>0 && alphabetsRVD.getAlphabetLengthAt(0)>0){
 			this.alphabetsRVD=alphabetsRVD;
 			this.ess=ess;
 			double norm = 0;
