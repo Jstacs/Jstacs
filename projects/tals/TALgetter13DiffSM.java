@@ -42,9 +42,9 @@ public class TALgetter13DiffSM extends TALgetterDiffSM {
 	 * @param priorPrefs the prior binding preferences, in same order as RVDs in <code>alphabetsRVD</code>
 	 * @throws Exception if something went wrong
 	 */
-	public TALgetter13DiffSM( AlphabetContainer alphabets, AlphabetContainer alphabetsRVD, double midLength, double Ess,
+	public TALgetter13DiffSM( AlphabetContainer alphabets, AlphabetContainer alphabetsRVD, double midLength, double ess,
 								int order_talU,double[] priorFP, double[] priorImp, double[][] priorPrefs ) throws Exception {
-		super( alphabets, alphabetsRVD, midLength, Ess, order_talU, priorFP, priorImp, priorPrefs );
+		super( alphabets, alphabetsRVD, midLength, ess, order_talU, priorFP, priorImp, priorPrefs );
 	}
 
 	/**

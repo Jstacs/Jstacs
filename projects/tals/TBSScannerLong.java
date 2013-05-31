@@ -99,8 +99,10 @@ public class TBSScannerLong {
 		}
 		
 		/**
-		 * Returns all parameters in the set.
-		 * @return the parameters
+		 * Adds a parameter to the set
+		 * @param i the index where to add
+		 * @param par the added parameter
+		 * 
 		 */
 		public void addParameter(int i, Parameter par){
 			this.parameters.add( i, par );

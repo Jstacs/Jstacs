@@ -1062,6 +1062,11 @@ public class BayesianNetworkDiffSM extends
 		return new DataSet("", seqs);
 	}
 
+	/**
+	 * Returns an HTML representation of this {@link BayesianNetworkDiffSM}.
+	 * @param nf the number format
+	 * @return the HTML representation
+	 */
 	public String toHtml( NumberFormat nf ) {
 		
 		if (trees != null) {

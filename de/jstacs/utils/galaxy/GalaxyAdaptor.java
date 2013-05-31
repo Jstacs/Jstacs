@@ -94,6 +94,9 @@ public class GalaxyAdaptor {
 	private String outfileId;
 	private String newFilePath;
 	private String htmlFilesPath;
+	/**
+	 * The stylesheet used for the Galaxy HTML output.
+	 */
 	public static String stylesheet = "<style type=\"text/css\">" +
 			"body{font-family:sans-serif;font-size:10pt}\n" +
 			"table{font-size:10pt;border-spacing:0px}\n" +
@@ -177,6 +180,7 @@ public class GalaxyAdaptor {
 			helpb.append( temp );
 			helpb.append( "\n" );
 		}
+		read.close();
 		this.help = helpb.toString();
 	}
 	
@@ -258,6 +262,7 @@ public class GalaxyAdaptor {
 		while( (tmp = read.readLine()) != null){
 			buf.append( tmp );
 		}
+		read.close();
 		parameters.fromGalaxy( getLegalName( toolname ), buf );
 	}
 	
@@ -451,6 +456,7 @@ public class GalaxyAdaptor {
 	 * corresponding Galaxy data type.
 	 * @param filename the filename
 	 * @param res the result
+	 * @param exportExtension the extension used for the exported file
 	 * @return the data type
 	 * @throws IOException if the contents of <code>res</code> could not be written to the file
 	 */
@@ -666,6 +672,7 @@ public class GalaxyAdaptor {
 	 * @param export if <code>true</code> the result is exported to its own Galaxy result, e.g. for
 	 * 				evaluation in other application within Galaxy
 	 * @param includeInSummary if <code>true</code> the result is shown on the summary page
+	 * @param exportExtension the file extension used for the exported file
 	 */
 	public void addResult(Result res, boolean export, boolean includeInSummary, String exportExtension){
 		list.add( new OutputElement( res, export, includeInSummary, exportExtension ) );

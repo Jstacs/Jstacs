@@ -233,7 +233,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 
 	/**
 	 * This is the constructor for {@link de.jstacs.Storable}. Creates a new
-	 * {@link HomogeneousMMDiffSM2} out of its XML representation as returned by
+	 * {@link HomogeneousMMDiffSM} out of its XML representation as returned by
 	 * {@link #fromXML(StringBuffer)}.
 	 * 
 	 * @param xml
@@ -869,6 +869,10 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 				probs[order], powers[1]);
 	}
 	
+	/**
+	 * Sets the start parameters of this homogeneous Markov model to
+	 * the corresponding stationary distributions of the transition probabilities.
+	 */
 	public void setStartParamsToConditionalStationaryDistributions() {
 		double[][][] p = getAllConditionalStationaryDistributions();
 		for( int h, o = 0; o < order; o++ ) {

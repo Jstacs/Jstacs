@@ -125,6 +125,11 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		this.root.cloneRest(temp);
 	}
 
+	/**
+	 * Returns a string representation of this tree using the provided {@link NumberFormat}.
+	 * @param nf the number format
+	 * @return the string representation
+	 */
 	public String toString( NumberFormat nf ) {
 		StringBuffer all = new StringBuffer();
 		all.append("Probabilities at position " + pos + ":\n");
@@ -1517,18 +1522,35 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		return root.getParameterIndexesForSamplingStep(step, offset);
 	}
 	
-	public void emitSymbol( int[] content ) {
+	/**
+	 * Emits a symbol into the given array
+	 * @param content
+	 */
+	void emitSymbol( int[] content ) {
 		root.emitSymbol( content);
 	}
 
+	/**
+	 * Returns the maximal Markov order of this tree.
+	 * @return the order
+	 */
 	public byte getMaximalMarkovOrder() {
 		return root.getMaximalMarkovOrder((byte)0);
 	}
 
+	/**
+	 * Returns the maximum score in this tree.
+	 * @return the score
+	 */
 	public double getMaximumScore() {
 		return root.getMaximumScore();
 	}
 
+	/**
+	 * Returns an HTML representation of this tree.
+	 * @param nf the number format
+	 * @return the HTML representation
+	 */
 	public String toHtml( NumberFormat nf ) {
 		StringBuffer all = new StringBuffer();
 		all.append("<p><strong>Probabilities at position " + pos + ":<strong><br/>");

@@ -1,20 +1,16 @@
 package de.jstacs.utils.galaxy;
 
-import java.io.PrintWriter;
-
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.GalaxyConvertible;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.ParameterValidator;
 
 /**
  * An extension of {@link SimpleParameter} that renders as a textarea in Galaxy, which is only suitable for {@link DataType#STRING}s.
- * Besides the {@link MultilineSimpleParameter#toGalaxy(String, String, int, StringBuffer, StringBuffer)}
+ * Besides the {@link MultilineSimpleParameter#toGalaxy(String, String, int, StringBuffer, StringBuffer, boolean)}
  * and {@link MultilineSimpleParameter#fromGalaxy(String, StringBuffer)}, all functionality is inherited from {@link SimpleParameter}.
  * 
  * @author Jan Grau
