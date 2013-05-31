@@ -6,7 +6,7 @@
 		<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
 	-->
 	
-	<property name="version" value="2.0" />
+	<property name="version" value="2.1" />
 	<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
 	
 	<target name="javadoc">
