@@ -110,7 +110,7 @@ public class ClassificationVisualizer {
 	 * 
 	 * @see ImageResult#ImageResult(String, String,
 	 *      java.awt.image.BufferedImage)
-	 * @see REnvironment#plot(String, double, double)
+	 * @see REnvironment#plot(CharSequence, double, double)
 	 */
 	public static ImageResult plotScores( AbstractScoreBasedClassifier cl, DataSet class0, DataSet class1, REnvironment e, int bins,
 			double density, String plotOptions ) throws Exception {
@@ -146,7 +146,7 @@ public class ClassificationVisualizer {
 	 * @throws Exception
 	 *             if something went wrong
 	 * 
-	 * @see REnvironment#plotToPDF(String, double, double, String, boolean)
+	 * @see REnvironment#plotToPDF(CharSequence, double, double, String, boolean)
 	 */
 	public static void plotScores( AbstractScoreBasedClassifier cl, DataSet class0, DataSet class1, REnvironment e, int bins, double density,
 			String plotOptions, String fName ) throws Exception {
@@ -178,7 +178,7 @@ public class ClassificationVisualizer {
 	 * 
 	 * @see ImageResult#ImageResult(String, String,
 	 *      java.awt.image.BufferedImage)
-	 * @see REnvironment#plot(String, double, double)
+	 * @see REnvironment#plot(CharSequence, double, double)
 	 */
 	public static ImageResult getScatterplot( AbstractScoreBasedClassifier cl1, AbstractScoreBasedClassifier cl2, DataSet class0,
 			DataSet class1, REnvironment e, boolean drawThreshold ) throws Exception {

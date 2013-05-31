@@ -44,9 +44,9 @@ import de.jstacs.utils.Normalisation;
  * class. The user has to create its 3-class-classifier, create an instance of
  * this class using its classifier, map the test data sets together (
  * {@link MappingClassifier#mapDataSet(DataSet[])}) and invoke
- * {@link AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, DataSet...)}
+ * {@link AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, DataSet...)}
  * with these mapped {@link DataSet}. Alternatively, the method
- * {@link AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, DataSet...)} can
+ * {@link AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, DataSet...)} can
  * be used directly and the {@link DataSet}s will be mapped internally
  * (i.e. inside the evaluate method).
  * 

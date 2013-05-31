@@ -31,7 +31,7 @@ import de.jstacs.utils.ToolBox;
 /**
  * This class is the abstract super class of any performance measure used to evaluate
  * an {@link de.jstacs.classifiers.AbstractClassifier}. It is recommended to use the method
- * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(PerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}
+ * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}
  * for evaluating the performance of any classifier.
  * 
  * @author Jan Grau, Jens Keilwagen

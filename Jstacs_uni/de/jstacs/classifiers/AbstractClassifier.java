@@ -322,7 +322,7 @@ public abstract class AbstractClassifier implements Storable, Cloneable {
 	 * 
 	 * @throws Exception if the scores can not be computed
 	 * 
-	 * @see #getResults(LinkedList, DataSet[], double[][], PerformanceMeasureParameterSet, boolean)
+	 * @see #getResults(LinkedList, DataSet[], double[][], AbstractPerformanceMeasureParameterSet, boolean)
 	 */
 	protected double[][][] getMultiClassScores( DataSet[] s ) throws Exception {
 		double[][][] scores = new double[getNumberOfClasses()][][];

@@ -1016,7 +1016,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 *             <code>testS.length!=this.myAbstractClassifier
 	 *             [0].getNumberOfClasses()</code>)
 	 * 
-	 * @see AbstractClassifier#evaluate(de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet, boolean, DataSet...)
+	 * @see AbstractClassifier#evaluate(de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet, boolean, DataSet...)
 	 */
 	protected void test( NumericalPerformanceMeasureParameterSet mp, boolean exception, DataSet[] testS, double[][] weights ) throws IllegalValueException,
 			InconsistentResultNumberException,
