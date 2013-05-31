@@ -1,13 +1,11 @@
 \section{Intermediate course: Optimization}\label{Optimization}
 
-\setcounter{off}{496}
-
 For many tasks in Jstacs, especially for numerical parameter learning, we need numerical optimization techniques.
 
 We start the description of numerical optimization in Jstacs with the definition of a function that depends on parameters to be optimized. The most simple way to define such a function is to extend the abstract class \NumericalDifferentiableFunction. In this abstract class, the gradient of the function is approximated by evaluating the function in an epsilon neightborhood around the current parameter values. Hence, a sub-class of \NumericalDifferentiableFunction~must only implement two methods. The first returns the number of parameters, and the second returns the function value for given parameter values.
 
 Let us assume that we want to optimize, i.e., minimize, a function $f(x_1,x_2)=x_1^2 + x_2^2$. This functions depends on two parameters. Hence, we implement
-\addtocounter{off}{6}
+\setcounter{off}{499}
 \code{2}
 And we implement the method returning the function value as
 \addtocounter{off}{5}

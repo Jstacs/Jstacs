@@ -1,7 +1,5 @@
 \section{Dessert: Alignments, Utils, and goodies}\label{goodies}
 
-\setcounter{off}{596}
-
 In this section, we present a motley composition of interesting classes of Jstacs.
 
 \subsection{Alignments}
@@ -10,7 +8,7 @@ In this subsection, we present how to compute Alignments using Jstacs.
 
 If we like to compute an alignment, we first have to define the costs for match, mismatch, and gaps. In Jstacs, we provide the interface \Costs~that declares all necessary method used during the alignment. In this example, we restrict to simple costs that are 0 for match, 1 for match, 0.5 for a gap.
  
-\addtocounter{off}{3}
+\setcounter{off}{596}
 \code{0}
 
 Second, we have to provide an instance of \Alignment. This instance contains all information needed for an alignment and stores for instance matrices used for dynamic programming. When creating an instance, we have to specify which kind of alignment we like to have. Jstacs supports local, global and semi-global alignments (cf. \AlignmentType).  
