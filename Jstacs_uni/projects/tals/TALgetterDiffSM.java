@@ -116,10 +116,10 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 	 * @param alphabetsRVD the alphabet of RVDs
 	 * @param midLength the expected lenght of target sites
 	 * @param ess the equivalent sample size
-	 * @param priorFP the prior probabilities for position 0
-	 * @param the part of the ess for the RVD-dependent component
+	 * @param part the part of the ess for the RVD-dependent component
 	 * @param priorImp the prior importances, in same order as RVDs in <code>alphabetsRVD</code>
 	 * @param priorPrefs the prior binding preferences, in same order as RVDs in <code>alphabetsRVD</code>
+	 * @return the RVD-dependent component
 	 * @throws Exception if something went wrong
 	 */
 	protected TALgetterRVDDependentComponent getTalANsf(AlphabetContainer alphabets, AlphabetContainer alphabetsRVD, int midLength, double ess, double part, double[] priorImp, double[][] priorPrefs) throws Exception{

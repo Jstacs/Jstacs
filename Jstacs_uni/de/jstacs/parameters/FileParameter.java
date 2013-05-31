@@ -495,10 +495,18 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			return content;
 		}
 		
+		/**
+		 * Sets the extension of this {@link FileParameter}.
+		 * @param ext the extension
+		 */
 		public void setExtension(String ext){
 			this.ext = ext;
 		}
 		
+		/**
+		 * Returns the extension of this {@link FileParameter}.
+		 * @return the extension
+		 */
 		public String getExtension(){
 			return ext;
 		}

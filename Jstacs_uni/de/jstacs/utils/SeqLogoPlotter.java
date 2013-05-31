@@ -282,7 +282,6 @@ public class SeqLogoPlotter {
 	 * 
 	 * The TALgetter logo is returned as {@link BufferedImage}.
 	 * 
-	 * @param path the path to the PNG file written
 	 * @param height the height of the PNG image (in pixels)
 	 * @param ps the binding specificities of RVDs
 	 * @param imp the importance of RVDs

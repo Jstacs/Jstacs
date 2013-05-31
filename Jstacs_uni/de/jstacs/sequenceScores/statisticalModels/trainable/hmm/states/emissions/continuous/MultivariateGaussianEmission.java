@@ -162,7 +162,7 @@ public class MultivariateGaussianEmission implements Emission
 
 
 	/**
-	 * Creates a {@link AutoregressiveGaussianEmission} from its XML representation.
+	 * Creates a {@link MultivariateGaussianEmission} from its XML representation.
 	 * @param xml the XML representation.
 	 * @throws NonParsableException if the XML representation could not be parsed
 	 */

@@ -1238,7 +1238,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @return a {@link String} representation of the context
 		 * 
 		 * @see #toString()
-		 * @see #toString(String[])
+		 * @see #toString(String[],NumberFormat)
 		 */
 		protected String getContext( String[] stateNames ) {
 			if( context.length==0 ) {
@@ -1259,7 +1259,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @param stateIdx the index of the states
 		 * @return the label for the state
 		 * 
-		 * @see #toString(String[])
+		 * @see #toString(String[], NumberFormat)
 		 * @see #getContext(String[])
 		 */
 		protected final String getLabel( String[] stateNames, int stateIdx ) {

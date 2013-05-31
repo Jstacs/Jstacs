@@ -294,7 +294,10 @@ public class PRCurve extends AbstractTwoClassPerformanceMeasure {
 			}
 		}
 	}
-		
+	
+	/**
+	 * The minimum step size between supporting points	
+	 */
 	public static double minStepSize=1;
 	
 	private void out( double[] array, int index ) {

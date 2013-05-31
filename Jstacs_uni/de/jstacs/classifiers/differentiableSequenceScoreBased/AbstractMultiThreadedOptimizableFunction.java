@@ -52,6 +52,9 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		return Runtime.getRuntime().availableProcessors();
 	}
 
+	/**
+	 * The worker threads for computing value and gradient of this {@link AbstractMultiThreadedOptimizableFunction}
+	 */
 	protected Worker[] worker;
 	
 	/**
@@ -94,7 +97,9 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		}
 	}
 	
-	//assigns parts of the data to the threads
+	/**
+	 * Assigns parts of the data to the threads
+	 */
 	protected void prepareThreads() {
 		int i = 0, anz = 0;
 		for( ; i < data.length; i++ )

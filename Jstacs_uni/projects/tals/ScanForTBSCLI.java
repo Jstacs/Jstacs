@@ -59,6 +59,7 @@ public class ScanForTBSCLI {
 	 * Program for scanning input sequences for TAL effector target sites on the command line.
 	 * 
 	 * @param args parameters in key=value format
+	 * @throws Exception if something went wrong
 	 */
 	public static void main( String[] args ) throws Exception {
 		

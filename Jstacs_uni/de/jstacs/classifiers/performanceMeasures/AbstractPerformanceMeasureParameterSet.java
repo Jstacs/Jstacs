@@ -33,6 +33,7 @@ import de.jstacs.parameters.SimpleParameterSet;
  * in {@link de.jstacs.classifiers.AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
  * 
  * @author Jens Keilwagen, Jan Grau
+ * @param <T> the class of the {@link PerformanceMeasure}, typically {@link NumericalPerformanceMeasure} or {@link PerformanceMeasure}
  */
 public class AbstractPerformanceMeasureParameterSet<T extends PerformanceMeasure> extends ExpandableParameterSet {
 
@@ -51,6 +52,12 @@ public class AbstractPerformanceMeasureParameterSet<T extends PerformanceMeasure
 		super( xml );
 	}
 	
+	/**
+	 * Returns the number of classes the {@link PerformanceMeasure}s in <code>measures</code>
+	 * can be applied to.
+	 * @param measures the measures
+	 * @return the number of classes
+	 */
 	protected static int getNumberOfClasses( PerformanceMeasure[] measures ) {
 		int res = 0;
 		for( int i = 0; i < measures.length; i++ ) {
@@ -68,6 +75,15 @@ public class AbstractPerformanceMeasureParameterSet<T extends PerformanceMeasure
 		return res==0?2:res;
 	}
 
+	/**
+	 * Creates a new {@link AbstractPerformanceMeasureParameterSet} for the given number of classes and measures using only numerical
+	 * performance measures or not.
+	 * 
+	 * @param numClasses the number of classes
+	 * @param numerical the information if all measures shall be {@link NumericalPerformanceMeasure}s
+	 * @param measures the measures
+	 * @throws Exception if something went wrong
+	 */
 	protected AbstractPerformanceMeasureParameterSet( int numClasses, boolean numerical, T[] measures ) throws Exception {
 		this( numClasses, AbstractPerformanceMeasure.getCollectionOfAllMeasures( numClasses, numerical ), measures );
 	}

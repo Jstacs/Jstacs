@@ -120,6 +120,17 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet implements
 		return new SelectionParameter( "Performance Measures", "Performance measures that can be computed for "+(numClasses == 0 ? "any number of" : numClasses)+" classes.", true, found.toArray( new AbstractPerformanceMeasure[0] ) );
 	}
 	
+	/**
+	 * Determines the threshold for a given percentage on the reference weights using the scores in 
+	 * <code>sortedReferenceScores</code> and <code>sortedMeasureScores</code>.
+	 * 
+	 * @param sortedReferenceScores the scores of the reference
+	 * @param sortedMeasureScores the scores to be thresholded
+	 * @param referenceWeights the weights on the entries of the reference scores
+	 * @param percentage the percentage
+	 * @param atLeast if we do not meet the percentage exactly, shall the actual percentage be at least the given one
+	 * @return the threshold
+	 */
 	protected static double findThreshold(double[] sortedReferenceScores, double[] sortedMeasureScores, double[] referenceWeights, double percentage, boolean atLeast){
 		
 		double sum = referenceWeights == null ? sortedReferenceScores.length : ToolBox.sum( 0,sortedReferenceScores.length, referenceWeights );
@@ -221,6 +232,13 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet implements
 		return i;
 	}
 	
+	/**
+	 * Returns the weight at <code>index</code> in <code>weight</code> or 1 if <code>weight</code> is <code>null</code>.
+	 * 
+	 * @param weight the weights
+	 * @param index the index
+	 * @return the weight at index or 1
+	 */
 	protected final static double getWeight( double[] weight, int index ) {
 		if( weight == null ) {
 			return 1;
@@ -229,6 +247,12 @@ public abstract class AbstractPerformanceMeasure extends ParameterSet implements
 		}
 	}
 	
+	/**
+	 * Returns true if all weights in <code>weight</code> are 1.
+	 * 
+	 * @param weight the weights
+	 * @return if all weights in <code>weight</code> are 1
+	 */
 	public static boolean simpleWeights( double[] weight ) {
 		if( weight != null ) {
 			for( int i = 0; i < weight.length; i++ ) {

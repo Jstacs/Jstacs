@@ -1088,7 +1088,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * @throws Exception if the parameter set could not be created properly
 	 * 
 	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)
-	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet...)
+	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[])
 	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[][]...)
 	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[], double[][])
 	 */
