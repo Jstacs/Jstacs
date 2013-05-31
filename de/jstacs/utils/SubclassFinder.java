@@ -256,7 +256,7 @@ public class SubclassFinder {
 						if( (starts == null || entryname.startsWith( starts ) ) && entryname.endsWith( ".class" ) ) {
 							String classname = entryname.substring( 0, entryname.length() - 6 );
 							if( classname.startsWith( "/" ) ) {
-								classname.substring( 1 );
+								classname = classname.substring( 1 );
 							}
 							add( clazz, hash, classname.replace( "/", "." ) );
 						}
