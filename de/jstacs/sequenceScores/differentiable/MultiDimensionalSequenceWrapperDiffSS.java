@@ -43,7 +43,7 @@ public class MultiDimensionalSequenceWrapperDiffSS extends AbstractDifferentiabl
 	private DifferentiableSequenceScore function;
 	private IntList iList;
 	private DoubleList dList;
-	private double[] gradient, help;
+	private double[] gradient;
 	
 	/**
 	 * The main constructor.
