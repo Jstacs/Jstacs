@@ -13,7 +13,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneo
  * 
  * @author Jens Keilwagen
  * 
- * @see de.jstacs.models.discrete.inhomogeneous.FSMEManager
+ * @see FSMEManager
  */
 public class FSMEMParameterSet extends MEManagerParameterSet
 {
@@ -90,9 +90,9 @@ public class FSMEMParameterSet extends MEManagerParameterSet
 	 * @throws Exception
 	 *             if something went wrong
 	 *             
-	 * @see de.jstacs.models.discrete.ConstraintManager.Decomposition#DECOMPOSE_NOTHING
-	 * @see de.jstacs.models.discrete.ConstraintManager.Decomposition#DECOMPOSE_UNCONNECTED
-	 * @see de.jstacs.models.discrete.ConstraintManager.Decomposition#DECOMPOSE_LESS_CONNECTED
+	 * @see Decomposition#DECOMPOSE_NOTHING
+	 * @see Decomposition#DECOMPOSE_UNCONNECTED
+	 * @see Decomposition#DECOMPOSE_LESS_CONNECTED
 	 */
 	public FSMEMParameterSet( AlphabetContainer alphabet, int length, double ess, String description,
 			Decomposition decomposition, boolean reduce, byte algorithm, double epsilon, String constraints ) throws Exception
