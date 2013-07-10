@@ -556,7 +556,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 */
 	public void train( DataSet data, double[] dataWeights ) throws Exception {
 		sample = null;
-		System.gc();
+		System.gc();//TODO
 		setTrainData( data );
 		MultivariateRandomGenerator rg = getMRG();
 		MRGParams[] params = new MRGParams[data.getNumberOfElements()];
@@ -586,6 +586,9 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 				p = null;
 				best = max;
 				sostream.writeln( "best = " + max );
+				if(Double.isInfinite( max )){
+					sostream.writeln( "WARNING: No model has been trained, since the scores of all iterations have been either NaN or -Infinity." );
+				}
 				break;
 			case GIBBS_SAMPLING:
 				burnInTest.resetAllValues();
