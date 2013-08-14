@@ -19,6 +19,8 @@
 
 package de.jstacs.sequenceScores.differentiable;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Random;
 
 import de.jstacs.data.AlphabetContainer;
@@ -270,5 +272,11 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 	 */
 	public NumericalResultSet getNumericalCharacteristics() throws Exception {
 		return new NumericalResultSet( new NumericalResult( "number of parameters", "the number of parameters used in this instance to score sequences", getNumberOfParameters() ) );
-	}	
+	}
+	
+	public final String toString() {
+		NumberFormat nf = NumberFormat.getInstance(Locale.US);
+		nf.setMaximumFractionDigits(3);
+		return toString(nf);
+	}
 }
