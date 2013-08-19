@@ -234,7 +234,7 @@ public class FSDAGTrainSM extends DAGTrainSM {
 	@Override
 	protected void set( DGTrainSMParameterSet params, boolean trained ) throws CloneNotSupportedException, NonParsableException {
 		super.set( params, trained );
-		byte i = 0, j;
+		int i = 0, j;
 		// extract
 		StringBuffer help, xml = new StringBuffer( (String)params.getParameterAt( 2 ).getValue() );
 		StringTokenizer t;
