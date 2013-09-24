@@ -315,13 +315,13 @@ public class Dispom {
 		boolean free = false;
 
 		DifferentiableStatisticalModel[] score = new DifferentiableStatisticalModel[anz];
-		int n0 = data[0].getNumberOfElements(), n1 = data[1].getNumberOfElements(); 
-		if( n0 >= n1 ) {
-			f = Math.round(n0/(double)n1);
-		} else {
-			f = Math.round(n1/(double)n0);
-		}
 		if( anz > 1 ) {
+			int n0 = data[0].getNumberOfElements(), n1 = data[1].getNumberOfElements(); 
+			if( n0 >= n1 ) {
+				f = Math.round(n0/(double)n1);
+			} else {
+				f = Math.round(n1/(double)n0);
+			}
 			score[1] = getHomSF( con, flOrder, f*(essMotif + motifs*essNonMotif), sl );
 		}
 		HomogeneousDiffSM flanking = getHomSF( con, flOrder, essNonMotif, sl );
