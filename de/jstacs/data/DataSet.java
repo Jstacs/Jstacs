@@ -1545,7 +1545,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @throws EmptyDataSetException
 	 *             if <code>number</code> is not positive
 	 */
-	public DataSet subSampling( double number ) throws EmptyDataSetException {
+	public DataSet subSampling( int number ) throws EmptyDataSetException {
 		return subSampling( number, null ).getFirstElement();
 	}
 	
@@ -1561,11 +1561,11 @@ public class DataSet implements Iterable<Sequence>{
 		double current = 0, sum = weights == null ? numOfElements : ToolBox.sum( 0, numOfElements, weights );
 		
 		if( weights == null ) {
-			for( current = 0; current < sum; current++ ) {
+			for( current = 0; current < number; current++ ) {
 				subsampled_seqs.add( this.getElementAt( r.nextInt( numOfElements ) ) );
 			}
 		} else {
-			while( current < sum ) {
+			while( current < number ) {
 				double idx = r.nextDouble()*sum;
 				int j = 0;
 				while( weights[j] < idx ) {
@@ -1576,6 +1576,7 @@ public class DataSet implements Iterable<Sequence>{
 				w.add( weights[j] );
 				current += weights[j];
 			}
+			
 		}
 		
 		DataSet res = new DataSet( this.alphabetContainer, subsampled_seqs.toArray(new Sequence[0]), this.length, "subsample of " + annotation );
