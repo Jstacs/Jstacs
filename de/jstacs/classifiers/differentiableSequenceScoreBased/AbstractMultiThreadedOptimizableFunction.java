@@ -106,10 +106,12 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		{
 			anz += data[i].getNumberOfElements();
 		}
-		anz = (int) Math.ceil( anz / (double) worker.length );
+		int part, all = anz, current;
 		int startClass, endClass = 0, startSeq, endSeq = 0, c; 
+		boolean out = true;
 		for( i = 0; i < worker.length; i++ )
 		{
+			part = (int) Math.ceil( all / (double) (worker.length-i) );
 			startSeq = endSeq;
 			startClass = endClass;
 			/*if( i == worker.length-1 )
@@ -119,22 +121,26 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 			}
 			else*/
 			{
-				c = anz;
+				c = part;
 				while( endClass < data.length && data[endClass].getNumberOfElements()- endSeq < c )
 				{
 					c -= (data[endClass].getNumberOfElements()- endSeq);
 					endSeq = 0;
 					endClass++;
 				}
+				current = part;
 				endSeq += c;
 				if( endClass >= data.length ) {
 					endClass = data.length-1;
+					current -= (endSeq - data[endClass].getNumberOfElements());
 					endSeq = data[endClass].getNumberOfElements();
-					if( startClass == endClass && startSeq == endSeq ) {
-						System.out.println( "Warning: There are less sequence ("+anz+") than threads ("+worker.length+") used for the optimization. This seems to be unlikely. Please check your data or reduce the number of threads." );
+					if( out && startClass == endClass && startSeq == endSeq ) {
+						System.out.println( "Warning: Splitting and assigning the data ("+anz+" sequences) to threads ("+worker.length+"), yields at least one empty thread." );
+						out = false;
 					}
 				}
 			}
+			all -= current;
 			//System.out.println("split " + j + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq );
 			if( worker[i] != null ) {
 				if( worker[i].isWaiting() ) {
