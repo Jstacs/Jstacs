@@ -19,6 +19,8 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
+import java.text.NumberFormat;
+
 import de.jstacs.NotTrainedException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -182,12 +184,12 @@ public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiab
 	 * @see de.jstacs.sequenceScores.statisticalModels.differentiable.BasicUniformDiffSM#toString()
 	 */
 	@Override
-	public String toString() {
+	public String toString( NumberFormat nf ) {
 		StringBuffer info = new StringBuffer(length * 100);
 		double val;
 		for (int j = 0; j < length; j++) {
 			val = 1d / alphabets.getAlphabetLengthAt(0);
-			info.append(j + "\t" + val + " for each element of "
+			info.append(j + "\t" + (nf==null?val:nf.format(val)) + " for each element of "
 					+ alphabets.getAlphabetAt(j).toString());
 			if (j < length - 1) {
 				info.append("\n");
