@@ -120,7 +120,7 @@ public class LogGenDisMixFunction extends DiffSSBasedOptimizableFunction
 		if( cl < 1 || ( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 && cl < 2 ) ) 
 		{
 			throw new IllegalArgumentException(
-					"The number of classes is not correct. You can use this class for the generative trainiing of one class or the (in some kind) discriminative training of more than one class." );
+					"The number of classes is not correct. You can use this class for the generative training of one class or the (in some kind) discriminative training of more than one class." );
 		}
 		this.beta = LearningPrinciple.checkWeights( beta );
 		check();
