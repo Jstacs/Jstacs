@@ -291,7 +291,7 @@ public enum DinucleotideProperty {
 	
 	public static final Smoothing NO_SMOOTHING = new NoSmoothing();
 	
-	private static final AlphabetContainer continuousAlphabet = new AlphabetContainer( new ContinuousAlphabet() );
+	public static final AlphabetContainer continuousAlphabet = new AlphabetContainer( new ContinuousAlphabet() );
 
 	/**
 	 * This enum defines the types of dinucleotide properties.
@@ -407,7 +407,7 @@ public enum DinucleotideProperty {
 	 * @return the property for all overlapping twomers
 	 * @throws WrongSequenceTypeException if <code>original</code> is not a DNA sequence
 	 */
-	public Sequence getPropertyAsSequence(Sequence original) throws WrongAlphabetException, WrongSequenceTypeException{
+	public ArbitrarySequence getPropertyAsSequence(Sequence original) throws WrongAlphabetException, WrongSequenceTypeException{
 		return getPropertyAsSequence( original, NO_SMOOTHING );
 	}
 	
@@ -419,7 +419,7 @@ public enum DinucleotideProperty {
 	 * @return the smoothed property for all overlapping twomers
 	 * @throws WrongSequenceTypeException if <code>original</code> is not a DNA sequence
 	 */
-	public Sequence getPropertyAsSequence(Sequence original, Smoothing smoothing) throws WrongSequenceTypeException{
+	public ArbitrarySequence getPropertyAsSequence(Sequence original, Smoothing smoothing) throws WrongSequenceTypeException{
 		try{
 			return new ArbitrarySequence( continuousAlphabet, getProperty( original, smoothing ) );
 		}catch(WrongAlphabetException doesnothappen){
