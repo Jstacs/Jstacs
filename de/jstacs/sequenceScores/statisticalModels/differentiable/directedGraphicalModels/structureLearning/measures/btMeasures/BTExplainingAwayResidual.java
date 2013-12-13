@@ -108,18 +108,23 @@ public class BTExplainingAwayResidual extends Measure {
 
 		double[][] ear = getEAR(statFg, statBg, nFg, nBg);
 
+		ear = getMatrixForKruskal( ear );
+		
 		int[][] p = MST.kruskal(ear);
+		
+		p = reStructure( p, ear.length );
 
 		int[][] parents = new int[length][1];
 		for (int i = 0; i < parents.length; i++) {
 			parents[i][0] = i;
 		}
 		for (int i = 0; i < p.length; i++) {
-			int idx = p[i][1];
-			parents[idx] = new int[2];
-			parents[idx][0] = p[i][0];
-			parents[idx][1] = idx;
-
+			if(p[i].length > 1){
+				int idx = p[i][1];
+				parents[idx] = new int[2];
+				parents[idx][0] = p[i][0];
+				parents[idx][1] = idx;
+			}
 		}
 		return parents;
 	}
