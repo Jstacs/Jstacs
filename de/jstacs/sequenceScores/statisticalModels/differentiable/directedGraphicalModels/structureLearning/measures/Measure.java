@@ -19,6 +19,9 @@
 
 package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
@@ -136,6 +139,53 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 		return (Measure) super.clone();
 	}
 
+	
+	protected double[][] getMatrixForKruskal(double[][] fullMatrix){
+		double[][] triang = new double[fullMatrix.length][];
+		
+		for(int i=0;i<triang.length;i++){
+			triang[i] = new double[triang.length-i-1];
+			for(int j=0;j<triang[i].length;j++){
+				triang[i][j] = fullMatrix[i][i+j+1]*2000;
+			}
+		}
+		return triang;
+	}
+	
+	protected int[][] reStructure(int[][] structure, int length){
+		int[][] dep = new int[length][];
+		ArrayList<int[]> edges = new ArrayList<int[]>( structure.length );
+
+		for( int counter3 = 0; counter3 < structure.length; counter3++ ) {
+			edges.add( structure[counter3] );
+			//System.out.println( Arrays.toString( dep2[counter3] ) );
+		}
+
+		int[] help;
+		boolean[] used = new boolean[length];
+		Arrays.fill( used, false );
+		dep[0] = new int[]{ (int)0 };
+		used[0] = true;
+
+		do {
+			for( int counter3 = 0; counter3 < edges.size(); ) {
+				help = edges.get( counter3 );
+				if( used[help[0]] || used[help[1]] ) {
+					if( used[help[1]] ) {
+						int counter2 = help[1];
+						help[1] = help[0];
+						help[0] = counter2;
+					}
+					dep[help[1]] = edges.remove( counter3 );
+					used[help[1]] = true;
+				} else {
+					counter3++;
+				}
+			}
+		} while( edges.size() > 0 );
+		return dep;
+	}
+	
 	/**
 	 * Creates a new parent structure as defined by
 	 * {@link #getParents(DataSet, DataSet, double[], double[], int)} from an
@@ -536,17 +586,21 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 				if (i != j) {
 					for (int a = 0; a < counts[i][j].length; a++) {
 						for (int b = 0; b < counts[i][j][a].length; b++) {
-							mi[i][j] += (counts[i][j][a][b] / n)
-									* Math
-											.log(n
-													* counts[i][j][a][b]
-													/ (counts[i][i][a][a] * counts[j][j][b][b]));
+							if(counts[i][j][a][b] > 0){
+								mi[i][j] += (counts[i][j][a][b] / n)
+										* Math
+												.log(n
+														* counts[i][j][a][b]
+														/ (counts[i][i][a][a] * counts[j][j][b][b]));
+							}
 						}
 					}
 				} else {
 					for (int a = 0; a < counts[i][i].length; a++) {
-						mi[i][i] -= (counts[i][i][a][a] / n)
-								* Math.log((counts[i][i][a][a] / n));
+						if(counts[i][i][a][a] > 0){
+							mi[i][i] -= (counts[i][i][a][a] / n)
+									* Math.log((counts[i][i][a][a] / n));
+						}
 					}
 				}
 			}
