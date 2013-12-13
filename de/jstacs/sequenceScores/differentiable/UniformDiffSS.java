@@ -138,6 +138,7 @@ public class UniformDiffSS extends AbstractDifferentiableSequenceScore {
 		StringBuffer b = new StringBuffer( 1000 );
 		XMLParser.appendObjectWithTags( b, length, "length" );
 		XMLParser.appendObjectWithTags( b, alphabets, "alphabets" );
+		b.append( getFurtherInformation() );
 		XMLParser.addTags( b, getClass().getSimpleName() );
 		return b;
 	}
