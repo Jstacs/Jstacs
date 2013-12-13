@@ -37,9 +37,9 @@ public class MST {
 	 * @param weights
 	 *            the matrix of weights, <code>weights.length</code> is the
 	 *            number of nodes in the tree, <code>weights[i][j]</code> is the
-	 *            weight for edge <code>(i,i+j)</code>
+	 *            weight for edge <code>(i,i+j+1)</code>, e.g., weights[0][0] is the weight for edge (0,1).
 	 * 
-	 * @return the MST of the weighted graph
+	 * @return the MST of the weighted graph, where each row of the array contains one edge [i, j] without any specific order.
 	 */
 	public static int[][] kruskal( double[][] weights ) {
 		int iterator, n = weights.length;
