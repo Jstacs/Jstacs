@@ -410,4 +410,19 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 		}
 		return res;
 	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer( models.length * 5000 );
+		String heading = "model ";
+		for( int i =0; i < models.length; i++ ) {
+			sb.append( heading + i );
+			sb.append( "\n" + models[i].toString() + "\n" );
+		}
+		sb.append( "class weights: " );
+		for(int i=0;i<getNumberOfClasses();i++){
+			sb.append( getClassWeight( i )+" " );
+		}
+		sb.append( "\n" );
+		return sb.toString();
+	}
 }
