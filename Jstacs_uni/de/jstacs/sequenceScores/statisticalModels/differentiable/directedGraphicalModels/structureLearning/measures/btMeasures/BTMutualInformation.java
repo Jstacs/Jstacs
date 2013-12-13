@@ -159,20 +159,23 @@ public class BTMutualInformation extends Measure {
 		double[][][][] stat = getStatistics(data, weights, length, ess2);
 		double[][] mi = getMI(stat, sum(weights) + ess2);
 
-		int[][] p = null;
+		mi = getMatrixForKruskal( mi );
 
-		p = MST.kruskal(mi);
+		int[][] p = MST.kruskal(mi);
+		
+		p = reStructure( p, mi.length );
 
 		int[][] parents = new int[length][1];
 		for (int i = 0; i < parents.length; i++) {
 			parents[i][0] = i;
 		}
 		for (int i = 0; i < p.length; i++) {
-			int idx = p[i][1];
-			parents[idx] = new int[2];
-			parents[idx][0] = p[i][0];
-			parents[idx][1] = idx;
-
+			if(p[i].length > 1){
+				int idx = p[i][1];
+				parents[idx] = new int[2];
+				parents[idx][0] = p[i][0];
+				parents[idx][1] = idx;
+			}
 		}
 		return parents;
 	}
