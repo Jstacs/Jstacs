@@ -146,7 +146,7 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 		for(int i=0;i<triang.length;i++){
 			triang[i] = new double[triang.length-i-1];
 			for(int j=0;j<triang[i].length;j++){
-				triang[i][j] = fullMatrix[i][i+j+1]*2000;
+				triang[i][j] = fullMatrix[i][i+j+1];
 			}
 		}
 		return triang;
