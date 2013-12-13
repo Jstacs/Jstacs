@@ -197,7 +197,7 @@ public class ConstraintManager
 	 *            constraints encoded in a String
 	 *            <ul>
 	 *            	<li> items are separated by &quot;;&quot;
-	 *            	<li> short notation for sets of constraints, e.g. &quot:m2sx&quot;
+	 *            	<li> short notation for sets of constraints, e.g. &quot;m2sx&quot;
 	 *            	<li> or each constraint as e.g. &quot;i,j,k;&quot; 
 	 *            <ul>
 	 * 
