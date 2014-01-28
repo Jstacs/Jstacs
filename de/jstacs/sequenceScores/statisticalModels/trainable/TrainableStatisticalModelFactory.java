@@ -87,7 +87,7 @@ public class TrainableStatisticalModelFactory {
 		} else {
 			if( order > 0 ) {
 				for( int l = 0; l < length; l++ ) {
-					graph += "<parents node="+l+">";
+					graph += "<parents node=\""+l+"\">";
 					for( int p = Math.max(0,l-order); p < l; p++ ) {
 						graph += p + (p+1<l?",":"");
 					}
