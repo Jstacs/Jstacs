@@ -238,6 +238,9 @@ public final class XMLParser {
 			next = idx+1;
 			do {
 				next = attrib.indexOf(c,next+1);
+				if(next < 0){
+					next = attrib.length()-1;
+				}
 			}while( next+1 < attrib.length() && attrib.charAt(next+1) != ' ' );
 			
 			res.add( attrib.substring(start+1,next+1) );
@@ -371,7 +374,7 @@ public final class XMLParser {
 		int endOfStart = source.indexOf( ">", start + tag.length() ) + 1;
 		
 		//find end tag
-		int pos = findClosingTag( source, tag, attributes, filterAttributes, endOfStart );
+		int pos = findClosingTag( source, tag, endOfStart );
 		int closepos = source.indexOf( ">", pos + 1 );
 		
 		//prepare result
@@ -406,7 +409,7 @@ public final class XMLParser {
 		}
 		int endOfStart = source.indexOf( ">", start + tag.length() ) + 1;
 		
-		findClosingTag( source, tag, attributes, filterAttributes, endOfStart );
+		findClosingTag( source, tag, endOfStart );
 		return true;
 	}
 	
@@ -431,7 +434,7 @@ public final class XMLParser {
 		}
 		int endOfStart = source.indexOf( ">", start + tag.length() ) + 1;
 		
-		int pos = findClosingTag( source, tag, attributes, filterAttributes, endOfStart );
+		int pos = findClosingTag( source, tag, endOfStart );
 		int closepos = source.indexOf( ">", pos + 1 );
 		
 		return closepos+1;
@@ -499,7 +502,7 @@ public final class XMLParser {
 				}
 			}
 			
-			endOfStart = findClosingTag( source, currentTag, attributes, filterAttributes, endOfStart );
+			endOfStart = findClosingTag( source, currentTag, endOfStart );
 			endOfStart += 3 + currentTag.length();
 		} while( true );
 	}
@@ -509,16 +512,13 @@ public final class XMLParser {
 	 * 
 	 * @param source the XML-code containing start and end tag
 	 * @param tag the tag (without angle brackets)
-	 * @param attributes a {@link Map} for attributes and values, or <code>null</code> if no attributes should be parsed.
-	 * @param filterAttributes a {@link Map} of attributes and associated values, which must be present in the attributes of the start tag, or <code>null</code> for no filtering
 	 * @param offset the offset for starting the search
 	 * 
 	 * @return the index of the the closing tag
 	 * 
 	 * @throws NonParsableException if the XML is malformed (e.g. end tag not found, wrong end tag, ...) 
 	 */
-	private static int findClosingTag( StringBuffer source, String tag, Map<String, String> attributes,
-			Map<String, String> filterAttributes, int offset ) throws NonParsableException {	
+	private static int findClosingTag( StringBuffer source, String tag, int offset ) throws NonParsableException {	
 		int counter = 1, idx, h;
 		String endTag = "</" + tag + ">", startPrefix = "<" + tag;
 		do {
