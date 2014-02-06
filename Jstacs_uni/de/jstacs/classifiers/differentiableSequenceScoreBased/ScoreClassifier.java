@@ -424,7 +424,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		DataSet[] d;
 		if( !initRandomly && data.length == 1 && weights != null && weights.length > 1 ) {
 			d = new DataSet[weights.length];
-			Arrays.fill( d, data );
+			Arrays.fill( d, data[0] );
 		} else {
 			d = data;
 		}
