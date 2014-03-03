@@ -216,6 +216,10 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 	 */
 	@Override
 	public String toString( NumberFormat nf ) {
-		return ToolBox.toString(parameter,nf);
+		StringBuffer sb = new StringBuffer();
+		for( int i =0; i < constraint.length; i++ ) {
+			sb.append( (parameter[i]>=0?"+":"") + nf.format(parameter[i]) +" * " +constraint[i] + "\n");
+		}
+		return sb.toString();
 	}
 }
