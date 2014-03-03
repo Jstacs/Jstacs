@@ -18,6 +18,8 @@
  */
 package de.jstacs.sequenceScores.differentiable.logistic;
 
+import java.util.Arrays;
+
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -94,5 +96,9 @@ public class ProductConstraint implements LogisticConstraint {
 			res *= seq.continuousVal( start + pos[i] );
 		}
 		return res;
+	}
+	
+	public String toString() {
+		return Arrays.toString(pos);
 	}
 }
