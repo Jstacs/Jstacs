@@ -132,15 +132,15 @@ public abstract class DiffSSBasedOptimizableFunction extends AbstractMultiThread
 	 * @see de.jstacs.algorithms.optimization.Function#getDimensionOfScope()
 	 */
 	public final int getDimensionOfScope() {
-		return shortcut[cl];
+		return shortcut[shortcut.length-1];
 	}
 
 	protected void setThreadIndependentParameters() throws DimensionException {
-		if( params == null || params.length != shortcut[cl] ) {
+		if( params == null || params.length != getDimensionOfScope() ) {
 			if( params != null ) {
-				throw new DimensionException( params.length, shortcut[cl] );
+				throw new DimensionException( params.length, getDimensionOfScope() );
 			} else {
-				throw new DimensionException( 0, shortcut[cl] );
+				throw new DimensionException( 0, getDimensionOfScope() );
 			}
 		}
 		for( int counter1 = 0; counter1 < shortcut[0]; counter1++ ) {
