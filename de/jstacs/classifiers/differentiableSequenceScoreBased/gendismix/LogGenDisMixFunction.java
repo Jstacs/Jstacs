@@ -185,7 +185,7 @@ public class LogGenDisMixFunction extends DiffSSBasedOptimizableFunction
 			Arrays.fill( cllGrad[0], 0 );
 		}
 
-		double[] grad = new double[shortcut[cl]];
+		double[] grad = new double[getDimensionOfScope()];
 		double weight;
 		// normalization
 		if( norm )
@@ -446,8 +446,8 @@ public class LogGenDisMixFunction extends DiffSSBasedOptimizableFunction
 		{
 			prior.set( freeParams, score[0] );
 		}
-		llGrad = new double[getNumberOfThreads()][shortcut[cl]];
-		cllGrad = new double[llGrad.length][shortcut[cl]];
-		prGrad = new double[shortcut[cl]];
+		llGrad = new double[getNumberOfThreads()][getDimensionOfScope()];
+		cllGrad = new double[llGrad.length][getDimensionOfScope()];
+		prGrad = new double[getDimensionOfScope()];
 	}
 }

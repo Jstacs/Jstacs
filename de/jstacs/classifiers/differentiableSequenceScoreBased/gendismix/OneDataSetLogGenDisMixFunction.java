@@ -106,7 +106,7 @@ public class OneDataSetLogGenDisMixFunction extends LogGenDisMixFunction
 		for( ; i < cl; i++ ) {
 			sum[i] = 0;
 			if( data[0].getNumberOfElements() != weights[i].length ) {
-				throw new IllegalArgumentException( "The dimension of the " + i + "-th weights (array) is not correct."  );
+				throw new IllegalArgumentException( "The dimension of the " + i + "-th weights (array) is not correct (" + data[0].getNumberOfElements() + " vs. " + weights[i].length + ")."  );
 			}
 			for( j = 0; j < weights[i].length; j++ ) {
 				sum[i] += weights[i][j];
