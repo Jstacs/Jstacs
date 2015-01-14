@@ -64,7 +64,6 @@ public class SimpleCosts implements Costs {
 		return s1.discreteVal( i - 1 ) != s2.discreteVal( j - 1 ) ? mismatch : match;
 	}
 
-	@Override
 	public double getGapCosts() {
 		return gap;
 	}
