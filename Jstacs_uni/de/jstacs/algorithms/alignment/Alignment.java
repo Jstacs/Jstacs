@@ -56,8 +56,6 @@ public class Alignment {
 		LOCAL;
 	}
 	
-	AlignmentType type;
-	
 	private int startS1, startS2;
 	
 	private Sequence s1, s2;
@@ -83,13 +81,11 @@ public class Alignment {
 	 * <code>s1</code> and <code>s2</code> using the costs defined in
 	 * <code>costs</code>.
 	 * 
-	 * @param type
-	 *            the type of the alignment
 	 * @param costs
 	 *            the costs
 	 */
-	public Alignment( AlignmentType type, Costs costs ) {
-		this(type,costs,Integer.MAX_VALUE);
+	public Alignment( Costs costs ) {
+		this(costs,Integer.MAX_VALUE);
 	}
 	
 	/**
@@ -101,15 +97,12 @@ public class Alignment {
 	 * the number of secondary diagonals must be at least as large as the difference
 	 * of the lengths.
 	 * 
-	 * @param type
-	 *            the type of the alignment
 	 * @param costs
 	 *            the costs
 	 * @param offDiagonal
 	 *            the number of secondary diagonals at both sides of the diagonal           
 	 */
-	public Alignment( AlignmentType type, Costs costs, int offDiagonal ) {
-		this.type = type;
+	public Alignment( Costs costs, int offDiagonal ) {
 		this.costs = costs;
 		if( costs instanceof AffineCosts ) {
 			aCosts = (AffineCosts) costs;
@@ -125,19 +118,21 @@ public class Alignment {
 	 * Computes and returns the alignment of <code>s1</code> and <code>s2</code>
 	 * ({@link #Alignment(AlignmentType, Costs)}).
 	 * 
+	 * @param type the type of the alignment
 	 * @param s1 the first sequence 
 	 * @param s2 the second sequence 
 	 *  
 	 * @return the alignment
 	 */
-	public PairwiseStringAlignment getAlignment( Sequence s1, Sequence s2 ) {
-		return getAlignment( s1, 0, s1.getLength(), s2, 0, s2.getLength() );
+	public PairwiseStringAlignment getAlignment( AlignmentType type, Sequence s1, Sequence s2 ) {
+		return getAlignment( type, s1, 0, s1.getLength(), s2, 0, s2.getLength() );
 	}
 	
 	/**
 	 * Computes and returns the alignment of <code>s1</code> and <code>s2</code>
 	 * ({@link #Alignment(AlignmentType, Costs)}).
 	 * 
+	 * @param type the type of the alignment
 	 * @param s1 the first sequence 
 	 * @param startS1 the start position in the first sequence
 	 * @param endS1 the end position in the first sequence
@@ -147,7 +142,7 @@ public class Alignment {
 	 *  
 	 * @return the alignment
 	 */
-	public PairwiseStringAlignment getAlignment( Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
+	public PairwiseStringAlignment getAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
 
 		this.s1 = s1; this.startS1 = startS1;
 		this.s2 = s2; this.startS2 = startS2;
@@ -175,7 +170,7 @@ public class Alignment {
 			}
 			algorithm.reset( i, 0, start );
 			for( int j = start; j <= end; j++ ) {
-				algorithm.compute(i,j);
+				algorithm.compute(type,i,j);
 			}
 			if( end != l2 ) algorithm.reset( i, end+1, l2 );
 		}
@@ -228,7 +223,7 @@ public class Alignment {
 
 		int[] next = index.clone();
 		while( true ) {
-			algorithm.next(index, next);
+			algorithm.next(type,index, next);
 			//System.out.println( Arrays.toString(index) + "\t" + Arrays.toString(next) );
 			if( next[0] < 0 ) {
 				break;
@@ -259,17 +254,17 @@ public class Alignment {
 	}
 	
 	private static interface AlignmentAlgorithm {
-		public void compute( int i, int j );
+		public void compute( AlignmentType type, int i, int j );
 		public void reset( int i, int startJ, int endJ );
-		public void next( int[] current, int[] next );
+		public void next( AlignmentType type, int[] current, int[] next );
 	}
 	
 	private class SimpleAlgorithm implements AlignmentAlgorithm {
-		public void compute( int i, int j ) {
-			computeDirection( i, j );
+		public void compute( AlignmentType type, int i, int j ) {
+			computeDirection( type, i, j );
 		}
 		
-		public byte computeDirection( int i, int j ) {
+		public byte computeDirection( AlignmentType type, int i, int j ) {
 			byte direction = -1;
 			if( i == 0 && j == 0 ) {
 				d[0][i][j] = 0;
@@ -312,7 +307,6 @@ public class Alignment {
 			return direction;
 		}
 
-		@Override
 		public void reset(int i, int startJ, int endJ) {
 			if( startJ >= 0 && startJ < d[0][i].length ) {
 				d[0][i][startJ] = Double.POSITIVE_INFINITY;
@@ -323,9 +317,8 @@ public class Alignment {
 			//Arrays.fill( d[0][i], startJ, endJ, Double.POSITIVE_INFINITY );
 		}
 
-		@Override
-		public void next( int[] index, int[] next ) {
-			byte res = computeDirection( index[1], index[2] );
+		public void next( AlignmentType type, int[] index, int[] next ) {
+			byte res = computeDirection( type, index[1], index[2] );
 			if( res < 0 ) {
 				next[0] = -1;
 			} else {
@@ -341,14 +334,13 @@ public class Alignment {
 	
 	private class AffineAlignment implements AlignmentAlgorithm {
 
-		@Override
-		public void compute(int i, int j) {
-			computeGap1( i, j );
-			computeGap2( i, j );
-			computeMatchMisMatch( i, j );
+		public void compute(AlignmentType type, int i, int j) {
+			computeGap1( type, i, j );
+			computeGap2( type, i, j );
+			computeMatchMisMatch( type, i, j );
 		}
 		
-		public byte computeMatchMisMatch( int i, int j ) {
+		public byte computeMatchMisMatch( AlignmentType type, int i, int j ) {
 			byte direction = -99;
 			if( i == 0 && j == 0 ) {
 				d[0][i][j] = 0;
@@ -381,7 +373,7 @@ public class Alignment {
 			return direction;
 		}
 
-		public byte computeGap1( int i, int j ) {
+		public byte computeGap1( AlignmentType type, int i, int j ) {
 			byte direction = -100;
 			if( j == 0 ) {
 				d[1][i][j] = Double.POSITIVE_INFINITY;
@@ -410,7 +402,7 @@ public class Alignment {
 			return direction;
 		}
 
-		public byte computeGap2( int i, int j ) {
+		public byte computeGap2( AlignmentType type, int i, int j ) {
 			byte direction = -101;
 			if( i == 0 ) {
 				d[2][i][j] = Double.POSITIVE_INFINITY;
@@ -434,12 +426,11 @@ public class Alignment {
 			return direction;
 		}
 
-		@Override
-		public void next(int[] index, int[] next) {
+		public void next(AlignmentType type, int[] index, int[] next) {
 			byte b;
 			switch( index[0] ) {
 				case 0:
-					b = computeMatchMisMatch( index[1], index[2] );
+					b = computeMatchMisMatch( type, index[1], index[2] );
 					if( b < 0 ) {
 						next[0] = -1;
 					} else {
@@ -453,7 +444,7 @@ public class Alignment {
 					}
 					break;
 				case 1:
-					b = computeGap1( index[1], index[2] );
+					b = computeGap1( type, index[1], index[2] );
 					if( b < 0 ) {
 						next[0] = -1;
 					} else {
@@ -463,7 +454,7 @@ public class Alignment {
 					}
 					break;
 				case 2:
-					b = computeGap2( index[1], index[2] );
+					b = computeGap2( type, index[1], index[2] );
 					if( b < 0 ) {
 						next[0] = -1;
 					} else {
@@ -475,7 +466,6 @@ public class Alignment {
 			}
 		}
 
-		@Override
 		public void reset(int i, int startJ, int endJ) {
 			for( int k = 0; k < d.length; k++ ) {
 				if( startJ >= 0 && startJ < d[k][i].length ) {
