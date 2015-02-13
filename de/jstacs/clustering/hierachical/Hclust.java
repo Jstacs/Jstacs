@@ -73,7 +73,7 @@ public class Hclust<T> {
 	}
 	
 	private static <T> void fillCutTree(ClusterTree<T> tree, double distance, LinkedList<T[]> list){
-		if(tree.getDistance() < distance){
+		if(tree.getDistance() <= distance){
 			list.add( tree.getClusterElements() );
 		}else{
 			ClusterTree<T>[] subs = tree.getSubTrees();
@@ -90,7 +90,7 @@ public class Hclust<T> {
 	}
 	
 	private static <T> void fillCutTree(ClusterTree<T> tree, LinkedList<ClusterTree<T>> list, double distance){
-		if(tree.getDistance() < distance){
+		if(tree.getDistance() <= distance){
 			list.add( tree );
 		}else{
 			ClusterTree<T>[] subs = tree.getSubTrees();

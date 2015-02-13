@@ -47,7 +47,7 @@ public class ClusterTree<T> implements Storable{
 	
 	//algo from Ziv Bar-Joseph et al. K-ary Clustering with Optimal Leaf Ordering for Gene Expression Data.
 	//dmat: original dmat when building the tree (original index!)
-	public void leafOrder(double[][] dmat){
+	public double[][] leafOrder(double[][] dmat){
 		
 		Pair<double[][],int[]> pair = forward( dmat );
 		double[][] M = pair.getFirstElement();
@@ -67,26 +67,50 @@ public class ClusterTree<T> implements Storable{
 		
 		backtrace(mini,minj);
 		
+		ClusterTree<T>[] leaves = getLeaves();
+		
+		double[][] dmat2 = new double[dmat.length][dmat.length];
+		for(int i=0;i<leaves.length;i++){
+			for(int j=0;j<leaves.length;j++){
+				dmat2[i][j] = dmat[ leaves[i].getOriginalIndex() ][ leaves[j].getOriginalIndex() ];
+			}
+		}
+		for(int i=0;i<leaves.length;i++){
+			leaves[i].originalIndex = i;
+		}
+		
+		return dmat2;
+		
+		//return dmat;
 		
 	}
 	
 	private boolean backtrace(int mini, int minj){
 		
+		//we are at a leaf
 		if(pred == null){
 			return false;
 		}
 		
+		//predecessor of left (after turn (!) if necessary)
 		int predLeft = pred[0][mini][minj];
+		// and right child
 		int predRight = pred[1][mini][minj];
 		
+		//if we have been at the lower triangular matrix of M
+		//we need to turn the current tree, i.e., exchange the two children
 		boolean turn = mini > minj; 
 		
+		//offset on larger index
 		int oneoff = this.subTrees[0].getNumberOfElements();
 		
 		if(turn){
 			
+			//correct index (mini has been larger one)
 			mini -= oneoff;
 			
+			//exchange indexes, because order after turn, and we 
+			//haven't turned, yet
 			int temp = mini;
 			mini = predRight;
 			predRight = temp;
@@ -95,39 +119,54 @@ public class ClusterTree<T> implements Storable{
 			minj = predLeft;
 			predLeft = temp;
 		}else{
+			//no turn, only correct minj
 			minj -= oneoff;
 		}
 		
-		
+		//indexes in subtrees (for M): (mini,predLeft), (predRight,minj)
 		boolean turnedLeft = this.subTrees[0].backtrace( mini, predLeft );
 		boolean turnedRight = this.subTrees[1].backtrace( predRight, minj );
 		
+		//turn, if necessary
 		if(turn){
 			this.reverseOrder();
 		}else if(turnedLeft || turnedRight){
+			//if children have been turned,
+			//we need to update the order of our children
 			this.setElements();
 		}
 		
+		//remove to free memory
 		this.pred = null;
 		
+		//return whether any (sub-) tree below this one has been turned
 		return turn || turnedLeft || turnedRight;
 		
 	}
 	
 	private Pair<double[][],int[]> forward(double[][] dmat){
+		//we are a leaf
 		if(this.subTrees == null){
 			pred = null;
 			return new Pair<double[][],int[]>(new double[][]{{0}},new int[]{this.originalIndex});
 		}else{
 			Pair<double[][],int[]> pairLeft = this.subTrees[0].forward( dmat );
 			Pair<double[][],int[]> pairRight = this.subTrees[1].forward( dmat );
+			//w and x are the equivalents to our M (DP matrix) for nodes under 
+			// the left and right child
 			double[][] w = pairLeft.getFirstElement();
 			double[][] x = pairRight.getFirstElement();
+			//we also need the original indexes of the leaves
+			//for getting the right distances from dmat
 			int[] leftIdx = pairLeft.getSecondElement();
 			int[] rightIdx = pairRight.getSecondElement();
 			
 			
+			//our new matrix of optimal values for given bordering leaves (see paper)
+			//matrix will be rather sparse, could be optimized
 			double[][] M = new double[this.getNumberOfElements()][this.getNumberOfElements()];
+			//pred is the field for backtracking, one for the left and one for the right child
+			//(first index), index values in pred refer to indexes in w and x (but not the original indexes)
 			pred = new int[2][M.length][M.length];
 			for(int i=0;i<M.length;i++){
 				Arrays.fill( M[i], Double.POSITIVE_INFINITY );
@@ -136,14 +175,19 @@ public class ClusterTree<T> implements Storable{
 			}
 			
 			
+			// we collect the original indexes from our children
 			int[] origIdx = new int[M.length];
 			System.arraycopy( leftIdx, 0, origIdx, 0, leftIdx.length );
 			System.arraycopy( rightIdx, 0, origIdx, leftIdx.length, rightIdx.length );
 			
-			
+			//offset on all indexes from right child, necessary to have a common (but sparse)
+			//matrix for all children, altough only combinations of leaves from distinct
+			//children are allowed
 			int oneoff = this.subTrees[0].getNumberOfElements();
 			
+			//fill DP matrix (see paper)
 			for(int i=0;i<w.length;i++){
+				//first minimization
 				double[] tempil = new double[x.length];
 				int[] minil = new int[x.length];
 				for(int l=0;l<tempil.length;l++){
@@ -151,12 +195,14 @@ public class ClusterTree<T> implements Storable{
 					
 					for(int h=0;h<w[i].length;h++){
 						double temp = w[i][h] + dmat[ leftIdx[h] ][ rightIdx[l] ];
+						//here, we minimize
 						if(temp < tempil[l]){
 							tempil[l] = temp;
 							minil[l] = h;
 						}
 					}
 				}
+				//second minimization
 				for(int l=0;l<x.length;l++){
 					for(int j=0;j<x[l].length;j++){
 						double temp = tempil[l] + x[l][j];
@@ -164,8 +210,10 @@ public class ClusterTree<T> implements Storable{
 							M[ i ][ oneoff + j ] = temp;
 							M[ oneoff + j ][ i ] = temp;
 							
+							//indexes for backtracking
 							pred[0][ i ][ oneoff + j ] = minil[l];
 							pred[1][ i ][ oneoff + j ] = l;
+							//if swapped, we also swap indexes
 							pred[0][ oneoff + j ][ i ] = l;
 							pred[1][ oneoff + j ][ i ] = minil[l];
 						}
