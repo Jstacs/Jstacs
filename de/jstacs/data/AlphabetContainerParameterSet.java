@@ -29,6 +29,7 @@ import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.ContinuousAlphabet.ContinuousAlphabetParameterSet;
 import de.jstacs.data.alphabets.DNAAlphabet.DNAAlphabetParameterSet;
+import de.jstacs.data.alphabets.ProteinAlphabet.ProteinAlphabetParameterSet;
 import de.jstacs.data.alphabets.DiscreteAlphabet.DiscreteAlphabetParameterSet;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -249,7 +250,7 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 
 	public int getPossibleLength() {
 		Object o = parameters.get( 0 ).getValue();
-		if( o instanceof DNAAlphabetParameterSet || o instanceof DiscreteAlphabetParameterSet
+		if( o instanceof ProteinAlphabetParameterSet || o instanceof DNAAlphabetParameterSet || o instanceof DiscreteAlphabetParameterSet
 			|| o instanceof ContinuousAlphabetParameterSet ) {
 			return 0;
 		} else {
