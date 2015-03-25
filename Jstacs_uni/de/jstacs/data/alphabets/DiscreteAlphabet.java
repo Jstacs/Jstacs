@@ -140,7 +140,7 @@ public class DiscreteAlphabet extends Alphabet {
 				throw new IllegalArgumentException( "\"\" can not be a symbol/character." );
 			}
 			if( alphabet[i].indexOf( " " ) >= 0 || alphabet[i].indexOf( "\t" ) >= 0 ) {
-				throw new IllegalArgumentException( "blanks and tabs can not be part of a symbol/character." );
+				throw new IllegalArgumentException( "blanks and tabs can not be part of a symbol/character: \'" + alphabet[i] + "\'" );
 			}
 			if( hash.containsKey( caseInsensitive ? alphabet[i].toUpperCase() : alphabet[i] ) ) {
 				throw new DoubleSymbolException( caseInsensitive ? alphabet[i].toUpperCase() : alphabet[i] );
