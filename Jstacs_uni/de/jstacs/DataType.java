@@ -110,8 +110,13 @@ public enum DataType {
 	 * This value indicates the data type
 	 * {@link de.jstacs.parameters.FileParameter.FileRepresentation}.
 	 */
-	FILE;
-
+	FILE,
+	
+	/**
+	 *  
+	 */
+	IMAGE;
+	
 	/**
 	 * Checks if the {@link DataType} <code>from</code> can be casted to the
 	 * {@link DataType} <code>to</code> without losing information. The
