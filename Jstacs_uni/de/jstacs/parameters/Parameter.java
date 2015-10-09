@@ -237,7 +237,10 @@ public abstract class Parameter extends AnnotatedEntity implements Cloneable {
 	 * @see ParameterSet#isComparable(ParameterSet)
 	 */
 	public boolean isComparable( Parameter p ) {
-		boolean res = getClass().equals(p.getClass()) && getDatatype() == p.getDatatype() && getName().equals(p.getName()) && getComment().equals( p.getComment() );
+		boolean res = getClass().equals(p.getClass()) 
+				&& getDatatype() == p.getDatatype() 
+				&& getName().equals(p.getName()) 
+				&& (getComment() == null && p.getComment() == null || getComment().equals( p.getComment() ) );
 		if( res && getDatatype() == DataType.PARAMETERSET ) {
 			return ((ParameterSet)getValue()).isComparable( (ParameterSet) p.getValue() );
 		} else {
