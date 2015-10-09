@@ -370,6 +370,22 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		this.rangeable = rangeable;
 	}
 
+	
+	public boolean isComparable( Parameter p ) {
+		boolean res = getClass().equals(p.getClass()) && getDatatype() == p.getDatatype() && getName().equals(p.getName()) && getComment().equals( p.getComment() );
+		if(res){
+			AbstractSelectionParameter sp2 = (AbstractSelectionParameter)p;
+			res &= this.parameters.getNumberOfParameters() == sp2.parameters.getNumberOfParameters();
+			if(res){
+				for(int i=0;i<parameters.getNumberOfParameters();i++){
+					res &= parameters.getParameterAt( i ).isComparable( sp2.parameters.getParameterAt( i ) );
+				}
+			}
+		}
+		return res;
+	}
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -380,7 +396,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	}
 	
 	/**
-	 * Test whether a given <code>value</code> can be used in {@link #setValue(Object)}.
+	 * MSPDTest whether a given <code>value</code> can be used in {@link #setValue(Object)}.
 	 * If so, the index of corresponding option is returned, otherwise -1.
 	 * 
 	 * @param value the value to be checked
