@@ -214,9 +214,11 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 				}
 				return false;
 			} else {
+				errorMessage = null;
 				return true;
 			}
 		} else if (isSet() || selected == defaultSelected) {
+			errorMessage = null;
 			return true;
 		} else {
 			return false;
@@ -364,9 +366,10 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 		}
 		return name + " (" + comment
 			+ ", range={" + s + "}" 
-			+ (defaultSelected>=0?", default = " + parameters.getParameterAt(defaultSelected).getValue():"")
+			+ (defaultSelected>=0?", default = " + 
+			(datatype == DataType.PARAMETERSET ? ((ParameterSetContainer)parameters.getParameterAt( defaultSelected )).getName(): parameters.getParameterAt(defaultSelected).getValue()):"")
 			+ (isRequired() ? "" : ", OPTIONAL" )
-			+ ")\t= " + getValue();
+			+ ")\t= " + (datatype == DataType.PARAMETERSET ? ((ParameterSetContainer)parameters.getParameterAt( selected )).getName(): parameters.getParameterAt(selected).getValue());
 	}
 
 	@Override
