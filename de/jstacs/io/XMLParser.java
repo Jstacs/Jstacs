@@ -33,6 +33,10 @@ import java.util.TreeMap;
 import de.jstacs.Singleton;
 import de.jstacs.Singleton.SingletonHandler;
 import de.jstacs.Storable;
+import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 
 /**
  * Class for parsing standard data types and arrays in and out of an XML
@@ -732,6 +736,45 @@ public final class XMLParser {
 			}
 		}
 		return erg;
+	}
+	
+	public static void appendSequencesWithTags(StringBuffer xml, String tag, Sequence... seqs){
+		String[] temp = null;
+		if(seqs != null){
+			temp = new String[seqs.length];
+			for(int i=0;i<seqs.length;i++){
+				if(seqs[i] != null){
+					SequenceAnnotation[] anns = seqs[i].getAnnotation();
+					AlphabetContainer alphabet = seqs[i].getAlphabetContainer();
+					String seqstr = seqs[i].toString( alphabet.getDelim(), 0, seqs[i].getLength() );
+					StringBuffer tb = new StringBuffer();
+					XMLParser.appendObjectWithTags( tb, anns, "anns" );
+					XMLParser.appendObjectWithTags( tb, alphabet, "alphabet" );
+					XMLParser.appendObjectWithTags( tb, seqstr, "seqstr" );
+					temp[i] = tb.toString();
+				}
+			}
+		}
+		XMLParser.appendObjectWithTags( xml, temp, tag );
+	}
+	
+	public static Sequence[] extractSequencesWithTags(StringBuffer xml, String tag) throws NonParsableException, IllegalArgumentException, WrongAlphabetException{
+		String[] temp = (String[])XMLParser.extractObjectForTags( xml, tag );
+		if(temp != null){
+			Sequence[] seqs = new Sequence[temp.length];
+			for(int i=0;i<seqs.length;i++){
+				if(temp[i] != null){
+					StringBuffer tb = new StringBuffer( temp[i] );
+					SequenceAnnotation[] anns = (SequenceAnnotation[])XMLParser.extractObjectForTags( tb, "anns" );
+					AlphabetContainer alphabet = (AlphabetContainer)XMLParser.extractObjectForTags( tb, "alphabet" );
+					String seqstr = (String)XMLParser.extractObjectForTags( tb, "seqstr" );
+					seqs[i] = Sequence.create( alphabet, seqstr, alphabet.getDelim() );
+				}
+			}
+			return seqs;
+		}else{
+			return null;
+		}
 	}
 	
 	//parsing String to instance of simpleParsable
