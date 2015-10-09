@@ -682,7 +682,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	
 	
 
-	private String dataTypeToGalaxy() {
+	protected String dataTypeToGalaxy() {
 		
 		switch(datatype){
 			case LONG:
@@ -707,8 +707,12 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	@Override
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
-		String val = XMLParser.extractForTag( command, namePrefix ).toString();
-		this.setValue( val );
+		try{
+			String val = XMLParser.extractForTag( command, namePrefix ).toString();
+			this.setValue( val );
+		}catch(NullPointerException e){
+			throw new NullPointerException( getName()+" "+command+" "+namePrefix );
+		}
 	}
 
 }
