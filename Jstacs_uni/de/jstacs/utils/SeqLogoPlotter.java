@@ -3,9 +3,9 @@ package de.jstacs.utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -15,11 +15,31 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 
+import cern.jet.stat.Gamma;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
+import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
+import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.btMeasures.BTExplainingAwayResidual;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModelFactory;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
+import de.jstacs.utils.graphics.GraphicsAdaptor;
 
 /**
  * Class with static methods for plotting sequence logos of DNA motifs, i.e., position weight matrices defined over a {@link DNAAlphabet}.
@@ -33,6 +53,1113 @@ import de.jstacs.data.alphabets.DNAAlphabet;
  */
 public class SeqLogoPlotter {
 
+	public static class SeqLogoPlotGenerator implements PlotGenerator{
+
+		private double[][] pwm;
+		private int height;
+		
+		public SeqLogoPlotGenerator(double[][] pwm, int height){
+			this.pwm = pwm;
+			this.height = height;
+		}
+		
+		public SeqLogoPlotGenerator(StringBuffer xml) throws NonParsableException{
+			this.pwm = (double[][]) XMLParser.extractObjectForTags(xml, "pwm");
+			this.height = (Integer) XMLParser.extractObjectForTags(xml, "height");
+		}
+		
+		@Override
+		public StringBuffer toXML() {
+			StringBuffer xml = new StringBuffer();
+			XMLParser.appendObjectWithTags(xml, pwm, "pwm");
+			XMLParser.appendObjectWithTags(xml, height, "height");
+			return xml;
+		}
+
+		@Override
+		public void generatePlot(GraphicsAdaptor ga) throws Exception {
+			
+			int width = SeqLogoPlotter.getWidth(height, pwm);
+			
+			SeqLogoPlotter.plotLogo(ga.getGraphics(width, height), height, pwm);
+			
+		}
+		
+		
+		
+		
+	}
+	
+	
+	private static Color getColor(double[] pwm, float ic){
+		float[] a = new float[]{0f,1f,0f};
+		float[] c = new float[]{0f,0f,1f};
+		//float[] g = new float[]{1f,1f,0f};
+		float[] g = Color.ORANGE.getColorComponents( null );
+		float[] t = new float[]{1f,0f,0f};
+		
+		
+		
+		float[] nc = new float[3];
+		for(int i=0;i<3;i++){
+			nc[i] = (float)( pwm[0]*a[i] + pwm[1]*c[i] + pwm[2]*g[i] + pwm[3]*t[i] );
+		}
+		return new Color( nc[0], nc[1], nc[2], ic );
+	}
+	
+	public static double[][] getDeps(Sequence[] seqs, double[] w){
+	
+		double[][][][] counts = new double[seqs[0].getLength()][seqs[0].getLength()][4][4];
+		//double[][] counts01 = new double[seqs[0].getLength()][4];
+		
+
+		
+	/*	for(int i=0;i<counts.length;i++){
+			for(int j=0;j<counts[i].length;j++){
+				for(int a = 0;a<counts[i][j].length;a++){
+					for(int b=0;b<counts[i][j][a].length;b++){
+						counts[i][j][a][b] += pc;
+					}
+				}
+			}
+		}*/
+		
+		
+		double sum = 0;
+		
+		for(int i=0;i<seqs.length;i++){
+			double weight = (w == null ? 1d : w[i]);
+			sum += weight;
+			for(int k=0;k<seqs[i].getLength();k++){
+				//counts01[k][seqs[i].discreteVal( k )] += weight;
+				for(int l=0;l<seqs[i].getLength();l++){
+					counts[k][l][seqs[i].discreteVal( k )][seqs[i].discreteVal( l )]+=weight;
+					
+				}
+			}
+			
+			
+			
+		}
+		
+		double[][] mis = new double[seqs[0].getLength()][seqs[0].getLength()];
+		
+		
+		for(int k=1;k<seqs[0].getLength();k++){
+			for(int l=0;l<k;l++){
+				//if(exclude == null || (!exclude[k] && !exclude[l]) ){		
+					double mi = 0;
+					for(int a=0;a<4;a++){
+						for(int b=0;b<4;b++){
+							if(counts[k][l][a][b]>0){
+								mi += counts[k][l][a][b] * ( Math.log( counts[k][l][a][b] ) - Math.log(counts[k][k][a][a]) - Math.log( counts[l][l][b][b] ) + Math.log( sum ) );
+							}
+						}
+					}
+					mis[k][l] = mi;
+					mis[l][k] = mi;
+				//}
+			}
+		}
+		
+		return mis;
+		
+	}
+	
+	public static int getHeightForColorLogo(int numSeqs, int numOne, int numPerChunk, int oneHeight, int blockSpacer){
+		
+		return (numSeqs/numOne*oneHeight) + (numSeqs/numPerChunk*blockSpacer);
+		
+	}
+	
+	public static int getHeightForDependencyLogo( int seqLength, int numSeqs, int[] numOne, int[] numPerChunk, int oneHeight, int width, int blockSpacer){
+		
+		int height = getHeightForColorLogo( numSeqs, numOne, numPerChunk, oneHeight, blockSpacer );
+		
+		int topMargin = (int)width/5;
+		
+		height += 1.5*topMargin;
+		
+		return height;
+	}
+	
+	public static int getHeightForColorLogo(int numSeqs, int[] numOne, int[] numPerChunk, int oneHeight, int blockSpacer){
+		
+		int height = 0;
+		
+		for(int i=0;i<numPerChunk.length;i++){
+			height += numPerChunk[i]/numOne[i]*oneHeight + blockSpacer;
+		}
+		return height;
+	}
+	
+	private static void plotScale(Graphics g, int offx, int offy, int height){
+		g = g.create();
+		g.setColor( Color.BLACK );
+		Rectangle2D rect = g.getFontMetrics().getStringBounds( "2", g ); 
+		int w = (int)rect.getWidth();
+		int h = -(int)rect.getCenterY();
+		g.drawLine( offx, offy, offx, offy+height );
+		g.drawString( "2", offx-2*w, offy+h );
+		g.drawLine( offx-(int)(0.8*w), offy, offx, offy );
+		g.drawString( "1", offx-2*w, (int)(offy+0.5*height)+h );
+		g.drawLine( offx-(int)(0.8*w), offy+(int)(0.5*height), offx, offy+(int)(0.5*height) );
+		g.drawString( "0", offx-2*w, (int)(offy+height)+h );
+		g.drawLine( offx-(int)(0.8*w), offy+height, offx, offy+height );
+	}
+	
+	
+	public static int[] getBorders(DataSet data, int[][] minmax, int[] steps) throws Exception{
+		
+		int off = 0;
+		int[] maxBords = new int[minmax.length];
+		for(int i=0;i<minmax.length;i++){
+			double max = Double.NEGATIVE_INFINITY;
+			int maxBord = -1;
+			for(int j=minmax[i][0];j<=minmax[i][1] && off+j < data.getNumberOfElements();j+=steps[i]){
+
+				Sequence[] sub1 = new Sequence[j];
+				System.arraycopy( data.getAllElements(), off, sub1, 0, sub1.length );
+				Sequence[] sub2 = new Sequence[data.getNumberOfElements()-(off+j)];
+				System.arraycopy( data.getAllElements(), off+j, sub2, 0, sub2.length );
+				TrainableStatisticalModel pwm1 = TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, data.getElementLength(), 0.0 );
+				pwm1.train( new DataSet( "", sub1 ) );
+				TrainableStatisticalModel pwm2 = TrainableStatisticalModelFactory.createPWM( DNAAlphabetContainer.SINGLETON, data.getElementLength(), 0.0 );
+				pwm2.train( new DataSet("", sub2) );
+				double[] weights = new double[]{sub1.length/(double)(sub1.length+sub2.length),sub2.length/(double)(sub1.length+sub2.length)};
+				//double[] weights = new double[]{0.5,0.5};
+				//System.out.println(Arrays.toString( weights ));
+				MixtureTrainSM mtsm = new MixtureTrainSM( pwm1.getLength(), new TrainableStatisticalModel[]{pwm1,pwm2},weights, 1, 1, new SmallDifferenceOfFunctionEvaluationsCondition( 1E-6 ), Parameterization.THETA);
+				double ll = 0;
+				for(int k=off;k<data.getNumberOfElements();k++){
+					ll += mtsm.getLogProbFor( data.getElementAt( k ) );
+
+				}
+				if(ll > max){
+					max = ll;
+					maxBord = j;
+				}
+
+			}
+			maxBords[i] = maxBord;
+			off += maxBord;
+		}
+		return maxBords;
+	}
+	
+	public static BufferedImage plotDefaultDependencyLogoToBufferedImage(DataSet data, double[] weights, int width) throws Exception{
+		
+		int[][] minmax = new int[][]{{Math.min( 100, Math.max( 20, (data.getNumberOfElements()/800)*20)), Math.min( 500, Math.max( 20, (data.getNumberOfElements()/160)*20))},
+		                             {Math.min( 500, Math.max( 25, (data.getNumberOfElements()/200)*25)),Math.min( 2000, Math.max( 25, (data.getNumberOfElements()/50)*25))}};
+		int[] steps = new int[]{Math.max( 20, (minmax[0][0]/100)*20),Math.max( 25, (minmax[1][0]/125)*25)};
+		
+		int[] borders = SeqLogoPlotter.getBorders( data, minmax, steps );
+		
+		int[] rows = new int[]{20,25,50};
+		int[] numPerChunk = new int[borders.length+1];
+		int[] numOne = new int[numPerChunk.length];
+		int n = data.getNumberOfElements();
+		
+		for(int i=0;i<borders.length;i++){
+			numPerChunk[i] = borders[i];
+			numOne[i] = numPerChunk[i]/rows[i];
+			n -= borders[i];
+		}
+		
+		
+		int omit = n%rows[rows.length-1];
+		n -= omit;
+		numPerChunk[numPerChunk.length-1] = n;
+		numOne[numOne.length-1] = numPerChunk[numPerChunk.length-1]/rows[rows.length-1];
+		
+		
+		System.out.println("BORDERS: ");
+		System.out.println(data.getNumberOfElements());
+		System.out.println(Arrays.toString( minmax[0] ));
+		System.out.println(Arrays.toString( minmax[1] ));
+		System.out.println(Arrays.toString( rows ));
+		System.out.println(Arrays.toString( numPerChunk ));
+		System.out.println(Arrays.toString( numOne ));
+		
+		
+		
+		int oneHeight = (int)Math.round( width/(double)150 );
+		int logoHeight = (int)Math.round( width/(double)10 );
+		
+		int height = getHeightForDependencyLogo( data.getElementLength(), data.getNumberOfElements(), numOne, numPerChunk, oneHeight, width, logoHeight );//getHeightForColorLogo( data.getNumberOfElements(), numOne, numPerChunk, oneHeight, logoHeight );
+		
+		BufferedImage img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graph = (Graphics2D)img.getGraphics();
+		
+		graph.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		graph.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		
+		plotDependencyLogo( data, null, weights, graph, width, 0, 0, numOne, numPerChunk, oneHeight, logoHeight, true, 3, false, false, false );
+		
+		return img;
+	}
+	
+	public static int plotDependencyLogo(DataSet seqs, double[][] classProbs, double[] weights, Graphics2D graph, int width, int offx, int offy, int[] numOne, int[] numPerChunk, int oneHeight, int logoHeight, boolean highlightMaxDeps, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, boolean scaleByDeps) throws Exception {
+
+		int totalWidth = width;
+		
+		graph = (Graphics2D)graph.create();
+		
+		int leftMargin = width/15;
+		
+		int tempWidth = width - 2*leftMargin;
+		
+		String[] labels = new String[seqs.getElementLength()];
+		for(int i=0;i<labels.length;i++){
+			labels[i] = (i+1)+"";
+		}
+		
+		int partWidth = (int)Math.floor( (double)tempWidth/(double)(labels.length+2) );
+		
+		
+		Font font = new Font(graph.getFont().getName(),Font.BOLD,width/40);
+		graph.setFont( font );
+		
+		int fac = 40;
+		if( graph.getFontMetrics().getStringBounds( labels[labels.length-1], graph ).getWidth() > partWidth*0.8 ){
+			fac *= graph.getFontMetrics().getStringBounds( labels[labels.length-1], graph ).getWidth()/(partWidth*0.8);
+			font = new Font(graph.getFont().getName(),Font.BOLD,width/fac);
+			graph.setFont( font );
+		}
+		
+		graph.setStroke( new BasicStroke( width/300f ) );
+		
+		
+		
+		double symHeight = graph.getFontMetrics().getStringBounds( labels[labels.length-1], graph ).getHeight();
+		
+		
+		//int topMargin = (int)(symHeight*6);
+		int topMargin = (int)width/5;
+		
+		graph.setColor( Color.WHITE );
+		graph.fillRect( offx, offy, width, getHeightForColorLogo( seqs.getNumberOfElements(), numOne, numPerChunk, oneHeight, logoHeight ) + topMargin*2 );
+
+		
+		double labWidth = graph.getFontMetrics().getStringBounds( "0.000E000", graph ).getWidth();
+		
+		
+		width -= 2*leftMargin;
+		
+		
+
+		
+		
+		
+		Sequence[] seqs2 = seqs.getAllElements();
+		
+		int[] heights = plotColorLogo( seqs2, weights, graph, width, offx+leftMargin, offy+topMargin, numOne, numPerChunk, oneHeight, logoHeight, numBestForSorting, sortGlobally, sortByWeights );
+		
+		seqs = new DataSet("",seqs2);
+		
+		
+		NumberFormat nf = DecimalFormat.getInstance( Locale.ENGLISH );
+		nf.setMaximumFractionDigits( 3 );
+		int minFrac = 0;
+		int off = 0;
+		for(int i=0;i<numPerChunk.length;i++){
+			double start = weights[off];
+			double end = weights[ off + numPerChunk[i]-1 ];
+			int len = 0;
+			if(Math.abs( start ) >= 0.01 ){
+				String temp = nf.format( start );
+				int idx = temp.indexOf( "." );
+				len = temp.length()-idx-1;
+				if(len > minFrac){
+					minFrac = len;
+				}
+			}
+			if(Math.abs( end ) >= 0.01 ){
+				String temp = nf.format( end );
+				int idx = temp.indexOf( "." );
+				len = temp.length()-idx-1;
+				if(len > minFrac){
+					minFrac = len;
+				}
+			}
+			
+			off += numPerChunk[i];
+		}
+		nf.setMinimumFractionDigits( minFrac );
+		
+		NumberFormat dec = new DecimalFormat( "0.###E0" );
+		String[][] startEndValues = new String[numPerChunk.length][2];
+		off = 0;
+		for(int i=0;i<numPerChunk.length;i++){
+			double start = weights[off];
+			double end = weights[ off + numPerChunk[i]-1 ];
+			if(start != 0.0 && Math.abs( start ) < 0.01 ){
+				startEndValues[i][0] = dec.format( start );
+			}else{
+				startEndValues[i][0] = nf.format( start );
+			}
+			if(end != 0.0 && Math.abs( end ) < 0.01 ){
+				startEndValues[i][1] = dec.format( end );
+			}else{
+				startEndValues[i][1] = nf.format( end );
+			}
+			off += numPerChunk[i];
+		}
+		
+		//startEndValues[0] = new String[]{"50.0","10.0"};//TODO FIXME
+		
+		graph.setColor( Color.BLACK );
+		off = topMargin;
+		
+		int offX = leftMargin+(labels.length+1)*partWidth;
+		for(int i=0;i<heights.length;i++){
+			int alt = totalWidth-(int)(graph.getFontMetrics().getStringBounds( startEndValues[i][0], graph ).getWidth()*1.1);
+			if(alt < offX){
+				offX = alt;
+			}
+		}
+		int alt = totalWidth-(int)(graph.getFontMetrics().getStringBounds( startEndValues[startEndValues.length-1][1], graph ).getWidth()*1.1);
+		if(alt < offX){
+			offX = alt;
+		} 
+		
+		for(int i=0;i<heights.length;i++){
+			//graph.drawString( startEndValues[i][0], leftMargin+(labels.length+1)*partWidth, off-(int)symHeight/2 );
+			graph.drawString( startEndValues[i][0], offX, off-(int)symHeight/2 );
+						
+			off = heights[i];
+		}
+		//graph.drawString( startEndValues[startEndValues.length-1][1], leftMargin+(labels.length+1)*partWidth, off-logoHeight+(int)symHeight );
+		graph.drawString( startEndValues[startEndValues.length-1][1], offX, off-logoHeight+(int)symHeight );
+		
+		
+		
+		off = topMargin;
+		for(int i=0;i<heights.length;i++){
+			
+			String lab = numPerChunk[i]+"";
+			
+
+			Rectangle2D rect = graph.getFontMetrics().getStringBounds( lab, graph );
+			AffineTransform back = graph.getTransform();
+			graph.rotate( -Math.PI/2 );
+
+			graph.drawString(lab,-(int)((heights[i]+off-logoHeight)/2 + rect.getCenterX()), (int)(leftMargin-rect.getHeight()/2d));
+			graph.setTransform( back );
+			
+			off = heights[i];
+		}
+		
+		
+		off = partWidth/2;
+		graph.setColor( Color.BLACK );
+		for(int i=0;i<labels.length;i++){
+			int c = (int)graph.getFontMetrics().getStringBounds( labels[i], graph ).getCenterX();
+			graph.drawString( labels[i], offx+leftMargin+off+i*partWidth - c, offy+(int)(topMargin-symHeight/2) );
+			graph.drawString( labels[i], offx+leftMargin+off+i*partWidth - c, heights[heights.length-1]+(int)(symHeight*2.5) );
+			graph.drawLine( offx+leftMargin+off+i*partWidth, heights[heights.length-1]+(int)symHeight, offx+leftMargin+off+i*partWidth, heights[heights.length-1]+(int)(1.5*symHeight) );
+		}
+		graph.drawLine( offx+leftMargin+off, heights[heights.length-1]+(int)symHeight, offx+leftMargin+off+(labels.length-1)*partWidth, heights[heights.length-1]+(int)symHeight );
+		
+		double[][] deps = null;
+		if(classProbs == null || classProbs.length==1){
+			deps = getDeps( seqs2, classProbs == null ? null : classProbs[0] );
+		}else{
+			BTExplainingAwayResidual ear = new BTExplainingAwayResidual( new double[]{0,0} );
+			deps = ear.getEAR( new DataSet("",seqs2), new DataSet("",seqs2), classProbs[0], classProbs[1], seqs2[0].getLength() );
+		}
+		boolean[][] isMax = new boolean[deps.length][deps.length];
+		
+		
+		if(highlightMaxDeps){
+		
+			for(int i=0;i<deps.length;i++){
+				double max = ToolBox.max( deps[i] );
+				for(int j=0;j<deps[i].length;j++){
+					if(deps[i][j] == max){
+						isMax[i][j] = true;
+					}
+				}
+			}
+			
+			for(int i=1;i<deps.length;i++){
+				for(int j=0;j<i;j++){
+					isMax[i][j] = isMax[i][j] || isMax[j][i];
+					isMax[j][i] = isMax[i][j];
+				}
+			}
+			
+		}
+		
+		
+		double[][] ps = new double[deps.length][deps[0].length];
+		double f = deps.length*(deps.length-1)/2.0;
+		double maxp = -Math.log10( 1E-300/f ), minp = -Math.log10( 0.01/f );
+		for(int i=1;i<deps.length;i++){
+			for(int j=0;j<i;j++){
+				double p = -Math.log10( Gamma.incompleteGammaComplement( 9.0/2.0, deps[i][j]*2.0/2.0 ) );
+				if(p > maxp){
+					p = maxp;
+				}
+				ps[i][j] = p;
+			/*	if(p > maxp){
+					maxp = p;
+				}
+				/*if(p < minp){
+					minp = p;
+				}*/
+			}
+		}
+		
+		if(scaleByDeps){
+			minp = 0;
+			maxp = 0;//Math.log( 4.0 )/2.0;
+			for(int i=1;i<deps.length;i++){
+				for(int j=0;j<i;j++){
+					ps[i][j] = deps[i][j]/( classProbs == null ? (double)seqs2.length : ToolBox.sum( classProbs[0] ));
+					if(ps[i][j] > maxp){
+						maxp = ps[i][j];
+					}
+				}
+			}
+			
+		}
+		
+		
+		//System.out.println("max: "+maxp+", min: "+minp);
+		
+		
+		graph.setColor( Color.BLACK );
+		for(int i=1;i<deps.length;i++){
+			for(int j=0;j<i;j++){
+				if(ps[i][j] > minp && !isMax[i][j]){
+					Color c = new Color( 0f, 0f, 0f, (float)((ps[i][j] - minp)/(maxp-minp)) );
+					//System.out.println(c.getAlpha());
+					graph.setColor( c );
+					int h = (int)((topMargin-symHeight*1.5)*(i-j)/(double)deps.length);
+					graph.drawArc( offx+leftMargin+off+j*partWidth,offy+(int)(topMargin-symHeight*1.5)-h, (i-j)*partWidth, h*2, 0, 180 );
+				}
+			}
+		}
+		for(int i=1;i<deps.length;i++){
+			for(int j=0;j<i;j++){
+				if(ps[i][j] > minp && isMax[i][j]){
+					Color c = new Color( 1f, 0f, 0f, (float)((ps[i][j] - minp)/(maxp-minp)) );
+					//System.out.println(c.getAlpha());
+					graph.setColor( c );
+					int h = (int)((topMargin-symHeight*1.5)*(i-j)/(double)deps.length);
+					graph.drawArc( offx+leftMargin+off+j*partWidth,offy+(int)(topMargin-symHeight*1.5)-h, (i-j)*partWidth, h*2, 0, 180 );
+				}
+			}
+		}
+		
+		
+		
+		off = 0;
+		for(int i=0;i<heights.length;i++){
+			
+			double[][] pwm = PFMComparator.getPWM( seqs, off, off + numPerChunk[i] );
+			off += numPerChunk[i];
+			
+			for(int j=0;j<pwm.length;j++){
+				plotLogo( graph, offx+leftMargin+j*partWidth, heights[i], partWidth, logoHeight, pwm[j] );
+			}
+			plotScale( graph, offx+leftMargin, heights[i]-logoHeight, logoHeight-1 );
+			
+		}
+		
+		
+		return heights[heights.length-1];
+	}
+	
+	public static int plotColorLogo(Sequence[] seqs, double[] weights, Graphics2D graph, int width, int offx, int offy, int numOne, int numPerChunk, int oneHeight, int blockSpacer, int numBestForSorting, boolean sortGlobally, boolean sortByWeights) throws Exception{
+		int[] nums = new int[(int)Math.ceil( seqs.length/(double)numPerChunk )];
+		int[] oneNums = new int[nums.length];
+		for(int i=0,k=0;i<seqs.length;i+=numPerChunk,k++){
+			if(i + numPerChunk <= seqs.length){
+				nums[k] = numPerChunk;
+			}else{
+				int numCurr = (int) Math.floor( (seqs.length-i)/numOne ) * numOne;
+				nums[k] = numCurr;
+			}
+			oneNums[k] = numOne;
+		}
+		//System.out.println(Arrays.toString( nums ));
+		int[] offs = plotColorLogo( seqs, weights, graph, width, offx, offy, oneNums, nums, oneHeight, blockSpacer, numBestForSorting, sortGlobally, sortByWeights );
+		return offs[offs.length-1];
+	}
+	
+	public static int[] plotColorLogo(Sequence[] seqs, double[] weights, Graphics2D graph, int width, int offx, int offy, int[] numOne, int[] numPerChunk, int oneHeight, int blockSpacer, int numBestForSorting, boolean sortGlobally, boolean sortByWeights) throws Exception{
+		
+		int[] offs = new int[numPerChunk.length];
+		
+		//double[] tempWeights = null;
+		
+		if(weights == null){
+			weights = new double[seqs.length];
+			Arrays.fill( weights, 1.0 );
+		}else{
+
+			/*double max = ToolBox.max( weights );
+			double min = ToolBox.min( weights );
+			for(int i=0;i<weights.length;i++){
+				weights[i] = (weights[i] - min)/(max-min);
+			}*/
+			ComparableElement<Sequence, Double>[] els = new ComparableElement[seqs.length];
+			for(int i=0;i<els.length;i++){
+				els[i] = new ComparableElement<Sequence, Double>( seqs[i], weights[i] );
+			}
+			Arrays.sort( els );
+			
+			for(int i=0;i<els.length;i++){
+				seqs[i] = els[els.length-1-i].getElement();
+				weights[i] = els[els.length-1-i].getWeight();
+			}
+		}
+		
+		int off = 0;
+		for(int i=0;i<numPerChunk.length;i++){
+			SeqLogoPlotter.plotColorLogo( graph, seqs, weights, off, off+numPerChunk[i], width, offx, offy, numOne[i], oneHeight, numBestForSorting, sortGlobally, sortByWeights );
+			offy += numPerChunk[i]/numOne[i]*oneHeight + blockSpacer;
+			Color back = graph.getColor();
+			graph.setColor( Color.WHITE );
+			graph.fillRect( offx, offy-blockSpacer, width, blockSpacer );
+			graph.setColor( back );
+			off += numPerChunk[i];
+			offs[i] = offy;
+		}
+		
+		return offs;
+	}
+	
+	
+	public static int plotColorLogo(Graphics2D graph, Sequence[] seqs, double[] weights, int start, int end, int width, int offx, int offy, int numOne, int oneHeight, int numBestForSorting, boolean sortGlobally, boolean sortByWeights) throws Exception {
+		if( (end-start) % numOne != 0){
+			System.out.println(start+" "+end+" "+numOne);
+			throw new Exception();
+			
+		}
+		
+		
+		double mi = ToolBox.min( weights );
+		double ma = ToolBox.max( weights );
+		mi -= (ma-mi)*1E-6;
+		if(ma==mi){
+			mi=0;
+		}
+		
+		graph = (Graphics2D)graph.create();
+		
+		Sequence[] temp = new Sequence[end-start];
+		System.arraycopy( seqs, start, temp, 0, end-start );
+		
+		Pair<Sequence,Double>[] sortTemp = new Pair[end-start];
+		for(int i=0;i<sortTemp.length;i++){
+			sortTemp[i] = new Pair<Sequence, Double>( seqs[start+i], weights[start+i] );
+		}
+		
+		
+		//double[] vals = getInformation( temp, numBestForSorting );
+		
+		//final int[] ord = ToolBox.order( vals, true );
+		
+		
+		if(sortGlobally){
+		
+			final int[] ord = getOrder(temp, numBestForSorting, 6);
+
+			//System.out.println(Arrays.toString( vals ));
+			//System.out.println(Arrays.toString( ord ));
+			//System.out.println();
+
+			final double[][] fullPwm = PFMComparator.getPFM( new DataSet( "", temp ) );
+
+			Comparator<Pair<Sequence,Double>> comp = new Comparator<Pair<Sequence,Double>>() {
+				@Override
+				public int compare( Pair<Sequence,Double> o1, Pair<Sequence,Double> o2 ) {
+					for(int i=0;i<ord.length;i++){
+						double sym1 = fullPwm[ord[i]][o1.getFirstElement().discreteVal( ord[i] )];
+						double sym2 = fullPwm[ord[i]][o2.getFirstElement().discreteVal( ord[i] )];
+						if(sym1 > sym2){
+							return -1;
+						}else if(sym2 > sym1){
+							return 1;
+						}
+					}
+					return 0;
+				}
+			};
+
+			Arrays.sort( sortTemp, comp );
+		
+		}else{
+			
+			double[][] fullPFM = PFMComparator.getPFM( new DataSet("",temp) );
+			
+			
+			sortLocal2(sortTemp, numBestForSorting, 6, new boolean[temp[0].getLength()], numOne, sortByWeights,fullPFM);//TODO maxnum
+			
+		}
+		
+		double[] tempW = new double[temp.length];
+		for(int i=0;i<temp.length;i++){
+			temp[i] = sortTemp[i].getFirstElement();
+			tempW[i] = sortTemp[i].getSecondElement();//TODO FIXME
+			//tempW[i] = (temp.length-i)/100.0*Math.random();
+		}
+		
+		
+		/*mi = ToolBox.min( tempW );//TODO START
+		ma = ToolBox.max( tempW );
+		mi -= (ma-mi)*1E-6;
+		if(ma==mi){
+			mi=0;
+		}//TODO END
+		*/
+		
+		double[][] pwm = new double[seqs[0].getLength()][4];
+		
+		for(int i=0;i<temp.length;i+=numOne){
+			
+			for(int j=0;j<pwm.length;j++){
+				Arrays.fill( pwm[j], 0.0 );
+				for(int k=0;k<numOne && i+k < temp.length; k++){
+					pwm[j][temp[i+k].discreteVal( j )]++;
+				}
+				Normalisation.sumNormalisation( pwm[j] );
+			}
+			//System.out.println("ma: "+ma+", mi: "+mi+", mean: "+ToolBox.mean( i, i+numOne, tempW ));
+			plotColorLogo( graph, pwm, (ToolBox.mean( i, i+numOne, tempW )-mi)/(ma-mi), true, true, oneHeight, width, offx, offy );
+			offy+=oneHeight;
+			
+		}
+		
+		return offx;
+		
+	}
+	
+	private static Pair<Sequence,Double>[] sortLocal3( Pair<Sequence, Double>[] sortTemp, int numBestForSorting, int maxNum, boolean[] exclude, int minElements, boolean sortByWeights, double[] prevInf ) {
+		//exclude = exclude.clone();
+		//System.out.println("maxNum: "+maxNum);
+		
+		if(maxNum == 0 || sortTemp.length < minElements*4){
+			return sortTemp;
+		}else{
+			
+			//double pc = 1.0;
+			
+			Sequence[] temp = new Sequence[sortTemp.length];
+			for(int i=0;i<temp.length;i++){
+				temp[i] = sortTemp[i].getFirstElement();
+			}
+			
+			Pair<double[],double[][]> pair = getInformation( temp, numBestForSorting, exclude );
+			double[] inf = pair.getFirstElement();
+			int best = ToolBox.getMaxIndex( inf );
+			
+			
+			
+			int bestPrev = ToolBox.getMaxIndex( prevInf );
+			
+			//System.out.println(Arrays.toString( exclude ));
+			//System.out.println(best+" "+inf[best]+" "+bestPrev+" "+prevInf[bestPrev]+" "+(temp.length+pc*16)+" "+numBestForSorting+" "+ToolBox.sum( exclude ));
+			
+			if(inf[best]/(temp.length)/(double)numBestForSorting < 0.1 && ( ToolBox.sum( exclude ) == 0 || prevInf[bestPrev]/(temp.length)/(double)ToolBox.sum( exclude ) < 0.1 )){
+				return sortTemp;
+			}else{
+				
+				if(inf[best]/(temp.length)/(double)numBestForSorting < 0.1){
+					best = bestPrev;
+				}
+				
+				double[] mis = pair.getSecondElement()[best];
+				
+				exclude[best] = true;
+				//LinkedList<Sequence>[] partitions = new LinkedList[4];
+				LinkedList<Pair<Sequence, Double>>[] partSort = new LinkedList[4];
+				for(int i=0;i<partSort.length;i++){
+					partSort[i] = new LinkedList<Pair<Sequence,Double>>();
+				}
+				
+				double[] freq = new double[4];
+				double[] ws = new double[4];
+				for(int i=0;i<temp.length;i++){
+					Sequence seq = temp[i];
+					int idx = seq.discreteVal( best );
+					//partitions[idx].add( seq );
+					partSort[idx].add( sortTemp[i] );
+					freq[idx]++;
+					ws[idx] += sortTemp[i].getSecondElement(); 
+				}
+				if(sortByWeights){
+					for(int i=0;i<freq.length;i++){
+						freq[i] = ws[i]/freq[i];
+					}
+				}
+				
+				int[] ord = ToolBox.order( freq, true );
+				//System.out.println(maxNum+": "+best);
+				//System.out.println(Arrays.toString( freq ) );
+				//System.out.println(Arrays.toString( ord ));
+				int off = 0;
+				for(int i=0;i<ord.length;i++){
+					if(freq[ord[i]] > 0){
+						
+						double[] tempPrev = prevInf.clone();
+						for(int j=0;j<tempPrev.length;j++){
+							if(exclude[j]){
+								tempPrev[j] = 0;
+							}else{
+								tempPrev[j] += mis[j];
+								/*for(int k=0;k<depPos.length;k++){
+									if(j==depPos[k]){
+										tempPrev[j] = ToolBox.max( tempPrev[j], inf[j] );
+									}
+								}*/
+							}
+						}
+						
+						Pair<Sequence, Double>[] part = sortLocal3( partSort[ord[i]].toArray( new Pair[0] ), numBestForSorting, maxNum-1, exclude.clone(), minElements, sortByWeights, tempPrev );
+						for(int j=0;j<part.length;j++,off++){
+							sortTemp[off] = part[j];
+						}
+					}
+				}
+				return sortTemp;		
+				
+			}
+			
+			
+		}
+		
+	}
+	
+	private static Pair<Sequence,Double>[] sortLocal2( Pair<Sequence, Double>[] sortTemp, int numBestForSorting, int maxNum, boolean[] exclude, int minElements, boolean sortByWeights, double[][] fullPFM ) throws Exception {
+		//exclude = exclude.clone();
+		System.out.println("maxNum: "+maxNum);
+		
+		if(maxNum == 0 || sortTemp.length < 4*minElements){
+			//System.out.println(sortTemp.length+" "+minElements);
+			return sortTemp;
+		}else{
+						
+			Sequence[] temp = new Sequence[sortTemp.length];
+			for(int i=0;i<temp.length;i++){
+				temp[i] = sortTemp[i].getFirstElement();
+			}
+			
+			Pair<double[],double[][]> pair = getInformation( temp, numBestForSorting, exclude );
+			double[] inf = pair.getFirstElement();
+			int best = ToolBox.getMaxIndex( inf );
+			
+			
+			System.out.println(Arrays.toString( exclude ));
+			System.out.println(best+" "+inf[best]+" "+(temp.length)+" "+numBestForSorting);
+			
+			if(inf[best]/(double)(temp.length)/(double)numBestForSorting < 0.05 ){//TODO Threshold
+				
+				LinkedList<Sequence> seqTemp = new LinkedList<Sequence>();
+				for(int i=0;i<sortTemp.length;i++){
+					seqTemp.add( sortTemp[i].getFirstElement() );
+				}
+				
+				
+				final double[][] partPFM = PFMComparator.getPFM( new DataSet("",seqTemp) ); 
+				
+				
+				double[] kls = getKLDivergence(partPFM,ArrayHandler.clone( fullPFM ));
+				
+				System.out.println("kls: "+Arrays.toString( kls ));
+				
+				int[] o = ToolBox.order( kls, true );
+				
+				IntList orderPos = new IntList();
+				
+				for(int i=0,k=0;i<o.length && k < maxNum;i++){
+					if(!exclude[o[i]]){
+						
+						if(kls[o[i]] > 0.1){//TODO kl thresh
+							orderPos.add( o[i] );
+						}else{
+							break;
+						}
+						
+						k++;
+					}
+					
+				}
+				
+				if(orderPos.length() == 0){
+					return sortTemp;
+				}
+
+				final int[] ord = orderPos.toArray();
+				System.out.println(Arrays.toString( ord ));
+				
+				Comparator<Pair<Sequence,Double>> comp = new Comparator<Pair<Sequence,Double>>() {
+					@Override
+					public int compare( Pair<Sequence,Double> o1, Pair<Sequence,Double> o2 ) {
+						for(int i=0;i<ord.length;i++){
+							double sym1 = partPFM[ord[i]][o1.getFirstElement().discreteVal( ord[i] )];
+							double sym2 = partPFM[ord[i]][o2.getFirstElement().discreteVal( ord[i] )];
+							if(sym1 > sym2){
+								return -1;
+							}else if(sym2 > sym1){
+								return 1;
+							}
+						}
+						return 0;
+					}
+				};
+				
+				Arrays.sort( sortTemp, comp );
+				
+				return sortTemp;
+			}else{
+				
+				double[] mis = pair.getSecondElement()[best];
+				
+				exclude[best] = true;
+				//LinkedList<Sequence>[] partitions = new LinkedList[4];
+				LinkedList<Pair<Sequence, Double>>[] partSort = new LinkedList[4];
+				for(int i=0;i<partSort.length;i++){
+					partSort[i] = new LinkedList<Pair<Sequence,Double>>();
+				}
+				
+				double[] freq = new double[4];
+				double[] ws = new double[4];
+				for(int i=0;i<temp.length;i++){
+					Sequence seq = temp[i];
+					int idx = seq.discreteVal( best );
+					//partitions[idx].add( seq );
+					partSort[idx].add( sortTemp[i] );
+					freq[idx]++;
+					ws[idx] += sortTemp[i].getSecondElement(); 
+				}
+				if(sortByWeights){
+					for(int i=0;i<freq.length;i++){
+						freq[i] = ws[i]/freq[i];
+					}
+				}
+				
+				int[] ord = ToolBox.order( freq, true );
+				//System.out.println(maxNum+": "+best);
+				//System.out.println(Arrays.toString( freq ) );
+				//System.out.println(Arrays.toString( ord ));
+				int off = 0;
+				for(int i=0;i<ord.length;i++){
+					if(freq[ord[i]] > 0){
+						
+						Pair<Sequence, Double>[] part = sortLocal2( partSort[ord[i]].toArray( new Pair[0] ), numBestForSorting, maxNum-1, exclude.clone(), minElements, sortByWeights,fullPFM );
+						for(int j=0;j<part.length;j++,off++){
+							sortTemp[off] = part[j];
+						}
+					}
+				}
+				return sortTemp;		
+				
+			}
+			
+			
+		}
+		
+	}
+
+	private static double[] getKLDivergence( double[][] partPFM, double[][] fullPFM ) {
+		
+		double full = ToolBox.sum( fullPFM[0] );
+		double part = ToolBox.sum( partPFM[0] );
+		
+		
+		double[] kls = new double[partPFM.length];
+		
+		for(int i=0;i<fullPFM.length;i++){
+			Normalisation.sumNormalisation( fullPFM[i] );
+			Normalisation.sumNormalisation( partPFM[i] );
+			
+			for(int j=0;j<fullPFM[i].length;j++){
+				if(partPFM[i][j] > 0){
+					kls[i] += partPFM[i][j] * Math.log( partPFM[i][j] / fullPFM[i][j] );
+				}
+				
+			}
+			
+			
+		}
+		
+		return kls;
+		
+	}
+
+	public static int[] getOrder( Sequence[] temp, int numBestForSorting, int numSortingPositions ) {
+		
+		IntList sortPos = new IntList();
+		boolean[] exclude = new boolean[temp[0].getLength()];
+		
+		
+		double[] inf = getInformation( temp, numBestForSorting, exclude ).getFirstElement();
+		int best = ToolBox.getMaxIndex( inf );
+		exclude[best] = true;
+		if(inf[best]/(temp.length)/(double)numBestForSorting > 0.1){
+			sortPos.add( best );
+		}
+		//System.out.println("best 0: "+best+" "+inf[best]/(temp.length+pc*16)/numBestForSorting);
+		for(int i=1;i<numSortingPositions;i++){
+			//pc /= 4.0;
+			/*LinkedList<Sequence>[] parts = getPartitions(temp,sortPos);
+			Arrays.fill( inf, 0 );
+			for(int j=0;j<parts.length;j++){
+				//System.out.println(j+":"+parts[j].size()/(double)temp.length);
+				if(parts[j].size()>0){
+					double[] temp2 = getInformation( parts[j].toArray( new Sequence[0] ), numBestForSorting, pc, exclude );
+					double w = 1.0/(double)(temp.length+pc*16);
+					//double w = 1.0;
+					for(int k=0;k<temp2.length;k++){
+						//System.out.print(temp2[k]/parts[j].size()+", ");
+						inf[k] += w*temp2[k];
+					}
+				}
+				//System.out.println();
+			}*/
+			inf = getInformation( temp, numBestForSorting, exclude ).getFirstElement();
+			best = ToolBox.getMaxIndex( inf );
+			exclude[best] = true;
+			//System.out.println("best "+i+": "+best+" "+inf[best]/(double)(temp.length+pc*16)/(double)numBestForSorting);
+			if(inf[best]/(double)(temp.length)/(double)numBestForSorting > 0.1){
+				sortPos.add( best );
+			}
+		}
+		return sortPos.toArray();
+	}
+	
+	public static LinkedList<Sequence>[] getPartitions(Sequence[] temp, IntList sortPos){
+		LinkedList<Sequence>[] lists = new LinkedList[(int)Math.pow( 4, sortPos.length() )];
+		for(int i=0;i<lists.length;i++){
+			lists[i] = new LinkedList<Sequence>();
+		}
+		int[] pows = new int[sortPos.length()];
+		for(int i=0;i<pows.length;i++){
+			pows[i] = (int) Math.pow( 4, i );
+		}
+		for(int i=0;i<temp.length;i++){
+			int idx = 0;
+			for(int j=0;j<sortPos.length();j++){
+				idx += pows[j]*temp[i].discreteVal( sortPos.get( j ) );
+			}
+			lists[idx].add( temp[i] );
+		}
+		return lists;
+	}
+
+	public static Pair<double[],double[][]> getInformation(Sequence[] seqs, int numBest, boolean[] exclude){
+				
+		/*double[][][][] counts = new double[seqs[0].getLength()][seqs[0].getLength()][4][4];
+		for(int i=0;i<seqs.length;i++){
+			for(int k=0;k<seqs[i].getLength();k++){
+				for(int l=0;l<seqs[i].getLength();l++){
+					counts[k][l][seqs[i].discreteVal( k )][seqs[i].discreteVal( l )]++;
+				}
+			}
+		}
+		double[] vals = new double[seqs[0].getLength()];
+		double[][] mis = new double[vals.length][vals.length];
+		for(int k=0;k<mis.length;k++){
+			for(int l=0;l<=k;l++){
+				double mi = 0.0;
+				for(int a=0;a<4;a++){
+					for(int b=0;b<4;b++){
+						if(counts[k][l][a][b] > 0){
+							mi += counts[k][l][a][b] * ( Math.log( counts[k][l][a][b] ) - Math.log(counts[k][k][a][a]) - Math.log( counts[l][l][b][b]/(double)seqs.length ) );
+						}
+					}
+				}
+				if(k==l){
+					//mis[k][k] = 2.0*seqs.length - mi;
+					mis[k][k] = 0;
+				}else{
+					mis[k][l] = mi;
+					mis[l][k] = mi;
+				}
+			}
+		}*/
+		
+		double[][] mis = getDeps( seqs, null );
+		double[] vals = new double[seqs[0].getLength()];
+		
+		//int[][] depPoss = new int[vals.length][0];
+		for(int i=0;i<vals.length;i++){
+			//Arrays.sort( mis[i] );
+			int[] o = ToolBox.order( mis[i], true );
+			vals[i] = 0;
+			//IntList depPos = new IntList();
+			if(exclude == null || /*!exclude[o[i]]*/!exclude[i]){
+				for(int j=0,k=0;k<numBest && j<mis[i].length;j++){
+					//vals[i] += mis[i][mis[i].length-j-1];
+					if(exclude==null || !exclude[o[j]]){
+						vals[i] += mis[i][o[j]];
+						k++;
+					}
+					//depPos.add( o[j] );
+				}
+			}
+			//depPoss[i] = depPos.toArray();
+		}
+		//System.out.println(numBest+" "+Arrays.toString( vals ));
+		return new Pair<double[],double[][]>(vals,mis);
+	}
+	
+	public static void plotColorLogo(Graphics2D graph, double[][] pwm, double weight, boolean mix, boolean icscale, int height, int width, int offx, int offy){
+		graph = (Graphics2D)graph.create();
+		
+		Color back = graph.getColor();
+		graph.setColor( Color.WHITE );
+		graph.fillRect( offx, offy, width, height );
+		graph.setColor( back );
+		
+		int partWidth = (int)Math.floor( (double)width/(double)(pwm.length+2) );
+				
+		double[] temp = new double[4];
+		
+		for(int i=0;i<pwm.length;i++){
+			
+			if(mix){
+				Color c = getColor( pwm[i], icscale ? (float)Math.sqrt( getICScale( pwm[i] ) ) : 1f );
+				back = graph.getColor();
+				graph.setColor( c );
+				graph.fillRect( offx, offy, partWidth, height );
+				graph.setColor( back );
+			}else{
+				int off2 = 0;
+				float ic = icscale ? (float)Math.sqrt( getICScale( pwm[i] ) ) : 1f;
+				//System.out.println(ic);
+				for(int j=0;j<pwm[i].length;j++){
+					Arrays.fill( temp, 0 );
+					temp[j] = 1.0;
+					Color c = getColor( temp, ic );
+					back = graph.getColor();
+					graph.setColor( c );
+					int partHeight = (int)Math.round( height*pwm[i][j] );
+					graph.fillRect( offx, offy+off2, partWidth, j<pwm[i].length-1 ? partHeight : height-off2 );
+					off2 += partHeight;
+					graph.setColor( back );
+				}
+			}
+			
+			offx += partWidth;
+			
+		}
+		
+		offx += partWidth;
+		//System.out.println(weight);
+		Color c = new Color( 1.0f, (float)weight, 0.0f );
+		
+		back = graph.getColor();
+		graph.setColor( c );
+		graph.fillRect( offx, offy, partWidth, height );
+		graph.setColor( back );
+		
+	}
+	
 	/**
 	 * Plots the sequence logo for the position weight matrix given in <code>ps</code>. 
 	 * The rows of <code>ps</code> correspond to positions in the sequence logo. Each row must be normalized.
@@ -90,7 +1217,7 @@ public class SeqLogoPlotter {
 	 * @param ps the position weight matrix
 	 * @return the created {@link BufferedImage} and its {@link Graphics2D} object
 	 */
-	protected static Pair<BufferedImage,Graphics2D> getBufferedImageAndGraphics(int height,double[][] ps){
+	public static Pair<BufferedImage,Graphics2D> getBufferedImageAndGraphics(int height,double[][] ps){
 		int w = getWidth( height, ps );
 		BufferedImage img = new BufferedImage( w, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D)img.getGraphics();
@@ -144,7 +1271,15 @@ public class SeqLogoPlotter {
 	 * @return the width
 	 */
 	public static int getWidth(int height, double[][] ps){
-		return (int)(height/6.0*(ps.length+1.5));
+		return getWidth(height, ps.length);
+	}
+	
+	public static int getWidth(int height, int numCol){
+		return (int)(height/6.0*(numCol+1.5));
+	}
+	
+	public static int getColumnWidth(int height){
+		return (int)(height/6.0);
 	}
 	
 	/**
@@ -192,10 +1327,16 @@ public class SeqLogoPlotter {
 	 * @param labY the label of the y-axis
 	 */
 	public static void plotLogo(Graphics2D g, int x, int y, int w, int h, double[][] ps, String[] labels, String labX, String labY){
+		g = (Graphics2D)g.create();
+		/*g.scale( 1.0/(h*100), 1.0/(h*100) );
+		x *= h*100;
+		y *= h*100;
+		w *= h*100;
+		h *= h*100;*/
 		g.setColor( Color.WHITE );
 		g.fillRect( x, y-h, w, h );
 		
-		Font font = new Font(g.getFont().getName(),Font.BOLD,h/17);
+		Font font = new Font(g.getFont().getName(),Font.BOLD,h/10);//17
 		g.setFont( font );
 		
 		if(labels == null){
@@ -206,23 +1347,23 @@ public class SeqLogoPlotter {
 		}
 		
 
-		double wl = h*0.25;
+		double wl = h*0.4;
 		
 		double w2 = (w-wl)/(ps.length);
-		double x2 = x + wl*0.9;
+		double x2 = wl*0.9;
 		
-		double h2 = h*0.7;
-		double y2 = y*0.75;
+		double h2 = h*0.65;
+		double y2 = y - h*0.3;
 		
 		g.setColor( Color.BLACK );
-		g.setStroke( new BasicStroke( h/400+1 ) );
-		g.drawLine( (int)x2, (int)(y2*1.04)+1, (int)(x2+w2*ps.length), (int)(y2*1.04)+1 );
-		g.drawLine( (int)(x2*0.94)-1, (int)y2, (int)(x2*0.94)-1, (int)(y2-h2) );
+		g.setStroke( new BasicStroke( h/100f ) );
+		g.drawLine( x+(int)x2, (int)(y2+0.05*h), x+(int)(x2+w2*ps.length), (int)(y2+0.05*h) );
+		g.drawLine( x+(int)(x2*0.94), (int)y2, x+(int)(x2*0.94), (int)(y2-h2) );
 		String[] labs = {"0", "0.5", "1", "1.5", "2"};
 		for(int i=0;i<=4;i++){
-			g.drawLine( (int)(x2*0.7), (int)(y2-i*h2/4.0), (int)(x2*0.94)-1, (int)(y2-i*h2/4.0) );
+			g.drawLine( x+(int)(x2*0.7), (int)(y2-i*h2/4.0), x+(int)(x2*0.94), (int)(y2-i*h2/4.0) );
 			Rectangle2D rect = g.getFontMetrics().getStringBounds( labs[i], g );
-			g.drawString( labs[i], (int)(x2*0.6-rect.getWidth()-2), (int)(y2-i*h2/4.0 - rect.getCenterY()) );
+			g.drawString( labs[i], x+(int)(x2*0.6-rect.getWidth()), (int)(y2-i*h2/4.0 - rect.getCenterY()) );
 		}
 		AffineTransform back = g.getTransform();
 		g.rotate( -Math.PI/2 );
@@ -232,12 +1373,13 @@ public class SeqLogoPlotter {
 		g.setTransform( back );
 		
 		rect = g.getFontMetrics().getStringBounds( labX, g );
-		g.drawString( labX, (int)(x2+w2*ps.length/2.0-rect.getCenterX()), (int)(y-0.3*rect.getHeight()) );
+		g.drawString( labX, x+(int)(x2+w2*ps.length/2.0-rect.getCenterX()), (int)(y-0.2*rect.getHeight()) );
 		for(int i=0;i<ps.length;i++){
-			plotLogo( g, x2, y2, w2, h2, ps[i] );
+			plotLogo( g, x+x2, y2, w2, h2, ps[i] );
 			g.setColor( Color.BLACK );
 			rect = g.getFontMetrics().getStringBounds( labels[i], g );
-			g.drawString( labels[i], (float)(x2+w2/2d-rect.getCenterX()), (float)(y2+2*rect.getHeight()) );
+			//g.drawLine( (int)(x2+w2/2d), (int)(y2+0.05*h), (int)(x2+w2/2d), (int)(y2+0.05*h+0.05*h ) );
+			g.drawString( labels[i], x+(float)(x2+w2/2d-rect.getCenterX()), (float)(y2+1.5*rect.getHeight()) );
 			x2 += w2;
 		}
 	}
@@ -323,6 +1465,7 @@ public class SeqLogoPlotter {
 	 * @param labY2 the label of the second (importance) y-axis
 	 */
 	public static void plotTALgetterLogo(Graphics2D g, int x, int y, int w, int h, double[][] ps, double[] imp, String[] labels, String labX, String labY, String labY2){
+		g = (Graphics2D)g.create();
 		g.setColor( Color.WHITE );
 		g.fillRect( x, y-h, w, h );
 		
@@ -410,17 +1553,11 @@ public class SeqLogoPlotter {
 		
 	}
 	
-	private static void plotLogo(Graphics2D g, double x, double y, double w, double h, double[] p){
+	protected static void plotLogo(Graphics2D g, double x, double y, double w, double h, double[] p){
 		
 		//y += h;
 		
-		double ic = Math.log( 4 )/Math.log( 2 );
-		for(int i=0;i<p.length;i++){
-			if(p[i] > 0){
-				ic += p[i]*Math.log( p[i] )/Math.log( 2 );
-			}
-		}
-		ic /= 2.0;
+		double ic = getICScale(p);
 		h *= ic;
 		//System.out.println("h: "+h);
 		
@@ -457,6 +1594,17 @@ public class SeqLogoPlotter {
 		//System.out.println(y);
 	}
 	
+	public static double getICScale( double[] p ) {
+		double ic = Math.log( 4 )/Math.log( 2 );
+		for(int i=0;i<p.length;i++){
+			if(p[i] > 0){
+				ic += p[i]*Math.log( p[i] )/Math.log( 2 );
+			}
+		}
+		ic /= 2.0;
+		return ic;
+	}
+
 	private static Area getC( double x, double y, double w, double h ){
 		
 		Shape s = new Ellipse2D.Double( 0, -90, 90, 90 );
