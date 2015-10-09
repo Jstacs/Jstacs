@@ -166,7 +166,11 @@ public class ParameterSetTagger {
 		if( p.getDatatype() != DataType.STRING && value instanceof String && ((String)value).length()==0 ) {
 			value = null;
 		}
-		p.setValue( value );
+		try {
+			p.setValue( value );
+		} catch ( IllegalValueException ive ) {
+			throw new IllegalValueException("Could not set value for parameter with tag: " + tag);
+		}
 	}
 	
 	/**
