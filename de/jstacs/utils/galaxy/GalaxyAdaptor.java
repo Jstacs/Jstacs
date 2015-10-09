@@ -39,8 +39,13 @@ import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.GalaxyConvertible;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.DataSetResult;
 import de.jstacs.results.ImageResult;
@@ -48,8 +53,12 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.SimpleResult;
 import de.jstacs.results.StorableResult;
+import de.jstacs.results.TextResult;
+import de.jstacs.results.savers.ResultSaver;
+import de.jstacs.results.savers.ResultSaverLibrary;
 
 /**
  * Adaptor class between the parameter representation of Jstacs in {@link de.jstacs.parameters.Parameter}s and {@link ParameterSet}s and the parameter representation
@@ -94,6 +103,14 @@ public class GalaxyAdaptor {
 	private String outfileId;
 	private String newFilePath;
 	private String htmlFilesPath;
+	
+	private int threads;
+	
+	
+	public int getThreads() {
+		return threads;
+	}
+
 	/**
 	 * The stylesheet used for the Galaxy HTML output.
 	 */
@@ -101,8 +118,10 @@ public class GalaxyAdaptor {
 			"body{font-family:sans-serif;font-size:10pt}\n" +
 			"table{font-size:10pt;border-spacing:0px}\n" +
 			"th{font-weight:bold}\n" +
-			"div.head{font-size:15px;line-height:24px;padding:5px 10px;background:#ebd9b2;border-bottom:solid #d8b365 1px;font-weight:bold}\n" +
+			"div.tophead{font-size:16px;line-height:24px;padding:5px 10px;background:#ebd9b2;border-bottom:solid #d8b365 1px;font-weight:bold}\n" +
+			"div.head{font-size:12px;line-height:16px;padding:5px 10px;background:#ddddff;border-bottom:solid #8888ff 1px;font-weight:bold}\n" +
 			"div.comment{color:grey}\n" +
+			"div.tt{font-family:monospace}\n" +
 			"h2{text-align:center}" +
 			"</style>";
 	private static int htmlId = 0;
@@ -155,6 +174,7 @@ public class GalaxyAdaptor {
 		this.format.setMaximumFractionDigits( 3 );
 		this.format.setMinimumFractionDigits( 3 );
 		this.expFormat = new DecimalFormat("0.00E0");
+		this.threads = 1;
 	}
 
 	/**
@@ -202,12 +222,16 @@ public class GalaxyAdaptor {
 	 * @return the configuration
 	 * @throws Exception if any of the parameters could not be converted
 	 */
-	public String toGalaxyConfig() throws Exception{
+	public String toGalaxyConfig(boolean configureThreads) throws Exception{
 		
 		StringBuffer allBuffer = new StringBuffer();
 		XMLParser.appendObjectWithTagsAndAttributes( allBuffer, description, "description", null, false );
 		allBuffer.append( "\n" );
-		XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path", "command", null, false );
+		if(configureThreads){
+			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path \\${GALAXY_SLOTS:-1}", "command", null, false );
+		}else{
+			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path", "command", null, false );
+		}
 		allBuffer.append( "\n" );
 		
 		StringBuffer descBuffer = new StringBuffer();
@@ -346,9 +370,18 @@ public class GalaxyAdaptor {
 		StringBuffer buf = new StringBuffer();
 		StringBuffer temp2 = new StringBuffer();
 		temp2.append( res.getName() );
-		XMLParser.addTagsAndAttributes( temp2, "div", "class=\"head\"" );
+		if(res instanceof HeadResult){
+			XMLParser.addTagsAndAttributes( temp2, "div", "class=\"tophead\"" );
+		}else{
+			XMLParser.addTagsAndAttributes( temp2, "div", "class=\"head\"" );
+		}
 		temp2.append( "<br />" );
-		if(res instanceof SimpleResult){
+		/*if(res instanceof ResultSetResult){//TODO
+			//buf.append("<table border=\"1\"><tr><td>");
+			//buf.append(getOutput( ((ResultSetResult)res).getRawResult()[0] ));
+			//buf.append("</td></tr></table>");
+			
+		}else */if(res instanceof SimpleResult){
 			StringBuffer temp = new StringBuffer();
 			temp.append( res.getValue().toString().replaceAll( "\\n", "<br />" ) );
 			XMLParser.addTags( temp, "div" );
@@ -365,6 +398,10 @@ public class GalaxyAdaptor {
 			buf.append( getIROutput((ImageResult)res) );
 		}else if(res instanceof FileResult){
 			buf.append( getFileOutput( (FileResult)res ) );
+		}else if(res instanceof LineBasedResult){
+			buf.append( getLBOutput( (LineBasedResult)res ) );
+		}else if(res instanceof TextResult){
+			buf.append( "<div class=\"tt\">"+((TextResult)res).getValue().getContent().replaceAll( "\n", "<br>" )+"</div>" );
 		}
 		StringBuffer temp = new StringBuffer();
 		temp.append( res.getComment() );
@@ -379,6 +416,17 @@ public class GalaxyAdaptor {
 		temp2.append( buf );
 	//	XMLParser.addTagsAndAttributes( temp2, "div", "class=\"toolForm\"" );
 		return temp2.toString();
+	}
+
+	private StringBuffer getLBOutput( LineBasedResult res ) {
+		StringBuffer sb = new StringBuffer();
+		res.reset();
+		String line = null;
+		while( (line = res.getNextLine( false )) != null ){
+			sb.append( line );
+			sb.append( "\n" );
+		}
+		return sb;
 	}
 
 	private String getDTROutput( DoubleTableResult res ) {
@@ -407,10 +455,11 @@ public class GalaxyAdaptor {
 		String ext = "png";		
 		
 		StringBuffer sb = new StringBuffer();
-		sb.append( "<img src=\""+name+ext+"\" alt=\""+res.getName()+"\" width=\""+img.getWidth()+"\" height=\""+img.getHeight()+"\"/>" );
+		sb.append( "<img src=\""+name+ext+"\" alt=\""+res.getName()+"\" width=\""+Math.min( 700,img.getWidth())+"\" height=\""+(int)(Math.min( img.getHeight()*700.0/img.getWidth(),img.getHeight()))+"\"/>" );
 		if(res instanceof LinkedImageResult){
 			FileResult fr = ((LinkedImageResult)res).getLink();
 			XMLParser.addTagsAndAttributes( sb, "a", "href=\""+fr.getFilename()+"."+fr.getExtension()+"\"" );
+			export(getHtmlFilesPath()+System.getProperty( "file.separator" )+fr.getFilename()+".",fr,fr.getExtension());
 		}
 		return sb.toString();
 	}
@@ -462,6 +511,7 @@ public class GalaxyAdaptor {
 	 */
 	public String export(String filename, Result res, String exportExtension) throws IOException{
 		String ee = exportExtension;
+		
 		if(res instanceof SimpleResult){
 			if(ee == null){
 				ee = "txt";
@@ -549,6 +599,39 @@ public class GalaxyAdaptor {
 			FileManager.copy( ((FileResult)res).getValue().getAbsolutePath(), f.getAbsolutePath() );
 			//System.out.println("exported "+f.getAbsolutePath());
 			return ext;
+		}else if(res instanceof LineBasedResult){
+			if(ee == null){
+				ee = "tabular";
+			}
+			File f = new File(filename+ee);
+			f.getParentFile().mkdirs();
+			PrintWriter pw = new PrintWriter( filename+ee );
+			if(ee.equalsIgnoreCase( "gff3" )){
+				pw.println("##gff-version 3");
+			}else if(ee.equalsIgnoreCase( "gff" )){
+				pw.println("##gff-version 2");
+			}
+			LineBasedResult lbr = (LineBasedResult) res;
+			lbr.reset();
+			String line = "";
+			while( (line = lbr.getNextLine( true )) != null ){
+				pw.println(line);
+			}
+			pw.close();
+			return ee;
+		}else{
+			ResultSaver saver = ResultSaverLibrary.getSaver( res );
+			
+			if(saver != null && saver.isAtomic()){
+				if(ee == null){
+					String[] temp = saver.getFileExtensions( res );
+					if(temp != null){
+						ee = temp[0];
+					}
+				}
+				saver.writeOutput( res, new File(filename+ee) );
+				return ee;
+			}
 		}
 		return null;
 	}
@@ -637,9 +720,9 @@ public class GalaxyAdaptor {
 	 * @return <code>true</code> if this execution should be a program run (as opposed to writing a configuration file)
 	 * @throws Exception if the arguments could not be parsed or the Galaxy configuration file could not be created
 	 */
-	public boolean parse(String[] args) throws Exception{
+	public boolean parse(String[] args, boolean configureThreads) throws Exception{
 		if("--create".equals( args[0] )){
-			String str = toGalaxyConfig();
+			String str = toGalaxyConfig(configureThreads);
 			PrintWriter wr = new PrintWriter( args[1] );
 			wr.println(str);
 			wr.close();
@@ -650,6 +733,11 @@ public class GalaxyAdaptor {
 			outfileId = args[3];
 			newFilePath = args[4];
 			htmlFilesPath = args[5];
+			//System.out.println("args.length="+args.length);
+			if(args.length>6){
+				threads = Integer.parseInt( args[6] );
+				//System.out.println("Number of threads: "+threads);
+			}
 			return true;
 		}
 		return false;
@@ -702,6 +790,18 @@ public class GalaxyAdaptor {
 		return new StringBuffer( str.toString().replaceAll( "<", "&lt;" ).replaceAll( ">", "&gt;" ));
 	}
 	
+	public static abstract class LineBasedResult extends Result{
+
+		protected LineBasedResult( String name, String comment, DataType datatype ) {
+			super( name, comment, datatype );
+		}
+		
+		public abstract void reset();
+		
+		public abstract String getNextLine(boolean forExport);
+		
+		
+	}
 	
 	/**
 	 * Class for an {@link ImageResult} that is linked to a file that can be downloaded.
@@ -713,7 +813,7 @@ public class GalaxyAdaptor {
 		private FileResult link;
 		
 		/**
-		 * Create a new {@link ImageResult} with linked {@link FileResult} <code>link</code>
+		 * Create a new {@link ImageResult} with linked {@link TextResult} <code>link</code>
 		 * @param name the name of the result
 		 * @param comment the comment for the result
 		 * @param image the image
@@ -770,6 +870,58 @@ public class GalaxyAdaptor {
 		
 	}
 	
+	/*public static class DataColumnParameter extends SimpleParameter{
+		
+		private String dataRef;
+		
+		public DataColumnParameter(String dataRefSuffix, String name, String comment, boolean required, Integer defaultVal) throws DatatypeNotValidException, IllegalValueException{
+			super(DataType.INT,name,comment,required,new NumberValidator<Integer>( 1, Integer.MAX_VALUE ));
+			this.dataRef = dataRefSuffix;
+		}
+
+		@Override
+		public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer,
+				boolean addLine ) throws Exception {
+			namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
+			StringBuffer buf = new StringBuffer();
+			if(validator != null && validator instanceof GalaxyConvertible){
+				((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false );
+			}
+			
+			String line = "";
+			if(addLine){
+				line = "&lt;hr /&gt;";
+			}
+			
+			XMLParser.addTagsAndAttributes( buf, "param", "type=\"data_column\" data_ref=\""+namePrefix+"_"+dataRef+"\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\""+(defaultValue == null ? "" : defaultValue)+"\" force_select=\""+(!isRequired())+"\" optional=\"false\"" );
+			descBuffer.append( buf );
+			
+			buf = new StringBuffer();
+			buf.append( "${"+configPrefix+namePrefix+"}" );
+			XMLParser.addTags( buf, namePrefix );
+			configBuffer.append( buf );
+		}
+
+		@Override
+		public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
+			namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
+			String val = XMLParser.extractForTag( command, namePrefix ).toString();
+			this.setValue( val );
+		}
+		
+		
+		
+		
+	}*/
+	
+	public static class HeadResult extends CategoricalResult{
+
+		public HeadResult(String name, String comment) {
+			super(name, comment, "");
+		}
+		
+	}
+	
 	/**
 	 * {@link Result} for files that are results of some computation. Also used to link
 	 * e.g. PDFs of images to {@link LinkedImageResult}s.
@@ -783,7 +935,7 @@ public class GalaxyAdaptor {
 		private String extension;
 		
 		/**
-		 * Creates a new {@link FileResult} with name, comment, and path to the file.
+		 * Creates a new {@link TextResult} with name, comment, and path to the file.
 		 * @param name the name of the result
 		 * @param comment the comment for the result
 		 * @param fullPath the path to the file
@@ -799,7 +951,7 @@ public class GalaxyAdaptor {
 		}
 		
 		/**
-		 * Creates a new {@link FileResult} with name, comment, path to the file, filename and extension.
+		 * Creates a new {@link TextResult} with name, comment, path to the file, filename and extension.
 		 * @param name the name of the result
 		 * @param comment the comment for the result
 		 * @param path the path to the directory containing the file
@@ -817,7 +969,7 @@ public class GalaxyAdaptor {
 		
 		
 		/**
-		 * Creates a new {@link FileResult} from its XML-representation
+		 * Creates a new {@link TextResult} from its XML-representation
 		 * @param rep the representation
 		 * @throws NonParsableException if pre could not be parsed
 		 */
@@ -928,7 +1080,7 @@ public class GalaxyAdaptor {
 	 * @author Jan Grau
 	 *
 	 */
-	public static class Protocol{
+	public static class Protocol implements de.jstacs.tools.Protocol{
 
 		private ByteArrayOutputStream baos;
 		private PrintWriter wr;
@@ -936,7 +1088,7 @@ public class GalaxyAdaptor {
 		/**
 		 * @param out
 		 */
-		private Protocol( ) {
+		public Protocol( ) {
 			baos = new ByteArrayOutputStream();
 			wr = new PrintWriter( baos );
 		}
@@ -990,6 +1142,12 @@ public class GalaxyAdaptor {
 		public String toString(){
 			wr.flush();
 			return baos.toString().replaceAll( "\n", "<br />" );
+		}
+
+		@Override
+		public void appendThrowable(Throwable th) {
+			wr.append("<em>"+th.getMessage()+"</em>\n");
+			wr.flush();
 		}
 		
 	}
