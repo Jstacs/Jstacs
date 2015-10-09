@@ -159,7 +159,9 @@ public class MultilineSimpleParameter extends SimpleParameter {
 	                                   { "'", "__apos__" },
 	                                   { ">", "__gt__" },
 	                                   { "<", "__lt__" },
-	                                   { "\n", "(__cn__|__cr__)+"}
+	                                   { "\n", "(__cn__|__cr__)+"},
+	                                   { "[", "__ob__" },
+	                                   { "]", "__cb__" }
 	};
 
 
