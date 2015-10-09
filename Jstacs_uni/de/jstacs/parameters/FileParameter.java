@@ -22,14 +22,17 @@ package de.jstacs.parameters;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.validation.ParameterValidator;
+import de.jstacs.utils.Compression;
 import de.jstacs.utils.galaxy.GalaxyAdaptor;
 
 /**
@@ -48,6 +51,12 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 * The MIME-type of accepted files
 	 */
 	private String mime;
+	
+	/**
+	 * More specific file type of accepted files
+	 * for programmatic use
+	 */
+	private String extendedType;
 	/**
 	 * The file
 	 */
@@ -250,6 +259,8 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			value = new FileRepresentation( (String)value );
 		}
 		if (!checkValue(value)) {
+			value = null;
+			isSet = false;
 			throw new IllegalValueException(errorMessage);
 		}
 		this.value = (FileRepresentation) value;
@@ -343,6 +354,42 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		return mime;
 	}
 	
+	
+	public String getExtendedType() {
+		return extendedType;
+	}
+
+	
+	public void setExtendedType( String extendedType ) {
+		this.extendedType = extendedType;
+	}
+
+	private String mimeToGalaxy(String mime){
+		String[] supported = new String[]{"gb","genbank","ab1", "afg", "arff", "asn1", "asn1-binary", "axt", "fli", "bam", "bed", "bedgraph", "bedstrict", "bed6", "bed12", "len", "bigbed", "bigwig", "cxb", "chrint", "csv", "customtrack", "bowtie_color_index", "bowtie_base_index", "csfasta", "data", "data_manager_json", "fasta", "fastq", "fastqsanger", "fastqsolexa", "fastqcssanger", "fastqillumina", "fqtoc", "eland", "elandmulti", "genetrack", "gff", "gff3", "gif", "gmaj.zip", "gtf", "toolshed.gz", "h5", "html", "interval", "picard_interval_list", "gatk_interval", "gatk_report", "gatk_dbsnp", "gatk_tranche", "gatk_recal", "jpg", "tiff", "bmp", "im", "pcd", "pcx", "ppm", "psd", "xbm", "xpm", "rgb", "pbm", "pgm", "rna_eps", "searchgui_archive", "peptideshaker_archive", "eps", "rast", "laj", "lav", "maf", "mafcustomtrack", "encodepeak", "pdf", "pileup", "obo", "owl", "png", "qual", "qualsolexa", "qualillumina", "qualsolid", "qual454", "Roadmaps", "sam", "scf", "Sequences", "snpeffdb", "snpsiftdbnsfp", "dbnsfp.tabular", "sff", "svg", "taxonomy", "tabular", "twobit", "sqlite", "gemini.sqlite", "txt", "linecount", "memexml", "cisml", "xml", "vcf", "bcf", "velvet", "wig", "interval_index", "tabix", "bgzip", "vcf_bgzip", "bgzip", "phyloxml", "nhx", "nex", "affybatch", "eigenstratgeno", "eigenstratpca", "eset", "fped", "fphe", "gg", "ldindep", "malist", "lped", "pbed", "pheno", "pphe", "rexpbase", "rgenetics", "snptest", "snpmatrix", "xls", "ipynb", "json", "xgmml", "sif", "rdf", "xlsx"};
+		HashSet<String> set = new HashSet<String>();
+		Collections.addAll( set, supported );
+		String[] mimes = mime.split( "," );
+		LinkedList<String> res = new LinkedList<String>();
+		for(int i=0;i<mimes.length;i++){
+			mimes[i] = mimes[i].trim();
+			if(set.contains( mimes[i] )){
+				res.add( mimes[i] );
+			}
+		}
+		if(res.size() == 0){
+			return mime;
+		}else{
+			StringBuffer sb = new StringBuffer();
+			for(int i=0;i<res.size();i++){
+				sb.append( res.get( i ) );
+				if(i<res.size()-1){
+					sb.append( "," );
+				}
+			}
+			return sb.toString();
+		}
+	}
+	
 	@Override
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine  ) {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
@@ -352,7 +399,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			//line = "&lt;hr style=&quot;height:2px;background-color:"+GalaxyAdaptor.getColor( depth )+";color:"+GalaxyAdaptor.getColor( depth )+";border:none&quot; /&gt;";
 			line = "&lt;hr /&gt;";
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mime+"\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mimeToGalaxy( mime )+"\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
 		descBuffer.append( buf );
 		buf = new StringBuffer();
 		buf.append( "${"+configPrefix+namePrefix+"}" );
@@ -406,6 +453,8 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		private String content;
 
+		private boolean compressed;
+
 		/**
 		 * Creates a {@link FileRepresentation} out of the filename and the
 		 * file's contents.
@@ -417,7 +466,18 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		public FileRepresentation(String filename, String content) {
 			this.filename = filename;
-			this.content = content;
+			if(content.length() < 100000){
+				this.content = content;
+			}else{
+				try{
+					this.content = Compression.zip( content );
+					this.compressed = true;
+				}catch(IOException e){
+					this.content = content;
+					this.compressed = false;
+				}
+			}
+			//this.content = content;
 			int idx = filename.lastIndexOf( '.' );
 			if(idx >= 0){
 				this.ext = filename.substring( idx+1 );
@@ -468,6 +528,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		public String getFilename() {
 			return filename;
 		}
+		
+		public void setFilename(String filename) {
+			this.filename = filename;
+		}
 
 		/**
 		 * Returns the content of the file.
@@ -482,14 +546,33 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 						StringBuffer sb = new StringBuffer();
 						String str = "";
 						while( (str = reader.readLine()) != null ){
-							sb.append( reader.readLine() );
+							sb.append( str );
 							sb.append( "\n" );
 						}
 						reader.close();
-						return sb.toString();
+						String temp = sb.toString();
+						if(temp.length() < 100000){
+							this.content = temp;
+						}else{
+							try{
+								this.content = Compression.zip( temp );
+								this.compressed = true;
+							}catch(IOException e){
+								this.content = temp;
+								this.compressed = false;
+							}
+						}
+						return temp;
 					}catch(IOException e){
 						return null;
 					}
+				}
+			}else if(compressed){
+				try {
+					return Compression.unzip( content );
+				} catch ( Exception e ) {
+					e.printStackTrace();
+					return null;
 				}
 			}
 			return content;
@@ -520,6 +603,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			StringBuffer buf = new StringBuffer();
 			XMLParser.appendObjectWithTags(buf, filename, "filename");
 			XMLParser.appendObjectWithTags(buf, content, "content");
+			XMLParser.appendObjectWithTags( buf, compressed, "compressed" );
 			XMLParser.addTags(buf, "fileRepresentation");
 
 			return buf;
@@ -531,6 +615,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 					"fileRepresentation");
 			filename = XMLParser.extractObjectForTags(representation, "filename", String.class );
 			content = XMLParser.extractObjectForTags(representation, "content", String.class );
+			compressed = XMLParser.extractObjectForTags( representation, "compressed", Boolean.class );
 			int idx = filename.lastIndexOf( '.' );
 			if(idx >= 0){
 				this.ext = filename.substring( idx+1 );
