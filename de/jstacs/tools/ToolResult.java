@@ -11,6 +11,7 @@ import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.results.ListResult;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.ResultSetResult;
 
@@ -21,25 +22,54 @@ public class ToolResult extends ResultSetResult {
 	private String toolName;
 	private Date finished;
 	
+	/**
+	 * Returns the name of the tool (see {@link JstacsTool#getToolName()}) used to create these results.
+	 * @return the name
+	 */
 	public String getToolName() {
 		return toolName;
 	}
 
-	public ToolResult( String name, String comment, ResultSet annotation, ResultSet result, ParameterSet toolParameters, String toolName, Date finished ) throws CloneNotSupportedException {
+	/**
+	 * Creates a new {@link ToolResult} with most arguments identical to those of a {@link ListResult}.
+	 * In addition, it stores the name of the creating tool, the parameters for the tool's run (see {@link JstacsTool#getToolParameters()}), 
+	 * and the date/time of result creation. 
+	 * @param name the name of the result
+	 * @param comment a comment on the meaning of the result
+	 * @param annotation optional annotation, may be <code>null</code>
+	 * @param result the set of all results of the tool's run
+	 * @param toolParameters the (filled) parameters of the tool's run
+	 * @param toolName the name of the tool
+	 * @param finished the date/time the tool's run finished and results were created
+	 */
+	public ToolResult( String name, String comment, ResultSet annotation, ResultSet result, ParameterSet toolParameters, String toolName, Date finished ) {
 		super( name, comment, annotation, result );
 		this.toolParameters = toolParameters;
-		/*System.out.println("Created result for parameters");
-		for(int i=0;i<toolParameters.getNumberOfParameters();i++){
-			System.out.println(toolParameters.getParameterAt( i ));
-		}*/
+
 		this.toolName = toolName;
 		this.finished = finished;
 	}
 
+	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Creates a new {@link ToolResult} from the corresponding XML
+	 * representation.
+	 * 
+	 * @param representation
+	 *            the XML representation as {@link StringBuffer}
+	 * 
+	 * @throws NonParsableException
+	 *             if the {@link StringBuffer}<code>representation</code> could
+	 *             not be parsed
+	 */
 	public ToolResult( StringBuffer representation ) throws NonParsableException {
 		super( representation );
 	}
 	
+	/**
+	 * Returns the date and time, when the tool's run resulting in this {@link ToolResult} finished.
+	 * @return the date/time
+	 */
 	public Date getFinishedDate(){
 		return finished;
 	}
@@ -62,6 +92,13 @@ public class ToolResult extends ResultSetResult {
 	}
 	
 	
+	/**
+	 * Sets the values of all parameters in <code>other</code> to those stored in the internal parameters
+	 * that have been supplied upon construction. Works successfully only if both parameter sets have an identical structure, which 
+	 * should be the case if both have been created from the same tool's {@link JstacsTool#getToolParameters()} method.
+	 * @param other the parameters to be filled
+	 * @see #ToolResult(String, String, ResultSet, ResultSet, ParameterSet, String, Date)
+	 */
 	public void setFromStoredParameters(ParameterSet other){
 		if(toolParameters.isComparable( other )){
 			try {
@@ -114,6 +151,11 @@ public class ToolResult extends ResultSetResult {
 		}
 	}
 
+	/**
+	 * Returns the tool's parameters that have been used to create the results stored in this {@link ToolResult}.
+	 * @return the parameters
+	 * @see JstacsTool#getToolParameters()
+	 */
 	public ParameterSet getToolParameters() {
 		return toolParameters;
 	}
