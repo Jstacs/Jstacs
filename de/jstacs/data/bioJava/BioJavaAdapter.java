@@ -103,7 +103,7 @@ public class BioJavaAdapter {
 
 	private static final Result[] EMPTY_RESULT_ARRAY = new Result[0];
 
-	private static final String ANNOTATION_ID = "BJRSA";
+	public static final String ANNOTATION_ID = "BJRSA";
 
 	/**
 	 * This method creates a new {@link DataSet} from a {@link SequenceIterator}.
@@ -123,45 +123,46 @@ public class BioJavaAdapter {
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static DataSet sequenceIteratorToDataSet( SequenceIterator it, FeatureFilter filter ) throws Exception {
+	public static DataSet sequenceIteratorToDataSet( SequenceIterator it, FeatureFilter filter, AlphabetContainer con ) throws Exception {
 		LinkedList<Sequence> parsed = new LinkedList<Sequence>();
 		org.biojava.bio.seq.Sequence current = it.nextSequence();
-		org.biojava.bio.symbol.Alphabet abcCurrent, bioAbc = current.getAlphabet();
-		List l = bioAbc.getAlphabets();
-		Alphabet[] abc = new Alphabet[l.size()];
-		for( int i = 0; i < abc.length; i++ ) {
-			abcCurrent = (org.biojava.bio.symbol.Alphabet)l.get( i );
-			if( abcCurrent.getAlphabets().size() == 1 ) {
-				if( abcCurrent.getName().equals( "DNA" ) ) {
-					abc[i] = DNAAlphabet.SINGLETON;
-				} else if( abcCurrent instanceof FiniteAlphabet ) {
-					FiniteAlphabet finAbc = (FiniteAlphabet)bioAbc;
-					SymbolTokenization t = finAbc.getTokenization( "default" );
-					Iterator symIt = finAbc.iterator();
-					LinkedList<String> sym = new LinkedList<String>();
-					Symbol s;
-					while( symIt.hasNext() ) {
-						s = (Symbol)symIt.next();
-						//System.out.println( t.tokenizeSymbol(s) + "\t" + s.getAnnotation().toString() + "\t" + s.getName() + "\t" + s.toString() );
-						sym.add( t.tokenizeSymbol( s ) );
+		if(con == null){
+			org.biojava.bio.symbol.Alphabet abcCurrent, bioAbc = current.getAlphabet();
+			List l = bioAbc.getAlphabets();
+			Alphabet[] abc = new Alphabet[l.size()];
+			for( int i = 0; i < abc.length; i++ ) {
+				abcCurrent = (org.biojava.bio.symbol.Alphabet)l.get( i );
+				if( abcCurrent.getAlphabets().size() == 1 ) {
+					if( abcCurrent.getName().equals( "DNA" ) ) {
+						abc[i] = DNAAlphabet.SINGLETON;
+					} else if( abcCurrent instanceof FiniteAlphabet ) {
+						FiniteAlphabet finAbc = (FiniteAlphabet)bioAbc;
+						SymbolTokenization t = finAbc.getTokenization( "default" );
+						Iterator symIt = finAbc.iterator();
+						LinkedList<String> sym = new LinkedList<String>();
+						Symbol s;
+						while( symIt.hasNext() ) {
+							s = (Symbol)symIt.next();
+							System.out.println( t.tokenizeSymbol(s) + "\t" + s.getAnnotation().toString() + "\t" + s.getName() + "\t" + s.toString() );
+							sym.add( t.tokenizeSymbol( s ) );
+						}
+						abc[i] = new DiscreteAlphabet( true, sym.toArray( new String[0] ) );
+					} else {
+						//TODO
+						throw new Exception( "not finite" );
 					}
-					abc[i] = new DiscreteAlphabet( true, sym.toArray( new String[0] ) );
 				} else {
 					//TODO
-					throw new Exception( "not finite" );
+					throw new Exception( "size > 1" );
 				}
+			}
+
+			if( abc.length == 1 && abc[0] == DNAAlphabet.SINGLETON ) {
+				con = DNAAlphabetContainer.SINGLETON;
 			} else {
-				//TODO
-				throw new Exception( "size > 1" );
+				con = new AlphabetContainer( abc );
 			}
 		}
-		AlphabetContainer con;
-		if( abc.length == 1 && abc[0] == DNAAlphabet.SINGLETON ) {
-			con = DNAAlphabetContainer.SINGLETON;
-		} else {
-			con = new AlphabetContainer( abc );
-		}
-
 		SequenceAnnotation[] empty = new SequenceAnnotation[0];
 		LinkedList<SequenceAnnotation> annotations = new LinkedList<SequenceAnnotation>();
 		do {
@@ -355,7 +356,7 @@ public class BioJavaAdapter {
 	 * @throws BioException
 	 *             if forwarded from BioJava
 	 */
-	public static SequenceIterator dataSetToSequenceIterator( DataSet sample, boolean flat ) throws WrongAlphabetException, BioException {
+	public static SequenceIterator dataSetToSequenceIterator( DataSet sample, boolean flat, boolean alwaysUseDNAAlphabet ) throws WrongAlphabetException, BioException {
 		LinkedList<org.biojava.bio.seq.Sequence> bjSeqs = new LinkedList<org.biojava.bio.seq.Sequence>();
 
 		AlphabetContainer cont = sample.getAlphabetContainer();
@@ -368,7 +369,7 @@ public class BioJavaAdapter {
 
 		if( cont.isSimple() ) {
 			DiscreteAlphabet alph = (DiscreteAlphabet)cont.getAlphabetAt( 0 );
-			if( alph instanceof DNAAlphabet ) {
+			if( alph instanceof DNAAlphabet || alwaysUseDNAAlphabet ) {
 				bjAlph = DNATools.getDNA();
 			} else {
 				Set<Symbol> symbols = new HashSet<Symbol>();
@@ -523,14 +524,20 @@ public class BioJavaAdapter {
 																							: StrandedFeature.NEGATIVE;
 		}
 		if( annotation instanceof LocatedSequenceAnnotationWithLength ) {
-			templ = new Feature.Template();
+			if(templ == null){
+				templ = new Feature.Template();
+			}
 			templ.location = new RangeLocation( ( (LocatedSequenceAnnotation)annotation ).getPosition() + 1,
 					( (LocatedSequenceAnnotationWithLength)annotation ).getEnd() );
 		} else if( annotation instanceof LocatedSequenceAnnotation ) {
-			templ = new Feature.Template();
+			if(templ == null){
+				templ = new Feature.Template();
+			}
 			templ.location = new PointLocation( ( (LocatedSequenceAnnotation)annotation ).getPosition() + 1 );
 		} else {
-			templ = new Feature.Template();
+			if(templ == null){
+				templ = new Feature.Template();
+			}
 			templ.location = new RangeLocation( 1, seq.getLength() );
 		}
 		String t = annotation.getType();
