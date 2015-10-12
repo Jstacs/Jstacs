@@ -133,6 +133,10 @@ public class PFMComparator {
 	 * @return the PFM
 	 */
 	public static double[][] getPFM( DataSet data ) {
+		return getPFM( data, 0, data.getNumberOfElements() );
+	}
+	
+	public static double[][] getPFM( DataSet data, int start, int end ) {
 		if( data == null ) {
 			return null;
 		} else {
@@ -142,7 +146,7 @@ public class PFMComparator {
 				pfm[l] = new double[(int)con.getAlphabetLengthAt( l )];
 			}
 			Sequence seq;
-			for( int n = 0; n < data.getNumberOfElements(); n++ ) {
+			for( int n = start; n < end; n++ ) {
 				seq = data.getElementAt( n );
 				for( int l = 0; l < pfm.length; l++ ) {
 					pfm[l][seq.discreteVal( l )]++;
@@ -150,6 +154,14 @@ public class PFMComparator {
 			}
 			return pfm;
 		}
+	}
+	
+	public static double[][] getPWM( DataSet data, int start, int end ){
+		double[][] pwm = getPFM( data, start, end );
+		for(int i=0;i<pwm.length;i++){
+			normalize( pwm[i] );
+		}
+		return pwm;
 	}
 	
 	/**
@@ -225,46 +237,52 @@ public class PFMComparator {
 				if(files[i].isDirectory() && !files[i].isHidden()){
 					dirs.add( files[i] );
 				}else if(files[i].getName().endsWith( ".txt" ) || files[i].getName().endsWith( ".pwm" )){
-					String annot = dir.getName()+"-"+files[i].getName().substring( 0, files[i].getName().lastIndexOf( '.' ) );
-					BufferedReader read = new BufferedReader( new FileReader( files[i] ) );
-					String temp = read.readLine();
-					annot += ": "+(temp == null ? "" : temp.trim() );
-					
-					String line = null;
-					
-					while( (line = read.readLine()) != null ){
-						line = line.trim();
-						if(line.length() > 0){
-							strs.add( line );
-						}
-					}
-					
-					String[] strings = new String[4];
-					for(int j=strs.size()-4,k=0;j<strs.size();j++,k++){
-						strings[k] = strs.get( j );
-						if(strings[k].indexOf( ':' ) >= 0){
-							strings[k] = strings[k].substring( strings[k].indexOf( ':' )+1 ).trim();
-						}
-					}
-					
-					String[] parts = strings[0].split( "\\s+" );
-					double[][] pwm = new double[parts.length][4];
-					for(int j=0;j<strings.length;j++){
-						parts = strings[j].split( "\\s+" );
-						if(parts.length != pwm.length){
-							throw new RuntimeException();
-						}
-						for(int k=0;k<parts.length;k++){
-							pwm[k][j] = Double.parseDouble( parts[k] );
-						}
-					}
-					res.add( new SimpleEntry<String, double[][]>( annot, pwm ) );
+					res.add( readPFMFromUniprobe( dir.getName(), files[i] ) );
 				}
 			}
 		}
 		return res;
 	}
 	
+	
+	public static SimpleEntry<String, double[][]> readPFMFromUniprobe(String dirname, File file) throws IOException {
+		String annot = dirname+file.getName().substring( 0, file.getName().lastIndexOf( '.' ) );
+		BufferedReader read = new BufferedReader( new FileReader( file ) );
+		String temp = read.readLine();
+		annot += ": "+(temp == null ? "" : temp.trim() );
+		
+		String line = null;
+		ArrayList<String> strs = new ArrayList<String>();
+		while( (line = read.readLine()) != null ){
+			line = line.trim();
+			if(line.length() > 0){
+				strs.add( line );
+			}
+		}
+		
+		read.close();
+		
+		String[] strings = new String[4];
+		for(int j=strs.size()-4,k=0;j<strs.size();j++,k++){
+			strings[k] = strs.get( j );
+			if(strings[k].indexOf( ':' ) >= 0){
+				strings[k] = strings[k].substring( strings[k].indexOf( ':' )+1 ).trim();
+			}
+		}
+		
+		String[] parts = strings[0].split( "\\s+" );
+		double[][] pwm = new double[parts.length][4];
+		for(int j=0;j<strings.length;j++){
+			parts = strings[j].split( "\\s+" );
+			if(parts.length != pwm.length){
+				throw new RuntimeException();
+			}
+			for(int k=0;k<parts.length;k++){
+				pwm[k][j] = Double.parseDouble( parts[k] );
+			}
+		}
+		return new SimpleEntry<String, double[][]>( annot, pwm );
+	}
 	
 	/**
 	 * This method reads a number of PFMs from a file in the Jaspar FastA-like format and 
@@ -277,32 +295,40 @@ public class PFMComparator {
 	 * @throws IOException if something went wrong while reading the file
 	 */
 	public static ArrayList<SimpleEntry<String,double[][]>> readPFMsFromJasparFastA( String filename ) throws IOException {
-		ArrayList<SimpleEntry<String, double[][]>> res = new ArrayList<SimpleEntry<String, double[][]>>();
+		
 		BufferedReader r = new BufferedReader( new FileReader( new File( filename ) ) );
+		ArrayList<SimpleEntry<String,double[][]>> res = readPFMsFromJasparFastA(r);
+		r.close();
+		return res;
+	}
+	public static  ArrayList<SimpleEntry<String,double[][]>> readPFMsFromJasparFastA( BufferedReader r ) throws IOException {
+		ArrayList<SimpleEntry<String, double[][]>> res = new ArrayList<SimpleEntry<String, double[][]>>();
 		String line, annot = null;
 		double[][] mat = null;
 		int i=0;
 		while( (line = r.readLine()) != null ){
 			line = line.trim();
-			if(line.startsWith( ">" )){
-				if(mat != null){
-					res.add( new SimpleEntry<String, double[][]>( annot, mat ) );
-					annot = null;
-					mat = null;
+			if(line.length() > 0){
+				if(line.startsWith( ">" )){
+					if(mat != null){
+						res.add( new SimpleEntry<String, double[][]>( annot, mat ) );
+						annot = null;
+						mat = null;
+					}
+
+					annot = line.substring( 1 ).trim();
+					i=0;
+				}else{
+					line = line.substring( line.indexOf( '[' )+1, line.lastIndexOf( ']' ) ).trim();
+					String[] parts = line.split( "\\s+" );
+					if(mat == null){
+						mat = new double[parts.length][4];
+					}
+					for(int j=0;j<parts.length;j++){
+						mat[j][i] = Double.parseDouble( parts[j] );
+					}
+					i++;
 				}
-				
-				annot = line.substring( 1 ).trim();
-				i=0;
-			}else{
-				line = line.substring( line.indexOf( '[' )+1, line.lastIndexOf( ']' ) ).trim();
-				String[] parts = line.split( "\\s+" );
-				if(mat == null){
-					mat = new double[parts.length][4];
-				}
-				for(int j=0;j<parts.length;j++){
-					mat[j][i] = Double.parseDouble( parts[j] );
-				}
-				i++;
 			}
 		}
 		if(mat != null){
@@ -348,6 +374,35 @@ public class PFMComparator {
 				res.add( new SimpleEntry<String, double[][]>( annot, pfm.toArray( tooSmall ) ) );
 				while( !(line = r.readLine()).startsWith( "//" ) ) {}
 			}
+		}
+		r.close();
+		return res;
+	}
+	
+	public static ArrayList<SimpleEntry<String, double[][]>> readPFMsFromTransfac( String fileName, int max ) throws IOException {
+		ArrayList<SimpleEntry<String, double[][]>> res = new ArrayList<SimpleEntry<String, double[][]>>();
+		ArrayList<double[]> pfm = new ArrayList<double[]>();
+		double[][] tooSmall = new double[0][];
+		BufferedReader r = new BufferedReader( new FileReader( new File( fileName ) ) );
+		String line, annot;
+		String[] split;
+		double[] positionalFrequencies;
+		int a;
+		while( res.size() < max && (line = r.readLine()) != null ) {
+			while( !line.startsWith( "DE" ) ) { line = r.readLine(); }
+			annot = line.substring( line.indexOf("DE")+2 ).trim();
+			while( !(line = r.readLine()).matches( "^[0-9]+.*" ) ) {}
+			pfm.clear();
+			do {
+				split = line.split( "[ \\t]+" );
+				positionalFrequencies = new double[split.length - 2];
+				for( a = 0; a < positionalFrequencies.length; a++ ) {
+					positionalFrequencies[a] = Double.parseDouble( split[1+a] );
+				}
+				pfm.add( positionalFrequencies );
+			} while( !(line = r.readLine()).startsWith( "XX" ) );
+			res.add( new SimpleEntry<String, double[][]>( annot, pfm.toArray( tooSmall ) ) );
+
 		}
 		r.close();
 		return res;
@@ -490,6 +545,79 @@ public class PFMComparator {
 		}
 	}
 	
+	
+	public static class UniformBorderWrapper extends PFMDistance {
+
+		private PFMDistance inner;
+		
+		public UniformBorderWrapper(PFMDistance inner){
+			this.inner = inner;
+		}
+		
+		@Override
+		protected double getDistance(double[][] pfm1, double[][] pfm2, int l1,
+				int l2) {
+			
+			System.out.print(l1+" "+l2+" ");
+			
+			double tempDist = inner.getDistance(pfm1, pfm2, l1, l2);
+			
+			System.out.print(tempDist+" ");
+			
+			double[][] p1 = null;
+			double[][] p2 = null;
+			
+			if(l1 > 0 && l2 > 0){
+				int mi = Math.min(l1, l2);
+				l1 -= mi;
+				l2 -= mi;
+			}
+			if(l1 > l2){
+				double[][] temp = pfm1;
+				pfm1 = pfm2;
+				pfm2 = temp;
+				int tl = l1;
+				l1 = l2;
+				l2 = tl;
+			}
+			int maxlen = Math.max(pfm1.length+l2,pfm2.length+l1);//l1 should be zero
+			p1 = new double[maxlen][];
+			p2 = new double[maxlen][];
+			double n1 = ToolBox.sum(pfm1[0]);
+			double n2 = ToolBox.sum(pfm2[0]);
+			double[] c1 = new double[pfm1[0].length];
+			for(int i=0;i<c1.length;i++){
+				c1[i] = n1 / c1.length;
+			}
+			double[] c2 = new double[pfm2[0].length];
+			for(int i=0;i<c2.length;i++){
+				c2[i] = n2 / c2.length;
+			}
+			
+			for(int i=0;i<maxlen;i++){
+				if(i < l2 || i >= pfm1.length){
+					p1[i] = c1.clone();
+				}else{
+					p1[i] = pfm1[i-l2];
+				}
+				if(i < l1 || i >= pfm2.length){
+					p2[i] = c2.clone();
+				}else{
+					p2[i] = pfm2[i-l1];
+				}
+			}			
+			
+			
+			
+			double dist = inner.getDistance(p1, p2, 0, 0);
+			System.out.println(dist);
+			return dist;
+		}
+		
+		
+		
+	}
+	
 	/**
 	 * This class implements the normalized Euclidean distance. 
 	 * 
@@ -546,7 +674,9 @@ public class PFMComparator {
 					s1 += d1*d1;
 					s2 += d2*d2;
 				}
-				res += s / Math.sqrt( s1 * s2 );
+				if(s1 > 0 && s2 > 0){//TODO sd=0
+					res += s / Math.sqrt( s1 * s2 );
+				}
 			}
 			return 1d - 1d/(double) l * res;
 		}
