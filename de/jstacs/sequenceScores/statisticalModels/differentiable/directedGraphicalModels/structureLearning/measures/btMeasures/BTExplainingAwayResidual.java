@@ -87,6 +87,20 @@ public class BTExplainingAwayResidual extends Measure {
 		return "Bayesian tree with explaining away residual";
 	}
 
+	
+	public double[][] getEAR(DataSet fg, DataSet bg, double[] weightsFg, double[] weightsBg, int length) throws Exception{
+		double[] ess = ((BTExplainingAwayResidualParameterSet)parameters).getEss();
+		
+		double[][][][] statFg = getStatistics(fg, weightsFg, length, ess[0]);
+		double[][][][] statBg = getStatistics(bg, weightsBg, length, ess[1]);
+		double nFg = sum(weightsFg) + ess[0];
+		double nBg = sum(weightsBg) + ess[1];
+
+		double[][] ear = getEAR(statFg, statBg, nFg, nBg);
+		
+		return ear;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
