@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Random;
 
 /**
  * This class is a collection of methods which might be useful for the programmer.
@@ -186,6 +187,9 @@ public class ToolBox {
 	 * @return the index
 	 */
 	public static final int getMaxIndex( int start, int end, double[] w ) {
+		if(start>=end){
+			return -1;
+		}
 		int max = start, i = start+1;
 		for( ; i < end; i++ ) {
 			if( w[i] > w[max] ) {
@@ -221,8 +225,10 @@ public class ToolBox {
 	 * @return the median
 	 */
 	public static double median( int start, int end, double[] array ) {
-		if( end <= start ) {
+		if( end < start ) {
 			throw new IllegalArgumentException("The start index has to be smaller than the end index.");
+		} else if(end == start){
+			return Double.NaN;
 		} else {
 			double[] ar2 = new double[end-start];
 			System.arraycopy( array, start, ar2, 0, ar2.length );
@@ -352,14 +358,14 @@ public class ToolBox {
 	 * This method computes the order of the elements to obtain a sorted array.
 	 * 
 	 * @param values the array
-	 * @param ascending a switch whether the array should be sorted ascending or descending
+	 * @param descending a switch whether the array should be sorted ascending or descending
 	 * 
 	 * @return the array containing the indices of the elements to obtain a sorted array
 	 */
-	public static final int[] order(double[] values, boolean ascending){
+	public static final int[] order(double[] values, boolean descending){//TODO FIXME desc? asc?
 		ComparableElement<Integer, Double>[] comp = new ComparableElement[values.length];
 		for(int i=0;i<values.length;i++){
-			comp[i] = new ComparableElement<Integer, Double>(i, ascending ? -values[i] : values[i] );
+			comp[i] = new ComparableElement<Integer, Double>(i, descending ? -values[i] : values[i] );
 		}
 		
 		Arrays.sort(comp);
@@ -679,4 +685,40 @@ public class ToolBox {
 		sb.append("]");
 		return sb.toString();
 	}
+	
+	
+	public static double[] permute(double[] values){
+		return permute(values,null);
+	}
+	
+	public static double[] permute(double[] values, double[] permutation){
+		Random r = new Random();
+		if(permutation == null || permutation.length != values.length){
+			permutation = new double[values.length];
+		}
+		for( int i = 0; i < permutation.length; i++ ) {
+			permutation[i] = values[i];
+		}
+		int temp;
+		double temp2;
+		for( int i = permutation.length - 1; i >= 0; i-- ) {
+			temp = r.nextInt( i + 1 );
+			temp2 = permutation[i];
+			permutation[i] = permutation[temp];
+			permutation[temp] = temp2;
+		}
+		return permutation;
+	}
+
+	public static int sum( boolean[] bools ) {
+		int num = 0;
+		for(int i=0;i<bools.length;i++){
+			if(bools[i]){
+				num++;
+			}
+		}
+		return num;
+	}
+	
+	
 }
