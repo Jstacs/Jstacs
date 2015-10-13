@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.results.TextResult;
 
@@ -29,9 +30,13 @@ public class TextResultSaver implements ResultSaver<TextResult> {
 	public boolean writeOutput( TextResult result, File path ) {
 		try{
 			FileRepresentation rep = result.getValue();
-			PrintWriter wr = new PrintWriter( path );
-			wr.println( rep.getContent() );
-			wr.close();
+			if(rep.getFilename() != null && (new File(rep.getFilename())).exists()){
+				FileManager.copy(rep.getFilename(), path.getAbsolutePath());
+			}else{
+				PrintWriter wr = new PrintWriter( path );
+				wr.println( rep.getContent() );
+				wr.close();
+			}
 			return true;
 		}catch(IOException e){
 			e.printStackTrace();
