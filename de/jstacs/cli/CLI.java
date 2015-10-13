@@ -300,10 +300,15 @@ public class CLI {
 				if(par instanceof AbstractSelectionParameter){
 					protocol.appendWarning( tabPrefix+keyMap.get( par )+" - "+par.toString()+"\n" );
 					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
+					String off = tabPrefix+(new String(new char[keyMap.get( par ).length()+3]));
 					for(int j=0;j<incoll.getNumberOfParameters();j++){
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
-						protocol.appendWarning( "\n"+tabPrefix+"\tParameters for selection \""+cont.getName()+"\":\n" );
-						print(keyMap,cont.getValue(),tabPrefix+"\t",protocol);
+						if( cont.getValue().getNumberOfParameters()>0 ) {
+							protocol.appendWarning( off+"Parameters for selection \""+cont.getName()+"\":\n" );
+							print(keyMap,cont.getValue(),tabPrefix+"\t",protocol);
+						} else {
+							protocol.appendWarning( off+"No parameters for selection \""+cont.getName()+"\"\n" );
+						}
 					}
 				}else{
 					ParameterSet ps = (ParameterSet)par.getValue();
