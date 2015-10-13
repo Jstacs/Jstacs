@@ -178,15 +178,20 @@ public class CLI {
 		
 		String outdir = ".";
 		
-		if(args.length == 0 || (tools.length > 1 && getToolIndex( args[0] ) < 0)){
-			System.err.println( "Available tools:\n" );
-			for(int i=0;i<tools.length;i++){
-				System.err.println("\t"+tools[i].getShortName()+" - "+tools[i].getToolName());
+		if( (args.length == 0 && (tools.length > 1 || !tools[0].getToolParameters().hasDefaultOrIsSet()) ) ||
+				( tools.length > 1 && getToolIndex( args[0] ) < 0 ) ){
+			if(tools.length > 1){
+				System.err.println( "Available tools:\n" );
+				for(int i=0;i<tools.length;i++){
+					System.err.println("\t"+tools[i].getShortName()+" - "+tools[i].getToolName());
+				}
+				System.err.println();
+				System.err.println("Syntax: java -jar "+jar+" <toolname> [<parameter=value> ...]\n");
+				System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+" <toolname> info\n");
+				System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+" <toolname>\n");
+			}else{
+				printToolParameters(0,protocol,outdir);
 			}
-			System.err.println();
-			System.err.println("Syntax: java -jar "+jar+" <toolname> [<parameter=value> ...]\n");
-			System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+" <toolname> info\n");
-			System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+" <toolname>\n");
 			return;
 		}/*else if( ( tools.length == 1 && args.length==0) || args.length == 1){
 			int toolIndex = getToolIndex( args[0] );
@@ -197,7 +202,7 @@ public class CLI {
 			int toolIndex = getToolIndex( args[0] );
 			System.err.println("\n"+parse(tools[toolIndex].getHelpText()));
 		}else{
-			int toolIndex = getToolIndex( args[0] );
+			int toolIndex = tools.length == 1 ? 0 : getToolIndex( args[0] );
 			outdir = setToolParameters(tools.length == 1 ? 0 : 1, toolParameters[toolIndex],keyMap[toolIndex],args);
 			
 			if(!toolParameters[toolIndex].hasDefaultOrIsSet()){
@@ -310,7 +315,11 @@ public class CLI {
 
 	private void printToolParameters( int toolIndex, Protocol protocol, String outdir ) {
 		ParameterSet ps = toolParameters[toolIndex];
-		protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+"):\n" );
+		if(tools.length > 1){
+			protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+"):\n" );
+		}else{
+			protocol.appendWarning( "Parameters of "+tools[toolIndex].getToolName()+":\n" );
+		}
 		print( keyMap[toolIndex], ps, "", protocol );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
 	}
