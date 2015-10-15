@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -301,7 +302,9 @@ public class CLI {
 				if(par instanceof AbstractSelectionParameter){
 					protocol.appendWarning( tabPrefix+keyMap.get( par )+" - "+par.toString()+"\n" );
 					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
-					String off = tabPrefix+(new String(new char[keyMap.get( par ).length()+3]));
+					char[] array = new char[keyMap.get( par ).length()+3];
+					Arrays.fill(array,' ');
+					String off = tabPrefix+(new String(array));
 					for(int j=0;j<incoll.getNumberOfParameters();j++){
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 						if( cont.getValue().getNumberOfParameters()>0 ) {
