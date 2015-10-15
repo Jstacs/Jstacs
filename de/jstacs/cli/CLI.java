@@ -1,9 +1,10 @@
 package de.jstacs.cli;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,8 +20,6 @@ import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.results.ResultSet;
-import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.savers.ResultSaver;
 import de.jstacs.results.savers.ResultSaverLibrary;
 import de.jstacs.tools.JstacsTool;
@@ -222,10 +221,12 @@ public class CLI {
 			
 			saver.writeOutput( results, new File(outdir) );
 			
-			File protout = new File(outdir+File.separator+"protocol.txt");
+			
+			String prefix = outdir+File.separator+"protocol_" + tools[toolIndex].getShortName();//new
+			File protout = new File( prefix + ".txt");
 			int k=1;
 			while(protout.exists()){
-				protout = new File(outdir+File.separator+"protocol_"+k+".txt");
+				protout = new File(prefix + "_"+k+".txt");
 				k++;
 			}
 			
@@ -305,7 +306,7 @@ public class CLI {
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 						if( cont.getValue().getNumberOfParameters()>0 ) {
 							protocol.appendWarning( off+"Parameters for selection \""+cont.getName()+"\":\n" );
-							print(keyMap,cont.getValue(),tabPrefix+"\t",protocol);
+							print(keyMap,cont.getValue(),off+"\t",protocol);
 						} else {
 							protocol.appendWarning( off+"No parameters for selection \""+cont.getName()+"\"\n" );
 						}
@@ -313,6 +314,36 @@ public class CLI {
 				}else{
 					ParameterSet ps = (ParameterSet)par.getValue();
 					print(keyMap,ps,tabPrefix+"\t",protocol);
+				}
+			}
+		}
+	}
+	
+	private void printTable(HashMap<Parameter, String> keyMap, ParameterSet parameters, PrintStream out){
+		for(int i=0;i<parameters.getNumberOfParameters();i++){
+			Parameter par = parameters.getParameterAt( i );
+			if(par.getDatatype() == DataType.PARAMETERSET && ! (par instanceof AbstractSelectionParameter) ){
+				ParameterSet ps = (ParameterSet)par.getValue();
+				printTable(keyMap, ps, out);
+			} else {
+				out.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">" + keyMap.get( par )+ "</font></td>\n" );
+				String s = par.toString();
+				out.append( "<td>"+s.substring(0,s.lastIndexOf(")\t= ")+1) );
+				if( par.getDatatype() != DataType.PARAMETERSET ) {
+					out.append( "</td>\n<td>"+par.getDatatype() + "</td>\n</tr>\n" );
+				} else {
+					out.append( "<table border=0 cellpadding=10 align=\"center\">\n" );
+					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
+					for(int j=0;j<incoll.getNumberOfParameters();j++){
+						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
+						if( cont.getValue().getNumberOfParameters()>0 ) {
+							out.append( "Parameters for selection &quot;"+cont.getName()+"&quot;:<br/>\n" );
+							printTable(keyMap,cont.getValue(),out);
+						} else {
+							out.append( "No parameters for selection &quot;"+cont.getName()+"&quot;<br/>\n" );
+						}
+					}
+					out.append( "</table></td><td></td>\n</tr>\n" );
 				}
 			}
 		}
@@ -327,6 +358,20 @@ public class CLI {
 		}
 		print( keyMap[toolIndex], ps, "", protocol );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
+		/*
+		try {
+			PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
+			fos.append( "<table border=0 cellpadding=10 align=\"center\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
+			printTable(keyMap[toolIndex], ps, fos);
+			fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
+			fos.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
+			fos.append( "<td>STRING</td>\n</tr>\n" );
+			fos.append( "</table>" );
+			fos.close();
+		} catch( Exception ex ) {
+			//nothing
+		}
+		*/
 	}
 	
 	
