@@ -74,6 +74,10 @@ public class CLI {
 			log.append(strstr);
 		}
 		
+		public void appendVerbatim(String verbatim) {
+			append(verbatim);
+		}
+		
 	}
 	
 	
