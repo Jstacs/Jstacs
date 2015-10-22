@@ -687,11 +687,14 @@ public class GalaxyAdaptor {
 				export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+i+"_visible_", prot, null );
 			}
 		}
-		XMLParser.addTags( summary, "body" );
+		
+
+		summary.append( "<h2>Summary of "+toolname+" results</h2>" );
 		
 		StringBuffer all = new StringBuffer();
 		StringBuffer head = new StringBuffer();
 		head.append( "Summary of "+toolname+" results" );
+		
 		XMLParser.addTags( head, "title" );
 		all.append( head );
 		//head = new StringBuffer();
@@ -699,7 +702,8 @@ public class GalaxyAdaptor {
 		//all.append( head );
 		all.append( stylesheet );
 		XMLParser.addTags( all, "head" );
-		all.append( "<h2>"+head+"</h2>" );
+		
+		XMLParser.addTags( summary, "body" );
 		all.append( summary );
 		
 		XMLParser.addTags( all, "html" );
@@ -935,7 +939,7 @@ public class GalaxyAdaptor {
 		private String extension;
 		
 		/**
-		 * Creates a new {@link TextResult} with name, comment, and path to the file.
+		 * Creates a new {@link FileResult} with name, comment, and path to the file.
 		 * @param name the name of the result
 		 * @param comment the comment for the result
 		 * @param fullPath the path to the file
@@ -951,7 +955,7 @@ public class GalaxyAdaptor {
 		}
 		
 		/**
-		 * Creates a new {@link TextResult} with name, comment, path to the file, filename and extension.
+		 * Creates a new {@link FileResult} with name, comment, path to the file, filename and extension.
 		 * @param name the name of the result
 		 * @param comment the comment for the result
 		 * @param path the path to the directory containing the file
@@ -1098,7 +1102,7 @@ public class GalaxyAdaptor {
 		 * @param str the string to be appended
 		 */
 		public void append(String str){
-			wr.append( str );
+			wr.append( str.replaceAll( "\n", "<br />\n" ) );
 		}
 		
 		/**
@@ -1122,7 +1126,7 @@ public class GalaxyAdaptor {
 		 * @param str the title of the heading
 		 */
 		public void appendHeading(String str){
-			wr.append( "<strong>"+str+"</strong>\n" );
+			wr.append( "<strong>"+str.replaceAll( "\n", "<br />\n" )+"</strong>\n" );
 			wr.flush();
 		}
 		
@@ -1131,7 +1135,7 @@ public class GalaxyAdaptor {
 		 * @param str the warning
 		 */
 		public void appendWarning(String str){
-			wr.append( "<em>"+str+"</em>\n" );
+			wr.append( "<em>"+str.replaceAll( "\n", "<br />\n" )+"</em>\n" );
 			wr.flush();
 		}
 		
@@ -1141,13 +1145,18 @@ public class GalaxyAdaptor {
 		 */
 		public String toString(){
 			wr.flush();
-			return baos.toString().replaceAll( "\n", "<br />" );
+			return baos.toString();
 		}
 
 		@Override
 		public void appendThrowable(Throwable th) {
-			wr.append("<em>"+th.getMessage()+"</em>\n");
+			wr.append("<em>"+th.getMessage().replaceAll( "\n", "<br />\n" )+"</em>\n");
 			wr.flush();
+		}
+		
+		@Override
+		public void appendVerbatim(String verbatim){
+			wr.append("<pre>"+verbatim+"</pre>\n");
 		}
 		
 	}
