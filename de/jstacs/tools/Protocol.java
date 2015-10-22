@@ -11,4 +11,5 @@ public interface Protocol {
 	
 	public void appendThrowable(Throwable th);
 	
+	public void appendVerbatim(String verbatim);
 }
