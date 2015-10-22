@@ -6,10 +6,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -17,18 +15,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.Locale;
 
 import javax.imageio.ImageIO;
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import cern.jet.stat.Gamma;
-import sun.awt.FontConfiguration;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.EmptyDataSetException;
@@ -40,8 +32,8 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.btMeasures.BTExplainingAwayResidual;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModelFactory;
-import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
+import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
 
 /**
  * Class with static methods for plotting sequence logos of DNA motifs, i.e., position weight matrices defined over a {@link DNAAlphabet}.
