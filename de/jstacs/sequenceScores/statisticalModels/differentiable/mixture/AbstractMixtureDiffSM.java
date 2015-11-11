@@ -648,7 +648,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 * @param start
 	 *            the start index in <code>params</code>
 	 */
-	protected void setParametersForFunction( int index, double[] params, int start ) {
+	public void setParametersForFunction( int index, double[] params, int start ) {
 		function[index].setParameters( params, start );
 	}
 
@@ -857,6 +857,15 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 * @return the logarithm of the normalization constant of the component
 	 */
 	protected abstract double getLogNormalizationConstantForComponent( int i );
+	
+	public double[] getAPrioriMixtureProbabilities(){
+		double[] mix = new double[this.getNumberOfComponents()];
+		for(int i=0;i<mix.length;i++){
+			mix[i] = logHiddenPotential[i] + getLogNormalizationConstantForComponent( i );
+		}
+		Normalisation.logSumNormalisation( mix );
+		return mix;
+	}
 
 	/**
 	 * Fills the internal array {@link #componentScore} with the logarithmic
