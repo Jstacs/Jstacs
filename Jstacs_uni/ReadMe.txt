@@ -30,9 +30,3 @@ java -cp ./:./jstacs-<version>.jar:./lib/biojava-live.jar:./lib/bytecode.jar:./l
 If you want to use the class UserTime, which uses native code, you must also set the library-path to the directory where the dynamic library resides, e.g.
 
 java -Djava.library.path=./native/ -cp <see above> <test-class>
-
-
-Bug reports & Feature requests
------------------------------- 
-You can submit bug reports and feature requests via the Jstacs trac at http://www.jstacs.de. Before you open a new bug ticket, please check if that bug has already been submitted in the list of existing tickets.
-In the Jstacs trac, we also provide a forum for discussions about Jstacs. 
