@@ -151,6 +151,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	public SequenceAnnotation getSequenceAnnotationByTypeAndIdentifier( String type, String identifier ) {
 		if( annotation != null ) {
 			for(SequenceAnnotation ann : annotation){
+				//System.out.println(ann.getType()+" <-> "+type+" ; "+ann.getIdentifier()+" <-> "+identifier);
 				if(ann.getType().equals( type ) && ann.getIdentifier().equals( identifier )){
 					return ann;
 				}
@@ -521,7 +522,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	public String toString( String delim, int start, int end ) {
 		Object representation = getEmptyRepresentation();
 		for( int i = start; i < end; i++ ) {
-			addToRepresentation( representation, i, delim );
+			addToRepresentation( representation, i, i<end-1 ? delim : "" );
 		}
 		return getStringRepresentation( representation );
 	}
@@ -1341,6 +1342,14 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 			return start + pos;
 		}
 
+		public Sequence<T> getOriginal(){
+			return content;
+		}
+		
+		public int getStart(){
+			return start;
+		}
+		
 		/* (non-Javadoc)
 		 * @see de.jstacs.data.sequences.RecursiveSequence#discreteVal(int)
 		 */
