@@ -197,10 +197,11 @@ public class MarkovModelDiffSM extends BayesianNetworkDiffSM implements Mutable,
 	}
 
 	
-	private void normalizeParameters() {
+	public void normalizeParameters() {
 		for(int i=0;i<trees.length;i++){
 			trees[i].normalizeParameters();
 		}
+		precomputeNormalization();
 	}
 
 	@Override
