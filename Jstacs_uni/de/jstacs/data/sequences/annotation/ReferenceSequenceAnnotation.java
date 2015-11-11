@@ -108,4 +108,14 @@ public class ReferenceSequenceAnnotation extends SequenceAnnotation {
 	public Sequence getReferenceSequence() {
 		return ref;
 	}
+
+	@Override
+	public int hashCode() {
+		int code = super.hashCode();
+		code = 31*code + ref.hashCode();
+		return code;
+	}
+	
+	
+	
 }
