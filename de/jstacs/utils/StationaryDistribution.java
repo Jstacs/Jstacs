@@ -18,8 +18,9 @@
 
 package de.jstacs.utils;
 
-import org.biojava.bio.structure.jama.EigenvalueDecomposition;
-import org.biojava.bio.structure.jama.Matrix;
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
+
 
 /**
  * This class can be used to determine the stationary distribution.
