@@ -438,10 +438,13 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 * @return a {@link String} representation of the structure
 	 */
 	public String getGraphvizRepresentation( NumberFormat nf, DataSet data, double[] weight, boolean sameTypeSameRank ) {
-		HashMap<String, String> map = new HashMap<String, String>();
-		String regex = ".*";
-		for( int i = 0; i < name.length; i++ ) {
-			map.put( name[i].charAt(0) + regex, "same" );
+		HashMap<String, String> map = null;
+		if(sameTypeSameRank){
+			map = new HashMap<String, String>();
+			String regex = ".*";
+			for( int i = 0; i < name.length; i++ ) {
+				map.put( name[i].charAt(0) + regex, "same" );
+			}
 		}
 		return getGraphvizRepresentation(nf, data, weight, map );
 	}
