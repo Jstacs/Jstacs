@@ -61,7 +61,7 @@ import de.jstacs.utils.Pair;
  * variance is used for each parameter.
  * Specifically, a new set of parameters {@latex.inline $\\vec{\\lambda}^{t}$} is drawn from a proposal distribution {@latex.inline $Q(\\vec{\\lambda}^{t} | \\vec{\\lambda}^{t-1})$},
  * where
- * {@latex.ilb \\[ Q(\\vec{\\lambda}^{t}|\\vec{\\lambda}^{t-1}) = \\prod_{i} \\mathcal{N}(\\lambda_i^{t}|\\lambda_i^{t},\\sigma_i^2)\\]}
+ * {@latex.ilb \\[ Q(\\vec{\\lambda}^{t}|\\vec{\\lambda}^{t-1}) = \\prod_{i} \\mathcal{N}(\\lambda_i^{t}|\\lambda_i^{t-1},\\sigma_i^2)\\]}
  * and {@latex.inline $\\sigma_i^2$} is the sampling variance for parameter {@latex.inline $\\lambda_i$}. The sampling variances are adapted to the
  * size of the event space of each parameter based on a class-dependent variance provided to the constructor. This adaption depends on the correct
  * implementation of {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)}. Let {@latex.inline $s_i$} be the size of the event space
