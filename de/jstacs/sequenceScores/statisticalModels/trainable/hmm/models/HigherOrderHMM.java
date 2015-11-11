@@ -43,9 +43,11 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWel
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.ViterbiParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.HigherOrderTransition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.TrainableTransition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
@@ -731,10 +733,12 @@ public class HigherOrderHMM extends AbstractHMM {
 		initializeRandomly();
 	}
 	
+	public void setSkiptInit(boolean skip){this.skipInit = skip;}
+	
 	/**
 	 * This method initializes all emissions and the transition randomly.
 	 */
-	protected void initializeRandomly() {
+	public void initializeRandomly() {
 		transition.initializeRandomly();
 		for( int e = 0; e < emission.length; e++ ) {
 			emission[e].initializeFunctionRandomly();
@@ -1144,4 +1148,25 @@ public class HigherOrderHMM extends AbstractHMM {
 			}
 		}
 	}
+
+	public Emission[] getEmissions() throws CloneNotSupportedException {
+		return ArrayHandler.clone( emission );
+	}
+
+	public TransitionElement[] getTransisionElements() throws CloneNotSupportedException {
+		return ((HigherOrderTransition)transition).getTransisionElements();
+	}
+
+	public int[] getEmissionIndexes() {
+		return emissionIdx.clone();
+	}
+	
+	public String[] getNames(){
+		return name.clone();
+	}
+	
+	public HMMTrainingParameterSet getTrainingParams() throws CloneNotSupportedException{
+		return (HMMTrainingParameterSet)trainingParameter.clone();
+	}
+	
 }
