@@ -1093,7 +1093,7 @@ public class DataSet implements Iterable<Sequence>{
 				}
 			}
 		} else {
-			throw new IllegalArgumentException( "The values for start and length or not suitable." );
+			throw new IllegalArgumentException( "The values for start ("+start+") and length ("+length+") are not suitable." );
 		}
 	}
 
@@ -1412,7 +1412,7 @@ public class DataSet implements Iterable<Sequence>{
 
 		double sumAnz = 0;
 		for( i = 0; i < anz.length; i++ ) {
-			anz[i] = Math.ceil( l * percentage[i] );
+			anz[i] = Math.floor( l * percentage[i] );
 			sumAnz += anz[i];
 		}
 		i = anz.length - 1;
@@ -1425,6 +1425,7 @@ public class DataSet implements Iterable<Sequence>{
 		if( i >= 0 ) {
 			anz[i] += (l-sumAnz);
 		}
+
 		return partitionDataSetAndWeights( anz, method, sequenceWeights );
 	}
 
