@@ -18,6 +18,7 @@
 
 package de.jstacs.classifiers.trainSMBased;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
@@ -37,6 +38,8 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
+import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.ToolBox;
 
 /**
  * Classifier that works on {@link TrainableStatisticalModel}s for each of the different classes.
@@ -277,8 +280,18 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 			}
 			
 			// estimate P(class = i|\lambda)
-			c[i] = Math.log( s[i].getNumberOfElementsWithLength( getLength(), weights == null ? null : weights[i] ) );//XXX + models[i].getESS() );
+			if(getLength() > 0){
+				c[i] = Math.log( s[i].getNumberOfElementsWithLength( getLength(), weights == null ? null : weights[i] ) );//XXX + models[i].getESS() );
+			}else{
+				c[i] = weights==null || weights[i] == null ? Math.log(s[i].getNumberOfElements()) : Math.log( ToolBox.sum( weights[i] ) );
+			}
 		}
+		
+		double norm = Normalisation.getLogSum( c );
+		for(int i=0;i<c.length;i++){
+			c[i] -= norm;
+		}
+		
 		setClassWeights( false, c );
 	}
 
