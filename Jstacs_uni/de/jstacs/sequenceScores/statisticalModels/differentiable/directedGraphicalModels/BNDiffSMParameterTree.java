@@ -102,6 +102,10 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		this.firstParent = XMLParser.extractObjectForTags(source, "firstParent", int.class );
 		this.firstChildren = XMLParser.extractObjectForTags(source, "firstChildren", int[].class );
 	}
+	
+	public int[] getContext(){
+		return contextPoss.clone();
+	}
 
 	void setAlphabet(AlphabetContainer alphabet){
 		this.alphabet = alphabet;
@@ -1491,6 +1495,42 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 			}
 		}
 
+		private void set( double[] pars ) {
+			if(children != null){
+				for(int i=0;i<children.length;i++){
+					children[i].set( pars );
+				}
+			}else{
+				for(int i=0;i<pars.length;i++){
+					this.pars[i].setValue( pars[i] - this.pars[i].getLogZ() );
+				}
+			}
+		}
+
+		private double[][] getParameters() {
+			if(children != null){
+				double[][] p = new double[children.length][];
+				for(int i=0;i<children.length;i++){
+					if(children[i].children != null){
+						throw new RuntimeException();
+					}else{
+						p[i] = new double[children[i].pars.length];
+						for(int j=0;j<children[i].pars.length;j++){
+							p[i][j] = children[i].pars[j].getExpValue();
+						}
+					}
+				}
+				return p;
+			}else{
+				double[][] p = new double[1][];
+				p[0] = new double[pars.length];
+				for(int j=0;j<pars.length;j++){
+					p[0][j] = pars[j].getExpValue();
+				}
+				return p;
+			}
+		}
+
 	}
 
 	/**
@@ -1565,6 +1605,14 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		root.appendHtmlToBuffer(all,"",nf);
 		all.append( "</table></p>" );
 		return all.toString();
+	}
+
+	public void set( double[] probs ) {
+		root.set(probs);	
+	}
+
+	public double[][] getParameters() {
+		return root.getParameters();
 	}
 
 }
