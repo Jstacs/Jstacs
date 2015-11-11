@@ -4,37 +4,105 @@ import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
 
-import projects.motifComp.DeBruijnMotifComparison;
-import de.jstacs.data.DeBruijnSequenceGenerator;
+import de.jstacs.data.DeBruijnGraphSequenceGenerator;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.CyclicSequenceAdaptor;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
+import de.jstacs.utils.Pair;
+import de.jstacs.utils.RealTime;
 
-
+/**
+ * Class for a distance metric between {@link StatisticalModel}s based on the correlation of score
+ * profiles on De Bruijn sequences.
+ * 
+ * For two {@link StatisticalModel}s {@latex.inline $M_1$} and {@latex.inline $M_2$}, we compute the score profiles
+ * {@latex.inline $s_1(x,M_1)$} and {@latex.inline $s_2(x,M_2)$} on a De Bruijn sequence {@latex.inline x} of length {@latex.inline $4^n$}. 
+ * The distance is then defined based on the Pearson correlation as {@latex.inline $1 - cor( s_1(x,M_1), s_2(x,M_2) )$} between these score profiles,
+ * maximizing over suitable shifts of the score profiles and both strand orientations. 
+ * 
+ * @author Jan Grau
+ *
+ */
 public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 
-	private CyclicSequenceAdaptor[] seqs;
+	/**
+	 * The De Bruijn sequences
+	 */
+	protected CyclicSequenceAdaptor[] seqs;
 	
-	public SequenceScoreDistance(DiscreteAlphabet alphabet, int n) throws OperationNotSupportedException, WrongAlphabetException, WrongSequenceTypeException{
-		this.seqs = DeBruijnSequenceGenerator.generate( alphabet, n );
+	/**
+	 * if exponential scores should be used
+	 */
+	protected boolean exp;
+	
+	/**
+	 * Creates a new distance.
+	 * @param alphabet the alphabet of the models that may be compared
+	 * @param n the length of n-mers represented in the De Bruijn sequence
+	 * @param exp if exponential scores should be used
+	 * @throws OperationNotSupportedException
+	 * @throws WrongAlphabetException
+	 * @throws WrongSequenceTypeException
+	 */
+	public SequenceScoreDistance(DiscreteAlphabet alphabet, int n, boolean exp) throws OperationNotSupportedException, WrongAlphabetException, WrongSequenceTypeException{
+		this(DeBruijnGraphSequenceGenerator.generate( alphabet, n ), exp);
 	}
 	
+	/**
+	 * Creates a new distance for a given set of sequences.
+	 * @param seqs the sequences
+	 * @param exp if exponential scores should be used
+	 */
+	protected SequenceScoreDistance(CyclicSequenceAdaptor[] seqs, boolean exp){
+		this.seqs = seqs;
+		//System.out.println(seqs[0]);
+		this.exp = exp;
+	}
+	
+	/**
+	 * Returns the score profile for the model.
+	 * @param o the mode
+	 * @param rc if the reverse complement should be considered
+	 * @return the score profile
+	 * @throws Exception if the score could not be computed
+	 */
 	public double[][] getProfile(StatisticalModel o, boolean rc) throws Exception{
-		return DeBruijnMotifComparison.getProfilesForMotif( seqs, o, rc );
+		return DeBruijnMotifComparison.getProfilesForMotif( seqs, o, rc, exp );
 	}
 	
+	/**
+	 * Returns the distance between the two score profiles. 
+	 * @param profiles1 the first profile
+	 * @param profiles1Rc the reverse complementary version of the first profile
+	 * @param profiles2 the second profile
+	 * @param maxShift the maximum allowed shift between the profiles
+	 * @return the distance
+	 * @throws Exception if the distance could not be computed
+	 */
 	public double getDistance(double[][] profiles1, double[][] profiles1Rc, double[][] profiles2, int maxShift) throws Exception{
-		double fwd = DeBruijnMotifComparison.compare( profiles1, profiles2, maxShift ).getSecondElement();
-		double rc = DeBruijnMotifComparison.compare( profiles1Rc, profiles2, maxShift ).getSecondElement();
+		Pair<Integer,Double> newFwd = DeBruijnMotifComparison.compare( profiles1[0], profiles2[0], maxShift ); 
+		Pair<Integer,Double> newRc = DeBruijnMotifComparison.compare( profiles1Rc[0], profiles2[0], maxShift );
 		
-		return 1.0-Math.max( fwd, rc );
+		return 1.0-Math.max( newFwd.getSecondElement(), newRc.getSecondElement() );
 	}
 	
+	/**
+	 * Returns the distance between a score profile and a model. 
+	 * @param profiles1 the first profile
+	 * @param profiles1Rc the reverse complementary version of the first profile
+	 * @param o2 the model
+	 * @param motif1Length the length of the motif used to compute the first profile
+	 * @return the distance
+	 * @throws Exception if the distance could not be computed
+	 */
 	public double getDistance(double[][] profiles1, double[][] profiles1Rc, StatisticalModel o2, int motif1Length) throws Exception{
-		int maxShift = Math.max( motif1Length - (int)Math.floor(o2.getLength()/3), o2.getLength() - (int)Math.floor( motif1Length/3 ) );
+		
+		//int maxShift = Math.max( motif1Length - (int)Math.floor(o2.getLength()/3), o2.getLength() - (int)Math.floor( motif1Length/3 ) );
+		int maxShift = (int)Math.ceil(Math.min(o2.getLength(), motif1Length)*2.0/3.0);
 		double[][] profiles2 = getProfile( o2, false );
+		//System.out.println(profiles1[0].length+" "+profiles2[0].length);
 		return getDistance( profiles1, profiles1Rc, profiles2, maxShift );
 	}
 	
@@ -50,6 +118,13 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 		
 	}
 	
+	/**
+	 * Multi-threaded computation of the pairwise distance matrix.
+	 * @param numThreads the number of threads
+	 * @param objects the models
+	 * @return the distance matrix
+	 * @throws Exception if the distance could not be computed
+	 */
 	public double[][] getPairwiseDistanceMatrix(int numThreads, StatisticalModel... objects) throws Exception {
 		if(numThreads == 1){
 			double[][] matrix = new double[objects.length][];
@@ -68,10 +143,10 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 				available.add( workers[i] );
 				(new Thread(workers[i])).start();
 			}
-			
+			RealTime rt = new RealTime();
 			double[][] matrix = new double[objects.length][];
 			for(int i=0;i<matrix.length;i++){
-				System.out.println("main in row "+i);
+				System.out.println("main in row "+i+" "+rt.getElapsedTime());
 				matrix[i] = new double[i];
 				double[][] prof1 = null;
 				double[][] prof1Rc = null;
