@@ -376,7 +376,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 			if( iterations > 1 ) {
 				score = ArrayHandler.clone( secure );
 				if( sostream.doesNothing() ) {
-					System.out.println( "start " + i + ": " + res[0][0] );
+					//System.out.println( "start " + i + ": " + res[0][0] );
 				}
 			}
 		}
