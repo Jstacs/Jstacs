@@ -222,6 +222,7 @@ public class Alignment {
 		AlphabetContainer cont = s1.getAlphabetContainer();
 
 		int[] next = index.clone();
+		int numMatches = 0;
 		while( true ) {
 			algorithm.next(type,index, next);
 			//System.out.println( Arrays.toString(index) + "\t" + Arrays.toString(next) );
@@ -233,13 +234,28 @@ public class Alignment {
 			int column = next[2] - index[2];
 			if( row == -1 && column == -1 ) {
 				b1.insert( 0, cont.getSymbol( startS1 + index[1] - 1, s1.discreteVal( startS1 + index[1] - 1 ) ) );
+				b1.insert( 0, cont.getDelim() );
 				b2.insert( 0, cont.getSymbol( startS2 + index[2] - 1, s2.discreteVal( startS2 + index[2] - 1 ) ) );
+				b2.insert( 0, cont.getDelim() );
+				if(s1.discreteVal( startS1 + index[1] - 1 ) == s2.discreteVal( startS2 + index[2] - 1 )){
+					numMatches++;
+				}
 			} else if( column == -1 ) {//&& row == 0;
-				b1.insert( 0, '-' );
-				b2.insert( 0, cont.getSymbol( startS2 + index[2] - 1, s2.discreteVal( startS2 + index[2] - 1 ) ) );
+				String sym = cont.getSymbol( startS2 + index[2] - 1, s2.discreteVal( startS2 + index[2] - 1 ) );
+				b2.insert( 0, sym );
+				b2.insert( 0, cont.getDelim() );
+				for(int k=0;k<sym.length();k++){
+					b1.insert( 0, '-' );
+				}
+				b1.insert( 0, cont.getDelim() );
 			} else if( row == -1 ) {
-				b1.insert( 0, cont.getSymbol( startS1 + index[1] - 1, s1.discreteVal( startS1 + index[1] - 1 ) ) );
-				b2.insert( 0, '-' );
+				String sym = cont.getSymbol( startS1 + index[1] - 1, s1.discreteVal( startS1 + index[1] - 1 ) );
+				b1.insert( 0, sym );
+				b1.insert( 0, cont.getDelim() );
+				for(int k=0;k<sym.length();k++){
+					b2.insert( 0, '-' );
+				}
+				b2.insert( 0, cont.getDelim() );
 			}
 			if( index[2] == l2 && column == -1 ) {
 				endPos = startS1+index[1];
@@ -250,7 +266,7 @@ public class Alignment {
 			
 			System.arraycopy( next, 0, index, 0, 3 );
 		}
-		return new PairwiseStringAlignment( b1.toString(), b2.toString(), cost, startPos, endPos );
+		return new PairwiseStringAlignment( b1.toString(), b2.toString(), cost, startPos, endPos, numMatches );
 	}
 	
 	private static interface AlignmentAlgorithm {

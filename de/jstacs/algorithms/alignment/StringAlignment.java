@@ -19,6 +19,9 @@ package de.jstacs.algorithms.alignment;
 
 import java.util.List;
 
+import de.jstacs.Storable;
+import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 import de.jstacs.results.Result;
 
 /**
@@ -29,11 +32,15 @@ import de.jstacs.results.Result;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class StringAlignment implements Comparable<StringAlignment>{
+public class StringAlignment implements Comparable<StringAlignment>, Storable{
 	private String[] r;
 	private double cost;
 	private Result res;
 
+	public StringAlignment(StringBuffer xml) throws NonParsableException{
+		fromXML( xml );
+	}
+	
 	/**
 	 * This constructor creates an instance storing the aligned Strings and the costs of the alignment.
 	 * 
@@ -191,5 +198,24 @@ public class StringAlignment implements Comparable<StringAlignment>{
 		} else {
 			return this.getNumberOfAlignedSequences() - o.getNumberOfAlignedSequences();
 		}
+	}
+
+	protected void fromXML(StringBuffer xml) throws NonParsableException{
+		xml = XMLParser.extractForTag( xml, "StringAlignment" );
+		
+		cost = (Double)XMLParser.extractObjectForTags( xml, "cost" );
+		r = (String[])XMLParser.extractObjectForTags( xml, "r" );
+		res = (Result)XMLParser.extractObjectForTags( xml, "res" );
+		
+	}
+	
+	@Override
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		XMLParser.appendObjectWithTags( xml, cost, "cost" );
+		XMLParser.appendObjectWithTags( xml, r, "r" );
+		XMLParser.appendObjectWithTags( xml, res, "res" );
+		XMLParser.addTags( xml, "StringAlignment" );
+		return xml;
 	}
 }
