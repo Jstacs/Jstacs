@@ -826,7 +826,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			return clone;
 		}
 		
-		private int getLastContextState() {
+		public int getLastContextState() {
 			return context[context.length-1];
 		}
 
