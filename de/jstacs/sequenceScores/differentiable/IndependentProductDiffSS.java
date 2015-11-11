@@ -20,6 +20,7 @@ package de.jstacs.sequenceScores.differentiable;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Locale;
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -565,7 +566,7 @@ public class IndependentProductDiffSS extends AbstractDifferentiableSequenceScor
 			}
 			
 			if( isVariable[index[i]] ) {
-				s += ( (VariableLengthDiffSM)score[index[i]] ).getLogScoreAndPartialDerivation( help, myStart, myStart+partialLength[i], partIList, partialDer );
+				s += ( (VariableLengthDiffSM)score[index[i]] ).getLogScoreAndPartialDerivation( help, myStart, myStart+partialLength[i]-1, partIList, partialDer );//TODO
 			} else {
 				s += score[index[i]].getLogScoreAndPartialDerivation( help, myStart, partIList, partialDer );
 			}
