@@ -210,6 +210,7 @@ public class SignificantMotifOccurrencesFinder {
 				int order = type.getOrder();
 				HomogeneousMMDiffSM hmm = new HomogeneousMMDiffSM(s.getAlphabetContainer(),order,0,new double[order+1],true,true,1);
 				hmm.initializeFunction( 0, false, new DataSet[]{s}, null );
+				System.out.println(hmm);
 				
 				if( order > 0 ) {
 					double[][][] condProbs = hmm.getAllConditionalStationaryDistributions();
@@ -224,7 +225,7 @@ public class SignificantMotifOccurrencesFinder {
 					hmm.setParameters( list.toArray(), 0 );
 				}
 				
-				bg = hmm.emit( numSequences*s.getNumberOfElements(), s.getElementLength() );
+				bg = hmm.emitDataSet( numSequences*s.getNumberOfElements(), (int)s.getAverageElementLength() );
 				break;
 			default:
 				//XXX
@@ -576,7 +577,7 @@ public void test() throws Exception {
 	 * @throws Exception if something went wrong
 	 */
 	public double[][] getPWM( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
-		return getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, null, null );
+		return getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, null, null, null, null, null );
 	}
 	
 	
@@ -597,7 +598,7 @@ public void test() throws Exception {
 	public Pair<double[][][], int[][]> getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight ) throws Exception {
 		int[][] positions = new int[data.getNumberOfElements()][];
 		double[][] pvals = new double[data.getNumberOfElements()][];
-		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, positions, pvals, null, null );
+		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, positions, pvals, null, null, null, null, null );
 		
 		return new Pair<double[][][],int[][]>(new double[][][]{pwm,pvals},positions);
 	}
@@ -620,7 +621,7 @@ public void test() throws Exception {
 	 * @return the PWM
 	 * @throws Exception if something went wrong
 	 */
-	protected double[][] getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight, int[][] positions, double[][] pvals, double[] mean, double[] sd ) throws Exception {
+	protected double[][] getPWMAndPositions( int motif, DataSet data, double[] weights, int addLeft, int addRight, int[][] positions, double[][] pvals, double[] mean, double[] sd, LinkedList<Sequence> bs, DoubleList bsWeights, DoubleList bsScores ) throws Exception {
 		ArrayList<MotifAnnotation> list = new ArrayList<MotifAnnotation>();
 		if(oneHistogram){
 			fillSortedScoresArray( motif, 0 );
@@ -662,8 +663,8 @@ public void test() throws Exception {
 				}
 				int start = ma.getPosition() - addLeft;
 				if(mean != null && sd != null){
-					sd[0] += w/list.size()*(start-mean[i])*(start-mean[i]);
-					n += w/list.size();
+					sd[0] += w/*/list.size()*/*(start-mean[i])*(start-mean[i]);//TODO Bug!?
+					n += w/*/list.size()*/;
 				}
 				int end = ma.getEnd() + addRight;
 				Strand strand = ma.getStrandedness();
@@ -671,7 +672,18 @@ public void test() throws Exception {
 					positions[i][j] = -positions[i][j]-1;
 				}
 				switch( strand ) { 
-					case FORWARD: 
+					case FORWARD:
+						if(bs != null){
+							if(start >= 0 && end <= seq.getLength()){
+								bs.add( seq.getSubSequence( start, end-start ) );
+								if(bsWeights != null){
+									bsWeights.add( w );
+								}
+								if(bsScores != null){
+									bsScores.add( (Double)ma.getResultForName( "score" ).getValue() );
+								}
+							}
+						}
 						l = 0;
 						while( start < end && start < seq.getLength() ) {
 							if( start >= 0 ) {
@@ -683,6 +695,17 @@ public void test() throws Exception {
 						break;
 					case REVERSE:
 						l = pwm.length-1;
+						if(bs != null){
+							if( start >= 0 && end <= seq.getLength()){
+								bs.add( seq.getSubSequence( start, end-start ).reverseComplement() );
+								if(bsWeights != null){
+									bsWeights.add( w );
+								}
+								if(bsScores != null){
+									bsScores.add( (Double)ma.getResultForName( "score" ).getValue() );
+								}
+							}
+						}
 						while( start < end && start < seq.getLength() ) {
 							if( start >= 0 ) {
 								pwm[l][abc.getComplementaryCode( seq.discreteVal(start) )] += w;
@@ -721,7 +744,14 @@ public void test() throws Exception {
 	 */
 	public Pair<double[][], double[]> getPWMAndPosDist( int motif, DataSet data, double[] weights, double[] mean, int addLeft, int addRight ) throws Exception {
 		double[] sd = new double[1];
-		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, mean, sd );
+		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, mean, sd, null, null, null );
+		
+		return new Pair<double[][],double[]>(pwm,sd);
+	}
+	
+	public Pair<double[][], double[]> getPWMAndPosDist( int motif, DataSet data, double[] weights, double[] mean, int addLeft, int addRight, LinkedList<Sequence> bs, DoubleList bsWeight, DoubleList bsScores ) throws Exception {
+		double[] sd = new double[1];
+		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, mean, sd, bs, bsWeight, bsScores );
 		
 		return new Pair<double[][],double[]>(pwm,sd);
 	}
