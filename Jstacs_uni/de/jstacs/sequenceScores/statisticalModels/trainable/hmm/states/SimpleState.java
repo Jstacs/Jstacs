@@ -85,4 +85,9 @@ public class SimpleState implements TrainableState {
 		AlphabetContainer con = e.getAlphabetContainer();
 		return "state " + name + ( con == null || !con.isDiscrete() ? "" : " " + (forward?"forward":"reverse")) + "\n" + e.toString(nf); 
 	}
+
+	
+	public String getName() {
+		return name;
+	}
 }
