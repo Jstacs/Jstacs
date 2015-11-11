@@ -7,6 +7,7 @@ import de.jstacs.Storable;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.utils.IntList;
 import de.jstacs.utils.Pair;
 
 
@@ -16,7 +17,7 @@ public class ClusterTree<T> implements Storable{
 	private double distance;
 	private T[] elements;
 	private ClusterTree<T>[] subTrees;
-	private int originalIndex;
+	private final int originalIndex;
 	
 	private int[][][] pred;
 	
@@ -35,6 +36,7 @@ public class ClusterTree<T> implements Storable{
 	
 	public ClusterTree(StringBuffer xml) throws NonParsableException{
 		xml = XMLParser.extractForTag( xml, "ClusterTree" );
+		originalIndex = (Integer)XMLParser.extractObjectForTags( xml, "originalIndex", Integer.class );
 		distance = (Double)XMLParser.extractObjectForTags( xml, "distance" );
 		subTrees = (ClusterTree<T>[])XMLParser.extractObjectForTags( xml, "subTrees" );
 		if(subTrees == null){
@@ -45,9 +47,22 @@ public class ClusterTree<T> implements Storable{
 		
 	}
 	
+	public ClusterTree<Integer> getIndexTree(){
+		if(subTrees == null){
+			return new ClusterTree<Integer>(originalIndex,originalIndex);
+		}else{
+			ClusterTree<Integer>[] newSubs = new ClusterTree[subTrees.length];
+			for(int i=0;i<subTrees.length;i++){
+				newSubs[i] = subTrees[i].getIndexTree();
+			}
+			return new ClusterTree<Integer>(distance,originalIndex,newSubs);
+		}
+	}
+	
 	//algo from Ziv Bar-Joseph et al. K-ary Clustering with Optimal Leaf Ordering for Gene Expression Data.
 	//dmat: original dmat when building the tree (original index!)
-	public double[][] leafOrder(double[][] dmat){
+	//returns dmat with new indexes
+	public void leafOrder(double[][] dmat){
 		
 		Pair<double[][],int[]> pair = forward( dmat );
 		double[][] M = pair.getFirstElement();
@@ -67,7 +82,7 @@ public class ClusterTree<T> implements Storable{
 		
 		backtrace(mini,minj);
 		
-		ClusterTree<T>[] leaves = getLeaves();
+		/*ClusterTree<T>[] leaves = getLeaves();
 		
 		double[][] dmat2 = new double[dmat.length][dmat.length];
 		for(int i=0;i<leaves.length;i++){
@@ -79,7 +94,7 @@ public class ClusterTree<T> implements Storable{
 			leaves[i].originalIndex = i;
 		}
 		
-		return dmat2;
+		return dmat2;*/
 		
 		//return dmat;
 		
@@ -273,6 +288,7 @@ public class ClusterTree<T> implements Storable{
 	@Override
 	public StringBuffer toXML() {
 		StringBuffer sb = new StringBuffer();
+		XMLParser.appendObjectWithTags( sb, originalIndex, "originalIndex" );
 		XMLParser.appendObjectWithTags( sb, distance, "distance" );
 		XMLParser.appendObjectWithTags( sb, subTrees, "subTrees" );
 		if(subTrees == null){
@@ -346,6 +362,24 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 
+	public int getMinimumOriginalIndex(){
+		if(this.subTrees == null){
+			return this.originalIndex;
+		}else{
+			int min = this.originalIndex;
+			for(int i=0;i<subTrees.length;i++){
+				if(subTrees[i].getOriginalIndex() < min){
+					min = subTrees[i].getOriginalIndex();
+				}
+			}
+			return min;
+		}
+	}
+	
+	public boolean isLeaf(){
+		return this.subTrees == null;
+	}
+	
 	public ClusterTree<T>[] getLeaves() {
 		if(this.subTrees == null){
 			return new ClusterTree[]{this};
@@ -361,6 +395,37 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 
+	public <S> ClusterTree<S> dropBelow( IntList rootOriginalIndexes, S[] newElements ) {
+		int idx = rootOriginalIndexes.contains( originalIndex ); 
+		if(idx > -1){
+			S el = newElements[idx];
+			return new ClusterTree<S>(el,originalIndex);
+		}else{
+			ClusterTree<S>[] newSubs = new ClusterTree[subTrees.length];
+			for(int i=0;i<subTrees.length;i++){
+				newSubs[i] = subTrees[i].dropBelow(rootOriginalIndexes, newElements);
+			}
+			return new ClusterTree<S>(this.getDistance(),originalIndex,newSubs);
+		}
+	}
+
+	public String toNewick() {
+		return this.toNewick("");
+	}
+
+	private String toNewick(String indent) {
+		StringBuffer sb = new StringBuffer();
+		if(this.subTrees == null){
+			sb.append(indent+"("+elements[0].toString()+")\n");
+		}else{
+			sb.append(indent+this.distance+" (\n");
+			for(int i=0;i<subTrees.length;i++){
+				sb.append(subTrees[i].toNewick(indent+"\t")+"\n");
+			}
+			sb.append(indent+")\n");
+		}
+		return sb.toString();
+	}
 	
 	
 }

@@ -27,14 +27,10 @@ public class Hclust<T> {
 		double[][] distMat = DistanceMetric.getPairwiseDistanceMatrix( metric, objects );
 		return cluster(distMat, objects);
 	}
-		
-	public ClusterTree<T> cluster(double[][] distMat, T... objects){
-		LinkedList<ClusterTree<Integer>> list = new LinkedList<ClusterTree<Integer>>();
-		for(int i=0;i<objects.length;i++){
-			list.add( new ClusterTree<Integer>( i, i ) );
-		}
-		
-		int oi = -1;
+	
+	public ClusterTree<Integer> cluster(double[][] distMat, LinkedList<ClusterTree<Integer>> list, int indexOff){
+				
+		int oi = -indexOff-1;
 		while(list.size() > 1){
 			Iterator<ClusterTree<Integer>> it = list.iterator();
 			int mini = -1, minj = -1;
@@ -62,7 +58,35 @@ public class Hclust<T> {
 			list.add( nt );
 		}
 		
-		return createTree( list.get( 0 ), objects );
+		return list.get( 0 );
+	}
+	
+	public ClusterTree<T> cluster(int indexOff, double[][] distMat, ClusterTree<T>[] leaves) {
+		LinkedList<ClusterTree<Integer>> list = new LinkedList<ClusterTree<Integer>>();
+		T[] objects = (T[])new Object[leaves.length];
+		double[][] subMat = new double[leaves.length][leaves.length];
+		for(int i=0;i<leaves.length;i++){
+			list.add( new ClusterTree<Integer>(i,leaves[i].getOriginalIndex()) );
+			objects[i] = leaves[i].getClusterElements()[0];
+			for(int j=0;j<leaves.length;j++){
+				subMat[i][j] = distMat[leaves[i].getOriginalIndex()][leaves[j].getOriginalIndex()];
+			}
+		}
+		
+		ClusterTree<Integer> tree = cluster(subMat,list,indexOff);
+		
+		return createTree(tree,objects);
+	}
+	
+	public ClusterTree<T> cluster(double[][] distMat, T... objects){
+		LinkedList<ClusterTree<Integer>> list = new LinkedList<ClusterTree<Integer>>();
+		for(int i=0;i<objects.length;i++){
+			list.add( new ClusterTree<Integer>( i, i ) );
+		}
+		
+		ClusterTree<Integer> tree = cluster(distMat, list, 0);
+		
+		return createTree( tree, objects );
 		
 	}
 
@@ -100,7 +124,7 @@ public class Hclust<T> {
 		}
 	}
 	
-	private ClusterTree<T> createTree(ClusterTree<Integer> intTree, T... objects){
+	public ClusterTree<T> createTree(ClusterTree<Integer> intTree, T... objects){
 		ClusterTree<Integer>[] intSubs = intTree.getSubTrees();
 		if(intSubs == null){
 			return new ClusterTree<T>( objects[intTree.getClusterElements()[0]], intTree.getOriginalIndex() );
@@ -113,8 +137,9 @@ public class Hclust<T> {
 		}
 	}
 	
-	private double getDistance( double[][] distMat, ClusterTree<Integer> tree, ClusterTree<Integer> tree2 ) {
+	public double getDistance( double[][] distMat, ClusterTree<Integer> tree, ClusterTree<Integer> tree2 ) {
 		double dist = linkage == Linkage.SINGLE ? Double.POSITIVE_INFINITY : ( linkage == Linkage.AVERAGE ? 0 : Double.NEGATIVE_INFINITY );
+		
 		Integer[] el1 = tree.getClusterElements();
 		Integer[] el2 = tree2.getClusterElements();
 		for(int i=0;i<el1.length;i++){
