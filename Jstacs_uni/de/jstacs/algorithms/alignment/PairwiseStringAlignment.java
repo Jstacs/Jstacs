@@ -17,6 +17,9 @@
  */
 package de.jstacs.algorithms.alignment;
 
+import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
+
 /**
  * Class for the representation of an alignment of two {@link String}s. It
  * contains the two {@link String}s that were aligned and expanded by
@@ -27,7 +30,7 @@ package de.jstacs.algorithms.alignment;
  */
 public class PairwiseStringAlignment extends StringAlignment {
 	
-	private int start, end;
+	private int start, end, nummatches;
 
 	/**
 	 * Creates the instance for the two (extended) {@link String}s and the
@@ -44,10 +47,26 @@ public class PairwiseStringAlignment extends StringAlignment {
 	 * @param endPos
 	 *            the end position of the aligned block in the first {@link String}
 	 */
-	protected PairwiseStringAlignment( String r1, String r2, double cost, int startPos, int endPos ) {
+	protected PairwiseStringAlignment( String r1, String r2, double cost, int startPos, int endPos, int numMatches ) {
 		super( cost, r1, r2 );
 		this.start = startPos;
 		this.end = endPos;
+		this.nummatches = numMatches;
+	}
+	
+	
+	/**
+	 * @param xml
+	 * @throws NonParsableException
+	 */
+	public PairwiseStringAlignment( StringBuffer xml ) throws NonParsableException {
+		super( xml );
+	}
+
+
+
+	public int getNumberOfMatches(){
+		return nummatches;
 	}
 	
 	/**
@@ -67,4 +86,25 @@ public class PairwiseStringAlignment extends StringAlignment {
 	public int getEndIndexOfAlignmentForFirst() {
 		return end;
 	}
+	
+	protected void fromXML(StringBuffer xml) throws NonParsableException{
+		xml = XMLParser.extractForTag( xml, "PairwiseStringAlignment" );
+		super.fromXML( xml );
+		end = (Integer)XMLParser.extractObjectForTags( xml, "end" );
+		nummatches = (Integer)XMLParser.extractObjectForTags( xml, "nummatches" );
+		start = (Integer)XMLParser.extractObjectForTags( xml, "start" );
+		
+	}
+	
+	@Override
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		super.toXML();
+		XMLParser.appendObjectWithTags( xml, end, "end" );
+		XMLParser.appendObjectWithTags( xml, nummatches, "nummatches" );
+		XMLParser.appendObjectWithTags( xml, start, "start" );
+		XMLParser.addTags( xml, "PairwiseStringAlignment" );
+		return xml;
+	}
+	
 }
