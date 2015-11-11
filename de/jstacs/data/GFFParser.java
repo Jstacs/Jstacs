@@ -1,9 +1,9 @@
 package de.jstacs.data;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,11 +13,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.jstacs.data.GFFParser.GFFEntry.GFFType;
-import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
-import de.jstacs.data.sequences.annotation.SimpleSequenceAnnotationParser;
 import de.jstacs.data.sequences.annotation.StrandedLocatedSequenceAnnotationWithLength.Strand;
-import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.NumericalResult;
@@ -29,36 +26,21 @@ public class GFFParser {
 
 	public static void main(String[] args) throws Exception {
 		
-		BufferedReader read = new BufferedReader(new FileReader( "/Users/dev/Downloads/Galaxy43-[UCSC_Main_on_Human__knownGene_(genome)].gtf.txt" ));
+		BufferedReader read = new BufferedReader(new FileReader( args[0] ));
 		
-		GFFList list = GFFParser.parseGTF( read, null, null );
+		//GFFList list = GFFParser.parseGTF( read, null, null );
 		
-		/*BufferedReader read = new BufferedReader(new FileReader( "/Users/dev/Desktop/TAL-Chips/GA/ath/TAIR10_GFF3_genes.gff" ));
+		//list = getCDSandAddParents( list, "transcript_id", "gene_id", "T", "G" );
 		
+		GFFList list = GFFParser.parseEnsembl( read );
 		
+		ListResult lr = list.toListResult( "GFF", "", true );
 		
-		DataSet set = new DataSet( new AlphabetContainer( new DiscreteAlphabet( true, "A","C","G","T","N", "Y","W","M","K","S","R","D" ) ), new SparseStringExtractor( "/Users/dev/Desktop/TAL-Chips/GA/ath/TAIR10.fa", '>', new SimpleSequenceAnnotationParser() ) );
+		PrintWriter wr = new PrintWriter( args[0]+".ggf3" );
 		
-		GFFList list = new GFFList( read );
+		wr.println(lr);
 		
-		String[] keys = new String[set.getNumberOfElements()];
-		for(int i=0;i<set.getNumberOfElements();i++){
-			keys[i] = (String)set.getElementAt( i ).getAnnotation()[0].getResultAt( 0 ).getValue();
-			keys[i] = keys[i].substring( 0, keys[i].indexOf( ' ' ) );
-			System.out.println(keys[i]);
-		}
-		
-		list.attachData( set, keys );
-		*/
-		list = list.getSubList( "chr4" );
-		
-		list = list.getSubList( GFFType.exon );
-		
-		ArrayList<GFFEntry> ens = list.getEntriesOverlapping( 196560 );
-		
-		System.out.println(ens);
-		
-		//System.out.println(list.getSequenceFor( ens.get( 0 ), 2, 2 ) );
+		wr.close();
 		
 	}
 	
@@ -104,6 +86,271 @@ public class GFFParser {
 		
 	}
 	
+	public static GFFList getCDSandAddParents(GFFList list, String transcriptID, String geneID, String transcriptPrefix, String genePrefix){
+		
+		HashMap<String, GFFEntry> transcripts = new HashMap<String, GFFParser.GFFEntry>();
+		HashMap<String, GFFEntry> genes = new HashMap<String, GFFParser.GFFEntry>();
+		
+		
+		GFFList subCDS = list.getSubList( GFFType.CDS, GFFType.stop_codon );
+		ArrayList<GFFEntry> cds = subCDS.entries;
+		
+		
+		for(int i=0;i<cds.size();i++){
+			GFFEntry curr = cds.get( i );
+			
+			String transcript = transcriptPrefix+curr.attributes.get( transcriptID );
+			String gene = genePrefix+curr.attributes.get( geneID );
+			
+			if(transcripts.containsKey( transcript )){
+				GFFEntry te = transcripts.get( transcript );
+				if(te.start > curr.start){
+					te.start = curr.start;
+				}
+				if(te.end < curr.end){
+					te.end = curr.end;
+				}
+			}else{
+				GFFEntry te = new GFFEntry( curr.seqid, curr.source, "mRNA",curr.start, curr.end, Double.NaN, curr.strand, -1, "ID="+transcript+";Parent="+gene );
+				transcripts.put( transcript, te );
+			}
+			
+			if(genes.containsKey( gene )){
+				GFFEntry ge = genes.get( gene );
+				if(ge.start > curr.start){
+					ge.start = curr.start;
+				}
+				if(ge.end < curr.end){
+					ge.end = curr.end;
+				}
+			}else{
+				GFFEntry ge = new GFFEntry( curr.seqid, curr.source, "gene",curr.start, curr.end, Double.NaN, curr.strand, -1, "ID="+gene );
+				genes.put( gene, ge );
+			}
+			
+			GFFEntry te = transcripts.get( transcript );
+			GFFEntry ge = genes.get( gene );
+			
+			curr.attributes.remove( transcriptID );
+			curr.attributes.remove( geneID );
+			
+			curr.attributes.put( "Parent", transcript );
+			
+			if(curr.parent == null){
+				curr.parent = new LinkedList<GFFParser.GFFEntry>();
+			}
+			curr.parent.add( te );
+			if(te.children == null){
+				te.children = new LinkedList<GFFParser.GFFEntry>();
+			}
+			te.children.add( curr );
+			if(te.parent == null){
+				te.parent = new LinkedList<GFFParser.GFFEntry>();
+			}
+			te.parent.add( ge );
+			if(ge.children == null){
+				ge.children = new LinkedList<GFFParser.GFFEntry>();
+			}
+			if(!ge.children.contains( te )){
+				ge.children.add( te );
+			}
+		}
+		
+		
+		transcripts.clear();
+		cds.clear();
+		
+		GFFEntry[] geneAr = genes.values().toArray( new GFFEntry[0] );
+		genes.clear();
+		
+		LinkedList<GFFEntry> all = new LinkedList<GFFParser.GFFEntry>();
+		
+		Arrays.sort( geneAr, GFFEntryComparator.COMP );
+				
+		for(int i=0;i<geneAr.length;i++){
+			GFFEntry gene = geneAr[i];
+			all.add( gene );
+			Iterator<GFFEntry> transIt = gene.children.iterator();
+			while(transIt.hasNext()){
+				GFFEntry transcript = transIt.next();
+				
+				all.add( transcript );
+				
+				GFFEntry[] children = transcript.children.toArray( new GFFEntry[0] );
+				Arrays.sort( children, new GFFEntryComparator( transcript.strand == Strand.REVERSE ) );
+				
+				int k=children.length-1;
+				while(k>0 && children[k].parsedType == GFFType.stop_codon){
+					if(children[k-1].parsedType == GFFType.CDS){
+						if(transcript.strand == Strand.FORWARD && children[k].start == children[k-1].end+1){
+							children[k-1].end = children[k].end;
+							children[k] = null;
+						}else if(transcript.strand == Strand.REVERSE && children[k].end == children[k-1].start-1){
+							children[k-1].start = children[k].start;
+							children[k] = null;
+						}
+					}
+					if(children[k] != null){
+						children[k].parsedType = GFFType.CDS;
+						children[k].type = "CDS";
+					}
+					k--;
+				}
+				
+				for(int j=0;j<children.length;j++){
+					if(children[j] != null){
+						all.add( children[j] );
+					}
+				}
+				
+			}
+			/*GFFEntry[] transcriptAr = gene.children.toArray( new GFFEntry[0] );
+			Arrays.sort( transcriptAr, GFFEntryComparator.COMP );
+			for(int j=0;j<transcriptAr.length;j++){
+				GFFEntry transcript = transcriptAr[j];
+				all.add( transcript );
+				GFFEntry[] cdsAr = transcript.children.toArray( new GFFEntry[0] );
+				Arrays.sort( cdsAr, GFFEntryComparator.COMP );
+				for(int k=0;k<cdsAr.length;k++){
+					all.add( cdsAr[k] );
+				}
+			}*/
+		}
+		
+		return new GFFList( all );
+		
+	}
+	
+	public static GFFList parseEnsembl(BufferedReader reader) throws NumberFormatException, IOException{
+		String str = reader.readLine();
+		String[] header = str.split( "\t" );
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		for(int i=0;i<header.length;i++){
+			map.put( header[i], i );
+		}
+		
+		ArrayList<GFFEntry> cds = new ArrayList<GFFParser.GFFEntry>();
+		HashMap<String, GFFEntry> transcripts = new HashMap<String, GFFParser.GFFEntry>();
+		HashMap<String, GFFEntry> genes = new HashMap<String, GFFParser.GFFEntry>();
+		
+		while( (str = reader.readLine()) != null ){
+			String[] parts = str.split( "\t" );
+			
+			int startIdx = map.get( "Genomic coding start" );
+			int endIdx = map.get( "Genomic coding end" );
+			
+			
+			if(startIdx < parts.length && endIdx < parts.length && 
+					parts[ startIdx ].trim().length() > 0 && parts[ endIdx ].trim().length() > 0){
+				int start = Integer.parseInt( parts[ startIdx ] );
+				int end = Integer.parseInt( parts[ endIdx ] );
+				String gene = parts[ map.get( "Ensembl Gene ID" ) ];
+				String transcript = parts[ map.get( "Ensembl Transcript ID" ) ];
+				int geneStart = Integer.parseInt( parts[ map.get( "Gene Start (bp)" ) ] );
+				int geneEnd = Integer.parseInt( parts[ map.get( "Gene End (bp)" ) ] );
+				int transcriptStart = Integer.parseInt( parts[ map.get( "Transcript Start (bp)" ) ] );
+				int transcriptEnd = Integer.parseInt( parts[ map.get( "Transcript End (bp)" ) ] );
+				Strand strand = "-1".equals( parts[ map.get( "Strand" ) ] ) ? Strand.REVERSE : Strand.FORWARD;
+				String chromosome = parts[ map.get( "Chromosome Name" ) ];
+				int phase = Integer.parseInt( parts[ map.get( "phase" ) ] );
+				
+				if(!genes.containsKey( gene )){
+					GFFEntry geneEn = new GFFEntry( chromosome, "ensembl", GFFType.gene.name(), geneStart, geneEnd, Double.NaN, strand, 0, "" );
+					geneEn.setID(gene);
+					genes.put( gene, geneEn );
+				}
+				GFFEntry geneEn = genes.get( gene );
+				if(geneEn.start != geneStart || geneEn.end != geneEnd || !geneEn.seqid.equals( chromosome ) || geneEn.strand != strand){
+					throw new RuntimeException();
+				}
+				if(!transcripts.containsKey( transcript )){
+					GFFEntry transcriptEn = new GFFEntry( chromosome, "ensembl", GFFType.mRNA.name(), transcriptStart, transcriptEnd, Double.NaN, strand, 0, "" );
+					transcriptEn.addParent( geneEn );
+					geneEn.addChild( transcriptEn );
+					transcriptEn.setID( transcript );
+					transcripts.put( transcript, transcriptEn );
+					
+				}
+				GFFEntry transcriptEn = transcripts.get( transcript );
+				if(transcriptEn.start != transcriptStart || transcriptEn.end != transcriptEnd || !transcriptEn.seqid.equals( chromosome ) || transcriptEn.strand != strand){
+					throw new RuntimeException();
+				}
+				
+				GFFEntry cdsEn = new GFFEntry( chromosome, "ensembl", GFFType.CDS.name(), start, end, Double.NaN, strand, phase, "" );
+				cdsEn.addParent( transcriptEn );
+				transcriptEn.addChild( cdsEn );
+				
+				cds.add( cdsEn );
+				
+			}
+		}
+		
+		
+		transcripts.clear();
+		cds.clear();
+		
+		GFFEntry[] geneAr = genes.values().toArray( new GFFEntry[0] );
+		genes.clear();
+		
+		LinkedList<GFFEntry> all = new LinkedList<GFFParser.GFFEntry>();
+		
+		Arrays.sort( geneAr, GFFEntryComparator.COMP );
+				
+		for(int i=0;i<geneAr.length;i++){
+			GFFEntry gene = geneAr[i];
+			all.add( gene );
+			Iterator<GFFEntry> transIt = gene.children.iterator();
+			while(transIt.hasNext()){
+				GFFEntry transcript = transIt.next();
+				
+				all.add( transcript );
+				
+				GFFEntry[] children = transcript.children.toArray( new GFFEntry[0] );
+				Arrays.sort( children, new GFFEntryComparator( transcript.strand == Strand.REVERSE ) );
+				
+				int k=children.length-1;
+				while(k>0 && children[k].parsedType == GFFType.stop_codon){
+					if(children[k-1].parsedType == GFFType.CDS){
+						if(transcript.strand == Strand.FORWARD && children[k].start == children[k-1].end+1){
+							children[k-1].end = children[k].end;
+							children[k] = null;
+						}else if(transcript.strand == Strand.REVERSE && children[k].end == children[k-1].start-1){
+							children[k-1].start = children[k].start;
+							children[k] = null;
+						}
+					}
+					if(children[k] != null){
+						children[k].parsedType = GFFType.CDS;
+						children[k].type = "CDS";
+					}
+					k--;
+				}
+				
+				for(int j=0;j<children.length;j++){
+					if(children[j] != null){
+						all.add( children[j] );
+					}
+				}
+				
+			}
+			/*GFFEntry[] transcriptAr = gene.children.toArray( new GFFEntry[0] );
+			Arrays.sort( transcriptAr, GFFEntryComparator.COMP );
+			for(int j=0;j<transcriptAr.length;j++){
+				GFFEntry transcript = transcriptAr[j];
+				all.add( transcript );
+				GFFEntry[] cdsAr = transcript.children.toArray( new GFFEntry[0] );
+				Arrays.sort( cdsAr, GFFEntryComparator.COMP );
+				for(int k=0;k<cdsAr.length;k++){
+					all.add( cdsAr[k] );
+				}
+			}*/
+		}
+		
+		return new GFFList( all );
+		
+		
+	}
+	
 	public static GFFList parseGTF(BufferedReader reader, DataSet data, String[] keys) throws IOException {
 		LinkedList<GFFEntry> list = new LinkedList<GFFParser.GFFEntry>();
 		String str = null;
@@ -120,7 +367,12 @@ public class GFFParser {
 					idx = parts[i].indexOf( ' ' );
 					sb.append( parts[i].substring( 0, idx ) );
 					sb.append( "=" );
-					sb.append( parts[i].substring( idx+1 ) );
+					String temp = parts[i].substring( idx+1 ).trim();
+					if((temp.startsWith( "\"" ) || temp.startsWith( "\'" ))
+							&& (temp.endsWith( "\"" ) || temp.endsWith("\'"))){
+						temp = temp.substring( 1, temp.length()-1 );
+					}
+					sb.append( temp );
 					if(i < parts.length-1){
 						sb.append( ";" );
 					}
@@ -228,6 +480,16 @@ public class GFFParser {
 
 		private static final GFFEntryComparator COMP = new GFFEntryComparator();
 		
+		private boolean reverse;
+		
+		public GFFEntryComparator(){
+			reverse = false;
+		}
+		
+		public GFFEntryComparator(boolean reverse){
+			this.reverse = reverse;
+		}
+		
 		@Override
 		public int compare( GFFEntry o1, GFFEntry o2 ) {
 			int i = o1.seqid.compareTo( o2.seqid );
@@ -235,9 +497,24 @@ public class GFFParser {
 				i = o1.start > o2.start ? 1 : (o1.start < o2.start ? -1 : 0);
 			}
 			if(i == 0){
-				i = o1.end > o2.end ? 1 : (o1.end < o2.end ? -1 : 0);
+				i = o1.end < o2.end ? 1 : (o1.end > o2.end ? -1 : 0);
 			}
-			return i;
+			if(i == 0){
+				if(o1.parsedType == null){
+					if(o2.parsedType == null){
+						i = 0;
+					}else{
+						i = -1;
+					}
+				}else{
+					if(o2.parsedType == null){
+						i = 1;
+					}else{
+						i = o1.parsedType.compareType( o2.parsedType );
+					}
+				}
+			}
+			return reverse ? -i : i;
 		}
 
 		
@@ -382,8 +659,14 @@ public class GFFParser {
 			return bySeq.get( seqId );
 		}
 		
-		public GFFList getSubList(de.jstacs.data.GFFParser.GFFEntry.GFFType type){
-			return byType.get( type );
+		public GFFList getSubList(de.jstacs.data.GFFParser.GFFEntry.GFFType... type){
+			if(type.length == 0){ return null; }
+			if(type.length == 1){ return byType.get( type[0] ); }
+			ArrayList<GFFEntry> all = byType.get( type[0] ).entries;
+			for(int i=1;i<type.length;i++){
+				all.addAll( byType.get( type[i] ).entries );
+			}
+			return new GFFList( all );
 		}
 		
 		public ArrayList<GFFEntry> getEntriesBetween(int start, int end){
@@ -473,13 +756,14 @@ public class GFFParser {
 				GFFEntry en = it.next();
 				String strand = en.getStrand() == Strand.UNKNOWN ? "." : (en.getStrand() == Strand.FORWARD ? "+" : "-");
 				String phase = en.getPhase() == -1 ? "." : en.getPhase()+"";
+				String score = Double.isNaN( en.getScore() ) ? "." : en.getScore()+"";
 				set.add( new ResultSet(new Result[]{
 				                                    new CategoricalResult( "SequenceID", "", en.getSeqid() ),
 				                                    new CategoricalResult( "Source", "", en.getSource() ),
 				                                    new CategoricalResult( "Type", "", en.getType() ),
 				                                    new NumericalResult( "Start", "", en.getStart() ),
 				                                    new NumericalResult( "End", "", en.getEnd() ),
-				                                    new NumericalResult( "Score", "", en.getScore() ),
+				                                    new CategoricalResult( "Score", "", score ),
 				                                    new CategoricalResult( "Strand", "", strand ),
 				                                    new CategoricalResult( "Phase", "", phase ),
 				                                    new CategoricalResult( "Attributes", "", en.getAttributeString(gff3) )
@@ -503,7 +787,12 @@ public class GFFParser {
 			five_prime_UTR,
 			CDS,
 			three_prime_UTR,
+			stop_codon,
 			other;
+			
+			public int compareType(GFFType t2){
+				return this.ordinal() < t2.ordinal() ? -1 : (this.ordinal() > t2.ordinal() ? 1 : 0);
+			}
 			
 			public static GFFType fromString(String text) {
 			    if (text != null) {
@@ -604,6 +893,14 @@ public class GFFParser {
 			parseAttributes( attributes );
 		}
 		
+		private void setID(String id){
+			this.id = id;
+			if(this.attributes == null){
+				this.attributes = new HashMap<String, String>();
+			}
+			this.attributes.put( "ID", id );
+		}
+		
 		private void setID() {
 			id = attributes.get( "ID" );
 		}
@@ -653,6 +950,24 @@ public class GFFParser {
 			parseAttributes( parts[8] );
 			
 			
+		}
+		
+		public void addChild(GFFEntry child){
+			if(children == null){
+				children = new LinkedList<GFFParser.GFFEntry>();
+			}
+			children.add( child );
+		}
+		
+		public void addParent(GFFEntry parent){
+			if(this.parent == null){
+				this.parent = new LinkedList<GFFParser.GFFEntry>();
+			}
+			this.parent.add( parent );
+			if(this.attributes == null){
+				this.attributes = new HashMap<String, String>();
+			}
+			this.attributes.put( "Parent", parent.id );
 		}
 		
 		private void parseAttributes(String attrs){
