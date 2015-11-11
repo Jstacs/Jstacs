@@ -27,11 +27,10 @@ public class TreeDrawer {
 	private int externalHeight;
 	private boolean hang;
 	private Coordinates coords;
-	private int gScale;
+	private static int gScale = 100;
 	private Graphics2D graphics;
 	
 	public TreeDrawer(int pwmHeight, int margin, int totalHeight, ClusterTree tree, Graphics2D graphics){
-		this.gScale = 100;
 		pwmHeight *= gScale;
 		margin *= gScale;
 		totalHeight *= gScale;
