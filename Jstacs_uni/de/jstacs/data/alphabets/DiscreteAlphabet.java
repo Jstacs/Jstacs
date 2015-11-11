@@ -218,9 +218,9 @@ public class DiscreteAlphabet extends Alphabet {
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo( Alphabet b ) {
-		if( !getClass().equals( b.getClass() ) ) {
-			return getClass().getName().compareTo( b.getClass().getName() );
-		} else {
+		//if( !getClass().equals( b.getClass() ) ) { /TODO FIXME problem with DNAAlphabet vs {A,C,G,T}
+//			return getClass().getName().compareTo( b.getClass().getName() );
+//		} else {
 			if( b == this ) {
 				return 0;
 			}
@@ -250,7 +250,7 @@ public class DiscreteAlphabet extends Alphabet {
 			} else {
 				return 0;
 			}
-		}
+//		}
 	}
 
 	/**
