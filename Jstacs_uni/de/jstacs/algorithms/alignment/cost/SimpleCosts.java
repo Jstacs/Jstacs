@@ -62,6 +62,11 @@ public class SimpleCosts implements Costs {
 		this.match = match;
 	}
 	
+	/**
+	 * Restores {@link SimpleCosts} object from its XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML could not be parsed
+	 */
 	public SimpleCosts( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, "SimpleCosts" );
 		gap = (Double)XMLParser.extractObjectForTags( xml, "gap" );

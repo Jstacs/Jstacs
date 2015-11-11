@@ -50,6 +50,11 @@ public class AffineCosts implements Costs {
 		this.start = start;
 	}
 	
+	/**
+	 * Restores {@link AffineCosts} object from its XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML could not be parsed
+	 */
 	public AffineCosts(StringBuffer xml) throws NonParsableException{
 		xml = XMLParser.extractForTag( xml, "AffineCosts" );
 		c = (Costs)XMLParser.extractObjectForTags( xml, "c" );
@@ -66,6 +71,10 @@ public class AffineCosts implements Costs {
 		return xml;
 	}
 	
+	/**
+	 * Returns the internal costs (supplied as <code>c</code> to {@link #AffineCosts(double, Costs)}) used for matches and mismatches.
+	 * @return the internal costs
+	 */
 	public Costs getInternalCosts(){
 		return c;
 	}
