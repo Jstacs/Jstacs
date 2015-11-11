@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -452,6 +453,10 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 			list.add( idxs );
 			off += idxs.length;
 		}
+	}
+
+	public TransitionElement[] getTransisionElements() throws CloneNotSupportedException {
+		return (TransitionElement[])ArrayHandler.cast( ArrayHandler.clone( transitions ) );
 	}
 	
 	
