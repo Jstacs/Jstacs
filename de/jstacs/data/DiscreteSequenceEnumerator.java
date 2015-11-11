@@ -80,7 +80,7 @@ public class DiscreteSequenceEnumerator implements RecyclableSequenceEnumerator 
 			for( i = 0; i <= stop[0]; i++ ) {
 				compl[i] = abc.getComplementaryCode( i );
 			}
-			System.out.println( Arrays.toString( compl ) );
+			//System.out.println( Arrays.toString( compl ) );
 		}
 		this.sparse = sparse;
 	}
