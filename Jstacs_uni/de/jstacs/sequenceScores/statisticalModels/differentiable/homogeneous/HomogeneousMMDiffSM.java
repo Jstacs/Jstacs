@@ -201,7 +201,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 						sumOfHyperParams[i] += hyperParams[i][j];
 					}
 					if (i > 0 && i < order
-							&& sumOfHyperParams[i] > sumOfHyperParams[i - 1]) {
+							&& sumOfHyperParams[i] > sumOfHyperParams[i - 1]) {//TODO Double precision!!!
 						throw new IllegalArgumentException(
 								"The ess for start probabilities of order "
 								+ i
@@ -949,7 +949,8 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 	 * 
 	 * @see DataSet
 	 */
-	public DataSet emit(int numberOfSequences, int... seqLength)
+	@Override
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength)
 			throws Exception {
 		Random r = new Random();
 		Sequence[] seqs = new Sequence[numberOfSequences];
