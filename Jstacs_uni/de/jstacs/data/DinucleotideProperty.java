@@ -25,6 +25,7 @@ import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.sequences.ArbitrarySequence;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.data.sequences.Sequence.SubSequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -387,6 +388,23 @@ public enum DinucleotideProperty {
 		
 		prop = smoothing.smooth( prop );
 		return prop;
+	}
+	
+	public double getProperty( Sequence seq, int start ) {
+		if(seq instanceof SubSequence){
+			start += ((SubSequence) seq).getStart();
+			seq = ((SubSequence) seq).getOriginal();
+		}
+		if(start == 0){
+			double mean = 0;
+			for(int i=0;i<dinucleotideParameters.length;i++){
+				mean += dinucleotideParameters[i][seq.discreteVal( start )];
+			}
+			mean /= dinucleotideParameters.length;
+			return mean;
+		}else{
+			return dinucleotideParameters[seq.discreteVal( start-1 )][seq.discreteVal( start )];
+		}
 	}
 	
 	/**
