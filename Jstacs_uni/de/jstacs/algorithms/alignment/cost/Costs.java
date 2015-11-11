@@ -17,6 +17,7 @@
  */
 package de.jstacs.algorithms.alignment.cost;
 
+import de.jstacs.Storable;
 import de.jstacs.data.sequences.Sequence;
 
 /**
@@ -24,7 +25,7 @@ import de.jstacs.data.sequences.Sequence;
  * 
  * @author Jan Grau
  */
-public interface Costs {
+public interface Costs extends Storable {
 	/**
 	 * Returns the costs for the alignment of <code>s1(i)</code> and
 	 * <code>s2(j)</code>.

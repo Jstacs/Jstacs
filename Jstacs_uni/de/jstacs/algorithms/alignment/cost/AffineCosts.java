@@ -18,6 +18,8 @@
 package de.jstacs.algorithms.alignment.cost;
 
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 
 
 /**
@@ -46,6 +48,26 @@ public class AffineCosts implements Costs {
 			throw new IllegalArgumentException( "Problem: start < 0 && -start > elong" );
 		}
 		this.start = start;
+	}
+	
+	public AffineCosts(StringBuffer xml) throws NonParsableException{
+		xml = XMLParser.extractForTag( xml, "AffineCosts" );
+		c = (Costs)XMLParser.extractObjectForTags( xml, "c" );
+		elong = (Double)XMLParser.extractObjectForTags( xml, "elong" );
+		start = (Double)XMLParser.extractObjectForTags( xml, "start" );
+	}
+	
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		XMLParser.appendObjectWithTags( xml, c, "c" );
+		XMLParser.appendObjectWithTags( xml, elong, "elong" );
+		XMLParser.appendObjectWithTags( xml, start, "start" );
+		XMLParser.addTags( xml, "AffineCosts" );
+		return xml;
+	}
+	
+	public Costs getInternalCosts(){
+		return c;
 	}
 	
 	/**

@@ -18,6 +18,8 @@
 package de.jstacs.algorithms.alignment.cost;
 
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 
 /**
  * Class for simple costs with costs 
@@ -58,6 +60,23 @@ public class SimpleCosts implements Costs {
 			throw new IllegalArgumentException( "Problem: match > 0" );
 		}
 		this.match = match;
+	}
+	
+	public SimpleCosts( StringBuffer xml ) throws NonParsableException {
+		xml = XMLParser.extractForTag( xml, "SimpleCosts" );
+		gap = (Double)XMLParser.extractObjectForTags( xml, "gap" );
+		match = (Double)XMLParser.extractObjectForTags( xml, "match" );
+		mismatch = (Double)XMLParser.extractObjectForTags( xml, "mismatch" );
+		
+	}
+
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		XMLParser.appendObjectWithTags( xml, gap, "gap" );
+		XMLParser.appendObjectWithTags( xml, match, "match" );
+		XMLParser.appendObjectWithTags( xml, mismatch, "mismatch" );
+		XMLParser.addTags( xml, "SimpleCosts" );
+		return xml;
 	}
 	
 	public double getCostFor( Sequence s1, Sequence s2, int i, int j ) {
