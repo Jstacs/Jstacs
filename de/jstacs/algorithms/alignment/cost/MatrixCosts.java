@@ -50,6 +50,11 @@ public class MatrixCosts implements Costs {
 		this.gap = gap;
 	}
 	
+	/**
+	 * Restores {@link MatrixCosts} object from its XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML could not be parsed
+	 */
 	public MatrixCosts( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, "MatrixCosts" );
 		matrix = (double[][])XMLParser.extractObjectForTags( xml, "matrix" );
