@@ -19,6 +19,8 @@ package de.jstacs.algorithms.alignment.cost;
 
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 
 /**
  * Class for matrix costs, i.e., the cost of any match/mismatch is stored in
@@ -46,6 +48,20 @@ public class MatrixCosts implements Costs {
 	public MatrixCosts( double[][] matrix, double gap ) throws CloneNotSupportedException {
 		this.matrix = ArrayHandler.clone( matrix );
 		this.gap = gap;
+	}
+	
+	public MatrixCosts( StringBuffer xml ) throws NonParsableException {
+		xml = XMLParser.extractForTag( xml, "MatrixCosts" );
+		matrix = (double[][])XMLParser.extractObjectForTags( xml, "matrix" );
+		gap = (Double)XMLParser.extractObjectForTags( xml, "gap" );
+	}
+
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		XMLParser.appendObjectWithTags( xml, matrix, "matrix" );
+		XMLParser.appendObjectWithTags( xml, gap, "gap" );
+		XMLParser.addTags( xml, "MatrixCosts" );
+		return xml;
 	}
 	
 	public double getCostFor( Sequence s1, Sequence s2, int i, int j ) {
