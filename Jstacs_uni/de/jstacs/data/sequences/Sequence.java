@@ -1245,7 +1245,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	protected static class SubSequence<T> extends RecursiveSequence<T> {
+	public static class SubSequence<T> extends RecursiveSequence<T> {
 
 		private static final long serialVersionUID = 1L;
 
