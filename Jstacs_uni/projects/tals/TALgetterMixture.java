@@ -21,6 +21,8 @@ import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.io.NonParsableException;
@@ -38,12 +40,12 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  */
 public class TALgetterMixture extends AbstractDifferentiableStatisticalModel{
 	
-	private double ess; 
+	private double ess;
 	private boolean isInitialized=false;
 	private double[] params;
 	private double[] probs;
-	private double HyperParams[];
-	private double HyperSum[];
+	private double[] HyperParams;
+	private double[] HyperSum;
 	private int p_anz;
 	private boolean p_gesamte_seq;
 	
@@ -301,6 +303,45 @@ public class TALgetterMixture extends AbstractDifferentiableStatisticalModel{
 			sb.append( alphabets.getSymbol( 0, i )+"\t"+nf.format(probs[i])+"\n" );
 		}
 		return sb.toString();
+	}
+
+
+
+	public void addAndSet( AlphabetContainer con, String[] rvds ) throws WrongAlphabetException {
+		DiscreteAlphabet alph = (DiscreteAlphabet)con.getAlphabetAt( 0 );
+		double[] nProbs = new double[(int)alph.length()+1];
+		double[] nParams = new double[(int)alph.length()+1];
+		Arrays.fill( nProbs, 1.0 );
+		Arrays.fill( nParams, Double.POSITIVE_INFINITY );
+		System.arraycopy( probs, 0, nProbs, 0, probs.length-1 );
+		nProbs[nProbs.length-1] = probs[probs.length-1];
+		System.arraycopy( params, 0, nParams, 0, params.length-1 );
+		nParams[nParams.length-1] = params[params.length-1];
+		
+		double[] HyperParams=new double[(int)con.getAlphabetLengthAt(0)+1];
+		double[] HyperSum=new double[(int)con.getAlphabetLengthAt(0)+1];
+
+		Arrays.fill( HyperParams, 1.0 );
+		Arrays.fill(HyperSum, 1.0);
+		for(int i=0;i<this.HyperParams.length-1;i++){
+			HyperParams[i] = this.HyperParams[i];
+			HyperSum[i] = this.HyperSum[i];
+		}
+		HyperParams[HyperParams.length-1] = this.HyperParams[this.HyperParams.length-1];
+		HyperSum[HyperSum.length-1]= this.HyperSum[this.HyperSum.length-1];
+		
+		for(int i=0;i<rvds.length;i++){
+			int idx = alph.getCode( rvds[i] );
+			nProbs[idx] = 1.0;
+			nParams[idx] = Double.POSITIVE_INFINITY;
+		}
+		
+		this.params = nParams;
+		this.probs = nProbs;
+		this.HyperParams = HyperParams;
+		this.HyperSum = HyperSum;
+		
+		this.alphabets = con;
 	}
 	
 	
