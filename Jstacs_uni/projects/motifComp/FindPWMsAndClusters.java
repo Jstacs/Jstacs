@@ -33,6 +33,7 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.ResultSetResult;
 import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.PFMWrapperTrainSM;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
