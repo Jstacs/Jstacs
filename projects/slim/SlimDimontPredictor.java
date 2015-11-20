@@ -26,7 +26,6 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.SeqLogoPlotter2;
 import de.jstacs.utils.ToolBox;
 
 
@@ -155,7 +154,7 @@ public class SlimDimontPredictor {
 				int height = SeqLogoPlotter.getHeight( 750, pwm );
 				result.add(new ImageResult( "Motif", "Sequence logo of the motif", SeqLogoPlotter.plotLogoToBufferedImage( height, pwm ) ));
 				result.add(new ImageResult( "Motif (rc)", "Sequence logo of the reverse complement of the motif", SeqLogoPlotter.plotLogoToBufferedImage( height, PFMComparator.getReverseComplement( DNAAlphabet.SINGLETON, pwm ) ) ));
-				result.add( new ImageResult( "Dependency logo", "Dependency logo of the motif", SeqLogoPlotter2.plotDefaultDependencyLogoToBufferedImage( new DataSet("",bs), bsWeights.toArray(), 600 ) ) );
+				result.add( new ImageResult( "Dependency logo", "Dependency logo of the motif", SeqLogoPlotter.plotDefaultDependencyLogoToBufferedImage( new DataSet("",bs), bsWeights.toArray(), 600 ) ) );
 			}catch(Exception e){
 				
 			}catch(InternalError er){

@@ -46,7 +46,7 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandD
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.SeqLogoPlotter2;
+import de.jstacs.utils.SeqLogoPlotter;
 import de.jstacs.utils.galaxy.GalaxyAdaptor;
 import projects.dimont.Interpolation;
 import projects.dimont.ThresholdedStrandChIPper;
@@ -203,7 +203,7 @@ public class LearnDependencyModelWeb {
 		result.add( lr );
 		
 		
-		result.add( new ImageResult( "Dependency logo", "Dependency logo of sequences", SeqLogoPlotter2.plotDefaultDependencyLogoToBufferedImage( new DataSet("",bs), bsWeights.toArray(), 600 ) ) );
+		result.add( new ImageResult( "Dependency logo", "Dependency logo of sequences", SeqLogoPlotter.plotDefaultDependencyLogoToBufferedImage( new DataSet("",bs), bsWeights.toArray(), 600 ) ) );
 
 		
 		StrandDiffSM sd = (StrandDiffSM)cl.getDifferentiableSequenceScore( 0 );

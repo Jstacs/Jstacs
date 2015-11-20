@@ -76,7 +76,6 @@ import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.SeqLogoPlotter2;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.ToolBox.TiedRanks;
 //import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.MarkovModelDiffSM;
@@ -480,7 +479,7 @@ public class SlimDimont {
 						int height = SeqLogoPlotter.getHeight( 750, pwm );
 						result.add(new ImageResult( "Motif "+(n+1), "Sequence logo of motif "+(n+1), SeqLogoPlotter.plotLogoToBufferedImage( height, pwm ) ));
 						result.add(new ImageResult( "Motif "+(n+1)+" (rc)", "Sequence logo of the reverse complement of motif "+(n+1), SeqLogoPlotter.plotLogoToBufferedImage( height, PFMComparator.getReverseComplement( DNAAlphabet.SINGLETON, pwm ) ) ));
-						result.add( new ImageResult( "Dependency logo "+(n+1), "Dependency logo of motif "+(n+1), SeqLogoPlotter2.plotDefaultDependencyLogoToBufferedImage( new DataSet("",bs), bsWeights.toArray(), 600 ) ) );
+						result.add( new ImageResult( "Dependency logo "+(n+1), "Dependency logo of motif "+(n+1), SeqLogoPlotter.plotDefaultDependencyLogoToBufferedImage( new DataSet("",bs), bsWeights.toArray(), 600 ) ) );
 					}catch(Exception e){
 						e.printStackTrace();
 					}
