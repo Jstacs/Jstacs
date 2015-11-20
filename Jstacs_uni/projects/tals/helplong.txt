@@ -1,0 +1,57 @@
+**TALgetterLong** allows you to scan input sequences for target sites of a given TAL (transcription activator like) 
+effector as typically expressed by many *Xanthomonas* bacteria.
+
+In contrast to standard TALgetter, TALgetterLong is specifically designed to handle large input data sets. This feature comes at the expense that TALgetterLong does not
+compute empirical p-values for its predictions, and that you cannot define positional offsets on the input sequences.
+
+If your analyses do not depend on large input data (50 Mb and above), we recommend to use standard TALgetter. 
+
+Input sequences must be supplied in FastA format, either as a file uploaded by the "Upload File" task in section "Get Data" of Galaxy or directly 
+pasted into the supplied input field.
+
+For convenience, we provide promoter sequences of rice in a data library.  These data are based on the work of the "MSU Rice Genome Annotation Project".
+To use these data for your computations, you need to import them to your History. 
+To do so, select "Data Libraries" from the menu item "Shared Data" on top of this page, select the library "Promoter sequences", 
+put a checkmark on your desired data, make shure that "Import to current history" is selected from the drop-down box beneath, and click the button "Go".
+Using the menu item "Analyze data", you get back to the start page of TALgetter.
+Now you find this data set in your own history, and can select it at input of TALgetter.
+
+The sequence of the RVDs of the TAL effector must be given in one-letter AS code, where "``*``" indicates a deletion in the AS sequence of the repeat. 
+Indiviual RVDs must be separated by minus signs. For instance, the sequence of the TAL effector Talc would be given as ``NS-NG-NS-HD-NI-NG-NN-NG-HD-NI-NN-N*-NI-NN-HD-NG-NI-NN-N*-HD-NN-NG``.
+
+Optionally, you can also train the TALgetter model on your own training data, i.e., pairs of TAL effector RVD-sequences and target sites.
+To this end, you set the parameter "Model training" to "Train model on training data" and provide your own training data in annotated FastA format.
+The annotation contains the RVD-sequence of the TAL effector (after key "seq") and, optionally, a weight (after key "weight") that may reflect, for instance, 
+your confidence in the target site or the strength of activation in some assay. The target site sequence must always contain the nucleotide at position "0", which most probably is a "T".
+In this annotated FastA format, an example data set containing two pairs of TAL effector and target site could look like ::
+
+	>seq:NI-NG-NN-HD-NN-NG-NN-NG; weight:0.0476190476190476
+	TATGCGTGT
+	>seq:NG-NN-NG-NI-NG-NI-NG-NI-NI-HD-NG-NG-NG
+	TTGTATATAACTTT
+
+As a starting point, you can download_ the training data that have been used to train the default models.
+
+After training, your model is available as a separate Galaxy result in your history. 
+You can re-use this model in subsequent runs of TALgetter if you select "Use previously trained model" for the option "Model training" and select the corresponding history item from the list.
+
+TALgetter produces three outputs. The first is listed with the name of the job in the current history and presents a list of predictions in HTML format. 
+This output is meant for displaying results in the browser. The names of the other two outputs have numbers in parentheses appended [e.g., (1) and (2), respectively]. 
+These contain the list of predictions including all columns of the HTML output as a plain text file and the predicted target sites in FastA format.
+
+TALgetter uses a *local mixture model*, which assumes that the nucleotide at each position of a putative target site may either be determined by the binding specificity
+of the RVD at that position (if an interaction between RVD and nucleotide occurs at that position) or by the genomic context (if no interaction occurs). Binding specificities and importance of the individual RVDs has
+been trained on known TAL effector - target site pairs. Nucleotide preferences of the genomic context are learned from promoter sequences of *A. thaliana* and *O. sativa*.
+
+You can also install this web-application within your local Galaxy server. Instructions can be found at the TALgetter_ page of Jstacs. 
+There you can also download a command line version of TALgetter.
+
+If you use TALgetterLong, please cite
+
+J. Grau, A. Wolf, M. Reschke, U. Bonas, S. Posch, and J. Boch. Computational predictions provide insights into the biology of TAL effector target sites. *PLOS Computational Biology*, 2013.
+
+If you experience problems using TALgetter, please contact_ us.
+
+.. _download: http://jstacs.de/downloads/TALgetterTrainingData.fa
+.. _TALgetter: http://jstacs.de/index.php/TALgetter
+.. _contact: mailto:grau@informatik.uni-halle.de
