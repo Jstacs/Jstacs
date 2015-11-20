@@ -32,7 +32,7 @@ public class DimontPredictorWeb {
 		GalaxyAdaptor ga = new GalaxyAdaptor( params,lines,"DimontPredictor", "for predicting binding sites using a Dimont model", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontPredictorWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( DimontWeb.class.getClassLoader().getResourceAsStream( "projects/dimont/helpPredictor.txt" ) ).toString() );
 		
-		if(!ga.parse( args )){
+		if(!ga.parse( args, false )){
 			System.exit( 1 );
 		}	
 		
