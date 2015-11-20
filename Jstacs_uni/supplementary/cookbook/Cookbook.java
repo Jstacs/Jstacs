@@ -275,9 +275,9 @@ public class Cookbook {
 				db.getRichSequence( "NC_000932" ) 
 		);
 		
-		DataSet fromBioJava = BioJavaAdapter.sequenceIteratorToDataSet( dbIterator, null );
+		DataSet fromBioJava = BioJavaAdapter.sequenceIteratorToDataSet( dbIterator, null, null );
 		
-		SequenceIterator backFromJstacs = BioJavaAdapter.dataSetToSequenceIterator( fromBioJava, true );
+		SequenceIterator backFromJstacs = BioJavaAdapter.dataSetToSequenceIterator( fromBioJava, true, false );
 		
 	}
 	
@@ -597,12 +597,12 @@ public class Cookbook {
 		
 		Sequence seq1=Sequence.create( DNAAlphabetContainer.SINGLETON, "ACGTACGTAGCTGATCG" ), seq2=Sequence.create( DNAAlphabetContainer.SINGLETON, "TATCGATCGATGCGTAGCT" );
 		//create alignment of two string
-		Alignment align = new Alignment( AlignmentType.GLOBAL, costs );
-		System.out.println( align.getAlignment( seq1, seq2 ) );
+		Alignment align = new Alignment( costs );
+		System.out.println( align.getAlignment( AlignmentType.GLOBAL, seq1, seq2 ) );
 		
 		costs = new AffineCosts( 1, costs );
-		align = new Alignment( AlignmentType.GLOBAL, costs );
-		System.out.println( align.getAlignment( seq1, seq2 ) );
+		align = new Alignment( costs );
+		System.out.println( align.getAlignment( AlignmentType.GLOBAL, seq1, seq2 ) );
 	}
 	
 	public static void utils() throws Exception{
