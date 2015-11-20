@@ -5,24 +5,31 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.zip.DataFormatException;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import javax.xml.bind.DatatypeConverter;
 
 
+/**
+ * Class for compressing and de-compressing {@link String}s
+ * using ZIP.
+ * @author Jan Grau
+ *
+ */
 public class Compression {
 
-	static{
-		com.sun.org.apache.xml.internal.security.Init.init();
-	}
-	
-	public static String unzip( String zipped ) throws DataFormatException, IOException, Base64DecodingException{
+	/**
+	 * De-compressed the original {@link String} from the supplied (Base64) compressed {@link String}.
+	 * @param zipped the zipped {@link String}
+	 * @return the de-compressed {@link String}
+	 * @throws IOException if the {@link String} could not be de-compressed
+	 */
+	public static String unzip( String zipped ) throws IOException {
 		
-		InputStream in = new InflaterInputStream(new ByteArrayInputStream(Base64.decode(zipped)));
+		
+		//InputStream in = new InflaterInputStream(new ByteArrayInputStream(Base64.decode(zipped)));
+		InputStream in = new InflaterInputStream(new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(zipped)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
             int len;
@@ -33,27 +40,20 @@ public class Compression {
 		
 	}
 	
+	/**
+	 * Compresses the supplied original {@link String}.
+	 * @param original the original {@link String}
+	 * @return the compressed and Base64 encoded {@link String}
+	 * @throws IOException if the {@link String} could not be compressed
+	 */
 	public static String zip( String original ) throws IOException{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStream out = new DeflaterOutputStream(baos);
         out.write(original.getBytes("UTF-8"));
         out.close();
         
-		return Base64.encode(baos.toByteArray());
-		
-	}
-	
-	
-	public static void main(String[] args) throws Exception {
-		String text = "Hallo Welt! <tag> </tag>";
-		
-		String zipped = zip(text);
-		
-		System.out.println(zipped);
-		
-		String original = unzip( zipped );
-		
-		System.out.println(original);
+		//return Base64.encode(baos.toByteArray());
+        return DatatypeConverter.printBase64Binary(baos.toByteArray());
 		
 	}
 	

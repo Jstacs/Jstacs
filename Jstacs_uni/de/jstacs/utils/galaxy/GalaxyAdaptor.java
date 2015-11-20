@@ -32,6 +32,8 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import org.apache.batik.extension.svg.BatikFlowTextElementBridge.LineBreakInfo;
+
 import de.jstacs.DataType;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.data.DataSet;
@@ -106,7 +108,10 @@ public class GalaxyAdaptor {
 	
 	private int threads;
 	
-	
+	/**
+	 * Returns the number of threads given by the Galaxy configuration
+	 * @return the number of threads
+	 */
 	public int getThreads() {
 		return threads;
 	}
@@ -219,6 +224,7 @@ public class GalaxyAdaptor {
 	/**
 	 * Creates the contents of a Galaxy configuration file from all the information
 	 * provided to this {@link GalaxyAdaptor}.
+	 * @param configureThreads if the configuration should include the number of threads
 	 * @return the configuration
 	 * @throws Exception if any of the parameters could not be converted
 	 */
@@ -721,6 +727,7 @@ public class GalaxyAdaptor {
 	 * Otherwise the first argument must be &quot;--run&quot; to parse the parameters of a program
 	 * run within Galaxy.
 	 * @param args the arguments
+	 * @param configureThreads if the configuration should include the number of threads
 	 * @return <code>true</code> if this execution should be a program run (as opposed to writing a configuration file)
 	 * @throws Exception if the arguments could not be parsed or the Galaxy configuration file could not be created
 	 */
@@ -794,14 +801,33 @@ public class GalaxyAdaptor {
 		return new StringBuffer( str.toString().replaceAll( "<", "&lt;" ).replaceAll( ">", "&gt;" ));
 	}
 	
+	/**
+	 * Superclass for all {@link Result} that may be saved line by line.
+	 * @author Jan Grau
+	 *
+	 */
 	public static abstract class LineBasedResult extends Result{
 
+		/**
+		 * Creates a new {@link LineBasedResult} with given name, comment, and data type.
+		 * @param name the name
+		 * @param comment the comment
+		 * @param datatype the data type
+		 */
 		protected LineBasedResult( String name, String comment, DataType datatype ) {
 			super( name, comment, datatype );
 		}
 		
+		/**
+		 * Resets the line counter to the beginning
+		 */
 		public abstract void reset();
 		
+		/**
+		 * Returns the next line of the result
+		 * @param forExport if this line is acquired for export
+		 * @return the line as {@link String}
+		 */
 		public abstract String getNextLine(boolean forExport);
 		
 		
@@ -918,8 +944,19 @@ public class GalaxyAdaptor {
 		
 	}*/
 	
+	/**
+	 * Class for a result that is basically a {@link CategoricalResult}, 
+	 * but has its own name for checking purposes.
+	 * @author dev
+	 *
+	 */
 	public static class HeadResult extends CategoricalResult{
 
+		/**
+		 * Creates a new head result with given name and comment
+		 * @param name the name
+		 * @param comment the comment
+		 */
 		public HeadResult(String name, String comment) {
 			super(name, comment, "");
 		}
@@ -1090,7 +1127,7 @@ public class GalaxyAdaptor {
 		private PrintWriter wr;
 		
 		/**
-		 * @param out
+		 * Creates a new Protocol
 		 */
 		public Protocol( ) {
 			baos = new ByteArrayOutputStream();

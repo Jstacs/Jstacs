@@ -19,12 +19,19 @@ import org.apache.fop.svg.PDFTranscoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
+/**
+ * {@link GraphicsAdaptor} for the PDF format.
+ * @author Jan Grau
+ *
+ */
 public class PDFAdaptor extends SVGAdaptor {
 
 	private int width;
 	private int height;
 	
+	/**
+	 * Creates a new adaptor for plotting to a PDF device.
+	 */
 	public PDFAdaptor(){
 		super();
 	}

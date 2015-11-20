@@ -9,19 +9,31 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-
+/**
+ * {@link GraphicsAdaptor} for rasterized formats, namely PNG or JPEG.
+ * @author Jan Grau
+ *
+ */
 public class RasterizedAdaptor extends GraphicsAdaptor {
 
 	private BufferedImage img;
+	/**
+	 * The graphics object used for plotting
+	 */
 	protected Graphics2D graphics;
 	private String type;
 	
+	/**
+	 * Creates a new {@link RasterizedAdaptor} for different formats.
+	 * Currently, PNG and JPEG are supported
+	 * @param type "png" or "jpg"
+	 */
 	public RasterizedAdaptor(String type){
 		this.type = type;
 	}
 	
 	@Override
-	public Graphics2D getGraphics( int width, int height ) throws IOException {
+	public Graphics2D getGraphics( int width, int height ) {
 		img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB);
 		graphics = (Graphics2D)img.getGraphics();
 		
@@ -43,6 +55,10 @@ public class RasterizedAdaptor extends GraphicsAdaptor {
 		return type;
 	}
 	
+	/**
+	 * Returns the internal image as a {@link BufferedImage}
+	 * @return the image
+	 */
 	public BufferedImage getImage(){
 		return img;
 	}

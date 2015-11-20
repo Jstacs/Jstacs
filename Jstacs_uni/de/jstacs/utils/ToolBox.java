@@ -686,11 +686,24 @@ public class ToolBox {
 		return sb.toString();
 	}
 	
-	
+	/**
+	 * Creates and returns a permutation of the values in <code>values</code>.
+	 * @param values the values
+	 * @return the permutation
+	 */
 	public static double[] permute(double[] values){
 		return permute(values,null);
 	}
 	
+	/**
+	 * Creates a new permutation of the values in <code>values</code>. If the array supplied as
+	 * <code>permutation</code> has the same dimension as <code>values</code> and is not <code>null</code>,
+	 * the values are returned in this array (and, additionally, as return value), which may save memory
+	 * in multiple successive calls to this method.
+	 * @param values the values
+	 * @param permutation the permutation (may be <code>null</code>)
+	 * @return the permutation
+	 */
 	public static double[] permute(double[] values, double[] permutation){
 		Random r = new Random();
 		if(permutation == null || permutation.length != values.length){
@@ -710,6 +723,11 @@ public class ToolBox {
 		return permutation;
 	}
 
+	/**
+	 * Counts the number of <code>true</code> values in <code>bools</code> (similar to sum on booleans in R).
+	 * @param bools the boolean values
+	 * @return the number of <code>true</code>s
+	 */
 	public static int sum( boolean[] bools ) {
 		int num = 0;
 		for(int i=0;i<bools.length;i++){
