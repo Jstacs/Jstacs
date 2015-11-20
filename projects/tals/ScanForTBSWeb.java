@@ -106,10 +106,10 @@ public class ScanForTBSWeb {
 		
 		SimpleParameterSet ps = new SimpleParameterSet( params.getAllParameters() );
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( ps, line,"TALgetter", "TALgetter (<i>TAL</i> effector tar<i>get</i> si<i>t</i>e find<i>er</i>) is a tool for predicting target sites given the RVD sequence of a TAL effector.", "1.0", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"TALgetterWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( ps, line,"TALgetter", "TALgetter (TAL effector target site finder) is a tool for predicting target sites given the RVD sequence of a TAL effector.", "1.0", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"TALgetterWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( ScanForTBSWeb.class.getClassLoader().getResourceAsStream( "projects/tals/help.txt" ) ).toString() );
 		
-		if(!ga.parse( args )){
+		if(!ga.parse( args, false )){
 			System.exit( 1 );
 		}	
 		
