@@ -12,11 +12,14 @@ import de.jstacs.data.sequences.CyclicSequenceAdaptor;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 
-
+/**
+ * Class for creating De Bruin sequences using explicit De Bruijn graphs.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class DeBruijnGraphSequenceGenerator {
 
-	
-	
 	private static class Node{
 
 		private String label;
@@ -95,12 +98,30 @@ public class DeBruijnGraphSequenceGenerator {
 
 
 
-	public static CyclicSequenceAdaptor[] generate(DiscreteAlphabet alphabet, int n) throws WrongAlphabetException, WrongSequenceTypeException, OperationNotSupportedException{
+	/**
+	 * Generates a De Bruijn sequence of length {@latex.inline $|A|^n$}, where A denotes the alphabet.
+	 * @param alphabet the alphabet
+	 * @param n the exponent of length length, corresponds to the length of n-mers covered exactly once
+	 * @return the sequence (wrapped in an array)
+	 * @throws WrongAlphabetException if the alphabet is 
+	 * @throws WrongSequenceTypeException
+	 */
+	public static CyclicSequenceAdaptor[] generate(DiscreteAlphabet alphabet, int n) throws WrongAlphabetException, WrongSequenceTypeException {
 
 		return new CyclicSequenceAdaptor[]{generate(alphabet, n, 0)};
 	}
 
-	public static CyclicSequenceAdaptor generate(DiscreteAlphabet alphabet, int n, int alphabetShift) throws WrongAlphabetException, WrongSequenceTypeException{
+	/**
+	 * Generates a De Bruijn sequence using the supplied alphabet and the given alphabet shift, i.e., for a cyclic shift of the symbols 
+	 * of the alphabet.
+	 * @param alphabet the alphabet
+	 * @param n the length of the covered n-mers
+	 * @param alphabetShift the alphabet shift (0 equals no shift)
+	 * @return the De Bruijn sequence
+	 * @throws WrongAlphabetException 
+	 * @throws IllegalArgumentException 
+	 */
+	public static CyclicSequenceAdaptor generate(DiscreteAlphabet alphabet, int n, int alphabetShift) throws IllegalArgumentException, WrongAlphabetException {
 
 		Random r = new Random(117);
 		

@@ -1550,6 +1550,15 @@ public class DataSet implements Iterable<Sequence>{
 		return subSampling( number, null ).getFirstElement();
 	}
 	
+	/**
+	 * Sub-samples sequences and corresponding weights from this {@link DataSet}.
+	 * If weights are supplied, sequences are sampled until the sum of their weights exceeds the
+	 * given number. Otherwise, <code>number</code> sequences are sampled.
+	 * @param number the number (or total weight) of sampled sequences
+	 * @param weights the weights for the sequences, in the same order as sequences in this {@link DataSet}
+	 * @return a pair of a data set and associated weights, weights are <code>null</code> if the supplied weights also have been <code>null</code>
+	 * @throws EmptyDataSetException if the number has been too small to sample a single sequence
+	 */
 	public Pair<DataSet, double[]> subSampling( double number, double[] weights ) throws EmptyDataSetException {
 		if( number <= 0 ) {
 			throw new EmptyDataSetException();

@@ -123,9 +123,12 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 * @throws ClassNotFoundException
 		 *             if one of the classes is present in the file system or
 		 *             jar but cannot be loaded by the class loader
+		 * @throws InstantiationException 
 		 * @throws IOException
 		 *             if the classes are searched for in a jar file, but that
 		 *             file could not be accessed or read
+		 * @throws URISyntaxException 
+		 * 
 		 */
 		public LinkedList<InstanceParameterSet> getInstanceParameterSets() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException, URISyntaxException  {
 			LinkedList<InstanceParameterSet> list = new LinkedList<InstanceParameterSet>();

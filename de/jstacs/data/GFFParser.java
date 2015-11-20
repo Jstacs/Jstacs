@@ -21,28 +21,12 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 
-
+/**
+ * Class for a rudimentary GFF parser.
+ * @author Jan Grau
+ *
+ */
 public class GFFParser {
-
-	public static void main(String[] args) throws Exception {
-		
-		BufferedReader read = new BufferedReader(new FileReader( args[0] ));
-		
-		//GFFList list = GFFParser.parseGTF( read, null, null );
-		
-		//list = getCDSandAddParents( list, "transcript_id", "gene_id", "T", "G" );
-		
-		GFFList list = GFFParser.parseEnsembl( read );
-		
-		ListResult lr = list.toListResult( "GFF", "", true );
-		
-		PrintWriter wr = new PrintWriter( args[0]+".ggf3" );
-		
-		wr.println(lr);
-		
-		wr.close();
-		
-	}
 	
 	public static GFFList parse(String filename) throws IOException{
 		int idx = filename.lastIndexOf( '.' );
