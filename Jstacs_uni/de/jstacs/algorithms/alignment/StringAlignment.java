@@ -37,6 +37,11 @@ public class StringAlignment implements Comparable<StringAlignment>, Storable{
 	private double cost;
 	private Result res;
 
+	/**
+	 * Restores {@link StringAlignment} object from its XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML could not be parsed
+	 */
 	public StringAlignment(StringBuffer xml) throws NonParsableException{
 		fromXML( xml );
 	}
@@ -200,6 +205,11 @@ public class StringAlignment implements Comparable<StringAlignment>, Storable{
 		}
 	}
 
+	/**
+	 * Parses the XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if XML could not be parsed
+	 */
 	protected void fromXML(StringBuffer xml) throws NonParsableException{
 		xml = XMLParser.extractForTag( xml, "StringAlignment" );
 		
