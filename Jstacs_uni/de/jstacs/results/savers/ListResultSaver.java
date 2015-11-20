@@ -7,9 +7,18 @@ import java.io.StringWriter;
 
 import de.jstacs.results.ListResult;
 
-
+/**
+ * {@link ResultSaver} for {@link ListResult}s.
+ * Contents are saved to a text file or {@link StringBuffer} using the {@link ListResult#print(PrintWriter)} method.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class ListResultSaver implements ResultSaver<ListResult> {
 
+	/**
+	 * Registers this {@link ResultSaver} in the {@link ResultSaverLibrary}
+	 */
 	public static void register(){
 		ResultSaverLibrary.register( ListResult.class, new ListResultSaver() );
 	}

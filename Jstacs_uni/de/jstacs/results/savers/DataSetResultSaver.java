@@ -5,12 +5,23 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.results.DataSetResult;
 
 
+/**
+ * Class for a {@link ResultSaver} working on {@link DataSetResult}.
+ * The result's contents are saved using the {@link DataSet#save(java.io.OutputStream, char, de.jstacs.data.sequences.annotation.SequenceAnnotationParser)} method in FastA format.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class DataSetResultSaver implements ResultSaver<DataSetResult> {
 
+	/**
+	 * Registers this {@link ResultSaver} in the {@link ResultSaverLibrary}
+	 */
 	public static void register(){
 		ResultSaverLibrary.register( DataSetResult.class, new DataSetResultSaver() );
 	}

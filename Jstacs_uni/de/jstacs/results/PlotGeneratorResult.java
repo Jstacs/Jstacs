@@ -1,16 +1,34 @@
 package de.jstacs.results;
 
+import java.awt.Graphics2D;
+
 import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.utils.graphics.GraphicsAdaptor;
 
-
+/**
+ * Class for a {@link Result} that may be used to generate plots for different output formats using
+ * {@link GraphicsAdaptor} sub-classes. Graphics are generated on demand.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class PlotGeneratorResult extends Result {
 
+	/**
+	 * Interface for a class that may generate a plot using the specified {@link GraphicsAdaptor}.
+	 * @author Jan Grau
+	 *
+	 */
 	public static interface PlotGenerator extends Storable{
 		
+		/**
+		 * Generates the plot using the {@link Graphics2D} device of the supplied {@link GraphicsAdaptor}.
+		 * @param ga the graphics adaptor
+		 * @throws Exception if the plot could not be generated
+		 */
 		public void generatePlot(GraphicsAdaptor ga) throws Exception;
 		
 	}
@@ -19,12 +37,24 @@ public class PlotGeneratorResult extends Result {
 	private PlotGenerator gen;
 	private boolean isStatic;
 	
+	/**
+	 * Creates a new {@link PlotGeneratorResult} with the given name, comment, {@link PlotGenerator}.
+	 * @param name the name of the result
+	 * @param comment a comment on the result
+	 * @param gen the object that may generate the plot
+	 * @param isStatic if <code>true</code>, the plot is considered static and may be cached.
+	 */
 	public PlotGeneratorResult( String name, String comment, PlotGenerator gen, boolean isStatic ) {
 		super( name, comment, DataType.IMAGE );
 		this.gen = gen;
 		this.isStatic = isStatic;
 	}
 
+	/**
+	 * Creates a new {@link PlotGeneratorResult} from its XML representation.
+	 * @param rep the XML representation
+	 * @throws NonParsableException if XML could not be parsed
+	 */
 	public PlotGeneratorResult( StringBuffer rep ) throws NonParsableException {
 		super( rep );
 	}
@@ -51,7 +81,10 @@ public class PlotGeneratorResult extends Result {
 		return gen;
 	}
 
-	
+	/**
+	 * Returns <code>true</code> if the plot is considered static and may be cached.
+	 * @return if the plot is considered static and may be cached.
+	 */
 	public boolean isStatic() {
 		return isStatic;
 	}

@@ -8,9 +8,20 @@ import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.results.TextResult;
 
-
+/**
+ * {@link ResultSaver} for a {@link TextResult}.
+ * The contents of the {@link TextResult} are saved to disk using the {@link FileRepresentation#getContent()} method.
+ * If the file defined by the contained {@link FileRepresentation} already exists, it is simply copied to the new location.
+ * 
+ * 
+ * @author Jan Grau
+ *
+ */
 public class TextResultSaver implements ResultSaver<TextResult> {
 
+	/**
+	 * Registers this {@link ResultSaver} in the {@link ResultSaverLibrary}
+	 */
 	public static void register(){
 		ResultSaverLibrary.register( TextResult.class, new TextResultSaver() );
 	}
