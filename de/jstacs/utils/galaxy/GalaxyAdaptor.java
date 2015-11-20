@@ -32,8 +32,6 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
-import org.apache.batik.extension.svg.BatikFlowTextElementBridge.LineBreakInfo;
-
 import de.jstacs.DataType;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier.DoubleTableResult;
 import de.jstacs.data.DataSet;
@@ -41,13 +39,8 @@ import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.parameters.GalaxyConvertible;
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
-import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.DataSetResult;
 import de.jstacs.results.ImageResult;
@@ -55,7 +48,6 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.SimpleResult;
 import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
@@ -68,7 +60,7 @@ import de.jstacs.results.savers.ResultSaverLibrary;
  * A {@link GalaxyAdaptor} can be created from a {@link ParameterSet} containing all parameters that are necessary for
  * the execution of some program that shall be included in a Galaxy installation.
  * 
- * The conversion is done by the method {@link GalaxyAdaptor#parse(String[])}. If this method is called with first argument equal to &quot;--create&quot;
+ * The conversion is done by the method {@link GalaxyAdaptor#parse(String[],boolean)}. If this method is called with first argument equal to &quot;--create&quot;
  * and second argument a filename, then the Galaxy-representation of the current {@link ParameterSet} is stored to that file. Afterwards, the application
  * and this file must be added to <code>tool_conf.xml</code> (see <a href="https://bitbucket.org/galaxy/galaxy-central/wiki/AddToolTutorial">Galaxy tutorial</a> for details).
  * 
