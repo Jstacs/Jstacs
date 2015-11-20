@@ -6,21 +6,48 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.utils.ToolBox;
 
-
+/**
+ * {@link PerformanceMeasure} using Pearson or Spearman correlation between prediction scores and
+ * weighted class labels. The weighted class labels may be logit-transformed before computing correlaton.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class CorrelationCoefficient extends AbstractNumericalTwoClassPerformanceMeasure {
 
+	/**
+	 * The type of correlation used.
+	 * @author Jan Grau
+	 *
+	 */
 	public enum Method{
+		/**
+		 * Spearman correlation
+		 */
 		SPEARMAN,
+		/**
+		 * Pearson correlation
+		 */
 		PEARSON;
 	}
 	
 	private Method method;
 	private boolean logit;
 	
+	/**
+	 * Creates a new {@link CorrelationCoefficient} using Spearman correlation and the raw
+	 * weighted labels.
+	 */
 	public CorrelationCoefficient(){
 		this(Method.SPEARMAN,false);
 	}
 	
+	/**
+	 * Creates a new {@link CorrelationCoefficient} using the suppled type of correlation
+	 * and, optionally, logit transformation of weighted labels.
+	 * @param method the type of correlation
+	 * @param logit if weights should be logit transformed.
+	 */
 	public CorrelationCoefficient(Method method, boolean logit) {
 		super();
 		this.method = method;
