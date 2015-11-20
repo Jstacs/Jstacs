@@ -11,7 +11,11 @@ import java.util.LinkedList;
 
 import de.jstacs.data.OboParser.GONode;
 
-
+/**
+ * Class for a rudimentary OBO (GO format) parser.
+ * @author Jan Grau
+ *
+ */
 public class OboParser {
 
 	private HashMap<String, GONode> map;

@@ -15,46 +15,36 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatistical
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModelFactory;
 import de.jstacs.utils.IntList;
 
-
+/**
+ * Generates De Buijn sequences using the algorithm from Frank Ruskey's Combinatorial Generation.
+ * @author Jan Grau
+ *
+ */
 public class DeBruijnSequenceGenerator {
 	
-	public static void main(String[] args) throws Exception {
+	/**
+	 * Generates a De Bruijn sequence of length {@latex.inline $|A|^n$}, where A denotes the alphabet.
+	 * @param alphabet the alphabet
+	 * @param n the exponent of length length, corresponds to the length of n-mers covered exactly once
+	 * @return the sequence (wrapped in an array)
+	 * @throws WrongAlphabetException if the alphabet is 
+	 * @throws WrongSequenceTypeException
+	 */
+	public static CyclicSequenceAdaptor[] generate(DiscreteAlphabet alphabet, int n) throws WrongAlphabetException, WrongSequenceTypeException {
 		
-		int k=6;
-		int m=3;
-		
-		CyclicSequenceAdaptor seq = generate( DNAAlphabet.SINGLETON, k, 0 );
-		System.out.println(seq);
-		HashMap<Sequence, Integer> map = new HashMap<Sequence, Integer>();
-		DataSet ds = new DataSet( new DataSet( "", seq.getSuperSequence( seq.getLength()+k-1 ) ), k );
-		for(int i=0;i<ds.getNumberOfElements();i++){
-			map.put( ds.getElementAt( i ), 1 );
-		}
-		
-		DiscreteSequenceEnumerator en = new DiscreteSequenceEnumerator( seq.getAlphabetContainer(), k, false );		
-		
-		while(en.hasMoreElements()){
-			Sequence temp = en.nextElement();
-			if(map.get( temp ) == null){
-				throw new Exception( temp.toString() );
-			}
-		}
-		System.out.println("all");
-		
-	}
-	
-	
-	
-	public static CyclicSequenceAdaptor[] generate(DiscreteAlphabet alphabet, int n) throws WrongAlphabetException, WrongSequenceTypeException, OperationNotSupportedException{
-		/*CyclicSequenceAdaptor[] seqs = new CyclicSequenceAdaptor[(int)alphabet.length()];
-		for(int i=0;i<seqs.length;i++){
-			seqs[i] = generate( DNAAlphabet.SINGLETON, n, i );
-		}
-		
-		return seqs;*/
 		return new CyclicSequenceAdaptor[]{generate(alphabet, n, 0)};
 	}
 	
+	/**
+	 * Generates a De Bruijn sequence using the supplied alphabet and the given alphabet shift, i.e., for a cyclic shift of the symbols 
+	 * of the alphabet.
+	 * @param alphabet the alphabet
+	 * @param n the length of the covered n-mers
+	 * @param alphabetShift the alphabet shift (0 equals no shift)
+	 * @return the De Bruijn sequence
+	 * @throws WrongAlphabetException 
+	 * @throws WrongSequenceTypeException 
+	 */
 	public static CyclicSequenceAdaptor generate(DiscreteAlphabet alphabet, int n, int alphabetShift) throws WrongAlphabetException, WrongSequenceTypeException{
 		int k = (int)alphabet.length();
 		if(alphabetShift >= k || alphabetShift < 0){
