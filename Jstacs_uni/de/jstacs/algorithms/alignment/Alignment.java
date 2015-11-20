@@ -116,7 +116,7 @@ public class Alignment {
 
 	/**
 	 * Computes and returns the alignment of <code>s1</code> and <code>s2</code>
-	 * ({@link #Alignment(AlignmentType, Costs)}).
+	 * ({@link #Alignment(Costs)}).
 	 * 
 	 * @param type the type of the alignment
 	 * @param s1 the first sequence 
@@ -130,7 +130,7 @@ public class Alignment {
 	
 	/**
 	 * Computes and returns the alignment of <code>s1</code> and <code>s2</code>
-	 * ({@link #Alignment(AlignmentType, Costs)}).
+	 * ({@link #Alignment(Costs)}).
 	 * 
 	 * @param type the type of the alignment
 	 * @param s1 the first sequence 
