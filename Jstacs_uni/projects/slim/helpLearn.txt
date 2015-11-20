@@ -1,0 +1,23 @@
+**LearnDependencyModel** learns a dependency model, i.e., a Markov model (of typically order 1 or 2), a Bayesian tree, a sparse local inhomogeneous mixture (Slim) model, or a limited Slim (LSlim) model from aligned input sequences and associated weights.
+
+Input data may be provided in an annotated FastA format (see below), or in a tabular format, where one column contains the sequence data and another column the associated weights.
+
+For instance, an annotated FastA file for comprising sequences of length 15 could look like::
+	
+	> signal: 515
+	ggccatgtgtatttt
+	> signal: 199
+	GGTCCCCTGGGAGGA
+	...
+
+The parameter "Model type" specifies the model that is learned from the data and lets the user choose from Markov models (which require to also specify the order of the model), Bayesian trees learned using explaining away residual (EAR) or mutual information (MI), Slim, and LSLim models (which require to specify the maximum distance between position that is considered for dependencies).
+
+Finally, the order of the background models needs to be specified. For genomic context PBM (gcPBM) data, a background order of 1 worked well, which may be different for other types of input data.
+
+The "Equivalent sample size" reflects the strength of the influence of the prior on the model parameters, where higher values smooth out the parameters to a greater extent.
+
+As results, LearnDependencyModel returns the input sequences in their predicted orientations and together with the associated scores returned by the model. In addition, it returns a "Slim Dimont classifier", which can be used for further predictions using the SlimDimontPredictor tool.
+
+If you experience problems using the LearnDependencyModel tool, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
