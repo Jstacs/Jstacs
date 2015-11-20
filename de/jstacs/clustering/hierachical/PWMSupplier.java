@@ -1,4 +1,4 @@
-package projects.motifComp;
+package de.jstacs.clustering.hierachical;
 
 
 public interface PWMSupplier {
