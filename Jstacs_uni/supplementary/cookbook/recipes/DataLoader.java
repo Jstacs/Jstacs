@@ -72,7 +72,7 @@ public class DataLoader {
 		RichSequenceIterator it = IOTools.readGenbankDNA( new BufferedReader( new FileReader( home+"example.gb" ) ), null );
 		
 		//conversion to Jstacs DataSet
-		data = BioJavaAdapter.sequenceIteratorToDataSet( it, null );
+		data = BioJavaAdapter.sequenceIteratorToDataSet( it, null, null );
 		System.out.println(data);
 	}
 }
