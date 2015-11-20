@@ -599,7 +599,7 @@ public class TBSScanner {
 	}
 
 
-	private static Pair<int[][], DataSet> preprocess(DataSet data) throws Exception{
+	public static Pair<int[][], DataSet> preprocess(DataSet data) throws Exception{
 
 		Pattern acgt = Pattern.compile( "[ACGT]+", Pattern.CASE_INSENSITIVE );
 
