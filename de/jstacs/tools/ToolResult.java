@@ -15,7 +15,14 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.ResultSetResult;
 
-
+/**
+ * Class for the results of a {@link JstacsTool}.
+ * In addition to a standard {@link ResultSetResult}, this class stores some supplementary information
+ * like the parameters of the tool's run, the name of the tool, and the time the tool's run finished.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class ToolResult extends ResultSetResult {
 
 	private ParameterSet toolParameters;

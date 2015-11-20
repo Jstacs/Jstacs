@@ -1,12 +1,22 @@
 package de.jstacs.tools;
 
+import de.jstacs.cli.CLI;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.utils.galaxy.Galaxy;
 
-
+/**
+ * Interface for a generic Jstacs tool.
+ * 
+ * Implementations of this interface may be used in the {@link CLI}, {@link Galaxy}, and JavaFX-based GUI classes
+ * for creating generic interfaces to tools created using Jstacs
+ * 
+ * @author Jan Grau
+ *
+ */
 public interface JstacsTool {
 
 	/**
-	 * Return the input parameters of this tool. 
+	 * Returns the input parameters of this tool. 
 	 * The parameters should be empty but may have default values, which are used in all interface variants (command line, Galaxy, JavaFX GUI).
 	 * @return the input parameters
 	 */
