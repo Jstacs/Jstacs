@@ -1,0 +1,25 @@
+**Dependency logos** are a new way to visualize dependencies in DNA sequences, for instance, aligned binding sites of a transcription factor.
+
+Although dependency logos are not based on specific model assumptions, they have been developed for visualizing predictions of Slim and LSlim models (see tools SlimDimont and LearnDependencyModel).
+
+This tool works on a tabular format that contains the aligned sequences in one column and, optionally, associated weights, p-values, or other measures of confidence in another column. Such an input file needs to be selected for the parameter "Input file".
+
+The following two parameters, "Sequence column" and "Weight column" are used to select the columns of the input file, which contain the sequence and the weight data, respectively. If the latter parameter is left unselected, no weights are used for plotting the dependency logo and the following parameter "Order of values" is ignored.
+
+Otherwise, "Order of values" specifies the order of sequence weights. Scores, for instance, often have an ordering where larger values correspond to better accordance to the motif model. Hence, we select "Descending" in this case. For p-values, lower values typically correspond to higher confidence, and we set "Order of values" to "Ascending".
+
+Further, the "Output format" and "Width" of the generated graphic can be chosen.
+
+If the option "Advanced parameters" is selected, further parameters influencing the resulting dependency logo plot can be set.
+
+First, sequences (or their representation in the dependency logo) may be grouped in blocks of user-specified size, where the user may
+choose the number of sequences per block and the height of the block's representation in the dependency logo.
+
+All remaining sequences are represented in a last block of the dependency logo (which may be the only block, if no additional blocks have been defined before).
+Again, the user may define the height of the graphical representation of this last block.
+
+Finally, the user may choose the height of the sequence logos between the blocks of dependency logos, and the number of dependencies considered for determining the sequence positions that are used for ordering all sequences within a block.
+
+If you experience problems using the Dependency logo tool, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
