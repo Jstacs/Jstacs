@@ -618,6 +618,9 @@ public void test() throws Exception {
 	 * @param pvals the array filled with the p-values. First dimension must contain as many entries as <code>data</code> has sequences. May be null.
 	 * @param mean the means for the individual sequences. May be null.
 	 * @param sd array of lenght 1 filled with the determined standard deviation. May be null.
+	 * @param bs the list of binding sites (filled if not <code>null</code>)
+	 * @param bsWeights the list of weights of the sequences containing the binding sites (filled if not <code>null</code>)
+	 * @param bsScores the list of binding site scores (filled if not <code>null</code>)
 	 * @return the PWM
 	 * @throws Exception if something went wrong
 	 */
@@ -749,6 +752,21 @@ public void test() throws Exception {
 		return new Pair<double[][],double[]>(pwm,sd);
 	}
 	
+	/**
+	 * Returns the position weight matrix and standard deviation of the position distribution using the given mean.
+	 * 
+	 * @param motif the index of the motif
+	 * @param data the {@link DataSet} in which binding sites are predicted
+	 * @param weights the weights on the sequences of <code>data</code>
+	 * @param mean the mean of the position distribution
+	 * @param addLeft the number of positions to add to the left flank of the motif
+	 * @param addRight the number of positions to add to the right flank of the motif
+	 * @param bs the list of binding sites, filled if not <code>null</code>
+	 * @param bsWeight the list of weights of the sequences containing the binding sites, filled if not <code>null</code>
+	 * @param bsScores the scores of the predicted binding sites, filled if not <code>null</code>
+	 * @return the PWM and standard deviation (in array element 0)
+	 * @throws Exception if something went wrong
+	 */
 	public Pair<double[][], double[]> getPWMAndPosDist( int motif, DataSet data, double[] weights, double[] mean, int addLeft, int addRight, LinkedList<Sequence> bs, DoubleList bsWeight, DoubleList bsScores ) throws Exception {
 		double[] sd = new double[1];
 		double[][] pwm = getPWMAndPositions( motif, data, weights, addLeft, addRight, null, null, mean, sd, bs, bsWeight, bsScores );
