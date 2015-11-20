@@ -17,6 +17,8 @@
  */
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm;
 
+import java.io.BufferedReader;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -26,13 +28,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.jstacs.algorithms.optimization.Optimizer;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.data.alphabets.DNAAlphabetContainer;
+import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.SequenceIterator;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models.DifferentiableHigherOrderHMM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models.HigherOrderHMM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models.SamplingHigherOrderHMM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models.SamplingPhyloHMM;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SamplingEmission;
@@ -44,6 +53,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.ReferenceSequenceDiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.SamplingHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;
@@ -394,6 +404,159 @@ public class HMMFactory {
 		}
 	}
 	
+	
+	public static Pair<AbstractHMM,HomogeneousMMDiffSM> parseProfileHMMFromHMMer(Reader hmmReader, StringBuffer consensus, LinkedList<Integer> matchStates, LinkedList<Integer> silentStates) throws Exception {
+		
+		BufferedReader read = new BufferedReader( hmmReader );
+		
+		String str = null;
+		while( (str = read.readLine()) != null ){
+			if(str.startsWith( "HMM " )){
+				break;
+			}
+		}
+		
+		String[] alph = str.replaceAll( "^HMM", "" ).trim().split( "\\s+" );		
+		DiscreteAlphabet alph2 = new DiscreteAlphabet( true, alph );
+		AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
+		if(!alph2.checkConsistency( DNAAlphabet.SINGLETON )){
+			con = new AlphabetContainer( alph2 );
+		}
+		//System.out.println(con);
+		
+		
+		int al = (int)con.getAlphabetLengthAt( 0 );
+		
+		read.readLine();//skip
+		
+		str = read.readLine();
+		
+		String[] hom = str.replaceAll( ".*COMPO", "" ).trim().split( "\\s+" );//TODO parse doubles
+		
+		DoubleList emissionPars = new DoubleList();
+		DoubleList transitionPars = new DoubleList();
+		
+		//I0
+		str = read.readLine();
+		String[] i0 = str.trim().split( "\\s+" );
+		addParameters(emissionPars,i0, al);
+		
+		//Transitions 0
+		str = read.readLine();
+		String[] t0 = str.trim().split( "\\s+" );
+		transitionPars.add( 0 );
+		
+		double BI0 = Math.exp(-parseDouble( t0[1] ) );
+		transitionPars.add( Math.log( 1 - BI0 ) );
+		transitionPars.add( Math.log( BI0 ) );
+		double BM1 = Math.exp(-parseDouble( t0[0] ));
+		double BD1 = Math.exp(-parseDouble( t0[2] ));
+		transitionPars.add( Math.log( BD1/(BD1+BM1) ) );
+		transitionPars.add( Math.log( BM1/(BD1+BM1) ) );
+		double I0M1 =  -parseDouble( t0[3] );
+		double I0I0 =  -parseDouble( t0[4] );
+		transitionPars.add( I0I0 );
+		transitionPars.add( I0M1 );
+		
+		int l = 0;
+		
+		while( !"//".equals(str = read.readLine()) ){
+			String[] me = str.replaceFirst( "\\s+[0-9]+\\s+", "" ).trim().split( "\\s+" );
+			str = read.readLine();
+			String[] ie = str.trim().split( "\\s+" );
+			addParameters( emissionPars, ie, al );
+			addParameters( emissionPars, me, al );
+			consensus.append( me[al+1] );
+			
+			str = read.readLine();
+			String[] tr = str.trim().split( "\\s+" );
+			double mm = -parseDouble( tr[0] );
+			double mi = -parseDouble( tr[1] );
+			double md = -parseDouble( tr[2] );
+			double im = -parseDouble( tr[3] );
+			double ii = -parseDouble( tr[4] );
+			double dm = -parseDouble( tr[5] );
+			double dd = -parseDouble( tr[6] );
+			transitionPars.add( dd );transitionPars.add( dm );
+			transitionPars.add( mi );transitionPars.add( md );transitionPars.add( mm );
+			transitionPars.add( ii );transitionPars.add( im );
+			l++;
+		}
+		
+		read.close();
+		
+		addParameters( emissionPars, hom , al );
+		addParameters( emissionPars, hom , al );
+		addParameters( emissionPars, hom , al );
+		
+		transitionPars.add( 0 );transitionPars.add( 0 );
+		transitionPars.add( 0 );transitionPars.add( Double.NEGATIVE_INFINITY );transitionPars.add( Double.NEGATIVE_INFINITY );
+		transitionPars.add( Math.log( 0.99 ) );transitionPars.add( Math.log( 0.01 ) );
+		
+		MaxHMMTrainingParameterSet trainingParameterSet = new NumericalHMMTrainingParameterSet( 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), 1, Optimizer.QUASI_NEWTON_BFGS, 1E-4, 1E-4 );
+		
+		
+		boolean likelihood = false;
+		int numLayers = l+2;
+		
+		double ess = 16;
+		
+		DifferentiableHigherOrderHMM hmm = (DifferentiableHigherOrderHMM) createProfileHMM( trainingParameterSet, HMMType.PLAN7, likelihood, 1, numLayers, con, ess, false, false, null );
+		
+		//NumberFormat nf = DecimalFormat.getInstance();
+		
+		if(matchStates != null){
+			for(int i=0;i<hmm.states.length;i++){
+				if(hmm.states[i] instanceof SimpleState){
+					String state = ((SimpleState)hmm.states[i]).getName();
+					if(state.matches( "M[0-9]+" )){
+						matchStates.add( i );
+					}
+					if(hmm.states[i].isSilent()){
+						silentStates.add( i );
+					}
+				}
+			}
+			matchStates.removeLast();
+		}
+		
+		double[] pars = hmm.getCurrentParameterValues();
+		
+		for(int i=0;i<emissionPars.length();i++){
+			pars[i] = emissionPars.get( i );
+		}
+		for(int i=0;i<transitionPars.length();i++){
+			pars[i + emissionPars.length()] = transitionPars.get( i );
+		}
+		
+		
+		
+		hmm.setParameters( pars, 0 );
+		
+		HomogeneousMMDiffSM homo = new HomogeneousMMDiffSM( con, 0, 16.0, numLayers );
+		homo.initializeFunctionRandomly( false );
+		DoubleList homPars = new DoubleList();
+		addParameters( homPars, hom, al );
+		homo.setParameters( homPars.toArray(), 0 );
+		
+		return new Pair<AbstractHMM, HomogeneousMMDiffSM>( hmm, homo );
+	}
+	
+	
+	private static double parseDouble(String arg){
+		if("*".equals( arg) ){
+			return Double.POSITIVE_INFINITY;
+		}else{
+			return Double.parseDouble( arg );
+		}
+	}
+	
+	private static void addParameters( DoubleList emissionPars, String[] str, int al ) {
+		for(int i=0;i<al;i++){
+			emissionPars.add( - parseDouble( str[i] ) );
+		}
+	}
+
 	/**
 	 * Creates a new profile HMM for a given architecture and number of layers.
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
