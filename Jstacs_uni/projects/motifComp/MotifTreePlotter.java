@@ -9,11 +9,13 @@ import java.text.DecimalFormat;
 
 import de.jstacs.clustering.distances.DeBruijnMotifComparison;
 import de.jstacs.clustering.hierachical.ClusterTree;
+import de.jstacs.clustering.hierachical.PWMSupplier;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
 import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.PFMWrapperTrainSM;
 import de.jstacs.utils.NiceScale;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
