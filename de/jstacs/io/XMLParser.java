@@ -738,6 +738,15 @@ public final class XMLParser {
 		return erg;
 	}
 	
+	
+	/**
+	 * Stores a set of {@link Sequence}s to XML, although {@link Sequence} does not implement {@link Storable}.
+	 * Use for general data storage is discouraged and should be limited to those cases, where a {@link Sequence} needs
+	 * to the stored within another object implementing {@link Storable}.
+	 * @param xml the XML buffer
+	 * @param tag the tag
+	 * @param seqs the sequences
+	 */
 	public static void appendSequencesWithTags(StringBuffer xml, String tag, Sequence... seqs){
 		String[] temp = null;
 		if(seqs != null){
@@ -758,7 +767,17 @@ public final class XMLParser {
 		XMLParser.appendObjectWithTags( xml, temp, tag );
 	}
 	
-	public static Sequence[] extractSequencesWithTags(StringBuffer xml, String tag) throws NonParsableException, IllegalArgumentException, WrongAlphabetException{
+	/**
+	 * Extracts a set of sequences from their XML representation.
+	 * Use for general data storage is discouraged and should be limited to those cases, where a {@link Sequence} needs
+	 * to the stored within another object implementing {@link Storable}.
+	 * @param xml the XML buffer
+	 * @param tag the tag
+	 * @return the sequences
+	 * @throws NonParsableException if the XML could not be parsed
+	 * @throws WrongAlphabetException if the alphabet does not fit the sequence information
+	 */
+	public static Sequence[] extractSequencesWithTags(StringBuffer xml, String tag) throws NonParsableException, WrongAlphabetException{
 		String[] temp = (String[])XMLParser.extractObjectForTags( xml, tag );
 		if(temp != null){
 			Sequence[] seqs = new Sequence[temp.length];
