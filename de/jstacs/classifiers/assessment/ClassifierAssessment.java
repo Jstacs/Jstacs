@@ -20,8 +20,6 @@ package de.jstacs.classifiers.assessment;
 
 import java.util.LinkedList;
 
-import org.biojava.bio.program.tagvalue.Aggregator;
-
 import de.jstacs.classifiers.AbstractClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
 import de.jstacs.classifiers.performanceMeasures.NumericalPerformanceMeasureParameterSet;
@@ -35,11 +33,11 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.MeanResultSet;
+import de.jstacs.results.MeanResultSet.AdditionImpossibleException;
+import de.jstacs.results.MeanResultSet.InconsistentResultNumberException;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.results.MeanResultSet.AdditionImpossibleException;
-import de.jstacs.results.MeanResultSet.InconsistentResultNumberException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
 import de.jstacs.utils.NullProgressUpdater;
 import de.jstacs.utils.ProgressUpdater;
@@ -1089,7 +1087,6 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * 
 	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, DataSet...)
 	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[])
-	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[][]...)
 	 * @see #assess(NumericalPerformanceMeasureParameterSet, ClassifierAssessmentAssessParameterSet, ProgressUpdater, DataSet[], double[][])
 	 */
 	public abstract T getAssessParameterSet() throws Exception;
