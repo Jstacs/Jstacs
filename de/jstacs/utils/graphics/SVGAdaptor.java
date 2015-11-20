@@ -9,15 +9,29 @@ import java.io.Writer;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.transcoder.Transcoder;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-
+/**
+ * {@link GraphicsAdaptor} for the SVG format.
+ * @author Jan Grau
+ *
+ */
 public class SVGAdaptor extends GraphicsAdaptor {
 
+	/**
+	 * The internal graphics object
+	 */
 	protected SVGGraphics2D graphics;
+	/**
+	 * The SVG document representation, may be used in sub-classes for different {@link Transcoder}s
+	 */
 	protected Document document;
 	
+	/**
+	 * Creates a new adaptor for plotting to an SVG device.
+	 */
 	public SVGAdaptor(){
 		DOMImplementation domImpl = SVGDOMImplementation.getDOMImplementation();
 		

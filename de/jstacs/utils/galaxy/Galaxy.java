@@ -28,7 +28,16 @@ import de.jstacs.utils.graphics.PDFAdaptor;
 import de.jstacs.utils.graphics.RasterizedAdaptor;
 import de.jstacs.utils.graphics.GraphicsAdaptorFactory.OutputFormat;
 
-
+/**
+ * Class for generating a generic Galaxy interface for a set of {@link JstacsTool}s.
+ * Internally, it uses much of the infrastructure provided by {@link GalaxyAdaptor}.
+ * 
+ * This class belongs to the trinity of {@link Galaxy}, {@link CLI}, and JavaFX interface that
+ * may all be created from a set of {@link JstacsTool}s.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class Galaxy {
 
 	private JstacsTool[] tools;
@@ -37,6 +46,13 @@ public class Galaxy {
 	private String vmargs;
 	private boolean configThreads;
 	
+	/**
+	 * Creates a new Galaxy interface from a set of {@link JstacsTool}s.
+	 * @param vmargs the arguments supplied to the JavaVM when running within Galaxy
+	 * @param configThreads if threads should be configured
+	 * @param tools the tools that should be displayed
+	 * @see GalaxyAdaptor#parse(String[], boolean)
+	 */
 	public Galaxy(String vmargs, boolean configThreads, JstacsTool... tools){
 		this.tools = tools;
 		this.vmargs = vmargs;
@@ -63,6 +79,13 @@ public class Galaxy {
 		return -1;
 	}
 	
+	/**
+	 * Runs this Galaxy interface with the supplied arguments.
+	 * If the first argument equals "--create", the Galaxy config files for the tools are created.
+	 * Otherwise, the tools selected by the supplied arguments is run with these arguments.
+	 * @param args the arguments
+	 * @throws Exception if the configuration could not be created or the tool threw an exception
+	 */
 	public void run(String[] args) throws Exception{
 		
 		File jarfile = new File(Galaxy.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());

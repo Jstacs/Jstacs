@@ -1,6 +1,13 @@
 package de.jstacs.utils;
 // from http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
 
+/**
+ * Class for creating nive tick marks on axes given a minimum and maximum value.
+ * Greatly inspired by http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
+ * 
+ * @author Jan Grau
+ *
+ */
 public class NiceScale {
 
 	private double minPoint;
@@ -18,7 +25,7 @@ public class NiceScale {
 	private double niceMax;
 
 	/**
-	 * Instantiates a new instance of the NiceScale class.
+	 * Creates a {@link NiceScale} object for the given minimum and maximum
 	 *
 	 * @param min the minimum data point on the axis
 	 * @param max the maximum data point on the axis
@@ -29,15 +36,26 @@ public class NiceScale {
 		calculate();
 	}
 
+	/**
+	 * Returns the spacing between the tick marks
+	 * @return the spacing
+	 */
 	public double getTickSpacing() {
 		return tickSpacing;
 	}
 
+	/**
+	 * Returns the "nice" minimum value
+	 * @return the minimum
+	 */
 	public double getNiceMin() {
 		return niceMin;
 	}
 
-
+	/**
+	 * Returns the "nice" maximum value
+	 * @return the maximum
+	 */
 	public double getNiceMax() {
 		return niceMax;
 	}
@@ -56,8 +74,8 @@ public class NiceScale {
 	}
 
 	/**
-	 * Returns a "nice" number approximately equal to range Rounds
-	 * the number if round = true Takes the ceiling if round = false.
+	 * Returns a "nice" number approximately equal to range. Rounds
+	 * the number if round = true, Takes the ceiling if round = false.
 	 *
 	 * @param range the data range
 	 * @param round whether to round the result

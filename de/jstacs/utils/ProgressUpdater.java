@@ -24,6 +24,7 @@ package de.jstacs.utils;
  * 
  * @author Andre Gohr, Jan Grau
  */
+@Deprecated
 public interface ProgressUpdater {
 
 	/**

@@ -136,6 +136,13 @@ public class PFMComparator {
 		return getPFM( data, 0, data.getNumberOfElements() );
 	}
 	
+	/**
+	 * Returns a position frequency matrix (PFM, rows=positions, columns=symbols) for the given subset of {@link DataSet}.
+	 * @param data the data set
+	 * @param start the first sequence to consider
+	 * @param end the first sequence not not consider
+	 * @return the PFM
+	 */
 	public static double[][] getPFM( DataSet data, int start, int end ) {
 		if( data == null ) {
 			return null;
@@ -156,6 +163,13 @@ public class PFMComparator {
 		}
 	}
 	
+	/**
+	 * Returns a position weight matrix (PWM, rows=positions, columns=symbols, containing probabilities) for the given subset of {@link DataSet}.
+	 * @param data the data set
+	 * @param start the first sequence to consider
+	 * @param end the first sequence not not consider
+	 * @return the PWM
+	 */
 	public static double[][] getPWM( DataSet data, int start, int end ){
 		double[][] pwm = getPFM( data, start, end );
 		for(int i=0;i<pwm.length;i++){
@@ -245,8 +259,15 @@ public class PFMComparator {
 	}
 	
 	
-	public static SimpleEntry<String, double[][]> readPFMFromUniprobe(String dirname, File file) throws IOException {
-		String annot = dirname+file.getName().substring( 0, file.getName().lastIndexOf( '.' ) );
+	/**
+	 * Reads a PFM from the UniProbe format.
+	 * @param annotPrefix a prefix on the PFM's annotation 
+	 * @param file the {@link File} to read
+	 * @return the PFM and annotation
+	 * @throws IOException
+	 */
+	public static SimpleEntry<String, double[][]> readPFMFromUniprobe(String annotPrefix, File file) throws IOException {
+		String annot = annotPrefix+file.getName().substring( 0, file.getName().lastIndexOf( '.' ) );
 		BufferedReader read = new BufferedReader( new FileReader( file ) );
 		String temp = read.readLine();
 		annot += ": "+(temp == null ? "" : temp.trim() );
@@ -301,6 +322,12 @@ public class PFMComparator {
 		r.close();
 		return res;
 	}
+	/**
+	 * Reads a list of PFMs from the Jaspar format
+	 * @param r the {@link BufferedReader} on the Jaspar file
+	 * @return the PFMs
+	 * @throws IOException if the contents of <code>r</code> could not be read
+	 */
 	public static  ArrayList<SimpleEntry<String,double[][]>> readPFMsFromJasparFastA( BufferedReader r ) throws IOException {
 		ArrayList<SimpleEntry<String, double[][]>> res = new ArrayList<SimpleEntry<String, double[][]>>();
 		String line, annot = null;
@@ -379,6 +406,13 @@ public class PFMComparator {
 		return res;
 	}
 	
+	/**
+	 * Reads a set of PFM from the Transfac format
+	 * @param fileName the Transfac file
+	 * @param max the maximum number of PFMs to read
+	 * @return the PFMs
+	 * @throws IOException if the file could not be read
+	 */
 	public static ArrayList<SimpleEntry<String, double[][]>> readPFMsFromTransfac( String fileName, int max ) throws IOException {
 		ArrayList<SimpleEntry<String, double[][]>> res = new ArrayList<SimpleEntry<String, double[][]>>();
 		ArrayList<double[]> pfm = new ArrayList<double[]>();
@@ -545,11 +579,19 @@ public class PFMComparator {
 		}
 	}
 	
-	
+	/**
+	 * Wraps a given {@link PFMDistance} and pads the considered PFMs with uniformly distributed positions.
+	 * @author Jan Grau
+	 *
+	 */
 	public static class UniformBorderWrapper extends PFMDistance {
 
 		private PFMDistance inner;
 		
+		/**
+		 * Creates a new {@link UniformBorderWrapper} for a given {@link PFMDistance}.
+		 * @param inner the internal {@link PFMDistance} to be padded
+		 */
 		public UniformBorderWrapper(PFMDistance inner){
 			this.inner = inner;
 		}

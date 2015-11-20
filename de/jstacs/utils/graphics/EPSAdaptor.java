@@ -10,12 +10,25 @@ import java.io.IOException;
 
 import org.apache.xmlgraphics.java2d.ps.EPSDocumentGraphics2D;
 
-
+/**
+ * {@link GraphicsAdaptor} for the EPS format.
+ * @author Jan Grau
+ *
+ */
 public class EPSAdaptor extends GraphicsAdaptor {
 
+	/**
+	 * The EPS document
+	 */
 	protected EPSDocumentGraphics2D graphics;
+	/**
+	 * The stream for saving the results
+	 */
 	protected ByteArrayOutputStream stream;
 	
+	/**
+	 * Creates a new adaptor for plotting to an EPS device.
+	 */
 	public EPSAdaptor(){
 		graphics = new EPSDocumentGraphics2D( true );
 		graphics.setGraphicContext(new org.apache.xmlgraphics.java2d.GraphicContext());

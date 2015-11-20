@@ -1,7 +1,5 @@
 package de.jstacs.utils.galaxy;
 
-import java.io.PrintWriter;
-
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -10,19 +8,25 @@ import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.ParameterValidator;
 
-
+/**
+ * {@link SimpleParameter} that represents a data column parameter in Galaxy.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class DataColumnParameter extends SimpleParameter {
 
 	private String dataRef;
 	
 	/**
-	 * @param datatype
-	 * @param name
-	 * @param comment
-	 * @param required
-	 * @param defaultVal
-	 * @throws DatatypeNotValidException
-	 * @throws IllegalValueException
+	 * Creates a new {@link DataColumnParameter} with given name, comment, and reference.
+	 * @param dataRef the ID of the referenced parameter (tabular) in Galaxy.
+	 * @param name the name of the parameter
+	 * @param comment a comment on the parameter
+	 * @param required if this parameter is required
+	 * @param defaultVal the default value
+	 * @throws DatatypeNotValidException should not happen
+	 * @throws IllegalValueException should not happen
 	 */
 	public DataColumnParameter( String dataRef, String name, String comment, boolean required, Integer defaultVal )
 																														throws DatatypeNotValidException,
@@ -32,13 +36,14 @@ public class DataColumnParameter extends SimpleParameter {
 	}
 
 	/**
-	 * @param datatype
-	 * @param name
-	 * @param comment
-	 * @param required
-	 * @param validator
-	 * @param defaultVal
-	 * @throws ParameterException
+	 * Creates a new {@link DataColumnParameter} with given name, comment, and reference.
+	 * @param dataRef the ID of the referenced parameter (tabular) in Galaxy.
+	 * @param name the name of the parameter
+	 * @param comment a comment on the parameter
+	 * @param required if this parameter is required
+	 * @param validator a validator of admissible values
+	 * @param defaultVal the default value
+	 * @throws ParameterException if the default value is not admissible
 	 */
 	public DataColumnParameter( String dataRef, String name, String comment, boolean required, ParameterValidator validator,
 								Integer defaultVal ) throws ParameterException {
@@ -47,12 +52,13 @@ public class DataColumnParameter extends SimpleParameter {
 	}
 
 	/**
-	 * @param datatype
-	 * @param name
-	 * @param comment
-	 * @param required
-	 * @param validator
-	 * @throws DatatypeNotValidException
+	 * Creates a new {@link DataColumnParameter} with given name, comment, and reference.
+	 * @param dataRef the ID of the referenced parameter (tabular) in Galaxy.
+	 * @param name the name of the parameter
+	 * @param comment a comment on the parameter
+	 * @param required if this parameter is required
+	 * @param validator a validator of admissible values
+	 * @throws DatatypeNotValidException should not happen
 	 */
 	public DataColumnParameter( String dataRef, String name, String comment, boolean required, ParameterValidator validator )
 																																throws DatatypeNotValidException {
@@ -61,11 +67,12 @@ public class DataColumnParameter extends SimpleParameter {
 	}
 
 	/**
-	 * @param datatype
-	 * @param name
-	 * @param comment
-	 * @param required
-	 * @throws DatatypeNotValidException
+	 * Creates a new {@link DataColumnParameter} with given name, comment, and reference.
+	 * @param dataRef the ID of the referenced parameter (tabular) in Galaxy.
+	 * @param name the name of the parameter
+	 * @param comment a comment on the parameter
+	 * @param required if this parameter is required
+	 * @throws DatatypeNotValidException should not happen
 	 */
 	public DataColumnParameter( String dataRef, String name, String comment, boolean required ) throws DatatypeNotValidException {
 		super( DataType.INT, name, comment, required );
