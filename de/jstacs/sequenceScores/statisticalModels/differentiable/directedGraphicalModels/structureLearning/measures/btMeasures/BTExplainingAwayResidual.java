@@ -88,6 +88,17 @@ public class BTExplainingAwayResidual extends Measure {
 	}
 
 	
+	/**
+	 * Returns the explaining away residual (EAR) between all pairs of positions
+	 * as a matrix.
+	 * @param fg the foreground data
+	 * @param bg the background data
+	 * @param weightsFg the weights associated with the foreground data
+	 * @param weightsBg the weights associated with the background data
+	 * @param length the length of the sequences
+	 * @return the pairwise EAR
+	 * @throws Exception if the specified length does not match the length of the sequences in the data
+	 */
 	public double[][] getEAR(DataSet fg, DataSet bg, double[] weightsFg, double[] weightsBg, int length) throws Exception{
 		double[] ess = ((BTExplainingAwayResidualParameterSet)parameters).getEss();
 		
