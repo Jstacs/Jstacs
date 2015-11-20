@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Storable;
+import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -140,6 +141,12 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 	}
 
 	
+	/**
+	 * Prepares a matrix of pairwise association measures for the implementation of Kruskal's algorithm.
+	 * @param fullMatrix the full matrix
+	 * @return the reduced matrix for Kruskal's algorithm
+	 * @see MST#kruskal(double[][])
+	 */
 	protected double[][] getMatrixForKruskal(double[][] fullMatrix){
 		double[][] triang = new double[fullMatrix.length][];
 		
@@ -152,6 +159,13 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 		return triang;
 	}
 	
+	/**
+	 * Helper method that converts the structure returned by {@link MST#kruskal(double[][])}
+	 * to that returned by the {@link Measure#getParents(DataSet, DataSet, double[], double[], int)} method
+	 * @param structure the original structure
+	 * @param length the length of sequences
+	 * @return the modified structure
+	 */
 	protected int[][] reStructure(int[][] structure, int length){
 		int[][] dep = new int[length][];
 		ArrayList<int[]> edges = new ArrayList<int[]>( structure.length );
