@@ -98,6 +98,11 @@ public class CLI {
 		public void appendVerbatim(String verbatim) {
 			append(verbatim);
 		}
+
+		void flush() {
+			System.err.flush();
+			System.out.flush();
+		}
 		
 	}
 	
@@ -247,6 +252,7 @@ public class CLI {
 				printToolParameters(toolIndex,protocol,outdir);
 			}
 			
+			protocol.flush();
 			
 			ToolResult results = tools[toolIndex].run( toolParameters[toolIndex], protocol, new ProgressUpdater() );
 			
