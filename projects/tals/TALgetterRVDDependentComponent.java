@@ -17,11 +17,16 @@
  */
 package projects.tals;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DiscreteSequenceEnumerator;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
+import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.io.ArrayHandler;
@@ -44,7 +49,8 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 	 * The RVD alphabet
 	 */
 	protected AlphabetContainer alphabetsRVD;
-	private double ess;
+	protected double ess;
+	protected int priorLength;
 	/**
 	 * The models for the binding specificities of the RVDs
 	 */
@@ -67,6 +73,7 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 		if(alphabets.getAlphabetLengthAt(0)>0 && alphabetsRVD.getAlphabetLengthAt(0)>0){
 			this.alphabetsRVD=alphabetsRVD;
 			this.ess=ess;
+			this.priorLength = length;
 			double norm = 0;
 			for(int i=0;i<priorImp.length;i++){
 				norm += priorImp[i];
@@ -237,6 +244,51 @@ public class TALgetterRVDDependentComponent extends AbstractDifferentiableStatis
 		Normalisation.logSumNormalisation( spec );
 		
 		return spec;
+	}
+	
+	public AlphabetContainer addAndSet(String[] rvds, double[][] specs) throws WrongAlphabetException, IllegalArgumentException, DoubleSymbolException{
+		DiscreteAlphabet alph = (DiscreteAlphabet)alphabetsRVD.getAlphabetAt( 0 );
+		int[] map = new int[rvds.length];
+		Arrays.fill( map, -1 );
+		int n = 0;
+		for(int i=0;i<rvds.length;i++){
+			if(alph.isSymbol( rvds[i] )){
+				map[i] = alph.getCode( rvds[i] );
+			}else{
+				n++;
+			}
+		}
+		if(n > 0){
+			String[] newAlph = new String[(int)alph.length()+n];
+			int i=0;
+			for(;i<alph.length();i++){
+				newAlph[i] = alph.getSymbolAt( i );
+			}
+			HomogeneousMMDiffSM[] temp_c = new HomogeneousMMDiffSM[newAlph.length];
+			System.arraycopy( hmm_c, 0, temp_c, 0, hmm_c.length );
+			for(int j=0;j<map.length;j++){
+				if(map[j]==-1){
+					newAlph[i] = rvds[j];
+					temp_c[i] = new HomogeneousMMDiffSM(alphabets,0,ess/temp_c.length,priorLength);
+					temp_c[i].initializeFunctionRandomly( false );
+					i++;
+				}
+			}
+			hmm_c = temp_c;
+			alph = new DiscreteAlphabet( true, newAlph );
+			alphabetsRVD = new AlphabetContainer( alph );
+		}
+		
+		for(int i=0;i<rvds.length;i++){
+			int idx =alph.getCode( rvds[i] );
+			double[] temp = specs[i].clone();
+			for(int j=0;j<temp.length;j++){
+				temp[j] = Math.log( temp[j] );
+			}
+			hmm_c[idx].setParameters( temp, 0 );
+		}
+		
+		return alphabetsRVD;		
 	}
 
 	@Override
