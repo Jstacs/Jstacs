@@ -1,7 +1,6 @@
 package de.jstacs.cli;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -28,13 +27,31 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
 
-
+/**
+ * Class that allows for building generic command line interface (CLI) applications based on the {@link JstacsTool} interface.
+ * The generic description of command line parameters is automatically inferred from the corresponding {@link Parameter}s and {@link ParameterSet}s of
+ * the {@link JstacsTool}s.
+ * 
+ * If this class is used for a single {@link JstacsTool}, the parameters may be supplied directly using a <code>key=value</code> interface. In case of multiple tools, each specific tool may be addressed by its short name ({@link JstacsTool#getShortName()}).
+ * 
+ * @author Jan Grau
+ *
+ */
 public class CLI {
 
+	/**
+	 * Class for a {@link Protocol} that prints messages to {@link System#out} and warnings to {@link System#err}
+	 * and additionally hold a log of all messages in a local {@link StringBuffer} that may be, e.g., stored to a file later. 
+	 * @author Jan Grau
+	 *
+	 */
 	public static class SysProtocol implements Protocol{
 
 		private StringBuffer log;
 		
+		/**
+		 * Creates a new, empty protocol.
+		 */
 		public SysProtocol() {
 			this.log = new StringBuffer();
 		}
@@ -58,7 +75,11 @@ public class CLI {
 		}
 		
 		
-		
+		/**
+		 * Returns the {@link StringBuffer} containing all messages since the creation of this
+		 * object.
+		 * @return the messages
+		 */
 		public StringBuffer getLog(){
 			return log;
 		}
@@ -86,6 +107,10 @@ public class CLI {
 	private ParameterSet[] toolParameters;
 	private HashMap<Parameter,String>[] keyMap;
 	
+	/**
+	 * Creates a new command line interface from a set of Jstacs tools.
+	 * @param tools
+	 */
 	public CLI(JstacsTool... tools) {
 		this.tools = tools;
 		this.toolParameters = new ParameterSet[tools.length];
@@ -169,7 +194,12 @@ public class CLI {
 
 	
 	
-	
+	/**
+	 * Runs this command line application with the specified arguments in <code>args</code>. This method would typically be called directly from the <code>main</code>
+	 * method.
+	 * @param args the arguments as supplied on the command line
+	 * @throws Exception in case of an error
+	 */
 	public void run(String[] args) throws Exception {
 		SysProtocol protocol = new SysProtocol();
 		
