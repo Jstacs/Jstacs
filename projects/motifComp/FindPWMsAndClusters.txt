@@ -1,0 +1,34 @@
+**DBcorrDB** provides a data base of 1541 motifs discovered from 757 ENCODE data sets for 166 transcription factors, as well as RNA-polymerase II and III.
+
+You can search the data base using
+
+i) position frequency matrices (PFMs) or position weight matrices (PWMs) in Jaspar format (example_),
+ii) a data set of aligned sequences in FastA format, which are used to infer a PWM, or
+iii) score profiles over de Bruijn sequences in a pseudo-FastA format (see below).
+
+For the latter option, we you need to compute a score profile for one of the supplied `de Bruijn sequences of lengths 4^6 to 4^10`_.
+For a query, you only need to compute scores for one of these sequences. The best accuracy can be expected for the de Bruijn sequence of length 10, while shorter sequences might be appropriate if runtime is an issue. When computing the scores, the de Bruijn sequence must be regarded as cyclic and you need to compute a score for a sliding window starting at each position of the sequence.
+For each motif, the file with the score profiles must contain a header line (similar to the FastA format) followed by the scores in one line, separated by whitespace (spaces or tabs). For instance ::
+
+	>my_motif
+	-37.99931981493377 -39.76739568299909 -35.72303941257624 -32.20609371058086 ...
+
+
+Within the data base, motifs are clustered by their similarity based on the correlation of score profiles on de Bruijn sequences that is also used for searching the data base. Matching motifs in the data base will be returned as members of clusters of similar motifs. 
+In addition, we provide information of the original ENCODE_ experiment and a link to its ENCODE report.
+
+The similarity threshold must be a value between 0.5 and 1.0, where a value of 1.0 corresponds to perfect similarity, while a value of 0.5 is rather loose and will typically return a large number of matches. We recommend to leave this value at its default value of 0.9.
+
+
+We also provide for download all motifs_ in Jaspar format and a textual representation of all `motif clusters`_.
+
+If you experience problems using *DBcorrDB*, please contact_ us.
+
+
+.. _example: http://www.jstacs.de/downloads/pax5.txt
+.. _de Bruijn sequences of lengths 4^6 to 4^10: http://www.jstacs.de/downloads/deBruijn.fa.gz
+.. _ENCODE: http://www.encodeproject.org
+.. _motifs: http://www.jstacs.de/downloads/motifs_jaspar.txt
+.. _motif clusters: http://www.jstacs.de/downloads/motif_clusters.txt
+
+.. _contact: mailto:grau@informatik.uni-halle.de

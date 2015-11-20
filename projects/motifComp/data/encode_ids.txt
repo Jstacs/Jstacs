@@ -1,0 +1,759 @@
+Accession	Type	Target	Description	Lab	link
+ENCSR000AKB	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12878	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AKB
+ENCSR000AKO	immortalized cell line	CTCF	CTCF ChIP-seq on human K562	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AKO
+ENCSR000AKZ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AKZ
+ENCSR000ALA	primary cell	CTCF	CTCF ChIP-seq on human endothelial cell of umbilical vein	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ALA
+ENCSR000ALH	primary cell	POLR2A	POLR2A ChIP-seq on human endothelial cell of umbilical vein	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ALH
+ENCSR000ALJ	primary cell	CTCF	CTCF ChIP-seq on human NHEK	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ALJ
+ENCSR000ALT	primary cell	POLR2A	POLR2A ChIP-seq on human NHEK	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ALT
+ENCSR000ALV	primary cell	CTCF	CTCF ChIP-seq on human mammary epithelial cell	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ALV
+ENCSR000AMA	immortalized cell line	CTCF	CTCF ChIP-seq on human HepG2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AMA
+ENCSR000AMF	stem cell	CTCF	CTCF ChIP-seq on human H1-hESC	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AMF
+ENCSR000ANE	primary cell	CTCF	CTCF ChIP-seq on human skeletal muscle myoblast	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ANE
+ENCSR000ANO	primary cell	CTCF	CTCF ChIP-seq on human NHLF	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ANO
+ENCSR000ANS	in vitro differentiated cells	CTCF	CTCF ChIP-seq on human HSMMtube	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ANS
+ENCSR000AOA	immortalized cell line	CTCF	CTCF ChIP-seq on human HeLa-S3	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AOA
+ENCSR000AOJ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HeLa-S3	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AOJ
+ENCSR000AOO	primary cell	CTCF	CTCF ChIP-seq on human NH-A	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AOO
+ENCSR000APF	primary cell	CTCF	CTCF ChIP-seq on human osteoblast	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000APF
+ENCSR000APM	primary cell	CTCF	CTCF ChIP-seq on human NHDF-Ad	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000APM
+ENCSR000AQA	immortalized cell line	KDM5B	ChIP-seq on human K562 KDM5B	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQA
+ENCSR000AQB	immortalized cell line	EP300	ChIP-seq on human K562 EP300	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQB
+ENCSR000AQC	stem cell	RBBP5	ChIP-seq on human H1-hESC RBBP5	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQC
+ENCSR000AQD	immortalized cell line	CHD1	ChIP-seq on human K562 CHD1	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQD
+ENCSR000AQE	immortalized cell line	EZH2	ChIP-seq on human K562 EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQE
+ENCSR000AQF	immortalized cell line	HDAC1	ChIP-seq on human K562 HDAC1	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQF
+ENCSR000AQG	immortalized cell line	HDAC2	ChIP-seq on human K562 HDAC2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQG
+ENCSR000AQH	immortalized cell line	PHF8	ChIP-seq on human K562 PHF8	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQH
+ENCSR000AQI	immortalized cell line	RBBP5	ChIP-seq on human K562 RBBP5	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQI
+ENCSR000AQJ	immortalized cell line	SAP30	ChIP-seq on human K562 SAP30	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQJ
+ENCSR000AQK	stem cell	CHD1	ChIP-seq on human H1-hESC CHD1	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQK
+ENCSR000AQL	stem cell	KDM5A	ChIP-seq on human H1-hESC KDM5A	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQL
+ENCSR000AQU	immortalized cell line	CTCF	ChIP-seq on human Dnd41 CTCF	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000AQU
+ENCSR000ARD	immortalized cell line	EZH2	ChIP-seq on human GM12878 EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARD
+ENCSR000ARE	primary cell	EZH2	ChIP-seq on human HMEC EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARE
+ENCSR000ARH	primary cell	EZH2	ChIP-seq on human HSMM EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARH
+ENCSR000ARI	immortalized cell line	EZH2	ChIP-seq on human HepG2 EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARI
+ENCSR000ARK	primary cell	EZH2	ChIP-seq on human NHEK EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARK
+ENCSR000ARO	primary cell	EZH2	ChIP-seq on human NHLF EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARO
+ENCSR000ARR	primary cell	EZH2	ChIP-seq on human NH-A EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ARR
+ENCSR000ASE	primary cell	EZH2	ChIP-seq on human NHDF-Ad EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ASE
+ENCSR000ASW	immortalized cell line	EZH2	ChIP-seq on human Dnd41 EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ASW
+ENCSR000ASY	stem cell	EZH2	ChIP-seq on human H1-hESC EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ASY
+ENCSR000ASZ	in vitro differentiated cells	EZH2	ChIP-seq on human HSMMtube EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ASZ
+ENCSR000ATA	primary cell	EZH2	ChIP-seq on human HUVEC EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ATA
+ENCSR000ATC	immortalized cell line	EZH2	ChIP-seq on human HeLa-S3 EZH2	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ATC
+ENCSR000ATJ	immortalized cell line	HDAC6	ChIP-seq on human K562 HDAC6	Bradley Bernstein, Broad	https://www.encodeproject.org/experiments/ENCSR000ATJ
+ENCSR000BGA	immortalized cell line	FOXP2	FOXP2 ChIP-seq protocol PCR2x on human PFSK-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGA
+ENCSR000BGB	immortalized cell line	FOXP2	FOXP2 ChIP-seq protocol PCR2x on human SK-N-MC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGB
+ENCSR000BGC	immortalized cell line	GABPA	GABPA ChIP-seq protocol PCR2x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGC
+ENCSR000BGD	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol PCR2x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGD
+ENCSR000BGE	immortalized cell line	SRF	SRF ChIP-seq protocol PCR2x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGE
+ENCSR000BGI	immortalized cell line	USF1	USF1 ChIP-seq protocol PCR2x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGI
+ENCSR000BGK	immortalized cell line	JUND	JUND ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGK
+ENCSR000BGL	immortalized cell line	SIN3A	SIN3A ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGL
+ENCSR000BGM	immortalized cell line	USF1	USF1 ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGM
+ENCSR000BGO	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol PCR1x on human HeLa-S3	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGO
+ENCSR000BGP	immortalized cell line	POU2F2	POU2F2 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGP
+ENCSR000BGQ	immortalized cell line	SPI1	SPI1 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGQ
+ENCSR000BGR	immortalized cell line	PBX3	PBX3 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGR
+ENCSR000BGS	immortalized cell line	TAF1	TAF1 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGS
+ENCSR000BGT	immortalized cell line	BATF	BATF ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGT
+ENCSR000BGU	immortalized cell line	EBF1	EBF1 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGU
+ENCSR000BGW	immortalized cell line	SPI1	SPI1 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGW
+ENCSR000BGX	immortalized cell line	SIX5	SIX5 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGX
+ENCSR000BGY	immortalized cell line	IRF4	IRF4 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGY
+ENCSR000BGZ	immortalized cell line	TCF12	TCF12 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BGZ
+ENCSR000BHA	immortalized cell line	CUX1	BCL11A ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHA
+ENCSR000BHB	immortalized cell line	EP300	EP300 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHB
+ENCSR000BHC	immortalized cell line	ZBTB33	ZBTB33 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHC
+ENCSR000BHD	immortalized cell line	PAX5	PAX5 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHD
+ENCSR000BHE	immortalized cell line	NR3C1	NR3C1 ChIP-seq (protocol PCR1x) on A549 treated with dexamethasone at 500pM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHE
+ENCSR000BHF	immortalized cell line	NR3C1	NR3C1 ChIP-seq (protocol PCR1x) on A549 treated with dexamethasone at 50pM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHF
+ENCSR000BHG	immortalized cell line	NR3C1	NR3C1 ChIP-seq (protocol PCR1x) on A549 treated with dexamethasone at 5nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHG
+ENCSR000BHH	immortalized cell line	POLR2A	POLR2A ChIP-seq (protocol PCR2x) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHH
+ENCSR000BHI	immortalized cell line	POLR2A	PLOR2A ChIP-seq (protocol PCR2x) on A549 treated with dexamethasone at 100pM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHI
+ENCSR000BHJ	immortalized cell line	PAX5	PAX5 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHJ
+ENCSR000BHK	immortalized cell line	SP1	SP1 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHK
+ENCSR000BHM	stem cell	REST	REST ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHM
+ENCSR000BHN	stem cell	POLR2A	POLR2A ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHN
+ENCSR000BHO	stem cell	TAF1	TAF1 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHO
+ENCSR000BHP	immortalized cell line	FOSL2	FOSL2 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHP
+ENCSR000BHR	immortalized cell line	ZBTB33	ZBTB33 ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHR
+ENCSR000BHS	immortalized cell line	GABPA	GABPA ChIP-seq protocol PCR1x on human HeLa-S3	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHS
+ENCSR000BHT	immortalized cell line	TAF1	TAF1 ChIP-seq protocol PCR1x on human HeLa-S3	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHT
+ENCSR000BHU	immortalized cell line	RXRA	RXRA ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHU
+ENCSR000BHV	immortalized cell line	CTCF	CTCF ChIP-seq (protocol PCR2x) on A549 treated with dexamethasone at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHV
+ENCSR000BHW	immortalized cell line	CTCF	CTCF ChIP-seq (protocol PCR1x) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHW
+ENCSR000BHX	immortalized cell line	USF1	USF1 ChIP-seq (protocol PCR1x) on A549 treated with dexamethasone at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHX
+ENCSR000BHZ	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol v041610.2 on human GM12892	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BHZ
+ENCSR000BIA	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.2 on human GM12892	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIA
+ENCSR000BIB	immortalized cell line	TAF1	TAF1 ChIP-seq protocol v041610.2 on human GM12892	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIB
+ENCSR000BIC	stem cell	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIC
+ENCSR000BID	immortalized cell line	BHLHE40	BHLHE40 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BID
+ENCSR000BIE	immortalized cell line	CTCF	CTCF ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIE
+ENCSR000BIF	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIF
+ENCSR000BII	immortalized cell line	POU2F2	POU2F2 ChIP-seq protocol PCR1x on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BII
+ENCSR000BIJ	immortalized cell line	SPI1	SPI1 ChIP-seq protocol PCR1x on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIJ
+ENCSR000BIK	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol PCR1x on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIK
+ENCSR000BIL	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol PCR1x on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIL
+ENCSR000BIM	immortalized cell line	TAF1	TAF1 ChIP-seq protocol PCR1x on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIM
+ENCSR000BIP	stem cell	CUX1	BCL11A ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIP
+ENCSR000BIQ	stem cell	SIX5	SIX5 ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIQ
+ENCSR000BIR	stem cell	SP1	SP1 ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIR
+ENCSR000BIS	stem cell	SIN3A	SIN3A ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIS
+ENCSR000BIT	stem cell	TCF12	TCF12 ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIT
+ENCSR000BIU	stem cell	USF1	USF1 ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIU
+ENCSR000BIV	stem cell	SRF	SRF ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIV
+ENCSR000BIW	stem cell	GABPA	GABPA ChIP-seq protocol PCR1x on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIW
+ENCSR000BIY	immortalized cell line	ESR1	ESR1 ChIP-seq (protocol v041610.2) on ECC-1 treated with estradiol at 10nM. Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BIY
+ENCSR000BJA	stem cell	EGR1	EGR1 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJA
+ENCSR000BJB	immortalized cell line	USF1	USF1 ChIP-seq (protocol PCR1x) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJB
+ENCSR000BJC	immortalized cell line	NR3C1	NR3C1 ChIP-seq (protocol v041610.2) on ECC-1 treated with dexamethasone at 100 nM. Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJC
+ENCSR000BJD	immortalized cell line	RXRA	RXRA ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJD
+ENCSR000BJE	immortalized cell line	SIX5	SIX5 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJE
+ENCSR000BJG	immortalized cell line	TCF12	TCF12 ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJG
+ENCSR000BJH	immortalized cell line	PAX5	PAX5 ChIP-seq protocol v041610.1 on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJH
+ENCSR000BJI	immortalized cell line	PAX5	PAX5 ChIP-seq protocol v041610.1 on human GM12892	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJI
+ENCSR000BJJ	immortalized cell line	REST	REST ChIP-seq protocol PCR2x on human SK-N-SH	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJJ
+ENCSR000BJK	immortalized cell line	GABPA	GABPA ChIP-seq protocol PCR2x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJK
+ENCSR000BJL	immortalized cell line	REST	REST ChIP-seq protocol PCR2x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJL
+ENCSR000BJM	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol PCR2x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJM
+ENCSR000BJN	immortalized cell line	TAF1	TAF1 ChIP-seq protocol PCR2x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJN
+ENCSR000BJO	immortalized cell line	REST	REST ChIP-seq protocol PCR2x on human PANC-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJO
+ENCSR000BJP	immortalized cell line	REST	REST ChIP-seq protocol PCR2x on human PFSK-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJP
+ENCSR000BJQ	immortalized cell line	REST	REST ChIP-seq protocol PCR2x on human U87	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJQ
+ENCSR000BJR	immortalized cell line	NR3C1	NR3C1 ChIP-seq (protocol PCR2x) on A549 treated with dexamethasone at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJR
+ENCSR000BJS	immortalized cell line	ESR1	ESR1 ChIP-seq (protocol v041610.2) on T-47D treated with genistein at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJS
+ENCSR000BJW	stem cell	RXRA	RXRA ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJW
+ENCSR000BJX	immortalized cell line	SP1	SP1 ChIP-seq protocol PCR1x on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJX
+ENCSR000BJY	immortalized cell line	ATF3	ATF3 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJY
+ENCSR000BJZ	immortalized cell line	BCLAF1	BCLAF1 ChIP-seq protocol v041610.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BJZ
+ENCSR000BKA	immortalized cell line	ETS1	ETS1 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKA
+ENCSR000BKB	immortalized cell line	MEF2A	MEF2A ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKB
+ENCSR000BKC	stem cell	ATF3	ATF3 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKC
+ENCSR000BKD	stem cell	YY1	YY1 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKD
+ENCSR000BKE	immortalized cell line	ATF3	ATF3 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKE
+ENCSR000BKF	immortalized cell line	ZBTB33	ZBTB33 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKF
+ENCSR000BKG	immortalized cell line	BCL3	BCL3 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKG
+ENCSR000BKH	immortalized cell line	BCLAF1	BCLAF1 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKH
+ENCSR000BKI	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol v041610.2 on human ECC-1 treated with 0.02% DMSO. Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKI
+ENCSR000BKJ	immortalized cell line	YY1	YY1 ChIP-seq protocol v041610.1 on human GM12891	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKJ
+ENCSR000BKK	stem cell	EP300	EP300 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKK
+ENCSR000BKL	immortalized cell line	ESR1	ESR1 ChIP-seq protocol v041610.2 on human ECC-1 treated with 100 nM Genistein. Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKL
+ENCSR000BKM	immortalized cell line	GATA2	GATA2 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKM
+ENCSR000BKN	immortalized cell line	ESR1	ESR1 ChIP-seq protocol v041610.2 on human T-47D treated with 10 nM estradiol	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKN
+ENCSR000BKO	immortalized cell line	SP1	SP1 ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKO
+ENCSR000BKP	stem cell	JUND	JUND ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKP
+ENCSR000BKQ	immortalized cell line	ETS1	ETS1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKQ
+ENCSR000BKR	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKR
+ENCSR000BKS	immortalized cell line	TAF1	TAF1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKS
+ENCSR000BKT	immortalized cell line	USF1	USF1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKT
+ENCSR000BKU	immortalized cell line	YY1	YY1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKU
+ENCSR000BKV	immortalized cell line	RAD21	RAD21 ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKV
+ENCSR000BKW	immortalized cell line	FOXA1	FOXA1 ChIP-seq protocol v041610.2 on human ECC-1 treated with 0.02% DMSO. Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKW
+ENCSR000BKY	immortalized cell line	FOXA1	FOXA1 ChIP-seq protocol v041610.2 on human T-47D treated with 0.02% DMSO	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BKY
+ENCSR000BLD	stem cell	RAD21	RAD21 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLD
+ENCSR000BLE	immortalized cell line	FOXA1	FOXA1 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLE
+ENCSR000BLF	immortalized cell line	HNF4A	HNF4A ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLF
+ENCSR000BLI	immortalized cell line	E2F6	E2F6 ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLI
+ENCSR000BLK	immortalized cell line	SRF	SRF ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLK
+ENCSR000BLM	immortalized cell line	EP300	EP300 ChIP-seq protocol v041610.2 on human T-47D treated with 0.02% DMSO	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLM
+ENCSR000BLO	immortalized cell line	GABPA	GABPA ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLO
+ENCSR000BLP	immortalized cell line	MAX	MAX ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLP
+ENCSR000BLR	immortalized cell line	SIN3A	SIN3A ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLR
+ENCSR000BLS	immortalized cell line	RAD21	RAD21 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLS
+ENCSR000BLT	immortalized cell line	YY1	YY1 ChIP-seq protocol v041610.1 on human GM12892	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLT
+ENCSR000BLU	stem cell	TAF7	TAF7 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLU
+ENCSR000BLV	immortalized cell line	SRF	SRF ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLV
+ENCSR000BLW	immortalized cell line	EP300	EP300 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLW
+ENCSR000BLX	immortalized cell line	CTCF	Control ChIP-seq (protocol v041610.2) on SK-N-SH treated with 6uM retinoic acid for 48 hours	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLX
+ENCSR000BLY	immortalized cell line	RAD21	RAD21 ChIP-seq (protocol v041610.2) on SK-N-SH treated with 6uM retinoic acid for 48 hours	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLY
+ENCSR000BLZ	immortalized cell line	YY1	YY1 ChIP-seq (protocol v041610.2) on SK-N-SH treated with 6uM retinoic acid for 48 hours	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BLZ
+ENCSR000BMA	immortalized cell line	EP300	EP300 ChIP-seq (protocol v041610.2) on SK-N-SH treated with 6uM retinoic acid for 48 hours	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMA
+ENCSR000BMB	immortalized cell line	ELF1	ELF1 ChIP-seq protocol v041610.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMB
+ENCSR000BMC	immortalized cell line	HDAC2	HDAC2 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMC
+ENCSR000BMD	immortalized cell line	ELF1	ELF1 ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMD
+ENCSR000BME	immortalized cell line	ZBTB7A	ZBTB7A ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BME
+ENCSR000BMF	immortalized cell line	USF1	USF1 ChIP-seq (protocol v041610.2) on SK-N-SH treated with 6uM retinoic acid for 48 hours	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMF
+ENCSR000BMG	immortalized cell line	HDAC2	HDAC2 ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMG
+ENCSR000BMH	immortalized cell line	YY1	YY1 ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMH
+ENCSR000BML	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human HCT-116	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BML
+ENCSR000BMN	immortalized cell line	REST	REST ChIP-seq protocol PCR1x on human HeLa-S3	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMN
+ENCSR000BMO	immortalized cell line	FOXA1	FOXA1 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMO
+ENCSR000BMR	immortalized cell line	POLR2A	POLR2A ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMR
+ENCSR000BMT	stem cell	NANOG	NANOG ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMT
+ENCSR000BMU	stem cell	POU5F1	POU5F1 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMU
+ENCSR000BMV	immortalized cell line	FOSL1	FOSL1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMV
+ENCSR000BMW	immortalized cell line	REST	REST ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMW
+ENCSR000BMX	immortalized cell line	GATA3	FOXA2 ChIP-seq (protocol v041610.2) on T-47D treated with dimethylsulfoxide at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMX
+ENCSR000BMY	immortalized cell line	RAD21	RAD21 ChIP-seq protocol v041610.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMY
+ENCSR000BMZ	immortalized cell line	ELF1	ELF1 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BMZ
+ENCSR000BND	immortalized cell line	ZEB1	ZEB1 ChIP-seq protocol v041610.2 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BND
+ENCSR000BNE	immortalized cell line	EGR1	EGR1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNE
+ENCSR000BNG	immortalized cell line	MEF2C	MEF2C ChIP-seq protocol v041610.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNG
+ENCSR000BNH	stem cell	CTCF	CTCF ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNH
+ENCSR000BNI	immortalized cell line	FOXA2	FOXA2 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNI
+ENCSR000BNJ	immortalized cell line	HNF4G	HNF4G ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNJ
+ENCSR000BNK	immortalized cell line	CTCFL	CTCFL ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNK
+ENCSR000BNL	immortalized cell line	SP2	SP2 ChIP-seq protocol v041610.2 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNL
+ENCSR000BNM	immortalized cell line	TAF7	TAF7 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNM
+ENCSR000BNN	immortalized cell line	THAP1	THAP1 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNN
+ENCSR000BNO	immortalized cell line	CTCF	CTCF ChIP-seq (protocol v041610.2) on T-47D treated with dimethylsulfoxide at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNO
+ENCSR000BNP	immortalized cell line	YY1	YY1 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNP
+ENCSR000BNQ	immortalized cell line	BCL3	BCL3 ChIP-seq protocol v041610.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNQ
+ENCSR000BNR	stem cell	HDAC2	HDAC2 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNR
+ENCSR000BNS	stem cell	FOSL1	FOSL1 ChIP-seq protocol v041610.2 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNS
+ENCSR000BNT	immortalized cell line	YY1	YY1 ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNT
+ENCSR000BNU	immortalized cell line	ATF3	ATF3 ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNU
+ENCSR000BNV	immortalized cell line	MEF2A	MEF2A ChIP-seq protocol v041610.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNV
+ENCSR000BNX	immortalized cell line	YY1	YY1 ChIP-seq protocol v041610.1 on human HCT-116	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNX
+ENCSR000BNY	immortalized cell line	ZBTB33	ZBTB33 ChIP-seq protocol v041610.1 on human HCT-116	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BNY
+ENCSR000BOA	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human U87	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOA
+ENCSR000BOT	immortalized cell line	REST	REST ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOT
+ENCSR000BOU	immortalized cell line	SP2	SP2 ChIP-seq protocol v042211.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOU
+ENCSR000BOV	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human PANC-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOV
+ENCSR000BOW	immortalized cell line	SIN3A	SIN3A ChIP-seq protocol v041610.1 on human PANC-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOW
+ENCSR000BOY	immortalized cell line	SIN3A	SIN3A ChIP-seq protocol v041610.1 on human PFSK-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOY
+ENCSR000BOZ	immortalized cell line	REST	REST ChIP-seq protocol v041610.1 on human SK-N-SH	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BOZ
+ENCSR000BPA	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human SK-N-SH	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPA
+ENCSR000BPB	immortalized cell line	SIN3A	SIN3A ChIP-seq protocol v041610.1 on human SK-N-SH	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPB
+ENCSR000BPF	immortalized cell line	TAF1	TAF1 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPF
+ENCSR000BPI	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.2 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPI
+ENCSR000BPJ	immortalized cell line	CTCF	CTCF ChIP-seq protocol PCR1x on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPJ
+ENCSR000BPL	immortalized cell line	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human SK-N-MC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPL
+ENCSR000BPM	immortalized cell line	YY1	YY1 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPM
+ENCSR000BPS	immortalized cell line	ATF3	ATF3 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPS
+ENCSR000BPT	immortalized cell line	ELF1	ELF1 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPT
+ENCSR000BPU	immortalized cell line	ETS1	ETS1 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPU
+ENCSR000BPV	immortalized cell line	USF1	USF1 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPV
+ENCSR000BPW	immortalized cell line	EP300	EP300 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPW
+ENCSR000BPX	immortalized cell line	FOXA1	FOXA1 ChIP-seq (protocol v041610.2) on A549 treated with dexamethasone at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPX
+ENCSR000BPY	immortalized cell line	GABPA	GAbisphenol A ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPY
+ENCSR000BPZ	immortalized cell line	ZBTB33	ZBTB33 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BPZ
+ENCSR000BQA	immortalized cell line	ZBTB7A	ZBTB7A ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQA
+ENCSR000BQB	primary cell	POLR2A	POLR2A ChIP-seq protocol PCR1x on human HUVEC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQB
+ENCSR000BQC	primary cell	POLR2A	POLR2AphosphoS5 ChIP-seq protocol v041610.1 on human HUVEC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQC
+ENCSR000BQD	immortalized cell line	ESR1	ESR1 ChIP-seq (protocol v041610.2) on T-47D treated with bisphenol A at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQD
+ENCSR000BQE	immortalized cell line	CTCF	CTCF ChIP-seq (protocol v041610.2) on ECC-1 treated with dimethylsulfoxide at 0.02%. Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQE
+ENCSR000BQF	immortalized cell line	TAF1	TAF1 ChIP-seq protocol v041610.1 on human SK-N-SH	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQF
+ENCSR000BQG	stem cell	SP2	SP2 ChIP-seq protocol v042211.1 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQG
+ENCSR000BQH	immortalized cell line	BCL3	BCL3 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQH
+ENCSR000BQI	immortalized cell line	CEBPB	CEBPB ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQI
+ENCSR000BQJ	immortalized cell line	CEBPD	CEBPD ChIP-seq protocol v041610.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQJ
+ENCSR000BQK	immortalized cell line	ATF2	ATF2 ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQK
+ENCSR000BQL	immortalized cell line	NFATC1	NFATC1 ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQL
+ENCSR000BQM	immortalized cell line	PML	PML ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQM
+ENCSR000BQN	immortalized cell line	TAF1	TAF1 ChIP-seq protocol v041610.1 on human PFSK-1	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQN
+ENCSR000BQO	immortalized cell line	FOSL2	FOSL2 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQO
+ENCSR000BQP	immortalized cell line	REST	REST ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQP
+ENCSR000BQQ	immortalized cell line	TCF12	TCF12 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQQ
+ENCSR000BQR	immortalized cell line	ESR1	ESR1 ChIP-seq (protocol v041610.2) on Ishikawa cells treated with bisphenol A 100nM.  Note- This experiment previously referred to its biosample as ECC-1, however it has been found that all currently available ECC-1 are actually Ishikawa cells.	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQR
+ENCSR000BQS	immortalized cell line	REST	REST ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQS
+ENCSR000BQT	immortalized cell line	TCF3	TCF3 ChIP-seq protocol PCR1x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQT
+ENCSR000BQU	stem cell	ATF2	ATF2 ChIP-seq protocol v042211.1 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQU
+ENCSR000BQV	stem cell	SP4	SP4 ChIP-seq protocol v042211.1 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQV
+ENCSR000BQW	immortalized cell line	MBD4	MBD4 ChIP-seq protocol v042211.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQW
+ENCSR000BQX	immortalized cell line	NFIC	NFIC ChIP-seq protocol v042211.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQX
+ENCSR000BQY	immortalized cell line	PML	PML ChIP-seq protocol v042211.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQY
+ENCSR000BQZ	immortalized cell line	STAT5A	STAT5A ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BQZ
+ENCSR000BRB	immortalized cell line	CREB1	CREB1 ChIP-seq (protocol v041610.2) on A549 treated with dexamethasone at 100nM	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRB
+ENCSR000BRG	immortalized cell line	EGR1	EGR1 ChIP-seq protocol PCR2x on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRG
+ENCSR000BRH	immortalized cell line	MTA3	MTA3 ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRH
+ENCSR000BRI	immortalized cell line	RUNX3	RUNX3 ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRI
+ENCSR000BRK	immortalized cell line	TEAD4	TEAD4 ChIP-seq protocol v042211.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRK
+ENCSR000BRL	immortalized cell line	SIX5	SIX5 ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRL
+ENCSR000BRM	immortalized cell line	SIN3A	SIN3A ChIP-seq (protocol v042211.1) on A549 treated with ethanol at 0.02%	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRM
+ENCSR000BRN	immortalized cell line	NFIC	NFIC ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRN
+ENCSR000BRO	immortalized cell line	MYBL2	MYBL2 ChIP-seq protocol v042211.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRO
+ENCSR000BRP	immortalized cell line	TEAD4	TEAD4 ChIP-seq protocol v042211.1 on human HepG2	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRP
+ENCSR000BRQ	immortalized cell line	CEBPB	CEBPB ChIP-seq protocol v042211.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRQ
+ENCSR000BRR	immortalized cell line	STAT5A	STAT5A ChIP-seq protocol v042211.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRR
+ENCSR000BRS	immortalized cell line	NR2F2	NR2F2 ChIP-seq protocol v042211.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRS
+ENCSR000BRT	immortalized cell line	CBX3	CBX3 ChIP-seq protocol v042211.1 on human K562	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRT
+ENCSR000BRU	immortalized cell line	FOXM1	FOXM1 ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRU
+ENCSR000BRX	immortalized cell line	CEBPB	CEBPB ChIP-seq protocol v042211.1 on human GM12878	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRX
+ENCSR000BRY	stem cell	TEAD4	TEAD4 ChIP-seq protocol v042211.1 on human H1-hESC	Richard Myers, HAIB	https://www.encodeproject.org/experiments/ENCSR000BRY
+ENCSR000DJW	immortalized cell line	NR4A1	NR4A1 ChIP-seq on human K562 eGFP-NR4A1	Kevin White, UChicago	https://www.encodeproject.org/experiments/ENCSR000DJW
+ENCSR000DJX	immortalized cell line	JUND	JUND ChIP-seq on human K562 eGFP-JunD	Kevin White, UChicago	https://www.encodeproject.org/experiments/ENCSR000DJX
+ENCSR000DJY	immortalized cell line	JUNB	JUNB ChIP-seq on human K562 eGFP-JunB	Kevin White, UChicago	https://www.encodeproject.org/experiments/ENCSR000DJY
+ENCSR000DJZ	immortalized cell line	HDAC8	HDAC8 ChIP-seq on human K562 eGFP-HDAC8	Kevin White, UChicago	https://www.encodeproject.org/experiments/ENCSR000DJZ
+ENCSR000DKA	immortalized cell line	GATA2	GATA2 ChIP-seq on human K562 eGFP-GATA2	Kevin White, UChicago	https://www.encodeproject.org/experiments/ENCSR000DKA
+ENCSR000DKB	immortalized cell line	FOS	FOS ChIP-seq on human K562 eGFP-FOS	Kevin White, UChicago	https://www.encodeproject.org/experiments/ENCSR000DKB
+ENCSR000DKL	primary cell	CTCF	CTCF ChIP-seq on human Fibrobl	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKL
+ENCSR000DKM	immortalized cell line	POLR2A	POLR2A ChIP-seq on human Gliobla	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKM
+ENCSR000DKN	immortalized cell line	CTCF	CTCF ChIP-seq on human Gliobla	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKN
+ENCSR000DKP	immortalized cell line	CTCF	CTCF ChIP-seq on human GM10248	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKP
+ENCSR000DKR	immortalized cell line	CTCF	CTCF ChIP-seq on human GM10266	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKR
+ENCSR000DKT	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM12878	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKT
+ENCSR000DKU	immortalized cell line	MYC	MYC ChIP-seq on human GM12878	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKU
+ENCSR000DKV	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12878	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKV
+ENCSR000DKX	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12891	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKX
+ENCSR000DKY	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12892	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKY
+ENCSR000DKZ	immortalized cell line	CTCF	CTCF ChIP-seq on human GM13976	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DKZ
+ENCSR000DLB	immortalized cell line	CTCF	CTCF ChIP-seq on human GM13977	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLB
+ENCSR000DLD	immortalized cell line	CTCF	CTCF ChIP-seq on human GM19238	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLD
+ENCSR000DLE	immortalized cell line	CTCF	CTCF ChIP-seq on human GM19239	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLE
+ENCSR000DLF	immortalized cell line	CTCF	CTCF ChIP-seq on human GM19240	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLF
+ENCSR000DLG	immortalized cell line	CTCF	CTCF ChIP-seq on human GM20000	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLG
+ENCSR000DLI	stem cell	MYC	MYC ChIP-seq on human H1-hESC	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLI
+ENCSR000DLJ	stem cell	POLR2A	POLR2A ChIP-seq on human H1-hESC	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLJ
+ENCSR000DLK	stem cell	CTCF	CTCF ChIP-seq on human H1-hESC	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLK
+ENCSR000DLM	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HeLa-S3	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLM
+ENCSR000DLN	immortalized cell line	MYC	MYC ChIP-seq on human HeLa-S3	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLN
+ENCSR000DLO	immortalized cell line	CTCF	CTCF ChIP-seq on human HeLa-S3	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLO
+ENCSR000DLQ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HepG2	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLQ
+ENCSR000DLR	immortalized cell line	MYC	MYC ChIP-seq on human HepG2	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLR
+ENCSR000DLS	immortalized cell line	CTCF	CTCF ChIP-seq on human HepG2	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLS
+ENCSR000DLU	primary cell	MYC	MYC ChIP-seq on human HUVEC	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLU
+ENCSR000DLV	primary cell	POLR2A	POLR2A ChIP-seq on human HUVEC	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLV
+ENCSR000DLW	primary cell	CTCF	CTCF ChIP-seq on human HUVEC	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLW
+ENCSR000DLY	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLY
+ENCSR000DLZ	immortalized cell line	MYC	MYC ChIP-seq on human K562	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DLZ
+ENCSR000DMA	immortalized cell line	CTCF	CTCF ChIP-seq on human K562	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMA
+ENCSR000DMC	tissue	CTCF	CTCF ChIP-seq on human kidney	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMC
+ENCSR000DME	immortalized cell line	CTCF	CTCF ChIP-seq on human LNCaP treated with androgen	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DME
+ENCSR000DMF	immortalized cell line	CTCF	CTCF ChIP-seq on human LNCaP	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMF
+ENCSR000DMH	tissue	CTCF	CTCF ChIP-seq on human lung	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMH
+ENCSR000DMJ	immortalized cell line	MYC	MYC ChIP-seq on human MCF-7 treated with serum starved media	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMJ
+ENCSR000DMK	immortalized cell line	POLR2A	POLR2A ChIP-seq on human MCF-7 treated with serum starved media	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMK
+ENCSR000DML	immortalized cell line	CTCF	CTCF ChIP-seq on human MCF-7 treated with serum starved media	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DML
+ENCSR000DMM	immortalized cell line	MYC	MYC ChIP-seq on human MCF-7 treated with serum stimulated media	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMM
+ENCSR000DMN	immortalized cell line	POLR2A	POLR2A ChIP-seq on human MCF-7 treated with serum stimulated media	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMN
+ENCSR000DMO	immortalized cell line	CTCF	CTCF ChIP-seq on human MCF-7 treated with serum stimulated media	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMO
+ENCSR000DMP	immortalized cell line	MYC	MYC ChIP-seq on human MCF-7 treated with estrogen	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMP
+ENCSR000DMQ	immortalized cell line	MYC	MYC ChIP-seq on human MCF-7 treated with vehicle	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMQ
+ENCSR000DMR	immortalized cell line	CTCF	CTCF ChIP-seq on human MCF-7 treated with vehicle	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMR
+ENCSR000DMS	immortalized cell line	CTCF	CTCF ChIP-seq on human MCF-7 treated with estrogen	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMS
+ENCSR000DMT	immortalized cell line	POLR2A	POLR2A ChIP-seq on human MCF-7	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMT
+ENCSR000DMV	immortalized cell line	CTCF	CTCF ChIP-seq on human MCF-7	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMV
+ENCSR000DMY	immortalized cell line	CTCF	CTCF ChIP-seq on human Medullo	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMY
+ENCSR000DMZ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human A549	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DMZ
+ENCSR000DNA	immortalized cell line	CTCF	CTCF ChIP-seq on human A549	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DNA
+ENCSR000DNC	primary cell	CTCF	CTCF ChIP-seq on human NHEK	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DNC
+ENCSR000DND	tissue	CTCF	CTCF ChIP-seq on human Pancreas	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DND
+ENCSR000DNF	primary cell	POLR2A	POLR2A ChIP-seq on human ProgFib	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DNF
+ENCSR000DNG	primary cell	CTCF	CTCF ChIP-seq on human ProgFib	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DNG
+ENCSR000DNI	tissue	CTCF	CTCF ChIP-seq on human spleen	Vishwanath Iyer, UTA	https://www.encodeproject.org/experiments/ENCSR000DNI
+ENCSR000DNM	immortalized cell line	NFYB	NFYB ChIP-seq on human GM12878	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNM
+ENCSR000DNN	immortalized cell line	NFYA	NFYA ChIP-seq on human GM12878	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNN
+ENCSR000DNO	immortalized cell line	KAT2A	KAT2A ChIP-seq on human GM12878	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNO
+ENCSR000DNP	immortalized cell line	SUPT20H	SUPT20H ChIP-seq on human GM12878	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNP
+ENCSR000DNQ	immortalized cell line	ZZZ3	ZZZ3 ChIP-seq on human GM12878	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNQ
+ENCSR000DNR	immortalized cell line	NFYB	NFYB ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNR
+ENCSR000DNS	immortalized cell line	NFYA	NFYA ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNS
+ENCSR000DNT	immortalized cell line	ZZZ3	ZZZ3 ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNT
+ENCSR000DNU	immortalized cell line	POLR3A	POLR3A ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNU
+ENCSR000DNV	immortalized cell line	BRF2	BRF2 ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNV
+ENCSR000DNW	immortalized cell line	BRF1	BRF1 ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNW
+ENCSR000DNX	immortalized cell line	BDP1	BDP1 ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNX
+ENCSR000DNY	immortalized cell line	GTF3C2	GTF3C2 ChIP-seq on human HeLa-S3	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNY
+ENCSR000DNZ	immortalized cell line	ATF1	ATF1 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DNZ
+ENCSR000DOA	immortalized cell line	CCNT2	CCNT2 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOA
+ENCSR000DOB	immortalized cell line	HMGN3	HMGN3 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOB
+ENCSR000DOC	immortalized cell line	BRF2	BRF2 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOC
+ENCSR000DOD	immortalized cell line	GTF3C2	GTF3C2 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOD
+ENCSR000DOE	immortalized cell line	GTF2B	GTF2B ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOE
+ENCSR000DOF	immortalized cell line	NELFE	NELFE ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOF
+ENCSR000DOG	immortalized cell line	ATF3	ATF3 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOG
+ENCSR000DOH	immortalized cell line	SIRT6	SIRT6 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOH
+ENCSR000DOI	immortalized cell line	POLR3A	POLR3A ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOI
+ENCSR000DOJ	immortalized cell line	BRF1	BRF1 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOJ
+ENCSR000DOK	immortalized cell line	BDP1	BDP1 ChIP-seq on human K562	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOK
+ENCSR000DOM	immortalized cell line	MYC	MYC ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 4 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOM
+ENCSR000DON	immortalized cell line	FOS	FOS ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 36 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DON
+ENCSR000DOO	immortalized cell line	FOS	FOS ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 4 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOO
+ENCSR000DOP	immortalized cell line	FOS	FOS ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 12 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOP
+ENCSR000DOQ	immortalized cell line	STAT3	STAT3 ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 12 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOQ
+ENCSR000DOR	immortalized cell line	E2F4	E2F4 ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 36 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOR
+ENCSR000DOS	immortalized cell line	MYC	MYC ChIP-seq on human MCF10A-Er-Src treated with 0.01% ethanol	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOS
+ENCSR000DOT	immortalized cell line	FOS	FOS ChIP-seq on human MCF10A-Er-Src treated with 0.01% ethanol	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOT
+ENCSR000DOU	immortalized cell line	STAT3	STAT3 ChIP-seq on human MCF10A-Er-Src treated with 0.01% ethanol for 4 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOU
+ENCSR000DOX	immortalized cell line	STAT3	STAT3 ChIP-seq on human MCF10A-Er-Src treated with 0.01% ethanol for 12 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOX
+ENCSR000DOZ	immortalized cell line	STAT3	STAT3 ChIP-seq on human MCF10A-Er-Src treated with 0.01% ethanol	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DOZ
+ENCSR000DPA	immortalized cell line	POLR2A	POLR2A ChIP-seq on human MCF10A-Er-Src treated with 0.01% ethanol	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DPA
+ENCSR000DPB	immortalized cell line	STAT3	STAT3 ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 36 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DPB
+ENCSR000DPC	immortalized cell line	POLR2A	POLR2A ChIP-seq on human MCF10A-Er-Src treated with 4-hydroxy-tamoxifen at 1uM for 36 hours	Kevin Struhl, HMS	https://www.encodeproject.org/experiments/ENCSR000DPC
+ENCSR000DPF	immortalized cell line	CTCF	CTCF ChIP-seq on human A549	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPF
+ENCSR000DPG	primary cell	CTCF	CTCF ChIP-seq on human AG04449	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPG
+ENCSR000DPM	primary cell	CTCF	CTCF ChIP-seq on human AG04450	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPM
+ENCSR000DPP	primary cell	CTCF	CTCF ChIP-seq on human AG09309	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPP
+ENCSR000DPS	primary cell	CTCF	CTCF ChIP-seq on human AG09319	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPS
+ENCSR000DPV	primary cell	CTCF	CTCF ChIP-seq on human AG10803	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPV
+ENCSR000DPY	primary cell	CTCF	CTCF ChIP-seq on human AoAF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DPY
+ENCSR000DQD	immortalized cell line	CTCF	CTCF ChIP-seq on human BE2-C	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DQD
+ENCSR000DQI	immortalized cell line	CTCF	CTCF ChIP-seq on human BJ	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DQI
+ENCSR000DQN	immortalized cell line	CTCF	CTCF ChIP-seq on human Caco-2	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DQN
+ENCSR000DQW	immortalized cell line	CTCF	CTCF ChIP-seq on human GM06990	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DQW
+ENCSR000DQY	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12801	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DQY
+ENCSR000DRB	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12864	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRB
+ENCSR000DRE	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12865	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRE
+ENCSR000DRF	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12866	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRF
+ENCSR000DRF	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12866	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRF
+ENCSR000DRH	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12867	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRH
+ENCSR000DRH	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12867	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRH
+ENCSR000DRI	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12868	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRI
+ENCSR000DRI	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12868	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRI
+ENCSR000DRJ	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12869	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRJ
+ENCSR000DRJ	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12869	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRJ
+ENCSR000DRK	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12870	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRK
+ENCSR000DRK	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12870	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRK
+ENCSR000DRL	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12871	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRL
+ENCSR000DRL	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12871	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRL
+ENCSR000DRN	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12872	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRN
+ENCSR000DRP	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12873	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRP
+ENCSR000DRR	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12874	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRR
+ENCSR000DRU	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12875	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRU
+ENCSR000DRZ	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12878	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DRZ
+ENCSR000DSU	primary cell	CTCF	CTCF ChIP-seq on human HA-sp	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DSU
+ENCSR000DSZ	primary cell	CTCF	CTCF ChIP-seq on human HAc	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DSZ
+ENCSR000DTA	primary cell	CTCF	CTCF ChIP-seq on human HBMEC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTA
+ENCSR000DTF	primary cell	CTCF	CTCF ChIP-seq on human HCFaa	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTF
+ENCSR000DTI	primary cell	CTCF	CTCF ChIP-seq on human HCM	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTI
+ENCSR000DTL	primary cell	CTCF	CTCF ChIP-seq on human HCPEpiC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTL
+ENCSR000DTO	immortalized cell line	CTCF	CTCF ChIP-seq on human HCT-116	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTO
+ENCSR000DTR	primary cell	CTCF	CTCF ChIP-seq on human HEEpiC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTR
+ENCSR000DTW	immortalized cell line	CTCF	CTCF ChIP-seq on human HEK293	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DTW
+ENCSR000DUB	immortalized cell line	CTCF	CTCF ChIP-seq on human HeLa-S3	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUB
+ENCSR000DUG	immortalized cell line	CTCF	CTCF ChIP-seq on human HepG2	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUG
+ENCSR000DUH	primary cell	CTCF	CTCF ChIP-seq on human HFF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUH
+ENCSR000DUM	immortalized cell line	CTCF	CTCF ChIP-seq on human HFF-Myc	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUM
+ENCSR000DUP	immortalized cell line	CTCF	CTCF ChIP-seq on human HL-60	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUP
+ENCSR000DUS	primary cell	CTCF	CTCF ChIP-seq on human HMEC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUS
+ENCSR000DUU	primary cell	CTCF	CTCF ChIP-seq on human HMF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUU
+ENCSR000DUX	primary cell	CTCF	CTCF ChIP-seq on human HPAF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DUX
+ENCSR000DVA	primary cell	CTCF	CTCF ChIP-seq on human HPF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DVA
+ENCSR000DVH	primary cell	CTCF	CTCF ChIP-seq on human HRE	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DVH
+ENCSR000DVI	primary cell	CTCF	CTCF ChIP-seq on human HRPEpiC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DVI
+ENCSR000DVP	primary cell	CTCF	CTCF ChIP-seq on human HUVEC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DVP
+ENCSR000DVQ	primary cell	CTCF	CTCF ChIP-seq on human HVMF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DVQ
+ENCSR000DWE	immortalized cell line	CTCF	CTCF ChIP-seq on human K562	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DWE
+ENCSR000DWH	immortalized cell line	CTCF	CTCF ChIP-seq on human MCF-7	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DWH
+ENCSR000DWN	immortalized cell line	CTCF	CTCF ChIP-seq on human NB4	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DWN
+ENCSR000DWQ	primary cell	CTCF	CTCF ChIP-seq on human NHDF-neo	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DWQ
+ENCSR000DWX	primary cell	CTCF	CTCF ChIP-seq on human NHEK	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DWX
+ENCSR000DWY	primary cell	CTCF	CTCF ChIP-seq on human NHLF	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DWY
+ENCSR000DXD	primary cell	CTCF	CTCF ChIP-seq on human RPTEC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DXD
+ENCSR000DXI	primary cell	CTCF	CTCF ChIP-seq on human SAEC	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DXI
+ENCSR000DXQ	immortalized cell line	CTCF	CTCF ChIP-seq on human SK-N-SH treated with 6uM retinoic acid for 48 hours	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DXQ
+ENCSR000DXW	immortalized cell line	CTCF	CTCF ChIP-seq on human WERI-Rb-1	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DXW
+ENCSR000DYB	immortalized cell line	CTCF	CTCF ChIP-seq on human WI-38	John Stamatoyannopoulos, UW	https://www.encodeproject.org/experiments/ENCSR000DYB
+ENCSR000DYC	immortalized cell line	MYC	MYC ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYC
+ENCSR000DYD	immortalized cell line	CTCF	CTCF ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYD
+ENCSR000DYE	immortalized cell line	RAD21	RAD21 ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYE
+ENCSR000DYF	immortalized cell line	POLR2A	POLR2AphosphoS2 ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYF
+ENCSR000DYG	immortalized cell line	MAX	MAX ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYG
+ENCSR000DYI	immortalized cell line	CEBPB	CEBPB ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYI
+ENCSR000DYJ	immortalized cell line	BHLHE40	BHLHE40 ChIP-seq on human A549 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYJ
+ENCSR000DYM	immortalized cell line	RELA	RELA ChIP-seq on human GM10847 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYM
+ENCSR000DYO	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM10847	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYO
+ENCSR000DYP	immortalized cell line	ZNF384	ZNF384 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYP
+ENCSR000DYQ	immortalized cell line	ESRRA	ESRRA ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYQ
+ENCSR000DYR	immortalized cell line	CUX1	CUX1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYR
+ENCSR000DYS	immortalized cell line	JUND	JUND ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYS
+ENCSR000DYT	immortalized cell line	SREBF2	SREBF2 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYT
+ENCSR000DYU	immortalized cell line	SREBF1	SREBF1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYU
+ENCSR000DYV	immortalized cell line	MAFK	MAFK ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYV
+ENCSR000DYX	immortalized cell line	SIN3A	SIN3A ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYX
+ENCSR000DYY	immortalized cell line	E2F4	E2F4 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYY
+ENCSR000DYZ	immortalized cell line	TBL1XR1	TBL1XR1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DYZ
+ENCSR000DZA	immortalized cell line	MAZ	MAZ ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZA
+ENCSR000DZB	immortalized cell line	ELK1	ELK1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZB
+ENCSR000DZC	immortalized cell line	RCOR1	RCOR1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZC
+ENCSR000DZD	immortalized cell line	EP300	EP300 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZD
+ENCSR000DZE	immortalized cell line	CHD1	CHD1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZE
+ENCSR000DZF	immortalized cell line	MAX	MAX ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZF
+ENCSR000DZG	immortalized cell line	EP300	EP300 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZG
+ENCSR000DZI	immortalized cell line	MXI1	MXI1 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZI
+ENCSR000DZJ	immortalized cell line	BHLHE40	BHLHE40 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZJ
+ENCSR000DZK	immortalized cell line	POLR2A	POLR2AphosphoS2 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZK
+ENCSR000DZL	immortalized cell line	ZNF143	ZNF143 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZL
+ENCSR000DZM	immortalized cell line	STAT1	STAT1 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZM
+ENCSR000DZN	immortalized cell line	CTCF	CTCF ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZN
+ENCSR000DZO	immortalized cell line	NRF1	NRF1 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZO
+ENCSR000DZP	immortalized cell line	SMC3	SMC3 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZP
+ENCSR000DZQ	immortalized cell line	EBF1	EBF1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZQ
+ENCSR000DZR	immortalized cell line	CHD2	CHD2 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZR
+ENCSR000DZS	immortalized cell line	BRCA1	BRCA1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZS
+ENCSR000DZT	immortalized cell line	EP300	EP300 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZT
+ENCSR000DZU	immortalized cell line	USF2	USF2 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZU
+ENCSR000DZV	immortalized cell line	STAT3	STAT3 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZV
+ENCSR000DZW	immortalized cell line	RFX5	RFX5 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZW
+ENCSR000DZX	immortalized cell line	IRF3	IRF3 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZX
+ENCSR000DZY	immortalized cell line	NFE2	NFE2 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZY
+ENCSR000DZZ	immortalized cell line	TBP	TBP ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000DZZ
+ENCSR000EAA	immortalized cell line	WRNIP1	WRNIP1 ChIP-seq on human GM12878 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAA
+ENCSR000EAC	immortalized cell line	RAD21	RAD21 ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAC
+ENCSR000EAD	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM12878	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAD
+ENCSR000EAG	immortalized cell line	RELA	RELA ChIP-seq on human GM12878 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAG
+ENCSR000EAI	immortalized cell line	RELA	RELA ChIP-seq on human GM12891 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAI
+ENCSR000EAJ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM12891	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAJ
+ENCSR000EAM	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM12892	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAM
+ENCSR000EAN	immortalized cell line	RELA	RELA ChIP-seq on human GM12892 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAN
+ENCSR000EAQ	immortalized cell line	RELA	RELA ChIP-seq on human GM15510 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAQ
+ENCSR000EAR	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM15510	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAR
+ENCSR000EAU	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM18505	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAU
+ENCSR000EAW	immortalized cell line	RELA	RELA ChIP-seq on human GM18505 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAW
+ENCSR000EAY	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM18526	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EAY
+ENCSR000EBA	immortalized cell line	RELA	RELA ChIP-seq on human GM18526 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBA
+ENCSR000EBC	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM18951	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBC
+ENCSR000EBD	immortalized cell line	RELA	RELA ChIP-seq on human GM18951 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBD
+ENCSR000EBG	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM19099	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBG
+ENCSR000EBI	immortalized cell line	RELA	RELA ChIP-seq on human GM19099 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBI
+ENCSR000EBK	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM19193	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBK
+ENCSR000EBM	immortalized cell line	RELA	RELA ChIP-seq on human GM19193 treated with TNFa	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBM
+ENCSR000EBO	stem cell	SIN3A	SIN3A ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBO
+ENCSR000EBP	stem cell	GTF2F1	GTF2F1 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBP
+ENCSR000EBQ	stem cell	BACH1	BACH1 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBQ
+ENCSR000EBR	stem cell	MXI1	MXI1 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBR
+ENCSR000EBS	stem cell	MAFK	MAFK ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBS
+ENCSR000EBT	stem cell	CHD2	CHD2 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBT
+ENCSR000EBU	stem cell	CHD1	CHD1 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBU
+ENCSR000EBV	stem cell	CEBPB	CEBPB ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBV
+ENCSR000EBW	stem cell	ZNF143	ZNF143 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBW
+ENCSR000EBX	stem cell	BRCA1	BRCA1 ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBX
+ENCSR000EBY	stem cell	MYC	MYC ChIP-seq on human H1-hESC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBY
+ENCSR000EBZ	stem cell	JUND	JUND ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EBZ
+ENCSR000ECA	stem cell	JUN	JUN ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECA
+ENCSR000ECB	stem cell	TBP	TBP ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECB
+ENCSR000ECC	stem cell	NRF1	NRF1 ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECC
+ENCSR000ECD	stem cell	USF2	USF2 ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECD
+ENCSR000ECE	stem cell	RAD21	RAD21 ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECE
+ENCSR000ECF	stem cell	RFX5	RFX5 ChIP-seq on human H1-hESC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECF
+ENCSR000ECH	immortalized cell line	HCFC1	HCFC1 ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECH
+ENCSR000ECI	immortalized cell line	ELK1	ELK1 ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECI
+ENCSR000ECJ	immortalized cell line	ZKSCAN1	ZKSCAN1 ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECJ
+ENCSR000ECK	immortalized cell line	MAFK	MAFK ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECK
+ENCSR000ECL	immortalized cell line	MAZ	MAZ ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECL
+ENCSR000ECM	immortalized cell line	RCOR1	RCOR1 ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECM
+ENCSR000ECN	immortalized cell line	MAX	MAX ChIP-seq on human HeLa-S3 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECN
+ENCSR000ECO	immortalized cell line	ZNF143	ZNF143 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECO
+ENCSR000ECP	immortalized cell line	CHD2	CHD2 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECP
+ENCSR000ECQ	immortalized cell line	SUPT20H	SUPT20H ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECQ
+ENCSR000ECR	immortalized cell line	KAT2A	KAT2A ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECR
+ENCSR000ECS	immortalized cell line	SMC3	SMC3 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECS
+ENCSR000ECT	immortalized cell line	POLR2A	POLR2AphosphoS2 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECT
+ENCSR000ECU	immortalized cell line	MXI1	MXI1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECU
+ENCSR000ECV	immortalized cell line	EP300	EP300 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECV
+ENCSR000ECW	immortalized cell line	USF2	USF2 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECW
+ENCSR000ECX	immortalized cell line	RFX5	RFX5 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECX
+ENCSR000ECY	immortalized cell line	PRDM1	PRDM1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECY
+ENCSR000ECZ	immortalized cell line	GTF2F1	GTF2F1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000ECZ
+ENCSR000EDA	immortalized cell line	CEBPB	CEBPB ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDA
+ENCSR000EDB	immortalized cell line	BRCA1	BRCA1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDB
+ENCSR000EDC	immortalized cell line	STAT3	STAT3 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDC
+ENCSR000EDD	immortalized cell line	TBP	TBP ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDD
+ENCSR000EDE	immortalized cell line	RAD21	RAD21 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDE
+ENCSR000EDF	immortalized cell line	IRF3	IRF3 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDF
+ENCSR000EDG	immortalized cell line	JUN	JUN ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDG
+ENCSR000EDH	immortalized cell line	JUND	JUND ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDH
+ENCSR000EDJ	immortalized cell line	NRF1	NRF1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDJ
+ENCSR000EDK	immortalized cell line	SMARCB1	SMARCB1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDK
+ENCSR000EDL	immortalized cell line	SMARCC2	SMARCC2 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDL
+ENCSR000EDM	immortalized cell line	SMARCC1	SMARCC1 ChIP-seq on human HeLa-S3	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDM
+ENCSR000EDN	immortalized cell line	MAZ	MAZ ChIP-seq on human HepG2 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDN
+ENCSR000EDO	immortalized cell line	CEBPZ	CEBPZ ChIP-seq on human HepG2 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDO
+ENCSR000EDP	immortalized cell line	ARID3A	ARID3A ChIP-seq on human HepG2 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDP
+ENCSR000EDQ	immortalized cell line	RCOR1	RCOR1 ChIP-seq on human HepG2 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDQ
+ENCSR000EDS	immortalized cell line	MAX	MAX ChIP-seq on human HepG2 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDS
+ENCSR000EDT	immortalized cell line	BHLHE40	BHLHE40 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDT
+ENCSR000EDU	immortalized cell line	MXI1	MXI1 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDU
+ENCSR000EDV	immortalized cell line	EP300	EP300 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDV
+ENCSR000EDW	immortalized cell line	SMC3	SMC3 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDW
+ENCSR000EDX	immortalized cell line	POLR2A	POLR2AphosphoS2 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDX
+ENCSR000EDY	immortalized cell line	BRCA1	BRCA1 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDY
+ENCSR000EDZ	immortalized cell line	MAFK	MAFK ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EDZ
+ENCSR000EEA	immortalized cell line	RFX5	RFX5 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEA
+ENCSR000EEB	immortalized cell line	MAFK	MAFK ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEB
+ENCSR000EEC	immortalized cell line	MAFF	MAFF ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEC
+ENCSR000EED	immortalized cell line	CHD2	CHD2 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EED
+ENCSR000EEE	immortalized cell line	CEBPB	CEBPB ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEE
+ENCSR000EEF	immortalized cell line	USF2	USF2 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEF
+ENCSR000EEG	immortalized cell line	RAD21	RAD21 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEG
+ENCSR000EEH	immortalized cell line	NRF1	NRF1 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEH
+ENCSR000EEI	immortalized cell line	JUND	JUND ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEI
+ENCSR000EEJ	immortalized cell line	IRF3	IRF3 ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEJ
+ENCSR000EEK	immortalized cell line	JUN	JUN ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEK
+ENCSR000EEL	immortalized cell line	TBP	TBP ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEL
+ENCSR000EEM	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HepG2	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEM
+ENCSR000EEO	immortalized cell line	SREBF1	SREBF1 ChIP-seq on human HepG2 treated with insulin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEO
+ENCSR000EEP	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEP
+ENCSR000EEQ	immortalized cell line	PPARGC1A	PPARGC1A ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEQ
+ENCSR000EET	immortalized cell line	HSF1	HSF1 ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EET
+ENCSR000EEU	immortalized cell line	HNF4A	HNF4A ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEU
+ENCSR000EEV	immortalized cell line	NR3C1	NR3C1 ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEV
+ENCSR000EEW	immortalized cell line	ESRRA	ESRRA ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEW
+ENCSR000EEX	immortalized cell line	CEBPB	CEBPB ChIP-seq on human HepG2 treated with forskolin	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEX
+ENCSR000EEZ	primary cell	MAX	MAX ChIP-seq on human HUVEC produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EEZ
+ENCSR000EFA	primary cell	JUN	JUN ChIP-seq on human HUVEC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFA
+ENCSR000EFB	primary cell	POLR2A	POLR2A ChIP-seq on human HUVEC	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFB
+ENCSR000EFC	immortalized cell line	CHD1	CHD1 ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFC
+ENCSR000EFD	immortalized cell line	RFX5	RFX5 ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFD
+ENCSR000EFE	immortalized cell line	MXI1	MXI1 ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFE
+ENCSR000EFF	immortalized cell line	MAZ	MAZ ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFF
+ENCSR000EFG	immortalized cell line	RCOR1	RCOR1 ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFG
+ENCSR000EFH	immortalized cell line	MAFK	MAFK ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFH
+ENCSR000EFI	immortalized cell line	CTCF	CTCF ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFI
+ENCSR000EFJ	immortalized cell line	RAD21	RAD21 ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFJ
+ENCSR000EFK	immortalized cell line	POLR2A	POLR2A ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFK
+ENCSR000EFM	immortalized cell line	CEBPB	CEBPB ChIP-seq on human IMR90 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFM
+ENCSR000EFN	immortalized cell line	HCFC1	HCFC1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFN
+ENCSR000EFO	immortalized cell line	CUX1	CUX1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFO
+ENCSR000EFP	immortalized cell line	ZNF384	ZNF384 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFP
+ENCSR000EFQ	immortalized cell line	ZMIZ1	ZMIZ1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFQ
+ENCSR000EFR	immortalized cell line	ZC3H11A	ZC3H11A ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFR
+ENCSR000EFS	immortalized cell line	JUN	JUN ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFS
+ENCSR000EFT	immortalized cell line	GATA1	GATA1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFT
+ENCSR000EFU	immortalized cell line	ELK1	ELK1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFU
+ENCSR000EFV	immortalized cell line	MAX	MAX ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFV
+ENCSR000EFW	immortalized cell line	UBTF	UBTF ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFW
+ENCSR000EFX	immortalized cell line	MAZ	MAZ ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFX
+ENCSR000EFY	immortalized cell line	ARID3A	ARID3A ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFY
+ENCSR000EFZ	immortalized cell line	UBTF	UBTF ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EFZ
+ENCSR000EGA	immortalized cell line	TBL1XR1	TBL1XR1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGA
+ENCSR000EGB	immortalized cell line	TBL1XR1	TBL1XR1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGB
+ENCSR000EGC	immortalized cell line	RCOR1	RCOR1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGC
+ENCSR000EGD	immortalized cell line	BACH1	BACH1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGD
+ENCSR000EGE	immortalized cell line	EP300	EP300 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGE
+ENCSR000EGF	immortalized cell line	POLR2A	POLR2AphosphoS2 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGF
+ENCSR000EGG	immortalized cell line	RCOR1	RCOR1 ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGG
+ENCSR000EGH	immortalized cell line	JUN	JUN ChIP-seq on human K562 treated with IFNa30 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGH
+ENCSR000EGI	immortalized cell line	MAFF	MAFF ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGI
+ENCSR000EGJ	immortalized cell line	MYC	MYC ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGJ
+ENCSR000EGK	immortalized cell line	IRF1	IRF1 ChIP-seq on human K562 treated with IFNg30 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGK
+ENCSR000EGL	immortalized cell line	IRF1	IRF1 ChIP-seq on human K562 treated with IFNa6h produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGL
+ENCSR000EGM	immortalized cell line	CTCF	CTCF ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGM
+ENCSR000EGN	immortalized cell line	JUND	JUND ChIP-seq on human K562 produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGN
+ENCSR000EGO	immortalized cell line	RFX5	RFX5 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGO
+ENCSR000EGP	immortalized cell line	ZNF143	ZNF143 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGP
+ENCSR000EGQ	immortalized cell line	NFYB	NFYB ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGQ
+ENCSR000EGR	immortalized cell line	NFYA	NFYA ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGR
+ENCSR000EGS	immortalized cell line	MYC	MYC ChIP-seq on human K562 treated with IFNg30	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGS
+ENCSR000EGT	immortalized cell line	IRF1	IRF1 ChIP-seq on human K562 treated with IFNg6h	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGT
+ENCSR000EGU	immortalized cell line	IRF1	IRF1 ChIP-seq on human K562 treated with IFNa30	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGU
+ENCSR000EGV	immortalized cell line	BHLHE40	BHLHE40 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGV
+ENCSR000EGW	immortalized cell line	SMC3	SMC3 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGW
+ENCSR000EGX	immortalized cell line	MAFK	MAFK ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGX
+ENCSR000EGY	immortalized cell line	EP300	EP300 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGY
+ENCSR000EGZ	immortalized cell line	MXI1	MXI1 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EGZ
+ENCSR000EHA	immortalized cell line	TBP	TBP ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHA
+ENCSR000EHB	immortalized cell line	TAL1	TAL1 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHB
+ENCSR000EHC	immortalized cell line	GTF2F1	GTF2F1 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHC
+ENCSR000EHD	immortalized cell line	CHD2	CHD2 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHD
+ENCSR000EHE	immortalized cell line	CEBPB	CEBPB ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHE
+ENCSR000EHF	immortalized cell line	POLR2A	POLR2AphosphoS2 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHF
+ENCSR000EHG	immortalized cell line	USF2	USF2 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHG
+ENCSR000EHH	immortalized cell line	NRF1	NRF1 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHH
+ENCSR000EHJ	immortalized cell line	STAT1	STAT1 ChIP-seq on human K562 treated with IFNg6h	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHJ
+ENCSR000EHK	immortalized cell line	STAT1	STAT1 ChIP-seq on human K562 treated with IFNg30	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHK
+ENCSR000EHL	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHL
+ENCSR000EHN	immortalized cell line	SMARCB1	SMARCB1 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHN
+ENCSR000EHO	immortalized cell line	SMARCA4	SMARCA4 ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHO
+ENCSR000EHP	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562 treated with IFNg30	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHP
+ENCSR000EHQ	immortalized cell line	POLR3G	POLR3G ChIP-seq on human K562	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHQ
+ENCSR000EHR	immortalized cell line	MYC	MYC ChIP-seq on human NB4	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHR
+ENCSR000EHS	immortalized cell line	MAX	MAX ChIP-seq on human NB4	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHS
+ENCSR000EHV	immortalized cell line	EP300	EP300 ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHV
+ENCSR000EHW	immortalized cell line	SMC3	SMC3 ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHW
+ENCSR000EHX	immortalized cell line	RAD21	RAD21 ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHX
+ENCSR000EHY	immortalized cell line	RFX5	RFX5 ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHY
+ENCSR000EHZ	immortalized cell line	NRF1	NRF1 ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EHZ
+ENCSR000EIA	immortalized cell line	MXI1	MXI1 ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EIA
+ENCSR000EIB	immortalized cell line	JUND	JUND ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EIB
+ENCSR000EIC	immortalized cell line	CTCF	CTCF ChIP-seq on human SK-N-SH produced by the Snyder lab	Michael Snyder, Stanford	https://www.encodeproject.org/experiments/ENCSR000EIC
+ENCSR000EUI	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human GM08714	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUI
+ENCSR000EUJ	immortalized cell line	IKZF1	IKZF1 ChIP-seq on human GM12878	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUJ
+ENCSR000EUK	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human GM12878	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUK
+ENCSR000EUL	immortalized cell line	NR2C2	NR2C2 ChIP-seq on human GM12878	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUL
+ENCSR000EUM	immortalized cell line	YY1	YY1 ChIP-seq on human GM12878	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUM
+ENCSR000EUN	stem cell	ZNF274	ZNF274 ChIP-seq on human H1-hESC	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUN
+ENCSR000EUO	stem cell	CTBP2	CTBP2 ChIP-seq on human H1-hESC	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUO
+ENCSR000EUP	stem cell	MAX	MAX ChIP-seq on human H1-hESC	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUP
+ENCSR000EUQ	stem cell	SUZ12	SUZ12 ChIP-seq on human H1-hESC	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUQ
+ENCSR000EUU	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HCT-116	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUU
+ENCSR000EUV	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human HCT-116	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUV
+ENCSR000EUY	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human HEK293	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUY
+ENCSR000EUZ	immortalized cell line	TRIM28	TRIM28 ChIP-seq on human HEK293	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EUZ
+ENCSR000EVB	immortalized cell line	ELK4	ELK4 ChIP-seq on human HEK293	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVB
+ENCSR000EVD	immortalized cell line	ZNF263	ZNF263 ChIP-seq on human HEK293-T-REx	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVD
+ENCSR000EVE	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVE
+ENCSR000EVF	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVF
+ENCSR000EVG	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVG
+ENCSR000EVI	immortalized cell line	ELK4	ELK4 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVI
+ENCSR000EVJ	immortalized cell line	E2F1	E2F1 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVJ
+ENCSR000EVK	immortalized cell line	E2F6	E2F6 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVK
+ENCSR000EVL	immortalized cell line	E2F4	E2F4 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVL
+ENCSR000EVM	immortalized cell line	E2F1	HA-E2F1 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVM
+ENCSR000EVN	immortalized cell line	NR2C2	NR2C2 ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVN
+ENCSR000EVO	immortalized cell line	TFAP2C	TFAP2C ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVO
+ENCSR000EVP	immortalized cell line	TFAP2A	TFAP2A ChIP-seq on human HeLa-S3	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVP
+ENCSR000EVQ	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human HepG2	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVQ
+ENCSR000EVR	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human HepG2	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVR
+ENCSR000EVS	immortalized cell line	NR2C2	NR2C2 ChIP-seq on human HepG2	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVS
+ENCSR000EVU	primary cell	FOS	FOS ChIP-seq on human HUVEC	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVU
+ENCSR000EVW	primary cell	GATA2	GATA2 ChIP-seq on human HUVEC	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVW
+ENCSR000EVX	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVX
+ENCSR000EVY	immortalized cell line	TRIM28	TRIM28 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EVY
+ENCSR000EWD	immortalized cell line	SETDB1	SETDB1 ChIP-seq on human K562 treated with MNaseD	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWD
+ENCSR000EWE	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWE
+ENCSR000EWF	immortalized cell line	YY1	YY1 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWF
+ENCSR000EWG	immortalized cell line	GATA2	GATA2 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWG
+ENCSR000EWH	immortalized cell line	NR2C2	NR2C2 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWH
+ENCSR000EWI	immortalized cell line	SETDB1	SETDB1 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWI
+ENCSR000EWJ	immortalized cell line	E2F6	E2F6 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWJ
+ENCSR000EWL	immortalized cell line	E2F4	E2F4 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWL
+ENCSR000EWM	immortalized cell line	GATA1	GATA1 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWM
+ENCSR000EWN	immortalized cell line	ZNF263	ZNF263 ChIP-seq on human K562	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWN
+ENCSR000EWS	immortalized cell line	GATA3	GATA3 ChIP-seq on human MCF-7	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWS
+ENCSR000EWT	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human MCF-7	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWT
+ENCSR000EWU	immortalized cell line	ZNF217	ZNF217 ChIP-seq on human MCF-7	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWU
+ENCSR000EWV	immortalized cell line	GATA3	GATA3 ChIP-seq on human MCF-7	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWV
+ENCSR000EWX	immortalized cell line	E2F1	HA-E2F1 ChIP-seq on human MCF-7	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWX
+ENCSR000EWY	immortalized cell line	ZNF274	ZNF274 ChIP-seq on human NT2-D1	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EWY
+ENCSR000EXG	immortalized cell line	YY1	YY1 ChIP-seq on human NT2-D1	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXG
+ENCSR000EXH	immortalized cell line	SUZ12	SUZ12 ChIP-seq on human NT2-D1	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXH
+ENCSR000EXL	immortalized cell line	TCF7L2	TCF7L2 ChIP-seq on human PANC-1	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXL
+ENCSR000EXO	primary cell	POLR2A	POLR2A ChIP-seq on human PBDE	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXO
+ENCSR000EXP	primary cell	GATA1	GATA1 ChIP-seq on human peripheral derived blood-erythroblast	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXP
+ENCSR000EXR	primary cell	GATA1	GATA1 ChIP-seq on human PBDEFetal	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXR
+ENCSR000EXX	immortalized cell line	POLR2A	POLR2A ChIP-seq on human Raji	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXX
+ENCSR000EXZ	immortalized cell line	GATA3	GATA3 ChIP-seq on human SH-SY5Y	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EXZ
+ENCSR000EYB	immortalized cell line	GATA2	GATA2 ChIP-seq on human SH-SY5Y	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EYB
+ENCSR000EYC	immortalized cell line	TRIM28	TRIM28 ChIP-seq on human U2OS	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EYC
+ENCSR000EYD	immortalized cell line	SETDB1	SETDB1 ChIP-seq on human U2OS	Peggy Farnham, USC	https://www.encodeproject.org/experiments/ENCSR000EYD
+ENCSR000EYU	immortalized cell line	POLR3G	POLR3G ChIP-seq on human GM12878	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EYU
+ENCSR000EYV	immortalized cell line	JUND	JUND ChIP-seq on human GM12878	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EYV
+ENCSR000EYW	immortalized cell line	POLR2A	POLR2A ChIP-seq on human GM12878	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EYW
+ENCSR000EYZ	immortalized cell line	FOS	FOS ChIP-seq on human GM12878	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EYZ
+ENCSR000EZA	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HEK293	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZA
+ENCSR000EZC	immortalized cell line	SMARCA4	SMARCA4 ChIP-seq on human HeLa-S3	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZC
+ENCSR000EZD	immortalized cell line	MYC	MYC ChIP-seq on human HeLa-S3	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZD
+ENCSR000EZE	immortalized cell line	FOS	FOS ChIP-seq on human HeLa-S3	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZE
+ENCSR000EZF	immortalized cell line	MAX	MAX ChIP-seq on human HeLa-S3	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZF
+ENCSR000EZK	immortalized cell line	STAT1	STAT1 ChIP-seq on human HeLa-S3 treated with IFNg for 30 minutes	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZK
+ENCSR000EZL	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HeLa-S3	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZL
+ENCSR000EZO	immortalized cell line	SREBF2	SREBF2 ChIP-seq on human HepG2 treated with pravastatin	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZO
+ENCSR000EZP	immortalized cell line	SREBF1	SREBF1 ChIP-seq on human HepG2 treated with pravastatin	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZP
+ENCSR000EZQ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human HepG2 treated with pravastatin	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZQ
+ENCSR000EZT	immortalized cell line	JUN	JUN ChIP-seq on human K562 treated with IFNg for 30 minutes	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZT
+ENCSR000EZU	immortalized cell line	MYC	MYC ChIP-seq on human K562 treated with IFNg for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZU
+ENCSR000EZV	immortalized cell line	MYC	MYC ChIP-seq on human K562 treated with IFNa for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZV
+ENCSR000EZW	immortalized cell line	JUN	JUN ChIP-seq on human K562 treated with IFNg for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZW
+ENCSR000EZX	immortalized cell line	JUN	JUN ChIP-seq on human K562 treated with IFNa for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000EZX
+ENCSR000FAC	immortalized cell line	XRCC4	XRCC4 ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAC
+ENCSR000FAD	immortalized cell line	RAD21	RAD21 ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAD
+ENCSR000FAE	immortalized cell line	MAX	MAX ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAE
+ENCSR000FAF	immortalized cell line	NFE2	NFE2 ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAF
+ENCSR000FAG	immortalized cell line	MYC	MYC ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAG
+ENCSR000FAH	immortalized cell line	JUN	JUN ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAH
+ENCSR000FAI	immortalized cell line	FOS	FOS ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAI
+ENCSR000FAJ	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAJ
+ENCSR000FAL	immortalized cell line	POLR2A	POLR2A ChIP-seq on human NB4	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAL
+ENCSR000FAT	immortalized cell line	STAT2	STAT2 ChIP-seq on human K562 treated with IFNa for 30 minutes	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAT
+ENCSR000FAU	immortalized cell line	STAT1	STAT1 ChIP-seq on human K562 treated with IFNa for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAU
+ENCSR000FAV	immortalized cell line	STAT1	STAT1 ChIP-seq on human K562 treated with IFNa for 30 minutes	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAV
+ENCSR000FAW	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562 treated with IFNg for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAW
+ENCSR000FAX	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562 treated with IFNa for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAX
+ENCSR000FAY	immortalized cell line	POLR2A	POLR2A ChIP-seq on human K562 treated with IFNa for 30 minutes	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAY
+ENCSR000FAZ	immortalized cell line	MYC	MYC ChIP-seq on human K562 treated with IFNa for 30 minutes	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FAZ
+ENCSR000FBC	immortalized cell line	STAT2	STAT2 ChIP-seq on human K562 treated with IFNa for 6 hours	Sherman Weissman, Yale	https://www.encodeproject.org/experiments/ENCSR000FBC
