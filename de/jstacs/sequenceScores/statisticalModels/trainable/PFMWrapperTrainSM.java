@@ -1,7 +1,8 @@
-package projects.motifComp;
+package de.jstacs.sequenceScores.statisticalModels.trainable;
 
 import java.text.NumberFormat;
 
+import de.jstacs.clustering.hierachical.PWMSupplier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
@@ -9,7 +10,6 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
-import de.jstacs.sequenceScores.statisticalModels.trainable.AbstractTrainableStatisticalModel;
 import de.jstacs.utils.Normalisation;
 
 
