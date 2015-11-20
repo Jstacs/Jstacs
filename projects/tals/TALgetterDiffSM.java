@@ -28,6 +28,7 @@ import de.jstacs.data.DiscreteSequenceEnumerator;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
@@ -233,6 +234,10 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 		return getLogScoreFor(seq,start,seq.getLength()-1);
 	}
 	
+	public double getBestPossibleScore(Sequence tal, double[] scs){
+		return getBestPossibleScore( tal, scs, null );
+	}
+	
 	/**
 	 * Returns the score of the best possible target site for RVDs <code>tal</code>
 	 * and fills the partial scores for each position into <code>scs</code>.
@@ -241,11 +246,17 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 	 * @param scs the array for partial scores, may be null
 	 * @return the best possible score
 	 */
-	public double getBestPossibleScore(Sequence tal, double[] scs){
+	public double getBestPossibleScore(Sequence tal, double[] scs, int[] bestSeq){
 		if(isFixed){
 			double sum = 0;
 			
+			//int[] bestSeq = new int[tal.getLength()+1];
+			
 			double temp = ToolBox.max( firstPosProbs );
+			int idx = ToolBox.getMaxIndex( firstPosProbs );
+			if(bestSeq != null){
+				bestSeq[0] = idx;
+			}
 			sum += temp;
 			if(scs != null){
 				scs[0] = temp;
@@ -262,6 +273,10 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 					temp = ToolBox.max( condProbs[order][rvd][j] );
 					if(temp > max){
 						max = temp;
+						idx = ToolBox.getMaxIndex( condProbs[order][rvd][j] );
+						if(bestSeq != null){
+							bestSeq[i] = idx;
+						}
 					}
 				}
 				sum += max;
@@ -829,6 +844,20 @@ public class TALgetterDiffSM extends AbstractDifferentiableStatisticalModel{
 	 */
 	public void setIndependentToStationary(){
 		tal_U_NSF.setStartParamsToConditionalStationaryDistributions();
+	}
+	
+	public void addAndSet(String[] rvds, double[][] specs, double[] fpSpec) throws IllegalArgumentException, WrongAlphabetException, DoubleSymbolException{
+		int oldLen = (int)getRVDAlphabet().getAlphabetAt( 0 ).length();
+		AlphabetContainer con = tal_A_NSF.addAndSet( rvds, specs );
+		int newLen = (int)con.getAlphabetAt( 0 ).length();
+		tal_M_NSF.addAndSet(con,rvds);
+		if(fpSpec != null){
+			double[] temp = fpSpec.clone();
+			for(int i=0;i<temp.length;i++){
+				temp[i] = Math.log( temp[i] );
+			}
+			FirstPosHMM.setParameters( temp, 0 );
+		}
 	}
 	
 	@Override
