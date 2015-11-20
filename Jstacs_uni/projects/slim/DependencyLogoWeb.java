@@ -7,7 +7,7 @@ import projects.dimont.DimontWeb;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
 import de.jstacs.utils.Pair;
-import de.jstacs.utils.SeqLogoPlotter2;
+import de.jstacs.utils.SeqLogoPlotter;
 import de.jstacs.utils.galaxy.GalaxyAdaptor;
 import de.jstacs.utils.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.utils.galaxy.GalaxyAdaptor.LinkedImageResult;
@@ -138,7 +138,7 @@ public class DependencyLogoWeb {
 	
 	private static void plot(GraphicsAdaptor adaptor, DataSet data, int width, double[] weights, int[] numPerChunk, int[] blockHeight, int blockSpacer, int numBestForSorting, boolean sortByWeights) throws Exception {
 		
-		int height=SeqLogoPlotter2.getHeightForDependencyLogo( data.getElementLength(), data.getNumberOfElements(), blockHeight, width, blockSpacer );
+		int height=SeqLogoPlotter.getHeightForDependencyLogo( data.getElementLength(), data.getNumberOfElements(), blockHeight, width, blockSpacer );
 
 		Graphics2D g = adaptor.getGraphics( width, height );
 		
@@ -146,7 +146,7 @@ public class DependencyLogoWeb {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		
-		SeqLogoPlotter2.plotDependencyLogo( data, null, 1, null, weights, g, width, 0, 0, numPerChunk, blockHeight, 0.03, blockSpacer, false, numBestForSorting, false, sortByWeights, true, 0.1);
+		SeqLogoPlotter.plotDependencyLogo( data, null, 1, null, weights, g, width, 0, 0, numPerChunk, blockHeight, 0.03, blockSpacer, false, numBestForSorting, false, sortByWeights, true, 0.1);
 	}
 	
 	
