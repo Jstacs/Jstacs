@@ -103,6 +103,9 @@ public class BioJavaAdapter {
 
 	private static final Result[] EMPTY_RESULT_ARRAY = new Result[0];
 
+	/**
+	 * A generic annotation ID for new annotations
+	 */
 	public static final String ANNOTATION_ID = "BJRSA";
 
 	/**
@@ -116,6 +119,7 @@ public class BioJavaAdapter {
 	 * @param filter
 	 *            <code>null</code> or an arbitrary feature filter that
 	 *            determines which features will be adopted
+	 * @param con the {@link AlphabetContainer} to use for the returned {@link DataSet}
 	 * 
 	 * @return the {@link org.biojava.bio.seq.Sequence}s in <code>it</code>
 	 *         converted to a {@link DataSet}
@@ -348,6 +352,7 @@ public class BioJavaAdapter {
 	 *            indicates if the features should be flattened, this may be
 	 *            necessary to preserve all features, because some data formats
 	 *            do not support hierarchical features
+	 * @param alwaysUseDNAAlphabet if <code>true</code>, always use a DNA alphabet
 	 * 
 	 * @return the corresponding {@link SequenceIterator}
 	 * 
