@@ -46,6 +46,7 @@ public class PairwiseStringAlignment extends StringAlignment {
 	 *            the start position of the aligned block in the first {@link String}
 	 * @param endPos
 	 *            the end position of the aligned block in the first {@link String}
+	 * @param numMatches the number of matches in the alignment
 	 */
 	protected PairwiseStringAlignment( String r1, String r2, double cost, int startPos, int endPos, int numMatches ) {
 		super( cost, r1, r2 );
@@ -64,7 +65,10 @@ public class PairwiseStringAlignment extends StringAlignment {
 	}
 
 
-
+	/**
+	 * Returns the number of matches in this alignment.
+	 * @return the number of matches
+	 */
 	public int getNumberOfMatches(){
 		return nummatches;
 	}
