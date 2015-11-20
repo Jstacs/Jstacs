@@ -8,9 +8,9 @@ import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.CyclicSequenceAdaptor;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.PFMWrapperTrainSM;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
-import projects.motifComp.PFMWrapperTrainSM;
 
 /**
  * Helper class for comparisons of motif models based on De Bruijn sequences.
