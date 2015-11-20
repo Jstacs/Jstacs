@@ -103,9 +103,10 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		this.firstChildren = XMLParser.extractObjectForTags(source, "firstChildren", int[].class );
 	}
 	
-	public int[] getContext(){
+	
+	/*public int[] getContext(){
 		return contextPoss.clone();
-	}
+	}*/
 
 	void setAlphabet(AlphabetContainer alphabet){
 		this.alphabet = alphabet;
@@ -1607,12 +1608,12 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		return all.toString();
 	}
 
-	public void set( double[] probs ) {
+	/*public void set( double[] probs ) {
 		root.set(probs);	
 	}
 
 	public double[][] getParameters() {
 		return root.getParameters();
-	}
+	}*/
 
 }
