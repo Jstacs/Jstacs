@@ -1,0 +1,54 @@
+**TALENoffer** allows you to scan input sequences for off-targets of a given TAL (transcription activator like) 
+effector nuclease.
+
+Input sequences must be supplied in FastA format, either as a file uploaded by the "Upload File" task in section "Get Data" of Galaxy or directly 
+pasted into the supplied input field.
+
+For convenience, we provide several genomes in a data library. These data sets are based on the data of UCSC, MSU, and TAIR.
+To obtain data from the library, select "Data Libraries" from the menu item "Shared Data" on top of this page, select the library "Genomes", 
+put a checkmark on your desired data, make shure that "Import to current history" is selected from the drop-down box beneath, and click the button "Go".
+Using the menu item "Analyze data", you get back to the start page of TALENoffer.
+Now you find this data set in your own history, and can select it at input of TALENoffer.
+
+In addition, you may provide an annotation file in GFF, GTF, or UCSC known genes BED format. Such annotation are used by TALENoffer to 
+report features (e.g., genes or exons) that overlap with predicted off-target sites.
+
+The sequence of the RVDs of the TALEN monomers must be given in one-letter AS code, where "``*``" indicates a deletion in the AS sequence of the repeat. 
+Indiviual RVDs must be separated by minus signs. For instance, the sequence of a TALEN monomer could look like ``NS-NG-NS-HD-NI-NG-NN-NG-HD-NI-NN-N*-NI-NN-HD-NG-NI-NN-N*-HD-NN-NG``.
+
+For predicting off-targets using TALEN monomers with endonuclease domains fused to the N terminus, the box "N-Terminal first" and/or "N-Terminal second" needs to be checked.
+
+For predicting only off-targets of TALEN hetero-dimers instead of the standard search for TALEN hetero and homo-dimers, the box "Hetero-dimers only" needs to be cecked.
+
+You next need to specify the architecture of the designer TALENs, which restricts the lengths of the spacer between monomer target sites. We provide several pre-defined architectures from recent publications. In addition, you may customly define
+minimum and maximum distance between TALEN monomers.
+
+The filtering option has several possible settings between "loose" and "strict", and also for custom specification of the threshold parameter q.
+Regardless of the filtering option, off-targets are ranked according to their score. Hence, you may not see a difference between the different settings if you set "Maximum number of off-targets" to a small value.
+
+In the next section, you need to specify the statistical model used by TALENoffer. For most purposes, the default selection "TALgetter" is a good choice. "TALgetter13" may be of advantage if your TALEN monomers contain several rare RVDs.  
+Optionally, you can re-use a model that has been trained using the TALgetter application in subsequent runs of TALENoffer if you select "Use previously trained model" for the option "Model training" and select the corresponding history item from the list.
+
+Optionally, you may define custom nucleotide specificities for additional RVDs or override those of the TALgetter model. For instance, if you want to only allow a ``T`` at position 0, set the nucleotide specificities of ``NG`` and ``HD`` to 0.1 for ``A``, 0.2 for ``C``, 0.3 for ``G``, and 0.4 for ``T``, and define an additional RVD ``XX`` that only binds to ``A`` and ``G``, you need to set "RVD specificities" to
+
+::
+
+ 0: T
+ NG,HD: 0.1,0.2,0.3,0.4
+ XX: A,G
+
+TALENoffer produces three outputs. The first is listed with the name of the job in the current history and presents a list of off-target predictions in HTML format. 
+This output is meant for displaying results in the browser. The names of the other two outputs have numbers in parentheses appended [i.e., (1) and (2), respectively]. 
+These contain the list of predictions including all columns of the HTML output as a plain text file and the predicted target sites in GFF2 or GFF3 format, depending on your choice for the last TALENoffer parameter.
+Such GFF files can be imported into your favourite genome browser, e.g., the `UCSC genome browser`_, the Ensembl_ genome browser, or the `Ensembl plant`_ genome browser.
+
+You can also install this web-application within your local Galaxy server. Instructions can be found at the TALENoffer_ page of Jstacs. 
+There you can also download a command line version of TALENoffer.
+
+If you experience problems using TALENoffer, please contact_ us.
+
+.. _UCSC genome browser: http://genome.ucsc.edu
+.. _Ensembl: http://ensembl.org
+.. _Ensembl plant: http://plants.ensembl.org
+.. _TALENoffer: http://jstacs.de/index.php/TALENoffer
+.. _contact: mailto:grau@informatik.uni-halle.de
