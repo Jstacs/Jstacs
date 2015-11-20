@@ -354,12 +354,18 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		return mime;
 	}
 	
-	
+	/**
+	 * Returns the extended type (or <code>null</code> if not set) of this {@link FileParameter}.
+	 * @return the extended type
+	 */
 	public String getExtendedType() {
 		return extendedType;
 	}
 
-	
+	/**
+	 * Sets the extended type of this {@link FileParameter}.
+	 * @param extendedType the extended type
+	 */
 	public void setExtendedType( String extendedType ) {
 		this.extendedType = extendedType;
 	}
@@ -529,6 +535,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			return filename;
 		}
 		
+		/**
+		 * Sets the file name of this {@link FileParameter}
+		 * @param filename the new file name
+		 */
 		public void setFilename(String filename) {
 			this.filename = filename;
 		}

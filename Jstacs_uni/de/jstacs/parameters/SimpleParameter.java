@@ -682,6 +682,10 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	
 	
 
+	/**
+	 * Returns the Galaxy identifier for the {@link DataType} of this parameter
+	 * @return the Galaxy identifier of the data type
+	 */
 	protected String dataTypeToGalaxy() {
 		
 		switch(datatype){
