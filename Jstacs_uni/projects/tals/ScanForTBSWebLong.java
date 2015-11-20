@@ -96,10 +96,10 @@ public class ScanForTBSWebLong {
 		
 		SimpleParameterSet ps = new SimpleParameterSet( params.getAllParameters() );
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( ps, line,"TALgetterLong", "TALgetterLong (<i>TAL</i> effector tar<i>get</i> si<i>t</i>e find<i>er</i>) is a variant of TALgetter that is specifically designed for large input data sets.", "1.0", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"TALgetterWebLong.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( ps, line,"TALgetterLong", "TALgetterLong (TAL effector target site finder) is a variant of TALgetter that is specifically designed for large input data sets.", "1.0", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"TALgetterWebLong.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( ScanForTBSWebLong.class.getClassLoader().getResourceAsStream( "projects/tals/helplong.txt" ) ).toString() );
 		
-		if(!ga.parse( args )){
+		if(!ga.parse( args, false )){
 			System.exit( 1 );
 		}	
 		
