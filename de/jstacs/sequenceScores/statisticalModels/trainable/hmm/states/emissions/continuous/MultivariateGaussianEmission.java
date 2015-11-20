@@ -8,8 +8,7 @@ import java.util.Map.Entry;
 
 import javax.naming.OperationNotSupportedException;
 
-import org.biojava.bio.structure.jama.Matrix;
-
+import Jama.Matrix;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.sequences.Sequence;
