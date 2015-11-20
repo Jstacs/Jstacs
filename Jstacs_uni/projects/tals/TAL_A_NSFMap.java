@@ -25,10 +25,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabetMapping;
+import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.io.NonParsableException;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM;
 import de.jstacs.utils.ToolBox;
 
 /**
@@ -116,6 +119,57 @@ public class TAL_A_NSFMap extends TALgetterRVDDependentComponent {
 			map = buildMap(con);
 		}
 		return map[original];
+	}
+	
+	@Override
+	public AlphabetContainer addAndSet(String[] rvds, double[][] specs) throws WrongAlphabetException, IllegalArgumentException, DoubleSymbolException{
+		DiscreteAlphabet alph = (DiscreteAlphabet)alphabetsRVD.getAlphabetAt( 0 );
+		int[] map = new int[rvds.length];
+		Arrays.fill( map, -1 );
+		int n = 0;
+		for(int i=0;i<rvds.length;i++){
+			if(alph.isSymbol( rvds[i] )){
+				map[i] = alph.getCode( rvds[i] );
+			}else{
+				n++;
+			}
+		}
+		if(n > 0){
+			String[] newAlph = new String[(int)alph.length()+n];
+			int i=0;
+			for(;i<alph.length();i++){
+				newAlph[i] = alph.getSymbolAt( i );
+			}
+			for(int j=0;j<map.length;j++){
+				if(map[j]==-1){
+					newAlph[i] = rvds[j];
+					i++;
+				}
+			}
+			alph = new DiscreteAlphabet( true, newAlph );
+			alphabetsRVD = new AlphabetContainer( alph );
+			this.map = buildMap( alphabetsRVD );
+			
+			n = getNumberOfSymbols( alphabetsRVD );
+			HomogeneousMMDiffSM[] temp_c = new HomogeneousMMDiffSM[n];
+			System.arraycopy( hmm_c, 0, temp_c, 0, hmm_c.length );
+			for(i=hmm_c.length;i<n;i++){
+				temp_c[i] = new HomogeneousMMDiffSM(alphabets,0,ess/temp_c.length,priorLength);
+				temp_c[i].initializeFunctionRandomly( false );
+			}
+			hmm_c = temp_c;
+		}
+		
+		for(int i=0;i<rvds.length;i++){
+			int idx =getMappedIndex( alphabetsRVD, alph.getCode( rvds[i] ) );
+			double[] temp = specs[i].clone();
+			for(int j=0;j<temp.length;j++){
+				temp[j] = Math.log( temp[j] );
+			}
+			hmm_c[idx].setParameters( temp, 0 );
+		}
+		
+		return alphabetsRVD;		
 	}
 
 	/**
