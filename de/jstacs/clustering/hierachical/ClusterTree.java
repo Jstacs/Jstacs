@@ -11,7 +11,14 @@ import de.jstacs.utils.IntList;
 import de.jstacs.utils.Pair;
 
 
-
+/**
+ * Class for a generic cluster tree with leaves of type <code>T</code>.
+ * Cluster trees for a given set of leaf elements may be obtained using {@link Hclust}.
+ * 
+ * @author Jan Grau
+ *
+ * @param <T> the type of the leaves
+ */
 public class ClusterTree<T> implements Storable{
 
 	private double distance;
@@ -21,12 +28,26 @@ public class ClusterTree<T> implements Storable{
 	
 	private int[][][] pred;
 	
+	/**
+	 * Creates a new cluster tree for a given leaf element (i.e., the tree comprises just this leaf) with the
+	 * supplied index in the set of cluster elements
+	 * @param leaf the leaf element
+	 * @param originalIndex the index of the leaf element in the complete set of cluster elements
+	 */
 	public ClusterTree(T leaf, int originalIndex){
 		this.elements = (T[])ArrayHandler.cast( new Object[]{leaf} );
 		this.distance = Double.NEGATIVE_INFINITY;
 		this.originalIndex = originalIndex;
 	}
 	
+	/**
+	 * Creates a new cluster tree with supplied sub-trees and given distance.
+	 * The original index may be a virtual index that helps to identify this inner (or root) node
+	 * of the cluster tree later on.
+	 * @param distance the distance between the sub-trees
+	 * @param originalIndex the original index of this inner (or root) node
+	 * @param subTrees the sub-trees
+	 */
 	public ClusterTree(double distance, int originalIndex, ClusterTree<T>... subTrees){
 		this.distance = distance;
 		this.subTrees = subTrees.clone();
@@ -34,6 +55,11 @@ public class ClusterTree<T> implements Storable{
 		setElements();
 	}
 	
+	/**
+	 * Creates a  cluster tree from its XML representation
+	 * @param xml the XML representation
+	 * @throws NonParsableException if XML could not be parsed
+	 */
 	public ClusterTree(StringBuffer xml) throws NonParsableException{
 		xml = XMLParser.extractForTag( xml, "ClusterTree" );
 		originalIndex = (Integer)XMLParser.extractObjectForTags( xml, "originalIndex", Integer.class );
@@ -47,6 +73,12 @@ public class ClusterTree<T> implements Storable{
 		
 	}
 	
+	/**
+	 * Returns a cluster tree with identical structure as this cluster tree but with all leaves replaced by
+	 * integer leaves holding the corresponding original indices.
+	 * @return the index cluster tree
+	 * @see ClusterTree#ClusterTree(Object, int)
+	 */
 	public ClusterTree<Integer> getIndexTree(){
 		if(subTrees == null){
 			return new ClusterTree<Integer>(originalIndex,originalIndex);
@@ -61,7 +93,12 @@ public class ClusterTree<T> implements Storable{
 	
 	//algo from Ziv Bar-Joseph et al. K-ary Clustering with Optimal Leaf Ordering for Gene Expression Data.
 	//dmat: original dmat when building the tree (original index!)
-	//returns dmat with new indexes
+	/**
+	 * Orders the leaves of this cluster tree such that adjacent nodes have minimal distance.
+	 * Implements the algorithm of Ziv Bar-Joseph et al. "K-ary Clustering with Optimal Leaf Ordering for Gene Expression Data"
+	 * 
+	 * @param dmat the distance matrix that has also been used to build the tree (using the same indexes)
+	 */
 	public void leafOrder(double[][] dmat){
 		
 		Pair<double[][],int[]> pair = forward( dmat );
@@ -265,11 +302,17 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 	
-	
+	/**
+	 * Returns the original index of the root node of this cluster tree
+	 * @return the original index
+	 */
 	public int getOriginalIndex(){
 		return originalIndex;
 	}
 	
+	/**
+	 * Reverses the order of the child trees of this cluster tree root node.
+	 */
 	public void reverseOrder(){
 		//System.out.println("reversing "+originalIndex);
 		if(subTrees == null || subTrees.length == 1){
@@ -298,6 +341,10 @@ public class ClusterTree<T> implements Storable{
 		return sb;
 	}
 	
+	/**
+	 * Sets the copy references of the leave nodes of this cluster
+	 * tree to the elements of its leaves in the current order.
+	 */
 	public void setElements(){
 		int num = 0;
 		for(int i=0;i<subTrees.length;i++){
@@ -312,18 +359,37 @@ public class ClusterTree<T> implements Storable{
 		this.elements = (T[]) ArrayHandler.cast( elements );
 	}
 	
+	/**
+	 * Returns the sub-trees of this cluster tree root node
+	 * @return the sub-trees
+	 */
 	public ClusterTree<T>[] getSubTrees(){
 		return subTrees;
 	}
 	
+	/**
+	 * Returns the distance between the child trees of this cluster tree root node.
+	 * @return the distance
+	 */
 	public double getDistance(){
 		return distance;
 	}
 	
+	/**
+	 * Returns the maximum distance of trees under this root node.
+	 * In this implementation identical to {@link ClusterTree#getDistance()}.
+	 * Basically used for plotting the tree structure.
+	 * @return the distance
+	 */
 	public double getMaximumDistance(){
 		return distance;
 	}
 	
+	/**
+	 * Returns the minimum distance of trees under this root node.
+	 * Basically used for plotting the tree structure.
+	 * @return the distance
+	 */
 	public double getMinimumDistance(){
 		if(getNumberOfElements() == 1){
 			return 0;
@@ -339,10 +405,19 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 	
+	/**
+	 * Returns the elements at all leaves in this cluster tree, in the order
+	 * of the leaves, from left to right.
+	 * @return the elements
+	 */
 	public T[] getClusterElements(){
 		return elements;
 	}
 
+	/**
+	 * Returns the number of leaves in this cluster tree.
+	 * @return the number of leaves
+	 */
 	public int getNumberOfElements(){
 		return elements.length;
 	}
@@ -362,6 +437,10 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 
+	/**
+	 * Returns the minimum original index in this cluster tree.
+	 * @return the minimum original index
+	 */
 	public int getMinimumOriginalIndex(){
 		if(this.subTrees == null){
 			return this.originalIndex;
@@ -376,10 +455,19 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 	
+	/**
+	 * Returns <code>true</code> if this cluster tree comprises just a leaf.
+	 * @return if this tree is a leaf
+	 */
 	public boolean isLeaf(){
 		return this.subTrees == null;
 	}
 	
+	/**
+	 * Returns all leaves of this cluster tree as {@link ClusterTree} objects comprising just the corresponding
+	 * leaf element
+	 * @return the leaf trees
+	 */
 	public ClusterTree<T>[] getLeaves() {
 		if(this.subTrees == null){
 			return new ClusterTree[]{this};
@@ -395,6 +483,14 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 
+	/**
+	 * Removes all sub-trees below the inner nodes identified by the original indexes supplied
+	 * and creates new leaf nodes instead, which obtain the supplied leaf elements. The modified tree
+	 * is returned.
+	 * @param rootOriginalIndexes the original indexes of the inner nodes to be replaced
+	 * @param newElements the leaf element replacements
+	 * @return the modified tree
+	 */
 	public <S> ClusterTree<S> dropBelow( IntList rootOriginalIndexes, S[] newElements ) {
 		int idx = rootOriginalIndexes.contains( originalIndex ); 
 		if(idx > -1){
@@ -409,6 +505,10 @@ public class ClusterTree<T> implements Storable{
 		}
 	}
 
+	/**
+	 * Returns a string representation of this cluster tree in a pseudo newick format.
+	 * @return the string representation
+	 */
 	public String toNewick() {
 		return this.toNewick("");
 	}
