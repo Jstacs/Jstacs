@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.geom.Rectangle2D;
 
-import projects.motifComp.PWMSupplier;
 import de.jstacs.utils.SeqLogoPlotter;
 
 
