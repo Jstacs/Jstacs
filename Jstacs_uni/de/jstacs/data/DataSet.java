@@ -627,66 +627,72 @@ public class DataSet implements Iterable<Sequence>{
 	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim, int subsequenceLength ) throws EmptyDataSetException,
 																											WrongAlphabetException,
 																											WrongLengthException {
+		this(abc,se,delim,subsequenceLength,0);
+	}
+	
+	//TODO percentage 
+	private DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim, int subsequenceLength, double percentage ) throws EmptyDataSetException,
+																											WrongAlphabetException,
+																											WrongLengthException {
 		alphabetContainer = abc;
 		LinkedList<Sequence> newSeqs = new LinkedList<Sequence>();
 		SymbolExtractor temp = new SymbolExtractor( delim );
 		length = -1;
 		SequenceAnnotation[] annot;
 		
-		try {
-			if( alphabetContainer.isDiscrete() ) {
-				// create pure discrete data set
-				int l = (int)alphabetContainer.getMaximalAlphabetLength();
-				if( l <= Byte.MAX_VALUE ) {
-					while( se.hasMoreElements() ) {
-						annot = se.getCurrentSequenceAnnotations();
-						temp.setStringToBeParsed( se.nextElement() );
-						if( length < 0 ) {
-							length = temp.countElements();
-						} else if( length > 0 && temp.countElements() != length ) {
-							length = 0;
-						}
-						newSeqs.add( new ByteSequence( alphabetContainer, annot, temp ) );
-					}
-				} else if( l <= Short.MAX_VALUE ) {
-					while( se.hasMoreElements() ) {
-						annot = se.getCurrentSequenceAnnotations();
-						temp.setStringToBeParsed( se.nextElement() );
-						if( length < 0 ) {
-							length = temp.countElements();
-						} else if( length > 0 && temp.countElements() != length ) {
-							length = 0;
-						}
-						newSeqs.add( new ShortSequence( alphabetContainer, annot, temp ) );
-					}
-				} else if( l <= Integer.MAX_VALUE ) {
-					while( se.hasMoreElements() ) {
-						annot = se.getCurrentSequenceAnnotations();
-						temp.setStringToBeParsed( se.nextElement() );
-						if( length < 0 ) {
-							length = temp.countElements();
-						} else if( length > 0 && temp.countElements() != length ) {
-							length = 0;
-						}
-						newSeqs.add( new IntSequence( alphabetContainer, annot, temp ) );
-					}
-				} else {
-					throw new WrongAlphabetException( "Could not encode. Too many symbols." );
-				}
+		int c;
+		if( alphabetContainer.isDiscrete() ) {
+			int l = (int)alphabetContainer.getMaximalAlphabetLength();
+			if( l <= Byte.MAX_VALUE ) {
+				c = 0;//ByteSequence
+			} else if( l <= Short.MAX_VALUE ) {
+				c = 1;//ShortSequence
+			} else if( l <= Integer.MAX_VALUE ) {
+				c = 2;//IntSequence
 			} else {
-				// create hybrid or pure continuous data set
-				if( delim.length() == 0 ) {
-					throw new IllegalArgumentException( "delim has to be not empty" );
+				throw new WrongAlphabetException( "Could not encode. Too many symbols." );
+			}
+		} else {
+			// create hybrid or pure continuous data set
+			if( delim.length() == 0 ) {
+				throw new IllegalArgumentException( "delim has to be not empty" );
+			}
+			c = -1;//ArbitrarySequence;
+		}
+		
+		
+		String stringToBeParsed;
+		Sequence s;
+		WrongAlphabetException wae = null;
+		int counter = 0;
+		try {
+			while( se.hasMoreElements() ) {
+				annot = se.getCurrentSequenceAnnotations();
+				stringToBeParsed = se.nextElement();
+				temp.setStringToBeParsed( stringToBeParsed );
+				if( length < 0 ) {
+					length = temp.countElements();
+				} else if( length > 0 && temp.countElements() != length ) {
+					length = 0;
 				}
-				while( se.hasMoreElements() ) {
-					annot = se.getCurrentSequenceAnnotations();
-					temp.setStringToBeParsed( se.nextElement() );
-					if( length < 0 ) {
-						length = temp.countElements();
-					} else if( length > 0 && temp.countElements() != length ) {
-						length = 0;
+				s=null;
+				try {
+					switch( c ) {
+						case -1 : s=new ArbitrarySequence( alphabetContainer, annot, temp ); break;
+						case 0 : s=new ByteSequence( alphabetContainer, annot, temp ); break;
+						case 1 : s=new ShortSequence( alphabetContainer, annot, temp ); break;
+						case 2 : s=new IntSequence( alphabetContainer, annot, temp ); break;
 					}
-					newSeqs.add( new ArbitrarySequence( alphabetContainer, annot, temp ) );
+				} catch( WrongAlphabetException ex ){
+					if( wae == null ) {
+						System.err.println( "Could not parse:" );
+					}
+					System.err.println("Sequence : " +stringToBeParsed);
+					counter++;
+					wae=ex;
+				}		
+				if( s != null ) {
+					newSeqs.add( s );
 				}
 			}
 		} catch ( WrongSequenceTypeException e ) {
@@ -694,6 +700,11 @@ public class DataSet implements Iterable<Sequence>{
 			doesNotHappen.setStackTrace( e.getStackTrace() );
 			throw doesNotHappen;
 		}
+		
+		if( wae != null && counter/((double)counter+newSeqs.size()) > percentage ) {
+			throw wae;
+		}
+		
 		seqs = new Sequence[newSeqs.size()];
 		if( seqs.length == 0 ) {
 			throw new EmptyDataSetException();
@@ -1093,7 +1104,7 @@ public class DataSet implements Iterable<Sequence>{
 				}
 			}
 		} else {
-			throw new IllegalArgumentException( "The values for start ("+start+") and length ("+length+") are not suitable." );
+			throw new IllegalArgumentException( "The values for start ("+start+") or length ("+length+") are not suitable." );
 		}
 	}
 
@@ -1571,7 +1582,7 @@ public class DataSet implements Iterable<Sequence>{
 		double current = 0, sum = weights == null ? numOfElements : ToolBox.sum( 0, numOfElements, weights );
 		
 		if( weights == null ) {
-			for( current = 0; current < number; current++ ) {
+			for( ; current < number; current++ ) {
 				subsampled_seqs.add( this.getElementAt( r.nextInt( numOfElements ) ) );
 			}
 		} else {
