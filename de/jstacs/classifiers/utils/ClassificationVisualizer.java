@@ -18,11 +18,14 @@
 
 package de.jstacs.classifiers.utils;
 
+import java.util.ArrayList;
+
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.classifiers.AbstractClassifier;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.sequences.Sequence;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ImageResult;
 import de.jstacs.utils.REnvironment;
@@ -208,7 +211,84 @@ public class ClassificationVisualizer {
 				"this plot shows the scores that are used to assign the classes scattered against each other",
 				e.plot( pltcmd, 720, 720 ) );
 	}
+	
+	public static ImageResult getFancyScatterplot( AbstractScoreBasedClassifier cl1, AbstractScoreBasedClassifier cl2, REnvironment e, DataSet... data ) throws Exception {
+		if( cl1.getNumberOfClasses() != 2 || cl2.getNumberOfClasses() != 2 ) {
+			throw new OperationNotSupportedException( "This method is only possible for binary classifiers." );
+		}
+		
+		e.voidEval( FANCY_SCATTTER );
+		
+		Sequence seq;
+		double[] current;
+		ArrayList<double[]> dlist = new ArrayList<double[]>();
+		for( int d = 0; d < data.length; d++ ) {
+			for( int n =  0; n < data[d].getNumberOfElements(); n++ ) {
+				current = new double[3];
+				seq = data[d].getElementAt( n );
+				current[0] = cl1.getScore( seq, 0 ) - cl1.getScore( seq, 1 );
+				current[1] = cl2.getScore( seq, 0 ) - cl2.getScore( seq, 1 );
+				current[2] = d+1;
+				dlist.add( current );
+			}
+		}
+		
+		e.createMatrix( "data", dlist.toArray( new double[0][0] ) );
+		
+		return new ImageResult( "scatterplot of the scores",
+				"this plot shows the scores that are used to assign the classes scattered against each other",
+				e.plot( "fancyScatter(data)", 720, 720 ) );
+	}
 
+	
+	private static final String FANCY_SCATTTER =
+			"fancyScatter <- function( data, breaks=20, density=10 ) {\n" +
+				"m=matrix(c(2,1,4,3),ncol=2);\n" +
+				"layout(m, widths = c(3,1), heights=c(1,3));\n" +
+				"par(mar=c(3,3,1,1));\n" +
+				"plot(data[,1],data[,2],col=data[,3],pch=16,xlab=\"\",ylab=\"\");\n" +
+				
+				"l = length(table(data[,3]));\n" +
+				"degree = 180/l;\n" +
+				"def.par <- par(no.readonly = TRUE); # save default, for resetting...\n" +
+				"mar = par(\"mar\");\n\n" +
+				
+				"for( column in 1:2 ) {\n" +
+					"myMar = mar;\n" +
+					"myMar[column] = 0;\n" +
+					"par(mar=myMar);\n" +
+					"h = marginal(data,column=column,breaks=breaks);\n" +
+					"bounds = c(min(data[,column]),max(data[,column]));\n\n" +
+					
+					"max=0;\n" +
+					"for( i in 1:l ) {\n" +
+						"max=max(max,h[[i]]$intensities);\n" +
+					"}\n" +
+					"for( i in 1:l ) {\n" +
+						"if( column == 1 ) {\n" +
+							"barplot(h[[i]]$intensities, add=i>1, axes=FALSE, ylim=c(0, max), space=0, col=i, angle=-90+i*degree, density=density);\n" +
+						"} else {\n" +
+							"barplot(h[[i]]$intensities, add=i>1, axes=FALSE, xlim=c(0, max), space=0, horiz=TRUE, col=i, angle=i*degree, density=density);\n" +
+						"}\n" +
+					"}\n" +
+				"}\n" +
+				"par( def.par );\n" +
+			"}\n\n\n" 
+
+			+
+			
+			"marginal <- function ( data, column=1, breaks=20 ) {\n" +
+				"bounds = c(min(data[,column]),max(data[,column]));\n" +
+				"t = table(data[,3]);\n" +
+				"l = length(t);\n\n" +
+				
+				"h=list();\n" +
+				"for( i in 1:l ) {\n" +
+					"h[[i]] = hist( data[which(data[,3]==names(t)[i]),column], breaks=seq(bounds[1],bounds[2],length=breaks+1), plot=F );\n" +
+				"}\n" +
+				"return( h );\n" +
+			"}\n";
+	
 	private static String getClassifierName( AbstractClassifier cl ) {
 		CategoricalResult[] cat = cl.getClassifierAnnotation();
 		String res = cat[0].getValue() + "(" + cat[1].getValue();
