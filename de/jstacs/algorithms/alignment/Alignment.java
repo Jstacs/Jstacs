@@ -56,17 +56,19 @@ public class Alignment {
 		LOCAL;
 	}
 	
-	private int startS1, startS2;
+	protected int startS1, startS2;
 	
-	private Sequence s1, s2;
-	int l1, l2;
+	protected Sequence s1, s2;
+	protected int l1, l2;
 
-	private Costs costs;	
-	private AffineCosts aCosts;
+	protected Costs costs;	
+	protected AffineCosts aCosts;
+	protected AlignmentType type;
 	
 	private AlignmentAlgorithm algorithm;
 
-	private double[][][] d;	
+	protected double[][][] d;
+	
 	/**
 	 * The number of secondary diagonals at both sides of the main diagonal.
 	 * If the alignment is performed for {@link Sequence}s of different length, 
@@ -143,9 +145,20 @@ public class Alignment {
 	 * @return the alignment
 	 */
 	public PairwiseStringAlignment getAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
+		computeAlignment(type, s1, startS1, endS1, s2, startS2, endS2);
+		int[] index = getIndex( endS1, endS2 );
+		return getAlignment(index);
+	}
+	
+	public boolean computeAlignment( AlignmentType type, Sequence s1, Sequence s2 ) {
+		return computeAlignment( type, s1, 0, s1.getLength(), s2, 0, s2.getLength() );
+	}
+	
+	public boolean computeAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
 
 		this.s1 = s1; this.startS1 = startS1;
 		this.s2 = s2; this.startS2 = startS2;
+		this.type = type;
 		
 		l1 = endS1-startS1;
 		l2 = endS2-startS2;
@@ -170,16 +183,29 @@ public class Alignment {
 			}
 			algorithm.reset( i, 0, start );
 			for( int j = start; j <= end; j++ ) {
-				algorithm.compute(type,i,j);
+				algorithm.compute(i,j);
 			}
 			if( end != l2 ) algorithm.reset( i, end+1, l2 );
 		}
-
-		//create results: aligned strings, ...
+		return true;
+	}
+	
+	/**
+	 * Finding the index in the matrices where to get the optimal cost and start the backtracking.
+	 * 
+	 * 
+	 * @param e1 the end in sequence 1 
+	 * @param e2 the end in sequence 2
+	 * 
+	 * @return the index in the matrices
+	 */
+	private int[] getIndex( int e1, int e2 ) {
+		int l1 = e1-startS1;
+		int l2 = e2-startS2;
+		
 		int[] index = {-1,-1,-1};
-		int endPos, startPos = 0;
+		int start, end, h;
 		if( type == AlignmentType.LOCAL ) {
-			endPos=-1;
 			index[0] = 0;
 			for( int i = 0; i <= l1; i++ ) {
 				start = Math.max(0,i-offDiagonal);
@@ -193,12 +219,10 @@ public class Alignment {
 					if( index[1] < 0 || d[0][i][j] < d[0][index[1]][index[2]] ) {
 						index[1] = i;
 						index[2] = j;
-						endPos=startS1+i;
 					}
 				}
 			}
 		} else {
-			endPos=l1;
 			index[1] = l1;
 			index[2] = l2;
 			if( aCosts == null ) {
@@ -213,7 +237,16 @@ public class Alignment {
 				}
 			}
 		}
-
+		
+		return index;
+	}
+	
+	public double getCost( int end1, int end2 ) {
+		int[] index = getIndex( end1, end2 );
+		return d[index[0]][index[1]][index[2]];
+	}
+	
+	protected PairwiseStringAlignment getAlignment( int[] index ){
 		double cost = d[index[0]][index[1]][index[2]];
 
 		StringBuffer b1 = new StringBuffer();
@@ -222,9 +255,12 @@ public class Alignment {
 		AlphabetContainer cont = s1.getAlphabetContainer();
 
 		int[] next = index.clone();
+		int startPos, endPos;
+		startPos = 0;
+		endPos = type==AlignmentType.LOCAL ? startS1 + index[1] : index[1];
 		int numMatches = 0;
 		while( true ) {
-			algorithm.next(type,index, next);
+			algorithm.next(index,next);
 			//System.out.println( Arrays.toString(index) + "\t" + Arrays.toString(next) );
 			if( next[0] < 0 ) {
 				break;
@@ -245,7 +281,7 @@ public class Alignment {
 				b2.insert( 0, sym );
 				b2.insert( 0, cont.getDelim() );
 				for(int k=0;k<sym.length();k++){
-					b1.insert( 0, '-' );
+					b1.insert( 0, '-' );//TODO JAN
 				}
 				b1.insert( 0, cont.getDelim() );
 			} else if( row == -1 ) {
@@ -253,7 +289,7 @@ public class Alignment {
 				b1.insert( 0, sym );
 				b1.insert( 0, cont.getDelim() );
 				for(int k=0;k<sym.length();k++){
-					b2.insert( 0, '-' );
+					b2.insert( 0, '-' );//TODO JAN
 				}
 				b2.insert( 0, cont.getDelim() );
 			}
@@ -270,17 +306,17 @@ public class Alignment {
 	}
 	
 	private static interface AlignmentAlgorithm {
-		public void compute( AlignmentType type, int i, int j );
+		public void compute( int i, int j );
 		public void reset( int i, int startJ, int endJ );
-		public void next( AlignmentType type, int[] current, int[] next );
+		public void next( int[] current, int[] next );
 	}
 	
 	private class SimpleAlgorithm implements AlignmentAlgorithm {
-		public void compute( AlignmentType type, int i, int j ) {
-			computeDirection( type, i, j );
+		public void compute( int i, int j ) {
+			computeDirection( i, j );
 		}
 		
-		public byte computeDirection( AlignmentType type, int i, int j ) {
+		public byte computeDirection( int i, int j ) {
 			byte direction = -1;
 			if( i == 0 && j == 0 ) {
 				d[0][i][j] = 0;
@@ -333,8 +369,8 @@ public class Alignment {
 			//Arrays.fill( d[0][i], startJ, endJ, Double.POSITIVE_INFINITY );
 		}
 
-		public void next( AlignmentType type, int[] index, int[] next ) {
-			byte res = computeDirection( type, index[1], index[2] );
+		public void next( int[] index, int[] next ) {
+			byte res = computeDirection( index[1], index[2] );
 			if( res < 0 ) {
 				next[0] = -1;
 			} else {
@@ -350,13 +386,13 @@ public class Alignment {
 	
 	private class AffineAlignment implements AlignmentAlgorithm {
 
-		public void compute(AlignmentType type, int i, int j) {
-			computeGap1( type, i, j );
-			computeGap2( type, i, j );
-			computeMatchMisMatch( type, i, j );
+		public void compute(int i, int j) {
+			computeGap1( i, j );
+			computeGap2( i, j );
+			computeMatchMisMatch( i, j );
 		}
 		
-		public byte computeMatchMisMatch( AlignmentType type, int i, int j ) {
+		public byte computeMatchMisMatch( int i, int j ) {
 			byte direction = -99;
 			if( i == 0 && j == 0 ) {
 				d[0][i][j] = 0;
@@ -389,7 +425,7 @@ public class Alignment {
 			return direction;
 		}
 
-		public byte computeGap1( AlignmentType type, int i, int j ) {
+		public byte computeGap1( int i, int j ) {
 			byte direction = -100;
 			if( j == 0 ) {
 				d[1][i][j] = Double.POSITIVE_INFINITY;
@@ -418,7 +454,7 @@ public class Alignment {
 			return direction;
 		}
 
-		public byte computeGap2( AlignmentType type, int i, int j ) {
+		public byte computeGap2( int i, int j ) {
 			byte direction = -101;
 			if( i == 0 ) {
 				d[2][i][j] = Double.POSITIVE_INFINITY;
@@ -442,11 +478,11 @@ public class Alignment {
 			return direction;
 		}
 
-		public void next(AlignmentType type, int[] index, int[] next) {
+		public void next(int[] index, int[] next) {
 			byte b;
 			switch( index[0] ) {
 				case 0:
-					b = computeMatchMisMatch( type, index[1], index[2] );
+					b = computeMatchMisMatch( index[1], index[2] );
 					if( b < 0 ) {
 						next[0] = -1;
 					} else {
@@ -460,7 +496,7 @@ public class Alignment {
 					}
 					break;
 				case 1:
-					b = computeGap1( type, index[1], index[2] );
+					b = computeGap1( index[1], index[2] );
 					if( b < 0 ) {
 						next[0] = -1;
 					} else {
@@ -470,7 +506,7 @@ public class Alignment {
 					}
 					break;
 				case 2:
-					b = computeGap2( type, index[1], index[2] );
+					b = computeGap2( index[1], index[2] );
 					if( b < 0 ) {
 						next[0] = -1;
 					} else {
