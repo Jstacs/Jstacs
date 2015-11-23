@@ -431,6 +431,10 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		StringBuffer cont = XMLParser.extractForTag( command, namePrefix );
 		try{
 			String val = XMLParser.extractForTag( cont, "value" ).toString();
+			if( val.equalsIgnoreCase("none") ) {
+				this.isSet=false;
+				return;
+			}
 			String ext = XMLParser.extractForTag( cont, "extension" ).toString().trim();
 			this.value = new FileRepresentation( val );
 			this.value.setExtension( ext );
