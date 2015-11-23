@@ -41,9 +41,9 @@ import de.jstacs.io.NonParsableException;
  */
 public class SeparateGaussianLogPrior extends SeparateLogPrior {
 
-	private double[] vars2;
+	protected double[] vars2;
 
-	private double[] mus;
+	protected double[] mus;
 
 	/**
 	 * Creates a new {@link SeparateGaussianLogPrior} from a set of base
