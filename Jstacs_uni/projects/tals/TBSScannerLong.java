@@ -50,10 +50,10 @@ import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Pair;
-import de.jstacs.utils.galaxy.MultilineSimpleParameter;
 
 /**
  * Class that scans input sequences for putative TAL effector target sites given a {@link TALgetterDiffSM},

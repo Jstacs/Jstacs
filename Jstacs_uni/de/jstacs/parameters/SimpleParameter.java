@@ -24,7 +24,7 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.validation.ParameterValidator;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
 /**
  * Class for a &quot;simple&quot; parameter. Simple parameters are those of the

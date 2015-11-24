@@ -6,7 +6,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.utils.galaxy.Galaxy;
+import de.jstacs.tools.ui.galaxy.Galaxy;
 
 
 /**

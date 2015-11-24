@@ -53,10 +53,10 @@ import de.jstacs.results.ResultSet;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.HomogeneousMM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.homogeneous.parameters.HomMMParameterSet;
+import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Pair;
-import de.jstacs.utils.galaxy.MultilineSimpleParameter;
 
 /**
  * Class that scans input sequences for putative TAL effector target sites given a {@link TALgetterDiffSM}.

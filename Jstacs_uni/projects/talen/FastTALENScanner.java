@@ -65,11 +65,11 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.Pair;
-import de.jstacs.utils.galaxy.MultilineSimpleParameter;
 
 
 public class FastTALENScanner {
