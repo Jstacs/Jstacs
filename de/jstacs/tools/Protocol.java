@@ -1,7 +1,7 @@
 package de.jstacs.tools;
 
-import de.jstacs.cli.CLI;
-import de.jstacs.utils.galaxy.Galaxy;
+import de.jstacs.tools.ui.cli.CLI;
+import de.jstacs.tools.ui.galaxy.Galaxy;
 
 /**
  * Interface for the protocol of the run of a {@link JstacsTool}.

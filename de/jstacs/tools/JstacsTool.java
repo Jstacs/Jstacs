@@ -1,8 +1,8 @@
 package de.jstacs.tools;
 
-import de.jstacs.cli.CLI;
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.utils.galaxy.Galaxy;
+import de.jstacs.tools.ui.cli.CLI;
+import de.jstacs.tools.ui.galaxy.Galaxy;
 
 /**
  * Interface for a generic Jstacs tool.

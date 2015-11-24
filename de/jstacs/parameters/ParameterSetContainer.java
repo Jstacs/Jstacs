@@ -23,7 +23,7 @@ import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
 /**
  * Class for a {@link ParameterSetContainer} that contains a

@@ -26,8 +26,8 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.utils.IntList;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
 
 /**
  * Class for a {@link Parameter} that provides a collection of possible values.

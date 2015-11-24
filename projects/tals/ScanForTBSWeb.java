@@ -58,13 +58,13 @@ import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
-import de.jstacs.utils.galaxy.MultilineSimpleParameter;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.Protocol;
 
 /**
  * Main class of TALgetterWeb.jar
