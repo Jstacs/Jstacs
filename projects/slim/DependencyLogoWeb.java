@@ -3,19 +3,19 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-import projects.dimont.DimontWeb;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.FileResult;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.LinkedImageResult;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.graphics.GraphicsAdaptor;
 import de.jstacs.utils.graphics.GraphicsAdaptorFactory;
 import de.jstacs.utils.graphics.GraphicsAdaptorFactory.OutputFormat;
 import de.jstacs.utils.graphics.RasterizedAdaptor;
+import projects.dimont.DimontWeb;
 
 
 
