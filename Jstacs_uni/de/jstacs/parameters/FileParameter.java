@@ -32,8 +32,8 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.ParameterValidator;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.utils.Compression;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
 
 /**
  * Class for a {@link Parameter} that represents a local file.
