@@ -5,8 +5,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import projects.dimont.ThresholdedStrandChIPper;
-
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
@@ -17,9 +15,10 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.SafeOutputStream;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.Protocol;
+import projects.dimont.ThresholdedStrandChIPper;
 
 
 public class SlimDimontWeb extends SlimDimont {

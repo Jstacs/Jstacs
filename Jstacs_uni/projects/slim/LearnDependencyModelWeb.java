@@ -2,14 +2,7 @@ package projects.slim;
 
 import java.util.LinkedList;
 
-import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.Optimizer;
-import de.jstacs.algorithms.optimization.StartDistanceForecaster;
-import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
-import de.jstacs.algorithms.optimization.termination.CombinedCondition;
-import de.jstacs.algorithms.optimization.termination.IterationCondition;
-import de.jstacs.algorithms.optimization.termination.MultipleIterationsCondition;
-import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
@@ -43,11 +36,10 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.localMixture.Li
 import de.jstacs.sequenceScores.statisticalModels.differentiable.localMixture.LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder.PriorType;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandDiffSM.InitMethod;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
 import projects.dimont.Interpolation;
 import projects.dimont.ThresholdedStrandChIPper;
 import projects.slim.LearnDependencyModelWebParameterSet.ModelType;
