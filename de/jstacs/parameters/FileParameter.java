@@ -43,6 +43,7 @@ import de.jstacs.utils.Compression;
  */
 public class FileParameter extends Parameter implements GalaxyConvertible {
 
+	
 	/**
 	 * <code>true</code> if the parameter is required
 	 */
