@@ -630,8 +630,34 @@ public class DataSet implements Iterable<Sequence>{
 		this(abc,se,delim,subsequenceLength,0);
 	}
 	
-	//TODO percentage 
-	private DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim, int subsequenceLength, double percentage ) throws EmptyDataSetException,
+	/**
+	 * Creates a new {@link DataSet} from a {@link de.jstacs.io.StringExtractor}
+	 * using the given {@link AlphabetContainer}, the given delimiter
+	 * <code>delim</code> and all overlapping windows of length
+	 * <code>subsequenceLength</code>.
+	 * 
+	 * @param abc
+	 *            the {@link AlphabetContainer}
+	 * @param se
+	 *            the {@link de.jstacs.io.StringExtractor}
+	 * @param delim
+	 *            the delimiter for parsing the {@link String}s
+	 * @param subsequenceLength
+	 *            the length of the window sliding on the {@link String} of
+	 *            <code>se</code>, if <code>len</code> is 0 (zero) then the
+	 *            {@link Sequence}s are used as given from the
+	 *            {@link de.jstacs.io.StringExtractor}
+	 * @param percentage 
+	 * 			  the percentage of {@link Sequence}s allowed to be discarded due to {@link WrongAlphabetException}, all other constructors set this value to 0.
+	 * 
+	 * @throws WrongAlphabetException
+	 *             if the {@link AlphabetContainer} is not suitable
+	 * @throws EmptyDataSetException
+	 *             if the {@link DataSet} would be empty
+	 * @throws WrongLengthException
+	 *             if the subsequence length is not supported
+	 */
+	public DataSet( AlphabetContainer abc, AbstractStringExtractor se, String delim, int subsequenceLength, double percentage ) throws EmptyDataSetException,
 																											WrongAlphabetException,
 																											WrongLengthException {
 		alphabetContainer = abc;
@@ -659,7 +685,6 @@ public class DataSet implements Iterable<Sequence>{
 			}
 			c = -1;//ArbitrarySequence;
 		}
-		
 		
 		String stringToBeParsed;
 		Sequence s;
