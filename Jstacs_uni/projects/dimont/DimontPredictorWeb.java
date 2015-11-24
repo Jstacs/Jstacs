@@ -11,8 +11,8 @@ import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.Protocol;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 
 
 public class DimontPredictorWeb {

@@ -8,16 +8,14 @@ import java.util.Locale;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.DataSet;
 import de.jstacs.io.FileManager;
-import de.jstacs.parameters.Parameter;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
-import de.jstacs.results.NumericalResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.SafeOutputStream;
-import de.jstacs.utils.galaxy.GalaxyAdaptor;
-import de.jstacs.utils.galaxy.GalaxyAdaptor.Protocol;
 
 
 public class DimontWeb {
