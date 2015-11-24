@@ -38,13 +38,13 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.tools.ui.galaxy.Galaxy;
+import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter.SeqLogoPlotGenerator;
 import de.jstacs.utils.ToolBox;
-import de.jstacs.utils.galaxy.Galaxy;
-import de.jstacs.utils.galaxy.MultilineSimpleParameter;
 
 public class FindPWMsAndClusters implements JstacsTool{
 
