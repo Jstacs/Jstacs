@@ -40,6 +40,12 @@ public interface JstacsTool {
 	public String getToolName();
 	
 	/**
+	 * Returns a descriptive, human readable version for this tool.
+	 * @return the version
+	 */
+	public String getToolVersion();
+	
+	/**
 	 * Returns a name (preferably short and without spaces) for referring to this tool on the command line.
 	 * @return the short name
 	 */
@@ -58,4 +64,5 @@ public interface JstacsTool {
 	 */
 	public String getHelpText();
 	
+	//TODO getStandardResultInfos()	
 }
