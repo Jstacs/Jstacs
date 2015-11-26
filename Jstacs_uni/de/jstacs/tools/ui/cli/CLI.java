@@ -395,7 +395,7 @@ public class CLI {
 	private void printToolParameters( int toolIndex, Protocol protocol, String outdir ) {
 		ParameterSet ps = toolParameters[toolIndex];
 		if(tools.length > 1){
-			protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+"):\n" );
+			protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+", version: " + tools[toolIndex].getToolVersion() + "):\n" );
 		}else{
 			protocol.appendWarning( "Parameters of "+tools[toolIndex].getToolName()+":\n" );
 		}

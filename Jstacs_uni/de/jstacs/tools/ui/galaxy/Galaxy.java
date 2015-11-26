@@ -98,7 +98,7 @@ public class Galaxy {
 				
 				String command = "java"+vmargs+" -jar "+jar+" "+name;
 				
-				GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), "1.0", command, "jobname");
+				GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), tools[i].getToolVersion(), command, "jobname");
 				
 				ga.setHelp( tools[i].getHelpText() );
 				
@@ -117,7 +117,7 @@ public class Galaxy {
 			String name = tools[idx].getShortName();
 			String command = "java"+vmargs+" -jar "+jar+" "+name;
 			
-			GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[idx], addLine[idx], tools[idx].getToolName(), tools[idx].getDescription(), "1.0", command, "jobname");
+			GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[idx], addLine[idx], tools[idx].getToolName(), tools[idx].getDescription(), tools[idx].getToolVersion(), command, "jobname");
 			
 			ga.setHelp( tools[idx].getHelpText() );
 			
