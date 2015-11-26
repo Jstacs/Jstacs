@@ -64,5 +64,5 @@ public interface JstacsTool {
 	 */
 	public String getHelpText();
 	
-	//TODO getStandardResultInfos()	
+	//TODO getStandardResultInfos() //cf. https://wiki.galaxyproject.org/Admin/Tools/ToolConfigSyntax#A.3Cdata.3E_tag_set	
 }
