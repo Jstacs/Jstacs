@@ -1,6 +1,7 @@
 package de.jstacs.tools.ui.cli;
 
 import java.io.File;
+import java.io.Flushable;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -45,7 +46,7 @@ public class CLI {
 	 * @author Jan Grau
 	 *
 	 */
-	public static class SysProtocol implements Protocol{
+	public static class SysProtocol implements Protocol, Flushable {
 
 		private StringBuffer log;
 		
@@ -99,7 +100,7 @@ public class CLI {
 			append(verbatim);
 		}
 
-		void flush() {
+		public void flush() {
 			System.err.flush();
 			System.out.flush();
 		}
