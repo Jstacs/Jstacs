@@ -726,8 +726,13 @@ public class DataSet implements Iterable<Sequence>{
 			throw doesNotHappen;
 		}
 		
-		if( wae != null && counter/((double)counter+newSeqs.size()) > percentage ) {
-			throw wae;
+		if( wae != null ) {
+			double p = counter/((double)counter+newSeqs.size());
+			if( p > percentage ) {
+				throw wae;
+			} else {
+				System.err.println("Discarded sequences : " + counter + " (="+p+")" );
+			}
 		}
 		
 		seqs = new Sequence[newSeqs.size()];
