@@ -18,6 +18,8 @@
 
 package de.jstacs.algorithms.alignment;
 
+import java.util.Arrays;
+
 import de.jstacs.algorithms.alignment.cost.AffineCosts;
 import de.jstacs.algorithms.alignment.cost.Costs;
 import de.jstacs.data.AlphabetContainer;
@@ -146,8 +148,26 @@ public class Alignment {
 	 */
 	public PairwiseStringAlignment getAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
 		computeAlignment(type, s1, startS1, endS1, s2, startS2, endS2);
+		
+		//printMatrix(s1,s2);		
 		int[] index = getIndex( endS1, endS2 );
 		return getAlignment(index);
+	}
+	
+	
+	private void printMatrix(Sequence s1, Sequence s2){
+		for(int i=0;i<d.length;i++){
+			System.out.println("Matrix: "+i);
+			System.out.println("-"+s2);
+			for(int j=0;j<d[i].length;j++){
+				if(j==0){
+					System.out.print("-");
+				}else{
+					System.out.print(s1.toString(j-1, j));
+				}
+				System.out.println(" "+Arrays.toString(d[i][j]));
+			}
+		}
 	}
 	
 	public boolean computeAlignment( AlignmentType type, Sequence s1, Sequence s2 ) {
@@ -324,7 +344,7 @@ public class Alignment {
 				if( type != AlignmentType.LOCAL ) {
 					direction = 1;
 				}				
-				d[0][i][j] = type != AlignmentType.GLOBAL ? 0 : d[0][i][j-1]+costs.getGapCosts();
+				d[0][i][j] = type != AlignmentType.GLOBAL && type != AlignmentType.SEMI_GLOBAL ? 0 : d[0][i][j-1]+costs.getGapCosts();
 			} else if( i > 0 && j == 0 ) {
 				if( type != AlignmentType.LOCAL ) {
 					direction = 2;
@@ -332,13 +352,28 @@ public class Alignment {
 				d[0][i][j] = type != AlignmentType.GLOBAL ? 0 :  d[0][i-1][j] + costs.getGapCosts();
 			} else {
 				double diag = d[0][i - 1][j - 1] + costs.getCostFor( s1, s2, startS1+i, startS2+j );
-				double left = d[0][i][j - 1] + costs.getGapCosts();
+				double left = d[0][i][j - 1];
 				double top = d[0][i-1][j];
-				if ( (i < l1 && j < l2) //inner part of the matrix 
-						|| !(type==AlignmentType.SEMI_GLOBAL && j == l2)
-						|| !(type==AlignmentType.FREE_SHIFT && (j==l2 || i == l1)) ) {
+				
+				if(i < l1 && j < l2){
 					top += costs.getGapCosts();
+					left += costs.getGapCosts();
+				}else{
+					if(type != AlignmentType.SEMI_GLOBAL && type != AlignmentType.FREE_SHIFT || j < l2){
+						top += costs.getGapCosts();
+					}
+					if(type != AlignmentType.FREE_SHIFT || i < l1){
+						left += costs.getGapCosts();
+					}
+					
 				}
+				
+			/*	if ( (i < l1 && j < l2) //inner part of the matrix 
+						|| !(type==AlignmentType.SEMI_GLOBAL && j == l2)
+						&& !(type==AlignmentType.FREE_SHIFT && (j==l2 || i == l1)) ) {
+					top += costs.getGapCosts();
+					//System.out.println(type+" "+i+" "+j+" "+l1+" "+l2);
+				}*/
 				
 				if( diag < left && diag < top ) {
 					d[0][i][j] = diag;
