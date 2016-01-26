@@ -298,7 +298,9 @@ public class CLI {
 		}
 		
 		set(parameterSet,hashMap,valueMap);
-		
+		if( valueMap.size() > 0 ) {
+			throw new IllegalValueException("Unknown parameters: "+ valueMap );
+		}
 		return outdir;
 	}
 
@@ -310,14 +312,14 @@ public class CLI {
 			Parameter par = parameters.getParameterAt( i );
 			if(par.getDatatype() != DataType.PARAMETERSET){
 				String key = hashMap.get( par );
-				String value = valueMap.get( key );
+				String value = valueMap.remove( key );
 				if(value != null){
 					par.setValue( value );
 				}
 			}else{
 				if(par instanceof AbstractSelectionParameter){
 					String key = hashMap.get( par );
-					String value = valueMap.get( key );
+					String value = valueMap.remove( key );
 					if(value != null){
 						par.setValue( value );
 						ParameterSet set = (ParameterSet)par.getValue();
@@ -415,7 +417,7 @@ public class CLI {
 		} catch( Exception ex ) {
 			//nothing
 		}
-		*/
+		/**/
 	}
 	
 	
