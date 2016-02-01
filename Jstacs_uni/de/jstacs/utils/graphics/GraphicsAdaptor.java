@@ -47,4 +47,6 @@ public abstract class GraphicsAdaptor {
 	 */
 	public abstract String getGraphicsExtension();
 	
+	//TODO createNewGraphics
+	
 }
