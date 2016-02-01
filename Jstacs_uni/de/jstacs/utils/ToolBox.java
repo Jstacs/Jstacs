@@ -737,6 +737,23 @@ public class ToolBox {
 		}
 		return num;
 	}
+
+	public static int getMinIndex(double[] w){
+		return getMinIndex(0,w.length,w);
+	}
+	
+	public static int getMinIndex(int start, int end, double[] w) {
+		if(start>=end){
+			return -1;
+		}
+		int min = start, i = start+1;
+		for( ; i < end; i++ ) {
+			if( w[i] < w[min] ) {
+				min = i;
+			}
+		}
+		return min;
+	}
 	
 	
 }
