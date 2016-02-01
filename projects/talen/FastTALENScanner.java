@@ -469,42 +469,62 @@ public class FastTALENScanner {
 				(model.getBestPossibleScore( talLeft, null )+model.getBestPossibleScore( talRight, null )));
 */		
 		
-		available = new LinkedList<Integer>();
-		
-		long size = 0;
-		
-		Worker[] workers = new Worker[numThreads <=2 ? 1 : numThreads-2];
-		for(int i=0;i<workers.length;i++){
-			workers[i] = new Worker(this, finder.clone(),talLeft,talRight,totalThresh,singleThresh1,singleThresh2,minDist,maxDist,params.getNTerm1(), params.getNTerm2(), params.getHeteroOnly(), params.getN(),model,gff,params.getOutput(),i);
-			Thread temp = (new Thread(workers[i]));
-			temp.setDaemon( true );
-			temp.start();
-			available.add( i );
-		}
-		
-		SequenceParser parser = null;
-		if(numThreads > 1){
-			parser = new SequenceParser( this );
-			Thread temp = (new Thread( parser ));
-			temp.setDaemon( true );
-			temp.start();
-		}
-		
-		while( (curr = readNextSequences( numThreads, parser, dsRead, lastHeader )) != null){
-			//System.out.println("next seq");
-			int a = 0;
-			synchronized( available ) {
-				a = available.size();
+		if(numThreads == 1){
+
+			Worker worker = new Worker(this, finder.clone(),talLeft,talRight,totalThresh,singleThresh1,singleThresh2,minDist,maxDist,params.getNTerm1(), params.getNTerm2(), params.getHeteroOnly(), params.getN(),model,gff,params.getOutput(),0);
+			
+			while( (curr = readNextSequences( numThreads, null, dsRead, lastHeader )) != null){
+				
+				worker.setData(curr);
+				worker.compute();
+				
 			}
-			while(a == 0){
-				synchronized(this){
-					wait(1000);
-				}
+			
+			ResultList rl3 = worker.rl;
+			for(int j=0;j<rl3.getNumberOfResults();j++){
+				rl.add( rl3.list[j].getElement(), -rl3.list[j].getWeight() );
+			}
+		}else{
+
+
+
+
+			available = new LinkedList<Integer>();
+
+			long size = 0;
+
+			Worker[] workers = new Worker[numThreads <=2 ? 1 : numThreads-2];
+			for(int i=0;i<workers.length;i++){
+				workers[i] = new Worker(this, finder.clone(),talLeft,talRight,totalThresh,singleThresh1,singleThresh2,minDist,maxDist,params.getNTerm1(), params.getNTerm2(), params.getHeteroOnly(), params.getN(),model,gff,params.getOutput(),i);
+				Thread temp = (new Thread(workers[i]));
+				temp.setDaemon( true );
+				temp.start();
+				available.add( i );
+			}
+
+			SequenceParser parser = null;
+			if(numThreads > 1){
+				parser = new SequenceParser( this );
+				Thread temp = (new Thread( parser ));
+				temp.setDaemon( true );
+				temp.start();
+			}
+
+			while( (curr = readNextSequences( numThreads, parser, dsRead, lastHeader )) != null){
+				//System.out.println("next seq");
+				int a = 0;
 				synchronized( available ) {
 					a = available.size();
 				}
-			}
-			//if(available.size() > 0){
+				while(a == 0){
+					synchronized(this){
+						wait(1000);
+					}
+					synchronized( available ) {
+						a = available.size();
+					}
+				}
+				//if(available.size() > 0){
 				int idx = 0;
 				synchronized( available ) {
 					idx = available.pop();
@@ -521,38 +541,40 @@ public class FastTALENScanner {
 						wait();
 					}
 				}
-			/*}else{
+				/*}else{
 				System.out.println("waiting");
 				synchronized(this){
 					wait();
 				}
 			}*/
-			//System.out.println("reading next");
-		}
-		int a = 0;
-		synchronized( available ) {
-			a = available.size();
-		}
-		while(a < workers.length){
-			synchronized(this){
-				//System.out.println("main waiting "+a+" "+workers.length);
-				wait(1000);
+				//System.out.println("reading next");
 			}
+			int a = 0;
 			synchronized( available ) {
 				a = available.size();
 			}
-		}
-		//System.out.println("stopping");
-		if(numThreads > 1){
-			parser.stop();
-		}
-		for(int i=0;i<workers.length;i++){
-			workers[i].stop();
-			ResultList rl3 = workers[i].rl;
-			for(int j=0;j<rl3.getNumberOfResults();j++){
-				rl.add( rl3.list[j].getElement(), -rl3.list[j].getWeight() );
+			while(a < workers.length){
+				synchronized(this){
+					//System.out.println("main waiting "+a+" "+workers.length);
+					wait(1000);
+				}
+				synchronized( available ) {
+					a = available.size();
+				}
 			}
-			size += workers[i].size;
+			//System.out.println("stopping");
+			if(numThreads > 1){
+				parser.stop();
+			}
+			for(int i=0;i<workers.length;i++){
+				workers[i].stop();
+				ResultList rl3 = workers[i].rl;
+				for(int j=0;j<rl3.getNumberOfResults();j++){
+					rl.add( rl3.list[j].getElement(), -rl3.list[j].getWeight() );
+				}
+				size += workers[i].size;
+			}
+
 		}
 		
 		//TODO GFF
