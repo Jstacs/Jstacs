@@ -24,7 +24,7 @@ public class ClusterTree<T> implements Storable{
 	private double distance;
 	private T[] elements;
 	private ClusterTree<T>[] subTrees;
-	private final int originalIndex;
+	private int originalIndex;
 	
 	private int[][][] pred;
 	
@@ -525,6 +525,10 @@ public class ClusterTree<T> implements Storable{
 			sb.append(indent+")\n");
 		}
 		return sb.toString();
+	}
+
+	public void setOriginalIndex(int used) {
+		this.originalIndex = used;
 	}
 	
 	
