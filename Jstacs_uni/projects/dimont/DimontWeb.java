@@ -35,7 +35,7 @@ public class DimontWeb {
 		GalaxyAdaptor ga = new GalaxyAdaptor( params,lines,"Dimont", "- a universal tool for de-novo motif discovery (beta).", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( DimontWeb.class.getClassLoader().getResourceAsStream( "projects/dimont/help.txt" ) ).toString() );
 		
-		if(!ga.parse( args, false )){
+		if(!ga.parse( args, true )){
 			System.exit( 1 );
 		}	
 		
@@ -50,7 +50,7 @@ public class DimontWeb {
 		String weightingFactor = (String)params.getParameterForName( "Weighting factor" ).getValue();
 		double ess = (Double)params.getParameterForName( "Equivalent sample size" ).getValue();
 		boolean delete = (Boolean)params.getParameterForName( "Delete BSs from profile" ).getValue();
-		int threads = 1;
+		int threads = ga.getThreads();
 		
 		Protocol prot = ga.getProtocol( false );
 		ByteArrayOutputStream baos = prot.getOutputStream();
