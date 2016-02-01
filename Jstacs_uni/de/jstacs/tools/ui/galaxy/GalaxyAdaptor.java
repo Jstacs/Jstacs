@@ -641,6 +641,7 @@ public class GalaxyAdaptor {
 	 */
 	public void writeOutput() throws IOException{
 		StringBuffer summary = new StringBuffer();
+		summary.append( "<h2>Summary of "+toolname+" results</h2>" );
 		
 		int i=0;
 		boolean exported = false;
@@ -687,7 +688,7 @@ public class GalaxyAdaptor {
 		}
 		
 
-		summary.append( "<h2>Summary of "+toolname+" results</h2>" );
+		
 		
 		StringBuffer all = new StringBuffer();
 		StringBuffer head = new StringBuffer();
