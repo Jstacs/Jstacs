@@ -243,7 +243,7 @@ public class CLI {
 			System.err.println("\n"+parse(tools[toolIndex].getHelpText()));
 		}else{
 			int toolIndex = tools.length == 1 ? 0 : getToolIndex( args[0] );
-			outdir = setToolParameters(tools.length == 1 ? 0 : 1, toolParameters[toolIndex],keyMap[toolIndex],args);
+			outdir = setToolParameters(tools.length == 1 ? 0 : 1, toolParameters[toolIndex],keyMap[toolIndex],args, protocol);
 			
 			if(!toolParameters[toolIndex].hasDefaultOrIsSet()){
 				System.err.println("At least one parameter has not been set (correctly):\n");
@@ -280,9 +280,10 @@ public class CLI {
 	}
 
 
-	private String setToolParameters( int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args ) throws IllegalValueException {
+	private String setToolParameters( int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException {
 		HashMap<String, String> valueMap = new HashMap<String, String>();
 		String outdir = ".";
+		boolean newLine=false;
 		for(int i=off;i<args.length;i++){
 			int idx = args[i].indexOf("=");
 			if(idx < 0){
@@ -293,10 +294,17 @@ public class CLI {
 			if("outdir".equals( temp[0] ) ){
 				outdir = temp[1];
 			}else{
+				String v = valueMap.get(temp[0]);
+				if( v!=null ) {
+					protocol.appendWarning( "Overwriting parameter: " + temp[0]+"=" +v +"\n");
+					newLine=true;
+				}
 				valueMap.put( temp[0], temp[1] );
 			}
 		}
-		
+		if( newLine ) {
+			protocol.append("\n");
+		}
 		set(parameterSet,hashMap,valueMap);
 		if( valueMap.size() > 0 ) {
 			throw new IllegalValueException("Unknown parameters: "+ valueMap );
