@@ -41,8 +41,14 @@ import de.jstacs.io.NonParsableException;
  */
 public class SeparateGaussianLogPrior extends SeparateLogPrior {
 
+	/**
+	 * The variances
+	 */
 	protected double[] vars2;
 
+	/**
+	 * The means
+	 */
 	protected double[] mus;
 
 	/**
