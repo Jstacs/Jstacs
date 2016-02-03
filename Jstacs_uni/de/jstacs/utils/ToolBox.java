@@ -738,10 +738,30 @@ public class ToolBox {
 		return num;
 	}
 
+	/**
+	 * Returns the index with minimum value in a <code>double</code> array.
+	 * 
+	 * @param w
+	 *            the given <code>double</code> array
+	 * 
+	 * @return the index
+	 */
 	public static int getMinIndex(double[] w){
 		return getMinIndex(0,w.length,w);
 	}
 	
+	/**
+	 * Returns the index with minimum value in a <code>double</code> array.
+	 * 
+	 * @param w
+	 *            the given <code>double</code> array
+	 * @param start
+	 *            start position (inclusive)
+	 * @param end
+	 *            end position (exclusive)
+	 * 
+	 * @return the index
+	 */
 	public static int getMinIndex(int start, int end, double[] w) {
 		if(start>=end){
 			return -1;
