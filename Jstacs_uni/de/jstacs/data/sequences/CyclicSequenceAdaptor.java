@@ -17,6 +17,11 @@ public class CyclicSequenceAdaptor<T> extends Sequence<T> {
 	private int l;
 	private int extLength;
 	
+	/**
+	 * Creates a new cyclic sequence of given virtual length (i.e., the length reported by {@link #getLength()}).
+	 * @param seq the original sequence
+	 * @param extLength the virtual length
+	 */
 	public CyclicSequenceAdaptor(Sequence<T> seq, int extLength) {
 		super(seq.getAlphabetContainer(), seq.getAnnotation());
 		this.seq = seq;
@@ -24,6 +29,10 @@ public class CyclicSequenceAdaptor<T> extends Sequence<T> {
 		this.extLength = extLength;
 	}
 	
+	/**
+	 * Creates a new cyclic sequence of the length of the original sequence.
+	 * @param seq the original sequence
+	 */
 	public CyclicSequenceAdaptor(Sequence<T> seq) {
 		this(seq,seq.getLength());
 	}
@@ -121,6 +130,13 @@ public class CyclicSequenceAdaptor<T> extends Sequence<T> {
 		return new CyclicSequenceAdaptor<T>( seq.reverseComplement( start, end ) );
 	}
 	
+	/**
+	 * Returns a new cyclic sequence using the internal sequence of this {@link CyclicSequenceAdaptor} but with 
+	 * the supplied virtual length
+	 * @param length the virtual length
+	 * @return the cyclic sequence
+	 * @see #CyclicSequenceAdaptor(Sequence, int)
+	 */
 	public CyclicSequenceAdaptor<T> getSuperSequence(int length){
 		return new CyclicSequenceAdaptor<T>( seq, length );
 	}
