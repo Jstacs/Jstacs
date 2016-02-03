@@ -112,5 +112,4 @@ public interface JstacsTool {
 	 */
 	public ResultEntry[] getDefaultResultInfos();
 	
-	//TODO getStandardResultInfos() //cf. https://wiki.galaxyproject.org/Admin/Tools/ToolConfigSyntax#A.3Cdata.3E_tag_set	
 }
