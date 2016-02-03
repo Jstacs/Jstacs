@@ -46,21 +46,21 @@ public class ResultSaverLibrary {
 	 * @param result the result to be saved
 	 * @return the appropriate {@link ResultSaver} or <code>null</code> if not such {@link ResultSaver} has been registered
 	 */
-	public static <T extends Result> ResultSaver<T> getSaver(T result){
+	public static <T extends Result> ResultSaver<T> getSaver(Class<? extends T> resultClass){
 		
-		ResultSaver ren = map.get( result.getClass() );
+		ResultSaver ren = map.get( resultClass );
 		if(ren == null){
 			Set<Class<? extends Result>> clazzes = map.keySet();
 			Iterator<Class<? extends Result>> it = clazzes.iterator();
 			while(it.hasNext()){
 				Class<? extends Result> clazz = it.next();
-				if(clazz.isAssignableFrom( result.getClass() )){
+				if(clazz.isAssignableFrom( resultClass )){
 					return map.get( clazz );
 				}
 			}
 		}
 		if(ren == null){
-			System.err.println( "Did not find a saver for "+result.getClass()+". Custom savers need to be registered by "+ResultSaverLibrary.class.getName()+".register()." );
+			System.err.println( "Did not find a saver for "+resultClass+". Custom savers need to be registered by "+ResultSaverLibrary.class.getName()+".register()." );
 		}
 		return ren;
 	}
