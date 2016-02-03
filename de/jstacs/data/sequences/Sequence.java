@@ -1342,10 +1342,18 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 			return start + pos;
 		}
 
+		/**
+		 * Returns the original sequence, this sequence is a sub-sequence of.
+		 * @return the original sequence
+		 */
 		public Sequence<T> getOriginal(){
 			return content;
 		}
 		
+		/**
+		 * Returns the start of this sub-sequence in the original sequence.
+		 * @return the start
+		 */
 		public int getStart(){
 			return start;
 		}
