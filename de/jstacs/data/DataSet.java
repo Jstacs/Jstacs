@@ -1637,6 +1637,14 @@ public class DataSet implements Iterable<Sequence>{
 		}
 	}
 	
+	/**
+	 * Returns modified version of this data set with adjusted subsequence length. Weights are
+	 * copied for different sub-sequences of the same original sequence.
+	 * @param weights the original weights, may be <code>null</code>
+	 * @param subsequenceLength the new subsequence length
+	 * @return the data set of the new subsequence length and the copied weights
+	 * @throws WrongLengthException if the supplied subsequence length is not possible for this data set (e.g., shorter than the shortest sequence but not 0)
+	 */
 	public final Pair<DataSet, double[]> resize( double[] weights, int subsequenceLength ) throws WrongLengthException {
 		if( subsequenceLength == 0 || getElementLength() == subsequenceLength ) {
 			return new Pair<DataSet, double[]>( this, weights ); 
