@@ -43,7 +43,7 @@ public class ResultSaverLibrary {
 	 * Otherwise, the list of {@link ResultSaver}s is searched for a {@link ResultSaver} registered for
 	 * a superclass of <code>T</code> and the first hit is returned.
 	 * 
-	 * @param result the result to be saved
+	 * @param resultClass the class of the result to be saved
 	 * @return the appropriate {@link ResultSaver} or <code>null</code> if not such {@link ResultSaver} has been registered
 	 */
 	public static <T extends Result> ResultSaver<T> getSaver(Class<? extends T> resultClass){
