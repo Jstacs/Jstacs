@@ -346,5 +346,10 @@ public class FindPWMsAndClusters implements JstacsTool{
 			return "";
 		}
 	}
+
+	@Override
+	public String getToolVersion() {
+		return "1.0";
+	}
 	
 }
