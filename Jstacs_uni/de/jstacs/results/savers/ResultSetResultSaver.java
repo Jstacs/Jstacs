@@ -54,7 +54,7 @@ public class ResultSetResultSaver implements ResultSaver<ResultSetResult> {
 		boolean wroteAll = true;
 		for(int i=0;i<set.getNumberOfResults();i++){
 			Result res = set.getResultAt( i );
-			ResultSaver saver = ResultSaverLibrary.getSaver( res );
+			ResultSaver saver = ResultSaverLibrary.getSaver( res.getClass() );
 			if(saver != null){
 				String filename = res.getName().replaceAll( "[\\s\\:\\/]", "_" );
 				String temp = filename;
