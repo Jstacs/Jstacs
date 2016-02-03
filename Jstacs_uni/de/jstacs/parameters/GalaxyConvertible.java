@@ -19,11 +19,10 @@
 package de.jstacs.parameters;
 
 
-
 /**
  * Interface for {@link Parameter}s that can be converted to and extracted from
  * <a href="http://galaxy.psu.edu/">Galaxy</a> representations.
- * The methods of this interface are used in the {@link de.jstacs.utils.galaxy.GalaxyAdaptor} to create
+ * The methods of this interface are used in the {@link de.jstacs.tools.ui.galaxy.GalaxyAdaptor} to create
  * Galaxy representation, i.e., config-files, from {@link ParameterSet}s that contain
  * the parameters for a specific application.
  * @author Jan Grau
