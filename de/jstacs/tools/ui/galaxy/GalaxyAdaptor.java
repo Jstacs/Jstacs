@@ -53,6 +53,7 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.results.savers.ResultSaver;
 import de.jstacs.results.savers.ResultSaverLibrary;
+import de.jstacs.tools.JstacsTool.ResultEntry;
 
 /**
  * Adaptor class between the parameter representation of Jstacs in {@link de.jstacs.parameters.Parameter}s and {@link ParameterSet}s and the parameter representation
@@ -77,6 +78,8 @@ import de.jstacs.results.savers.ResultSaverLibrary;
 public class GalaxyAdaptor {
 
 	private ParameterSet parameters;
+	private ResultEntry[] defaultResults;
+	private String[] defaultResultPaths;
 	private boolean[] addLine;
 	private String toolname;
 	private String description;
@@ -158,8 +161,15 @@ public class GalaxyAdaptor {
 	 * @param labelName if <code>null</code>, the default names of Galaxy are used, otherwise a field &quot;Job name&quot; 
 	 *     is added as first parameter of the tool with internal name <code>labelName</code>. The internal name must not collide with the name of any other parameter.
 	 */
-	public GalaxyAdaptor(ParameterSet parameters, boolean[] addLine, String toolname, String description, String version, String command, String labelName){
+	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String version, String command, String labelName){
 		this.parameters = parameters;
+		if(defaultResults == null){
+			this.defaultResults = new ResultEntry[0];
+			this.defaultResultPaths = new String[0];
+		}else{
+			this.defaultResults = defaultResults;
+			this.defaultResultPaths = new String[defaultResults.length];
+		}
 		this.addLine = addLine == null ? null : addLine.clone();
 		this.toolname = toolname;
 		this.description = description;
@@ -225,10 +235,16 @@ public class GalaxyAdaptor {
 		StringBuffer allBuffer = new StringBuffer();
 		XMLParser.appendObjectWithTagsAndAttributes( allBuffer, description, "description", null, false );
 		allBuffer.append( "\n" );
+		
+		StringBuffer defaultOuts = new StringBuffer();
+		for(int i=0;i<defaultResults.length;i++){
+			defaultOuts.append(" $defout"+i);
+		}
+		
 		if(configureThreads){
-			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path \\${GALAXY_SLOTS:-1}", "command", null, false );
+			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path \\${GALAXY_SLOTS:-1}"+defaultOuts.toString(), "command", null, false );
 		}else{
-			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path", "command", null, false );
+			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path"+defaultOuts.toString(), "command", null, false );
 		}
 		allBuffer.append( "\n" );
 		
@@ -258,6 +274,30 @@ public class GalaxyAdaptor {
 		}else{
 			XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\"" );
 		}
+		outBuf.append("\n");
+		
+		for(int i=0;i<defaultResults.length;i++){
+			String type = defaultResults[i].getFormat();
+			if(type == null){
+				type = getDefaultExtension(defaultResults[i].getDeclaredClass());
+			}
+			String label = null;
+			if(labelName != null){
+				label = "#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"' else str($"+getLegalName( toolname )+"_"+labelName+") + ': "+defaultResults[i].getName()+"' #";
+			}else{
+				label = "#$"+getLegalName( toolname )+"_"+labelName+" + ': '"+defaultResults[i].getName()+"#";
+			}
+			
+			StringBuffer temp = new StringBuffer();
+			if(type == null){
+				XMLParser.addTagsAndAttributes( temp, "data", "auto_format=\"True\" name=\"defout"+i+"\" label=\""+label+"\"" );
+			}else{
+				XMLParser.addTagsAndAttributes( temp, "data", "format=\""+type+"\" name=\"defout"+i+"\" label=\""+label+"\"" );
+			}
+			temp.append("\n");
+			outBuf.append(temp);
+		}
+		
 		XMLParser.addTags( outBuf, "outputs" );
 		
 		allBuffer.append( outBuf );
@@ -498,7 +538,7 @@ public class GalaxyAdaptor {
 	}
 	
 	
-	private static String getDefaultExtension(Class<? extends Result> resClass){
+	public static String getDefaultExtension(Class<? extends Result> resClass){
 		if(SimpleResult.class.isAssignableFrom(resClass)){
 			return "txt";
 		}else if(ListResult.class.isAssignableFrom(resClass)){
@@ -689,13 +729,24 @@ public class GalaxyAdaptor {
 				if(res instanceof Result){
 					i++;
 					String name = i+": "+((Result)res).getName();
-					String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res, el.exportExtension );
+					
+					String defPath = getDefaultPath((Result)res);
+					if(defPath == null){
+						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res, el.exportExtension );
+					}else{
+						String ext = export( defPath, (Result)res, "" );
+					}
 				}else{
 					ResultSet rs = (ResultSet)res;
 					for(int j=0;j<rs.getNumberOfResults();j++){
 						i++;
 						String name = i+": "+rs.getResultAt( j ).getName();
-						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ), el.exportExtension );
+						String defPath = getDefaultPath(rs.getResultAt(j));
+						if(defPath == null){
+							String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ), el.exportExtension );
+						}else{
+							String ext = export( defPath, rs.getResultAt( j ), "" );
+						}
 					}
 				}
 			}
@@ -737,6 +788,17 @@ public class GalaxyAdaptor {
 		
 	}
 	
+	private String getDefaultPath(Result res) {
+		for(int i=0;i<defaultResults.length;i++){
+			if(res.getClass().equals(defaultResults[i].getDeclaredClass()) && res.getName().equals(defaultResults[i].getName())){
+				String def = defaultResultPaths[i];
+				defaultResultPaths[i] = null;
+				return def;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Parses the command line. If the first argument is equal to &quot;--create&quot;, then
 	 * the configuration file is written to the file with filename provided in the second argument.
@@ -760,10 +822,15 @@ public class GalaxyAdaptor {
 			outfileId = args[3];
 			newFilePath = args[4];
 			htmlFilesPath = args[5];
+			int i=6;
 			//System.out.println("args.length="+args.length);
-			if(args.length>6){
+			if(configureThreads){
 				threads = Integer.parseInt( args[6] );
+				i=7;
 				//System.out.println("Number of threads: "+threads);
+			}
+			for(int j=i;j<args.length;j++){
+				defaultResultPaths[j-i] = args[j];
 			}
 			return true;
 		}

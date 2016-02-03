@@ -16,6 +16,7 @@ import de.jstacs.results.ResultSet;
 import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
+import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
@@ -42,6 +43,7 @@ public class Galaxy {
 
 	private JstacsTool[] tools;
 	private ParameterSet[] toolParameters;
+	private ResultEntry[][] defaultResults;
 	private boolean[][] addLine;
 	private String vmargs;
 	private boolean configThreads;
@@ -64,8 +66,10 @@ public class Galaxy {
 		this.configThreads = configThreads;
 		toolParameters = new ParameterSet[tools.length];
 		this.addLine = new boolean[tools.length][];
+		this.defaultResults = new ResultEntry[tools.length][];
 		for(int i=0;i<tools.length;i++){
 			toolParameters[i] = tools[i].getToolParameters();
+			this.defaultResults[i] = tools[i].getDefaultResultInfos();
 			addLine[i] = new boolean[toolParameters[i].getNumberOfParameters()];
 		}
 	}
@@ -98,7 +102,7 @@ public class Galaxy {
 				
 				String command = "java"+vmargs+" -jar "+jar+" "+name;
 				
-				GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), tools[i].getToolVersion(), command, "jobname");
+				GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], defaultResults[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), tools[i].getToolVersion(), command, "jobname");
 				
 				ga.setHelp( tools[i].getHelpText() );
 				
@@ -117,7 +121,7 @@ public class Galaxy {
 			String name = tools[idx].getShortName();
 			String command = "java"+vmargs+" -jar "+jar+" "+name;
 			
-			GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[idx], addLine[idx], tools[idx].getToolName(), tools[idx].getDescription(), tools[idx].getToolVersion(), command, "jobname");
+			GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[idx], defaultResults[idx], addLine[idx], tools[idx].getToolName(), tools[idx].getDescription(), tools[idx].getToolVersion(), command, "jobname");
 			
 			ga.setHelp( tools[idx].getHelpText() );
 			
