@@ -497,6 +497,32 @@ public class GalaxyAdaptor {
 		return sb.toString();
 	}
 	
+	
+	private static String getDefaultExtension(Class<? extends Result> resClass){
+		if(SimpleResult.class.isAssignableFrom(resClass)){
+			return "txt";
+		}else if(ListResult.class.isAssignableFrom(resClass)){
+			return "tabular";
+		}else if(DataSetResult.class.isAssignableFrom(resClass)){
+			return "fasta";
+		}else if(StorableResult.class.isAssignableFrom(resClass)){
+			return "xml";
+		}else if(DoubleTableResult.class.isAssignableFrom(resClass)){
+			return "tabular";
+		}else if(ImageResult.class.isAssignableFrom(resClass)){
+			return "png";
+		}else if(FileResult.class.isAssignableFrom(resClass)){
+			return null;
+		}else if(LineBasedResult.class.isAssignableFrom(resClass)){
+			return "tabular";
+		}else if(LinkedImageResult.class.isAssignableFrom(resClass)){
+			return null;
+		}else{
+			return null;
+		}
+	}
+	
+	
 	/**
 	 * Exports a specified {@link Result} of a program execution
 	 * to a file provided by <code>filename</code> and returns the
@@ -512,7 +538,7 @@ public class GalaxyAdaptor {
 		
 		if(res instanceof SimpleResult){
 			if(ee == null){
-				ee = "txt";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -522,7 +548,7 @@ public class GalaxyAdaptor {
 			return ee;
 		}else if(res instanceof ListResult){
 			if(ee == null){
-				ee = "tabular";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -537,7 +563,7 @@ public class GalaxyAdaptor {
 			return ee;
 		}else if(res instanceof DataSetResult){
 			if(ee == null){
-				ee = "fasta";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -551,7 +577,7 @@ public class GalaxyAdaptor {
 			return ee;
 		}else if(res instanceof StorableResult){
 			if(ee == null){
-				ee = "xml";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -561,7 +587,7 @@ public class GalaxyAdaptor {
 			return ee;
 		}else if(res instanceof DoubleTableResult){
 			if(ee == null){
-				ee = "tabular";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -583,7 +609,7 @@ public class GalaxyAdaptor {
 			return export( filename, ((LinkedImageResult)res).getLink(), exportExtension );
 		}else if(res instanceof ImageResult){
 			if(ee == null){
-				ee = "png";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -599,7 +625,7 @@ public class GalaxyAdaptor {
 			return ext;
 		}else if(res instanceof LineBasedResult){
 			if(ee == null){
-				ee = "tabular";
+				ee = getDefaultExtension(res.getClass());
 			}
 			File f = new File(filename+ee);
 			f.getParentFile().mkdirs();
@@ -618,14 +644,11 @@ public class GalaxyAdaptor {
 			pw.close();
 			return ee;
 		}else{
-			ResultSaver saver = ResultSaverLibrary.getSaver( res );
+			ResultSaver saver = ResultSaverLibrary.getSaver( res.getClass() );
 			
 			if(saver != null && saver.isAtomic()){
 				if(ee == null){
-					String[] temp = saver.getFileExtensions( res );
-					if(temp != null){
-						ee = temp[0];
-					}
+					ee = saver.getFileExtensions(res)[0];
 				}
 				saver.writeOutput( res, new File(filename+ee) );
 				return ee;
@@ -644,7 +667,7 @@ public class GalaxyAdaptor {
 		summary.append( "<h2>Summary of "+toolname+" results</h2>" );
 		
 		int i=0;
-		boolean exported = false;
+		//boolean exported = false;
 		for(OutputElement el : list){
 			boolean export = el.export;
 			Object res = el.result;
@@ -662,7 +685,7 @@ public class GalaxyAdaptor {
 				summary.append( str );
 			}
 			if(export){
-				exported = true;
+				//exported = true;
 				if(res instanceof Result){
 					i++;
 					String name = i+": "+((Result)res).getName();
