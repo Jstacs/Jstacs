@@ -527,6 +527,11 @@ public class ClusterTree<T> implements Storable{
 		return sb.toString();
 	}
 
+	/**
+	 * Sets the original index (e.g., if elements have been removed from the tree) referring to indexes
+	 * in the distance matrix that has been used to build a tree.
+	 * @param used the new index
+	 */
 	public void setOriginalIndex(int used) {
 		this.originalIndex = used;
 	}
