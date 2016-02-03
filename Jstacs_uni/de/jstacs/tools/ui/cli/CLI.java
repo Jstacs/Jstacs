@@ -259,7 +259,7 @@ public class CLI {
 			
 		//	ResultSetResult res = new ResultSetResult( "Tool results", "", null, results );
 			
-			ResultSaver saver = ResultSaverLibrary.getSaver( results );
+			ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );
 			
 			saver.writeOutput( results, new File(outdir) );
 			
