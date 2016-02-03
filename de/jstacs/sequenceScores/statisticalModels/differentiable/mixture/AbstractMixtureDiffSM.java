@@ -858,6 +858,10 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 */
 	protected abstract double getLogNormalizationConstantForComponent( int i );
 	
+	/**
+	 * Returns the mixture probabilities (i.e., the a-priori probabilities of the different components).
+	 * @return the mixture probabilities
+	 */
 	public double[] getAPrioriMixtureProbabilities(){
 		double[] mix = new double[this.getNumberOfComponents()];
 		for(int i=0;i<mix.length;i++){
