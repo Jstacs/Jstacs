@@ -669,7 +669,7 @@ public class SeqLogoPlotter {
 				Normalisation.sumNormalisation( pwm[j] );
 			}
 			
-			plotColorLogo( graph, pwm, (meanW-mi)/(ma-mi), true, false, heightCurr, width, offx, offy );
+			plotColorLogo( graph, pwm, (meanW-mi)/(ma-mi), true, true, heightCurr, width, offx, offy );
 			
 			offy+=heightCurr;
 			
