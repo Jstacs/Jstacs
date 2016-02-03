@@ -119,7 +119,7 @@ public class SeqLogoPlotter {
 		return new Color( nc[0], nc[1], nc[2], ic );
 	}
 	
-	public static double[][] getDeps(Sequence[] seqs, double[] w){
+	private static double[][] getDeps(Sequence[] seqs, double[] w){
 	
 		double[][][][] counts = new double[seqs[0].getLength()][seqs[0].getLength()][4][4];
 		
@@ -165,12 +165,21 @@ public class SeqLogoPlotter {
 		
 	}
 	
-	public static int getHeightForColorLogo(int numSeqs, int numOne, int numPerChunk, int oneHeight, int blockSpacer){
+	/*private static int getHeightForColorLogo(int numSeqs, int numOne, int numPerChunk, int oneHeight, int blockSpacer){
 		
 		return (numSeqs/numOne*oneHeight) + (numSeqs/numPerChunk*blockSpacer);
 		
-	}
+	}*/
 	
+	/**
+	 * Returns the height for a dependency logos of the given sequence length and chunks.
+	 * @param seqLength the sequence length
+	 * @param numSeqs the number of sequences
+	 * @param chunkHeights the heights of the different chunks
+	 * @param width the width of the total dependency logo
+	 * @param blockSpacer the block spacer, i.e., the height of the space, where sequence logos are plotted
+	 * @return the height
+	 */
 	public static int getHeightForDependencyLogo( int seqLength, int numSeqs, int[] chunkHeights, int width, int blockSpacer){
 		
 		int height = getHeightForColorLogo( numSeqs, chunkHeights, blockSpacer );
@@ -182,7 +191,7 @@ public class SeqLogoPlotter {
 		return height;
 	}
 	
-	public static int getHeightForColorLogo(int numSeqs, int[] chunkHeights, int blockSpacer){
+	private static int getHeightForColorLogo(int numSeqs, int[] chunkHeights, int blockSpacer){
 		
 		int height = 0;
 		
@@ -208,7 +217,7 @@ public class SeqLogoPlotter {
 	}
 	
 	
-	public static int[] getBorders(DataSet data, int[][] minmax, int[] steps) throws Exception{
+	/*private static int[] getBorders(DataSet data, int[][] minmax, int[] steps) throws Exception{
 		
 		int off = 0;
 		int[] maxBords = new int[minmax.length];
@@ -244,8 +253,16 @@ public class SeqLogoPlotter {
 			off += maxBord;
 		}
 		return maxBords;
-	}
+	}*/
 	
+	/**
+	 * Plots a dependency logo using default parameters to a {@link BufferedImage}.
+	 * @param data the sequences
+	 * @param weights the weights of the sequences
+	 * @param width the width of the image
+	 * @return the image
+	 * @throws Exception if the logo could not be plotted
+	 */
 	public static BufferedImage plotDefaultDependencyLogoToBufferedImage(DataSet data, double[] weights, int width) throws Exception{
 		
 		
@@ -269,6 +286,30 @@ public class SeqLogoPlotter {
 		return img;
 	}
 	
+	/**
+	 * Plots a dependency logo using the supplied parameters.
+	 * @param seqs the sequences
+	 * @param labels the labels on the x-axis
+	 * @param ticPeriod the period of the tick marks, i.e., only the <code>ticPeriod</code>-th label is shown
+	 * @param classProbs the class probabilities for the sequences. If supplied, explaining away residual (see {@link BTExplainingAwayResidual}) is used for computing edges representing dependencies. If <code>null</code>, mutual information is used.
+	 * @param weights the weights of the sequences
+	 * @param graph the graphics object to which is plotted
+	 * @param width the width of the dependency logo
+	 * @param offx the offset in x direction
+	 * @param offy the offset in y direction
+	 * @param numPerChunk the number of sequences in each chunk
+	 * @param chunkHeights the height of the plots representing those chunks
+	 * @param minPercent the minimum percentage of sequences that may make up a partition
+	 * @param logoHeight the height of the sequence logo plots
+	 * @param highlightMaxDeps if <code>true</code>, the maximum dependencies of each position are highlighted in red
+	 * @param numBestForSorting the number of position used for sorting partitions
+	 * @param sortGlobally if <code>true</code> sorting positions are used globally (instead of partition-wise, recursively)
+	 * @param sortByWeights if <code>true</code>, partitions are sorted by average weight of the contained sequences, otherwise by nucleotide abundances
+	 * @param scaleByDeps if true, edges representing dependencies are shaded according to the dependency value, otherwise by p-values
+	 * @param threshold the threshold on the dependency measure that leads to further partitioning (if size is sufficient)
+	 * @return the y-coordinate of the border of the dependency logo
+	 * @throws Exception if the logo could not be plotted
+	 */
 	public static int plotDependencyLogo(DataSet seqs, Object[] labels, int ticPeriod, double[][] classProbs, double[] weights, Graphics2D graph, int width, int offx, int offy, int[] numPerChunk, int[] chunkHeights, double minPercent, int logoHeight, boolean highlightMaxDeps, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, boolean scaleByDeps, double threshold) throws Exception {
 
 		int totalWidth = width;
@@ -474,7 +515,7 @@ public class SeqLogoPlotter {
 		return heights[heights.length-1];
 	}
 	
-	public static void addLabels(Object[] labels, int ticPeriod, Graphics2D graph, int partWidth, int offx, int leftMargin, int off, double symHeight, int topMargin,int offy, int lastHeight) {
+	private static void addLabels(Object[] labels, int ticPeriod, Graphics2D graph, int partWidth, int offx, int leftMargin, int off, double symHeight, int topMargin,int offy, int lastHeight) {
 		graph.setColor( Color.BLACK );
 		for(int i=0;i<labels.length;i++){
 			int per = (i+ticPeriod-1)%ticPeriod;
@@ -515,7 +556,7 @@ public class SeqLogoPlotter {
 		
 	}
 
-	public static int plotColorLogo(Sequence[] seqs, double[] weights, Graphics2D graph, int width, int offx, int offy, int numOne, int numPerChunk, int oneHeight, int blockSpacer, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, double threshold) throws Exception{
+	private static int plotColorLogo(Sequence[] seqs, double[] weights, Graphics2D graph, int width, int offx, int offy, int numOne, int numPerChunk, int oneHeight, int blockSpacer, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, double threshold) throws Exception{
 		int[] nums = new int[(int)Math.ceil( seqs.length/(double)numPerChunk )];
 		int[] oneNums = new int[nums.length];
 		for(int i=0,k=0;i<seqs.length;i+=numPerChunk,k++){
@@ -532,7 +573,7 @@ public class SeqLogoPlotter {
 		return offs[offs.length-1];
 	}
 	
-	public static int[] plotColorLogo(Sequence[] seqs, double[] weights, Graphics2D graph, int width, int offx, int offy, int[] numPerChunk, int[] chunkHeights, double minPercent, int blockSpacer, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, double threshold) throws Exception{
+	private static int[] plotColorLogo(Sequence[] seqs, double[] weights, Graphics2D graph, int width, int offx, int offy, int[] numPerChunk, int[] chunkHeights, double minPercent, int blockSpacer, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, double threshold) throws Exception{
 		
 		int[] offs = new int[numPerChunk.length];
 		
@@ -577,7 +618,7 @@ public class SeqLogoPlotter {
 	}
 	
 	
-	public static int plotColorLogo(Graphics2D graph, Sequence[] seqs, double[] weights, int start, int end, int width, int offx, int offy, int chunkHeight, double minPercent, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, double threshold) throws Exception {
+	private static int plotColorLogo(Graphics2D graph, Sequence[] seqs, double[] weights, int start, int end, int width, int offx, int offy, int chunkHeight, double minPercent, int numBestForSorting, boolean sortGlobally, boolean sortByWeights, double threshold) throws Exception {
 		
 		double mi = ToolBox.min( weights );
 		double ma = ToolBox.max( weights );
@@ -1130,7 +1171,7 @@ public class SeqLogoPlotter {
 		return sortPos.toArray();
 	}*/
 	
-	public static LinkedList<Sequence>[] getPartitions(Sequence[] temp, IntList sortPos){
+	/*private static LinkedList<Sequence>[] getPartitions(Sequence[] temp, IntList sortPos){
 		LinkedList<Sequence>[] lists = new LinkedList[(int)Math.pow( 4, sortPos.length() )];
 		for(int i=0;i<lists.length;i++){
 			lists[i] = new LinkedList<Sequence>();
@@ -1147,9 +1188,9 @@ public class SeqLogoPlotter {
 			lists[idx].add( temp[i] );
 		}
 		return lists;
-	}
+	}*/
 
-	public static Pair<double[],double[][]> getInformation(Sequence[] seqs, int numBest, boolean[] exclude){
+	private static Pair<double[],double[][]> getInformation(Sequence[] seqs, int numBest, boolean[] exclude){
 			
 		
 		double[][] mis = getDeps( seqs, null );
@@ -1177,7 +1218,7 @@ public class SeqLogoPlotter {
 		return new Pair<double[],double[][]>(vals,mis);
 	}
 	
-	public static void plotColorLogo(Graphics2D graph, double[][] pwm, double weight, boolean mix, boolean icscale, int height, int width, int offx, int offy){
+	private static void plotColorLogo(Graphics2D graph, double[][] pwm, double weight, boolean mix, boolean icscale, int height, int width, int offx, int offy){
 		graph = (Graphics2D)graph.create();
 		
 		Color back = graph.getColor();
