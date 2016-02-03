@@ -58,17 +58,50 @@ public class Alignment {
 		LOCAL;
 	}
 	
-	protected int startS1, startS2;
+	/**
+	 * The start position in the first sequence
+	 */
+	protected int startS1; 
+	/**
+	 * The start position in the second sequence
+	 */
+	protected int startS2;
 	
-	protected Sequence s1, s2;
-	protected int l1, l2;
+	/**
+	 * The first sequence
+	 */
+	protected Sequence s1;
+	/**
+	 * The second sequence
+	 */
+	protected Sequence s2;
+	/**
+	 * The length of the sub-sequence of the first sequence that is aligned
+	 */
+	protected int l1;
+	/**
+	 * The length of the sub-sequence of the second sequence that is aligned
+	 */
+	protected int l2;
 
-	protected Costs costs;	
+	/**
+	 * The alignment costs
+	 */
+	protected Costs costs;
+	/**
+	 * The affine alignment costs
+	 */
 	protected AffineCosts aCosts;
+	/**
+	 * The type of the alignment
+	 */
 	protected AlignmentType type;
 	
 	private AlignmentAlgorithm algorithm;
 
+	/**
+	 * The matrices holding the edit distances
+	 */
 	protected double[][][] d;
 	
 	/**
@@ -170,10 +203,30 @@ public class Alignment {
 		}
 	}
 	
+	/**
+	 * Computes the alignment between <code>s1</code> and <code>s2</code>.
+	 * Afterwards, alignment costs may be obtained by {@link #getCost(int, int)}. To also obtain the alignment, use {@link #getAlignment(AlignmentType, Sequence, Sequence)}.
+	 * @param type the type of the alignment
+	 * @param s1 the first sequence
+	 * @param s2 the second sequence
+	 * @return if the alignment could be computed
+	 */
 	public boolean computeAlignment( AlignmentType type, Sequence s1, Sequence s2 ) {
 		return computeAlignment( type, s1, 0, s1.getLength(), s2, 0, s2.getLength() );
 	}
 	
+	/**
+	 * Computes the alignment between <code>s1</code> and <code>s2</code> starting from <code>startS1</code> and <code>startS2</code> until <code>endS1</code> and <code>endS2</code>, respectively.
+	 * Afterwards, alignment costs may be obtained by {@link #getCost(int, int)}. To also obtain the alignment, use {@link #getAlignment(AlignmentType, Sequence, Sequence)}.
+	 * @param type the type of the alignment
+	 * @param s1 the first sequence
+	 * @param startS1 the start position in the first sequence
+	 * @param endS1 the end position (exclusive) in the first sequence
+	 * @param s2 the second sequence
+	 * @param startS2 the start position in the second sequence
+	 * @param endS2 the end position (exclusive) in the second seuqence
+	 * @return if the alignment could be computed
+	 */
 	public boolean computeAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
 
 		this.s1 = s1; this.startS1 = startS1;
@@ -261,11 +314,25 @@ public class Alignment {
 		return index;
 	}
 	
+	/**
+	 * Returns the costs until positions <code>end1</code> and <code>end2</code> of the last alignment computed using
+	 * {@link #computeAlignment(AlignmentType, Sequence, Sequence)}.
+	 * @param end1 the end position in the first sequence
+	 * @param end2 the end position in the second sequence
+	 * @return the costs
+	 */
 	public double getCost( int end1, int end2 ) {
 		int[] index = getIndex( end1, end2 );
 		return d[index[0]][index[1]][index[2]];
 	}
 	
+	/**
+	 * Returns the optimal alignment (backtrace) according to matrix <code>index[0]</code> until positions <code>index[1]</code> and
+	 * <code>index[2]</code> in the first and second sequence, respectively. The method {@link #computeAlignment(AlignmentType, Sequence, Sequence)}
+	 * must be called before obtaining the alignment, since this method only does the backtracing in the matrices. 
+	 * @param index the indexes of the matrix element
+	 * @return the alignment
+	 */
 	protected PairwiseStringAlignment getAlignment( int[] index ){
 		double cost = d[index[0]][index[1]][index[2]];
 
