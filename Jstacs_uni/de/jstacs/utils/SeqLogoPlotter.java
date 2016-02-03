@@ -39,10 +39,10 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrain
 import de.jstacs.utils.graphics.GraphicsAdaptor;
 
 /**
- * Class with static methods for plotting sequence logos of DNA motifs, i.e., position weight matrices defined over a {@link DNAAlphabet}.
+ * Class with static methods for plotting sequence logos of DNA motifs, i.e., position weight matrices defined over a {@link de.jstacs.data.alphabets.DNAAlphabet}.
  * In general, sequence logos can be plotted to any {@link Graphics2D} object, e.g., for on-screen printing using the <code>plotLogo</code> methods.
  * 
- * For convenience, the method {@link SeqLogoPlotter2#plotLogoToPNG(String, int, double[][])} can be used to directly plot a sequence logo
+ * For convenience, the method {@link SeqLogoPlotter#plotLogoToPNG(String, int, double[][])} can be used to directly plot a sequence logo
  * to a PNG file with a given height and automatically chosen aspect ratio.
  * 
  * @author Jan Grau
@@ -1377,10 +1377,21 @@ public class SeqLogoPlotter {
 		return getWidth(height, ps.length);
 	}
 	
+	/**
+	 * Returns the width of a sequence logo of the given height for a PWM with the given number of columns.
+	 * @param height the height
+	 * @param numCol the number of columns
+	 * @return the width
+	 */
 	public static int getWidth(int height, int numCol){
 		return (int)(height/6.0*(numCol+1.5));
 	}
 	
+	/**
+	 * Returns the width of one column in the sequence logo of the given height for a PWM with the given number of columns.
+	 * @param height the height
+	 * @return the width of one column
+	 */
 	public static int getColumnWidth(int height){
 		return (int)(height/6.0);
 	}
@@ -1527,7 +1538,6 @@ public class SeqLogoPlotter {
 	 * 
 	 * The TALgetter logo is returned as {@link BufferedImage}.
 	 * 
-	 * @param path the path to the PNG file written
 	 * @param height the height of the PNG image (in pixels)
 	 * @param ps the binding specificities of RVDs
 	 * @param imp the importance of RVDs
@@ -1657,6 +1667,15 @@ public class SeqLogoPlotter {
 		
 	}
 	
+	/**
+	 * Plots a sequence logo for a single position to a graphics object.
+	 * @param g the graphics object
+	 * @param x the x position
+	 * @param y the y position
+	 * @param w the width
+	 * @param h the height
+	 * @param p the probabilities
+	 */
 	protected static void plotLogo(Graphics2D g, double x, double y, double w, double h, double[] p){
 		
 		//y += h;
@@ -1698,14 +1717,20 @@ public class SeqLogoPlotter {
 		//System.out.println(y);
 	}
 	
+	/**
+	 * Returns the information content scaled to [0,1].
+	 * @param p the probabilities
+	 * @return the information content
+	 */
 	public static double getICScale( double[] p ) {
-		double ic = Math.log( 4 )/Math.log( 2 );
+		double ic = Math.log( p.length )/Math.log( 2 );
+		double max = ic;
 		for(int i=0;i<p.length;i++){
 			if(p[i] > 0){
 				ic += p[i]*Math.log( p[i] )/Math.log( 2 );
 			}
 		}
-		ic /= 2.0;
+		ic /= max;
 		return ic;
 	}
 
