@@ -102,6 +102,10 @@ public class ProductConstraint implements LogisticConstraint {
 		return Arrays.toString(pos);
 	}
 	
+	/**
+	 * Returns a clone of the internal positions.
+	 * @return the positions
+	 */
 	public int[] getPositions() {
 		return pos.clone();
 	}
