@@ -24,7 +24,6 @@ import de.jstacs.Storable;
 import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasureParameterSet;
 import de.jstacs.classifiers.performanceMeasures.PerformanceMeasure;
-import de.jstacs.classifiers.performanceMeasures.PerformanceMeasureParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.ElementEnumerator;
