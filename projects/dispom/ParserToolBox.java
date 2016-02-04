@@ -648,6 +648,7 @@ public class ParserToolBox {
 		} while( i < index && line != null );
 
 		if( line == null ) {
+			r.close();
 			return null;
 		} else {
 			motifName = "motif " + index + " (" + line.substring( 2 ).trim() + ")";
@@ -739,7 +740,7 @@ public class ParserToolBox {
 				}
 			}
 		}
-
+		r.close();
 		return new DataSet( "data with annotation from Amadeus", seqs );
 	}
 }
