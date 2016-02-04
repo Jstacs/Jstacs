@@ -120,7 +120,7 @@ public class LearnDependencyModelWebParameterSet extends ParameterSet {
 		SelectionParameter sel = (SelectionParameter)this.parameters.get( 0 );
 		
 		if(sel.getSelected() == 0){
-			SplitSequenceAnnotationParser parser = new SplitSequenceAnnotationParser( ":", ";" );
+			//SplitSequenceAnnotationParser parser = new SplitSequenceAnnotationParser( ":", ";" );
 			String filename = (String)((ParameterSet)sel.getValue()).getParameterAt( 0 ).getValue();
 			DataSet data= SparseSequence.getDataSet( DNAAlphabetContainer.SINGLETON, new SparseStringExtractor( filename, '>', new SplitSequenceAnnotationParser(":",";") ) );
 			
@@ -149,6 +149,8 @@ public class LearnDependencyModelWebParameterSet extends ParameterSet {
 					w.add( Double.parseDouble( parts[valCol] ) );
 				}
 			}
+			
+			read.close();
 			
 			Sequence[] seqs2 = seqs.toArray(new Sequence[0]);
 			double[] w2 = w.toArray();
