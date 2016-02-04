@@ -422,7 +422,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 				case DOUBLE:
 					this.values[i] = new Double(temp);
 					break;
-
+				default:
+					throw new RuntimeException("Datatype "+getDatatype()+" not supported in RangeParameter");
 				}
 			} catch (NumberFormatException e) {
 				this.values = null;
@@ -496,6 +497,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 						values[i] = new Double(
 								(double) (start + (i * stepSize)));
 						break;
+					default:
+						throw new RuntimeException("Datatype "+d+" not supported in RangeParameter");
 					}
 				}
 			} else {
@@ -530,6 +533,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 						values[i] = new Double((double) (StrictMath
 								.log(StrictMath.exp(start) + (i * stepSize))));
 						break;
+					default:
+						throw new RuntimeException("Datatype "+d+" not supported in RangeParameter");
 					}
 				}
 			}
@@ -684,6 +689,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 							- steps)
 							* stepSize));
 					break;
+				default:
+					throw new RuntimeException("Datatype "+d+" not supported in RangeParameter");
 				}
 			}
 		} else {
@@ -719,6 +726,8 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 							radix, i - steps)
 							* stepSize));
 					break;
+				default:
+					throw new RuntimeException("Datatype "+d+" not supported in RangeParameter");
 				}
 			}
 		}
