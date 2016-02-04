@@ -1149,22 +1149,46 @@ public class HigherOrderHMM extends AbstractHMM {
 		}
 	}
 
+	/**
+	 * Returns a clone of the internal emissions.
+	 * @return the emissions
+	 * @throws CloneNotSupportedException if the emissions could not be cloned
+	 */
 	public Emission[] getEmissions() throws CloneNotSupportedException {
 		return ArrayHandler.clone( emission );
 	}
 
+	/**
+	 * Returns the transition elements of the internal {@link Transition}.
+	 * @return the transition elements
+	 * @throws CloneNotSupportedException if the transition elements could not be cloned
+	 * @see HigherOrderTransition#getTransisionElements()
+	 */
 	public TransitionElement[] getTransisionElements() throws CloneNotSupportedException {
 		return ((HigherOrderTransition)transition).getTransisionElements();
 	}
 
+	/**
+	 * Returns a clone of the internal array of emission indexes that represent which emission is used in which state.
+	 * @return the emission indexes
+	 */
 	public int[] getEmissionIndexes() {
 		return emissionIdx.clone();
 	}
 	
+	/**
+	 * Returns a clone of the state names.
+	 * @return the name
+	 */
 	public String[] getNames(){
 		return name.clone();
 	}
 	
+	/**
+	 * Returns a clone of the training parameters
+	 * @return the parameters
+	 * @throws CloneNotSupportedException if the parameters could not be cloned
+	 */
 	public HMMTrainingParameterSet getTrainingParams() throws CloneNotSupportedException{
 		return (HMMTrainingParameterSet)trainingParameter.clone();
 	}
