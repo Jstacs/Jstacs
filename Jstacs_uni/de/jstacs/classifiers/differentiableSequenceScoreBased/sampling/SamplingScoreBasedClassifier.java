@@ -854,6 +854,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	protected void precomputeBurnInLength(DiffSMSamplingComponent sfsc) throws Exception{
 		if(burnInTest == null){
 			burnInLength = 0;
+			return;
 		}
 		int starts = params.getNumberOfStarts();
 		for(int i=0;i<starts;i++){
