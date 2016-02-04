@@ -20,6 +20,11 @@ Again, the user may define the height of the graphical representation of this la
 
 Finally, the user may choose the height of the sequence logos between the blocks of dependency logos, and the number of dependencies considered for determining the sequence positions that are used for ordering all sequences within a block.
 
+If you use dependency logos, please cite
+
+ \J. Keilwagen and J. Grau. Varying levels of complexity in transcription factor binding motifs. doi:10.1
+093/nar/gkv577 Nucleic Acids Research, 2015.
+
 If you experience problems using the Dependency logo tool, please contact_ us.
 
 .. _contact: mailto:grau@informatik.uni-halle.de
