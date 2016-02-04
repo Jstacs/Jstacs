@@ -78,7 +78,7 @@ public interface PerformanceMeasure {
 	 *  
 	 * @return a result set containing the results of the performance measure
 	 * 
-	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[]...)
+	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[][])
 	 */
 	public abstract ResultSet compute(double[] sortedScoresClass0,
 			double[] weightsClass0, double[] sortedScoresClass1,
