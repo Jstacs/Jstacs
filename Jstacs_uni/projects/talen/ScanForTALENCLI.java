@@ -23,12 +23,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
-import projects.talen.FastTALENScanner.FastTALENScannerParameterSet;
-import projects.talen.FastTALENScanner.Output;
-import projects.tals.TALgetter13DiffSM;
-import projects.tals.TALgetterDiffSM;
 import de.jstacs.DataType;
-import de.jstacs.data.GFFParser.GFFList;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ParameterSetTagger;
@@ -38,6 +33,11 @@ import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ListResult;
 import de.jstacs.utils.Pair;
+import projects.talen.FastTALENScanner.FastTALENScannerParameterSet;
+import projects.talen.FastTALENScanner.Output;
+import projects.talen.GFFParser.GFFList;
+import projects.tals.TALgetter13DiffSM;
+import projects.tals.TALgetterDiffSM;
 
 
 public class ScanForTALENCLI {

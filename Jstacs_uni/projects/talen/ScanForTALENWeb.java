@@ -21,13 +21,7 @@ package projects.talen;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 
-import projects.talen.FastTALENScanner.FastTALENScannerParameterSet;
-import projects.talen.FastTALENScanner.Output;
-import projects.tals.ScanForTBSWeb;
-import projects.tals.TALgetter13DiffSM;
-import projects.tals.TALgetterDiffSM;
 import de.jstacs.DataType;
-import de.jstacs.data.GFFParser.GFFList;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.XMLParser;
@@ -44,6 +38,12 @@ import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SeqLogoPlotter;
+import projects.talen.FastTALENScanner.FastTALENScannerParameterSet;
+import projects.talen.FastTALENScanner.Output;
+import projects.talen.GFFParser.GFFList;
+import projects.tals.ScanForTBSWeb;
+import projects.tals.TALgetter13DiffSM;
+import projects.tals.TALgetterDiffSM;
 
 
 public class ScanForTALENWeb {
