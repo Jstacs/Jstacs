@@ -32,7 +32,7 @@ public class DimontWeb {
 		lines[0] = lines[5] = lines[6] = lines[9] = true;
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,lines,"Dimont", "- a universal tool for de-novo motif discovery (beta).", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"Dimont", "- a universal tool for de-novo motif discovery.", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( DimontWeb.class.getClassLoader().getResourceAsStream( "projects/dimont/help.txt" ) ).toString() );
 		
 		if(!ga.parse( args, true )){

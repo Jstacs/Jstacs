@@ -37,6 +37,10 @@ The parameter "Delete BSs from profile" defines if BSs of already discovered mot
 You can also install this web-application within your local Galaxy server. Instructions can be found at the Dimont_ page of Jstacs. 
 There you can also download a command line version of Dimont.
 
+If you use Dimont, please cite
+
+ \J. Grau, S. Posch, I. Grosse, and J. Keilwagen. A general approach for discriminative de-novo motif discovery from high-throughput data. *Nucleic Acids Research*, 41(21):e197, 2013.
+
 If you experience problems using Dimont, please contact_ us.
 
 .. _example: http://www.jstacs.de/downloads/dimont-example.fa
