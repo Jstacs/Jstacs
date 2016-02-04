@@ -240,7 +240,8 @@ public class GalaxyAdaptor {
 		
 		StringBuffer defaultOuts = new StringBuffer();
 		for(int i=0;i<defaultResults.length;i++){
-			defaultOuts.append(" $defout"+i);
+			String name = defaultResults[i].getName().replaceAll("\\s", "_");
+			defaultOuts.append(" $"+name);
 		}
 		
 		if(configureThreads){
@@ -290,11 +291,13 @@ public class GalaxyAdaptor {
 				label = "#$tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"'#";
 			}
 			
+			String name = defaultResults[i].getName().replaceAll("\\s", "_");
+			
 			StringBuffer temp = new StringBuffer();
 			if(type == null){
-				XMLParser.addTagsAndAttributes( temp, "data", "auto_format=\"True\" name=\"defout"+i+"\" label=\""+label+"\"" );
+				XMLParser.addTagsAndAttributes( temp, "data", "auto_format=\"True\" name=\""+name+"\" label=\""+label+"\"" );
 			}else{
-				XMLParser.addTagsAndAttributes( temp, "data", "format=\""+type+"\" name=\"defout"+i+"\" label=\""+label+"\"" );
+				XMLParser.addTagsAndAttributes( temp, "data", "format=\""+type+"\" name=\""+name+"\" label=\""+label+"\"" );
 			}
 			temp.append("\n");
 			outBuf.append(temp);
