@@ -351,6 +351,8 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 							case LONG: value2 = new Long((String) value); break;
 							case FLOAT: value2 = new Float((String) value); break;
 							case DOUBLE: value2 = new Double((String) value); break;
+							default:
+								throw new RuntimeException("Datatype "+datatype+" not supported");
 						}
 					} catch (NumberFormatException e) {
 						errorMessage = "Value is not of the expected format.";
