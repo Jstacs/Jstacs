@@ -153,7 +153,7 @@ public interface JstacsTool {
 	 * for this {@link Result} type. Default formats for a given {@link Result} class may be obtained from 
 	 * {@link de.jstacs.tools.ui.galaxy.GalaxyAdaptor#getDefaultExtension(Class)}. If this method returns <code>null</code>, the output format
 	 * may be guessed by the environment (e.g., Galaxy).
-	 * Results are matched to default results by their name ({@link Result#getName()}) and result class, so the name supplied to {@link ResultEntry#ResultEntry(Class, String, String)} 
+	 * Results are matched to default results by their name ({@link Result#getName()}) and result class, so the name supplied to {@link JstacsTool.ResultEntry#JstacsTool.ResultEntry(Class, String, String)} 
 	 * must be identical to that of the final {@link Result} and should be unique (otherwise only one appearance of this name will be considered a default result) within a result class.
 	 * The set of default results must always be returned in the same order.
 	 * @return the default results (or <code>null</code> for no default results).

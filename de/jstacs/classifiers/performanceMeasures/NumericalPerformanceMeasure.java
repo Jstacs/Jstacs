@@ -68,7 +68,7 @@ public interface NumericalPerformanceMeasure extends PerformanceMeasure {
 	 *  
 	 * @return a result set containing the results of the performance measure
 	 * 
-	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[]...)
+	 * @see de.jstacs.utils.ToolBox#sortAlongWith(double[], double[][])
 	 */
 	public NumericalResultSet compute(double[] sortedScoresClass0, double[] weightsClass0, double[] sortedScoresClass1, double[] weightsClass1 );
 
