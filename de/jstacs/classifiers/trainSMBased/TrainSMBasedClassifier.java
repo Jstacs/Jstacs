@@ -18,7 +18,6 @@
 
 package de.jstacs.classifiers.trainSMBased;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
