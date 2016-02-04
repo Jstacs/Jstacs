@@ -38,6 +38,7 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
 import de.jstacs.utils.ComparableElement;
@@ -346,10 +347,15 @@ public class FindPWMsAndClusters implements JstacsTool{
 			return "";
 		}
 	}
-
+	
 	@Override
 	public String getToolVersion() {
 		return "1.0";
+	}
+
+	@Override
+	public ResultEntry[] getDefaultResultInfos() {
+		return null;
 	}
 	
 }
