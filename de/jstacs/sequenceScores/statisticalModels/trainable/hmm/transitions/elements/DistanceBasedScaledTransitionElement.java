@@ -52,7 +52,7 @@ public class DistanceBasedScaledTransitionElement extends ReferenceBasedTransiti
 	 *  <li> No pseudocounts included.
 	 * </ul>
 	 */
-	protected double[] statisticsTransitionProb;
+	protected double[] statisticsTransitionProb;//TODO: masks field in superclass. intended?
 	
 	/**
 	 * Contains the single epsilons of the diagonal elements required for estimating the self-transition probability.
@@ -444,6 +444,11 @@ public class DistanceBasedScaledTransitionElement extends ReferenceBasedTransiti
 	
 	private static final String XML_TAG = "DISTANCE_BASED_SCALED_TRANSITION_ELEMENT";
 	
+	/**
+	 * Returns a string representation of the transition probabilities.
+	 * @param stateNames the names of the states
+	 * @return representation of transition probabilities
+	 */
 	public String toString( String[] stateNames )
 	{
 		if( parameters.length > 0 )
