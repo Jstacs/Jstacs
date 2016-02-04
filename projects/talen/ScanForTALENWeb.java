@@ -89,7 +89,7 @@ public class ScanForTALENWeb {
 		boolean[] line = new boolean[]{true,false,true,false,true,false,true,true,true,true,false,true,true};
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( tempPars, line,"TALENoffer", "TALENoffer is a tool for predicting off-targets of TAL effector nucleases (TALENs).", "1.0", "java -Xms256M -Xmx4G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"TALENofferWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( tempPars,null, line,"TALENoffer", "TALENoffer is a tool for predicting off-targets of TAL effector nucleases (TALENs).", "1.0", "java -Xms256M -Xmx4G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"TALENofferWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( ScanForTBSWeb.class.getClassLoader().getResourceAsStream( "projects/talen/helpoffer.txt" ) ).toString() );
 		
 		if(!ga.parse( args, false )){
