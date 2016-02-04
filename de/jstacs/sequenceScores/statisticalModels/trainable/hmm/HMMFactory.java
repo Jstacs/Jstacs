@@ -405,6 +405,15 @@ public class HMMFactory {
 	}
 	
 	
+	/**
+	 * Parses a profile HMM from the textual HMMer representation.
+	 * @param hmmReader a reader open on the HMMer representation
+	 * @param consensus the consensus of the HMM is appended to this {@link StringBuffer}
+	 * @param matchStates if not <code>null</code>, the indexes of match states are appended to this list
+	 * @param silentStates if <code>matchStates<code> is not <code>null</code>, the indexes of silent states are appended to this list
+	 * @return the profile HMM and the background model from the HMMer representation
+	 * @throws Exception if the representation could not be parsed
+	 */
 	public static Pair<AbstractHMM,HomogeneousMMDiffSM> parseProfileHMMFromHMMer(Reader hmmReader, StringBuffer consensus, LinkedList<Integer> matchStates, LinkedList<Integer> silentStates) throws Exception {
 		
 		BufferedReader read = new BufferedReader( hmmReader );
