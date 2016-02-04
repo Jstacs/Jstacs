@@ -12,13 +12,27 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
 import de.jstacs.utils.Normalisation;
 
-
+/**
+ * A wrapper class for representing position weight matrices or position frequency matrices
+ * from databases as {@link TrainableStatisticalModel}s.
+ * 
+ * @author Jan Grau
+ *
+ */
 public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel implements PWMSupplier {
 
 	private double[][] logPWM;
 	private double[][] pfm;
 	private String name;
 	
+	/**
+	 * Creates a new wrapper for a given position frequency matrix.
+	 * @param alphabets the alphabet
+	 * @param name the name of the matrix
+	 * @param pfm the position frequency matrix (may also be a position weight matrix, but <code>ess</code> should typically be zero in that case)
+	 * @param ess the equivalent sample size (divided by the size of the alphabet to determine pseudo counts)
+	 * @throws CloneNotSupportedException if the PFM could not be cloned
+	 */
 	public PFMWrapperTrainSM( AlphabetContainer alphabets, String name, double[][] pfm, double ess ) throws CloneNotSupportedException {
 		super( alphabets, pfm.length );
 		//TODO check
@@ -37,6 +51,11 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 		this.name = name;
 	}
 
+	/**
+	 * Creates a wrapper from its XML representation
+	 * @param stringBuff the XML representation
+	 * @throws NonParsableException if the XML could not be parsed
+	 */
 	public PFMWrapperTrainSM( StringBuffer stringBuff ) throws NonParsableException {
 		super( stringBuff );
 	}
@@ -119,6 +138,11 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 		this.length = logPWM.length;
 	}
 	
+	/**
+	 * Returns a deep copy of the internal PFM.
+	 * @return the PFM
+	 * @throws CloneNotSupportedException if the PFM could not be cloned
+	 */
 	public double[][] getPFM() throws CloneNotSupportedException{
 		return ArrayHandler.clone(pfm);
 	}
