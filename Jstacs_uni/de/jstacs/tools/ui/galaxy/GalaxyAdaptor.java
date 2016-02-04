@@ -241,7 +241,7 @@ public class GalaxyAdaptor {
 		StringBuffer defaultOuts = new StringBuffer();
 		for(int i=0;i<defaultResults.length;i++){
 			String name = defaultResults[i].getName().replaceAll("\\s", "_");
-			defaultOuts.append(" $"+name);
+			defaultOuts.append(" $"+name+"-"+i);
 		}
 		
 		if(configureThreads){
@@ -291,7 +291,7 @@ public class GalaxyAdaptor {
 				label = "#$tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"'#";
 			}
 			
-			String name = defaultResults[i].getName().replaceAll("\\s", "_");
+			String name = defaultResults[i].getName().replaceAll("\\s", "_")+"-"+i;
 			
 			StringBuffer temp = new StringBuffer();
 			if(type == null){
