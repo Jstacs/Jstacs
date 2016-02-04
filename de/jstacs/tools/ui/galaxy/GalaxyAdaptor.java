@@ -285,7 +285,7 @@ public class GalaxyAdaptor {
 			if(labelName != null){
 				label = "#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"' else str($"+getLegalName( toolname )+"_"+labelName+") + ': "+defaultResults[i].getName()+"' #";
 			}else{
-				label = "#$"+getLegalName( toolname )+"_"+labelName+" + ': '"+defaultResults[i].getName()+"#";
+				label = "#$tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"'#";
 			}
 			
 			StringBuffer temp = new StringBuffer();
