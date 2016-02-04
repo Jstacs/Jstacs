@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
-import javax.naming.OperationNotSupportedException;
-
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.CyclicSequenceAdaptor;
 import de.jstacs.data.sequences.Sequence;
