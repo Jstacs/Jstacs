@@ -18,6 +18,10 @@ The "Equivalent sample size" reflects the strength of the influence of the prior
 
 As results, LearnDependencyModel returns the input sequences in their predicted orientations and together with the associated scores returned by the model. In addition, it returns a "Slim Dimont classifier", which can be used for further predictions using the SlimDimontPredictor tool.
 
+If you use Slim models, please cite
+ \J. Keilwagen and J. Grau. Varying levels of complexity in transcription factor binding motifs. doi:10.1
+093/nar/gkv577 Nucleic Acids Research, 2015.
+
 If you experience problems using the LearnDependencyModel tool, please contact_ us.
 
 .. _contact: mailto:grau@informatik.uni-halle.de

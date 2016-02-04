@@ -30,7 +30,7 @@ public class SlimDimontPredictorWeb {
 		lines[0] = lines[1] = lines[4] = true;
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,lines,"SlimDimontPredictor", "for predicting binding sites using a Dimont model", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"SlimDimontPredictorWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"SlimDimontPredictor", "for predicting binding sites using a Dimont model", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"SlimDimontPredictorWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( SlimDimontPredictorWeb.class.getClassLoader().getResourceAsStream( "projects/slim/helpPredictor.txt" ) ).toString() );//TODO
 		
 		if(!ga.parse( args, false )){

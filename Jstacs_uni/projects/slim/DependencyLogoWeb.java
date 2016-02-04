@@ -31,7 +31,7 @@ public class DependencyLogoWeb {
 		
 		boolean[] lines = new boolean[params.getNumberOfParameters()];
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,lines,"Dependency logo", " Plot dependency logos from a tabular file", "0.1", "java -Xms256M -Xmx2G -Djava.awt.headless=true -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DependencyLogoWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"Dependency logo", " Plot dependency logos from a tabular file", "0.1", "java -Xms256M -Xmx2G -Djava.awt.headless=true -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DependencyLogoWeb.jar", "jobname" );
 		ga.setHelp( FileManager.readInputStream( DimontWeb.class.getClassLoader().getResourceAsStream( "projects/slim/helpLogo.txt" ) ).toString() );//TODO
 		
 		if(!ga.parse( args, false )){
