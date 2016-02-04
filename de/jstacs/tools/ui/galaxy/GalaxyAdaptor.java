@@ -53,6 +53,7 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.results.savers.ResultSaver;
 import de.jstacs.results.savers.ResultSaverLibrary;
+import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 
 /**
@@ -153,6 +154,7 @@ public class GalaxyAdaptor {
 	 * Additionally, the user must provide the command to run this program. For instance, if the program is bundled into
 	 * a jar <code>MyJar.jar</code>, this command could be <code>java -jar MyJar.jar</code>.
 	 * @param parameters the parameters of the program
+	 * @param defaultResults the default results (see {@link JstacsTool#getDefaultResultInfos()}, may be <code>null</code>
 	 * @param addLine indicates for each parameter in <code>parameters</code> if a line is displayed before its name, ignored if <code>parameters</code> is not a {@link SimpleParameterSet}. May be <code>null</code>.
 	 * @param toolname the name of the program
 	 * @param description a description of the program, may be supplemented by additional help provided by {@link GalaxyAdaptor#setHelp(File)} or {@link GalaxyAdaptor#setHelp(String)}
@@ -538,6 +540,12 @@ public class GalaxyAdaptor {
 	}
 	
 	
+	/**
+	 * Returns the default extension (Galaxy format) for a given result class.
+	 * If the format cannot be determined from the class, this method returns <code>null</code>.
+	 * @param resClass the result class
+	 * @return the formta
+	 */
 	public static String getDefaultExtension(Class<? extends Result> resClass){
 		if(SimpleResult.class.isAssignableFrom(resClass)){
 			return "txt";

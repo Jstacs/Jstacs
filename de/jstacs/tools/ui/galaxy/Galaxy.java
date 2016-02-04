@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.DataSetResult;
 import de.jstacs.results.PlotGeneratorResult;
 import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
@@ -23,11 +22,8 @@ import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.Pair;
-import de.jstacs.utils.graphics.GraphicsAdaptor;
-import de.jstacs.utils.graphics.GraphicsAdaptorFactory;
 import de.jstacs.utils.graphics.PDFAdaptor;
 import de.jstacs.utils.graphics.RasterizedAdaptor;
-import de.jstacs.utils.graphics.GraphicsAdaptorFactory.OutputFormat;
 
 /**
  * Class for generating a generic Galaxy interface for a set of {@link JstacsTool}s.
