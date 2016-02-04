@@ -1,18 +1,9 @@
 package de.jstacs.data;
 
-import java.util.HashMap;
-
-import javax.naming.OperationNotSupportedException;
-
-import de.jstacs.data.alphabets.ComplementableDiscreteAlphabet;
-import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.CyclicSequenceAdaptor;
 import de.jstacs.data.sequences.IntSequence;
-import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
-import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
-import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModelFactory;
 import de.jstacs.utils.IntList;
 
 /**
