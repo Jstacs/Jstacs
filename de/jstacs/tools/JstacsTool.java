@@ -2,6 +2,9 @@ package de.jstacs.tools;
 
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.Result;
+import de.jstacs.tools.ui.cli.CLI;
+import de.jstacs.tools.ui.galaxy.Galaxy;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
 /**
  * Interface for a generic Jstacs tool.
@@ -14,12 +17,27 @@ import de.jstacs.results.Result;
  */
 public interface JstacsTool {
 
+	/**
+	 * Representation of default results.
+	 * 
+	 * @see JstacsTool#getDefaultResultInfos()
+	 * 
+	 * @author Jan Grau
+	 *
+	 */
 	public static class ResultEntry{
 		
 		private Class<? extends Result> clazz;
 		private String format;
 		private String name;
 		
+		/**
+		 * Creates a new default result entry.
+		 * @param clazz the class of the default result
+		 * @param format the format of the default result; should conform to Galaxy formats; if <code>null</code>, format is inferred from <code>clazz</code>
+		 * @param name the name of the result, used as identifier
+		 * @see GalaxyAdaptor#getDefaultExtension(Class)
+		 */
 		public ResultEntry(Class<? extends Result> clazz, String format, String name) {
 			super();
 			this.clazz = clazz;
@@ -27,14 +45,26 @@ public interface JstacsTool {
 			this.name = name;
 		}
 
+		/**
+		 * Returns the class declared for the default result.
+		 * @return the class
+		 */
 		public Class<? extends Result> getDeclaredClass() {
 			return clazz;
 		}
 
+		/**
+		 * Returns the format of the result.
+		 * @return the format
+		 */
 		public String getFormat() {
 			return format;
 		}
 
+		/**
+		 * Returns the name of the result.
+		 * @return the name
+		 */
 		public String getName() {
 			return name;
 		}
