@@ -29,12 +29,6 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.naming.OperationNotSupportedException;
-
-import projects.talen.InfixTALENTargetFinder.TALENMatch;
-import projects.talen.MatchFinder.Match;
-import projects.tals.TALgetterDiffSM;
-
 import de.jstacs.DataType;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -70,6 +64,9 @@ import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.Pair;
+import projects.talen.InfixTALENTargetFinder.TALENMatch;
+import projects.talen.MatchFinder.Match;
+import projects.tals.TALgetterDiffSM;
 
 
 public class FastTALENScanner {
@@ -269,6 +266,7 @@ public class FastTALENScanner {
 				temp.append( line );
 				temp.append( "\n" );
 			}
+			reader.close();
 			this.parameters.get( "RVD specificities" ).setValue( temp.toString() );
 		}
 		
