@@ -2,7 +2,6 @@ package de.jstacs.utils.graphics;
 
 
 import java.awt.Graphics2D;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
