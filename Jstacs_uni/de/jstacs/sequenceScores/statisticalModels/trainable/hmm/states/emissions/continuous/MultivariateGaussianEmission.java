@@ -458,6 +458,11 @@ public class MultivariateGaussianEmission implements Emission
 		return buf;
 	}
 	
+	/**
+	 * Parses the XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML could not be parsed
+	 */
 	protected void fromXML( StringBuffer xml ) throws NonParsableException
 	{
 		xml = XMLParser.extractForTag( xml, TAG );
