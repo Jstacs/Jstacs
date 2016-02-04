@@ -826,6 +826,10 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			return clone;
 		}
 		
+		/**
+		 * Returns the last state of the context
+		 * @return the last state
+		 */
 		public int getLastContextState() {
 			return context[context.length-1];
 		}

@@ -290,6 +290,11 @@ public class ScaledTransitionElement extends ReferenceBasedTransitionElement {
 	
 	private static final String XML_TAG = "SCALED_TRANSITION_ELEMENT";
 	
+	/**
+	 * Returns a string representation of the transition probabilities.
+	 * @param stateNames the names of the states
+	 * @return representation of transition probabilities
+	 */
 	public String toString( String[] stateNames ) {
 		if( parameters.length > 0 ) {
 			StringBuffer sb = new StringBuffer();
