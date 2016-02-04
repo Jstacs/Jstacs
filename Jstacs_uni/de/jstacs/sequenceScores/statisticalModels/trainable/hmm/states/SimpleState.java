@@ -86,7 +86,10 @@ public class SimpleState implements TrainableState {
 		return "state " + name + ( con == null || !con.isDiscrete() ? "" : " " + (forward?"forward":"reverse")) + "\n" + e.toString(nf); 
 	}
 
-	
+	/**
+	 * Returns the name of the state.
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
