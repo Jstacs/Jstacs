@@ -20,14 +20,10 @@ package projects.tals;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import projects.tals.TBSScanner.ResultList;
-import projects.tals.TBSScanner.TBSScannerParameterSet;
 
 import de.jstacs.DataType;
 import de.jstacs.data.AlphabetContainer;
@@ -38,7 +34,6 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.SparseSequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
-import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
@@ -51,9 +46,9 @@ import de.jstacs.results.NumericalResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.tools.ui.galaxy.MultilineSimpleParameter;
-import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Pair;
+import projects.tals.TBSScanner.ResultList;
 
 /**
  * Class that scans input sequences for putative TAL effector target sites given a {@link TALgetterDiffSM},
