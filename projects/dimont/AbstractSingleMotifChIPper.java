@@ -10,7 +10,6 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
-import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.motifDiscovery.Mutable;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
