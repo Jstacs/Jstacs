@@ -45,6 +45,10 @@ Such GFF files can be imported into your favourite genome browser, e.g., the `UC
 You can also install this web-application within your local Galaxy server. Instructions can be found at the TALENoffer_ page of Jstacs. 
 There you can also download a command line version of TALENoffer.
 
+If you use TALENoffer, please cite
+
+ \J. Grau, J. Boch, and S. Posch. TALENoffer: genome-wide TALEN off-target prediction. *Bioinformatics*, 2013, doi: 10.1093/bioinformatics/btt501.
+
 If you experience problems using TALENoffer, please contact_ us.
 
 .. _UCSC genome browser: http://genome.ucsc.edu
