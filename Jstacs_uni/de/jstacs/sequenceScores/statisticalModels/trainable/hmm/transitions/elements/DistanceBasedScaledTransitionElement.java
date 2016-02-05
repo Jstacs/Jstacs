@@ -52,7 +52,7 @@ public class DistanceBasedScaledTransitionElement extends ReferenceBasedTransiti
 	 *  <li> No pseudocounts included.
 	 * </ul>
 	 */
-	protected double[] statisticsTransitionProb;//TODO: masks field in superclass. intended?
+	protected double[] statisticsTransitionProb;
 	
 	/**
 	 * Contains the single epsilons of the diagonal elements required for estimating the self-transition probability.
