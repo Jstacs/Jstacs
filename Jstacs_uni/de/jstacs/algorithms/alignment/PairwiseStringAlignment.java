@@ -19,7 +19,6 @@ package de.jstacs.algorithms.alignment;
 
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-import de.jstacs.tools.ui.galaxy.DataColumnParameter;
 
 /**
  * Class for the representation of an alignment of two {@link String}s. It
