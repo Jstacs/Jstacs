@@ -113,9 +113,6 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 * 
 		 * @return a {@link LinkedList} of {@link InstanceParameterSet}s
 		 * 
-		 *         * @throws InstantiationException if any
-		 *         {@link InstanceParameterSet} has no nullary constructor; or
-		 *         if the instantiation fails for some other reason
 		 *         
 		 * @throws IllegalAccessException
 		 *             if any {@link InstanceParameterSet} or its nullary
@@ -123,14 +120,15 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		 * @throws ClassNotFoundException
 		 *             if one of the classes is present in the file system or
 		 *             jar but cannot be loaded by the class loader
-		 * @throws InstantiationException 
+		 * @throws InstantiationException if any
+		 *             {@link InstanceParameterSet} has no nullary constructor; or
+		 *             if the instantiation fails for some other reason
 		 * @throws IOException
 		 *             if the classes are searched for in a jar file, but that
 		 *             file could not be accessed or read
-		 * @throws URISyntaxException 
 		 * 
 		 */
-		public LinkedList<InstanceParameterSet> getInstanceParameterSets() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException, URISyntaxException  {
+		public LinkedList<InstanceParameterSet> getInstanceParameterSets() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException  {
 			LinkedList<InstanceParameterSet> list = new LinkedList<InstanceParameterSet>();
 			if (this != CONTINUOUS) {
 				list.addAll(SubclassFinder.getInstanceParameterSets( DiscreteAlphabet.class, DiscreteAlphabet.class.getPackage().getName() ));

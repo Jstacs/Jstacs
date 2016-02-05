@@ -36,8 +36,8 @@ public class DeBruijnSequenceGenerator {
 	 * @param alphabet the alphabet
 	 * @param n the exponent of length length, corresponds to the length of n-mers covered exactly once
 	 * @return the sequence (wrapped in an array)
-	 * @throws WrongAlphabetException if the alphabet is 
-	 * @throws WrongSequenceTypeException
+	 * @throws WrongAlphabetException forwarded from {@link IntSequence}, should not happen
+	 * @throws WrongSequenceTypeException forwarded from {@link IntSequence}, should not happen
 	 */
 	public static CyclicSequenceAdaptor[] generate(DiscreteAlphabet alphabet, int n) throws WrongAlphabetException, WrongSequenceTypeException {
 		
@@ -51,8 +51,8 @@ public class DeBruijnSequenceGenerator {
 	 * @param n the length of the covered n-mers
 	 * @param alphabetShift the alphabet shift (0 equals no shift)
 	 * @return the De Bruijn sequence
-	 * @throws WrongAlphabetException 
-	 * @throws WrongSequenceTypeException 
+	 * @throws WrongAlphabetException forwarded from {@link IntSequence}, should not happen
+	 * @throws WrongSequenceTypeException forwarded from {@link IntSequence}, should not happen
 	 */
 	public static CyclicSequenceAdaptor generate(DiscreteAlphabet alphabet, int n, int alphabetShift) throws WrongAlphabetException, WrongSequenceTypeException{
 		int k = (int)alphabet.length();

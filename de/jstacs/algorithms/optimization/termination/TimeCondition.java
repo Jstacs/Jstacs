@@ -102,16 +102,22 @@ public class TimeCondition extends AbstractTerminationCondition {
 	public static class TimeConditionParameterSet extends AbstractTerminationConditionParameterSet {
 
 		/**
-		 * This constructor creates an empty parameter set.
-		 * @throws DatatypeNotValidException 
+		 * This constructor creates an empty parameter set. 
 		 */
-		public TimeConditionParameterSet() throws DatatypeNotValidException {
+		public TimeConditionParameterSet() {
 			super( TimeCondition.class );
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"seconds",
-					"the number of seconds until stopping the algorithm",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			try {
+				parameters.add( new SimpleParameter( DataType.DOUBLE,
+						"seconds",
+						"the number of seconds until stopping the algorithm",
+						true,
+						new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			} catch( Exception e ) {
+				//does not happen
+				RuntimeException re = new RuntimeException(e.getMessage());
+				re.setStackTrace(e.getStackTrace());
+				throw re;
+			}
 		}
 		
 		/**
@@ -137,9 +143,8 @@ public class TimeCondition extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
-		 * @throws DatatypeNotValidException 
 		 */
-		public TimeConditionParameterSet( double seconds ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
+		public TimeConditionParameterSet( double seconds ) throws IllegalArgumentException, IllegalValueException {
 			this();
 			this.getParameterAt( 0 ).setValue( seconds );
 		}

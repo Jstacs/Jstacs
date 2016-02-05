@@ -19,6 +19,7 @@ package de.jstacs.algorithms.alignment;
 
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.tools.ui.galaxy.DataColumnParameter;
 
 /**
  * Class for the representation of an alignment of two {@link String}s. It
@@ -57,8 +58,18 @@ public class PairwiseStringAlignment extends StringAlignment {
 	
 	
 	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Creates a new {@link PairwiseStringAlignment} out of its XML representation.
+	 * 
 	 * @param xml
+	 *            the XML representation as {@link StringBuffer}
+	 * 
 	 * @throws NonParsableException
+	 *             if the {@link PairwiseStringAlignment} could not be reconstructed
+	 *             out of the XML representation (the {@link StringBuffer} could
+	 *             not be parsed)
+	 * 
+	 * @see de.jstacs.Storable
 	 */
 	public PairwiseStringAlignment( StringBuffer xml ) throws NonParsableException {
 		super( xml );

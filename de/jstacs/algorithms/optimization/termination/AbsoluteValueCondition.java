@@ -107,15 +107,21 @@ public class AbsoluteValueCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
-		 * @throws DatatypeNotValidException 
 		 */
-		public AbsoluteValueConditionParameterSet() throws DatatypeNotValidException {
+		public AbsoluteValueConditionParameterSet() {
 			super( AbsoluteValueCondition.class );
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"absolute value",
-					"if the optimized value is smaller than this value the algorithm is stopped",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			try {
+				parameters.add( new SimpleParameter( DataType.DOUBLE,
+						"absolute value",
+						"if the optimized value is smaller than this value the algorithm is stopped",
+						true,
+						new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			} catch( Exception e ) {
+				//does not happen
+				RuntimeException re = new RuntimeException(e.getMessage());
+				re.setStackTrace(e.getStackTrace());
+				throw re;
+			}
 		}
 		
 		/**
@@ -141,9 +147,8 @@ public class AbsoluteValueCondition extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
-		 * @throws DatatypeNotValidException 
 		 */
-		public AbsoluteValueConditionParameterSet( double absValue ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
+		public AbsoluteValueConditionParameterSet( double absValue ) throws IllegalArgumentException, IllegalValueException {
 			this();
 			this.getParameterAt( 0 ).setValue( absValue );
 		}

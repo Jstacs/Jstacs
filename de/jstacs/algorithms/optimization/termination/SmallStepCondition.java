@@ -106,15 +106,21 @@ public class SmallStepCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
-		 * @throws DatatypeNotValidException 
 		 */
-		public SmallStepConditionParameterSet() throws DatatypeNotValidException {
+		public SmallStepConditionParameterSet() {
 			super( SmallStepCondition.class );
-			parameters.add( new SimpleParameter( DataType.DOUBLE,
-					"epsilon",
-					"the epsilon for the size of the step used for deciding whether to stop the algorithm or not",
-					true,
-					new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			try {
+				parameters.add( new SimpleParameter( DataType.DOUBLE,
+						"epsilon",
+						"the epsilon for the size of the step used for deciding whether to stop the algorithm or not",
+						true,
+						new NumberValidator<Double>( new Double( 0 ), new Double( Double.MAX_VALUE ) ) ) );
+			} catch( Exception e ) {
+				//does not happen
+				RuntimeException re = new RuntimeException(e.getMessage());
+				re.setStackTrace(e.getStackTrace());
+				throw re;
+			}
 		}
 		
 		/**
@@ -140,9 +146,8 @@ public class SmallStepCondition extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
-		 * @throws DatatypeNotValidException 
 		 */
-		public SmallStepConditionParameterSet( double eps ) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
+		public SmallStepConditionParameterSet( double eps ) throws IllegalArgumentException, IllegalValueException {
 			this();
 			this.getParameterAt(0).setValue( eps );
 		}

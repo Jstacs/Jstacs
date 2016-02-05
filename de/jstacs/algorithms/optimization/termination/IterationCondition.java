@@ -99,15 +99,21 @@ public class IterationCondition extends AbstractTerminationCondition {
 
 		/**
 		 * This constructor creates an empty parameter set.
-		 * @throws DatatypeNotValidException 
 		 */
-		public IterationConditionParameterSet() throws DatatypeNotValidException {
+		public IterationConditionParameterSet() {
 			super( IterationCondition.class );
-			parameters.add( new SimpleParameter( DataType.INT,
-					"maximal iteration",
-					"the maximal number of iterations for stopping an algorithm",
-					true,
-					new NumberValidator<Integer>( new Integer( 0 ), new Integer( Integer.MAX_VALUE ) ) ) );
+			try {
+				parameters.add( new SimpleParameter( DataType.INT,
+						"maximal iteration",
+						"the maximal number of iterations for stopping an algorithm",
+						true,
+						new NumberValidator<Integer>( new Integer( 0 ), new Integer( Integer.MAX_VALUE ) ) ) );
+			} catch( Exception e ) {
+				//does not happen
+				RuntimeException re = new RuntimeException(e.getMessage());
+				re.setStackTrace(e.getStackTrace());
+				throw re;
+			}
 		}
 		
 		/**
@@ -133,9 +139,8 @@ public class IterationCondition extends AbstractTerminationCondition {
 		 * 
 		 * @throws IllegalArgumentException if parameter can not be set
 		 * @throws IllegalValueException if parameter can not be set
-		 * @throws DatatypeNotValidException 
 		 */
-		public IterationConditionParameterSet( int maxIter) throws IllegalArgumentException, IllegalValueException, DatatypeNotValidException {
+		public IterationConditionParameterSet( int maxIter) throws IllegalArgumentException, IllegalValueException {
 			this();
 			this.getParameterAt( 0 ).setValue( maxIter );
 		}
