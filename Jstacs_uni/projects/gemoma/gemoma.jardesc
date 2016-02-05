@@ -12,8 +12,8 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
         <javaElement handleIdentifier="=Jstacs/&lt;projects.gemoma{CompareTranscripts.java"/>
-        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous"/>
+        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.algorithms.graphs"/>
         <javaElement handleIdentifier="=Jstacs/&lt;projects.gemoma{GeMoMa.java"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.data"/>
@@ -28,19 +28,19 @@
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.differentiable"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers.performanceMeasures"/>
-        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.tools.ui.cli"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures"/>
+        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.tools.ui.cli"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers.trainSMBased"/>
-        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers.differentiableSequenceScoreBased.sampling"/>
+        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.utils.random"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.differentiable.mixture"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.tools"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.differentiable.logistic"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.btMeasures"/>
-        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.results"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers"/>
+        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.results"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.parameters"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.data.alphabets"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers.differentiableSequenceScoreBased"/>
@@ -67,8 +67,8 @@
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.complex"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.algorithms.optimization.termination"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.motif"/>
-        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.utils"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs"/>
+        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.utils"/>
         <javaElement handleIdentifier="=Jstacs/&lt;projects.gemoma{Extractor.java"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models"/>
         <javaElement handleIdentifier="=Jstacs/&lt;projects.gemoma{Tools.java"/>
@@ -86,7 +86,7 @@
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.data.sequences.annotation"/>
         <javaElement handleIdentifier="=Jstacs/&lt;projects.gemoma{BestReciprocalHit.java"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.trainable.hmm"/>
-        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements"/>
         <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.classifiers.differentiableSequenceScoreBased.msp"/>
+        <javaElement handleIdentifier="=Jstacs/&lt;de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements"/>
     </selectedElements>
 </jardesc>

@@ -1714,8 +1714,9 @@ public class GeMoMa implements JstacsTool {
 							+ "\t" + numberOfLines + "\t" + numberOfTestedStrands + "\t" + bestSumScore
 							+ "\t" + k + "\t" + (result.size()+1) + "\t" + numberOfPairwiseAlignments
 							+ "\t" + best.score
-							+ "\t" + best.hits.getFirst().targetID + "\t" + best.forward + "\t" + time.getElapsedTime() 
-							+ "\t" + anz + "\t" + best.getInfo() + "\t" + backup + "\t" + cut
+							+ "\t" + best.hits.getFirst().targetID + "\t" + (best.forward?+1:-1)
+							+ "\t" + (best.forward? best.hits.getFirst().targetStart + "\t" + best.hits.getLast().targetEnd : best.hits.getLast().targetStart + "\t" + best.hits.getFirst().targetEnd )
+							+ "\t" + time.getElapsedTime() + "\t" + anz + "\t" + best.getInfo() + "\t" + backup + "\t" + cut
 							+ ( seq != null ?  
 									"\t" + getGapCost(seq.length(), parts.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
 									+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
@@ -1745,7 +1746,7 @@ public class GeMoMa implements JstacsTool {
 			return "gene\ttranscript\t#parts\t#predicted hits\t#blast hits\t#strands\tbest sum score"
 					+ "\t#candidate strands\t#predictions\t#alignments"
 					+ "\tbest final score"
-					+ "\tchromosome\tstrand\ttime\t#predicted parts\tfirst part\tfirst aa\tlast parts\tlast aa\t#*\tintron gain\tintron loss\tbackup\tcut"
+					+ "\tchromosome\tstrand\tstart\tend\ttime\t#predicted parts\tfirst part\tfirst aa\tlast parts\tlast aa\t#*\tintron gain\tintron loss\tbackup\tcut"
 					+ (protein != null?"\tminimal score\tcurrent score\toptimal score\t%positive\tpid\tmaxGap\tref_length\tpred_length":"")
 					+ "\tsimilar";
 		}
