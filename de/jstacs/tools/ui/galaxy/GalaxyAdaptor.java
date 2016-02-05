@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -239,9 +240,19 @@ public class GalaxyAdaptor {
 		allBuffer.append( "\n" );
 		
 		StringBuffer defaultOuts = new StringBuffer();
+		String[] defaultNames = new String[defaultResults.length];
+		HashSet<String> hash = new HashSet<String>();
 		for(int i=0;i<defaultResults.length;i++){
-			String name = defaultResults[i].getName().replaceAll("(\\s|-)", "_");
-			defaultOuts.append(" $"+name+"_"+i);
+			defaultNames[i] = defaultResults[i].getName().replaceAll("(\\s|-)", "_");
+			if( hash.contains(defaultNames[i]) ) {
+				int j = 0;
+				while( hash.contains(defaultNames[i] + "_" + j) ) {
+					j++;
+				}
+				defaultNames[i] += "_" + j;
+			}
+			hash.add(defaultNames[i]);
+			defaultOuts.append(" $"+defaultNames[i]);
 		}
 		
 		if(configureThreads){
@@ -272,11 +283,10 @@ public class GalaxyAdaptor {
 		allBuffer.append( confBuffer );
 		
 		StringBuffer outBuf = new StringBuffer();
-		if(labelName != null){
-			XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\" label=\"#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string else $"+getLegalName( toolname )+"_"+labelName+"#\"" );
-		}else{
-			XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\"" );
-		}
+		String jobName =  labelName == null
+				? "#$tool.name + ' on ' + $on_string"
+				: "#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string else $"+getLegalName( toolname )+"_"+labelName; //TODO evaluate?
+		XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\" label=\""+jobName+"#\"" );
 		outBuf.append("\n");
 		
 		for(int i=0;i<defaultResults.length;i++){
@@ -284,20 +294,13 @@ public class GalaxyAdaptor {
 			if(type == null){
 				type = getDefaultExtension(defaultResults[i].getDeclaredClass());
 			}
-			String label = null;
-			if(labelName != null){
-				label = "#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"' else str($"+getLegalName( toolname )+"_"+labelName+") + ': "+defaultResults[i].getName()+"' #";
-			}else{
-				label = "#$tool.name + ' on ' + $on_string + ': "+defaultResults[i].getName()+"'#";
-			}
-			
-			String name = defaultResults[i].getName().replaceAll("(\\s|-)", "_")+"_"+i;
+			String label = jobName + " + ': "+defaultResults[i].getName()+"'#";
 			
 			StringBuffer temp = new StringBuffer();
 			if(type == null){
-				XMLParser.addTagsAndAttributes( temp, "data", "auto_format=\"True\" name=\""+name+"\" label=\""+label+"\"" );
+				XMLParser.addTagsAndAttributes( temp, "data", "auto_format=\"True\" name=\""+defaultNames[i]+"\" label=\""+label+"\"" );
 			}else{
-				XMLParser.addTagsAndAttributes( temp, "data", "format=\""+type+"\" name=\""+name+"\" label=\""+label+"\"" );
+				XMLParser.addTagsAndAttributes( temp, "data", "format=\""+type+"\" name=\""+defaultNames[i]+"\" label=\""+label+"\"" );
 			}
 			temp.append("\n");
 			outBuf.append(temp);
