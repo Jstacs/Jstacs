@@ -79,8 +79,8 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 	 * @param alphabet
 	 *            the array of symbols
 	 * @param caseInsensitive
-	 *            indicates if there will be no difference between lowercase and
-	 *            uppercase letters/symbols in the alphabet (no case sensitivity)
+	 *            indicates if there will be no difference between lower case and
+	 *            upper case letters/symbols in the alphabet (no case sensitivity)
 	 * @param revComp the array is used to provide the complementarity, <code>revComp[i]</code> contains the index of the complement of the i-th symbol
 	 * 
 	 * @throws IllegalArgumentException
@@ -136,8 +136,8 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 		 * @param alphabet
 		 *            the array of symbols
 		 * @param caseInsensitive
-		 *            indicates if there will be no difference between lowercase and
-		 *            uppercase letters/symbols in the alphabet (no case sensitivity)
+		 *            indicates if there will be no difference between lower case and
+		 *            upper case letters/symbols in the alphabet (no case sensitivity)
 		 * @param revComp the array is used to provide the complementarity, <code>revComp[i]</code> contains the index of the complement of the i-th symbol
 		 * 
 		 * @throws Exception if some parameter could not be set.

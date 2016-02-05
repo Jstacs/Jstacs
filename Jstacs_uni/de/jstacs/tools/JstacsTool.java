@@ -106,7 +106,7 @@ public interface JstacsTool {
 	 * @param protocol the protocol
 	 * @param progress the progress updater
 	 * @return the results of this tool
-	 * @throws Exception
+	 * @throws Exception if the tool can not be run properly
 	 */
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress) throws Exception;
 

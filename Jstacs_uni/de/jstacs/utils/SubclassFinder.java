@@ -106,10 +106,9 @@ public class SubclassFinder {
 	 * @throws IOException
 	 *             is thrown if the classes are searched for in a jar file, but
 	 *             that file could not be accessed or read
-	 * @throws URISyntaxException 
 	 */
 	public static <T> LinkedList<Class<? extends T>> findInstantiableSubclasses( Class<T> clazz, String startPackage ) throws ClassNotFoundException,
-			IOException, URISyntaxException {
+			IOException {
 		LinkedList<Class<? extends T>> list = findSubclasses( clazz, startPackage );
 		LinkedList<Class<? extends T>> list2 = new LinkedList<Class<? extends T>>();
 		Iterator<Class<? extends T>> it = list.iterator();
@@ -204,10 +203,9 @@ public class SubclassFinder {
 	 *             but cannot be loaded by the class loader
 	 * @throws IOException
 	 *             is thrown if the classes are searched for in a jar file, but
-	 *             that file could not be accessed or read
-	 * @throws URISyntaxException 
+	 *             that file could not be accessed or read 
 	 */
-	public static <T> LinkedList<Class<? extends T>> findSubclasses( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException, URISyntaxException {
+	public static <T> LinkedList<Class<? extends T>> findSubclasses( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException {
 		HashSet<Class<? extends T>> hash = new HashSet<Class<? extends T>>();
 		
 		find( clazz, startPackage, hash );
@@ -216,7 +214,7 @@ public class SubclassFinder {
 		return new LinkedList<Class<? extends T>>( hash );
 	}
 	
-	private static <T> void find( Class<T> clazz, String startPackage, HashSet<Class<? extends T>> hash ) throws ClassNotFoundException, IOException, URISyntaxException {
+	private static <T> void find( Class<T> clazz, String startPackage, HashSet<Class<? extends T>> hash ) throws ClassNotFoundException, IOException {
 		if( startPackage == null )  {
 			return;
 		}
@@ -450,12 +448,11 @@ public class SubclassFinder {
 	 * @throws IOException
 	 *             if the classes are searched for in a jar file, but that file
 	 *             could not be accessed or read
-	 * @throws URISyntaxException 
 	 * 
 	 * @see SubclassFinder#findInstantiableSubclasses(Class, String)
 	 * @see SubclassFinder#filterBySuperclass(Class, LinkedList)
 	 */
-	public static <T> LinkedList<InstanceParameterSet<? extends T>> getInstanceParameterSets( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException, URISyntaxException {
+	public static <T> LinkedList<InstanceParameterSet<? extends T>> getInstanceParameterSets( Class<T> clazz, String startPackage ) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
 		LinkedList<Class<? extends T>> classes = SubclassFinder.findInstantiableSubclasses( clazz, startPackage );
 		LinkedList<Class<? extends InstantiableFromParameterSet>> filteredClasses = SubclassFinder.filterBySuperclass( InstantiableFromParameterSet.class,
 				classes );

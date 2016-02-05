@@ -25,6 +25,8 @@ import de.jstacs.parameters.GalaxyConvertible;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.ParameterValidator;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSMEManager;
+import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.MEManager;
 
 /**
  * {@link SimpleParameter} that represents a data column parameter in Galaxy.
@@ -98,8 +100,18 @@ public class DataColumnParameter extends SimpleParameter {
 	}
 
 	/**
+	 * The standard constructor for the interface {@link de.jstacs.Storable}.
+	 * Creates a new {@link DataColumnParameter} out of its XML representation.
+	 * 
 	 * @param representation
+	 *            the XML representation as {@link StringBuffer}
+	 * 
 	 * @throws NonParsableException
+	 *             if the {@link DataColumnParameter} could not be reconstructed
+	 *             out of the XML representation (the {@link StringBuffer} could
+	 *             not be parsed)
+	 * 
+	 * @see de.jstacs.Storable
 	 */
 	public DataColumnParameter( StringBuffer representation ) throws NonParsableException {
 		super( representation );

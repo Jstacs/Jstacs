@@ -46,7 +46,7 @@ public class ProgressUpdater {
 	
 	/**
 	 * Sets the value corresponding to the current progress
-	 * @param curr
+	 * @param curr the current value of progress
 	 */
 	public void setCurrent(double curr){
 		this.curr = curr;

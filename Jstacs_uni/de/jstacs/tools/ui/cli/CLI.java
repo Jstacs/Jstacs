@@ -133,7 +133,7 @@ public class CLI {
 	
 	/**
 	 * Creates a new command line interface from a set of Jstacs tools.
-	 * @param tools
+	 * @param tools (an array of) tool(s) that can be run via the command line interface
 	 */
 	public CLI(JstacsTool... tools) {
 		this.tools = tools;
