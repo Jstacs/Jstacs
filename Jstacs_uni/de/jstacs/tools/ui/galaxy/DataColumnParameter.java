@@ -25,8 +25,6 @@ import de.jstacs.parameters.GalaxyConvertible;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.validation.ParameterValidator;
-import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.FSMEManager;
-import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.MEManager;
 
 /**
  * {@link SimpleParameter} that represents a data column parameter in Galaxy.
