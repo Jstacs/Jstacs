@@ -292,6 +292,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		}
 
 		parameters = new SimpleParameterSet(pars);
+		parameters.setParent(this);
 		try {
 			setDefault( pars[0].getName() );
 		} catch (Exception doesNotHappen) {
