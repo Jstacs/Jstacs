@@ -261,7 +261,7 @@ public class CLI {
 				System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+" <toolname> info\n");
 				System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+" <toolname>\n");
 			}else{
-				printToolParameters(0,protocol,outdir);
+				printToolParameters(0,protocol,outdir,1);
 			}
 			return;
 		}/*else if( ( tools.length == 1 && args.length==0) || args.length == 1){
@@ -280,10 +280,10 @@ public class CLI {
 			
 			if(!toolParameters[toolIndex].hasDefaultOrIsSet()){
 				System.err.println("At least one parameter has not been set (correctly):\n");
-				printToolParameters(toolIndex,protocol,outdir);
+				printToolParameters(toolIndex,protocol,outdir,threads);
 				return;
 			}else{
-				printToolParameters(toolIndex,protocol,outdir);
+				printToolParameters(toolIndex,protocol,outdir,threads);
 			}
 			
 			protocol.flush();
@@ -439,7 +439,7 @@ public class CLI {
 		}
 	}
 
-	private void printToolParameters( int toolIndex, Protocol protocol, String outdir ) {
+	private void printToolParameters( int toolIndex, Protocol protocol, String outdir, int threads ) {
 		ParameterSet ps = toolParameters[toolIndex];
 		if(tools.length > 1){
 			protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+", version: " + tools[toolIndex].getToolVersion() + "):\n" );
@@ -449,7 +449,7 @@ public class CLI {
 		print( keyMap[toolIndex], ps, "", protocol );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
 		if(configureThreads[toolIndex]){
-			protocol.appendWarning( "threads - The number of threads used for the tool." );
+			protocol.appendWarning( "threads - The number of threads used for the tool, defaults to 1\t= "+threads+"\n" );
 		}
 		/*
 		try {
