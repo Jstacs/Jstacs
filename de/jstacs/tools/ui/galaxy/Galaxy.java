@@ -26,11 +26,13 @@ import java.util.LinkedList;
 
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.DataSetResult;
+import de.jstacs.results.ListResult;
 import de.jstacs.results.PlotGeneratorResult;
 import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.ResultSetResult;
+import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
@@ -145,7 +147,7 @@ public class Galaxy {
 			
 			ProgressUpdater progress = new ProgressUpdater();
 			
-			ResultSet ress = tools[idx].run( toolParameters[idx], protocol, progress ).getRawResult()[0];			
+			ResultSet ress = tools[idx].run( toolParameters[idx], protocol, progress, ga.getThreads() ).getRawResult()[0];			
 			
 			Pair<Result,boolean[]>[] temp = flatten(ress);
 			
@@ -214,9 +216,12 @@ public class Galaxy {
 		for(int i=0;i<ress.getNumberOfResults();i++){
 			Result res = ress.getResultAt( i );
 			
-			boolean export = res instanceof FileResult || res instanceof TextResult || res instanceof DataSetResult;
+			boolean export = res instanceof FileResult || res instanceof DataSetResult || res instanceof StorableResult;
 			if(res instanceof TextResult){
 				export = ( (TextResult)res ).getExport();
+			}
+			if(res instanceof ListResult){
+				export = ( (ListResult)res ).getExport();
 			}
 			boolean includeInSummary = !export;
 			
