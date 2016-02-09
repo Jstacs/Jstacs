@@ -40,7 +40,7 @@ import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
-import de.jstacs.tools.ui.galaxy.DataColumnParameter;
+import de.jstacs.tools.DataColumnParameter;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
 
