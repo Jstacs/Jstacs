@@ -181,7 +181,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	@Override
-	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress ) throws Exception {
+	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
 		progress.setIndeterminate();//TODO Jan?
 		this.protocol=protocol;
 		if( protocol instanceof Flushable ) {
