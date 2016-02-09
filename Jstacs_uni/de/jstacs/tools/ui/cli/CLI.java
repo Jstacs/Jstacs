@@ -45,6 +45,7 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.utils.Pair;
 
 /**
  * Class that allows for building generic command line interface (CLI) applications based on the {@link JstacsTool} interface.
@@ -127,15 +128,26 @@ public class CLI {
 	
 	
 	private JstacsTool[] tools;
+	private boolean[] configureThreads;
 	
 	private ParameterSet[] toolParameters;
 	private HashMap<Parameter,String>[] keyMap;
 	
+	public CLI(JstacsTool... tools) {
+		this(null,tools);
+	}
+	
 	/**
 	 * Creates a new command line interface from a set of Jstacs tools.
+	 * @param configureThreads if the tool at the corresponding index should be configured to use multiple threads, which also means that a parameter <code>threads</code> is displayed for this tool
 	 * @param tools (an array of) tool(s) that can be run via the command line interface
 	 */
-	public CLI(JstacsTool... tools) {
+	public CLI(boolean[] configureThreads, JstacsTool... tools) {
+		if(configureThreads == null){
+			this.configureThreads = new boolean[tools.length];
+		}else{
+			this.configureThreads = configureThreads;
+		}
 		this.tools = tools;
 		this.toolParameters = new ParameterSet[tools.length];
 		this.keyMap = new HashMap[tools.length];
@@ -180,6 +192,7 @@ public class CLI {
 		LinkedList<String> valueSet = new LinkedList<String>( valueSet2 );
 		valueSet.add( "outdir" );
 		valueSet.add( "info" );
+		valueSet.add( "threads" );
 		String parName = par.getName();
 		String key = (parName.charAt( 0 )+"").toLowerCase();
 		if(!valueSet.contains( key )){
@@ -261,7 +274,9 @@ public class CLI {
 			System.err.println("\n"+parse(tools[toolIndex].getHelpText()));
 		}else{
 			int toolIndex = tools.length == 1 ? 0 : getToolIndex( args[0] );
-			outdir = setToolParameters(tools.length == 1 ? 0 : 1, toolParameters[toolIndex],keyMap[toolIndex],args, protocol);
+			Pair<String,Integer> pair = setToolParameters(configureThreads[toolIndex], tools.length == 1 ? 0 : 1, toolParameters[toolIndex],keyMap[toolIndex],args, protocol);
+			outdir = pair.getFirstElement();
+			int threads = pair.getSecondElement();
 			
 			if(!toolParameters[toolIndex].hasDefaultOrIsSet()){
 				System.err.println("At least one parameter has not been set (correctly):\n");
@@ -273,7 +288,7 @@ public class CLI {
 			
 			protocol.flush();
 			
-			ToolResult results = tools[toolIndex].run( toolParameters[toolIndex], protocol, new ProgressUpdater() );
+			ToolResult results = tools[toolIndex].run( toolParameters[toolIndex], protocol, new ProgressUpdater(), threads );
 			
 		//	ResultSetResult res = new ResultSetResult( "Tool results", "", null, results );
 			
@@ -298,9 +313,10 @@ public class CLI {
 	}
 
 
-	private String setToolParameters( int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException {
+	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException {
 		HashMap<String, String> valueMap = new HashMap<String, String>();
 		String outdir = ".";
+		int threads = 1;
 		boolean newLine=false;
 		for(int i=off;i<args.length;i++){
 			int idx = args[i].indexOf("=");
@@ -311,6 +327,8 @@ public class CLI {
 			
 			if("outdir".equals( temp[0] ) ){
 				outdir = temp[1];
+			}else if(configureThreads && "threads".equals( temp[0] ) ){
+				threads = Integer.parseInt(temp[1]);
 			}else{
 				String v = valueMap.get(temp[0]);
 				if( v!=null ) {
@@ -327,7 +345,7 @@ public class CLI {
 		if( valueMap.size() > 0 ) {
 			throw new IllegalValueException("Unknown parameters: "+ valueMap );
 		}
-		return outdir;
+		return new Pair<String, Integer>(outdir, threads);
 	}
 
 
@@ -430,6 +448,9 @@ public class CLI {
 		}
 		print( keyMap[toolIndex], ps, "", protocol );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
+		if(configureThreads[toolIndex]){
+			protocol.appendWarning( "threads - The number of threads used for the tool." );
+		}
 		/*
 		try {
 			PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
