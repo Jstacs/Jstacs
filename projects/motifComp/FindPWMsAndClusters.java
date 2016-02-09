@@ -242,7 +242,7 @@ public class FindPWMsAndClusters implements JstacsTool{
 
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol,
-			ProgressUpdater progress) throws Exception {
+			ProgressUpdater progress, int threads) throws Exception {
 		
 		LinkedList<double[][]> motifs = new LinkedList<double[][]>();
 		
