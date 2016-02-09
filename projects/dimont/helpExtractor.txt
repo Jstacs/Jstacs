@@ -1,0 +1,22 @@
+**Data Extractor** prepares an annotated FastA file as required by Dimont from a genome (in FastA format) and a tabular file (e.g., BED, GTF, narrowPeak,...). The regions specified in the tabular file are used to determine the center of the extracted sequences. All extracted sequences have the same length as specified by parameter "Width".
+
+In case of ChIP data, the center position could for instance be the peak summit.
+An annotated FastA file for ChIP-exo data comprising sequences of length 100 centered around the peak summit might look like::
+	
+	> peak: 50; signal: 515
+	ggccatgtgtatttttttaaatttccac...
+	> peak: 50; signal: 199
+	GGTCCCCTGGGAGGATGGGGACGTGCTG...
+	...
+
+where the center is given as 50 for the first two sequences, and the confidence amounts to 515 and 199, respectively.
+
+We also provide an example_ input file and a stand alone Perl script_ for preparing data in the format required by Dimont_.
+
+
+If you experience problems using Dimont Data Extractor, please contact_ us.
+
+.. _example: http://www.jstacs.de/downloads/dimont-example.fa
+.. _script: http://www.jstacs.de/index.php/Dimont#Data_preparation
+.. _Dimont: http://jstacs.de/index.php/Dimont
+.. _contact: mailto:grau@informatik.uni-halle.de
