@@ -39,6 +39,7 @@ public class ResultSaverLibrary {
 		ListResultSaver.register();
 		DataSetResultSaver.register();
 		PlotGeneratorResultSaver.register();
+		StorableResultSaver.register();
 	}
 	
 	private static HashMap<Class<? extends Result>, ResultSaver> map;

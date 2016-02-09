@@ -174,6 +174,7 @@ public class TextResult extends Result {
 		XMLParser.appendObjectWithTags(buf, mime, "mime");
 		XMLParser.appendObjectWithTags(buf, value,"value");
 		XMLParser.appendObjectWithTags(buf, producer,"producer");
+		XMLParser.appendObjectWithTags(buf, export, "export");
 		XMLParser.appendObjectWithTags( buf, extendedType, "extype" );
 	}
 
@@ -182,6 +183,11 @@ public class TextResult extends Result {
 		mime = (String)XMLParser.extractObjectForTags( buf, "mime" );
 		value = (FileRepresentation)XMLParser.extractObjectForTags( buf, "value" );
 		producer = (String)XMLParser.extractObjectForTags( buf, "producer" );
+		try{
+			export = (Boolean) XMLParser.extractObjectForTags(buf, "export");
+		}catch(NonParsableException e){
+			export = false;
+		}
 		extendedType = (String)XMLParser.extractObjectForTags( buf, "extype" );
 	}
 

@@ -44,6 +44,9 @@ public class ListResult extends Result {
 	protected ResultSet[] list;
 
 	private ResultSet annotation;
+	
+	private boolean export;
+
 
 	/**
 	 * Creates a new {@link ListResult} from an array of {@link ResultSet}s and
@@ -64,6 +67,7 @@ public class ListResult extends Result {
 		this.list = new ResultSet[results.length];
 		System.arraycopy(results, 0, list, 0, results.length);
 		this.annotation = annotation;
+		this.export = false;
 	}
 
 	/**
@@ -152,6 +156,7 @@ public class ListResult extends Result {
 		if (annotation != null) {
 			XMLParser.appendObjectWithTags(buf, annotation, "annotation");
 		}
+		XMLParser.appendObjectWithTags(buf, export, "export");
 		XMLParser.appendObjectWithTags(buf, list, "list");
 	}
 
@@ -165,6 +170,11 @@ public class ListResult extends Result {
 			annotation = XMLParser.extractObjectForTags( representation, "annotation", ResultSet.class );
 		} catch (NonParsableException e) {
 			annotation = null;
+		}
+		try{
+			export = XMLParser.extractObjectForTags( representation, "export", Boolean.class );
+		} catch (NonParsableException e){
+			export = false;
 		}
 		list = (ResultSet[])XMLParser.extractObjectForTags(representation, "list" );
 	}
@@ -304,4 +314,21 @@ public class ListResult extends Result {
 		}
 		return new ListResult(name, comment, annotation, results);
 	}
+	
+	/**
+	 * Returns if this {@link ListResult} is exported in {@link de.jstacs.tools.ui.galaxy.Galaxy}.
+	 * @return if exported
+	 */
+	public boolean getExport() {
+		return export;
+	}
+
+	/**
+	 * Sets if this {@link ListResult} will be exported in {@link de.jstacs.tools.ui.galaxy.Galaxy}.
+	 * @param export if exported
+	 */
+	public void setExport(boolean export) {
+		this.export = export;
+	}
+	
 }
