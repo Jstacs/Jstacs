@@ -77,7 +77,7 @@ public class Extractor implements JstacsTool {
 	}
 	
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress) throws Exception {
+	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		progress.setIndeterminate();
 		
 		HashSet<String> selected = null;
