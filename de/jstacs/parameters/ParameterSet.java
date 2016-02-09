@@ -151,10 +151,10 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 
 	/**
 	 * If this {@link ParameterSet} is contained in a
-	 * {@link ParameterSetContainer}, this variable holds a reference to that
-	 * {@link ParameterSetContainer}.
+	 * {@link Parameter}, this variable holds a reference to that
+	 * {@link Parameter}.
 	 */
-	protected ParameterSetContainer parent;
+	protected Parameter parent;
 
 	/**
 	 * Constructs a new {@link ParameterSet} with empty parameter values.
@@ -459,12 +459,12 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	}
 
 	/**
-	 * Returns the enclosing {@link ParameterSetContainer} of this
+	 * Returns the enclosing {@link Parameter} of this
 	 * {@link ParameterSet} or <code>null</code> if none exists.
 	 * 
-	 * @return the enclosing {@link ParameterSetContainer} (<code>parent</code>)
+	 * @return the enclosing {@link Parameter} (<code>parent</code>)
 	 */
-	public ParameterSetContainer getParent() {
+	public Parameter getParent() {
 		return parent;
 	}
 
@@ -475,7 +475,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	 * @param parent
 	 *            the new parent
 	 */
-	public void setParent(ParameterSetContainer parent) {
+	public void setParent(Parameter parent) {
 		this.parent = parent;
 	}
 

@@ -20,6 +20,7 @@
 package de.jstacs.parameters;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
@@ -477,6 +478,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		public FileRepresentation(String filename, String content) {
 			this.filename = filename;
+			
 			if(content.length() < 100000){
 				this.content = content;
 			}else{
@@ -546,6 +548,14 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		public void setFilename(String filename) {
 			this.filename = filename;
+		}
+		
+		public long getFilesize(){
+			if(filename == null){
+				return -1;
+			}else{
+				return (new File(filename)).length();
+			}
 		}
 
 		/**
