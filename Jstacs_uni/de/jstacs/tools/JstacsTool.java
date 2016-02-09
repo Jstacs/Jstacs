@@ -105,10 +105,11 @@ public interface JstacsTool {
 	 * @param parameters the input parameters
 	 * @param protocol the protocol
 	 * @param progress the progress updater
+	 * @param threads the maximum number of threads that may be used for this run of the tool
 	 * @return the results of this tool
 	 * @throws Exception if the tool can not be run properly
 	 */
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress) throws Exception;
+	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception;
 
 	/**
 	 * Returns a descriptive, human readable name for this tool.
