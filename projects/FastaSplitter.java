@@ -42,7 +42,9 @@ public class FastaSplitter {
 					current = (current+1) % num;
 				} else {
 					id = line.substring(1, line.lastIndexOf(delim) );
+					System.out.println(id);
 					Integer idx = hash.get(id);
+					System.out.println(idx);
 					if( idx == null ) {
 						//this id occurs the first time => find a split with minimal number of sequences so far
 						int min = 0;
@@ -52,6 +54,7 @@ public class FastaSplitter {
 							}
 						}
 						current = min;
+						hash.put(id, current);
 					} else {
 						//this id was assigned to split idx before
 						current = idx;
