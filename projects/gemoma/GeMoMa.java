@@ -3300,36 +3300,16 @@ public class GeMoMa implements JstacsTool {
 		try{
 			return new SimpleParameterSet(
 					new FileParameter( "tblastn results", "The sorted tblastn results", "tabular", true ),
+					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run", "fasta", true ),
 					new FileParameter( "query cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
-					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run", "fasta", true ),
 
 					/*TODO new 1.2
 					new FileParameter( "donor model", "The path to the donor splice site model (XML)", "xml", false ),
 					new FileParameter( "acceptor model", "The path to the donor splice site model (XML)", "xml", false ),					
 					/**/
-					/*
-					new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
-						new SimpleParameterSet(),
-						new SimpleParameterSet(	... )
-					}, "alignment", "for computing the optimal alignment score of the complete prediction vs. the query protein", true ),*/
 					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
-					/*
-					new SelectionParameter(DataType.PARAMETERSET, new String[]{"default","user-specified"}, new ParameterSet[]{
-							new SimpleParameterSet(),
-							new SimpleParameterSet(
-									new FileParameter( "code", "user-specified genetic code", "tabular", true )
-							)
-						}, "genetic code", "whether to use the default or a user-specified genetic code", true ),*/
 					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
-					/*
-					new SelectionParameter(DataType.PARAMETERSET, new String[]{"default","user-specified"}, new ParameterSet[]{
-							new SimpleParameterSet(),
-							new SimpleParameterSet(
-									new FileParameter( "matrix", "user-specified substitution matrix", "tabular", true )
-							)
-						}, "substitution matrix", "the substitution matrix used in the alignment", true ),
-					*/
 					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false ),
 					
 					new SimpleParameter( DataType.INT, "gap opening", "The gap opening cost in the alignment", true, 11 ),
