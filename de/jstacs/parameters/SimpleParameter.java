@@ -460,6 +460,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 						errorMessage = "Parameter value not of the expected type!";
 						throw new IllegalValueException(errorMessage);
 					}
+					this.isSet = true;
 				} catch (Exception e) {
 					this.value = null;
 					isSet = false;
@@ -469,8 +470,8 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 				}
 			} else {
 				this.value = value2;
+				this.isSet = true;
 			}
-			this.isSet = true;
 		} else {
 			this.value = null;
 			isSet = false;
