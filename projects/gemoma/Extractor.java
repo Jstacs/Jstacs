@@ -649,11 +649,22 @@ public class Extractor implements JstacsTool {
 			return new SimpleParameterSet(
 				new FileParameter( "annotation", "Reference annotation file (GFF), which contains gene models annotated in the reference genome", "gff", true ),
 				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta",  true ),
+
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					
 				new SimpleParameter(DataType.BOOLEAN, "proteins", "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "transcripts", "whether the complete transcripts sequences should returned as output", true, false ),
 
+				/*
+				new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
+						new SimpleParameterSet(),
+						new SimpleParameterSet(
+								new SimpleParameter( DataType.INT, "intronic", "The number of bp return from the intron side", true, new NumberValidator<Integer>(0,1000), 10 ),//TODO
+								new SimpleParameter( DataType.INT, "exonic", "The number of bp return from the exon side", true, new NumberValidator<Integer>(0,1000), 8 )
+								//negative?
+						)
+					}, "splice sites", "whether splice sites should be returned or not", true ),
+				*/	
 				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", false ),
 					
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
