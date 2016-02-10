@@ -181,11 +181,10 @@ public class GeMoMa implements JstacsTool {
 		}
 	}
 	
-	private InputStream getInputStream( ParameterSet parameters, String name, String alternative ) throws FileNotFoundException {
-		InputStream in;// = parameters.getParameterForName("genetic code").getValue().toString();
-		ParameterSet ps = (ParameterSet) parameters.getParameterForName(name).getValue();
-		if( ps.getNumberOfParameters() > 0 ) {
-			in = new FileInputStream( ps.getParameterAt(0).getValue().toString() );
+	private InputStream getInputStream( Parameter parameter, String alternative ) throws FileNotFoundException {
+		InputStream in;
+		if( parameter.isSet() ) {
+			in = new FileInputStream( parameter.getValue().toString() );
 		} else {
 			in = Extractor.class.getClassLoader().getResourceAsStream( alternative );
 		}
@@ -271,17 +270,17 @@ public class GeMoMa implements JstacsTool {
 		blastLike = new BufferedWriter( new FileWriter( alignFile ) );
 		genomic = new BufferedWriter( new FileWriter( genomicFile ) );
 				
-		ParameterSet ps = (ParameterSet) parameters.getParameterForName("alignment").getValue();
+		p = parameters.getParameterForName("query proteins");
 		
 		TranscriptPredictor tp = new TranscriptPredictor(
 				(String) parameters.getParameterForName("assignment").getValue(),
 				(String) parameters.getParameterForName("query cds parts").getValue(),
 				(String) parameters.getParameterForName("target genome").getValue(),
 				
-				getInputStream(parameters, "genetic code", "projects/gemoma/test_data/genetic_code.txt" ),
-				getInputStream(parameters, "substitution matrix", "projects/gemoma/test_data/BLOSUM62.txt" ),
-				
-				(String) (ps.getNumberOfParameters()>0 ? ps.getParameterAt(0).getValue() : null)
+				getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ),
+				getInputStream(parameters.getParameterForName("substitution matrix"), "projects/gemoma/test_data/BLOSUM62.txt" ),
+
+				(String) (p.isSet() ? p.getValue() : null)
 		);
 
 		//read blast output and compute result
@@ -3309,23 +3308,29 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "donor model", "The path to the donor splice site model (XML)", "xml", false ),
 					new FileParameter( "acceptor model", "The path to the donor splice site model (XML)", "xml", false ),					
 					/**/
+					/*
 					new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
 						new SimpleParameterSet(),
-						new SimpleParameterSet(	new FileParameter( "query proteins", "The path to the query protein file (FASTA)", "fasta", false ) )
-					}, "alignment", "for computing the optimal alignment score of the complete prediction vs. the query protein", true ),
-
+						new SimpleParameterSet(	... )
+					}, "alignment", "for computing the optimal alignment score of the complete prediction vs. the query protein", true ),*/
+					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
+					/*
 					new SelectionParameter(DataType.PARAMETERSET, new String[]{"default","user-specified"}, new ParameterSet[]{
 							new SimpleParameterSet(),
 							new SimpleParameterSet(
 									new FileParameter( "code", "user-specified genetic code", "tabular", true )
 							)
-						}, "genetic code", "whether to use the default or a user-specified genetic code", true ),
+						}, "genetic code", "whether to use the default or a user-specified genetic code", true ),*/
+					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
+					/*
 					new SelectionParameter(DataType.PARAMETERSET, new String[]{"default","user-specified"}, new ParameterSet[]{
 							new SimpleParameterSet(),
 							new SimpleParameterSet(
 									new FileParameter( "matrix", "user-specified substitution matrix", "tabular", true )
 							)
 						}, "substitution matrix", "the substitution matrix used in the alignment", true ),
+					*/
+					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false ),
 					
 					new SimpleParameter( DataType.INT, "gap opening", "The gap opening cost in the alignment", true, 11 ),
 					new SimpleParameter( DataType.INT, "gap extension", "The gap extension cost in the alignment", true, 1 ),
@@ -3359,7 +3364,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.1.2";
+		return "1.1.3";
 	}
 	
 	public String getShortName() {
