@@ -125,9 +125,9 @@ public class Extractor implements JstacsTool {
 		
 		count.clear();
 		InputStream in;// = parameters.getParameterForName("genetic code").getValue().toString();
-		ParameterSet ps = (ParameterSet) parameters.getParameterForName("genetic code").getValue();
-		if( ps.getNumberOfParameters() > 0 ) {
-			in = new FileInputStream( ps.getParameterAt(0).getValue().toString() );
+		p = parameters.getParameterForName("genetic code");
+		if( p.isSet() ) {
+			in = new FileInputStream( p.getValue().toString() );
 		} else {
 			in = Extractor.class.getClassLoader().getResourceAsStream("projects/gemoma/test_data/genetic_code.txt" );
 		}
@@ -147,7 +147,7 @@ public class Extractor implements JstacsTool {
 		p = parameters.getParameterForName("splice sites");
 		boolean splice = p!= null;
 		if( splice ) {
-			ps = (ParameterSet) p.getValue();
+			ParameterSet ps = (ParameterSet) p.getValue();
 			splice = ps.getNumberOfParameters() > 0;
 			if( splice ) {
 				exonic = (Integer) ps.getParameterForName("exonic").getValue();
@@ -649,14 +649,15 @@ public class Extractor implements JstacsTool {
 			return new SimpleParameterSet(
 				new FileParameter( "annotation", "Reference annotation file (GFF), which contains gene models annotated in the reference genome", "gff", true ),
 				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta",  true ),
-				
+				/*
 				new SelectionParameter(DataType.PARAMETERSET, new String[]{"default","user-specified"}, new ParameterSet[]{
 						new SimpleParameterSet(),
 						new SimpleParameterSet(
-								new FileParameter( "user code", "user-specified genetic code", "tabular", true )
+								
 						)
-					}, "genetic code", "whether to use the default or a user-specified genetic code", true ),
-				
+					}, "genetic code", "whether to use the default or a user-specified genetic code", true ),*/
+				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
+					
 				new SimpleParameter(DataType.BOOLEAN, "proteins", "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "transcripts", "whether the complete transcripts sequences should returned as output", true, false ),
 
@@ -722,6 +723,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.1.3";
 	}
 }
