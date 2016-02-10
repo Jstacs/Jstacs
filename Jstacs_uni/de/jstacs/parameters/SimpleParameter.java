@@ -342,7 +342,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		} else {
 			Object value2 = value;
 			if (value instanceof String) {
-				if (((String) value).length() > 0) {
+				//if (((String) value).length() > 0) {
 					try {
 						switch( datatype ) {
 							case BYTE: value2 = new Byte((String) value); break;
@@ -351,17 +351,15 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 							case LONG: value2 = new Long((String) value); break;
 							case FLOAT: value2 = new Float((String) value); break;
 							case DOUBLE: value2 = new Double((String) value); break;
-							default:
-								throw new RuntimeException("Datatype "+datatype+" not supported");
 						}
 					} catch (NumberFormatException e) {
 						errorMessage = "Value is not of the expected format.";
 						return false;
 					}
-				} else {
-					errorMessage = "";
-					return false;
-				}
+				//} else {
+				//	errorMessage = "";
+				//	return false;
+				//}
 			}
 
 			if (validator.checkValue(value2)) {
@@ -427,7 +425,8 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	public void setValue(Object value2) throws IllegalValueException {
 		if (checkValue(value2)) {
 			if( value2 == null ) {
-				value = null;	
+				value = null;
+				isSet = false;
 			} else if (value2 instanceof String && datatype != DataType.STRING) {
 				String s = (String) value2;
 				// System.out.println("s is: "+s+", datatype: "+datatype);
@@ -462,6 +461,8 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 						throw new IllegalValueException(errorMessage);
 					}
 				} catch (Exception e) {
+					this.value = null;
+					isSet = false;
 					errorMessage = "Value not valid\n" + e.getMessage();
 					throw new IllegalValueException("Value not valid\n"
 							+ e.getMessage());
@@ -471,6 +472,8 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 			}
 			this.isSet = true;
 		} else {
+			this.value = null;
+			isSet = false;
 			throw new IllegalValueException("value of "+getName()+" not valid: " + value2);
 		}
 	}
