@@ -294,7 +294,7 @@ public class GalaxyAdaptor {
 			if(type == null){
 				type = getDefaultExtension(defaultResults[i].getDeclaredClass());
 			}
-			String label = jobName + "# : "+defaultResults[i].getName();
+			String label = jobName + "#: "+defaultResults[i].getName();
 			
 			StringBuffer temp = new StringBuffer();
 			if(type == null){
