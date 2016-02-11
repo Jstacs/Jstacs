@@ -3359,7 +3359,7 @@ public class GeMoMa implements JstacsTool {
 		return 
 			"**What it does**\n\nThis tool is the main part of GeMoMa, a homology-based gene prediction tool. GeMoMa builds gene models from tblastn results.\n\n"
 				//typical usage
-				+ "As first step you should run **Extractor** obtaining *cds parts* and *assignment*. Second, you should run **tblastn** with *cds parts* as query. Finally, these results are then used in **GeMoMa**.\n"
+				+ "As first step, you should run **Extractor** obtaining *cds parts* and *assignment*. Second, you should run **tblastn** with *cds parts* as query. Finally, these results are then used in **GeMoMa**.\n"
 				//protein
 				+ "If you like to run GeMoMa ignoring intron position conservation, you should blast protein sequences and feed the results in *query cds parts* and leave *assignment* unselected.\n\n"
 				//multiple predictions
@@ -3367,7 +3367,7 @@ public class GeMoMa implements JstacsTool {
 				//runtime
 				+ "If you change the values of *contig threshold*, *region threshold* and *hit threshold*, this will influence the predictions as well as the runtime of the algorithm. The lower the values are, the slower the algorithm is.\n\n"
 			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@jki.bund.de.\n"
-				+"If you use this tool please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016";
+				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016";
 	}
 	
 	@Override
