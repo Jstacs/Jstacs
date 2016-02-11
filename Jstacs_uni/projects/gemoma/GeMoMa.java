@@ -64,7 +64,6 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
@@ -75,7 +74,6 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.utils.IntList;
@@ -125,7 +123,7 @@ public class GeMoMa implements JstacsTool {
 
 	//out
 	private BufferedWriter gff, predicted, blastLike, genomic;
-	private String prefix;
+	private String prefix, tag;
 	
 	//alignment
 	private DiscreteAlphabet aaAlphabet;
@@ -224,6 +222,7 @@ public class GeMoMa implements JstacsTool {
 		approx = (Boolean) parameters.getParameterForName("approx").getValue();		
 		verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		prefix = (String) parameters.getParameterForName("prefix").getValue();
+		tag = (String) parameters.getParameterForName("tag").getValue();
 		
 		Parameter p = parameters.getParameterForName("selected"); 
 		if( p.isSet() ) {
@@ -274,7 +273,7 @@ public class GeMoMa implements JstacsTool {
 		
 		TranscriptPredictor tp = new TranscriptPredictor(
 				(String) parameters.getParameterForName("assignment").getValue(),
-				(String) parameters.getParameterForName("query cds parts").getValue(),
+				(String) parameters.getParameterForName("cds parts").getValue(),
 				(String) parameters.getParameterForName("target genome").getValue(),
 				
 				getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ),
@@ -3117,7 +3116,7 @@ public class GeMoMa implements JstacsTool {
 			public void writeSummary( String geneName, String transcriptName, int i ) throws Exception {
 				Hit first = hits.get(0);
 				String chr = seqs.get(first.targetID);
-				gff.append( first.targetID + "\tGeMoMa\tprediction\t" );//TODO type
+				gff.append( first.targetID + "\tGeMoMa\t"+tag+"\t" );
 				StringBuffer genomicRegion = new StringBuffer();
 				int off = 300, s;
 				
@@ -3301,7 +3300,7 @@ public class GeMoMa implements JstacsTool {
 			return new SimpleParameterSet(
 					new FileParameter( "tblastn results", "The sorted tblastn results", "tabular", true ),
 					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run", "fasta", true ),
-					new FileParameter( "query cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
+					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
 					/*TODO new 1.2
@@ -3330,6 +3329,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.BOOLEAN, "align", "A flag which allows to output a tab-delimited file, which contains the results in a blast-like format (deprecated)", true, false ),
 					new SimpleParameter( DataType.BOOLEAN, "genomic", "A flag which allows to output a fasta file containing the genomic regions of the predictions", true, false ),
 					new SimpleParameter( DataType.STRING, "prefix", "A prefix to be used for naming the predictions", true, "" ),
+					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false )
 			);		
