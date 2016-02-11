@@ -3356,17 +3356,18 @@ public class GeMoMa implements JstacsTool {
 	}
 
 	public String getHelpText() {
-		return "**What it does**\n\nThis tool is the main part of GeMoMa, a homology-based gene prediction tool. GeMoMa builds gene models from tblastn results.\n\n"
+		return 
+			"**What it does**\n\nThis tool is the main part of GeMoMa, a homology-based gene prediction tool. GeMoMa builds gene models from tblastn results.\n\n"
 				//typical usage
-				+ "As first step you should run *Extractor* obtaining *cds parts* and *assignment*. Second, you should run tblastn with *cds parts* as query. Finally, these results are then used in *GeMoMa*.\n"
+				+ "As first step you should run **Extractor** obtaining *cds parts* and *assignment*. Second, you should run **tblastn** with *cds parts* as query. Finally, these results are then used in **GeMoMa**.\n"
 				//protein
-				+ "If you like to run GeMoMa ignoring intron position conservation, you should blast using protein sequences and feed the results in *query cds parts* and leave *assignment* unselected\n\n"
+				+ "If you like to run GeMoMa ignoring intron position conservation, you should blast protein sequences and feed the results in *query cds parts* and leave *assignment* unselected.\n\n"
 				//multiple predictions
 				+ "If you like to obtain multiple predictions per gene model of the reference organism, you should set *predictions* accordingly. In addition, we suggest to decrease the value of *contig threshold* allowing GeMoMa to evaluate more candidate contigs/chromosomes.\n\n"
 				//runtime
 				+ "If you change the values of *contig threshold*, *region threshold* and *hit threshold*, this will influence the predictions as well as the runtime of the algorithm. The lower the values are, the slower the algorithm is.\n\n"
-			+ "**References**\n\nIf you use this tool please cite *Using intron position conservation for homology-based gene prediction. Keilwagen et al., NAR, 2016*\n\n"
-			+ "For more information please contact jens.keilwagen@jki.bund.de.";
+			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@jki.bund.de.\n"
+				+"If you use this tool please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016";
 	}
 	
 	@Override
