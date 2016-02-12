@@ -18,6 +18,8 @@
 
 package de.jstacs.tools;
 
+import java.io.Flushable;
+
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 
@@ -29,7 +31,7 @@ import de.jstacs.tools.ui.galaxy.Galaxy;
  * @author Jan Grau
  *
  */
-public interface Protocol {
+public interface Protocol extends Flushable {
 
 	/**
 	 * Appends a general message to the protocol

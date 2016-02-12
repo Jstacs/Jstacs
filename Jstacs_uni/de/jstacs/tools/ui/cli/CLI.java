@@ -65,7 +65,7 @@ public class CLI {
 	 * @author Jan Grau
 	 *
 	 */
-	public static class SysProtocol implements Protocol, Flushable {
+	public static class SysProtocol implements Protocol {
 
 		private StringBuffer log;
 		
