@@ -1292,6 +1292,14 @@ public class GalaxyAdaptor {
 		public void appendVerbatim(String verbatim){
 			wr.append("<pre>"+verbatim+"</pre>\n");
 		}
+
+		@Override
+		public void flush() throws IOException {
+			wr.flush();
+			
+		}
+		
+		
 		
 	}
 	
