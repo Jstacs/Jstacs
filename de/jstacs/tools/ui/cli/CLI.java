@@ -451,7 +451,7 @@ public class CLI {
 		if(configureThreads[toolIndex]){
 			protocol.appendWarning( "threads - The number of threads used for the tool, defaults to 1\t= "+threads+"\n" );
 		}
-		/*
+		/*XXX
 		try {
 			PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
 			fos.append( "<table border=0 cellpadding=10 align=\"center\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
