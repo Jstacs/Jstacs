@@ -110,7 +110,7 @@ public class Extractor implements JstacsTool {
 				if( idx < 0 ) {
 					idx = line.length();
 				}
-				selected.add(line.substring(0,idx));
+				selected.add(line.substring(0,idx).toUpperCase());
 			}
 			r.close();
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
@@ -300,7 +300,7 @@ public class Extractor implements JstacsTool {
 			
 			idx = split[8].indexOf("ID=")+3;
 			h = split[8].indexOf(';',idx);
-			transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
+			transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
 			if( selected == null || selected.contains(transcriptID) ) {
 				idx = split[8].indexOf(par)+par.length();
 				h = split[8].indexOf(';',idx);
@@ -320,7 +320,7 @@ public class Extractor implements JstacsTool {
 				
 			idx = split[8].indexOf(par)+par.length();
 			h = split[8].indexOf(';',idx);
-			transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
+			transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
 			
 			if( selected == null || selected.contains(transcriptID) ) {
 				gene = trans.get(transcriptID);
@@ -369,7 +369,7 @@ public class Extractor implements JstacsTool {
 			x.add(i);
 		}
 		
-		void reduce( SafeOutputStream out, String geneName, int[] info ) throws IOException {
+		void reduce( String geneName, int[] info ) throws IOException {
 			info[0]++;
 			String[] s = new String[transcript.size()];
 			transcript.keySet().toArray(s);
@@ -476,8 +476,9 @@ public class Extractor implements JstacsTool {
 		while( it.hasNext() ) {
 			e = it.next();
 			Gene gene = e.getValue();
+			int strand = gene.exon.get(0)[0];
 			if( gene.transcript.size()>0 ) {
-				gene.reduce( out.get(1), e.getKey(), info );
+				gene.reduce( e.getKey(), info );
 				part.clear();
 				int i, j;
 				
@@ -506,11 +507,11 @@ public class Extractor implements JstacsTool {
 					int off2 = val[2]+intronic<=seq.length() ? intronic : 0;
 					String p = seq.substring( val[1]-1-off1, val[2]+off2 );
 					//check
-					if( val[0] < 0 ) {
+					if( strand < 0 ) {
 						p=Tools.rc(p);
 					}
 					String s;
-					if( val[0] > 0 ) {
+					if( strand > 0 ) {
 						s=p.substring(off1,p.length()-off2);
 					} else {
 						s=p.substring(off2,p.length()-off1);
@@ -518,14 +519,14 @@ public class Extractor implements JstacsTool {
 					acc[i]=don[i]="";
 					if( s.matches( "[ACGT]*") ) {
 						//acceptors
-						if( accS[i] && ((val[0]>0 & off1>0) || (val[0]<0 && off2>0)) ) {
+						if( accS[i] && ((strand>0 & off1>0) || (strand<0 && off2>0)) ) {
 							out.get(4).writeln(">" + e.getKey() + "_" + i );
 							//System.out.println( p.length() + "\t" + Arrays.toString(val) + "\t" + e.getKey() + "\t" + i + "\t" + p);
 							out.get(4).writeln(p.substring(0, intronic+exonic));
 							acc[i] = p.substring(intronic-2,intronic);
 						}
 						//donors
-						if( donS[i] && ((val[0]>0 & off2>0) || (val[0]<0 && off1>0)) ) {
+						if( donS[i] && ((strand>0 & off2>0) || (strand<0 && off1>0)) ) {
 							out.get(5).writeln(">" + e.getKey() + "_" + i );
 							out.get(5).writeln(p.substring(p.length()-(intronic+exonic)));
 							don[i] = p.substring(p.length()-intronic,p.length()-intronic+2);
@@ -543,6 +544,8 @@ public class Extractor implements JstacsTool {
 					
 					String trans = id[k];
 					IntList il = gene.transcript.get( trans );
+					int start = strand>0 ? gene.exon.get(il.get(0))[1] : gene.exon.get(il.get(il.length()-1))[1];
+					int end = strand>0 ? gene.exon.get(il.get(il.length()-1))[2] : gene.exon.get(il.get(0))[2];
 					int offset = 0;
 					for( j = 0; j < il.length(); j++ ) {
 						current = part.get(il.get(j));
@@ -598,7 +601,7 @@ public class Extractor implements JstacsTool {
 							out.get(3).write( ">" + trans + "\n" + dnaSeqBuff.toString() + "\n" );
 							out.get(2).write( ">" + trans + "\n" + p + "\n" );
 							p = il.toString();
-							out.get(1).write( e.getKey() + "\t" + trans + "\t" + p.substring(1,p.length()-1) + "\n" );
+							out.get(1).write( e.getKey() + "\t" + trans + "\t" + p.substring(1,p.length()-1) + "\t" + chr + "\t" + strand + "\t" + start + "\t" + end + "\n" );
 							for( j = 0; j < il.length(); j++ ) {
 								used[il.get(j)] = true;
 							}
