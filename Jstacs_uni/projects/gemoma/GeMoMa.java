@@ -1725,7 +1725,7 @@ public class GeMoMa implements JstacsTool {
 	            }).get(timeout,TimeUnit.SECONDS);
 	        } catch (TimeoutException e) {
 	            //TODO log
-	        	protocol.append( "\tInvocation did not return before timeout ...\n");
+	        	protocol.append( "\tInvocation did not return before timeout of " + timeout + " seconds\n");
 	        	out=false;
 		    }
 			if( out ) {
@@ -3436,7 +3436,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false ),
-					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not ouput a predcition for this transcript.", true, 1000 )
+					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not ouput a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, (long) 604800/*=one week 60*60*24*7*/), (long) 1000 )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();
