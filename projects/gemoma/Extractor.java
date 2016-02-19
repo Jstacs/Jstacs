@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -43,17 +42,14 @@ import de.jstacs.DataType;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
-import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
 
@@ -66,16 +62,10 @@ import de.jstacs.utils.SafeOutputStream;
  */
 public class Extractor implements JstacsTool {
 	
-	/**
-	 * The main method for running the tool.
-	 * 
-	 * @param args the parameters for the tool.
-	 * 
-	 * @throws Exception forwarded from {@link CLI#run(String[])}
-	 */
-	public static void main(String[] args) throws Exception {
-		CLI cli = new CLI(new Extractor());
-		cli.run(args);
+	private int maxSize;
+	
+	public Extractor( int maxSize ) {
+		this.maxSize = maxSize;
 	}
 	
 	private static void getOut( String prefix, List<File> file, List<SafeOutputStream> out ) throws IOException {
@@ -98,21 +88,12 @@ public class Extractor implements JstacsTool {
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		progress.setIndeterminate();
 		
-		HashSet<String> selected = null;
+		HashMap<String, String> selected = null;
 		BufferedReader r;
 		String line, comment=null;
 		Parameter p = parameters.getParameterForName("selected"); 
 		if( p.isSet() ) {
-			selected = new HashSet<String>();			
-			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
-			while( (line=r.readLine()) != null ) {
-				int idx = line.indexOf('\t');
-				if( idx < 0 ) {
-					idx = line.length();
-				}
-				selected.add(line.substring(0,idx).toUpperCase());
-			}
-			r.close();
+			selected = Tools.getSelection( p.getValue().toString(), maxSize, protocol );
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
 		}
 		
@@ -210,7 +191,7 @@ public class Extractor implements JstacsTool {
 	private static String geneTag = "gene";
 	
 	//gff has to be sorted 
-	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashSet<String> selected ) throws Exception {
+	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String,Gene> chr;
 		Gene gene;
@@ -301,7 +282,7 @@ public class Extractor implements JstacsTool {
 			idx = split[8].indexOf("ID=")+3;
 			h = split[8].indexOf(';',idx);
 			transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
-			if( selected == null || selected.contains(transcriptID) ) {
+			if( selected == null || selected.containsKey(transcriptID) ) {
 				idx = split[8].indexOf(par)+par.length();
 				h = split[8].indexOf(';',idx);
 				geneID = split[8].substring(idx, h>0?h:split[8].length() );
@@ -322,7 +303,7 @@ public class Extractor implements JstacsTool {
 			h = split[8].indexOf(';',idx);
 			transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
 			
-			if( selected == null || selected.contains(transcriptID) ) {
+			if( selected == null || selected.containsKey(transcriptID) ) {
 				gene = trans.get(transcriptID);
 				gene.add( transcriptID, new int[]{
 						split[6].charAt(0)=='+'?1:-1, //strand
@@ -668,7 +649,7 @@ public class Extractor implements JstacsTool {
 						)
 					}, "splice sites", "whether splice sites should be returned or not", true ),
 				*/	
-				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", false ),
+				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", maxSize>-1 ),
 					
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
 			);		
@@ -720,6 +701,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.1.2";
+		return "1.1.3";
 	}
 }

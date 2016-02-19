@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -29,12 +30,33 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import de.jstacs.tools.Protocol;
+
 /**
  * Some methods used for GeMoMa.
  * 
  * @author Jens Keilwagen
  */
 public class Tools {
+	
+	public static HashMap<String,String> getSelection( String fName, int maxSize, Protocol protocol ) throws IOException {
+		HashMap<String,String> selected = new HashMap<String, String>();			
+		BufferedReader r = new BufferedReader( new FileReader( fName ) );
+		String line;
+		while( (line=r.readLine()) != null && (maxSize<0 || selected.size() < maxSize) ) {
+			int idx = line.indexOf('\t'), second = idx+1;
+			if( idx < 0 ) {
+				second = idx = line.length();
+			}
+			selected.put(line.substring(0,idx).toUpperCase(), line.substring(second));
+		}
+		if( maxSize >= 0 ) {
+			protocol.appendWarning("Only used the first " + maxSize + " lines of selected gene IDs.");
+		}
+		r.close();
+		return selected;
+	}
+	
 	public static HashMap<String,Character> getCode( String fName ) throws Exception {
 		return getCode( new FileInputStream(fName) );
 	}
