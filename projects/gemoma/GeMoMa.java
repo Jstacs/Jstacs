@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,6 +40,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.PriorityQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -154,7 +158,7 @@ public class GeMoMa implements JstacsTool {
 	private Time time;
 	private boolean verbose;
 	private Protocol protocol;
-	private Flushable fProto;
+	private long timeout;
 	
 	/**
 	 * The main method for running the tool.
@@ -197,13 +201,7 @@ public class GeMoMa implements JstacsTool {
 	
 	@Override
 	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
-		progress.setIndeterminate();//TODO Jan?
 		this.protocol=protocol;
-		if( protocol instanceof Flushable ) {
-			fProto = (Flushable)protocol;
-		} else {
-			fProto = null;
-		}
 		
 		BufferedReader r = null;
 		String line, old=null;
@@ -223,6 +221,7 @@ public class GeMoMa implements JstacsTool {
 		verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		prefix = (String) parameters.getParameterForName("prefix").getValue();
 		tag = (String) parameters.getParameterForName("tag").getValue();
+		timeout = (Long) parameters.getParameterForName( "timeout" ).getValue();
 		
 		Parameter p = parameters.getParameterForName("selected"); 
 		if( p.isSet() ) {
@@ -233,7 +232,7 @@ public class GeMoMa implements JstacsTool {
 				if( idx < 0 ) {
 					second = idx = line.length();
 				}
-				selected.put(line.substring(0,idx), line.substring(second));
+				selected.put(line.substring(0,idx).toUpperCase(), line.substring(second));
 			}
 			r.close();
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
@@ -272,6 +271,7 @@ public class GeMoMa implements JstacsTool {
 		p = parameters.getParameterForName("query proteins");
 		
 		TranscriptPredictor tp = new TranscriptPredictor(
+				progress,
 				(String) parameters.getParameterForName("assignment").getValue(),
 				(String) parameters.getParameterForName("cds parts").getValue(),
 				(String) parameters.getParameterForName("target genome").getValue(),
@@ -1352,12 +1352,15 @@ public class GeMoMa implements JstacsTool {
 		 */
 		private PriorityQueue<Solution> result;
 		private Solution sol = new Solution();
+		private ProgressUpdater progress;
+		private ExecutorService executorService;
 				
-		public TranscriptPredictor( String assignment, String cdsFileName, String seqsFileName, InputStream codeIn, InputStream subsitutionMatrixIn, String proteinFileName ) throws Exception {
+		public TranscriptPredictor( ProgressUpdater progress, String assignment, String cdsFileName, String seqsFileName, InputStream codeIn, InputStream subsitutionMatrixIn, String proteinFileName ) throws Exception {
 			BufferedReader r;
 			String line ;
 			String[] split;
 			//read assignment
+			this.progress = progress;
 			if( assignment != null ) {
 				transcriptInfo = new HashMap<String,HashMap<String,int[]>>();
 				HashMap<String,int[]> c;
@@ -1374,7 +1377,10 @@ public class GeMoMa implements JstacsTool {
 					}
 				}
 				r.close();
+				this.progress.setLast(transcriptInfo.size());
+				this.progress.setCurrent(0);
 			} else {
+				this.progress.setIndeterminate();
 				transcriptInfo = null;
 				parts = new int[1];
 			}
@@ -1419,6 +1425,8 @@ public class GeMoMa implements JstacsTool {
 			align2 = new MyAlignment( cost, GeMoMa.this );
 			
 			result = new PriorityQueue<Solution>();
+			
+			executorService = Executors.newSingleThreadExecutor();
 		}
 		
 		/**
@@ -1446,6 +1454,9 @@ public class GeMoMa implements JstacsTool {
 			} else {
 				transcript = null;
 				s = new String[]{ name };
+			}
+			for( int i = 0; i < s.length; i++ ) {
+				s[i] = s[i].toUpperCase();
 			}
 			HashMap<String, HashMap<Integer, ArrayList<Hit>>[]> data = new HashMap<String, HashMap<Integer,ArrayList<Hit>>[]>();
 			HashMap<Integer,ArrayList<Hit>>[] v, w;
@@ -1541,6 +1552,9 @@ public class GeMoMa implements JstacsTool {
 						}
 					}
 				}
+				if( transcriptInfo != null ) {
+					progress.add(1);
+				}
 			}
 			numberOfLines=0;
 		}
@@ -1578,9 +1592,8 @@ public class GeMoMa implements JstacsTool {
 				protocol.append( Arrays.toString(revCumLength) + "\n");
 			}
 			protocol.append( geneName+"\t"+transcriptName );
-			if( fProto!= null ) {
-				fProto.flush();
-			}
+			protocol.flush();
+
 			numberOfTestedStrands=numberOfPairwiseAlignments=0;
 			backup = cut = false;
 			oldSize = new int[parts.length];
@@ -1588,11 +1601,52 @@ public class GeMoMa implements JstacsTool {
 			
 			HashMap<Integer,ArrayList<Hit>>[] lines;
 			Collection<String> collection = hash.keySet();
+			String chrom = null;
+			int start = 0, end = -1, strand = -1;
 			if( info != null && info.length()>0) {
-				if( hash.containsKey(info) ) {
+				String[] pos = info.split("\t");
+				if( hash.containsKey(pos[0]) ) {
+					chrom = pos[0];
 					collection = new ArrayList<String>();
-					collection.add(info);
-					if( verbose ) protocol.append( "try to predict " + transcriptName + " on " + info + " as user-specified\n");
+					collection.add(chrom);
+					if( pos.length > 1 ) {
+						switch (pos[1]) {
+							case "+": strand = 0; break;
+							case "-": strand = 1; break;
+							default: strand=-1; break;
+						}
+					}
+					if( pos.length > 2 ) {
+						try {
+							start = Integer.parseInt(pos[2]);
+						} catch( Exception ex ) {
+							start = 0;
+						}
+					}
+					if( pos.length > 3 ) {
+						try {
+							end = Integer.parseInt(pos[3]);
+						} catch( Exception ex ) {
+							end=-1;
+						}
+					}
+
+					lines = hash.get( chrom );
+					if( lines != null ) {
+						if( strand != -1 ) {
+							if( lines[strand]!= null ) {
+								filter( lines[strand], start, end );
+							}
+						} else {
+							for( int i = 0; i < 2; i++ ) {
+								if( lines[i]!= null ) {
+									filter( lines[i], start, end );
+								}
+							}
+						}
+					}
+					
+					if( verbose ) protocol.append( "try to predict " + transcriptName + " on (" + chrom + " " + strand + ": " + start + " " + end + ") as user-specified\n");
 				} else {
 					if( verbose ) protocol.append( "\n" );
 				}
@@ -1600,159 +1654,209 @@ public class GeMoMa implements JstacsTool {
 				if( verbose ) protocol.append( "\n" );
 			}
 			
-			Iterator<String> it;
 			
-			//forward DP: compute initial score for each chromosome/contig and strand
-			it = collection.iterator();
-			int bestSumScore = 0, sumScore;
-			IntList score = new IntList();
-			while( it.hasNext() ) {
-				String c = it.next();
-				lines = hash.get( c );
-
-				//check both strands
-				for( int j = 0; j < lines.length; j++ ) {
-					if( lines[j].size() > 0 ) {
-						numberOfTestedStrands++;
+			boolean out = true;
+			final int STRAND = strand;
+			final String CHROM = chrom;
+			final HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> HASH = hash;
+			final Collection<String> COLLECTION = collection;
+			int[] res = null;
+			try {
+				res = executorService.submit(new Callable<int[]>(){
+	                public int[] call() throws Exception {
+	                	HashMap<Integer,ArrayList<Hit>>[] lines;
+	                	Iterator<String> it;
+	        			int m = 0, k = 0, bestSumScore = Integer.MIN_VALUE, sumScore;
+	        			if( STRAND == -1 ) {
+	        				//forward DP: compute initial score for each chromosome/contig and strand
+	        				it = COLLECTION.iterator();
+	        				IntList score = new IntList();
+	        				while( it.hasNext() ) {
+	        					String c = it.next();
+	        					lines = HASH.get( c );
+	        	
+	        					//check both strands
+	        					for( int j = 0; j < lines.length; j++ ) {
+	        						if( lines[j].size() > 0 ) {
+	        							numberOfTestedStrands++;
+	        							
+	        							sumScore = forwardDP( j==0, lines[j], false );
+	        							if( sumScore > bestSumScore ) {
+	        								bestSumScore = sumScore;
+	        							}
+	        							score.add(sumScore);
+	        							//verbose.writeln( c + "\t" + (j==0) + "\t" + sumScore + "\t" + new Date() );
+	        						}
+	        					}
+	        				}
+	        				
+	        				//backward DP: compute final score and gene structure (b) on candidate chromosomes/contigs and strands
+	        				it = COLLECTION.iterator();
+	        				//Solution best = new Solution(), b = new Solution(), z = new Solution(), h;
+	        				
+	        				double threshold = bestSumScore*GeMoMa.this.contigThreshold;
+	        				//verbose.writeln( threshold + "\t" + new Date() );
+	        				while( it.hasNext() ) {
+	        					String c = it.next();
+	        					lines = HASH.get( c );
+	        					
+	        					//check both strands
+	        					for( int j = 0; j < lines.length; j++ ) {
+	        						if( lines[j].size() > 0 ) {
+	        							if( score.get(m) >= threshold ) {
+	        								k++;
+	        								detailedAnalyse( c, j==0, lines[j] );
+	        							}
+	        							m++;
+	        						}
+	        					}
+	        				}
+	        			} else {
+	        				lines = HASH.get( CHROM );
+	        				if( lines != null && lines[STRAND].size()>0 ) {
+	        					numberOfTestedStrands++;
+	        					bestSumScore = forwardDP( STRAND==0, lines[STRAND], false );
+	        					detailedAnalyse( CHROM, STRAND==0, lines[STRAND] );
+	        					k=1;
+	        				}
+	        			}
+	        			return new int[]{ bestSumScore, k };
+	                }
+	            }).get(timeout,TimeUnit.SECONDS);
+	        } catch (TimeoutException e) {
+	            //TODO log
+	        	protocol.append( "\tInvocation did not return before timeout ...\n");
+	        	out=false;
+		    }
+			if( out ) {
+				String seq = protein != null ? protein.get(transcriptName) : null;
+				for( int i = 0; i < predictions && result.size()>0; i++ ) {
+					Solution best = result.poll();
+					if( best.hits.size() > 0 ) {				
+						best = best.refine();
+									
+						//write results
+						blastLike.append( "#" + transcriptName + "\t" + best.score + "\t" + Arrays.toString(parts)+ (info==null?"":("\t"+info)) + "\n" );
+						for( Hit t : best.hits ) {
+							//blast like output
+							if( verbose ) protocol.append(t.toString() + "\n");
+							blastLike.append(t+"\n");
+						}
 						
-						sumScore = forwardDP( j==0, lines[j], false );
-						if( sumScore > bestSumScore ) {
-							bestSumScore = sumScore;
-						}
-						score.add(sumScore);
-						//verbose.writeln( c + "\t" + (j==0) + "\t" + sumScore + "\t" + new Date() );
-					}
-				}
-			}
-			
-			//backward DP: compute final score and gene structure (b) on candidate chromosomes/contigs and strands
-			it = collection.iterator();
-			//Solution best = new Solution(), b = new Solution(), z = new Solution(), h;
-			int m = 0, k = 0;
-			double threshold = bestSumScore*GeMoMa.this.contigThreshold;
-			//verbose.writeln( threshold + "\t" + new Date() );
-			while( it.hasNext() ) {
-				String c = it.next();
-				lines = hash.get( c );
-				
-				//check both strands
-				for( int j = 0; j < lines.length; j++ ) {
-					if( lines[j].size() > 0 ) {
-						if( score.get(m) >= threshold ) {
-							k++;
-							detailedAnalyse( c, j==0, lines[j] );
-						}
-						m++;
-					}
-				}
-			}
-			
-			String seq = protein != null ? protein.get(transcriptName) : null;
-			for( int i = 0; i < predictions && result.size()>0; i++ ) {
-				Solution best = result.poll();
-				if( best.hits.size() > 0 ) {				
-					best = best.refine();
+						best.writeSummary( geneName, transcriptName, i);
+						
+						int id = 0, pos = 0, gap=-1, currentGap=0, maxGap=0;
+						String s0, s1 = null, pred=null;
+						PairwiseStringAlignment psa = null;
+						if( seq != null ) {
+							pred = best.getProtein();
+							
+							psa = align.getAlignment(AlignmentType.GLOBAL, Sequence.create(alph, seq), Sequence.create(alph, pred) );
+							s0 = psa.getAlignedString(0);
+							s1 = psa.getAlignedString(1);
+							
+							for( int p = 0; p < s1.length(); p++ ) {
 								
-					//write results
-					blastLike.append( "#" + transcriptName + "\t" + best.score + "\t" + Arrays.toString(parts)+ (info==null?"":("\t"+info)) + "\n" );
-					for( Hit t : best.hits ) {
-						//blast like output
-						if( verbose ) protocol.append(t.toString() + "\n");
-						blastLike.append(t+"\n");
-					}
-					
-					best.writeSummary( geneName, transcriptName, i);
-					
-					int id = 0, pos = 0, gap=-1, currentGap=0, maxGap=0;
-					String s0, s1 = null, pred=null;
-					PairwiseStringAlignment psa = null;
-					if( seq != null ) {
-						pred = best.getProtein();
-						
-						psa = align.getAlignment(AlignmentType.GLOBAL, Sequence.create(alph, seq), Sequence.create(alph, pred) );
-						s0 = psa.getAlignedString(0);
-						s1 = psa.getAlignedString(1);
-						
-						for( int p = 0; p < s1.length(); p++ ) {
-							
-							
-							if( s0.charAt(p) == '-' ) {
-								if( gap != 0 ) {
-									if( currentGap > maxGap ) {
-										maxGap = currentGap;
+								
+								if( s0.charAt(p) == '-' ) {
+									if( gap != 0 ) {
+										if( currentGap > maxGap ) {
+											maxGap = currentGap;
+										}
+										gap=0;
+										currentGap=0;
 									}
-									gap=0;
-									currentGap=0;
-								}
-								currentGap++;
-							} else if( s1.charAt(p) == '-' ) {
-								if( gap != 1 ) {
-									if( currentGap > maxGap ) {
-										maxGap = currentGap;
+									currentGap++;
+								} else if( s1.charAt(p) == '-' ) {
+									if( gap != 1 ) {
+										if( currentGap > maxGap ) {
+											maxGap = currentGap;
+										}
+										gap=1;
+										currentGap=0;
 									}
-									gap=1;
-									currentGap=0;
-								}
-								currentGap++;
-							} else {
-								//(mis)match
-								if( gap != -1 ) {
-									if( currentGap > maxGap ) {
-										maxGap = currentGap;
-									}
-									gap=-1;
-									currentGap=0;
-								}
-								if( s1.charAt(p) == s0.charAt(p) ) {
-									id++;
-									pos++;
+									currentGap++;
 								} else {
-									if( matrix[aaAlphabet.getCode(s0.substring(p, p+1))][aaAlphabet.getCode(s1.substring(p, p+1))] > 0 ) {
+									//(mis)match
+									if( gap != -1 ) {
+										if( currentGap > maxGap ) {
+											maxGap = currentGap;
+										}
+										gap=-1;
+										currentGap=0;
+									}
+									if( s1.charAt(p) == s0.charAt(p) ) {
+										id++;
 										pos++;
+									} else {
+										if( matrix[aaAlphabet.getCode(s0.substring(p, p+1))][aaAlphabet.getCode(s1.substring(p, p+1))] > 0 ) {
+											pos++;
+										}
 									}
 								}
 							}
+							if( verbose ) {
+								protocol.append(s0+"\n");
+								protocol.append(s1+"\n");
+							}
+							
+							//TODO additional GFF tags
+							gff.append( ";iAA=" + nf.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
-						if( verbose ) {
-							protocol.append(s0+"\n");
-							protocol.append(s1+"\n");
-						}
+						gff.newLine();
 						
-						//TODO additional GFF tags
-						gff.append( ";iAA=" + nf.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+						int anz = best.writeGFF( transcriptName, i );
+						
+						//short info
+						protocol.append( ((i == 0 && !verbose)? "" : (geneName+"\t"+transcriptName)) + "\t" + parts.length + "\t" + best.hits.size()
+								+ "\t" + numberOfLines + "\t" + numberOfTestedStrands + "\t" + res[0]
+								+ "\t" + res[1] + "\t" + (result.size()+1) + "\t" + numberOfPairwiseAlignments
+								+ "\t" + best.score
+								+ "\t" + best.hits.getFirst().targetID + "\t" + (best.forward?+1:-1)
+								+ "\t" + (best.forward? best.hits.getFirst().targetStart + "\t" + best.hits.getLast().targetEnd : best.hits.getLast().targetStart + "\t" + best.hits.getFirst().targetEnd )
+								+ "\t" + time.getElapsedTime() + "\t" + anz + "\t" + best.getInfo() + "\t" + backup + "\t" + cut
+								+ ( seq != null ?  
+										"\t" + getGapCost(seq.length(), parts.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
+										+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
+										+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + "\t" + maxGap + "\t" + seq.length() + "\t" + pred.length()
+										: "" )
+								+ "\t" + best.similar(result.peek())
+								+ "\n"
+						);
+						
+						predicted.write( ">" + prefix+transcriptName + "_R" + i );
+						predicted.newLine();
+						predicted.write( best.getProtein() );
+						predicted.newLine();
+						
+						genomic.flush();
+						gff.flush();
+						predicted.flush();
+						blastLike.flush();
+						protocol.flush();
 					}
-					gff.newLine();
-					
-					int anz = best.writeGFF( transcriptName, i );
-					
-					//short info
-					protocol.append( ((i == 0 && !verbose)? "" : (geneName+"\t"+transcriptName)) + "\t" + parts.length + "\t" + best.hits.size()
-							+ "\t" + numberOfLines + "\t" + numberOfTestedStrands + "\t" + bestSumScore
-							+ "\t" + k + "\t" + (result.size()+1) + "\t" + numberOfPairwiseAlignments
-							+ "\t" + best.score
-							+ "\t" + best.hits.getFirst().targetID + "\t" + (best.forward?+1:-1)
-							+ "\t" + (best.forward? best.hits.getFirst().targetStart + "\t" + best.hits.getLast().targetEnd : best.hits.getLast().targetStart + "\t" + best.hits.getFirst().targetEnd )
-							+ "\t" + time.getElapsedTime() + "\t" + anz + "\t" + best.getInfo() + "\t" + backup + "\t" + cut
-							+ ( seq != null ?  
-									"\t" + getGapCost(seq.length(), parts.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
-									+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
-									+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + "\t" + maxGap + "\t" + seq.length() + "\t" + pred.length()
-									: "" )
-							+ "\t" + best.similar(result.peek())
-							+ "\n"
-					);
-					
-					predicted.write( ">" + prefix+transcriptName + "_R" + i );
-					predicted.newLine();
-					predicted.write( best.getProtein() );
-					predicted.newLine();
-					
-					genomic.flush();
-					gff.flush();
-					predicted.flush();
-					blastLike.flush();
-					if( fProto != null ) {
-						fProto.flush();
+				}
+			}
+		}
+		
+		private void filter( HashMap<Integer,ArrayList<Hit>> hash, int start, int end ) {
+			if( start == 0 && end == -1 ) {
+				return;
+			}
+			//filter out
+			Hit h;
+			for( int i = 0; i < hash.size(); i++ ) {
+
+				ArrayList<Hit> current = hash.get(i);
+				if( current != null ) {
+					int j = 0;
+					while( j < current.size() ) {
+						h = current.get(j);
+						if( h.targetEnd < start || h.targetStart > end ) {
+							current.remove(j);
+						} else {
+							j++;
+						}
 					}
 				}
 			}
@@ -3331,7 +3435,8 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.STRING, "prefix", "A prefix to be used for naming the predictions", true, "" ),
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
 					
-					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false )
+					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false ),
+					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not ouput a predcition for this transcript.", true, 1000 )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();

@@ -79,4 +79,11 @@ public class ProgressUpdater {
 		return last<0;
 	}
 	
+	/**
+	 * Increases the internal current value.
+	 * @param val the value to be added to the current value
+	 */
+	public void add( double val ) {
+		curr+=val;
+	}	
 }
