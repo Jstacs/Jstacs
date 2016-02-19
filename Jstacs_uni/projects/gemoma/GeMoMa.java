@@ -158,7 +158,15 @@ public class GeMoMa implements JstacsTool {
 	private Time time;
 	private boolean verbose;
 	private Protocol protocol;
-	private long timeout;
+	
+	private int maxSize;
+	private long timeOut, maxTimeOut;
+	
+	public GeMoMa( int maxSize, long timeOut, long maxTimeOut ) {
+		this.maxSize = maxSize;
+		this.timeOut = timeOut;
+		this.maxTimeOut = maxTimeOut;
+	}
 	
 	/**
 	 * The main method for running the tool.
@@ -168,16 +176,29 @@ public class GeMoMa implements JstacsTool {
 	 * @throws Exception forwarded from {@link CLI#run(String[])}
 	 */
 	public static void main(String[] args) throws Exception{
+		int maxSize = -1;
+		long timeOut=3600, maxTimeOut=60*60*24*7;
+		
 		if( args.length == 0 ) {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
 			if( args[0].equalsIgnoreCase("CLI") ) {
-				CLI cli = new CLI(new Extractor(), new GeMoMa());
+				CLI cli = new CLI( new Extractor(maxSize), new GeMoMa(maxSize, timeOut, maxTimeOut) );
 				String[] part = new String[args.length-1];
 				System.arraycopy(args, 1, part, 0, part.length);
 				cli.run(part);
 			} else {
-				Galaxy galaxy = new Galaxy("", false, new Extractor(), new GeMoMa());
+				if( "--create".equals(args[0]) ) {
+					if( args.length != 1 ) {
+						System.out.println("Try to parse <maxSize> <timeOut> <maxTimeOut> for the Galaxy integration");
+						maxSize = Integer.parseInt(args[1]);
+						timeOut = Long.parseLong(args[2]);
+						maxTimeOut = Long.parseLong(args[3]);
+					}
+					System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
+				}
+				
+				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new GeMoMa(maxSize, timeOut, maxTimeOut) );
 				galaxy.run(args);
 			}
 		}
@@ -221,20 +242,11 @@ public class GeMoMa implements JstacsTool {
 		verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		prefix = (String) parameters.getParameterForName("prefix").getValue();
 		tag = (String) parameters.getParameterForName("tag").getValue();
-		timeout = (Long) parameters.getParameterForName( "timeout" ).getValue();
+		timeOut = (Long) parameters.getParameterForName( "timeout" ).getValue();
 		
 		Parameter p = parameters.getParameterForName("selected"); 
 		if( p.isSet() ) {
-			selected = new HashMap<String, String>();			
-			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
-			while( (line=r.readLine()) != null ) {
-				int idx = line.indexOf('\t'), second = idx+1;
-				if( idx < 0 ) {
-					second = idx = line.length();
-				}
-				selected.put(line.substring(0,idx).toUpperCase(), line.substring(second));
-			}
-			r.close();
+			selected = Tools.getSelection( p.getValue().toString(), maxSize, protocol );
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
 		}
 		
@@ -311,7 +323,7 @@ public class GeMoMa implements JstacsTool {
 				}
 			}
 			tp.compute(old, hash);
-			
+			tp.close();
 		
 		} catch ( Throwable er ) {
 			protocol.appendThrowable(er);
@@ -1429,6 +1441,10 @@ public class GeMoMa implements JstacsTool {
 			executorService = Executors.newSingleThreadExecutor();
 		}
 		
+		public void close() {
+			executorService.shutdown();			
+		}
+
 		/**
 		 * This method computes for all transcripts of one gene model the predicted gene models in the target organism 
 		 * 
@@ -1722,10 +1738,10 @@ public class GeMoMa implements JstacsTool {
 	        			}
 	        			return new int[]{ bestSumScore, k };
 	                }
-	            }).get(timeout,TimeUnit.SECONDS);
+	            }).get(timeOut,TimeUnit.SECONDS);
 	        } catch (TimeoutException e) {
 	            //TODO log
-	        	protocol.append( "\tInvocation did not return before timeout of " + timeout + " seconds\n");
+	        	protocol.append( "\tInvocation did not return before timeout of " + timeOut + " seconds\n");
 	        	out=false;
 		    }
 			if( out ) {
@@ -3426,7 +3442,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 1 ), 
-					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", false ), 
+					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", maxSize>-1 ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
 			
@@ -3436,7 +3452,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false ),
-					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not ouput a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, (long) 604800/*=one week 60*60*24*7*/), (long) 1000 )
+					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not ouput a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, maxTimeOut), timeOut )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();
@@ -3449,7 +3465,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.1.2";
+		return "1.1.3";
 	}
 	
 	public String getShortName() {
