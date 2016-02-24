@@ -457,8 +457,9 @@ public class Extractor implements JstacsTool {
 		while( it.hasNext() ) {
 			e = it.next();
 			Gene gene = e.getValue();
-			int strand = gene.exon.get(0)[0];
 			if( gene.transcript.size()>0 ) {
+				int strand = gene.exon.get(0)[0];
+				
 				gene.reduce( e.getKey(), info );
 				part.clear();
 				int i, j;
@@ -649,7 +650,7 @@ public class Extractor implements JstacsTool {
 						)
 					}, "splice sites", "whether splice sites should be returned or not", true ),
 				*/	
-				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", maxSize>-1 ),
+				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns will be ignored.", "tabular,txt", maxSize>-1 ),
 					
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
 			);		
