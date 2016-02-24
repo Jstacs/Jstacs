@@ -1385,7 +1385,7 @@ public class GeMoMa implements JstacsTool {
 							c = new HashMap<String, int[]>();
 							transcriptInfo.put(split[0], c);
 						}
-						c.put(split[1], getArray(split[2]) );
+						c.put(split[1].toUpperCase(), getArray(split[2]) );
 					}
 				}
 				r.close();
@@ -1469,10 +1469,7 @@ public class GeMoMa implements JstacsTool {
 				Arrays.sort(s);
 			} else {
 				transcript = null;
-				s = new String[]{ name };
-			}
-			for( int i = 0; i < s.length; i++ ) {
-				s[i] = s[i].toUpperCase();
+				s = new String[]{ name.toUpperCase() };
 			}
 			HashMap<String, HashMap<Integer, ArrayList<Hit>>[]> data = new HashMap<String, HashMap<Integer,ArrayList<Hit>>[]>();
 			HashMap<Integer,ArrayList<Hit>>[] v, w;
@@ -3442,7 +3439,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 1 ), 
-					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids", "tabular", maxSize>-1 ), 
+					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids.The first column should contain transcript IDs as given in the annotation. Remaining columns can beused to determine a target region that should be overlapped by the predcition, if columns 2 to 5 contain chromosome, strand, start end end of region", "tabular,txt", maxSize>-1 ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
 			
