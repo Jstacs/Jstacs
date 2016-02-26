@@ -173,7 +173,7 @@ public class TrainableStatisticalModelFactory {
 	public static MixtureTrainSM createMixtureModel( double[] hyper, TrainableStatisticalModel[] model ) throws Exception {
 		//in most cases length can be determined by the components
 		int i = 0;
-		while( model[i].getLength() == 0 ) {
+		while( i < model.length && model[i].getLength() == 0 ) {
 			i++;
 		}
 		return new MixtureTrainSM( i==model.length ? 0 : model[i].getLength(), model, 10, hyper, 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), Parameterization.LAMBDA );
