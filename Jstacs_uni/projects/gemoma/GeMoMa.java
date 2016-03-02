@@ -293,6 +293,9 @@ public class GeMoMa implements JstacsTool {
 
 				(String) (p.isSet() ? p.getValue() : null)
 		);
+		if( selected != null ) {
+			progress.setLast(selected.size());
+		}
 
 		//read blast output and compute result
 		boolean okay = true;
@@ -1565,9 +1568,6 @@ public class GeMoMa implements JstacsTool {
 						}
 					}
 				}
-				if( transcriptInfo != null ) {
-					progress.add(1);
-				}
 			}
 			numberOfLines=0;
 		}
@@ -1850,6 +1850,7 @@ public class GeMoMa implements JstacsTool {
 					}
 				}
 			}
+			progress.add(1);
 		}
 		
 		private void filter( HashMap<Integer,ArrayList<Hit>> hash, int start, int end ) {

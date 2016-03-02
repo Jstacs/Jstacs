@@ -72,6 +72,8 @@ public class CompareTranscripts {
 			prediction = readGFF( args[3], "coding_exon", true, null, null, "-R" );//genBlast
 		}
 		System.out.println(truth.size() + " vs. " + prediction.size() );
+		//System.out.println(truth.toString().substring(0,1000) + "...");
+		//System.out.println(prediction.toString().substring(0,1000) + "...");
 		
 		bestHit(gene, alias==null?"_R":"-R", alias, truth, discarded, prediction, args[5]);
 		System.out.println("problem: " + Arrays.toString(problem));
@@ -96,18 +98,9 @@ public class CompareTranscripts {
 		BufferedReader r;
 		String line;
 		
-		HashSet<String> sel, del = new HashSet<String>();
-		if( selected == null || !(new File( selected )).exists() ) {
-			sel = null;
-		} else {
-			sel = new HashSet<String>();
-			r = new BufferedReader( new FileReader(selected) );
-			while( (line=r.readLine()) != null ) {
-				sel.add( line.split("\t")[1] );
-			}
-			r.close();
-			//System.out.println(sel);
-		}
+		
+		HashMap<String,String[]> sel = Tools.getAlias(selected, 1, 1, -1);
+		HashSet<String> del = new HashSet<String>();
 		System.out.println("read " + (selected==null) );
 		
 		HashMap<String,Annotation> hAnnot, annot = new HashMap<String,Annotation>();
@@ -131,9 +124,9 @@ public class CompareTranscripts {
 					}
 					//System.out.println(idx + "\t" + h + "\t" + split[8]);
 					if( !skip || h> 0 ) {
-						String transcriptID = split[8].substring(idx, h<Integer.MAX_VALUE?h:split[8].length() );
+						String transcriptID = split[8].substring(idx, h<Integer.MAX_VALUE?h:split[8].length() ).toUpperCase();
 
-						if( sel == null || sel.contains(transcriptID) ) {
+						if( sel == null || sel.containsKey(transcriptID) ) {
 							hAnnot = annot;
 						} else if( discarded != null ) {
 							hAnnot = discarded;
