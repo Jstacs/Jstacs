@@ -194,7 +194,7 @@ public class Extractor implements JstacsTool {
 	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String,Gene> chr;
-		Gene gene;
+		Gene gene = null;
 		BufferedReader r;
 		String line, geneID = null, transcriptID, t;
 		String[] split;
@@ -275,6 +275,7 @@ public class Extractor implements JstacsTool {
 		
 		//read transcripts
 		HashMap<String, Gene> trans = new HashMap<String, Gene>();
+		String[] parent;
 		for( int i = 0 ; i < transcript.size(); i++ ) {
 			line = transcript.get(i);
 			split = line.split("\t");
@@ -285,12 +286,14 @@ public class Extractor implements JstacsTool {
 			if( selected == null || selected.containsKey(transcriptID) ) {
 				idx = split[8].indexOf(par)+par.length();
 				h = split[8].indexOf(';',idx);
-				geneID = split[8].substring(idx, h>0?h:split[8].length() );
+				parent = split[8].substring(idx, h>0?h:split[8].length() ).split(",");
 				
-				gene = annot.get(split[0]).get(geneID);
-				gene.add( transcriptID );
-				
-				trans.put(transcriptID, gene);
+				int j = 0;
+				while( j < parent.length && (gene = annot.get(split[0]).get(parent[i])) == null );
+				if( gene != null ) {
+					gene.add( transcriptID );
+					trans.put(transcriptID, gene);
+				}
 			}
 		}
 		
@@ -301,11 +304,13 @@ public class Extractor implements JstacsTool {
 				
 			idx = split[8].indexOf(par)+par.length();
 			h = split[8].indexOf(';',idx);
-			transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
-			
-			if( selected == null || selected.containsKey(transcriptID) ) {
-				gene = trans.get(transcriptID);
-				gene.add( transcriptID, new int[]{
+			parent = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase().split(",");
+			int j = 0;
+			while( j < parent.length && (gene = trans.get(parent[j]) ) == null ) {
+				j++;
+			}
+			if( gene != null && selected.containsKey(parent[j]) ) {
+				gene.add( parent[j], new int[]{
 						split[6].charAt(0)=='+'?1:-1, //strand
 						Integer.parseInt( split[3] ), //start
 						Integer.parseInt( split[4] ) //end

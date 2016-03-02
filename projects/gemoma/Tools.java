@@ -40,7 +40,10 @@ import de.jstacs.tools.Protocol;
 public class Tools {
 	
 	public static HashMap<String,String> getSelection( String fName, int maxSize, Protocol protocol ) throws IOException {
-		HashMap<String,String> selected = new HashMap<String, String>();			
+		if( fName == null ) {
+			return null;			
+		}
+		HashMap<String,String> selected = new HashMap<String, String>();
 		BufferedReader r = new BufferedReader( new FileReader( fName ) );
 		String line;
 		while( (line=r.readLine()) != null && (maxSize<0 || selected.size() < maxSize) ) {
@@ -239,17 +242,17 @@ public class Tools {
 	}
 	
 	public static HashMap<String,String[]> getAlias( String fName, int oldNameIdx, int newNameIdx, int countIdx ) throws Exception {
-		HashMap<String, String[]> res = new HashMap<String, String[]>();
-		System.out.println(fName);
-		if( !(new File(fName).exists())) {
+		if( fName == null || !(new File(fName).exists())) {
 			return null;
 		}
+		HashMap<String, String[]> res = new HashMap<String, String[]>();
 		BufferedReader r = new BufferedReader( new FileReader(fName) );
 		String line;
 		String[] split;
 		while( (line=r.readLine()) != null ) {
 			split = line.split("\t");
-			res.put(split[oldNameIdx], countIdx < 0 ? new String[]{ split[newNameIdx] } : new String[]{ split[newNameIdx], split[countIdx].split(",").length+"" });
+			split[newNameIdx] = split[newNameIdx].toUpperCase();
+			res.put(split[oldNameIdx].toUpperCase(), countIdx < 0 ? new String[]{ split[newNameIdx] } : new String[]{ split[newNameIdx], split[countIdx].split(",").length+"" });
 		}
 		r.close();
 		return res;
