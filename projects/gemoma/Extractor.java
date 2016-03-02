@@ -288,8 +288,11 @@ public class Extractor implements JstacsTool {
 				h = split[8].indexOf(';',idx);
 				parent = split[8].substring(idx, h>0?h:split[8].length() ).split(",");
 				
+				HashMap<String,Gene> x = annot.get(split[0]);
 				int j = 0;
-				while( j < parent.length && (gene = annot.get(split[0]).get(parent[i])) == null );
+				while( j < parent.length && (gene = x.get(parent[j])) == null ) {
+					j++;
+				}
 				if( gene != null ) {
 					gene.add( transcriptID );
 					trans.put(transcriptID, gene);
@@ -309,7 +312,7 @@ public class Extractor implements JstacsTool {
 			while( j < parent.length && (gene = trans.get(parent[j]) ) == null ) {
 				j++;
 			}
-			if( gene != null && selected.containsKey(parent[j]) ) {
+			if( gene != null && (selected==null || selected.containsKey(parent[j])) ) {
 				gene.add( parent[j], new int[]{
 						split[6].charAt(0)=='+'?1:-1, //strand
 						Integer.parseInt( split[3] ), //start
