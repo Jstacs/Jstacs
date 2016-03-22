@@ -39,6 +39,154 @@ import de.jstacs.tools.Protocol;
  */
 public class Tools {
 	
+	/**
+	 * This method determines the maximal extension of a hit until the amino acids <code>c1</code> or <code>c2</code> occur (typically START (M), STOP (*))
+	 * 
+	 * @param chr the chromosome/contig
+	 * @param end a switch for deciding where to insert
+	 * @param forward the strand of the hit
+	 * @param direction the direction of the search
+	 * @param startPos the position for starting
+	 * @param c1 typically START (M), STOP (*)
+	 * @param c2 typically START (M), STOP (*)
+	 * @param seq contains the DNA sequence in correct orientation
+	 * @param translated contains the amino acid sequence in correct orientation
+	 * @param backup backup sequence for ambiguous codons in the alignment
+	 */
+	public static void getMaximalExtension( CharSequence chr, boolean forward, boolean end, int direction, int startPos, char c1, char c2, StringBuffer seq, StringBuffer translated, String backup, int upstream, int downstream, int MAX_INTRON_LENGTH,  HashMap<String, Character> code ) {
+		int s = startPos, e=-1;
+		int i=0;
+		CharSequence add;
+		if( translated != null ) {
+			translated.delete(0, translated.length() );
+			seq.delete(0, seq.length() );
+			
+			//upstream of startPos
+			if( direction==1 ) {
+				s=Math.max(startPos-upstream,0);
+				add = chr.subSequence(s,startPos);
+			} else {
+				s=Math.min(startPos+upstream,chr.length());
+				add = chr.subSequence(startPos,s);
+			}
+			if( !forward ) {
+				add = Tools.rc(add);
+			}
+			insert( end, seq, add );
+			int l = add.length();
+			while( l < upstream ) {
+				insert( end, seq, "N" );
+				l++;
+			}
+		}
+		char c = '!';
+		CharSequence codon = null;
+		
+		if( direction == -1 ) {
+			startPos -= 3;
+		}
+		
+		int problem = 0;
+		while( 3*i < MAX_INTRON_LENGTH //TODO  for runtime reasons (in N-stretches) 
+				&& startPos >= 0 && startPos+3 <= chr.length() && c != c1 && c != c2 ) {
+			codon = chr.subSequence(startPos,startPos+3);
+			if( !forward ) {
+				codon = Tools.rc(codon);
+			}
+			if( backup != null && i < backup.length() ) {
+				c = backup.charAt( end ? i : (backup.length()-1-i) );
+				problem = 0;
+			} else {
+				try{ 
+					c = Tools.translate(codon, code, Ambiguity.EXCEPTION);
+					problem = 0;
+				} catch( Exception ex ) {
+					problem++;
+					if( problem == 3 ) {
+						break;
+					} else {
+						c='X';
+					}
+				}
+			}
+			if( seq != null ) {
+				insert( end, seq, codon );
+				insert( end, translated, ""+c );
+			}
+			startPos=startPos+direction*3;
+			i++;
+		}
+		
+		if( direction == -1 ) {
+			e = startPos+3;
+		} else {
+			e = startPos;
+		}
+		startPos=e;
+		
+		if( seq != null ) {
+			/*old
+			if( problem > 0 ) {
+				if( startPos >= 0 && startPos+3 <= chr.length() ) {
+					codon = chr.substring(startPos,startPos+3);
+					if( !forward ) {
+						codon = Tools.rc(codon);
+					}
+				} else {
+					codon="NNN";
+				}
+			}
+			insert( end, seq, codon != null? codon.substring(end?0:intronic, 1+(end?0:intronic)) : "N" );
+			*/
+			
+			//downstream of the region
+			if( direction==1 ) {
+				//System.out.println( startPos + "\t" + Math.min(startPos+intronic-1,chr.length()) );
+				e=Math.min(startPos+downstream,chr.length());
+				add = chr.subSequence( startPos, e );
+			} else {
+				e=Math.max(startPos-downstream,0);
+				add = chr.subSequence( e, startPos );
+			}
+			if( !forward ) {
+				add = Tools.rc(add);
+			}
+
+			insert( end, seq, add );
+			int l = add.length();
+			while( l < downstream ) {
+				insert( end, seq, "N" );
+				l++;
+			}
+		}
+
+/*
+//test of correctness
+		CharSequence h = direction==1 ? chr.substring(s, e) : chr.subSequence(e, s);
+		if( !forward ){
+			h = Tools.rc(h);
+		}
+		System.out.println(h);
+		System.out.println(seq);
+/**/
+	}
+	
+	/**
+	 * This method allows for inserting one amino acid or codon at the beginning or the end of a {@link StringBuffer}.
+	 * 
+	 * @param end a switch for deciding where to insert the {@link String}
+	 * @param sb the {@link StringBuffer} representing the sequence
+	 * @param s to be inserted
+	 */
+	static void insert( boolean end, StringBuffer sb, CharSequence s ) {
+		if( end ) {
+			sb.append( s );
+		} else {
+			sb.insert(0, s);
+		}
+	}
+	
+	
 	public static HashMap<String,String> getSelection( String fName, int maxSize, Protocol protocol ) throws IOException {
 		if( fName == null ) {
 			return null;			
@@ -155,13 +303,13 @@ public class Tools {
 		RANDOM;
 	}
 	
-	public static char translate( String triplett, HashMap<String, Character> code, Ambiguity ambiguity ) {
+	public static char translate( CharSequence triplett, HashMap<String, Character> code, Ambiguity ambiguity ) {
 		Character as = code.get(triplett);
 		if( as == null ) {
 			String[][] current = new String[3][];
 			int anz = 0;
 			for( int i = 0; i < 3; i++ ) {
-				current[i] = c.get(triplett.substring(i,i+1));
+				current[i] = c.get(triplett.subSequence(i,i+1));
 				anz = Math.max(anz, current[i].length);
 			}
 			if( anz == 1 ) {
@@ -200,7 +348,7 @@ public class Tools {
 							as = Character.toLowerCase(as);
 							break;
 						case EXCEPTION:
-							throw new IllegalArgumentException( triplett );
+							throw new IllegalArgumentException( triplett.toString() );
 					}
 				} //else 'as' is already set correctly
 			}
