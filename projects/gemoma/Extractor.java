@@ -777,11 +777,12 @@ System.out.println(spliceSeq);
 					
 				new SimpleParameter(DataType.BOOLEAN, "proteins", "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "transcripts", "whether the complete transcripts sequences should returned as output", true, false ),
-
+				
+				/*TODO splice sites
 				new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
 						new SimpleParameterSet(),
 						new SimpleParameterSet(
-								new SimpleParameter( DataType.INT, "intronic", "The number of bp return from the intron side", true, new NumberValidator<Integer>(2,1000), 10 ),//TODO
+								new SimpleParameter( DataType.INT, "intronic", "The number of bp return from the intron side", true, new NumberValidator<Integer>(2,1000), 10 ),
 								new SimpleParameter( DataType.INT, "exonic", "The number of bp return from the exon side", true, new NumberValidator<Integer>(0,1000), 8 )
 								//negative?
 						)
