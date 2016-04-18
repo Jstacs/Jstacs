@@ -180,6 +180,8 @@ public class ExtractIntrons {
 		int i=0;
 		String str = null;
 		while( (str = reader.readLine()) != null ){
+			if( str.charAt(0) == '@' ) continue;
+			
 			String[] parts = str.split("\t");
 			String chrom = parts[2];
 			if(!intronMap.containsKey(chrom)){
