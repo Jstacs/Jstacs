@@ -20,10 +20,12 @@ package projects.gemoma;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -85,9 +87,12 @@ public class Extractor implements JstacsTool {
 		};
 	}
 	
+	private static BufferedWriter intron;
+	
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		progress.setIndeterminate();
+		intron = null;//new BufferedWriter(new FileWriter("intron.gff"));//TODO
 		
 		HashMap<String, String> selected = null;
 		BufferedReader r;
@@ -98,7 +103,7 @@ public class Extractor implements JstacsTool {
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
 		}
 		
-		HashMap<String, HashMap<String,Gene>> annot = readGFF( parameters.getParameterForName("annotation").getValue().toString(), selected );
+		HashMap<String, HashMap<String,Gene>> annot = readGFF( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
 		HashMap<Integer,int[]> count = new HashMap<Integer, int[]>();
 		int[] problem = new int[4];
 		Arrays.fill(problem, 0);
@@ -173,11 +178,16 @@ public class Extractor implements JstacsTool {
 			}
 		}
 		
-		protocol.append( "genes\t" + info[0] +"\n");
-		protocol.append( "removed transcripts\t" + info[1] +"\n");
+		protocol.append( "\ngenes\t" + info[0] +"\n");
+		protocol.append( "identical CDS of same gene\t" + info[1] +"\n");
 		protocol.append( "transcripts\t" + info[2]+"\n\n");
 		
-		protocol.append(Arrays.toString(problem)+"\n\n");
+		protocol.append( "reasons for discarding transcripts:\n");
+		protocol.append( "ambigious nucleotide\t" + problem[0] +"\n");
+		protocol.append( "missing stop\t" + problem[1] +"\n");
+		protocol.append( "premature stop\t" + problem[2]+"\n");
+		protocol.append( "missing start\t" + problem[3]+"\n\n");
+		
 		//log
 		protocol.append("coding exons\t#\n");
 		Integer[] array = new Integer[count.size()];
@@ -205,6 +215,10 @@ public class Extractor implements JstacsTool {
 				protocol.append( e.getKey() + "\t" + e.getValue()[0] + "\n");
 			}
 		}
+		
+		if( intron != null ) {
+			intron.close();
+		}
 		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 	}
 
@@ -212,7 +226,7 @@ public class Extractor implements JstacsTool {
 	private static String geneTag = "gene";
 	
 	//gff has to be sorted 
-	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected ) throws Exception {
+	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String,Gene> chr;
 		Gene gene = null;
@@ -220,59 +234,17 @@ public class Extractor implements JstacsTool {
 		String line, geneID = null, transcriptID, t;
 		String[] split;
 		int idx, h, end;
-		/*//old
-		r = new BufferedReader( new FileReader(input) );
-		while( (line=r.readLine()) != null && line.startsWith("##") );
-		do {
-			if( line.length() == 0 ) continue; 
-			idx = line.indexOf('\t')+1;
-			idx = line.indexOf('\t',idx)+1;
-			end = line.indexOf('\t',idx); 
-			t = line.substring(idx,end);
-			if( t.equals( geneTag ) || t.equals( "CDS" ) ) {
-				//System.out.println(line);
-				split = line.split("\t");
-				if( t.equals( geneTag ) ) {
-					idx = split[8].indexOf("ID=")+3;
-					h = split[8].indexOf(';',idx);
-					geneID = split[8].substring(idx, h>0?h:split[8].length() );
-				} else {//CDS
-					idx = split[8].indexOf(par)+par.length();
-					h = split[8].indexOf(';',idx);
-					transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
-					
-					chr = annot.get(split[0]);
-					if( chr == null ) {
-						chr = new HashMap<String,Gene>();
-						annot.put(split[0], chr);
-					}
-					gene = chr.get(geneID);
-					if( gene == null ) {
-						gene = new Gene();
-						chr.put(geneID, gene);
-					}
-					gene.add( transcriptID, new int[]{
-							split[6].charAt(0)=='+'?1:-1, //strand
-							Integer.parseInt( split[3] ), //start
-							Integer.parseInt( split[4] ) //end
-					} );
-					//System.out.println( geneID + "\t" + transcriptID + "\t" + gene.exon.size() );
-				}
-			}
-		} while( (line=r.readLine()) != null );
-		r.close();
-		/**/
 		
 		//read genes
 		r = new BufferedReader( new FileReader(input) );
 		ArrayList<String> transcript = new ArrayList<String>();
 		ArrayList<String> cds = new ArrayList<String>();
-		while( (line=r.readLine()) != null && line.startsWith("##") );
-		do {
-			if( line.length() == 0 ) continue; 
+		while( (line=r.readLine()) != null ) {
+			if( line.length() == 0 || line.startsWith("#") ) continue; 
 			idx = line.indexOf('\t')+1;
 			idx = line.indexOf('\t',idx)+1;
 			end = line.indexOf('\t',idx); 
+			
 			t = line.substring(idx,end);
 			if( t.equalsIgnoreCase( "CDS") ) {
 				cds.add(line);
@@ -308,11 +280,15 @@ public class Extractor implements JstacsTool {
 				idx = split[8].indexOf(par)+par.length();
 				h = split[8].indexOf(';',idx);
 				parent = split[8].substring(idx, h>0?h:split[8].length() ).split(",");
-				
 				HashMap<String,Gene> x = annot.get(split[0]);
 				int j = 0;
-				while( j < parent.length && (gene = x.get(parent[j])) == null ) {
-					j++;
+				gene = null;
+				if( x != null) { 
+					while( j < parent.length && (gene = x.get(parent[j])) == null ) {
+						j++;
+					}
+				} else {
+					protocol.appendWarning("Could not parse a feature \""+geneTag+"\" on sequence \"" + split[0] + "\": " + line + ".\n" );
 				}
 				if( gene != null ) {
 					gene.add( transcriptID );
@@ -497,6 +473,11 @@ public class Extractor implements JstacsTool {
 		StringBuffer spliceSeq = new StringBuffer();
 		for( Gene gene: genes ) {
 			if( gene.transcript.size()>0 ) {
+				boolean[][] splits = new boolean[gene.exon.size()][gene.exon.size()];
+				for( int k = 0; k < splits.length; k++ ) {
+					Arrays.fill( splits[k], false );
+				}
+				
 				int strand = gene.strand;
 				boolean forward=strand==1;
 				
@@ -552,12 +533,15 @@ public class Extractor implements JstacsTool {
 					
 					String trans = id[k];
 					IntList il = gene.transcript.get( trans );
+					if( il.length() == 0 ) {
+						System.out.println("No coding exon(s) for: " + id[k] );
+						continue;
+					}
 					int start = strand>0 ? gene.exon.get(il.get(0))[1] : gene.exon.get(il.get(il.length()-1))[1];
 					int end = strand>0 ? gene.exon.get(il.get(il.length()-1))[2] : gene.exon.get(il.get(0))[2];
 					int offset = 0;
 					for( j = 0; j < il.length(); j++ ) {
 						current = part.get(il.get(j));
-						
 						if( current.dna == null ) {
 							break;
 						}
@@ -620,9 +604,14 @@ public class Extractor implements JstacsTool {
 							//splice sites
 							int MAX_INTRON_LENGTH=15000, ignoreAAForSpliceSite=30, targetStart, targetEnd;
 							int gt = 0, gc = 0, ag = 0;
+							last=-1;
 							for( j = 0; j < il.length(); j++ ) {
 								current = part.get(il.get(j));
-																
+								if( last != -1 ) {
+									splits[last][il.get(j)] = true;
+								}
+								last = il.get(j);
+								
 								//find splice sites
 								int[] exon = gene.exon.get(il.get(j));
 								if( forward ) {
@@ -658,9 +647,10 @@ System.out.println( getFiller( (3-current.offsetLeft)%3, '.') );
 System.out.println( spliceSeq );
 */
 										int border = intronic-1 + 3*d + ((3-current.offsetLeft)%3);
+										current.acc = spliceSeq.substring(0, border).toLowerCase() + spliceSeq.substring(border).toUpperCase();
 										
 										out.get(4).writeln(">" + gene.id + "_" + il.get(j) + "\t" + border );
-										out.get(4).writeln( spliceSeq.substring(0, border).toLowerCase() + spliceSeq.substring(border).toUpperCase() );
+										out.get(4).writeln( current.acc );
 										acc[il.get(j)] = spliceSeq.substring(border-2, border);
 										
 										int[] stat = acceptor.get(acc[il.get(j)]);
@@ -670,7 +660,7 @@ System.out.println( spliceSeq );
 										}
 										stat[0]++;
 									}
-									if( j+1<il.length() && current.acc==null ){
+									if( j+1<il.length() && current.don==null ){
 										aa.delete(0, aa.length());
 										spliceSeq.delete(0, spliceSeq.length());
 										
@@ -682,9 +672,10 @@ System.out.println( getFiller( current.offsetRight, '.') );
 System.out.println(spliceSeq);
 */	
 										int border = exonic + add + current.offsetRight;
+										current.don = spliceSeq.substring(0, border).toUpperCase() + spliceSeq.substring(border).toLowerCase();
 										
 										out.get(5).writeln(">" + gene.id + "_" + il.get(j) + "\t" + border );
-										out.get(5).writeln( spliceSeq.substring(0, border).toUpperCase() + spliceSeq.substring(border).toLowerCase() );
+										out.get(5).writeln( current.don );
 										don[il.get(j)] = spliceSeq.substring(border, border+2);
 										
 										int[] stat = donor.get(don[il.get(j)]);
@@ -721,11 +712,36 @@ System.out.println(spliceSeq);
 						if( p.aa.length() > 0 ) {
 							out.get(0).write(">" + gene.id + "_" + j + "\n" + p.aa + "\n");
 						}
-						if( p.acc != null ) {
+						/*if( p.acc != null ) {
 							out.get(4).write(">" + gene.id + "_" + j + "\n" + p.acc + "\n");
 						}
 						if( p.don != null ) {
 							out.get(5).write(">" + gene.id + "_" + j + "\n" + p.don + "\n");
+						}*/
+						
+						if( intron != null ) {
+							for( int k = 0; k < splits.length; k++ ) {
+								if( splits[j][k] ) {
+									String intr;
+									int st, en;
+									if( forward ) {
+										st = gene.exon.get(j)[2]+1;
+										en = gene.exon.get(k)[1];
+									} else {
+										st = gene.exon.get(k)[2]+1;
+										en = gene.exon.get(j)[1];
+									}
+									intr = seq.substring(st-1, en-1);
+									if( !forward ) {
+										intr = Tools.rc(intr);
+									}
+									//System.out.println( Arrays.toString( gene.exon.get(j) ) );
+									//System.out.println( Arrays.toString( gene.exon.get(k) ) );
+									//System.out.println(forward + "\t" + intr);
+									intron.append(chr + "\tannotation\tintron\t" + st + "\t" + en + "\t.\t" + (forward?"+":"-") + "\t.\t." );
+									intron.newLine();
+								}
+							}
 						}
 					}
 				}
@@ -778,7 +794,7 @@ System.out.println(spliceSeq);
 				new SimpleParameter(DataType.BOOLEAN, "proteins", "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "transcripts", "whether the complete transcripts sequences should returned as output", true, false ),
 				
-				/*TODO splice sites
+				/*
 				new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
 						new SimpleParameterSet(),
 						new SimpleParameterSet(
