@@ -240,6 +240,7 @@ public class Extractor implements JstacsTool {
 		ArrayList<String> transcript = new ArrayList<String>();
 		ArrayList<String> cds = new ArrayList<String>();
 		while( (line=r.readLine()) != null ) {
+			if( line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
 			if( line.length() == 0 || line.startsWith("#") ) continue; 
 			idx = line.indexOf('\t')+1;
 			idx = line.indexOf('\t',idx)+1;
