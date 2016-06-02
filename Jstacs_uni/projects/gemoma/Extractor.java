@@ -424,7 +424,7 @@ public class Extractor implements JstacsTool {
 
 		@Override
 		public int compareTo(Gene o) {
-			return Integer.compare( start+(end-start)/2, o.start+(o.end-o.start) );
+			return Integer.compare( start+(end-start)/2, o.start+(o.end-o.start)/2 );
 		}
 	}
 	
