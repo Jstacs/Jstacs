@@ -310,6 +310,9 @@ public class Tools {
 			int anz = 0;
 			for( int i = 0; i < 3; i++ ) {
 				current[i] = c.get(triplett.subSequence(i,i+1));
+				if( current[i] == null ) {
+					throw new IllegalArgumentException( "Check nucleotide: " + triplett.subSequence(i,i+1) );
+				}
 				anz = Math.max(anz, current[i].length);
 			}
 			if( anz == 1 ) {

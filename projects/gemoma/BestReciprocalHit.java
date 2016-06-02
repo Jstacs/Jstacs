@@ -68,6 +68,7 @@ public class BestReciprocalHit {
 				continue;
 			}
 			split = line.split("\t");
+			split[1]=split[1].toUpperCase();
 			transcripts.add(split);
 			transcriptMap.put(split[1], split[0]);
 		}
@@ -186,7 +187,7 @@ w.flush();
 			} else {
 				f1 = Double.parseDouble(split[split.length-2]);
 			}
-			matches = split[split.length-1].split(";");
+			matches = split[split.length-1].toUpperCase().split(";");
 			for( int i = 0; i < matches.length; i++ ) {
 				matches[i] = matches[i].split(",")[0];
 			}		
