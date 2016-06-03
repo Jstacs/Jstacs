@@ -1,11 +1,13 @@
 package projects.gemoma;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +24,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
@@ -190,33 +193,20 @@ public class ExtractIntrons implements JstacsTool {
 
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
-		// TODO Wenn Parameter ordentlich gesetzt werden können, mache ich das.
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @param args
-	 * 0 stranded
-	 * 1 out
-	 * 2... in files (SAM)
-	 * 
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-		
-		Stranded stranded = Stranded.valueOf(args[0]);
-		
-		String out = args[1];
-
-		HashMap<String, ArrayList<Intron>> intronMap = new HashMap<String, ArrayList<Intron>>(); 
-		
+		HashMap<String, ArrayList<Intron>> intronMap = new HashMap<String, ArrayList<Intron>>();
+		/*TODO uncomment
+		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
+		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
+				
 		int i=0;
 		String str = null;
 		
 		BufferedReader reader;
-		for( int k = 2; k < args.length; k++ ) {
-			reader = new BufferedReader(new FileReader(args[k]));
+		for( int k = 0; k < eps.getNumberOfParameters(); k++ ) {
+			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
+			//System.out.println(fName);
+
+			reader = new BufferedReader(new FileReader(fName));
 			while( (str = reader.readLine()) != null ){
 				if( str.charAt(0) == '@' ) continue;
 				
@@ -237,10 +227,12 @@ public class ExtractIntrons implements JstacsTool {
 				i++;
 				
 			}
-			
 			reader.close();
 		}
-	
+		/**/
+		File out = File.createTempFile("intron_gff", "_GeMoMa.temp", new File("."));
+		out.deleteOnExit(); 
+
 		Iterator<String> it = intronMap.keySet().iterator();
 		
 		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream(new FileOutputStream(out));
@@ -251,6 +243,8 @@ public class ExtractIntrons implements JstacsTool {
 			print(chrom,introns,sos);
 		}		
 		sos.close();
+
+		return new ToolResult("", "", null, new ResultSet(new TextResult("predicted annotation", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 
 	private static void print(String chrom, List<Intron> introns,SafeOutputStream sos) throws IOException{
@@ -294,10 +288,22 @@ public class ExtractIntrons implements JstacsTool {
 	@Override
 	public ParameterSet getToolParameters() {
 		try{
-			return new ExpandableParameterSet( new SimpleParameterSet(
-				new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
-				new FileParameter( "mapped reads file", "a SAM file containing the mapped reads", "sam",  true ) )
-			, "mapped reads", "" );	
+			return
+				//TODO for testing: which is better for the end-users 
+				//simple
+				/*
+				new SimpleParameterSet(
+					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
+					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
+							new FileParameter( "mapped reads file", "a SAM file containing the mapped reads", "sam",  true )
+						), "mapped reads", "", 1 ) )
+				);/**/
+					
+				//complex
+				new ExpandableParameterSet( new SimpleParameterSet(
+					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
+					new FileParameter( "mapped reads file", "a SAM file containing the mapped reads", "sam",  true )
+				), "mapped reads", "", 1 );			
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new RuntimeException();
