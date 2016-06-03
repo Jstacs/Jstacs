@@ -361,10 +361,11 @@ public class CLI {
 			if(par.getDatatype() != DataType.PARAMETERSET){
 				String key = hashMap.get( par );
 				LinkedList<String> value = valueMap.remove( key );
-				if(value.size() > 1){
-					protocol.appendWarning("Parameter "+key+" specified multiple times. Using only first value: "+value.getFirst()+".");
-				}
+				
 				if(value != null){
+					if(value.size() > 1){
+						protocol.appendWarning("Parameter "+key+" specified multiple times ("+value+"). Using only first value: "+value.getFirst()+".\n");
+					}
 					par.setValue( value.getFirst() );
 				}
 			}else{
@@ -372,7 +373,7 @@ public class CLI {
 					String key = hashMap.get( par );
 					LinkedList<String> value = valueMap.remove( key );
 					if(value.size() > 1){
-						protocol.appendWarning("Parameter "+key+" specified multiple times. Using only first value: "+value.getFirst()+".");
+						protocol.appendWarning("Parameter "+key+" specified multiple times ("+value+"). Using only first value: "+value.getFirst()+".\n");
 					}
 					if(value != null){
 						par.setValue( value.getFirst() );
