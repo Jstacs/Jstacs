@@ -345,7 +345,7 @@ public class CLI {
 		if( newLine ) {
 			protocol.append("\n");
 		}
-		set(parameterSet,hashMap,valueMap,protocol);
+		set(parameterSet,hashMap,valueMap,protocol,0);
 		if( valueMap.size() > 0 ) {
 			throw new IllegalValueException("Unknown parameters: "+ valueMap );
 		}
@@ -355,15 +355,19 @@ public class CLI {
 
 
 
-	private void set( ParameterSet parameters, HashMap<Parameter, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol ) throws IllegalValueException {
+	private void set( ParameterSet parameters, HashMap<Parameter, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
-		ExpandableParameterSet exp = null;
+		ParameterSet template = null;
 		if( isExp ) {
-			exp = (ExpandableParameterSet) parameters;
-			parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
+			template=(ParameterSet) parameters.getParameterAt(0).getValue();
+			exp++;
+			if( exp > 1 ) {
+				throw new RuntimeException("Nested ExpandableParameterSets not implemented.");//TODO
+			}
 		}
-		for(int i=0;i<parameters.getNumberOfParameters();i++){
-			Parameter par = parameters.getParameterAt( i );
+		int n = (isExp ? template : parameters).getNumberOfParameters(); 
+		for(int i=0;i<n;i++){
+			Parameter par = (isExp ? template : parameters).getParameterAt( i );
 			if(par.getDatatype() != DataType.PARAMETERSET || par instanceof AbstractSelectionParameter){
 				String key = hashMap.get( par );
 				LinkedList<String> value = valueMap.remove( key );
@@ -371,35 +375,28 @@ public class CLI {
 				if(value != null){
 					if( isExp ) {
 						for(int k=0;k<value.size();k++){
-							if(k >= exp.getNumberOfParameters()){
+							if(k >= parameters.getNumberOfParameters()){
 								try {
-									exp.addParameterToSet();
+									((ExpandableParameterSet)parameters).addParameterToSet();
 								} catch (CloneNotSupportedException doesnothappen) {
 									doesnothappen.printStackTrace();
 								}
 							}
-							par = ((ParameterSet)exp.getParameterAt(k).getValue()).getParameterAt(i);
-							par.setValue(value.get(k));
+							Parameter par2 = ((ParameterSet) parameters.getParameterAt(k).getValue()).getParameterAt(i);
+							par2.setValue(value.get(k));
 						}						
 					} else {
 						if(value.size() > 1){
 							protocol.appendWarning("Parameter "+key+" specified multiple times ("+value+"). Using only first value: "+value.getFirst()+".\n");
 						}
 						par.setValue( value.getFirst() );
-						if( par instanceof AbstractSelectionParameter ) {
-							ParameterSet set = (ParameterSet)par.getValue();
-							set(set,hashMap,valueMap,protocol);
+						if( par.getDatatype() == DataType.PARAMETERSET ) {
+							set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp);
 						}
 					}
 				}
-			}else if(par.getValue() instanceof ExpandableParameterSet){
-				if( isExp ) {
-					throw new RuntimeException("Nested ExpandableParameterSets not implemented.");//TODO
-				}
-				set((ParameterSet) par.getValue(), hashMap, valueMap, protocol);
-			}else{
-				ParameterSet ps = (ParameterSet)par.getValue();
-				set(ps,hashMap,valueMap,protocol);
+			} else {
+				set((ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp);
 			}
 		}
 	}
@@ -407,7 +404,7 @@ public class CLI {
 
 
 
-	private void print(HashMap<Parameter, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add){
+	private void print(HashMap<Parameter, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ExpandableParameterSet exp = null;
 		if( isExp ) {
@@ -430,10 +427,10 @@ public class CLI {
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
 				Parameter par = parameters.getParameterAt( i );
 				if(par.getDatatype() != DataType.PARAMETERSET){
-					protocol.appendWarning( tabPrefix+keyMap.get( par )+add+" - "+par.toString()+"\n" );
+					protocol.appendWarning( tabPrefix+keyMap.get( par )+" - "+par.toString()+"\n" );
 				}else{
 					if(par instanceof AbstractSelectionParameter){
-						protocol.appendWarning( tabPrefix+keyMap.get( par )+add+" - "+par.toString()+"\n" );
+						protocol.appendWarning( tabPrefix+keyMap.get( par )+" - "+par.toString()+"\n" );
 						ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
 						char[] array = new char[keyMap.get( par ).length()+3];
 						Arrays.fill(array,' ');
@@ -442,14 +439,14 @@ public class CLI {
 							ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 							if( cont.getValue().getNumberOfParameters()>0 ) {
 								protocol.appendWarning( off+"Parameters for selection \""+cont.getName()+"\":\n" );
-								print(keyMap,cont.getValue(),off+"\t",protocol,add);
+								print(keyMap,cont.getValue(),off+"\t",protocol);
 							} else {
 								protocol.appendWarning( off+"No parameters for selection \""+cont.getName()+"\"\n" );
 							}
 						}
 					} else {
 						ParameterSet ps = (ParameterSet)par.getValue();
-						print(keyMap,ps,tabPrefix+"\t",protocol,add);
+						print(keyMap,ps,tabPrefix+"\t",protocol);
 					}
 				}
 			}
@@ -493,7 +490,7 @@ public class CLI {
 		}else{
 			protocol.appendWarning( "Parameters of "+tools[toolIndex].getToolName()+":\n" );
 		}
-		print( keyMap[toolIndex], ps, "", protocol, "" );
+		print( keyMap[toolIndex], ps, "", protocol );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
 		if(configureThreads[toolIndex]){
 			protocol.appendWarning( "threads - The number of threads used for the tool, defaults to 1\t= "+threads+"\n" );
