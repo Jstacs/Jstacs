@@ -14,15 +14,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.biojava.bio.EcNumber;
-
-import de.jstacs.DataType;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
-import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -30,7 +26,6 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
 
@@ -194,7 +189,7 @@ public class ExtractIntrons implements JstacsTool {
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		HashMap<String, ArrayList<Intron>> intronMap = new HashMap<String, ArrayList<Intron>>();
-		/*TODO uncomment
+
 		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
 				
@@ -291,19 +286,19 @@ public class ExtractIntrons implements JstacsTool {
 			return
 				//TODO for testing: which is better for the end-users 
 				//simple
-				/*
+				
 				new SimpleParameterSet(
 					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
 							new FileParameter( "mapped reads file", "a SAM file containing the mapped reads", "sam",  true )
 						), "mapped reads", "", 1 ) )
-				);/**/
-					
+				);
+				/*					
 				//complex
 				new ExpandableParameterSet( new SimpleParameterSet(
 					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
 					new FileParameter( "mapped reads file", "a SAM file containing the mapped reads", "sam",  true )
-				), "mapped reads", "", 1 );			
+				), "mapped reads", "", 1 );/**/			
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new RuntimeException();
