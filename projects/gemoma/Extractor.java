@@ -843,7 +843,7 @@ System.out.println(spliceSeq);
 					+ "+---+------------------------------+\n"
 					+ "|...| ...                          |\n"
 					+ "+---+------------------------------+\n\n"
-				+ "**References**\n\nFor more information please contact jens.keilwagen@jki.bund.de.";
+				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
 	}
 	
 	@Override

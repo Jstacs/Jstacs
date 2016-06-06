@@ -27,10 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import javax.management.RuntimeErrorException;
-
-import projects.gemoma.Synteny2.Prediction;
+import java.util.Iterator;
 
 /**
  * This class extracts the information need to run GeMoMa.
@@ -142,8 +139,6 @@ public class GFFFilter {
 	
 	static int create( ArrayList<Prediction> list, int start, int best, int end, BufferedWriter w ) throws Exception {
 		Prediction current = list.get(best), n;
-		current.write(w);
-		current.discard=true;
 		String s;
 		//= current.hash.get("tie");
 		//boolean hasTie = s != null && (s.equals("NA") || s.equals("0.0"));
@@ -177,15 +172,17 @@ public class GFFFilter {
 								double max=2d*Math.max(n.cds.size(),x.cds.size());
 								
 								int j = 1; 
-								
-								if( cb/min>0.75 && cb/max < 1 ) {//hinreichende Überlappung, aber keine perfekte überlappung
+								if( cb/max == 1d ) { // identical
+									x.addAlternative(n);
+								} else if( cb/min>0.75 ) {//hinreichende Überlappung, aber keine perfekte überlappung
 									while( j < used.size() ) {
 										x = used.get(0); 
 										cb = x.commonBorders(n);
 										//min=2d*Math.min(n.cds.size(),x.cds.size());
 										max=2d*Math.max(n.cds.size(),x.cds.size());
 										
-										if( cb/max==1 )  {
+										if( cb/max==1d )  {
+											x.addAlternative(n);
 											break;
 										}
 										j++;
@@ -206,6 +203,10 @@ public class GFFFilter {
 				pred+=create(list, start, idx, end, w);
 			}
 		}
+		
+		current.write(w);
+		current.discard=true;
+		
 		return pred;
 	}
 	
@@ -217,6 +218,7 @@ public class GFFFilter {
 		HashMap<String,String> hash;
 		int length, start, end, score;
 		String contigStrand;
+		HashSet<String> alternative;
 		
 		public Prediction( String[] split ) {
 			this.split = split;
@@ -239,6 +241,7 @@ public class GFFFilter {
 
 			cds = new ArrayList<String>();
 			length = 0;
+			alternative = new HashSet<String>();
 		}
 		
 		void addCDS( String cds ) {
@@ -263,9 +266,24 @@ public class GFFFilter {
 			return score / (length/3d);
 		}
 		
+		public void addAlternative( Prediction n ) {
+			String rg = n.hash.get("ref-gene");
+			if( !rg.equals( hash.get("ref-gene") ) ) {
+				alternative.add(rg);
+			}
+		}
+		
 		public void write( BufferedWriter w ) throws IOException {
 			for( int i = 0; i < split.length; i++ ) {
 				w.append( (i==0?"":"\t") + split[i] );
+			}
+			if( alternative.size() > 0 ) {
+				Iterator<String> it = alternative.iterator();
+				w.write( ";alternative=\"" + it.next() );
+				while( it.hasNext() ) {
+					w.write("," + it.next() );
+				}
+				w.write( "\"" );
 			}
 			w.newLine();
 			for( int i = 0; i < cds.size(); i++ ) {
