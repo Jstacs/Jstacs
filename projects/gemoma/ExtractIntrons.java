@@ -239,7 +239,7 @@ public class ExtractIntrons implements JstacsTool {
 		}		
 		sos.close();
 
-		return new ToolResult("", "", null, new ResultSet(new TextResult("predicted annotation", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
+		return new ToolResult("", "", null, new ResultSet(new TextResult("introns", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 
 	private static void print(String chrom, List<Intron> introns,SafeOutputStream sos) throws IOException{
@@ -290,7 +290,7 @@ public class ExtractIntrons implements JstacsTool {
 				new SimpleParameterSet(
 					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
-							new FileParameter( "mapped reads file", "a SAM file containing the mapped reads", "sam",  true )
+							new FileParameter( "mapped reads file", "SAM files containing the mapped reads", "sam",  true )
 						), "mapped reads", "", 1 ) )
 				);
 				/*					
