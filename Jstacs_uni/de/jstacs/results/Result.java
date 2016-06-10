@@ -214,5 +214,10 @@ public abstract class Result extends AnnotatedEntity {
 			throw new IllegalValueException("wrong datatype");
 		}
 	}
+	
+	public void rename(String newName){
+		this.name = newName;
+	}
+	
 
 }
