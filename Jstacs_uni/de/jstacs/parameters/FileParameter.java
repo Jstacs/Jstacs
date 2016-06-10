@@ -115,15 +115,15 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 *            the name of the parameter
 	 * @param comment
 	 *            a comment on the parameter
-	 * @param mime
-	 *            the MIME-type of allowed files
+	 * @param filetype
+	 *            the type of allowed files, may be allowed file extensions, separated by commas
 	 * @param required
 	 *            <code>true</code> if this {@link FileParameter} is required to
 	 *            continue, <code>false</code> otherwise
 	 */
-	public FileParameter(String name, String comment, String mime, boolean required) {
+	public FileParameter(String name, String comment, String filetype, boolean required) {
 		super( name, comment, DataType.FILE );
-		this.mime = mime;
+		this.mime = filetype;
 		this.required = required;
 	}
 
@@ -134,15 +134,15 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 *            the name of the parameter
 	 * @param comment
 	 *            a comment on the parameter
-	 * @param mime
-	 *            the MIME-type of allowed files
+	* @param filetype
+	 *            the type of allowed files, may be allowed file extensions, separated by commas
 	 * @param required
 	 *            <code>true</code> if this {@link FileParameter} is required
 	 * @param validator
 	 *            a validator that validates e.g. the contents of the file
 	 */
-	public FileParameter(String name, String comment, String mime, boolean required, ParameterValidator validator) {
-		this(name, comment, mime, required);
+	public FileParameter(String name, String comment, String filetype, boolean required, ParameterValidator validator) {
+		this(name, comment, filetype, required);
 		this.valid = validator;
 	}
 
@@ -348,9 +348,9 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	}
 
 	/**
-	 * Returns the MIME-type of the allowed files.
+	 * Returns the type(s) of the allowed files as list of file extensions, separated by commas
 	 * 
-	 * @return the MIME-type of the allowed files
+	 * @return the type(s) of the allowed files
 	 */
 	public String getAcceptedMimeType() {
 		return mime;
