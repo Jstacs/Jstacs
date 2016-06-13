@@ -100,7 +100,7 @@ public class ConfusionMatrix extends AbstractPerformanceMeasure {
 		for(int i=0;i<classSpecificScores.length;i++){
 			w = 1;
 			for(int j=0;j<classSpecificScores[i].length;j++){
-				if( weights[i] != null ) {
+				if( weights != null && weights[i] != null ) {
 					w = weights[i][j];
 				}
 				int predicted = ToolBox.getMaxIndex( classSpecificScores[i][j] );
