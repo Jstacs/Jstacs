@@ -28,6 +28,10 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMRecordIterator;
+import htsjdk.samtools.SamReader;
+import htsjdk.samtools.SamReaderFactory;
 
 /**
  * This class enables to extract introns from SAM files, which might be used to define splice sites in GeMoMa.
@@ -93,6 +97,29 @@ public class ExtractIntrons implements JstacsTool {
 			this.end = start+len;
 			this.strand = strand;
 			this.count = 0;
+		}
+		
+		public static void addIntrons(SAMRecord record, Stranded stranded, List<Intron> introns){
+			
+			int start = record.getAlignmentStart();
+			
+			String cigar = record.getCigarString();
+			if(!cigar.contains("N")){
+				return;
+			}
+			
+			int bitflag = record.getFlags();
+			
+			startOffs.clear();
+			lens.clear();
+			getOffset(cigar,startOffs,lens);
+			Strand strand = getStrand(bitflag, stranded);
+			
+			for(int i=0;i<startOffs.length();i++){
+				Intron in = new Intron( start+startOffs.get(i), lens.get(i),strand );
+				introns.add(in);
+			}
+			
 		}
 		
 		public static void addIntrons(String[] samLine, Stranded stranded, List<Intron> introns){
@@ -194,27 +221,36 @@ public class ExtractIntrons implements JstacsTool {
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
 				
 		int i=0;
-		String str = null;
+		//String str = null;
 		
-		BufferedReader reader;
+		//BufferedReader reader;
 		for( int k = 0; k < eps.getNumberOfParameters(); k++ ) {
 			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
 			//System.out.println(fName);
 
-			reader = new BufferedReader(new FileReader(fName));
-			while( (str = reader.readLine()) != null ){
-				if( str.charAt(0) == '@' ) continue;
+			
+			SamReader sr = SamReaderFactory.makeDefault().open(new File(fName));
+			
+			SAMRecordIterator samIt = sr.iterator();		
+			
+			
+			
+			//reader = new BufferedReader(new FileReader(fName));
+			//while( (str = reader.readLine()) != null ){
+			//	if( str.charAt(0) == '@' ) continue;
 				
-				String[] parts = str.split("\t");
-				String chrom = parts[2];
-				
+			//	String[] parts = str.split("\t");
+			//	String chrom = parts[2];
+			while(samIt.hasNext()){
+				SAMRecord rec = samIt.next();
+				String chrom = rec.getReferenceName();	
 				ArrayList<Intron> introns = intronMap.get(chrom);
 				if( introns == null ) {
 					introns = new ArrayList<ExtractIntrons.Intron>();
 					intronMap.put(chrom, introns);
 				}
 				
-				Intron.addIntrons(parts, stranded, introns);
+				Intron.addIntrons(rec, stranded, introns);
 				
 				if(i % 1000000 == 0){
 					System.err.println(i);
@@ -222,7 +258,8 @@ public class ExtractIntrons implements JstacsTool {
 				i++;
 				
 			}
-			reader.close();
+			//reader.close();
+			sr.close();
 		}
 		/**/
 		File out = File.createTempFile("intron_gff", "_GeMoMa.temp", new File("."));
