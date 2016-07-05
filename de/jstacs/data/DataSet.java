@@ -709,10 +709,12 @@ public class DataSet implements Iterable<Sequence>{
 						case 2 : s=new IntSequence( alphabetContainer, annot, temp ); break;
 					}
 				} catch( WrongAlphabetException ex ){
-					if( wae == null ) {
-						System.err.println( "Could not parse:" );
+					if(percentage > 0){
+						if( wae == null ) {
+							System.err.println( "Could not parse:" );
+						}
+						System.err.println("Sequence : " +stringToBeParsed);
 					}
-					System.err.println("Sequence : " +stringToBeParsed);
 					counter++;
 					wae=ex;
 				}		
@@ -728,7 +730,9 @@ public class DataSet implements Iterable<Sequence>{
 		
 		if( wae != null ) {
 			double p = counter/((double)counter+newSeqs.size());
-			System.err.println("Discarded sequences : " + counter + " (="+p+")" );
+			if(percentage > 0){
+				System.err.println("Discarded sequences : " + counter + " (="+p+")" );
+			}
 			if( p > percentage ) {
 				throw wae;
 			}
