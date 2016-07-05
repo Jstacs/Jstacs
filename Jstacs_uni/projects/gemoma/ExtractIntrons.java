@@ -253,7 +253,7 @@ public class ExtractIntrons implements JstacsTool {
 				Intron.addIntrons(rec, stranded, introns);
 				
 				if(i % 1000000 == 0){
-					System.err.println(i);
+					protocol.append(i+"\n");
 				}
 				i++;
 				
