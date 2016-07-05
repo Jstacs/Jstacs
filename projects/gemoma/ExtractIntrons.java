@@ -223,13 +223,15 @@ public class ExtractIntrons implements JstacsTool {
 		int i=0;
 		//String str = null;
 		
+		SamReaderFactory srf = SamReaderFactory.makeDefault();
+		
 		//BufferedReader reader;
 		for( int k = 0; k < eps.getNumberOfParameters(); k++ ) {
 			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
 			//System.out.println(fName);
 
 			
-			SamReader sr = SamReaderFactory.makeDefault().open(new File(fName));
+			SamReader sr = srf.open(new File(fName));
 			
 			SAMRecordIterator samIt = sr.iterator();		
 			
