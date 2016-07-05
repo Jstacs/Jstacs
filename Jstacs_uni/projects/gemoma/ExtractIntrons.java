@@ -327,7 +327,7 @@ public class ExtractIntrons implements JstacsTool {
 				new SimpleParameterSet(
 					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
-							new FileParameter( "mapped reads file", "SAM files containing the mapped reads", "sam",  true )
+							new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam",  true )
 						), "mapped reads", "", 1 ) )
 				);
 				/*					
