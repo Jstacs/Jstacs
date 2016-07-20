@@ -96,7 +96,7 @@ public abstract class Tensor {
 	 *            the parent nodes (only the first <code>k</code> will be used)
 	 * 
 	 * @return the edge
-	 *         <code>permute(parents[0],...,parents[k-1]) -> child</code> that
+	 *         <code>permute(parents[0],...,parents[k-1]) -&gt; child</code> that
 	 *         maximizes the score
 	 */
 	public abstract int[] getMaximalEdgeFor( byte k, int child, int... parents );
