@@ -57,7 +57,7 @@ public class AnnotatedEntityList<T extends AnnotatedEntity> {
 	
 	/**
 	 * Replaces the {@link AnnotatedEntity} at index <code>idx</code> with
-	 * the {@link AnnotatedEntity} <code>entity/code>
+	 * the {@link AnnotatedEntity} <code>entity</code>
 	 * @param idx the index
 	 * @param entity the new {@link AnnotatedEntity} at index <code>idx</code>
 	 */
