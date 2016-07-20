@@ -217,7 +217,7 @@ public class SymmetricTensor extends Tensor {
 	 *            the target node
 	 * @param par
 	 *            an encoded set, elements are sorted and for all elements
-	 *            <code>e >= child</code> the real value is <code>(e+1)</code>,
+	 *            <code>e &gt;= child</code> the real value is <code>(e+1)</code>,
 	 *            e.g. <code>child = 3</code> and possible parents
 	 *            <code> = {5,2,0,6,1}</code> then
 	 *            <code>par = {0,1,2,4,5}</code>

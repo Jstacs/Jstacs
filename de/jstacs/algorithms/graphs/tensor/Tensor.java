@@ -85,7 +85,7 @@ public abstract class Tensor {
 
 	/**
 	 * Returns the edge
-	 * <code>permute(parents[0],...,parents[k-1]) -> child</code> that maximizes
+	 * <code>permute(parents[0],...,parents[k-1]) -&gt; child</code> that maximizes
 	 * the score.
 	 * 
 	 * @param k
