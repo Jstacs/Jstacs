@@ -72,8 +72,8 @@ public class Chu_Liu_Edmonds {
 	 * 
 	 * @return an optimal branching (probable a forest) decoded using a
 	 *         <code>byte[][]</code>. The first dimension is defined by the
-	 *         number of nodes N. If node i has parent <code>j ->
-	 *         byte[i]</code>={j,i}; if node i has no parent -> <code>byte[i]</code>={i}. The last position
+	 *         number of nodes N. If node i has parent <code>j -&gt;
+	 *         byte[i]</code>={j,i}; if node i has no parent -&gt; <code>byte[i]</code>={i}. The last position
 	 * 		   always contains the child node. The positions before contains the parent node if any.
 	 * 
 	 * @throws IllegalArgumentException
