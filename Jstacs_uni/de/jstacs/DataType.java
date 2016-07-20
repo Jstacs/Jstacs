@@ -122,15 +122,15 @@ public enum DataType {
 	 * {@link DataType} <code>to</code> without losing information. The
 	 * following casts are allowed:
 	 * <ul>
-	 * <li> {@link DataType#BYTE} -> {@link DataType#BYTE},
+	 * <li> {@link DataType#BYTE} -&gt; {@link DataType#BYTE},
 	 * {@link DataType#SHORT}, {@link DataType#INT}, {@link DataType#LONG},
 	 * {@link DataType#DOUBLE}</li>
-	 * <li> {@link DataType#SHORT} -> {@link DataType#SHORT},
+	 * <li> {@link DataType#SHORT} -&gt; {@link DataType#SHORT},
 	 * {@link DataType#INT}, {@link DataType#LONG}, {@link DataType#DOUBLE}</li>
-	 * <li> {@link DataType#INT} -> {@link DataType#INT}, {@link DataType#LONG},
+	 * <li> {@link DataType#INT} -&gt; {@link DataType#INT}, {@link DataType#LONG},
 	 * {@link DataType#DOUBLE}</li>
-	 * <li> {@link DataType#LONG} -> {@link DataType#LONG}</li>
-	 * <li> {@link DataType#DOUBLE} -> {@link DataType#DOUBLE}</li>
+	 * <li> {@link DataType#LONG} -&gt; {@link DataType#LONG}</li>
+	 * <li> {@link DataType#DOUBLE} -&gt; {@link DataType#DOUBLE}</li>
 	 * </ul>
 	 * 
 	 * @param from
