@@ -6,21 +6,23 @@
 		<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
 	-->
 	
-	<property name="version" value="2.1" />
+	<property name="version" value="2.2" />
 	<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
+	<property name="cp" value="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode-1.9.0.jar:lib/core-1.9.0.jar:lib/xml-commons/pdf-transcoder.jar:lib/xml-commons/xmlgraphics-commons-1.5.jar:lib/Jama-1.0.3.jar:lib/xml-commons/batik-transcoder.jar:lib/colt.jar:lib/ssj.jar:lib/xml-commons/batik-dom.jar:lib/xml-commons/batik-svggen.jar:lib/xml-commons/batik-svg-dom.jar:lib/xml-commons/batik-awt-util.jar" />
 	
 	<target name="javadoc">
-		<javadoc access="protected" author="true" classpath="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode.jar"
+		<javadoc access="protected" author="true" classpath="${cp}"
 				destdir="${builddir}/jstacs-api" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false"
-				additionalparam="  -tagletpath /Users/dev/Documents/workspace/Jstacs_test/lib/LaTeXlet-1.2.jar -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -taglet latexlet.CopyInheritedTaglet  "
+				additionalparam="  -tagletpath lib/LaTeXlet-1.2f7.jar -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -taglet latexlet.CopyInheritedTaglet -encoding UTF-8 "
 				packagenames="de.jstacs.*"
 				doctitle="Jstacs ${version} API Specification"
-				source="1.6" sourcepath="." splitindex="true" use="true" version="true" verbose="false">
-			<link href="http://www.biojava.org/docs/api16"/>
-			<link href="http://docs.oracle.com/javase/6/docs/api/"/>
+				source="1.7" sourcepath="." splitindex="true" use="true" version="true" verbose="false">
+			<link href="http://www.biojava.org/docs/api1.9.1/" />
+			<link href="http://docs.oracle.com/javase/7/docs/api/"/>
 			<link href="http://rforge.net/org/doc/"/>
 			<link href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/"/>
-			<link href="http://www.biojava.org/docs/api16/"/>
+			<link href="http://math.nist.gov/javanumerics/jama/doc/"/>
+			<link href="https://xmlgraphics.apache.org/batik/javadoc/"/>
 		</javadoc>
 		<zip destfile="${builddir}/jstacs-api-${version}.zip">
 			<zipfileset dir="${builddir}" includes="jstacs-api/**" />
@@ -42,7 +44,7 @@
 		</delete>
 		<javac srcdir="de" 
 		       destdir="tempbin"
-		       classpath="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode.jar"
+		       classpath="${cp}"
 		       debug="on">
 		</javac>
 		<jar destfile="${builddir}/jstacs-${version}.jar">
@@ -85,7 +87,7 @@
 			</delete>
 			<javac srcdir="de:projects" 
 			       destdir="tempbin"
-			       classpath="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode.jar"
+			       classpath="${cp}"
 			       debug="on">
 			</javac>
 			<mkdir dir="${builddir}/Dispom" />
@@ -97,7 +99,7 @@
 	            <fileset dir="tempbin"/>
 	            <zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar"/>
 	            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2.jar"/>
+	            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2f7.jar"/>
 	            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
 	            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
 	        </jar>
@@ -109,7 +111,7 @@
 			            <fileset dir="tempbin"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2.jar"/>
+			            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2f7.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
 			            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
 			        </jar>
