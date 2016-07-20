@@ -362,7 +362,7 @@ public class DAG {
 	/**
 	 * The method computes the HP(k) (see {@link DAG}). It tries to enumerate
 	 * all permutations and returns the best. This is only possible for a small
-	 * number of nodes (<=10).
+	 * number of nodes (&lt;=10).
 	 * 
 	 * @param score
 	 *            the {@link Tensor} for the edge weights
