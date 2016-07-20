@@ -421,7 +421,7 @@ public class DAG {
 	 * @param structure
 	 *            the graph (encoded as:
 	 * 
-	 *            <code>(structure[i][0],...,structure[i][structure[i].length-2])->structure[i][structure[i].length-1]</code>
+	 *            <code>(structure[i][0],...,structure[i][structure[i].length-2])-&gt;structure[i][structure[i].length-1]</code>
 	 *            )
 	 * 
 	 * @return the score for the graph

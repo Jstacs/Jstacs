@@ -31,7 +31,7 @@ public class TopSort {
 	 * Returns the topological order of indexes according to
 	 * <code>parents2</code>. The array <code>parents2</code> at each position
 	 * <code>i</code> contains the parents, i.e. incoming edges, for this
-	 * position at indexes <code>0</code> to </code>parents2[i].length -
+	 * position at indexes <code>0</code> to <code>parents2[i].length -
 	 * 2</code> and <code>i</code> itself at position
 	 * <code>parents2[i].length - 1</code>. The returned array of the
 	 * topological order is organized as follows:
