@@ -891,7 +891,7 @@ public class GalaxyAdaptor {
 	 * @return the legalized name
 	 */
 	public static String getLegalName(String name){
-		return name.replaceAll( "[\\s,-:]+", "_" );
+		return name.replaceAll( "[\\s,-:()]+", "_" );
 	}
 	
 	private static StringBuffer escape(StringBuffer str){
