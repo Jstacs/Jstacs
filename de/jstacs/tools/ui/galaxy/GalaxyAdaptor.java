@@ -742,7 +742,7 @@ public class GalaxyAdaptor {
 				//exported = true;
 				if(res instanceof Result){
 					i++;
-					String name = i+": "+((Result)res).getName();
+					String name = i+": "+((Result)res).getName().replaceAll(System.getProperty( "file.separator" ), "_");
 					
 					String defPath = getDefaultPath((Result)res);
 					if(defPath == null){
@@ -754,7 +754,7 @@ public class GalaxyAdaptor {
 					ResultSet rs = (ResultSet)res;
 					for(int j=0;j<rs.getNumberOfResults();j++){
 						i++;
-						String name = i+": "+rs.getResultAt( j ).getName();
+						String name = i+": "+rs.getResultAt( j ).getName().replaceAll(System.getProperty( "file.separator" ), "_");
 						String defPath = getDefaultPath(rs.getResultAt(j));
 						if(defPath == null){
 							String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ), el.exportExtension );
