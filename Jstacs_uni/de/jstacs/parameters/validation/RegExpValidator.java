@@ -62,7 +62,7 @@ public class RegExpValidator implements ParameterValidator, GalaxyConvertible {
 	@Override
 	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer,
 			StringBuffer configBuffer, boolean addLine) throws Exception {
-		descBuffer.append( "<validator type=\"regex\" message=\"Value does not match "+regExp+".\">"+regExp+"</validator>" );
+		descBuffer.append( "<validator type=\"regex\" message=\"Value does not match "+regExp+".\">^"+regExp+"$</validator>" );
 		
 	}
 
