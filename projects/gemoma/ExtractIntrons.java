@@ -1,9 +1,7 @@
 package projects.gemoma;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +30,7 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
+import htsjdk.samtools.ValidationStringency;
 
 /**
  * This class enables to extract introns from SAM files, which might be used to define splice sites in GeMoMa.
@@ -121,7 +120,7 @@ public class ExtractIntrons implements JstacsTool {
 			}
 			
 		}
-		
+/*		
 		public static void addIntrons(String[] samLine, Stranded stranded, List<Intron> introns){
 			
 			int start = Integer.parseInt(samLine[3]);
@@ -144,7 +143,7 @@ public class ExtractIntrons implements JstacsTool {
 			}
 			
 		}
-		
+*/		
 		private static Strand getStrand(int bitflag, Stranded stranded) {
 			if(stranded == Stranded.NO){
 				return Strand.UNK;
@@ -212,7 +211,6 @@ public class ExtractIntrons implements JstacsTool {
 		
 	}
 	
-
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		HashMap<String, ArrayList<Intron>> intronMap = new HashMap<String, ArrayList<Intron>>();
@@ -224,18 +222,15 @@ public class ExtractIntrons implements JstacsTool {
 		//String str = null;
 		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
+		srf.validationStringency( ValidationStringency.LENIENT );//important for unmapped reads
 		
 		//BufferedReader reader;
 		for( int k = 0; k < eps.getNumberOfParameters(); k++ ) {
 			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
-			//System.out.println(fName);
+			protocol.append(fName+" " + (new Date()) + "\n");
 
-			
 			SamReader sr = srf.open(new File(fName));
-			
 			SAMRecordIterator samIt = sr.iterator();		
-			
-			
 			
 			//reader = new BufferedReader(new FileReader(fName));
 			//while( (str = reader.readLine()) != null ){
