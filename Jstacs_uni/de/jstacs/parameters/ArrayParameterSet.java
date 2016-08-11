@@ -89,7 +89,10 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 		length.setValue(allowedLengths.getLowerBound());
 		length.setRangeable(false);
 		this.parameters.add(0,length);
-		this.addParameterToSet();
+		//this.addParameterToSet();//TODO
+		for(int i=1;i<(Integer)length.getValue();i++){
+			this.addParameterToSet();
+		}
 		numberChanged = 1;
 
 	}
@@ -132,6 +135,20 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 	public ArrayParameterSet(StringBuffer representation)
 			throws NonParsableException {
 		super(representation);
+	}
+	
+	public void setLength(int length) throws IllegalValueException, CloneNotSupportedException{
+		this.parameters.get(0).setValue((Integer)length);
+		int numBefore = this.parameters.size()-1;
+		if(numBefore < length){
+			for(int i=numBefore;i<length;i++){
+				this.addParameterToSet();
+			}
+		}else if(numBefore > length){
+			for(int i=numBefore;i>length;i--){
+				this.removeParameterFromSet();
+			}
+		}
 	}
 
 	/*
