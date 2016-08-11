@@ -137,6 +137,7 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 		super(representation);
 	}
 	
+	//TODO length may be set directly in parameter. Not handled so far.
 	public void setLength(int length) throws IllegalValueException, CloneNotSupportedException{
 		this.parameters.get(0).setValue((Integer)length);
 		int numBefore = this.parameters.size()-1;
