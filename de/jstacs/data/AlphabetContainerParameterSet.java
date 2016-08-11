@@ -685,7 +685,9 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 		 */
 		public AlphabetArrayParameterSet( Alphabet[] alphabets, AlphabetContainerType type ) throws Exception {
 			this( type );
-			this.parameters.get( 0 ).setValue( alphabets.length );
+
+			//this.parameters.get( 0 ).setValue( alphabets.length );
+			this.setLength(alphabets.length);
 			for( int i = 0; i < alphabets.length; i++ ) {
 				if( type == AlphabetContainerType.CONTINUOUS ) {
 					parameters.get( i + 1 ).setValue( alphabets[i].getCurrentParameterSet() );
