@@ -107,7 +107,7 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 	 *            the name-template
 	 * @param commentTemplate
 	 *            the comment-template
-	 * @throws CloneNotSupportedException if the templace could not be cloned
+	 * @throws CloneNotSupportedException if the template could not be cloned
 	 * @throws IllegalValueException if the values of <code>allowedLengths</code> are not allowed values 
 	 * 		of the length parameter
 	 */
