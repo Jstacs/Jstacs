@@ -2,8 +2,6 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.continuous;
 
 import java.text.NumberFormat;
 
-import org.apache.xmlgraphics.xmp.XMPArray;
-
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
