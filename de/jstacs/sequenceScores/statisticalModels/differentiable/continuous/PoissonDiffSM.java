@@ -2,6 +2,8 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.continuous;
 
 import java.text.NumberFormat;
 
+import org.apache.xmlgraphics.xmp.XMPArray;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.alphabets.ContinuousAlphabet;
@@ -131,6 +133,7 @@ public class PoissonDiffSM extends AbstractDifferentiableStatisticalModel {
 	public StringBuffer toXML() {
 		StringBuffer sb = new StringBuffer();
 		XMLParser.appendObjectWithTags(sb, llambda, "llambda");
+		XMLParser.appendObjectWithTags(sb, ess, "ess");
 		XMLParser.addTags(sb, "Poisson");
 		return sb;
 	}
@@ -142,6 +145,7 @@ public class PoissonDiffSM extends AbstractDifferentiableStatisticalModel {
 		xml = XMLParser.extractForTag(xml, "Poisson");
 		llambda = (Double) XMLParser.extractObjectForTags(xml, "llambda");
 		lambda = Math.exp(llambda);
+		ess = (Double) XMLParser.extractObjectForTags(xml, "ess");
 	}
 
 }
