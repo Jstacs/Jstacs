@@ -61,7 +61,7 @@ public class ArbitrarySequence extends Sequence<double[]> {
 			if( alphabetContainer.isEncodedSymbol( i, content[i] ) ) {
 				this.content[i] = content[i];
 			} else {
-				throw new WrongAlphabetException();
+				throw new WrongAlphabetException( "Position " + i + ": " + content[i] + " not in " + alphabetContainer.getAlphabetAt(i) );
 			}
 		}
 	}
