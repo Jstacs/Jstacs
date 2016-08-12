@@ -190,16 +190,20 @@ public class ExpGammaDiffSM extends AbstractDifferentiableStatisticalModel {
 	public double getLogScoreFor( Sequence seq, int start ) {
 		double val = norm;
 		for(int i=0;i<alphas.length;i++){
-			double cv = seq.continuousVal( i+start );
+			double cv = seq.continuousVal( i+start )+1E-10;
 			val += (alphas[i]-1.0)*Math.log( cv ) - betas[i]*cv;
+			if(Double.isInfinite(val)|| Double.isNaN(val)){
+				System.out.println(val+" "+Arrays.toString(alphas)+" "+Arrays.toString(betas)+" "+cv);
+			}
 		}
+		
 		return val;
 	}
 
 	public double getLogScoreAndPartialDerivation( Sequence seq, int start, IntList indices, DoubleList partialDer ) {
 		double val = norm;
 		for(int i=0;i<alphas.length;i++){
-			double cv = seq.continuousVal( i+start );
+			double cv = seq.continuousVal( i+start )+1E-10;
 			val += (alphas[i]-1.0)*Math.log( cv ) - betas[i]*cv;
 			indices.add( i );
 			partialDer.add( alphaNorms[i] + 
