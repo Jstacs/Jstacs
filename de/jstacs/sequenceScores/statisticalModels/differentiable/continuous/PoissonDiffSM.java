@@ -22,7 +22,7 @@ public class PoissonDiffSM extends AbstractDifferentiableStatisticalModel {
 	private double ess;
 	
 	public PoissonDiffSM(double ess) throws IllegalArgumentException {
-		super(new AlphabetContainer( new ContinuousAlphabet(0, Double.MAX_VALUE) ), 1);
+		super(new AlphabetContainer( new ContinuousAlphabet(0, Integer.MAX_VALUE) ), 1);
 		this.ess = ess;
 		this.lambda = -1;
 	}
