@@ -13,8 +13,12 @@ import de.jstacs.utils.IntList;
 
 public class ConstantDiffSM extends AbstractDifferentiableStatisticalModel {
 
+	public ConstantDiffSM( AlphabetContainer con, int length) throws IllegalArgumentException {
+		super(con, length);
+	}
+	
 	public ConstantDiffSM(int length) throws IllegalArgumentException {
-		super(new AlphabetContainer(new ContinuousAlphabet()), length);
+		this(new AlphabetContainer(new ContinuousAlphabet()), length);
 	}
 
 	public ConstantDiffSM(StringBuffer xml) throws NonParsableException {
