@@ -19,7 +19,6 @@
 package de.jstacs.sequenceScores.differentiable.logistic;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Random;
 
 import de.jstacs.data.AlphabetContainer;
@@ -31,11 +30,10 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
-import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements a logistic function. The score is computed by the following formula
- * {@latex.ilb \\[ s(\\underline{x}) = \\exp\\left(\\sum_i \\lambda_i \\cdot f_i(\\underline{x})\\right).\\]}
+ * {@latex.ilb \\[ s(\\underline{x}) = \\exp\\left(\\sum_i \\lambda_{2i} \\cdot (f_i(\\underline{x})-\\lambda_{2i+1})\\right).\\]}
  * The constraints {@latex.inline $f_i(\\underline{x})$} are defined by {@link LogisticConstraint}s.  
  * 
  * @author Jens Keilwagen
@@ -64,7 +62,7 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 		super( con, length );
 		
 		this.constraint = ArrayHandler.clone( constraint );
-		this.parameter = new double[constraint.length];
+		this.parameter = new double[2*constraint.length];
 	}
 
 	/**
@@ -120,7 +118,7 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 	public double getLogScoreFor( Sequence seq, int start ) {
 		double res = 0;
 		for( int i = 0; i < constraint.length; i++ ) {
-			res += parameter[i]*constraint[i].getValue( seq, start );
+			res += parameter[2*i]*(constraint[i].getValue( seq, start )-parameter[2*i+1]);
 		}
 		return res;
 	}
@@ -134,9 +132,11 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 		double res = 0, f;
 		for( int i = 0; i < constraint.length; i++ ) {
 			f = constraint[i].getValue( seq, start );
-			res += parameter[i]*f;
-			indices.add( i );
-			partialDer.add( f );
+			res += parameter[2*i]*(f-parameter[2*i+1]);
+			indices.add( 2*i );
+			partialDer.add( f-parameter[2*i+1] );
+			indices.add( 2*i+1 );
+			partialDer.add( -parameter[2*i] );
 		}
 		return res;
 	}
@@ -218,7 +218,7 @@ public class LogisticDiffSS extends AbstractDifferentiableSequenceScore {
 	public String toString( NumberFormat nf ) {
 		StringBuffer sb = new StringBuffer();
 		for( int i =0; i < constraint.length; i++ ) {
-			sb.append( (parameter[i]>=0?"+":"") + nf.format(parameter[i]) +" * " +constraint[i] + "\n");
+			sb.append( (parameter[2*i]>=0?"+":"") + nf.format(parameter[2*i]) +" * (" +constraint[i] + (parameter[2*i+1]>=0?"+":"") + nf.format(parameter[2*i+1]) + ")\n");
 		}
 		return sb.toString();
 	}
