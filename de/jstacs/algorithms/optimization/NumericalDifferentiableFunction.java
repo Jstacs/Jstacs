@@ -27,31 +27,36 @@ package de.jstacs.algorithms.optimization;
  * 
  * @author Jens Keilwagen
  */
-public abstract class NumericalDifferentiableFunction extends DifferentiableFunction {
+public class NumericalDifferentiableFunction extends DifferentiableFunction {
 
 	/**
 	 * The constant used in the computation of the gradient. Should be close to
 	 * 0 but not exactly 0.
 	 */
 	protected double eps;
+	
+	protected DifferentiableFunction f;
 
 	/**
-	 * Sets the value for epsilon for this
+	 * Sets the function and value for epsilon for this
 	 * {@link NumericalDifferentiableFunction}.
 	 * 
+	 * @param f
+	 *            the function to be used 			
 	 * @param epsilon
 	 *            the epsilon used for the numerical differentiation
 	 * 
 	 * @throws IllegalArgumentException
 	 *             if <code>epsilon = 0</code>
 	 */
-	public NumericalDifferentiableFunction( double epsilon ) throws IllegalArgumentException {
+	public NumericalDifferentiableFunction( DifferentiableFunction f, double epsilon ) throws IllegalArgumentException {
 		if( epsilon == 0 ) {
 			throw new IllegalArgumentException( "Epsilon can not be 0." );
 		}
+		this.f = f;
 		eps = epsilon;
 	}
-
+	
 	/**
 	 * Evaluates the gradient of a function at a certain vector (in mathematical
 	 * sense) <code>x</code> numerically.
@@ -78,5 +83,15 @@ public abstract class NumericalDifferentiableFunction extends DifferentiableFunc
 		}
 
 		return gradient;
+	}
+
+	@Override
+	public double evaluateFunction(double[] x) throws DimensionException, EvaluationException {
+		return f.evaluateFunction(x);
+	}
+
+	@Override
+	public int getDimensionOfScope() {
+		return f.getDimensionOfScope();
 	}
 }
