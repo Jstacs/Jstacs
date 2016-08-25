@@ -98,13 +98,13 @@ public class ExtractIntrons implements JstacsTool {
 			this.count = 0;
 		}
 		
-		public static void addIntrons(SAMRecord record, Stranded stranded, List<Intron> introns){
+		public static boolean addIntrons(SAMRecord record, Stranded stranded, List<Intron> introns){
 			
 			int start = record.getAlignmentStart();
 			
 			String cigar = record.getCigarString();
 			if(!cigar.contains("N")){
-				return;
+				return false;
 			}
 			
 			int bitflag = record.getFlags();
@@ -118,7 +118,7 @@ public class ExtractIntrons implements JstacsTool {
 				Intron in = new Intron( start+startOffs.get(i), lens.get(i),strand );
 				introns.add(in);
 			}
-			
+			return startOffs.length()>0;
 		}
 /*		
 		public static void addIntrons(String[] samLine, Stranded stranded, List<Intron> introns){
@@ -218,7 +218,7 @@ public class ExtractIntrons implements JstacsTool {
 		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
 				
-		int i=0;
+		int i=0, s=0;
 		//String str = null;
 		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
@@ -247,7 +247,9 @@ public class ExtractIntrons implements JstacsTool {
 					intronMap.put(chrom, introns);
 				}
 				
-				Intron.addIntrons(rec, stranded, introns);
+				if( Intron.addIntrons(rec, stranded, introns) ) {
+					s++;
+				}
 				
 				if(i % 1000000 == 0){
 					protocol.append(i+"\n");
@@ -273,6 +275,9 @@ public class ExtractIntrons implements JstacsTool {
 		}		
 		sos.close();
 
+		protocol.append("#reads: " + i +"\n");
+		protocol.append("#split reads: " + s +"\n");
+		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("introns", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 
