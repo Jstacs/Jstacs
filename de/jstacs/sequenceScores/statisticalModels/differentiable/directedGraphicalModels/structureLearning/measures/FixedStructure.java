@@ -3,6 +3,7 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphi
 import de.jstacs.data.DataSet;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 
 public class FixedStructure extends Measure {
 
@@ -10,8 +11,15 @@ public class FixedStructure extends Measure {
 
 	public FixedStructure(StringBuffer xml) throws NonParsableException {
 		super(xml);
+		xml = XMLParser.extractForTag(xml, "Fixed");
+		structure = (int[][]) XMLParser.extractObjectForTags(xml, "structure");
 	}
 
+	/**
+	 * 
+	 * @param structure
+	 * @throws CloneNotSupportedException
+	 */
 	public FixedStructure(int[][] structure) throws CloneNotSupportedException {
 		super();
 		this.structure = new int[structure.length][];
@@ -37,5 +45,15 @@ public class FixedStructure extends Measure {
 			throws Exception {
 		return ArrayHandler.clone(this.structure);
 	}
+
+	@Override
+	public StringBuffer toXML() {
+		StringBuffer xml = new StringBuffer();
+		XMLParser.appendObjectWithTags(xml, structure, "structure");
+		XMLParser.addTags(xml, "Fixed");
+		return xml;
+	}
+	
+	
 
 }
