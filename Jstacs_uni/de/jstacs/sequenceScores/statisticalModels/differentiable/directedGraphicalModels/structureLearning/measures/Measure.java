@@ -63,6 +63,10 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 	protected Measure( MeasureParameterSet parameters ) throws CloneNotSupportedException {
 		this.parameters = (MeasureParameterSet) parameters.clone();
 	}
+	
+	protected Measure(){
+		
+	}
 
 	/**
 	 * Returns the XML-tag for storing this measure
