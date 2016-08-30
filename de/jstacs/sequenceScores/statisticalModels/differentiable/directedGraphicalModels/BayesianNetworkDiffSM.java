@@ -36,6 +36,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.FixedStructure;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.Measure;
 import de.jstacs.utils.DoubleList;
@@ -940,7 +941,7 @@ public class BayesianNetworkDiffSM extends
 	 * (boolean)
 	 */
 	public void initializeFunctionRandomly(boolean freeParams) throws Exception {
-		if (!(structureMeasure instanceof InhomogeneousMarkov)) {
+		if (!(structureMeasure instanceof InhomogeneousMarkov || structureMeasure instanceof FixedStructure) ) {
 			throw new Exception("Not implemented");
 		}
 		this.freeParams = freeParams;
