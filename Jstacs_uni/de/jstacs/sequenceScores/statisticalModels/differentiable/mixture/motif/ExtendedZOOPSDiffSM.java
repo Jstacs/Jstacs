@@ -643,7 +643,7 @@ public class ExtendedZOOPSDiffSM extends AbstractMixtureDiffSM implements Mutabl
 			erg.append( "\nmotif " + (i / 2) + ": " );
 			if( hiddenPotential.length > 1 )
 			{
-				nf.format(erg.append( Math.exp(partNorm[i / 2] - norm)) +"\texp(" +partNorm[i / 2] + " - " + norm + ")\t" + logHiddenPotential[i/2] );
+				erg.append( nf.format(Math.exp(partNorm[i / 2] - norm)) +"\texp(" +partNorm[i / 2] + " - " + norm + ")\t" + logHiddenPotential[i/2] );
 			}
 			erg.append( "\n" + function[i].toString(nf) + "\n" + function[i + 1].toString(nf) + "\n" );
 		}
