@@ -120,30 +120,7 @@ public class ExtractIntrons implements JstacsTool {
 			}
 			return startOffs.length()>0;
 		}
-/*		
-		public static void addIntrons(String[] samLine, Stranded stranded, List<Intron> introns){
-			
-			int start = Integer.parseInt(samLine[3]);
-			
-			String cigar = samLine[5];
-			if(!cigar.contains("N")){
-				return;
-			}
-			
-			int bitflag = Integer.parseInt(samLine[1]);
-			
-			startOffs.clear();
-			lens.clear();
-			getOffset(cigar,startOffs,lens);
-			Strand strand = getStrand(bitflag, stranded);
-			
-			for(int i=0;i<startOffs.length();i++){
-				Intron in = new Intron( start+startOffs.get(i), lens.get(i),strand );
-				introns.add(in);
-			}
-			
-		}
-*/		
+	
 		private static Strand getStrand(int bitflag, Stranded stranded) {
 			if(stranded == Stranded.NO){
 				return Strand.UNK;
@@ -217,50 +194,58 @@ public class ExtractIntrons implements JstacsTool {
 
 		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
-				
+		ValidationStringency stringency = (ValidationStringency) parameters.getParameterAt(2).getValue();
+		
 		int i=0, s=0;
-		//String str = null;
 		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
-		srf.validationStringency( ValidationStringency.LENIENT );//important for unmapped reads
+		srf.validationStringency( stringency );//important for unmapped reads
 		
 		//BufferedReader reader;
+		int corrupt = 0;
 		for( int k = 0; k < eps.getNumberOfParameters(); k++ ) {
 			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
 			protocol.append(fName+" " + (new Date()) + "\n");
-
-			SamReader sr = srf.open(new File(fName));
-			SAMRecordIterator samIt = sr.iterator();		
 			
-			//reader = new BufferedReader(new FileReader(fName));
-			//while( (str = reader.readLine()) != null ){
-			//	if( str.charAt(0) == '@' ) continue;
+			int a = 0, b = 0;
+			try {
+				SamReader sr = srf.open(new File(fName));
+				SAMRecordIterator samIt = sr.iterator();		
 				
-			//	String[] parts = str.split("\t");
-			//	String chrom = parts[2];
-			while(samIt.hasNext()){
-				SAMRecord rec = samIt.next();
-				String chrom = rec.getReferenceName();	
-				ArrayList<Intron> introns = intronMap.get(chrom);
-				if( introns == null ) {
-					introns = new ArrayList<ExtractIntrons.Intron>();
-					intronMap.put(chrom, introns);
+				while(samIt.hasNext()){
+					SAMRecord rec = samIt.next();
+					String chrom = rec.getReferenceName();	
+					ArrayList<Intron> introns = intronMap.get(chrom);
+					if( introns == null ) {
+						introns = new ArrayList<ExtractIntrons.Intron>();
+						intronMap.put(chrom, introns);
+					}
+					
+					if( Intron.addIntrons(rec, stranded, introns) ) {
+						s++;
+						b++;
+					}
+					
+					if(i % 1000000 == 0){
+						protocol.append(i+"\n");
+					}
+					i++;
+					a++;
+					
 				}
-				
-				if( Intron.addIntrons(rec, stranded, introns) ) {
-					s++;
-				}
-				
-				if(i % 1000000 == 0){
-					protocol.append(i+"\n");
-				}
-				i++;
-				
+				//reader.close();
+				sr.close();
+			} catch( Exception e ) {
+				//even if the file is broken take all information before it breaks and then write message
+				e.printStackTrace();
+				corrupt++;
+			} finally {
+				protocol.append("statistics for " + fName +"\n");
+				protocol.append("#reads: " + a +"\n");
+				protocol.append("#split reads: " + b +"\n");
 			}
-			//reader.close();
-			sr.close();
 		}
-		/**/
+		
 		File out = File.createTempFile("intron_gff", "_GeMoMa.temp", new File("."));
 		out.deleteOnExit(); 
 
@@ -275,6 +260,8 @@ public class ExtractIntrons implements JstacsTool {
 		}		
 		sos.close();
 
+		protocol.append("\noverall statistics\n");
+		protocol.append("#corrupt files: " + corrupt +"\n");
 		protocol.append("#reads: " + i +"\n");
 		protocol.append("#split reads: " + s +"\n");
 		
@@ -330,7 +317,8 @@ public class ExtractIntrons implements JstacsTool {
 					new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
 							new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam",  true )
-						), "mapped reads", "", 1 ) )
+						), "mapped reads", "", 1 ) ),
+					new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() )
 				);
 				/*					
 				//complex
