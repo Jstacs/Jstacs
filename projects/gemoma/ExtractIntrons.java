@@ -196,7 +196,7 @@ public class ExtractIntrons implements JstacsTool {
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
 		ValidationStringency stringency = (ValidationStringency) parameters.getParameterAt(2).getValue();
 		
-		int i=0, s=0;
+		long i=0, s=0;
 		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( stringency );//important for unmapped reads
@@ -207,7 +207,7 @@ public class ExtractIntrons implements JstacsTool {
 			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
 			protocol.append(fName+" " + (new Date()) + "\n");
 			
-			int a = 0, b = 0;
+			long a = 0, b = 0;
 			try {
 				SamReader sr = srf.open(new File(fName));
 				SAMRecordIterator samIt = sr.iterator();		
