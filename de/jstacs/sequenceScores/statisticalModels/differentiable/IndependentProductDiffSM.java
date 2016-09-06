@@ -158,7 +158,7 @@ public class IndependentProductDiffSM extends IndependentProductDiffSS implement
 	 */
 	public IndependentProductDiffSM( double ess, boolean plugIn, DifferentiableStatisticalModel[] functions, int[] index, int[] length, boolean[] reverse ) throws CloneNotSupportedException,
 	IllegalArgumentException, WrongAlphabetException {
-		super( plugIn, functions, length );
+		super( plugIn, functions, index, length, reverse );
 		this.ess = ess;
 		prepare();
 	}
