@@ -78,7 +78,7 @@ public class Extractor implements JstacsTool {
 		out.add(SafeOutputStream.getSafeOutputStream(b));
 	}
 
-	private static String[] name = {"cds-parts", "assignment", "proteins", "transcripts", "acceptor", "donor"};
+	private static String[] name = {"cds-parts", "assignment", "proteins", "cds", "acceptor", "donor"};
 	private static String[] type;
 	static {
 		type = new String[name.length];
@@ -264,7 +264,7 @@ public class Extractor implements JstacsTool {
 			} else if( t.equalsIgnoreCase( "mRNA" ) || t.equalsIgnoreCase("transcript") ) {
 				transcript.add(line);
 			}
-		} while( (line=r.readLine()) != null );		
+		} //TODO while( (line=r.readLine()) != null );		
 		r.close();
 		
 		//read transcripts
@@ -318,6 +318,7 @@ public class Extractor implements JstacsTool {
 				} );
 			}
 		}
+		
 		return annot;
 	}
 	
@@ -509,21 +510,26 @@ public class Extractor implements JstacsTool {
 					
 					int off1 = val[1]-1>=intronic ? intronic : 0;
 					int off2 = val[2]+intronic<=seq.length() ? intronic : 0;
-					String p = seq.substring( val[1]-1-off1, val[2]+off2 );
-					//check
-					if( strand < 0 ) {
-						p=Tools.rc(p);
-					}
-					String s;
-					if( strand > 0 ) {
-						s=p.substring(off1,p.length()-off2);
-					} else {
-						s=p.substring(off2,p.length()-off1);
-					}
-					acc[i]=don[i]="";
-					if( !s.matches( "[ACGT]*") ) {
+					String p, s;
+					try {
+						p = seq.substring( val[1]-1-off1, val[2]+off2 );
+						//check
+						if( strand < 0 ) {
+							p=Tools.rc(p);
+						}
+						
+						if( strand > 0 ) {
+							s=p.substring(off1,p.length()-off2);
+						} else {
+							s=p.substring(off2,p.length()-off1);
+						}
+						acc[i]=don[i]="";
+						if( !s.matches( "[ACGT]*") ) {
+							s=null;
+						}
+					} catch( StringIndexOutOfBoundsException sioobe ) {
 						s=null;
-					}
+					}					
 					part.add(new Part(s));
 				}
 				
@@ -702,7 +708,7 @@ System.out.println(spliceSeq);
 							//TODO? System.out.println(trans + "\t" + (j-1) + "\t"+gt+"\t"+gc+"\t"+ag);
 						}
 					} else {
-						if( verbose ) protocol.appendWarning(trans + "\tskip ACGT coding part "+i +"\n");
+						if( verbose ) protocol.appendWarning(trans + "\tskip non-ACGT coding part "+i +"\n");
 						problem[0]++;
 					}
 				}
@@ -792,8 +798,8 @@ System.out.println(spliceSeq);
 
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					
-				new SimpleParameter(DataType.BOOLEAN, "proteins", "whether the complete proteins sequences should returned as output", true, false ),
-				new SimpleParameter(DataType.BOOLEAN, "transcripts", "whether the complete transcripts sequences should returned as output", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
 				
 				/*
 				new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
@@ -857,6 +863,6 @@ System.out.println(spliceSeq);
 
 	@Override
 	public String getToolVersion() {
-		return "1.1.3";
+		return "1.2";
 	}
 }

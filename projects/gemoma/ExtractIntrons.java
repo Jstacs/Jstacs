@@ -208,10 +208,9 @@ public class ExtractIntrons implements JstacsTool {
 			protocol.append(fName+" " + (new Date()) + "\n");
 			
 			long a = 0, b = 0;
+			SamReader sr = srf.open(new File(fName));
+			SAMRecordIterator samIt = sr.iterator();
 			try {
-				SamReader sr = srf.open(new File(fName));
-				SAMRecordIterator samIt = sr.iterator();		
-				
 				while(samIt.hasNext()){
 					SAMRecord rec = samIt.next();
 					String chrom = rec.getReferenceName();	
@@ -233,13 +232,14 @@ public class ExtractIntrons implements JstacsTool {
 					a++;
 					
 				}
-				//reader.close();
-				sr.close();
 			} catch( Exception e ) {
-				//even if the file is broken take all information before it breaks and then write message
+				//even if the file is broken take all information before it breaks and then write a message
 				e.printStackTrace();
 				corrupt++;
 			} finally {
+				samIt.close();
+				sr.close();
+				
 				protocol.append("statistics for " + fName +"\n");
 				protocol.append("#reads: " + a +"\n");
 				protocol.append("#split reads: " + b +"\n");
@@ -252,11 +252,12 @@ public class ExtractIntrons implements JstacsTool {
 		Iterator<String> it = intronMap.keySet().iterator();
 		
 		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream(new FileOutputStream(out));
+		int intronNum = 0;
 		while(it.hasNext()){
 			String chrom = it.next();
 			List<Intron> introns = intronMap.get(chrom);
 			introns = count(introns);
-			print(chrom,introns,sos);
+			intronNum += print(chrom,introns,sos);
 		}		
 		sos.close();
 
@@ -264,16 +265,20 @@ public class ExtractIntrons implements JstacsTool {
 		protocol.append("#corrupt files: " + corrupt +"\n");
 		protocol.append("#reads: " + i +"\n");
 		protocol.append("#split reads: " + s +"\n");
+		protocol.append("#introns: " + intronNum +"\n");
 		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("introns", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 
-	private static void print(String chrom, List<Intron> introns,SafeOutputStream sos) throws IOException{
+	private static int print(String chrom, List<Intron> introns,SafeOutputStream sos) throws IOException{
 		Iterator<Intron> it = introns.iterator();
+		int i = 0;
 		while(it.hasNext()){
 			Intron in = it.next();
 			sos.writeln(chrom+"\tsam\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
+			i++;
 		}
+		return i;
 	}
 	
 	private static List<Intron> count(List<Intron> introns) {
