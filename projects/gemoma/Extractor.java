@@ -25,28 +25,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import projects.gemoma.Tools.Ambiguity;
 import de.jstacs.DataType;
+import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
-import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
-import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
@@ -55,6 +51,7 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
+import projects.gemoma.Tools.Ambiguity;
 
 /**
  * This class extracts the information need to run GeMoMa.
@@ -105,7 +102,7 @@ public class Extractor implements JstacsTool {
 		
 		HashMap<String, HashMap<String,Gene>> annot = readGFF( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
 		HashMap<Integer,int[]> count = new HashMap<Integer, int[]>();
-		int[] problem = new int[4];
+		int[] problem = new int[6];
 		Arrays.fill(problem, 0);
 		int[] info = new int[3];
 		Arrays.fill(info, 0);
@@ -120,6 +117,7 @@ public class Extractor implements JstacsTool {
 		}
 		HashMap<String,Character> code = Tools.getCode( in );
 		
+		Ambiguity ambi = (Ambiguity) parameters.getParameterForName("Ambiguity").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		
 		ArrayList<File> file = new ArrayList<File>();
@@ -154,7 +152,7 @@ public class Extractor implements JstacsTool {
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( protocol, verbose, comment, problem, info, count, intronic, exonic, seq, annot, code, out, donor, acceptor );
+				extract( ambi, protocol, verbose, comment, problem, info, count, intronic, exonic, seq, annot, code, out, donor, acceptor );
 				//clear
 				comment = line.substring(1);
 				seq.delete(0, seq.length());
@@ -164,7 +162,7 @@ public class Extractor implements JstacsTool {
 			}
 		}
 		//do
-		extract( protocol, verbose, comment, problem, info, count, intronic, exonic, seq, annot, code, out, donor, acceptor );
+		extract( ambi, protocol, verbose, comment, problem, info, count, intronic, exonic, seq, annot, code, out, donor, acceptor );
 		r.close();
 
 		
@@ -186,7 +184,9 @@ public class Extractor implements JstacsTool {
 		protocol.append( "ambigious nucleotide\t" + problem[0] +"\n");
 		protocol.append( "missing stop\t" + problem[1] +"\n");
 		protocol.append( "premature stop\t" + problem[2]+"\n");
-		protocol.append( "missing start\t" + problem[3]+"\n\n");
+		protocol.append( "missing start\t" + problem[3]+"\n");
+		protocol.append( "no DNA\t" + problem[4]+"\n");
+		protocol.append( "frame problems\t" + problem[5]+"\n\n");
 		
 		//log
 		protocol.append("coding exons\t#\n");
@@ -223,7 +223,6 @@ public class Extractor implements JstacsTool {
 	}
 
 	private static String par = "Parent=";
-	private static String geneTag = "gene";
 	
 	//gff has to be sorted 
 	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
@@ -231,13 +230,13 @@ public class Extractor implements JstacsTool {
 		HashMap<String,Gene> chr;
 		Gene gene = null;
 		BufferedReader r;
-		String line, geneID = null, transcriptID, t;
+		String line, t;
 		String[] split;
 		int idx, h, end;
 		
-		//read genes
+		//read transcripts
 		r = new BufferedReader( new FileReader(input) );
-		ArrayList<String> transcript = new ArrayList<String>();
+		HashMap<String, Gene> trans = new HashMap<String, Gene>();
 		ArrayList<String> cds = new ArrayList<String>();
 		while( (line=r.readLine()) != null ) {
 			if( line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
@@ -247,56 +246,43 @@ public class Extractor implements JstacsTool {
 			end = line.indexOf('\t',idx); 
 			
 			t = line.substring(idx,end);
-			if( t.equalsIgnoreCase( "CDS") ) {
-				cds.add(line);
-			} else if( t.equalsIgnoreCase( geneTag ) ) {
-				//System.out.println(line);
-				split = line.split("\t");
-				idx = split[8].indexOf("ID=")+3;
-				h = split[8].indexOf(';',idx);
-				geneID = split[8].substring(idx, h>0?h:split[8].length() );
-				chr = annot.get(split[0]);
-				if( chr == null ) {
-					chr = new HashMap<String,Gene>();
-					annot.put(split[0], chr);
-				}
-				chr.put(geneID, new Gene(geneID,split[3],split[4],split[6]));
-			} else if( t.equalsIgnoreCase( "mRNA" ) || t.equalsIgnoreCase("transcript") ) {
-				transcript.add(line);
-			}
-		} //TODO while( (line=r.readLine()) != null );		
-		r.close();
-		
-		//read transcripts
-		HashMap<String, Gene> trans = new HashMap<String, Gene>();
-		String[] parent;
-		for( int i = 0 ; i < transcript.size(); i++ ) {
-			line = transcript.get(i);
-			split = line.split("\t");
-			
-			idx = split[8].indexOf("ID=")+3;
-			h = split[8].indexOf(';',idx);
-			transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
-			if( selected == null || selected.containsKey(transcriptID) ) {
-				idx = split[8].indexOf(par)+par.length();
-				h = split[8].indexOf(';',idx);
-				parent = split[8].substring(idx, h>0?h:split[8].length() ).split(",");
-				HashMap<String,Gene> x = annot.get(split[0]);
-				int j = 0;
-				gene = null;
-				if( x != null) { 
-					while( j < parent.length && (gene = x.get(parent[j])) == null ) {
-						j++;
+			switch( t ) {
+				case "CDS":
+					cds.add(line);
+					break;
+				case "mRNA": case "transcript":
+					split = line.split("\t");
+					
+					idx = split[8].indexOf("ID=")+3;
+					h = split[8].indexOf(';',idx);
+					String transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
+					if( selected == null || selected.containsKey(transcriptID) ) {
+						idx = split[8].indexOf(par)+par.length();
+						h = split[8].indexOf(';',idx);
+						String geneID = split[8].substring(idx, h>0?h:split[8].length() );
+						if( geneID.indexOf(',')>= 0 ) {
+							protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
+						}
+						
+						chr = annot.get(split[0]);
+						if( chr == null ) {
+							chr = new HashMap<String,Gene>();
+							annot.put(split[0], chr);
+						}
+						
+						gene = chr.get(geneID);			
+						if( gene == null ) {
+							gene = new Gene(geneID,split[6]);
+							chr.put(geneID, gene);
+							
+						}
+						gene.add( transcriptID );
+						trans.put(transcriptID, gene);
 					}
-				} else {
-					protocol.appendWarning("Could not parse a feature \""+geneTag+"\" on sequence \"" + split[0] + "\": " + line + ".\n" );
-				}
-				if( gene != null ) {
-					gene.add( transcriptID );
-					trans.put(transcriptID, gene);
-				}
+					break;
 			}
 		}
+		r.close();
 		
 		//read cds
 		for( int i = 0 ; i < cds.size(); i++ ) {
@@ -305,18 +291,17 @@ public class Extractor implements JstacsTool {
 				
 			idx = split[8].indexOf(par)+par.length();
 			h = split[8].indexOf(';',idx);
-			parent = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase().split(",");
-			int j = 0;
-			while( j < parent.length && (gene = trans.get(parent[j]) ) == null ) {
-				j++;
-			}
-			if( gene != null && (selected==null || selected.containsKey(parent[j])) ) {
-				gene.add( parent[j], new int[]{
-						split[6].charAt(0)=='+'?1:-1, //strand
-						Integer.parseInt( split[3] ), //start
-						Integer.parseInt( split[4] ) //end
-				} );
-			}
+			String[] parent = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase().split(",");
+			for( int j = 0; j < parent.length; j++ ) {
+				gene = trans.get(parent[j]);
+				if( gene != null && (selected==null || selected.containsKey(parent[j])) ) {
+					gene.add( parent[j], new int[]{
+							split[6].charAt(0)=='+'?1:-1, //strand
+							Integer.parseInt( split[3] ), //start
+							Integer.parseInt( split[4] ) //end
+					} );
+				}
+			}			
 		}
 		
 		return annot;
@@ -329,14 +314,19 @@ public class Extractor implements JstacsTool {
 		int strand;
 		String id;
 		
-		Gene(String id, String start, String end, String strand) {
+		Gene(String id, String strand) {
 			transcript = new HashMap<String, IntList>();
 			exon = new ArrayList<int[]>();
 			this.id = id;
+			this.strand = strand.charAt(0)=='+' ? 1: -1;
+			start = end = -1;
+		}
+		
+/*		Gene(String id, String start, String end, String strand) {
+			this( id, strand );
 			this.start = Integer.parseInt(start);
 			this.end = Integer.parseInt(end);
-			this.strand = strand.charAt(0)=='+' ? 1: -1;
-		}
+		}*/
 		
 		void add( String t ) {
 			transcript.put(t,new IntList());
@@ -423,8 +413,28 @@ public class Extractor implements JstacsTool {
 			}
 		}
 
+		void precompute() {
+			start = Integer.MAX_VALUE;
+			end = Integer.MIN_VALUE;
+			for( int i = 0; i < exon.size(); i++ ) {
+				int[] current = exon.get(i);
+				if ( start > current[1] ) {
+					start = current[1];
+				}
+				if ( end < current[2] ) {
+					end = current[2];
+				}
+			}
+		}
+		
 		@Override
 		public int compareTo(Gene o) {
+			if( start == -1 ) {
+				precompute();
+			}
+			if( o.start == -1 ) {
+				o.precompute();
+			}
 			return Integer.compare( start+(end-start)/2, o.start+(o.end-o.start)/2 );
 		}
 	}
@@ -441,7 +451,7 @@ public class Extractor implements JstacsTool {
 		return true;
 	}	
 	
-	private static void extract( Protocol protocol, boolean verbose, String comment, int[] problem, int[] info, HashMap<Integer,int[]> count,
+	private static void extract( Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] problem, int[] info, HashMap<Integer,int[]> count,
 			int intronic, int exonic, StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code,
 			ArrayList<SafeOutputStream> out, HashMap<String, int[]> donor, HashMap<String, int[]> acceptor) throws Exception {
 		if( comment == null ) {
@@ -524,18 +534,15 @@ public class Extractor implements JstacsTool {
 							s=p.substring(off2,p.length()-off1);
 						}
 						acc[i]=don[i]="";
-						if( !s.matches( "[ACGT]*") ) {
-							s=null;
-						}
 					} catch( StringIndexOutOfBoundsException sioobe ) {
-						s=null;
+						s=null;//TODO
 					}					
 					part.add(new Part(s));
 				}
 				
 				Arrays.fill( used, false );
+				int currentProb=-1;
 				for( int k = 0; k < id.length; k++ ) {
-					//int gt = 0, gc = 0, ag = 0;
 					dnaSeqBuff.delete(0, dnaSeqBuff.length());
 					
 					String trans = id[k];
@@ -550,6 +557,7 @@ public class Extractor implements JstacsTool {
 					for( j = 0; j < il.length(); j++ ) {
 						current = part.get(il.get(j));
 						if( current.dna == null ) {
+							currentProb=1;
 							break;
 						}
 						dnaSeqBuff.append( current.dna );
@@ -558,20 +566,39 @@ public class Extractor implements JstacsTool {
 						if( current.offsetLeft < 0 ) {
 							current.offsetLeft = (3-offset)%3;
 							//System.out.println( trans + "\t" + il.get(j) +"\t" +current.dna );
-							current.aa = Tools.translate(current.offsetLeft, current.dna, code, false, Ambiguity.EXCEPTION);
+							try {
+								current.aa = Tools.translate(current.offsetLeft, current.dna, code, false, ambi);
+							} catch( IllegalArgumentException iae ) {
+								current.aa=null;
+								currentProb=0;
+								break;
+							}
 							current.offsetRight = current.dna.length() - current.offsetLeft - 3*current.aa.length();
 						} else {
 							if( current.offsetLeft != (3-offset)%3 ) {
+								currentProb=2;
 								break;
 							}
 						}
 						offset = current.offsetRight;
 					}
+
+					String p=null;
+					if( j == il.length() ) {
+						if( ambi == Ambiguity.EXCEPTION && !dnaSeqBuff.toString().matches("[ACGT]*") ) {//to be compatible with older versions
+							j=il.length()+1;
+							currentProb=0;
+						} else {
+							try {
+								p = Tools.translate(0, dnaSeqBuff.toString(), code, false, ambi);
+							} catch( IllegalArgumentException iae ) {
+								j=il.length()+1;
+								currentProb=0;
+							}
+						}
+					}
 					
 					if( j == il.length() ) {
-						String p=null;
-						
-						p = Tools.translate(0, dnaSeqBuff.toString(), code, false, Ambiguity.EXCEPTION);
 						int anz = 0, index=-1, last = 0;
 						while( (index=p.indexOf('*',index+1))>= 0 ) {
 							anz++;
@@ -610,7 +637,6 @@ public class Extractor implements JstacsTool {
 							
 							//splice sites
 							int MAX_INTRON_LENGTH=15000, ignoreAAForSpliceSite=30, targetStart, targetEnd;
-							int gt = 0, gc = 0, ag = 0;
 							last=-1;
 							for( j = 0; j < il.length(); j++ ) {
 								current = part.get(il.get(j));
@@ -639,7 +665,6 @@ public class Extractor implements JstacsTool {
 									add=t;
 								}
 								
-//System.out.println(j + "\t" + Arrays.toString(exon) + "\t" + targetStart + "\t" + targetEnd + "\t" + current.offsetLeft + "\t" + current.offsetRight + "\t" + add);
 								if( current.dna.length()>0 ) {
 
 									if( j!=0 && current.acc==null ) {
@@ -647,12 +672,7 @@ public class Extractor implements JstacsTool {
 										spliceSeq.delete(0, spliceSeq.length());
 										Tools.getMaximalExtension(seq, forward, false, -strand, forward ? targetStart+add-1 : (targetEnd-add), '*','*', spliceSeq, aa, current.aa.substring(0,add/3), exonic, intronic-1, MAX_INTRON_LENGTH, code );
 										int d = aa.length()-add/3-(current.offsetLeft>0?1:0);
-/*
-System.out.print( getFiller(intronic-1, '.' ) );
-System.out.print( matchAA2DNA(aa.subSequence(0, d),'>') );
-System.out.println( getFiller( (3-current.offsetLeft)%3, '.') );
-System.out.println( spliceSeq );
-*/
+
 										int border = intronic-1 + 3*d + ((3-current.offsetLeft)%3);
 										current.acc = spliceSeq.substring(0, border).toLowerCase() + spliceSeq.substring(border).toUpperCase();
 										
@@ -672,12 +692,7 @@ System.out.println( spliceSeq );
 										spliceSeq.delete(0, spliceSeq.length());
 										
 										Tools.getMaximalExtension(seq, forward, true, forward?1:-1, forward ? targetEnd-add : (targetStart+add-1), '*','*', spliceSeq, aa, current.aa.substring(current.aa.length() - add/3), exonic, intronic-1, MAX_INTRON_LENGTH, code );
-/*								
-System.out.print( getFiller(exonic, '.' ) );
-System.out.print( matchAA2DNA(current.aa.substring(current.aa.length() - add/3), '>') );
-System.out.println( getFiller( current.offsetRight, '.') );
-System.out.println(spliceSeq);
-*/	
+
 										int border = exonic + add + current.offsetRight;
 										current.don = spliceSeq.substring(0, border).toUpperCase() + spliceSeq.substring(border).toLowerCase();
 										
@@ -692,24 +707,32 @@ System.out.println(spliceSeq);
 										}
 										stat[0]++;
 									}
-									
-									if( j!= 0 && acc[il.get(j)].equalsIgnoreCase("AG") ) {
-										ag++;
-									}
-									if( j+1 < il.length() ) {
-										if( don[il.get(j)].equalsIgnoreCase("GT") ) {
-											gt++;
-										} else if( don[il.get(j)].equalsIgnoreCase("GC") ) {
-											gc++;
-										}
-									}
 								}
 							}
 							//TODO? System.out.println(trans + "\t" + (j-1) + "\t"+gt+"\t"+gc+"\t"+ag);
 						}
 					} else {
-						if( verbose ) protocol.appendWarning(trans + "\tskip non-ACGT coding part "+i +"\n");
-						problem[0]++;
+						switch (currentProb ) {
+							case 0:
+								if( verbose ) {
+									if( j < il.length() ) {
+										protocol.appendWarning(trans + "\tskip non-ACGT coding part "+j+"\n");
+									} else {
+										protocol.appendWarning(trans + "\tskip non-ACGT coding protein\n");
+									}
+								}
+								problem[0]++;
+								break;
+							case 1:
+								if( verbose ) protocol.appendWarning(trans + "\tskip no DNA for coding part "+j+"\n");
+								problem[4]++;
+								break;
+							case 2:
+								if( verbose ) protocol.appendWarning(trans + "\tskip frame problems for coding part "+j+"\n");
+								problem[5]++;
+								break;
+						}
+						
 					}
 				}
 				
@@ -756,27 +779,6 @@ System.out.println(spliceSeq);
 		}
 	}
 	
-	private static String getFiller( int anz, char c ) {
-		char[] ch = new char[anz];
-		Arrays.fill(ch, c);
-		return new String(ch);
-	}
-	
-	private static String matchAA2DNA( CharSequence up, char c ) {
-		char[] ch = new char[3*up.length()];
-		for( int i = 0; i < up.length(); i++ ) {
-			ch[3*i] = up.charAt(i);
-			ch[3*i+1] = ch[3*i+2] = c;
-		}
-		return new String(ch);
-	}
-	
-	private static class EntryNameComparator<T> implements Comparator<Entry<String,T>> {
-		public int compare(Entry<String,T> o1, Entry<String,T> o2) {
-			return o1.getKey().compareTo( o2.getKey() );
-		}
-	}
-	
 	static class Part {
 		String dna, aa, don, acc;
 		int offsetLeft, offsetRight;
@@ -812,7 +814,10 @@ System.out.println(spliceSeq);
 					}, "splice sites", "whether splice sites should be returned or not", true ),
 				/**/	
 				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns will be ignored.", "tabular,txt", maxSize>-1 ),
-					
+				new EnumParameter( Ambiguity.class, "This parameter defines how to deal with ambiguities in the DNA. There are 3 options: "
+						+ "EXCEPTION, which will remove the corresponding transcript, "
+						+ "AMBIGUOUS, which will use an X for the corresponding amino acid, and "
+						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),	
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
 			);		
 		}catch(Exception e){
