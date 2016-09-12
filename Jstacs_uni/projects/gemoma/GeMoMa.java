@@ -190,7 +190,7 @@ public class GeMoMa implements JstacsTool {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
 			if( args[0].equalsIgnoreCase("CLI") ) {
-				CLI cli = new CLI( new Extractor(maxSize), new GeMoMa(maxSize, timeOut, maxTimeOut) );
+				CLI cli = new CLI( new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
 				String[] part = new String[args.length-1];
 				System.arraycopy(args, 1, part, 0, part.length);
 				cli.run(part);
@@ -205,7 +205,7 @@ public class GeMoMa implements JstacsTool {
 					System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 				}
 				
-				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new GeMoMa(maxSize, timeOut, maxTimeOut) );
+				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
 				galaxy.run(args);
 			}
 		}
@@ -270,10 +270,19 @@ public class GeMoMa implements JstacsTool {
 						h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
 						spliceHash.put( split[0], h );
 					}
+					/*
 					int idx= split[6].charAt(0)=='+'?0:1;
 					
 					//donor = first element, acceptor = second
 					h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
+					*/
+					char c = split[6].charAt(0);
+					if( c =='+' || c=='.' ) {
+						h[0].add( new int[]{Integer.parseInt(split[3]), Integer.parseInt(split[4])} );
+					}
+					if( c =='-' || c=='.' ) {
+						h[1].add( new int[]{Integer.parseInt(split[4]), Integer.parseInt(split[3])} );
+					}
 				}
 			}
 			r.close();
@@ -380,7 +389,7 @@ public class GeMoMa implements JstacsTool {
 			//collect blast hits per transcript, split for chromosome, strand and cds part
 			HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash  = new HashMap<String, HashMap<Integer,ArrayList<Hit>>[]>();
 			r = new BufferedReader( new FileReader( (String) parameters.getParameterForName("tblastn results").getValue() ) );
-			time = Time.getTimeInstance(System.out);
+			time = Time.getTimeInstance(null);
 			protocol.append(tp.getHeading()+"\n");
 			while( (line=r.readLine()) != null ) {
 				if( line.length() > 0 ) {
@@ -403,8 +412,12 @@ public class GeMoMa implements JstacsTool {
 			tp.compute(old, hash);		
 		} catch ( Throwable er ) {
 			protocol.appendThrowable(er);
-			e = new Exception(er.getMessage());
-			e.setStackTrace( er.getStackTrace() );
+			if( er instanceof Exception ) {
+				e = (Exception) er;
+			} else {
+				e = new Exception(er.getMessage());
+				e.setStackTrace( er.getStackTrace() );
+			}
 			okay=false;
 		} finally {
 			
@@ -504,10 +517,9 @@ public class GeMoMa implements JstacsTool {
 	 * 
 	 * @param hash this {@link HashMap} contains the hits
 	 * @param line a line of the blast output
-	 * @throws WrongAlphabetException 
 	 */
 	@SuppressWarnings("unchecked")
-	void addHit( HashMap<String, HashMap<Integer,ArrayList<Hit>>[]> hash, String line ) throws WrongAlphabetException {
+	void addHit( HashMap<String, HashMap<Integer,ArrayList<Hit>>[]> hash, String line ) {
 		String[] split = line.split("\t");
 		
 		if( Double.parseDouble(split[10]) > eValue ) {//skip if e-Value of the hit is too large
@@ -612,6 +624,8 @@ public class GeMoMa implements JstacsTool {
 		HashSet<Integer> preDonor, postAcceptor;
 		char firstAA;
 		
+		int phase;
+		
 		/**
 		 * The standard constructor. 
 		 */
@@ -633,7 +647,7 @@ public class GeMoMa implements JstacsTool {
 			this.score = score;
 			
 			this.queryAlign = queryAlign;
-			this.targetAlign = targetAlign;
+			this.targetAlign = targetAlign.replaceAll("[BJZ]","X");//replace ambiguous amino acids to "X"
 			
 			this.info = info;
 			
@@ -1157,6 +1171,11 @@ public class GeMoMa implements JstacsTool {
 			} else {				
 				info+="acceptor";
 				if( add != 0 ) {
+					phase = (add%3);
+					if( phase < 0 ) {
+						phase+=3;
+					}
+					
 					if( forward ) {
 						info+=" (" + targetStart + ")";
 						targetStart-=add;
@@ -1766,6 +1785,8 @@ public class GeMoMa implements JstacsTool {
 			try {
 				Future<int[]> f = executorService.submit(new Callable<int[]>(){
 	                public int[] call() throws Exception {
+						splice=null;
+						used=null;
 	                	HashMap<Integer,ArrayList<Hit>>[] lines;
 	                	Iterator<String> it;
 	        			int m = 0, k = 0, bestSumScore = Integer.MIN_VALUE, sumScore;
@@ -1780,9 +1801,8 @@ public class GeMoMa implements JstacsTool {
 	        					//check both strands
 	        					for( int j = 0; j < lines.length; j++ ) {
 	        						if( lines[j].size() > 0 ) {
-	        							numberOfTestedStrands++;
-	        							
-	        							sumScore = forwardDP( j==0, lines[j], false );        							
+	        							numberOfTestedStrands++;       							
+	        							sumScore = forwardDP( j==0, lines[j], false );
 	        							if( sumScore > bestSumScore ) {
 	        								bestSumScore = sumScore;
 	        							}
@@ -1829,6 +1849,7 @@ public class GeMoMa implements JstacsTool {
 	        } catch (TimeoutException e) {
 	        	protocol.append( "\tInvocation did not return before timeout of " + timeOut + " seconds\n");
 	        	out=false;
+	        } finally {
 	        	splice=null;
 	        	used=null;
 	        }
@@ -2050,9 +2071,10 @@ public class GeMoMa implements JstacsTool {
 					qEnd[i] = new int[anz];
 					qL[i] = new int[anz];
 					if( splice != null && splice[i] == null ) {
+//protocol.append( "create " + anz + "\n");
 						splice[i] = new int[anz][parts.length-i][];
 					}
-					for( int j = sums[i].length-1; j >= 0; j-- ) {
+					for( int j = anz-1; j >= 0; j-- ) {
 						o = l.get(j);
 						
 						if( splice!= null && chr == null ) {
@@ -2140,6 +2162,7 @@ public class GeMoMa implements JstacsTool {
 			Hit upstreamHit = lines.get(parts[i]).get(j);
 			
 			int introns= Math.max(1,k-i);
+//protocol.append(splice + "\t" + i + "\t" + j + "/" + ((splice!= null && splice[i]!=null)?splice[i].length:"?") + "\t" + (k-i) +"\n");//TODO
 			if( splice != null && splice[i][j][k-i] == null ) {
 				//protocol.appendln(o.targetID + "\t" + i + "\t" + j + "\t" + (k-i) );
 				try {
@@ -2674,7 +2697,7 @@ public class GeMoMa implements JstacsTool {
 						}
 					}
 					ArrayList<Hit> next;
-/*
+
 					for( int i = 0; i < parts.length; i++ ) {
 						current = filtered.get(parts[i]);
 						if( current!= null && current.size()>0 ) {
@@ -2750,7 +2773,7 @@ public class GeMoMa implements JstacsTool {
 							}
 						}
 					}				
-*//*
+/*
 					
 					int[] u = new int[parts.length];
 					evidence = new boolean[parts.length][MAX_GAP+1];
@@ -2797,7 +2820,8 @@ public class GeMoMa implements JstacsTool {
 							}
 						}
 					}
-					used=null;
+/**//*
+					used=null;				
 				}
 			}
 
@@ -2806,7 +2830,7 @@ public class GeMoMa implements JstacsTool {
 				protocol.append("After discarding based on evidence\n");
 				show(filtered);
 			}
-/**/			
+*/			
 			//DP with splicing
 			splice = new int[parts.length][][][];
 			int bestValue = forwardDP(forward, filtered, true);
@@ -3713,13 +3737,14 @@ public class GeMoMa implements JstacsTool {
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {
 				a=d=A=D=i=I=0;
 				
-				int start=-1, end = -1, parts = 0;
+				int start=-1, end = -1, phase = -1, parts = 0;
 				String id = null;
 				boolean first = true, ae = false, de = false;
 				int[][] donSites = null;
 				
 				a = A = d = D = 0;
 				int last = -1;
+				String pref = prefix+transcriptName + "_R" + pred;
 				for( Hit t : hits ) {
 					if( id == null ) {
 						id = t.targetID;
@@ -3733,6 +3758,7 @@ public class GeMoMa implements JstacsTool {
 					if( start < 0 ) {
 						start = t.targetStart;
 						end = t.targetEnd;
+						phase=t.phase;
 						ae = t.ae;
 						de = t.de;
 					} else if ( forward && end+1 == t.targetStart ) {
@@ -3742,7 +3768,7 @@ public class GeMoMa implements JstacsTool {
 						start = t.targetStart;
 						de = t.de;
 					} else {
-						sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t.\tParent=" + prefix+transcriptName + "_R" + pred 
+						sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref 
 								+ (acceptorSites==null || first?"":(";ae="+ae))
 								+ (donorSites==null?"":(";de="+de))
 								+ "\n"
@@ -3771,12 +3797,13 @@ public class GeMoMa implements JstacsTool {
 						last = forward ? end+1 : start;
 						start = t.targetStart;
 						end = t.targetEnd;
+						phase=t.phase;
 						ae = t.ae;
 						de = t.de;
 						first = false;
 					}
 				}
-				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t.\tParent=" + prefix+transcriptName + "_R" + pred 
+				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref
 						+ (acceptorSites==null || first?"":(";ae="+ae))
 						+ "\n"
 				);
@@ -3929,7 +3956,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.1.3";
+		return "1.2";
 	}
 	
 	public String getShortName() {
@@ -3951,7 +3978,7 @@ public class GeMoMa implements JstacsTool {
 				+ "If you like to obtain multiple predictions per gene model of the reference organism, you should set *predictions* accordingly. In addition, we suggest to decrease the value of *contig threshold* allowing GeMoMa to evaluate more candidate contigs/chromosomes.\n\n"
 				//runtime
 				+ "If you change the values of *contig threshold*, *region threshold* and *hit threshold*, this will influence the predictions as well as the runtime of the algorithm. The lower the values are, the slower the algorithm is.\n\n"
-			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@jki.bund.de.\n"
+			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n"
 				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016";
 	}
 	

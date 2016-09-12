@@ -20,7 +20,6 @@ package projects.gemoma;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,12 +63,12 @@ public class CompareTranscripts {
 			System.out.println(i+"\t" + args[i]);
 		}*/
 		HashMap<String,Annotation> discarded = new HashMap<String, Annotation>();
-		HashMap<String,Annotation> truth = readGFF( args[2], "CDS", false, args[1], discarded, ";" );
+		HashMap<String,Annotation> truth = readGFF( args[2], "CDS", false, args[1], discarded, true, ";" );
 		HashMap<String,Annotation> prediction;
 		if( alias == null ) {
-			prediction = readGFF( args[3], "CDS", false, null, null, ";" );//_R" );//standard
+			prediction = readGFF( args[3], "CDS", false, null, null, false, ";" );//_R" );//standard
 		} else {
-			prediction = readGFF( args[3], "coding_exon", true, null, null, "-R" );//genBlast
+			prediction = readGFF( args[3], "coding_exon", true, null, null, false, "-R" );//genBlast
 		}
 		System.out.println(truth.size() + " vs. " + prediction.size() );
 		//System.out.println(truth.toString().substring(0,1000) + "...");
@@ -83,6 +82,10 @@ public class CompareTranscripts {
 	
 	private static String par = "Parent=";
 	
+	private static HashMap<String, String> info = new HashMap<String, String>();
+	
+	private static HashMap<String, StringBuffer> trueAnnotation = new HashMap<String, StringBuffer>();
+		
 	/**
 	 * 
 	 * @param input the input file name (GFF)
@@ -94,7 +97,7 @@ public class CompareTranscripts {
 	 * 
 	 * @throws Exception
 	 */
-	private static HashMap<String,Annotation> readGFF( String input, String type, boolean skip, String selected, HashMap<String,Annotation> discarded, String... sep ) throws Exception {
+	private static HashMap<String,Annotation> readGFF( String input, String type, boolean skip, String selected, HashMap<String,Annotation> discarded, boolean save, String... sep ) throws Exception {
 		BufferedReader r;
 		String line;
 		
@@ -108,14 +111,16 @@ public class CompareTranscripts {
 		r = new BufferedReader( new FileReader(input) );
 		while( (line=r.readLine()) != null ) {
 			if( line.length() != 0 && !line.startsWith("#") ) {
+				String[] split = line.split("\t");
+				/*
 				int idx = line.indexOf('\t')+1;
 				idx = line.indexOf('\t',idx)+1;
 				int end = line.indexOf('\t',idx); 
-				String t = line.substring(idx,end);
-				if( t.equalsIgnoreCase(type) ) {
-					String[] split = line.split("\t");
-					idx = split[8].indexOf(par)+par.length();
-					int h=Integer.MAX_VALUE, f;
+				String t = line.substring(idx,end);*/
+				if( split[2].equalsIgnoreCase(type) ) {
+					
+					int idx = split[8].indexOf(par)+par.length();
+					int h=split[8].length(), f;
 					for( int i = 0; i < sep.length; i++ ) {
 						f = split[8].indexOf(sep[i],idx);
 						if( f >= 0 ) {
@@ -124,28 +129,59 @@ public class CompareTranscripts {
 					}
 					//System.out.println(idx + "\t" + h + "\t" + split[8]);
 					if( !skip || h> 0 ) {
-						String transcriptID = split[8].substring(idx, h<Integer.MAX_VALUE?h:split[8].length() ).toUpperCase();
-
-						if( sel == null || sel.containsKey(transcriptID) ) {
-							hAnnot = annot;
-						} else if( discarded != null ) {
-							hAnnot = discarded;
-						} else {
-							hAnnot = null;
-						}
 						
-						if( hAnnot != null ) {
-							current = hAnnot.get(transcriptID);
-							if( current == null ) {
-								current = new Annotation( transcriptID, split[0], split[6].trim().charAt(0) == '+');
-								hAnnot.put(transcriptID, current);
-								if( hAnnot == discarded ) {
-									del.add(transcriptID);
-								}
+						String[] t = split[8].substring(idx, h).toUpperCase().split(",");
+						for( String transcriptID: t ) {
+							if( sel == null || sel.containsKey(transcriptID) ) {
+								hAnnot = annot;
+							} else if( discarded != null ) {
+								hAnnot = discarded;
+							} else {
+								hAnnot = null;
 							}
-							current.add( split[3], split[4] );
+							
+							if( hAnnot != null ) {
+								current = hAnnot.get(transcriptID);
+								if( current == null ) {
+									current = new Annotation( transcriptID, split[0], split[6].trim().charAt(0) == '+');
+									hAnnot.put(transcriptID, current);
+									if( hAnnot == discarded ) {
+										del.add(transcriptID);
+									}
+								}
+								current.add( split[3], split[4] );
+							}
+							
+							StringBuffer sb = trueAnnotation.get(transcriptID);
+							if( sb == null )  {
+								sb = new StringBuffer();
+								trueAnnotation.put(transcriptID, sb);
+							}
+							sb.append(line+"\n");
 						}
 					}
+				} else if( split[2].equalsIgnoreCase("mRNA") ) {
+					int idx = split[8].indexOf("ID=")+3;
+					int h=split[8].indexOf(";",idx);
+					if( h < 0 ) {
+						h = split[8].length();
+					}
+					String id = split[8].substring(idx, h).toUpperCase();
+					
+					StringBuffer sb = trueAnnotation.get(id);
+					if( sb == null )  {
+						sb = new StringBuffer();
+						trueAnnotation.put(id, sb);
+					}
+					sb.append(line+"\n");
+				} else if( split[2].equalsIgnoreCase("prediction") ) {
+					int idx = split[8].indexOf("ID=")+3;
+					int h=split[8].indexOf(";",idx);
+					if( h < 0 ) {
+						h = split[8].length();
+					}
+					String id = split[8].substring(idx, h).toUpperCase();
+					info.put( id, split[8] );
 				}
 			}
 		}
@@ -154,8 +190,7 @@ public class CompareTranscripts {
 		if( del.size() > 0 ) {
 			System.out.println(del.size());
 			//System.out.println(del);
-		}
-		
+		}		
 		return annot;
 	}
 	
@@ -311,13 +346,17 @@ public class CompareTranscripts {
 		PseudoAnnotation ps = new PseudoAnnotation();
 		
 		BufferedWriter w = new BufferedWriter( new FileWriter( fileName ) );
-		String[] id;
+		String[] id = { "?", "?"};
+
 		String transcript, predictionID;
 		w.append("#gene\ttranscript\t#exons");//
-		w.append("\tprediction\t# predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,perfect start,perfect end");
+		w.append("\tprediction\t# predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,perfect start,perfect end\tinfo");
 		w.newLine();
 		String[] array = prediction.keySet().toArray(new String[0]);
 		Arrays.sort(array);
+		
+		HashSet<String> used = new HashSet<String>();
+		
 		for( int i = 0; i < array.length; i++ ) {
 			predictionID = array[i];
 			int index = predictionID.lastIndexOf(sep);
@@ -327,7 +366,9 @@ public class CompareTranscripts {
 				transcript = alias.get(transcript)[0];
 				//System.out.println(" -> " + id);
 			}
-			id = gene.get(transcript);
+			if( gene != null ) {
+				id = gene.get(transcript);
+			}
 			if( id != null ) {
 				w.append( id[0] + "\t" + transcript + "\t" + id[1] + "\t" + predictionID);
 				//find overlapping transcripts
@@ -342,6 +383,13 @@ public class CompareTranscripts {
 					
 					getCandidates(test, ps, a, end, check);
 					getCandidates(test, ps, b, endDis, checkDis);
+				}
+				
+				if( check.size()>0 ) {
+					Iterator<Integer> it = check.iterator();
+					while( it.hasNext() ) {
+						used.add(a[it.next()].id);
+					}
 				}
 				
 				//select best
@@ -406,10 +454,22 @@ public class CompareTranscripts {
 				} else {
 					w.append( "\t0\tNA\tNA" );
 				}
+				w.append("\t"+info.get(predictionID));
 				w.newLine();
 			}
 		}
 		w.close();
+		
+		int count = 0;
+		w = new BufferedWriter( new FileWriter("unused.gff"));
+		for( int i = 0; i < a.length; i++ ) {
+			if( !used.contains( a[i].id ) ) {
+				count++;
+				w.append(trueAnnotation.get(a[i].id));
+			}
+		}
+		w.close();
+		System.out.println(count);
 	}
 	
 	private static int[] getEnds( Annotation[] a ) {
