@@ -259,29 +259,33 @@ public class GeMoMa implements JstacsTool {
 		
 		p = parameters.getParameterForName("introns"); 
 		if( p!= null && p.isSet() ) {
+			int threshold = (Integer) parameters.getParameterForName("reads").getValue();
 			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
 			HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
 			ArrayList<int[]>[] h;
 			while( (line=r.readLine()) != null ) {
 				if( line.charAt(0) != '#' ) {
 					String[] split = line.split( "\t" );
-					h = spliceHash.get(split[0]);
-					if( h == null ) {
-						h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
-						spliceHash.put( split[0], h );
-					}
-					/*
-					int idx= split[6].charAt(0)=='+'?0:1;
-					
-					//donor = first element, acceptor = second
-					h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
-					*/
-					char c = split[6].charAt(0);
-					if( c =='+' || c=='.' ) {
-						h[0].add( new int[]{Integer.parseInt(split[3]), Integer.parseInt(split[4])} );
-					}
-					if( c =='-' || c=='.' ) {
-						h[1].add( new int[]{Integer.parseInt(split[4]), Integer.parseInt(split[3])} );
+					int reads = Integer.parseInt(split[5]);
+					if( reads >= threshold ) {
+						h = spliceHash.get(split[0]);
+						if( h == null ) {
+							h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
+							spliceHash.put( split[0], h );
+						}
+						/*
+						int idx= split[6].charAt(0)=='+'?0:1;
+						
+						//donor = first element, acceptor = second
+						h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
+						*/
+						char c = split[6].charAt(0);
+						if( c =='+' || c=='.' ) {
+							h[0].add( new int[]{Integer.parseInt(split[3]), Integer.parseInt(split[4])} );
+						}
+						if( c =='-' || c=='.' ) {
+							h[1].add( new int[]{Integer.parseInt(split[4]), Integer.parseInt(split[3])} );
+						}
 					}
 				}
 			}
@@ -295,9 +299,11 @@ public class GeMoMa implements JstacsTool {
 			int[][][] vals, help;
 			int[] site;
 			Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
+			int num = 0;
 			while( it.hasNext() ) {
 				e = it.next();
 				h = e.getValue();
+				num += h[0].size() + h[1].size();
 				vals = new int[2][][];
 				help = new int[2][][];
 				for( int k = 0; k < vals.length; k++ ) {
@@ -328,6 +334,7 @@ public class GeMoMa implements JstacsTool {
 				}
 				donorSites.put(e.getKey(), vals);
 			}
+			protocol.append("possible introns from RNA-seq (split reads>="+threshold+"): " + num + "\n");
 			sp = (Boolean) parameters.getParameterForName("splice").getValue();
 		} else {
 			acceptorSites = donorSites = null;
@@ -3912,6 +3919,7 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
 					new FileParameter( "introns", "Introns (GFF), which might be obtained from RNAseq", "gff", false ),
+					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
 					
 					/*TODO splice site models
