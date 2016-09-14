@@ -63,6 +63,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		double relScoTh = (Double) parameters.getParameterForName("relative score filter").getValue();
+		boolean complete = (Boolean) parameters.getParameterForName("complete").getValue();
 		boolean noTie = (Boolean) parameters.getParameterForName("missing intron evidence filter").getValue();
 		double tieTh = (Double) parameters.getParameterForName("intron evidence filter").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
@@ -108,7 +109,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		HashMap<Integer, int[]> counts = new HashMap<Integer, int[]>();
 		for( int i = pred.size()-1; i >= 0; i-- ){
 			Prediction p = pred.get(i);
-			if( p.getRelScore()>=relScoTh && p.hash.get("start").charAt(0)=='M' && p.hash.get("stop").charAt(0)=='*' ) {
+			if( p.getRelScore()>=relScoTh && (!complete || (p.hash.get("start").charAt(0)=='M' && p.hash.get("stop").charAt(0)=='*')) ) {
 				filtered++;
 			} else {
 				pred.remove(i);
@@ -413,8 +414,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				new SimpleParameterSet(
 					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,"prediction"),
 					new SimpleParameter(DataType.DOUBLE,"relative score filter","the initial filter on the relative score (i.e. score devided by length)", true, 0.75 ),
+					new SimpleParameter(DataType.BOOLEAN,"complete","only complete predictions (having start and stop codon) pass the initial filter", true, true ),
 					new SimpleParameter(DataType.BOOLEAN,"missing intron evidence filter","the filter for single-exon transcripts or if no RNA-seq data is used, decides for overlapping other transcripts whether they should be used (=true) or discarded (=false)", true, false ),
-					new SimpleParameter(DataType.DOUBLE,"intron evidence filter","the filter on the intron evidence given by RNA-seq-data for overlapping transcripts", true, 1d ),
+					new SimpleParameter(DataType.DOUBLE,"intron evidence filter","the filter on the intron evidence given by RNA-seq-data for overlapping transcripts", true, new NumberValidator<Double>(0d, 1d), 1d ),
 					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
 							new FileParameter( "gene annotation files", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )
