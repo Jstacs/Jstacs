@@ -99,6 +99,19 @@ public class Galaxy {
 		return -1;
 	}
 	
+	private GalaxyAdaptor getGalaxyAdaptor( int i, String jar, String vmargs, String[] args ) throws Exception {
+		String name = tools[i].getShortName();
+		
+		String command = "java"+vmargs+" -jar "+jar+" "+name;
+		
+		GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], defaultResults[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), tools[i].getToolVersion(), command, "jobname");
+		
+		ga.setHelp( tools[i].getHelpText() );
+		
+		ga.parse( args, configThreads );
+		return ga;
+	}
+	
 	/**
 	 * Runs this Galaxy interface with the supplied arguments.
 	 * If the first argument equals "--create", the Galaxy config files for the tools are created.
@@ -113,19 +126,24 @@ public class Galaxy {
 		
 		if("--create".equals( args[0]) ){
 			
-			for(int i=0;i<tools.length;i++){
-				String name = tools[i].getShortName();
-				
-				String command = "java"+vmargs+" -jar "+jar+" "+name;
-				
-				GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], defaultResults[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), tools[i].getToolVersion(), command, "jobname");
-				
-				ga.setHelp( tools[i].getHelpText() );
-				
-				ga.parse( new String[]{"--create",name+".xml"}, configThreads );
-				
+			if( args.length == 1 ) 
+			{
+				for(int i=0;i<tools.length;i++){
+					String name = tools[i].getShortName();
+					getGalaxyAdaptor(i, jar, vmargs, new String[]{"--create",name+".xml"} );
+				}
+			} else {
+				String myVMArgs;
+				if( args.length == 2 ) {
+					myVMArgs = vmargs;
+				} else {
+					myVMArgs = "";
+					for( int i = 3; i <args.length; i++ ) {
+						myVMArgs += " " + args[i];
+					}
+				}
+				getGalaxyAdaptor(getToolIndex(args[1]), jar, myVMArgs, new String[]{"--create",args[1]+".xml"} );
 			}
-			
 		}else{
 			
 			String toolname = args[0];
@@ -134,14 +152,7 @@ public class Galaxy {
 			String[] args2 = new String[args.length-1];
 			System.arraycopy( args, 1, args2, 0, args2.length );
 			
-			String name = tools[idx].getShortName();
-			String command = "java"+vmargs+" -jar "+jar+" "+name;
-			
-			GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[idx], defaultResults[idx], addLine[idx], tools[idx].getToolName(), tools[idx].getDescription(), tools[idx].getToolVersion(), command, "jobname");
-			
-			ga.setHelp( tools[idx].getHelpText() );
-			
-			ga.parse( args2, configThreads );
+			GalaxyAdaptor ga = getGalaxyAdaptor(idx, jar, "", args2);//do not use vmargs here
 			
 			Protocol protocol = ga.getProtocol( false );
 			
