@@ -69,7 +69,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
 		double epTh = (Double) parameters.getParameterForName("evidence percentage filter").getValue();
 				
-		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(5).getValue();
+		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(6).getValue();
 		
 		String line, t;
 		String[] split;
