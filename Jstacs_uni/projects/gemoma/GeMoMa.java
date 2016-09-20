@@ -197,14 +197,17 @@ public class GeMoMa implements JstacsTool {
 			} else {
 				if( "--create".equals(args[0]) ) {
 					if( args.length != 1 ) {
-						System.out.println("Try to parse <maxSize> <timeOut> <maxTimeOut> for the Galaxy integration");
-						maxSize = Integer.parseInt(args[1]);
-						timeOut = Long.parseLong(args[2]);
-						maxTimeOut = Long.parseLong(args[3]);
+						try {
+							maxSize = Integer.parseInt(args[1]);
+							timeOut = Long.parseLong(args[2]);
+							maxTimeOut = Long.parseLong(args[3]);
+							System.out.println("Try to parse <maxSize> <timeOut> <maxTimeOut> for the Galaxy integration");
+						} catch (Exception e){
+							System.out.println("Forwarding the arguments: " +  Arrays.toString(args) );
+						}
 					}
 					System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 				}
-				
 				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
 				galaxy.run(args);
 			}

@@ -126,10 +126,12 @@ public class Galaxy {
 		
 		if("--create".equals( args[0]) ){
 			
+			//System.out.println("Creating");
 			if( args.length == 1 ) 
 			{
 				for(int i=0;i<tools.length;i++){
 					String name = tools[i].getShortName();
+					//System.out.println(name);
 					getGalaxyAdaptor(i, jar, vmargs, new String[]{"--create",name+".xml"} );
 				}
 			} else {
@@ -138,10 +140,11 @@ public class Galaxy {
 					myVMArgs = vmargs;
 				} else {
 					myVMArgs = "";
-					for( int i = 3; i <args.length; i++ ) {
+					for( int i = 2; i <args.length; i++ ) {
 						myVMArgs += " " + args[i];
 					}
 				}
+				//System.out.println(args[1] + "\t" + myVMArgs);
 				getGalaxyAdaptor(getToolIndex(args[1]), jar, myVMArgs, new String[]{"--create",args[1]+".xml"} );
 			}
 		}else{
