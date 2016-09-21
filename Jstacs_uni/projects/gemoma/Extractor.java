@@ -257,9 +257,12 @@ public class Extractor implements JstacsTool {
 					h = split[8].indexOf(';',idx);
 					String transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
 					if( selected == null || selected.containsKey(transcriptID) ) {
-						idx = split[8].indexOf(par)+par.length();
-						h = split[8].indexOf(';',idx);
-						String geneID = split[8].substring(idx, h>0?h:split[8].length() );
+						idx = split[8].indexOf(par);
+						if( idx>=0 ) {
+							idx+=par.length();
+							h = split[8].indexOf(';',idx);
+						}
+						String geneID = idx<0 ? transcriptID+".gene" : split[8].substring(idx, h>0?h:split[8].length() );
 						if( geneID.indexOf(',')>= 0 ) {
 							protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
 						}
