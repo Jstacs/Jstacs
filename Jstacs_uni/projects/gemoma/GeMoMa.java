@@ -269,7 +269,13 @@ public class GeMoMa implements JstacsTool {
 			while( (line=r.readLine()) != null ) {
 				if( line.charAt(0) != '#' ) {
 					String[] split = line.split( "\t" );
-					int reads = Integer.parseInt(split[5]);
+					int reads;
+					try {
+						reads = Integer.parseInt(split[5]);
+					} catch( NumberFormatException nfe ) {
+						protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line );
+						reads = threshold;
+					}
 					if( reads >= threshold ) {
 						h = spliceHash.get(split[0]);
 						if( h == null ) {
@@ -284,10 +290,10 @@ public class GeMoMa implements JstacsTool {
 						*/
 						char c = split[6].charAt(0);
 						if( c =='+' || c=='.' ) {
-							h[0].add( new int[]{Integer.parseInt(split[3]), Integer.parseInt(split[4])} );
+							h[0].add( new int[]{Integer.parseInt(split[3]), Integer.parseInt(split[4]), reads} );
 						}
 						if( c =='-' || c=='.' ) {
-							h[1].add( new int[]{Integer.parseInt(split[4]), Integer.parseInt(split[3])} );
+							h[1].add( new int[]{Integer.parseInt(split[4]), Integer.parseInt(split[3]), reads} );
 						}
 					}
 				}
@@ -310,18 +316,20 @@ public class GeMoMa implements JstacsTool {
 				vals = new int[2][][];
 				help = new int[2][][];
 				for( int k = 0; k < vals.length; k++ ) {
-					help[k] = new int[h[k].size()][2];
+					help[k] = new int[h[k].size()][3];
 					for( int m = 0; m<h[k].size(); m++ ) {
 						site = h[k].get(m);
 						help[k][m][0] = site[0];
 						help[k][m][1] = site[1];
+						help[k][m][2] = site[2];
 					}
 					
 					Arrays.sort(help[k], IntArrayComparator.comparator[1]);
-					vals[k] = new int[2][h[k].size()];
+					vals[k] = new int[3][h[k].size()];
 					for( int m = 0; m<h[k].size(); m++ ) {
 						vals[k][0][m] = help[k][m][0];
 						vals[k][1][m] = help[k][m][1];
+						vals[k][2][m] = help[k][m][2];
 					}
 				}
 				acceptorSites.put(e.getKey(), vals);
@@ -329,10 +337,11 @@ public class GeMoMa implements JstacsTool {
 				vals = new int[2][][];
 				for( int k = 0; k < vals.length; k++ ) {
 					Arrays.sort(help[k], IntArrayComparator.comparator[0]);
-					vals[k] = new int[2][h[k].size()];
+					vals[k] = new int[3][h[k].size()];
 					for( int m = 0; m<h[k].size(); m++ ) {
 						vals[k][0][m] = help[k][m][0];
 						vals[k][1][m] = help[k][m][1];
+						vals[k][2][m] = help[k][m][2];
 					}
 				}
 				donorSites.put(e.getKey(), vals);
@@ -1893,6 +1902,7 @@ public class GeMoMa implements JstacsTool {
 						if( donorSites != null ) {
 							gff.append( ";tde=" + (best.D==0? "?": (best.d/(double)best.D)) );
 							gff.append( ";tie=" + (best.I==0? "?": (best.i/(double)best.I)) );
+							gff.append( ";minSplitReads=" + (best.I==0? "?": best.minSplitReads) );
 						}
 						
 						int id = 0, pos = 0, gap=-1, currentGap=0, maxGap=0;
@@ -3467,7 +3477,7 @@ public class GeMoMa implements JstacsTool {
 		class Solution implements Comparable<Solution>, Cloneable {
 			LinkedList<Hit> hits;
 			boolean forward, backup, cut;
-			int score, a, d, A, D, i, I;
+			int score, a, d, A, D, i, I, minSplitReads;
 			
 			public Solution() {
 				this( false, false );
@@ -3746,6 +3756,7 @@ public class GeMoMa implements JstacsTool {
 			
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {
 				a=d=A=D=i=I=0;
+				minSplitReads = Integer.MAX_VALUE;
 				
 				int start=-1, end = -1, phase = -1, parts = 0;
 				String id = null;
@@ -3798,8 +3809,13 @@ public class GeMoMa implements JstacsTool {
 										idx++;
 									}
 									if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
+										minSplitReads = i == 0 ? donSites[2][idx] : Math.min(minSplitReads, donSites[2][idx] );
 										i++;
+									} else {
+										minSplitReads = 0;
 									}
+								} else {
+									minSplitReads = 0;
 								}
 							}
 						}
@@ -3830,8 +3846,13 @@ public class GeMoMa implements JstacsTool {
 								idx++;
 							}
 							if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
+								minSplitReads = i == 0 ? donSites[2][idx] : Math.min(minSplitReads, donSites[2][idx] );
 								i++;
+							}  else {
+								minSplitReads = 0;
 							}
+						} else {
+							minSplitReads = 0;
 						}
 					}
 				}
