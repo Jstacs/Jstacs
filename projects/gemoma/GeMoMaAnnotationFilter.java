@@ -231,12 +231,21 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		int pred=0;
+		maxEvidence=0;
+		maxTie=-1;
+		complete=0;
+		st=Integer.MAX_VALUE;
+		en=Integer.MIN_VALUE;
+		Prediction n=null;
 		for( int i = 0; i < used.size(); i++ ) {
-			Prediction n = used.get(i);
+			n = used.get(i);
 			int cont = n.write(w, epTh);
 			pred += cont;
 		}
 		if( pred>0 ) {
+			//write
+			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + pred + ";complete="+complete+";maxEvidence="+maxEvidence+";maxTie=" + (maxTie<0?"?":maxTie) );
+			w.newLine();
 			gene++;
 		}
 		
@@ -247,6 +256,8 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		return pred;
 	}
 	
+	static int maxEvidence, st, en, complete;
+	static double maxTie;
 	
 	static class Prediction implements Comparable<Prediction>{
 		boolean discard = false;
@@ -339,15 +350,22 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				if( t == null || t.equals("NA") ) {
 					noTie++;
 				} else {
-					if( Double.parseDouble(t) == 1d ) {
+					double tie =Double.parseDouble(t);
+					if( tie == 1d ) {
 						tie1++;
 					}
+					maxTie = Math.max(tie, maxTie);
 				}
 				for( int i = 0; i < split.length; i++ ) {
 					w.append( (i==0?"":"\t") + split[i] );
 				}
-				w.write( ";evidence=" + count + ";parent=gene_"+gene );
+				w.write( ";evidence=" + count + ";Parent=gene_"+gene );
 			
+				maxEvidence = Math.max(count, maxEvidence);
+				st=Math.min(st, start);
+				en=Math.max(en, end);
+				complete += (hash.get("start").charAt(0)=='M' && hash.get("stop").charAt(0)=='*') ? 1 : 0;
+				
 				if( alternative.size() > 0 ) {
 					Iterator<String> it = alternative.iterator();
 					w.write( ";alternative=\"" + it.next() );
