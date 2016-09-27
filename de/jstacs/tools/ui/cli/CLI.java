@@ -127,7 +127,7 @@ public class CLI {
 		
 	}
 	
-	
+	private String opt;
 	private JstacsTool[] tools;
 	private boolean[] configureThreads;
 	
@@ -144,6 +144,10 @@ public class CLI {
 	 * @param tools (an array of) tool(s) that can be run via the command line interface
 	 */
 	public CLI(boolean[] configureThreads, JstacsTool... tools) {
+		this("",configureThreads,tools);
+	}
+	
+	public CLI( String opt, boolean[] configureThreads, JstacsTool... tools) {
 		if(configureThreads == null){
 			this.configureThreads = new boolean[tools.length];
 		}else{
@@ -157,7 +161,10 @@ public class CLI {
 			keyMap[i] = new HashMap<Parameter, String>();
 			addToKeyMap(keyMap[i],toolParameters[i]);
 		}
-		
+		this.opt = opt.trim();
+		if( this.opt.length()>0 ) {
+			this.opt = " " +this.opt;
+		}
 	}
 	
 	
@@ -258,9 +265,9 @@ public class CLI {
 					System.err.println("\t"+tools[i].getShortName()+" - "+tools[i].getToolName());
 				}
 				System.err.println();
-				System.err.println("Syntax: java -jar "+jar+" <toolname> [<parameter=value> ...]\n");
-				System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+" <toolname> info\n");
-				System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+" <toolname>\n");
+				System.err.println("Syntax: java -jar "+jar+opt+" <toolname> [<parameter=value> ...]\n");
+				System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+opt+" <toolname> info\n");
+				System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+opt+" <toolname>\n");
 			}else{
 				printToolParameters(0,protocol,outdir,1);
 			}
