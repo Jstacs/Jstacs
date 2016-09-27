@@ -190,7 +190,7 @@ public class GeMoMa implements JstacsTool {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
 			if( args[0].equalsIgnoreCase("CLI") ) {
-				CLI cli = new CLI( new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
+				CLI cli = new CLI( "CLI", null, new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
 				String[] part = new String[args.length-1];
 				System.arraycopy(args, 1, part, 0, part.length);
 				cli.run(part);
