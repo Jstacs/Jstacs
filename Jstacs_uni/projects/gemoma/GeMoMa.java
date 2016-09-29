@@ -1393,6 +1393,10 @@ public class GeMoMa implements JstacsTool {
 			}
 			return r;
 		}
+		
+		public int getLength() {
+			return targetEnd-(targetStart-1);
+		}
 	}
 
 	
@@ -3494,6 +3498,15 @@ public class GeMoMa implements JstacsTool {
 				this.score = score;
 			}
 
+			public int getNumberOfAA() {
+				int l = 0;
+				Iterator<Hit> it = hits.iterator();
+				while( it.hasNext() ) {
+					l+=it.next().getLength();
+				}
+				return l / 3;
+			}
+			
 			public String getDNA() {
 				StringBuffer sb = new StringBuffer();
 				Iterator<Hit> it = hits.iterator();
@@ -3737,7 +3750,7 @@ public class GeMoMa implements JstacsTool {
 							s )).toLowerCase() );
 				}
 
-				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName );
+				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName + ";AA="+getNumberOfAA() );
 				genomic.append(">" + prefix+transcriptName + "_R" + i );
 				//genomic.newLine();
 				//genomic.append(genomicRegion);
@@ -4011,7 +4024,7 @@ public class GeMoMa implements JstacsTool {
 				//runtime
 				+ "If you change the values of *contig threshold*, *region threshold* and *hit threshold*, this will influence the predictions as well as the runtime of the algorithm. The lower the values are, the slower the algorithm is.\n\n"
 			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n"
-				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016";
+				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89";
 	}
 	
 	@Override
