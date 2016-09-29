@@ -33,7 +33,7 @@ import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.ValidationStringency;
 
 /**
- * This class enables to extract introns from SAM files, which might be used to define splice sites in GeMoMa.
+ * This class enables to extract introns from BAM/SAM files, which might be used to define splice sites in GeMoMa.
  * 
  * @author Jan Grau, Jens Keilwagen
  * 
@@ -354,12 +354,12 @@ public class ExtractIntrons implements JstacsTool {
 
 	@Override
 	public String getDescription() {
-		return "extracts introns from SAM files";
+		return "extracts introns from BAM/SAM files";
 	}
 	
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tools extracts introns from SAM files obtained from RNA-seq analysis, that can be used to define splice sites in GeMoMa.\n\n"
+			"**What it does**\n\nThis tools extracts introns from BAM/SAM files obtained from RNA-seq analysis, that can be used to define splice sites in GeMoMa.\n\n"
 				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
 
 	}
