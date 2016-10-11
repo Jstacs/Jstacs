@@ -401,7 +401,10 @@ public class CLI {
 							set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp);
 						}
 					}
-				}
+				}//TODO from here
+				else if( par.getDatatype() == DataType.PARAMETERSET ) {
+					set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp);
+				}//to here
 			} else {
 				set((ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp);
 			}
