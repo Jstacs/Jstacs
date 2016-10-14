@@ -73,7 +73,7 @@ public class ArbitraryFloatSequence extends Sequence<float[]> {
 			if( alphabetContainer.isEncodedSymbol( i, content[i] ) ) {
 				this.content[i] = content[i];
 			} else {
-				throw new WrongAlphabetException();
+				throw new WrongAlphabetException( "The data of the selected file does not match the entered alphabet: " + content[i] );
 			}
 		}
 	}
