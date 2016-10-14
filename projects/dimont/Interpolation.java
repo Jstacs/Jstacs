@@ -48,7 +48,7 @@ public enum Interpolation {
 		Arrays.sort( help );
 		min = help[0];
 		max = help[help.length-1];
-		thresh = help[ (int) Math.ceil( (1.0-aPrioriWeight)*help.length )];
+		thresh = help[ Math.min( help.length-1, (int) Math.ceil( (1.0-aPrioriWeight)*help.length )) ];
 		
 		double a1, b1, c = 1E-10, h, m=0, q25, q75, temp;
 		int idx = -1;
