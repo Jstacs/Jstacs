@@ -1142,6 +1142,12 @@ public class SlimDimont {
 			}
 		}
 		
+		//avoid null in the array
+		if( j >= 0 ) {
+			ComparableElement<String, Double>[] help = new ComparableElement[numWanted-(j+1)];
+			System.arraycopy(resArray, j+1, help, 0, help.length);
+			resArray=help;
+		}
 		
 		//resArray = new ComparableElement[1];
 		//resArray[0] = new ComparableElement<String, Double>( "CACGTG", 0.0 );
