@@ -249,12 +249,12 @@ public class ExtractIntrons implements JstacsTool {
 		File out = File.createTempFile("intron_gff", "_GeMoMa.temp", new File("."));
 		out.deleteOnExit(); 
 
-		Iterator<String> it = intronMap.keySet().iterator();
+		ArrayList<String> list = new ArrayList<String>(intronMap.keySet());
+		Collections.sort(list);
 		
 		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream(new FileOutputStream(out));
 		int intronNum = 0;
-		while(it.hasNext()){
-			String chrom = it.next();
+		for( String chrom : list ) {
 			List<Intron> introns = intronMap.get(chrom);
 			introns = count(introns);
 			intronNum += print(chrom,introns,sos);

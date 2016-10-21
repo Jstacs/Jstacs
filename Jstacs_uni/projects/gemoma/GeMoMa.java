@@ -28,7 +28,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
@@ -51,7 +50,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.naming.OperationNotSupportedException;
 
-import projects.gemoma.Tools.Ambiguity;
 import de.jstacs.DataType;
 import de.jstacs.algorithms.alignment.Alignment;
 import de.jstacs.algorithms.alignment.Alignment.AlignmentType;
@@ -88,6 +86,7 @@ import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.Time;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.ToolBox.TiedRanks;
+import projects.gemoma.Tools.Ambiguity;
 
 /**
  * Parsing tblastn hits to gene models using a dynamic programming algorithm with extensions for splice sites, start and stop codon.
@@ -96,16 +95,13 @@ import de.jstacs.utils.ToolBox.TiedRanks;
  */
 public class GeMoMa implements JstacsTool {
 
-	private static NumberFormat nf;
-	static {
-		nf = NumberFormat.getInstance(Locale.US);
-		nf.setMaximumFractionDigits(4);
-	}
+	private static DecimalFormat decFormat = new DecimalFormat("###.##");
+
 	/**
 	 * The index of the score in the blast output.
 	 */
 	private static final int scoreIndex = 13;
-	
+		
 	//user?
 	private double contigThreshold;//threshold for initial solutions (filtering of contigs)
 	private double regionThreshold;//threshold for regions
@@ -148,6 +144,8 @@ public class GeMoMa implements JstacsTool {
 	private static HashMap<String, int[][][]> donorSites;
 	private static HashMap<String, int[][][]> acceptorSites;
 	private static boolean sp;
+	//coverage
+	private static HashMap<String, int[][]> coverage;	
 	//canonical 
 	private static final String[] DONOR = {"GT", "GC"};
 	private static final String ACCEPTOR = "AG";
@@ -225,7 +223,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	private static File createTempFile( String prefix ) throws IOException {
-		File f = File.createTempFile(prefix, "_GeMoMa.temp", new File("."));//TODO
+		File f = File.createTempFile(prefix, "_GeMoMa.temp", new File("."));//default temp directory?
 		f.deleteOnExit();
 		return f;
 	}
@@ -273,7 +271,9 @@ public class GeMoMa implements JstacsTool {
 					try {
 						reads = Integer.parseInt(split[5]);
 					} catch( NumberFormatException nfe ) {
-						protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line );
+						if( verbose ) {
+							protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line  + "\n");
+						}
 						reads = threshold;
 					}
 					if( reads >= threshold ) {
@@ -350,6 +350,48 @@ public class GeMoMa implements JstacsTool {
 			sp = (Boolean) parameters.getParameterForName("splice").getValue();
 		} else {
 			acceptorSites = donorSites = null;
+		}
+		
+		p = parameters.getParameterForName("coverage"); 
+		if( p!= null && p.isSet() ) {
+			protocol.append("read coverage file\n");
+			coverage = new HashMap<String, int[][]>();
+			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
+			int threshold = 1;
+			String chr = null;
+			ArrayList<int[]> list = new ArrayList<int[]>();
+			while( (line=r.readLine()) != null ) {
+				if( line.charAt(0) != '#' ) {
+					String[] split = line.split( "\t" );
+					if( chr == null || !split[0].equals(chr)) {
+						if( chr != null && list.size()>0 ) {
+							//Collections.sort(list, CovComparator.def);
+							coverage.put( chr, list.toArray( new int[0][] ) );
+							list.clear();
+						}
+						chr = split[0];
+					}
+					int reads;
+					try {
+						reads = Integer.parseInt(split[3]);
+					} catch( Exception e ) {
+						if( verbose ) {
+							protocol.appendWarning("Could not parse number of reads. Set coverage to " +threshold + ". Line: " + line + "\n" );
+						}
+						reads = threshold;
+					}
+					if( reads >= threshold ) {
+						list.add( new int[]{Integer.parseInt(split[1])+1, Integer.parseInt(split[2]), reads} );
+					}
+				}
+			}
+			r.close();
+			if( chr != null && list.size()>0 ) {
+				//Collections.sort(list, CovComparator.def);
+				coverage.put( chr, list.toArray( new int[0][] ) );
+			}
+		} else {
+			coverage = null;
 		}
 		
 		StringBuffer xml;
@@ -1901,12 +1943,17 @@ public class GeMoMa implements JstacsTool {
 						int anz = best.writeGFF( transcriptName, i, gffHelp );
 						
 						if( acceptorSites != null ) {
-							gff.append( ";tae=" + (best.A==0? "?": (best.a/(double)best.A)) );
+							gff.append( ";tae=" + (best.A==0? "?": decFormat.format(best.a/(double)best.A)) );
 						}
 						if( donorSites != null ) {
-							gff.append( ";tde=" + (best.D==0? "?": (best.d/(double)best.D)) );
-							gff.append( ";tie=" + (best.I==0? "?": (best.i/(double)best.I)) );
+							gff.append( ";tde=" + (best.D==0? "?": decFormat.format(best.d/(double)best.D)) );
+							gff.append( ";tie=" + (best.I==0? "?": decFormat.format(best.i/(double)best.I)) );
 							gff.append( ";minSplitReads=" + (best.I==0? "?": best.minSplitReads) );
+						}
+						if( coverage != null ) {
+							gff.append( ";tpc=" + decFormat.format(best.Cov/(double)best.Len) );
+							gff.append( ";minCov=" + best.minC );
+							gff.append( ";avgCov=" + decFormat.format(best.Sum/(double)best.Len) );
 						}
 						
 						int id = 0, pos = 0, gap=-1, currentGap=0, maxGap=0;
@@ -1965,7 +2012,7 @@ public class GeMoMa implements JstacsTool {
 							}
 							
 							//TODO additional GFF tags
-							gff.append( ";iAA=" + nf.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+							gff.append( ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						
 						//short info
@@ -1981,9 +2028,10 @@ public class GeMoMa implements JstacsTool {
 										+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
 										+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + "\t" + maxGap + "\t" + seq.length() + "\t" + pred.length()
 										: "" )
-								+ (acceptorSites == null ? "" : ("\t" + (best.A==0? "?": (best.a/(double)best.A))) )
-								+ (donorSites == null ? "" : ("\t" + (best.D==0? "?": (best.d/(double)best.D))) )
-								+ (donorSites == null ? "" : ("\t" + (best.I==0? "?": (best.i/(double)best.I))) )
+								+ (acceptorSites == null ? "" : ("\t" + (best.A==0? "?": decFormat.format(best.a/(double)best.A))) )
+								+ (donorSites == null ? "" : ("\t" + (best.D==0? "?": decFormat.format(best.d/(double)best.D))) )
+								+ (donorSites == null ? "" : ("\t" + (best.I==0? "?": decFormat.format(best.i/(double)best.I))) )
+								+ (coverage == null ? "" : ("\t" + decFormat.format(best.Cov/(double)best.Len) + "\t" + best.minC))
 								+ "\t" + best.similar(result.peek())
 								+ "\n"
 						);
@@ -2049,6 +2097,7 @@ public class GeMoMa implements JstacsTool {
 					+ (acceptorSites == null ? "" :"\tacceptor evidence")
 					+ (donorSites == null ? "" : "\tdonor evidence")
 					+ (donorSites == null ? "" : "\tintron evidence")
+					+ (coverage == null ? "" : "\tpercent covered\tmin coverage")
 					+ "\tsimilar";
 		}
 
@@ -3482,6 +3531,7 @@ public class GeMoMa implements JstacsTool {
 			LinkedList<Hit> hits;
 			boolean forward, backup, cut;
 			int score, a, d, A, D, i, I, minSplitReads;
+			int Len, Cov, minC, Sum;
 			
 			public Solution() {
 				this( false, false );
@@ -3775,10 +3825,14 @@ public class GeMoMa implements JstacsTool {
 				String id = null;
 				boolean first = true, ae = false, de = false;
 				int[][] donSites = null;
+				int[][] cov = null;
 				
-				a = A = d = D = 0;
+				a = A = d = D = Len = Cov = Sum = 0;
+				minC= Integer.MAX_VALUE;
+				
 				int last = -1;
 				String pref = prefix+transcriptName + "_R" + pred;
+				
 				for( Hit t : hits ) {
 					if( id == null ) {
 						id = t.targetID;
@@ -3787,6 +3841,7 @@ public class GeMoMa implements JstacsTool {
 						if( sites != null ) {
 							donSites = sites[forward?0:1];
 						}
+						cov = coverage!= null ? coverage.get(id) : null;
 					}
 					
 					if( start < 0 ) {
@@ -3802,9 +3857,54 @@ public class GeMoMa implements JstacsTool {
 						start = t.targetStart;
 						de = t.de;
 					} else {
+						int l = end-start+1;
+						int covered = 0, min = Integer.MAX_VALUE;
+						if( cov != null ) {
+							int idx = Arrays.binarySearch(cov, new int[]{start}, CovComparator.def );
+							if( idx < 0 ) {
+								idx = -(idx+1);
+								idx = Math.max(0, idx-1);
+							}
+							
+							int[] inter = cov[idx];
+							//System.out.println("hier " + start + " .. " + end + "\t" + Arrays.toString(inter) );
+							int p = start;
+							outerloop: while( p <= end ) {
+								while( p > inter[1] ) {
+									idx++;
+									if( idx < cov.length ) {
+										inter = cov[idx];
+									} else {
+										min = 0;
+										break outerloop;
+									}
+								}
+								if( inter[0]<= p && p <=inter[1] ) {
+									int h = Math.min(inter[1],end)+1;
+									int a=h-p;
+									covered+=a;
+									Sum+=inter[2] * a;
+									min = Math.min(min, inter[2]);
+									
+									p=h;
+								} else {//p<inter[0] && p<=inter[1]
+									min = 0;
+									
+									p = Math.min(inter[0],end+1);
+								}
+								//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
+							}
+							
+							Len +=l;
+							Cov +=covered;
+							minC = Math.min(minC, min);
+						}				
+						
 						sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref 
 								+ (acceptorSites==null || first?"":(";ae="+ae))
 								+ (donorSites==null?"":(";de="+de))
+								+ (coverage==null?"":(";pc=" + decFormat.format(covered/(double)l)))
+								+ (coverage==null?"":(";minCov=" + min))
 								+ "\n"
 						);
 						
@@ -3842,8 +3942,54 @@ public class GeMoMa implements JstacsTool {
 						first = false;
 					}
 				}
+				
+				int l = end-start+1;
+				int covered = 0, min = Integer.MAX_VALUE;
+				if( cov != null ) {
+					int idx = Arrays.binarySearch(cov, new int[]{start}, CovComparator.def );
+					if( idx < 0 ) {
+						idx = -(idx+1);
+						idx = Math.max(0, idx-1);
+					}
+					
+					int[] inter = cov[idx];
+					//System.out.println("hier " + start + " .. " + end + "\t" + Arrays.toString(inter) );
+					int p = start;
+					outerloop: while( p <= end ) {
+						while( p > inter[1] ) {
+							idx++;
+							if( idx < cov.length ) {
+								inter = cov[idx];
+							} else {
+								min = 0;
+								break outerloop;
+							}
+						}
+						if( inter[0]<= p && p <=inter[1] ) {
+							int h = Math.min(inter[1],end)+1;
+							int a=h-p;
+							covered+=a;
+							Sum+=inter[2] * a;
+							min = Math.min(min, inter[2]);
+							
+							p=h;
+						} else {//p<inter[0] && p<=inter[1]
+							min = 0;
+							
+							p = Math.min(inter[0],end+1);
+						}
+						//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
+					}
+					
+					Len +=l;
+					Cov +=covered;
+					minC = Math.min(minC, min);
+				}
+				
 				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref
 						+ (acceptorSites==null || first?"":(";ae="+ae))
+						+ (coverage==null?"":(";pc=" + decFormat.format(covered/(double)l)))
+						+ (coverage==null?"":(";minCov=" + min))
 						+ "\n"
 				);
 				if( !first ) {
@@ -3870,7 +4016,7 @@ public class GeMoMa implements JstacsTool {
 					}
 				}
 				parts++;
-				
+								
 				return parts;
 			}
 		}
@@ -3959,7 +4105,9 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
 					
-					/*TODO splice site models
+					new FileParameter( "coverage", "The coverage file contains the coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out. For generating such bed file, you can use:  bedtools genomecov -bg -split", "bed,bedgraph", false ),
+					
+					/*splice site models
 					new FileParameter( "classifier donor", "The path to the donor splice site classifier (XML)", "xml", false ),
 					new FileParameter( "classifier acceptor", "The path to the donor splice site classifier (XML)", "xml", false ),					
 					/**/
@@ -4033,5 +4181,16 @@ public class GeMoMa implements JstacsTool {
 				new ResultEntry(TextResult.class, "gff", "predicted annotation"),
 				new ResultEntry(TextResult.class, "fasta", "predicted protein")
 		};
+	}
+	
+	private static class CovComparator implements Comparator<int[]> {
+
+		static CovComparator def = new CovComparator();
+		
+		@Override
+		public int compare(int[] o1, int[] o2) {
+			return Integer.compare(o1[0], o2[0]);
+		}
+		
 	}
 }
