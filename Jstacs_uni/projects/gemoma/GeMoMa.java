@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
@@ -95,7 +97,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	private static DecimalFormat decFormat = new DecimalFormat("###.##");
+	private static DecimalFormat decFormat = new DecimalFormat("###.##",DecimalFormatSymbols.getInstance(Locale.US));
 
 	/**
 	 * The index of the score in the blast output.
@@ -230,6 +232,11 @@ public class GeMoMa implements JstacsTool {
 	
 	@Override
 	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+		File jarfile = new File(Galaxy.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+		if( jarfile != null ) {
+			protocol.append("jar time stamp: " + new Date(jarfile.lastModified()) + "\n" );
+		}
+		
 		this.protocol=protocol;
 		
 		BufferedReader r = null;
@@ -3922,7 +3929,7 @@ public class GeMoMa implements JstacsTool {
 										idx++;
 									}
 									if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-										minSplitReads = i == 0 ? donSites[2][idx] : Math.min(minSplitReads, donSites[2][idx] );
+										minSplitReads = Math.min(minSplitReads, donSites[2][idx] );
 										i++;
 									} else {
 										minSplitReads = 0;
@@ -4005,7 +4012,7 @@ public class GeMoMa implements JstacsTool {
 								idx++;
 							}
 							if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-								minSplitReads = i == 0 ? donSites[2][idx] : Math.min(minSplitReads, donSites[2][idx] );
+								minSplitReads = Math.min(minSplitReads, donSites[2][idx]);
 								i++;
 							}  else {
 								minSplitReads = 0;
