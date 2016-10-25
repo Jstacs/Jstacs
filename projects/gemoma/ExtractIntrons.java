@@ -41,7 +41,7 @@ import htsjdk.samtools.ValidationStringency;
  */
 public class ExtractIntrons implements JstacsTool {
 
-	private enum Stranded{
+	public enum Stranded{
 		NO,
 		FIRSTFWD,
 		SECONDFWD
