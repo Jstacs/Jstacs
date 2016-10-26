@@ -15,6 +15,7 @@ import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
@@ -143,11 +144,17 @@ public class ExtractCoverage implements JstacsTool {
 		
 		Iterator<String> keyIt = map.keySet().iterator();
 		
-		File out = File.createTempFile("coverage_txt", "_GeMoMa.temp", new File("."));
-		out.deleteOnExit(); 
+		File outFwd = File.createTempFile("coveragefwd_bedgraph", "_GeMoMa.temp", new File("."));
+		outFwd.deleteOnExit(); 
 		
-		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream(new FileOutputStream(out));
+		SafeOutputStream sosFwd = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outFwd));
+		sosFwd.writeln("track type=bedgraph");
 		
+		File outRev = File.createTempFile("coveragerev_bedgraph", "_GeMoMa.temp", new File("."));
+		outRev.deleteOnExit(); 
+		
+		SafeOutputStream sosRev = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outRev));
+		sosRev.writeln("track type=bedgraph");
 		
 		while(keyIt.hasNext()){
 			String chr = keyIt.next();
@@ -187,8 +194,12 @@ public class ExtractCoverage implements JstacsTool {
 					}
 					temp++;
 				}
-				
-				sos.writeln(chr+"\t"+currPos+"\t"+countFwd+"\t"+countRev);
+				if(countFwd > 0){
+					sosFwd.writeln(chr+"\t"+currPos+"\t"+(currPos+1)+"\t"+countFwd);
+				}
+				if(countRev > 0){
+					sosRev.writeln(chr+"\t"+currPos+"\t"+(currPos+1)+"\t"+countRev);
+				}
 				currPos++;
 				
 			}
@@ -197,8 +208,10 @@ public class ExtractCoverage implements JstacsTool {
 			
 		}
 
-		sos.close();
-		return new ToolResult("", "", null, new ResultSet(new TextResult("coverage", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "txt", getToolName(), null, true)), parameters, getToolName(), new Date());
+		sosFwd.close();
+		sosRev.close();
+		return new ToolResult("", "", null, new ResultSet(new Result[]{new TextResult("coverage forward", "Result", new FileParameter.FileRepresentation(outFwd.getAbsolutePath()), "bedgraph", getToolName(), null, true),
+				new TextResult("coverage reverse", "Result", new FileParameter.FileRepresentation(outRev.getAbsolutePath()), "bedgraph", getToolName(), null, true)}), parameters, getToolName(), new Date());
 		
 	}
 
