@@ -575,15 +575,17 @@ public class SlimDimont {
 
 	private static void delete( int[][] positions, boolean[][] allowed, int length ) {
 		for(int i=0;i<positions.length;i++){
-			for(int j=0;j<positions[i].length;j++){
-				int pos = positions[i][j];
-				if(pos < 0){
-					pos = -pos - 1;
+			if( allowed[i] != null ) {
+				for(int j=0;j<positions[i].length;j++){
+					int pos = positions[i][j];
+					if(pos < 0){
+						pos = -pos - 1;
+					}
+					Arrays.fill( allowed[i], 
+							Math.max( 0, pos-length/2), 
+							Math.min( allowed[i].length, pos + length/2 ),
+							false );
 				}
-				Arrays.fill( allowed[i], 
-						Math.max( 0, pos-length/2), 
-						Math.min( allowed[i].length, pos + length/2 ),
-						false );
 			}
 		}		
 	}
@@ -737,7 +739,7 @@ public class SlimDimont {
 			LinkedList<Sequence> bs = new LinkedList<Sequence>();
 			DoubleList bsWeights = new DoubleList();
 			DoubleList bsScores = new DoubleList();
-			Pair<double[][],double[]> pair = smof.getPWMAndPosDist( im, completeData, completeWeight[0], mean, add, add, bs, bsWeights, bsScores );
+			Pair<double[][],double[]> pair = smof.getPWMAndPosDist( im, completeData, completeWeight[0], mean, add, add, bs, bsWeights, bsScores );//TODO allowed
 			double[][] pwm = pair.getFirstElement();
 			sds[im] = pair.getSecondElement()[0];
 			double[] entropy = new double[pwm.length], kl = new double[pwm.length];
