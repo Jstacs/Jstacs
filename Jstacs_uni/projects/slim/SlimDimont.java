@@ -66,8 +66,10 @@ import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
+import de.jstacs.data.sequences.annotation.SimpleSequenceAnnotationParser;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.motifDiscovery.MotifDiscoverer.KindOfProfile;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox;
@@ -123,6 +125,7 @@ public class SlimDimont {
 		
 		String home = cParams.getValueFromTag( SlimDimontParameterSet.HOME, String.class );
 		String fgData = home +File.separator+ cParams.getValueFromTag( SlimDimontParameterSet.DATA, String.class );
+		String bg = cParams.getValueFromTag( SlimDimontParameterSet.BACKGROUND, String.class );
 		String infix = cParams.getValueFromTag( SlimDimontParameterSet.INFIX, String.class );
 		int motifLength = cParams.getValueFromTag( SlimDimontParameterSet.LENGTH, Integer.class );
 		int restarts = cParams.getValueFromTag( SlimDimontParameterSet.STARTS, Integer.class );
@@ -146,6 +149,7 @@ public class SlimDimont {
 		SequenceAnnotationParser parser = new SplitSequenceAnnotationParser(":", ";");
 		
 		DataSet data = SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, fgData, parser);
+		DataSet bgData = bg==null ? null : SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, new SparseStringExtractor(home +File.separator+ bg,'>'));
 		
 		/*if(fgData.matches( ".*_part_[0-9].fa" )){
 			String temp = fgData.replaceAll( "_part_[0-9].fa", ".fa" );
@@ -157,7 +161,7 @@ public class SlimDimont {
 			System.out.println("diff: "+data.getNumberOfElements());
 		}*/
 		
-		Result[][] res = run( data,motifLength,restarts,fgOrder,bgOrder,position,value,weightingFactor,ess,delete,threads, SafeOutputStream.getSafeOutputStream( System.out ),sd,modify);
+		Result[][] res = run( data, bgData, motifLength,restarts,fgOrder,bgOrder,position,value,weightingFactor,ess,delete,threads, SafeOutputStream.getSafeOutputStream( System.out ),sd,modify);
 		
 		for(int i=0;i<res.length;i++){
 			StorableResult sr = (StorableResult) res[i][0];
@@ -182,7 +186,7 @@ public class SlimDimont {
 		
 	}
 	
-	public static Result[][] run(DataSet fgData, int motifLength, int restarts, int fgOrder, int bgOrder, String position,
+	public static Result[][] run(DataSet fgData, DataSet bgData, int motifLength, int restarts, int fgOrder, int bgOrder, String position,
 			String value, String weightingFactor, double ess, boolean delete, int threads, SafeOutputStream out, double sd,
 			boolean modify) throws Exception {
 	
@@ -196,14 +200,14 @@ public class SlimDimont {
 		DataSet[] data = { fgData };
 		
 
-		Sequence[] annotated = new Sequence[data[0].getNumberOfElements()];
-		double[][] weights = new double[2][data[0].getNumberOfElements()];
-		double[] raw = weights[0].clone();
+		Sequence[] annotated = new Sequence[data[0].getNumberOfElements() + (bgData==null?0:bgData.getNumberOfElements())];
+		double[][] weights = new double[2][];
+		double[] raw =new double[data[0].getNumberOfElements()];
 		
 		//read annotation
-		double[] mean = new double[weights[0].length];
+		double[] mean = new double[raw.length];
 		Arrays.fill( mean, Double.NaN );
-		for( int j = 0; j < weights[0].length; j++ ) {
+		for( int j = 0; j < raw.length; j++ ) {
 			annotated[j] = data[0].getElementAt(j);
 			SequenceAnnotation[] seqAn = annotated[j].getAnnotation();
 			mean[j] = Double.NaN;
@@ -213,6 +217,11 @@ public class SlimDimont {
 				} else if( seqAn[i].getType().equals(position) ) {
 					mean[j] = Double.parseDouble( seqAn[i].getIdentifier() );
 				}
+			}
+		}
+		if( bgData != null ) {
+			for( int j = 0; j < bgData.getNumberOfElements(); j++ ) {
+				annotated[data[0].getNumberOfElements()+j] = bgData.getElementAt(j);
 			}
 		}
 		
@@ -239,11 +248,17 @@ public class SlimDimont {
 			wf = Double.parseDouble( weightingFactor );
 		}
 
-		weights[0] = Interpolation.getWeight( data[0], raw, wf, Interpolation.RANK_LOG );
+		double[] w = Interpolation.getWeight( data[0], raw, wf, Interpolation.RANK_LOG );
+		if( bgData == null ) {
+			weights[0] = w;
+		} else {
+			weights[0] = new double[w.length + bgData.getNumberOfElements()];
+			System.arraycopy(w, 0, weights[0], 0, w.length);
+		}
 		weights[1] = Interpolation.getBgWeight( weights[0] );
 		
 		boolean[][] allowed = new boolean[annotated.length][];//TODO Jan? BitSets?
-		for(int i=0;i<annotated.length;i++){
+		for(int i=0;i<raw.length;i++){
 			allowed[i] = new boolean[annotated[i].getLength()];
 			Arrays.fill( allowed[i], true );
 		}
@@ -623,37 +638,40 @@ public class SlimDimont {
 		float[][] histogram = new float[annotated.length][];
 		for( int j = 0; j < weights[0].length; j++ ) {
 			histogram[j] = new float[annotated[j].getLength()];
-			float max = 0, sum = 0;
-			for( int i = 0; i < histogram[j].length; i++ ) {
-				if(allowed[j][i]){
-					histogram[j][i] = (float) ((i - mean[j]) / sd);
-					histogram[j][i] = (float) Math.exp( -0.5 * histogram[j][i]*histogram[j][i] );
-					sum += histogram[j][i];
+			if( allowed[j] == null ) {
+				Arrays.fill( histogram[j],  1f/histogram[j].length );
+			} else {
+				float max = 0, sum = 0;
+				for( int i = 0; i < histogram[j].length; i++ ) {
+					if(allowed[j][i]){
+						histogram[j][i] = (float) ((i - mean[j]) / sd);
+						histogram[j][i] = (float) Math.exp( -0.5 * histogram[j][i]*histogram[j][i] );
+						sum += histogram[j][i];
+					}
+				}
+				for( int i = 0; i < histogram[j].length; i++ ) {
+					histogram[j][i] /= sum;
+					if( histogram[j][i] > max ) {
+						max = histogram[j][i];
+					}
+				}
+				
+				float[] histBg = histogram[j].clone();
+				sum = 0;
+				for(int i=0;i<histBg.length;i++){
+					if(allowed[j][i]){
+						histBg[i] = max - histBg[i];
+						sum += histBg[i];
+					}
+				}
+				for(int i=0;i<histBg.length;i++){
+					histBg[i] /= sum;
+				}
+				
+				for( int i = 0; i < histogram[j].length; i++ ) {
+					histogram[j][i] = (float)(weights[0][j] * histogram[j][i] + weights[1][j] * histBg[i]);
 				}
 			}
-			for( int i = 0; i < histogram[j].length; i++ ) {
-				histogram[j][i] /= sum;
-				if( histogram[j][i] > max ) {
-					max = histogram[j][i];
-				}
-			}
-			
-			float[] histBg = histogram[j].clone();
-			sum = 0;
-			for(int i=0;i<histBg.length;i++){
-				if(allowed[j][i]){
-					histBg[i] = max - histBg[i];
-					sum += histBg[i];
-				}
-			}
-			for(int i=0;i<histBg.length;i++){
-				histBg[i] /= sum;
-			}
-			
-			for( int i = 0; i < histogram[j].length; i++ ) {
-				histogram[j][i] = (float)(weights[0][j] * histogram[j][i] + weights[1][j] * histBg[i]);
-			}
-			
 			annotated[j] = annotated[j].annotate( false, new ReferenceSequenceAnnotation( "reads", new ArbitraryFloatSequence( ref, histogram[j] ) ) );
 		}
 		return new DataSet( "", annotated );
