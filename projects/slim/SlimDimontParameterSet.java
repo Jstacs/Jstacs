@@ -19,12 +19,9 @@
 package projects.slim;
 
 import de.jstacs.DataType;
-import de.jstacs.parameters.EnumParameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.localMixture.LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder.PriorType;
 
 /**
  * This class is a container for all parameters of Dimont. It also parses the parameter from Strings.
@@ -35,6 +32,7 @@ public class SlimDimontParameterSet extends SimpleParameterSet {
 	
 	public static final String HOME = "home";
 	public static final String DATA = "data";
+	public static final String BACKGROUND = "bg";
 	public static final String INFIX = "infix";
 	public static final String LENGTH = "motifWidth";
 	public static final String STARTS = "starts";
@@ -50,7 +48,7 @@ public class SlimDimontParameterSet extends SimpleParameterSet {
 	public static final String MODIFY = "modify";
 
 	public static final String[] PREFIX = {
-        HOME, DATA, INFIX, POSITION_TAG, VALUE_TAG, SD, WEIGHTING_FACTOR, STARTS, LENGTH, MOTIF_ORDER, BG_ORDER, ESS, DELETE, MODIFY, THREADS
+        HOME, DATA, BACKGROUND, INFIX, POSITION_TAG, VALUE_TAG, SD, WEIGHTING_FACTOR, STARTS, LENGTH, MOTIF_ORDER, BG_ORDER, ESS, DELETE, MODIFY, THREADS
     };
 	
 	public SlimDimontParameterSet() throws Exception {
@@ -58,6 +56,8 @@ public class SlimDimontParameterSet extends SimpleParameterSet {
 
 		parameters.add( new SimpleParameter( DataType.STRING, "Home directory", "The path to the directory containing the input file. Output files are written to this directory as well.", true, "./" ) );
 		parameters.add( new SimpleParameter( DataType.STRING, "Input file", "The file name of the file containing the input sequences in annotated FastA format (see readme)", true ) );
+		parameters.add( new SimpleParameter( DataType.STRING, "Background file", "The file name of the file containing background sequences in format", false ) );
+		
 		parameters.add( new SimpleParameter( DataType.STRING, "Infix", "a infix to be used for all output files (model, sequence logos, predicted binding sites)", true ) );
 		
 		parameters.add( new SimpleParameter( DataType.STRING, "Position tag", "The tag for the position information in the FastA-annotation of the input file", true, "peak" ) );
