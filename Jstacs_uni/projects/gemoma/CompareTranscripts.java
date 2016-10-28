@@ -456,6 +456,8 @@ public class CompareTranscripts {
 				}
 				w.append("\t"+info.get(predictionID));
 				w.newLine();
+			} else {
+				System.out.println(transcript);
 			}
 		}
 		w.close();
