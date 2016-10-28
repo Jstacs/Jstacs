@@ -155,46 +155,46 @@ public class ExtractCoverage2 implements JstacsTool {
 			if(wm > -1){
 			
 				SAMRecord rec = curr[wm];
-				
-				boolean isNeg = rec.getReadNegativeStrandFlag();
-				boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
-				boolean countAsFwd = true;
-				if(stranded == Stranded.FIRSTFWD){
-					countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
-				}else if(stranded == Stranded.SECONDFWD){
-					countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
-				}
-				
-				
-				
-				int recStart = rec.getStart();
-				while(currPos < recStart){
-					if(mapFwd.containsKey(currPos)){
-						previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
-						mapFwd.remove(currPos);
+				if( !rec.isSecondaryOrSupplementary() ) {//TODO?
+					boolean isNeg = rec.getReadNegativeStrandFlag();
+					boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
+					boolean countAsFwd = true;
+					if(stranded == Stranded.FIRSTFWD){
+						countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
+					}else if(stranded == Stranded.SECONDFWD){
+						countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 					}
-					if(mapRev.containsKey(currPos)){
-						previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
-						mapRev.remove(currPos);
-					}
-					currPos++;
-				}
-				
-				HashMap<Integer, int[]> map = countAsFwd ? mapFwd : mapRev;
-				List<AlignmentBlock> blocks = rec.getAlignmentBlocks();
-				Iterator<AlignmentBlock> blockIt = blocks.iterator();
-				while(blockIt.hasNext()){
-					AlignmentBlock block = blockIt.next();
-					int start = block.getReferenceStart();
-					int len = block.getLength();
-					for(int k=0;k<len;k++){
-						if(!map.containsKey(start+k)){
-							map.put(start+k, new int[1]);
+					
+					
+					
+					int recStart = rec.getStart();
+					while(currPos < recStart){
+						if(mapFwd.containsKey(currPos)){
+							previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
+							mapFwd.remove(currPos);
 						}
-						map.get(start+k)[0]++;
+						if(mapRev.containsKey(currPos)){
+							previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
+							mapRev.remove(currPos);
+						}
+						currPos++;
+					}
+					
+					HashMap<Integer, int[]> map = countAsFwd ? mapFwd : mapRev;
+					List<AlignmentBlock> blocks = rec.getAlignmentBlocks();
+					Iterator<AlignmentBlock> blockIt = blocks.iterator();
+					while(blockIt.hasNext()){
+						AlignmentBlock block = blockIt.next();
+						int start = block.getReferenceStart();
+						int len = block.getLength();
+						for(int k=0;k<len;k++){
+							if(!map.containsKey(start+k)){
+								map.put(start+k, new int[1]);
+							}
+							map.get(start+k)[0]++;
+						}
 					}
 				}
-				
 				if(its[wm].hasNext()){
 					curr[wm] = its[wm].next();
 				}else{
