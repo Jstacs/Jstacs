@@ -213,24 +213,25 @@ public class ExtractIntrons implements JstacsTool {
 			try {
 				while(samIt.hasNext()){
 					SAMRecord rec = samIt.next();
-					String chrom = rec.getReferenceName();	
-					ArrayList<Intron> introns = intronMap.get(chrom);
-					if( introns == null ) {
-						introns = new ArrayList<ExtractIntrons.Intron>();
-						intronMap.put(chrom, introns);
-					}
-					
-					if( Intron.addIntrons(rec, stranded, introns) ) {
-						s++;
-						b++;
-					}
-					
-					if(i % 1000000 == 0){
-						protocol.append(i+"\n");
+					if( !rec.isSecondaryOrSupplementary() ) {
+						String chrom = rec.getReferenceName();	
+						ArrayList<Intron> introns = intronMap.get(chrom);
+						if( introns == null ) {
+							introns = new ArrayList<ExtractIntrons.Intron>();
+							intronMap.put(chrom, introns);
+						}
+						
+						if( Intron.addIntrons(rec, stranded, introns) ) {
+							s++;
+							b++;
+						}
+						
+						if(i % 1000000 == 0){
+							protocol.append(i+"\n");
+						}
 					}
 					i++;
 					a++;
-					
 				}
 			} catch( Exception e ) {
 				//even if the file is broken take all information before it breaks and then write a message
