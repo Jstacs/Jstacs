@@ -205,7 +205,7 @@ public class SlimDimont {
 		double[] raw =new double[data[0].getNumberOfElements()];
 		
 		//read annotation
-		double[] mean = new double[raw.length];
+		double[] mean = new double[annotated.length];
 		Arrays.fill( mean, Double.NaN );
 		for( int j = 0; j < raw.length; j++ ) {
 			annotated[j] = data[0].getElementAt(j);
@@ -221,7 +221,9 @@ public class SlimDimont {
 		}
 		if( bgData != null ) {
 			for( int j = 0; j < bgData.getNumberOfElements(); j++ ) {
-				annotated[data[0].getNumberOfElements()+j] = bgData.getElementAt(j);
+				Sequence s = bgData.getElementAt(j);
+				annotated[raw.length+j] = s;
+				mean[raw.length+j] = s.getLength()/2d;
 			}
 		}
 		
@@ -440,7 +442,7 @@ public class SlimDimont {
 
 			//heuristic for motif length
 			double[] sds = new double[1];
-			heuristic((MutableMotifDiscoverer) score[0], completeData, completeWeight, objective,mean,sds, out, modify);//TODO
+			heuristic((MutableMotifDiscoverer) score[0], completeData, completeWeight, objective,mean,sds, out, modify);
 			
 			
 			//final optimization
@@ -474,7 +476,7 @@ public class SlimDimont {
 			storables[m] = cl;
 						
 			smof = new SignificantMotifOccurrencesFinder(best[m],completeData,completeWeight[1],ALPHA);			
-			Pair<double[][][],int[][]> pair = smof.getPWMAndPositions( 0, completeData, completeWeight[0], 0, 0 );
+			Pair<double[][][],int[][]> pair = smof.getPWMAndPositions( 0, completeData, completeWeight[0], 0, 0 );//TODO Jens->Jan: fgData vs. completeData
 			pairs[m] = pair;
 			
 			//"delete" positions from the profile 
@@ -503,6 +505,7 @@ public class SlimDimont {
 				LinkedList<Sequence> bs = new LinkedList<Sequence>();
 				DoubleList bsWeights = new DoubleList();
 				
+				//TODO Jens->Jan: fgData vs. completeData
 				result.add(getListResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n, ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifModel(), bs, bsWeights, value ));
 				
 				pwm = pairs[index[m]].getFirstElement()[0];
@@ -536,7 +539,7 @@ public class SlimDimont {
 		LinkedList<ResultSet> set = new LinkedList<ResultSet>();
 		int[][] pos = pair.getSecondElement();
 		double[][] pvals = pair.getFirstElement()[1];
-		for(int i=0;i<pos.length;i++){
+		for(int i=0;i<pos.length;i++){//TODO Jens->Jan: pos.length vs. data.getNumberOfElements()
 			for(int j=0;j<pos[i].length;j++){
 				int curr = pos[i][j];
 				boolean rc = false;
@@ -544,7 +547,12 @@ public class SlimDimont {
 					curr = -curr-1;
 					rc = true;
 				}
-				Sequence sub = data.getElementAt( i ).getSubSequence( curr, motifLength );
+				Sequence s = data.getElementAt( i );
+				/*
+				System.out.println( i + "\t" + s );
+				System.out.println( s.getLength() + "\t" + curr + "\t" + motifLength );
+				*/				
+				Sequence sub = s.getSubSequence( curr, motifLength );
 				Sequence sub2 = sub;
 				if(rc){
 					sub2 = sub.reverseComplement();
