@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -208,7 +209,13 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 								cb = x.commonBorders(n);
 								max=2d*Math.max(n.cds.size(),x.cds.size());								
 								if( cb/max==1d )  {
-									x.addAlternative(n);
+									if( x.score >= n.score  ) {
+										x.addAlternative(n);
+									} else {
+										n.copyAlternatives(x);
+										used.remove(j);
+										used.add(n);
+									}
 									break;
 								}
 								j++;
@@ -237,6 +244,10 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		st=Integer.MAX_VALUE;
 		en=Integer.MIN_VALUE;
 		Prediction n=null;
+		
+		//sort
+		Collections.sort(used, ScoreComparator.DEF);
+		
 		for( int i = 0; i < used.size(); i++ ) {
 			n = used.get(i);
 			int cont = n.write(w, epTh);
@@ -258,6 +269,15 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	
 	static int maxEvidence, st, en, complete;
 	static double maxTie;
+	
+	static class ScoreComparator implements Comparator<Prediction> {
+		static ScoreComparator DEF = new ScoreComparator();
+
+		@Override
+		public int compare(Prediction o1, Prediction o2) {
+			return -Integer.compare(o1.score, o2.score);
+		}
+	}
 	
 	static class Prediction implements Comparable<Prediction>{
 		boolean discard = false;
@@ -318,6 +338,22 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			return score / (length/3d);
 		}
 		
+		public void copyAlternatives( Prediction n ) {
+			alternative.clear();
+			alternative.addAll(n.alternative);
+			
+			if( evidence == null ) {
+				evidence = new boolean[MAX];
+			}
+			if( n.evidence!= null ) {
+				System.arraycopy(n.evidence, 0, evidence, 0, evidence.length);
+			} else {
+				Arrays.fill(evidence, false);
+			}
+			evidence[index]=true;			
+			addAlternative(n);
+		}
+		
 		public void addAlternative( Prediction n ) {
 			String rg = n.hash.get("ref-gene");
 			if( !rg.equals( hash.get("ref-gene") ) ) {
@@ -367,10 +403,11 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				complete += (hash.get("start").charAt(0)=='M' && hash.get("stop").charAt(0)=='*') ? 1 : 0;
 				
 				if( alternative.size() > 0 ) {
-					Iterator<String> it = alternative.iterator();
-					w.write( ";alternative=\"" + it.next() );
-					while( it.hasNext() ) {
-						w.write("," + it.next() );
+					String[] it = alternative.toArray(new String[0]);
+					Arrays.sort(it);
+					w.write( ";alternative=\"" + it[0] );
+					for( int i = 1; i < it.length; i++ ) {
+						w.write("," + it[i] );
 					}
 					w.write( "\"" );
 				}
