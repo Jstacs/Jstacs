@@ -29,6 +29,7 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
@@ -570,6 +571,8 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
-		return null;
+		return new ResultEntry[] {
+				new ResultEntry(TextResult.class, "gff", "introns")
+		};
 	}
 }
