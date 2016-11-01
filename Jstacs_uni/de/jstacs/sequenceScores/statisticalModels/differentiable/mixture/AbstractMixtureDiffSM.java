@@ -372,6 +372,18 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 		fillComponentScores( seq, start );
 		return Normalisation.getLogSum( componentScore );
 	}
+	
+	/**
+	 * Return the scores for the individual components.
+	 * 
+	 * @param seq the sequence
+	 * @param start the start position
+	 * @return the component scores
+	 */
+	public double[] getComponentScores( Sequence seq, int start ) {
+		fillComponentScores( seq, start );
+		return componentScore.clone();
+	}
 
 	/*
 	 * (non-Javadoc)
