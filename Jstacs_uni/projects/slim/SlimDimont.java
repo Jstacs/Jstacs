@@ -149,6 +149,9 @@ public class SlimDimont {
 		SequenceAnnotationParser parser = new SplitSequenceAnnotationParser(":", ";");
 		
 		DataSet data = SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, fgData, parser);
+		if( data.getNumberOfElements() < 10 ) {
+			System.out.println("WARNING: SlimDimont is not made for small data sets, i.e., a small number of sequences. Hence, it might return useless results.");
+		}
 		DataSet bgData = bg==null ? null : SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, new SparseStringExtractor(home +File.separator+ bg,'>'));
 		
 		/*if(fgData.matches( ".*_part_[0-9].fa" )){
@@ -198,7 +201,7 @@ public class SlimDimont {
 		boolean free = false;
 		
 		DataSet[] data = { fgData };
-		
+
 
 		Sequence[] annotated = new Sequence[data[0].getNumberOfElements() + (bgData==null?0:bgData.getNumberOfElements())];
 		double[][] weights = new double[2][];
@@ -260,13 +263,13 @@ public class SlimDimont {
 		weights[1] = Interpolation.getBgWeight( weights[0] );
 		
 		boolean[][] allowed = new boolean[annotated.length][];//TODO Jan? BitSets?
-		for(int i=0;i<raw.length;i++){
+		for(int i=0;i<annotated.length;i++){
 			allowed[i] = new boolean[annotated[i].getLength()];
 			Arrays.fill( allowed[i], true );
 		}
 		
 		//create initial annotation
-		data[0] = annotate(annotated,weights,mean,sd,allowed);
+		data[0] = annotate(annotated,weights,mean,sd,allowed, fgData.getNumberOfElements());
 		
 		//complete vs small fg data/weights
 		DataSet completeData = data[0];
@@ -436,7 +439,7 @@ public class SlimDimont {
 			//System.out.println("before "+getConsensus( DNAAlphabetContainer.SINGLETON, (((MarkovModelDiffSM)((AbstractSingleMotifChIPper) score[0]).getFunction( 0 ) ).getPWM())));
 			
 			//optimize on the complete data set
-			data[0] = annotate( annotated, weights, mean, sd, allowed );
+			data[0] = annotate( annotated, weights, mean, sd, allowed, fgData.getNumberOfElements() );
 			objective.setDataAndWeights( data, weights );
 			Optimizer.optimize( algo, neg, p, stop, eps*1E-1, start, SafeOutputStream.getSafeOutputStream( null ) );
 
@@ -454,7 +457,7 @@ public class SlimDimont {
 				newSd = sd;
 			}
 			
-			data[0] = annotate( annotated, weights, mean, newSd, allowed );
+			data[0] = annotate( annotated, weights, mean, newSd, allowed, fgData.getNumberOfElements() );
 			objective.setDataAndWeights( data, weights );
 			((AbstractSingleMotifChIPper) score[0]).resetPositions();
 			objective.reset( score ); // reset heuristics: toBeUsed..., ...
@@ -476,7 +479,7 @@ public class SlimDimont {
 			storables[m] = cl;
 						
 			smof = new SignificantMotifOccurrencesFinder(best[m],completeData,completeWeight[1],ALPHA);			
-			Pair<double[][][],int[][]> pair = smof.getPWMAndPositions( 0, completeData, completeWeight[0], 0, 0 );//TODO Jens->Jan: fgData vs. completeData
+			Pair<double[][][],int[][]> pair = smof.getPWMAndPositions( 0, completeData, completeWeight[0], 0, 0 );
 			pairs[m] = pair;
 			
 			//"delete" positions from the profile 
@@ -505,7 +508,7 @@ public class SlimDimont {
 				LinkedList<Sequence> bs = new LinkedList<Sequence>();
 				DoubleList bsWeights = new DoubleList();
 				
-				//TODO Jens->Jan: fgData vs. completeData
+				//TODO Jens->Jan: fgData vs. completeData: pairs[index[m]]
 				result.add(getListResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n, ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifModel(), bs, bsWeights, value ));
 				
 				pwm = pairs[index[m]].getFirstElement()[0];
@@ -539,7 +542,7 @@ public class SlimDimont {
 		LinkedList<ResultSet> set = new LinkedList<ResultSet>();
 		int[][] pos = pair.getSecondElement();
 		double[][] pvals = pair.getFirstElement()[1];
-		for(int i=0;i<pos.length;i++){//TODO Jens->Jan: pos.length vs. data.getNumberOfElements()
+		for(int i=0;i<data.getNumberOfElements();i++){//TODO Jens->Jan: pos.length vs. data.getNumberOfElements()
 			for(int j=0;j<pos[i].length;j++){
 				int curr = pos[i][j];
 				boolean rc = false;
@@ -547,12 +550,7 @@ public class SlimDimont {
 					curr = -curr-1;
 					rc = true;
 				}
-				Sequence s = data.getElementAt( i );
-				/*
-				System.out.println( i + "\t" + s );
-				System.out.println( s.getLength() + "\t" + curr + "\t" + motifLength );
-				*/				
-				Sequence sub = s.getSubSequence( curr, motifLength );
+				Sequence sub = data.getElementAt( i ).getSubSequence( curr, motifLength );
 				Sequence sub2 = sub;
 				if(rc){
 					sub2 = sub.reverseComplement();
@@ -583,17 +581,15 @@ public class SlimDimont {
 
 	private static void delete( int[][] positions, boolean[][] allowed, int length ) {
 		for(int i=0;i<positions.length;i++){
-			if( allowed[i] != null ) {
-				for(int j=0;j<positions[i].length;j++){
-					int pos = positions[i][j];
-					if(pos < 0){
-						pos = -pos - 1;
-					}
-					Arrays.fill( allowed[i], 
-							Math.max( 0, pos-length/2), 
-							Math.min( allowed[i].length, pos + length/2 ),
-							false );
+			for(int j=0;j<positions[i].length;j++){
+				int pos = positions[i][j];
+				if(pos < 0){
+					pos = -pos - 1;
 				}
+				Arrays.fill( allowed[i], 
+						Math.max( 0, pos-length/2), 
+						Math.min( allowed[i].length, pos + length/2 ),
+						false );
 			}
 		}		
 	}
@@ -643,13 +639,22 @@ public class SlimDimont {
 		return new Pair<DataSet, double[][]>( new DataSet( "", seqs.toArray( new Sequence[0] ) ), new double[][]{rw, Interpolation.getBgWeight( rw )} );
 	}
 
-	private static DataSet annotate( Sequence[] annotated, double[][] weights, double[] mean, double sd, boolean[][] allowed ) throws WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException {
+	private static DataSet annotate( Sequence[] annotated, double[][] weights, double[] mean, double sd, boolean[][] allowed, int fg ) throws WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException {
 		AlphabetContainer ref = new AlphabetContainer( new ContinuousAlphabet() );
 		float[][] histogram = new float[annotated.length][];
 		for( int j = 0; j < weights[0].length; j++ ) {
 			histogram[j] = new float[annotated[j].getLength()];
-			if( allowed[j] == null ) {
-				Arrays.fill( histogram[j],  1f/histogram[j].length );
+			if( j >= fg ) {
+				float sum = 0;
+				for( int i = 0; i < histogram[j].length; i++ ) {
+					if(allowed[j][i]){
+						histogram[j][i] = 1;
+						sum++;
+					}
+				}
+				for(int i=0;i<histogram[j].length;i++){
+					histogram[j][i] /= sum;
+				}
 			} else {
 				float max = 0, sum = 0;
 				for( int i = 0; i < histogram[j].length; i++ ) {
@@ -665,7 +670,7 @@ public class SlimDimont {
 						max = histogram[j][i];
 					}
 				}
-				
+//Jens->Jan: if real bg exists then mixture Gauﬂ and uniform?				
 				float[] histBg = histogram[j].clone();
 				sum = 0;
 				for(int i=0;i<histBg.length;i++){
@@ -747,7 +752,7 @@ public class SlimDimont {
 			LinkedList<Sequence> bs = new LinkedList<Sequence>();
 			DoubleList bsWeights = new DoubleList();
 			DoubleList bsScores = new DoubleList();
-			Pair<double[][],double[]> pair = smof.getPWMAndPosDist( im, completeData, completeWeight[0], mean, add, add, bs, bsWeights, bsScores );//TODO allowed
+			Pair<double[][],double[]> pair = smof.getPWMAndPosDist( im, completeData, completeWeight[0], mean, add, add, bs, bsWeights, bsScores );
 			double[][] pwm = pair.getFirstElement();
 			sds[im] = pair.getSecondElement()[0];
 			double[] entropy = new double[pwm.length], kl = new double[pwm.length];
