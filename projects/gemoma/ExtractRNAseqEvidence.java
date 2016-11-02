@@ -344,8 +344,6 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 							countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 						}
 						
-						
-						
 						int recStart = rec.getStart();
 						while(currPos < recStart){
 							if(mapFwd.containsKey(currPos)){
@@ -461,11 +459,13 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		protocol.append("#split reads:\t" + splits + "\n");
 		protocol.append("#introns:\t" + intronNum + "\n");
 		
-		Result[] res = new Result[coverage?3:1];
+		Result[] res = new Result[coverage?(stranded==Stranded.NO?2:3):1];
 		res[0] = new TextResult("introns", "Result", new FileParameter.FileRepresentation(outInt.getAbsolutePath()), "gff", getToolName(), null, true);
 		if( coverage ) {
-			res[1] = new TextResult("coverage forward", "Result", new FileParameter.FileRepresentation(outFwd.getAbsolutePath()), "bedgraph", getToolName(), null, true);
-			res[2] = new TextResult("coverage reverse", "Result", new FileParameter.FileRepresentation(outRev.getAbsolutePath()), "bedgraph", getToolName(), null, true);
+			res[1] = new TextResult("coverage" + (stranded==Stranded.NO?"":" forward"), "Result", new FileParameter.FileRepresentation(outFwd.getAbsolutePath()), "bedgraph", getToolName(), null, true);
+			if( stranded != Stranded.NO ) {
+				res[2] = new TextResult("coverage reverse", "Result", new FileParameter.FileRepresentation(outRev.getAbsolutePath()), "bedgraph", getToolName(), null, true);
+			}
 		}
 		
 		return new ToolResult("", "", null, new ResultSet( res ), parameters, getToolName(), new Date());
