@@ -24,7 +24,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import de.jstacs.DataType;
+import de.jstacs.parameters.AbstractSelectionParameter;
+import de.jstacs.parameters.ExpandableParameterSet;
+import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.results.DataSetResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.PlotGeneratorResult;
@@ -37,7 +42,6 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ProgressUpdater;
-import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
@@ -161,6 +165,12 @@ public class Galaxy {
 			
 			ProgressUpdater progress = new ProgressUpdater();
 			
+			//out
+			ParameterSet ps = toolParameters[idx];
+			System.out.println( "Parameters of tool \""+tools[idx].getToolName()+"\" ("+tools[idx].getShortName()+", version: " + tools[idx].getToolVersion() + "):" );
+			print( ps, "" );
+			System.out.println( "The number of threads used for the tool, defaults to 1\t= "+ga.getThreads() );
+			
 			ResultSet ress = tools[idx].run( toolParameters[idx], protocol, progress, ga.getThreads() ).getRawResult()[0];			
 			
 			Pair<Result,boolean[]>[] temp = flatten(ress);
@@ -221,6 +231,53 @@ public class Galaxy {
 			
 		}
 		
+	}
+	
+	private void print(ParameterSet parameters, String tabPrefix){
+		boolean isExp = parameters instanceof ExpandableParameterSet;
+		ExpandableParameterSet exp = null;
+		//TODO parameter names
+		if( isExp ) {
+			exp = (ExpandableParameterSet) parameters;
+			parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
+			
+			System.out.println( tabPrefix+"This parameter can be used multiple times:" );//TODO
+			ParameterSet template = (ParameterSet) exp.getParameterAt(0).getValue();
+			int n = exp.getNumberOfParameters();
+			for(int k=0;k<n;k++){
+				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
+				for(int j=0;j<template.getNumberOfParameters();j++){
+					Parameter par2 = template.getParameterAt(j);
+					//if( par2 instanceof ParameterSet ) //TODO
+
+					System.out.println( tabPrefix+"\t" + par2.getName() + (n>1?" ("+(k+1)+") ":"") + ""+ps2.getParameterAt(j).toString() );
+				}
+			}
+		} else {		
+			for(int i=0;i<parameters.getNumberOfParameters();i++){
+				Parameter par = parameters.getParameterAt( i );
+				if(par.getDatatype() != DataType.PARAMETERSET){
+					System.out.println( tabPrefix + par.getName() + " - " + par.toString() );
+				}else{
+					if(par instanceof AbstractSelectionParameter){
+						System.out.println( tabPrefix+par.toString() );
+						ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
+						for(int j=0;j<incoll.getNumberOfParameters();j++){
+							ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
+							if( cont.getValue().getNumberOfParameters()>0 ) {
+								System.out.println( "Parameters for selection \""+cont.getName()+"\":" );
+								print(cont.getValue(),"\t");
+							} else {
+								System.out.println( "No parameters for selection \""+cont.getName()+"\"" );
+							}
+						}
+					} else {
+						ParameterSet ps = (ParameterSet)par.getValue();
+						print(ps,tabPrefix+"\t");
+					}
+				}
+			}
+		}
 	}
 	
 	
