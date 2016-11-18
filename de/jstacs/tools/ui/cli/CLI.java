@@ -495,11 +495,7 @@ public class CLI {
 
 	private void printToolParameters( int toolIndex, Protocol protocol, String outdir, int threads ) {
 		ParameterSet ps = toolParameters[toolIndex];
-		if(tools.length > 1){
-			protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+", version: " + tools[toolIndex].getToolVersion() + "):\n" );
-		}else{
-			protocol.appendWarning( "Parameters of "+tools[toolIndex].getToolName()+":\n" );
-		}
+		protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+", version: " + tools[toolIndex].getToolVersion() + "):\n" );
 		print( keyMap[toolIndex], ps, "", protocol );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
 		if(configureThreads[toolIndex]){
