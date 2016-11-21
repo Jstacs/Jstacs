@@ -65,9 +65,9 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 	}
 	
 	public enum Stranded{
-		NO,
-		FIRSTFWD,
-		SECONDFWD
+		FR_UNSTRANDED,
+		FR_FIRST_STRAND,
+		FR_SECOND_STRAND
 	}
 	
 	private enum Strand{
@@ -145,21 +145,21 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		}
 	
 		private static Strand getStrand(int bitflag, Stranded stranded) {
-			if(stranded == Stranded.NO){
+			if(stranded == Stranded.FR_UNSTRANDED){
 				return Strand.UNK;
-			}else if(stranded == Stranded.FIRSTFWD){
+			}else if(stranded == Stranded.FR_FIRST_STRAND){
 				
 				if( (bitflag & 128) == 128 ){// second in pair
 					if((bitflag & 16) == 16 ){
-						return Strand.FWD;
-					}else{
 						return Strand.REV;
+					}else{
+						return Strand.FWD;
 					}
 				}else{// first in pair or unpaired
 					if((bitflag & 16) == 16 ){
-						return Strand.REV;
-					}else{
 						return Strand.FWD;
+					}else{
+						return Strand.REV;
 					}
 				}
 				
@@ -167,15 +167,15 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 				
 				if( (bitflag & 128) == 128 ){// second in pair
 					if((bitflag & 16) == 16 ){
-						return Strand.REV;
-					}else{
 						return Strand.FWD;
+					}else{
+						return Strand.REV;
 					}
 				}else{// first in pair or unpaired
 					if((bitflag & 16) == 16 ){
-						return Strand.FWD;
-					}else{
 						return Strand.REV;
+					}else{
+						return Strand.FWD;
 					}
 				}
 			}
@@ -224,7 +224,10 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		
 		try {
 			return new SimpleParameterSet(
-						new EnumParameter(Stranded.class, "Defines whether the reads are stranded", true),
+						new EnumParameter(Stranded.class, "Defines whether the reads are stranded. "
+								+ "In case of FR_FIRST_STRAND, the first read of a read pair or the only read in case of single-end data is assumed to be located on forward strand of the cDNA, i.e., reverse to the mRNA orientation. "
+								+ "If you are using Illumina TruSeq you should use FR_FIRST_STRAND."
+								, true),
 						new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
 								new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam",  true )
 							), "mapped reads", "", 1 ) ),
@@ -338,9 +341,9 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 						boolean isNeg = rec.getReadNegativeStrandFlag();
 						boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
 						boolean countAsFwd = true;
-						if(stranded == Stranded.FIRSTFWD){
+						if(stranded == Stranded.FR_FIRST_STRAND){
 							countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
-						}else if(stranded == Stranded.SECONDFWD){
+						}else if(stranded == Stranded.FR_SECOND_STRAND){
 							countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 						}
 						
@@ -459,11 +462,11 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		protocol.append("#split reads:\t" + splits + "\n");
 		protocol.append("#introns:\t" + intronNum + "\n");
 		
-		Result[] res = new Result[coverage?(stranded==Stranded.NO?2:3):1];
+		Result[] res = new Result[coverage?(stranded==Stranded.FR_UNSTRANDED?2:3):1];
 		res[0] = new TextResult("introns", "Result", new FileParameter.FileRepresentation(outInt.getAbsolutePath()), "gff", getToolName(), null, true);
 		if( coverage ) {
-			res[1] = new TextResult("coverage" + (stranded==Stranded.NO?"":" forward"), "Result", new FileParameter.FileRepresentation(outFwd.getAbsolutePath()), "bedgraph", getToolName(), null, true);
-			if( stranded != Stranded.NO ) {
+			res[1] = new TextResult("coverage" + (stranded==Stranded.FR_UNSTRANDED?"":" forward"), "Result", new FileParameter.FileRepresentation(outFwd.getAbsolutePath()), "bedgraph", getToolName(), null, true);
+			if( stranded != Stranded.FR_UNSTRANDED ) {
 				res[2] = new TextResult("coverage reverse", "Result", new FileParameter.FileRepresentation(outRev.getAbsolutePath()), "bedgraph", getToolName(), null, true);
 			}
 		}
