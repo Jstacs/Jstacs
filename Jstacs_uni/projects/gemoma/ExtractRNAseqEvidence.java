@@ -29,17 +29,16 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
 import htsjdk.samtools.AlignmentBlock;
+import htsjdk.samtools.SAMFileHeader.SortOrder;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.ValidationStringency;
-import htsjdk.samtools.SAMFileHeader.SortOrder;
 
 /**
  * This class enables to extract the coverage per strand and introns from BAM/SAM files, which might be used in GeMoMa.
@@ -341,9 +340,9 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 						boolean isNeg = rec.getReadNegativeStrandFlag();
 						boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
 						boolean countAsFwd = true;
-						if(stranded == Stranded.FR_FIRST_STRAND){
+						if(stranded == Stranded.FR_SECOND_STRAND){
 							countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
-						}else if(stranded == Stranded.FR_SECOND_STRAND){
+						}else if(stranded == Stranded.FR_FIRST_STRAND){
 							countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 						}
 						
