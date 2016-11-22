@@ -72,6 +72,8 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.ParameterSetContainer;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
@@ -97,7 +99,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	private static DecimalFormat decFormat = new DecimalFormat("###.##",DecimalFormatSymbols.getInstance(Locale.US));
+	private static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
 	/**
 	 * The index of the score in the blast output.
@@ -147,7 +149,7 @@ public class GeMoMa implements JstacsTool {
 	private static HashMap<String, int[][][]> acceptorSites;
 	private static boolean sp;
 	//coverage
-	private static HashMap<String, int[][]> coverage;	
+	private static HashMap<String, int[][]>[] coverage;	
 	//canonical 
 	private static final String[] DONOR = {"GT", "GC"};
 	private static final String ACCEPTOR = "AG";
@@ -190,7 +192,7 @@ public class GeMoMa implements JstacsTool {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
 			if( args[0].equalsIgnoreCase("CLI") ) {
-				CLI cli = new CLI( "CLI", null, new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
+				CLI cli = new CLI( "CLI", null, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
 				String[] part = new String[args.length-1];
 				System.arraycopy(args, 1, part, 0, part.length);
 				cli.run(part);
@@ -208,7 +210,7 @@ public class GeMoMa implements JstacsTool {
 					}
 					System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 				}
-				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractIntrons(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
+				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
 				galaxy.run(args);
 			}
 		}
@@ -228,6 +230,52 @@ public class GeMoMa implements JstacsTool {
 		File f = File.createTempFile(prefix, "_GeMoMa.temp", new File("."));//default temp directory?
 		f.deleteOnExit();
 		return f;
+	}
+	
+	private static void readCoverage( int index, Parameter p, Protocol protocol, boolean verbose ) throws IOException {
+		//if( p!= null && p.isSet() ) {
+			protocol.append("read coverage file: " + p.getName() + "\n");
+			coverage[index] = new HashMap<String, int[][]>();
+			BufferedReader r = new BufferedReader( new FileReader( p.getValue().toString() ) );
+			int threshold = 1;
+			String chr = null;
+			ArrayList<int[]> list = new ArrayList<int[]>();
+			String line;
+			int i = 0;
+			while( (line=r.readLine()) != null ) {
+				if( i==0 && line.startsWith("track type=bedgraph") ) {
+					//ignore
+				} else{
+					String[] split = line.split( "\t" );
+					if( chr == null || !split[0].equals(chr)) {
+						if( chr != null && list.size()>0 ) {
+							//Collections.sort(list, CovComparator.def);
+							coverage[index].put( chr, list.toArray( new int[0][] ) );
+							list.clear();
+						}
+						chr = split[0];
+					}
+					int reads;
+					try {
+						reads = Integer.parseInt(split[3]);
+					} catch( Exception e ) {
+						if( verbose ) {
+							protocol.appendWarning("Could not parse number of reads. Set coverage to " +threshold + ". Line: " + line + "\n" );
+						}
+						reads = threshold;
+					}
+					if( reads >= threshold ) {
+						list.add( new int[]{Integer.parseInt(split[1])+1, Integer.parseInt(split[2]), reads} );
+					}
+				}
+				i++;
+			}
+			r.close();
+			if( chr != null && list.size()>0 ) {
+				//Collections.sort(list, CovComparator.def);
+				coverage[index].put( chr, list.toArray( new int[0][] ) );
+			}
+		//}
 	}
 	
 	@Override
@@ -265,12 +313,46 @@ public class GeMoMa implements JstacsTool {
 			protocol.append("selected: " + selected.size() + (selected.size()<100? "\t"+ selected : "")+"\n");
 		}
 		
+		//outputs
+		File gffFile = createTempFile("gff");
+		File predictedFile = createTempFile("protein");
+		File alignFile = createTempFile("align");
+		File genomicFile = createTempFile("genomic");
+		
+		gff = new BufferedWriter( new FileWriter( gffFile ) );
+		gff.append("##gff-version 3");
+		gff.newLine();
+		predicted = new BufferedWriter( new FileWriter( predictedFile ) );
+		blastLike = new BufferedWriter( new FileWriter( alignFile ) );
+		genomic = new BufferedWriter( new FileWriter( genomicFile ) );
+				
+		p = parameters.getParameterForName("query proteins");
+		
+		TranscriptPredictor tp = new TranscriptPredictor(
+				progress,
+				(String) parameters.getParameterForName("assignment").getValue(),
+				(String) parameters.getParameterForName("cds parts").getValue(),
+				(String) parameters.getParameterForName("target genome").getValue(),
+				
+				getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ),
+				getInputStream(parameters.getParameterForName("substitution matrix"), "projects/gemoma/test_data/BLOSUM62.txt" ),
+
+				(String) (p.isSet() ? p.getValue() : null)
+		);
+		if( selected != null ) {
+			progress.setLast(selected.size());
+		}
+		
 		p = parameters.getParameterForName("introns"); 
 		if( p!= null && p.isSet() ) {
 			int threshold = (Integer) parameters.getParameterForName("reads").getValue();
 			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
 			HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
 			ArrayList<int[]>[] h;
+			
+			String[] donor = null;
+			String acceptor = null;
+			
 			while( (line=r.readLine()) != null ) {
 				if( line.charAt(0) != '#' ) {
 					String[] split = line.split( "\t" );
@@ -296,11 +378,33 @@ public class GeMoMa implements JstacsTool {
 						h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
 						*/
 						char c = split[6].charAt(0);
+						int a=Integer.parseInt(split[3]);
+						int b =Integer.parseInt(split[4]);
+						
+						if( c=='.' ) {
+							//try to identify on which strand the intron is located
+							if( donor == null ) {
+								donor = new String[]{Tools.rc(DONOR[0]),Tools.rc(DONOR[1])};
+								acceptor = Tools.rc(ACCEPTOR);
+							}
+							String s = seqs.get(split[0]);
+							String x = s.substring(a-1,a+1);
+							String y = s.substring(b-3,b-1);
+							boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
+							boolean bwd =  (y.equals(donor[0]) || y.equals(donor[1])) && x.equals(acceptor);
+							if( fwd && !bwd ) {
+								c='+';
+							} else if( bwd && !fwd ) {
+								c='-';
+							}
+							//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
+						}
+						
 						if( c =='+' || c=='.' ) {
-							h[0].add( new int[]{Integer.parseInt(split[3]), Integer.parseInt(split[4]), reads} );
+							h[0].add( new int[]{a, b, reads} );
 						}
 						if( c =='-' || c=='.' ) {
-							h[1].add( new int[]{Integer.parseInt(split[4]), Integer.parseInt(split[3]), reads} );
+							h[1].add( new int[]{b, a, reads} );
 						}
 					}
 				}
@@ -359,44 +463,14 @@ public class GeMoMa implements JstacsTool {
 			acceptorSites = donorSites = null;
 		}
 		
-		p = parameters.getParameterForName("coverage"); 
-		if( p!= null && p.isSet() ) {
-			protocol.append("read coverage file\n");
-			coverage = new HashMap<String, int[][]>();
-			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
-			int threshold = 1;
-			String chr = null;
-			ArrayList<int[]> list = new ArrayList<int[]>();
-			while( (line=r.readLine()) != null ) {
-				if( line.charAt(0) != '#' ) {
-					String[] split = line.split( "\t" );
-					if( chr == null || !split[0].equals(chr)) {
-						if( chr != null && list.size()>0 ) {
-							//Collections.sort(list, CovComparator.def);
-							coverage.put( chr, list.toArray( new int[0][] ) );
-							list.clear();
-						}
-						chr = split[0];
-					}
-					int reads;
-					try {
-						reads = Integer.parseInt(split[3]);
-					} catch( Exception e ) {
-						if( verbose ) {
-							protocol.appendWarning("Could not parse number of reads. Set coverage to " +threshold + ". Line: " + line + "\n" );
-						}
-						reads = threshold;
-					}
-					if( reads >= threshold ) {
-						list.add( new int[]{Integer.parseInt(split[1])+1, Integer.parseInt(split[2]), reads} );
-					}
-				}
-			}
-			r.close();
-			if( chr != null && list.size()>0 ) {
-				//Collections.sort(list, CovComparator.def);
-				coverage.put( chr, list.toArray( new int[0][] ) );
-			}
+		coverage = new HashMap[2];
+		SimpleParameterSet sps = (SimpleParameterSet) parameters.getParameterForName("coverage").getValue();
+		if( sps.getNumberOfParameters() == 2 ) {
+			readCoverage(0, sps.getParameterForName("coverage_forward"), protocol, verbose);
+			readCoverage(1, sps.getParameterForName("coverage_reverse"), protocol, verbose);
+		} else if( sps.getNumberOfParameters() == 1 ) {
+			readCoverage(0, sps.getParameterForName("coverage_unstranded"), protocol, verbose);
+			coverage[1] = coverage[0];
 		} else {
 			coverage = null;
 		}
@@ -419,36 +493,8 @@ public class GeMoMa implements JstacsTool {
 			intronic[1] = ACCEPTOR.length();
 		}
 		
-		//outputs
-		File gffFile = createTempFile("gff");
-		File predictedFile = createTempFile("protein");
-		File alignFile = createTempFile("align");
-		File genomicFile = createTempFile("genomic");
 		
-		gff = new BufferedWriter( new FileWriter( gffFile ) );
-		gff.append("##gff-version 3");
-		gff.newLine();
-		predicted = new BufferedWriter( new FileWriter( predictedFile ) );
-		blastLike = new BufferedWriter( new FileWriter( alignFile ) );
-		genomic = new BufferedWriter( new FileWriter( genomicFile ) );
-				
-		p = parameters.getParameterForName("query proteins");
 		
-		TranscriptPredictor tp = new TranscriptPredictor(
-				progress,
-				(String) parameters.getParameterForName("assignment").getValue(),
-				(String) parameters.getParameterForName("cds parts").getValue(),
-				(String) parameters.getParameterForName("target genome").getValue(),
-				
-				getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ),
-				getInputStream(parameters.getParameterForName("substitution matrix"), "projects/gemoma/test_data/BLOSUM62.txt" ),
-
-				(String) (p.isSet() ? p.getValue() : null)
-		);
-		if( selected != null ) {
-			progress.setLast(selected.size());
-		}
-
 		//read blast output and compute result
 		boolean okay = true;
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
@@ -1957,7 +2003,7 @@ public class GeMoMa implements JstacsTool {
 							gff.append( ";tie=" + (best.I==0? "?": decFormat.format(best.i/(double)best.I)) );
 							gff.append( ";minSplitReads=" + (best.I==0? "?": best.minSplitReads) );
 						}
-						if( coverage != null ) {
+						if( coverage != null && coverage[best.forward?0:1] != null ) {
 							gff.append( ";tpc=" + decFormat.format(best.Cov/(double)best.Len) );
 							gff.append( ";minCov=" + best.minC );
 							gff.append( ";avgCov=" + decFormat.format(best.Sum/(double)best.Len) );
@@ -2104,7 +2150,7 @@ public class GeMoMa implements JstacsTool {
 					+ (acceptorSites == null ? "" :"\tacceptor evidence")
 					+ (donorSites == null ? "" : "\tdonor evidence")
 					+ (donorSites == null ? "" : "\tintron evidence")
-					+ (coverage == null ? "" : "\tpercent covered\tmin coverage")
+					+ (coverage==null ? "" : "\tpercent covered\tmin coverage")
 					+ "\tsimilar";
 		}
 
@@ -3848,7 +3894,7 @@ public class GeMoMa implements JstacsTool {
 						if( sites != null ) {
 							donSites = sites[forward?0:1];
 						}
-						cov = coverage!= null ? coverage.get(id) : null;
+						cov = (coverage != null && coverage[forward?0:1]!= null) ? coverage[forward?0:1].get(id) : null;
 					}
 					
 					if( start < 0 ) {
@@ -3910,8 +3956,8 @@ public class GeMoMa implements JstacsTool {
 						sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref 
 								+ (acceptorSites==null || first?"":(";ae="+ae))
 								+ (donorSites==null?"":(";de="+de))
-								+ (coverage==null?"":(";pc=" + decFormat.format(covered/(double)l)))
-								+ (coverage==null?"":(";minCov=" + min))
+								+ (coverage != null && coverage[forward?0:1]==null?"":(";pc=" + decFormat.format(covered/(double)l)))
+								+ (coverage != null && coverage[forward?0:1]==null?"":(";minCov=" + min))
 								+ "\n"
 						);
 						
@@ -3995,8 +4041,8 @@ public class GeMoMa implements JstacsTool {
 				
 				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref
 						+ (acceptorSites==null || first?"":(";ae="+ae))
-						+ (coverage==null?"":(";pc=" + decFormat.format(covered/(double)l)))
-						+ (coverage==null?"":(";minCov=" + min))
+						+ (coverage != null && coverage[forward?0:1]==null?"":(";pc=" + decFormat.format(covered/(double)l)))
+						+ (coverage != null && coverage[forward?0:1]==null?"":(";minCov=" + min))
 						+ "\n"
 				);
 				if( !first ) {
@@ -4112,7 +4158,23 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
 					
-					new FileParameter( "coverage", "The coverage file contains the coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out. For generating such bed file, you can use:  bedtools genomecov -bg -split", "bed,bedgraph", false ),
+					//TODO
+					new SelectionParameter( DataType.PARAMETERSET, 
+							new String[]{"NO", "UNSTRANDED", "STRANDED"},
+							new Object[]{
+								//no coverage
+								new SimpleParameterSet(),
+								//unstranded coverage
+								new SimpleParameterSet(
+										new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+								),
+								//stranded coverage
+								new SimpleParameterSet(
+										new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
+										new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+								)
+							},  "coverage", "experimental coverage (RNAseq)", true
+					),
 					
 					/*splice site models
 					new FileParameter( "classifier donor", "The path to the donor splice site classifier (XML)", "xml", false ),
@@ -4133,7 +4195,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 1 ), 
-					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the predcition, if columns 2 to 5 contain chromosome, strand, start end end of region", "tabular,txt", maxSize>-1 ), 
+					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start end end of region", "tabular,txt", maxSize>-1 ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
 			
