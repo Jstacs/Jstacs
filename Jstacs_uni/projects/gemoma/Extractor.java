@@ -75,7 +75,7 @@ public class Extractor implements JstacsTool {
 		out.add(SafeOutputStream.getSafeOutputStream(b));
 	}
 
-	private static String[] name = {"cds-parts", "assignment", "proteins", "cds", "acceptor", "donor"};
+	private static String[] name = {"cds-parts", "assignment", "proteins", "cds"};
 	private static String[] type;
 	static {
 		type = new String[name.length];
@@ -118,6 +118,7 @@ public class Extractor implements JstacsTool {
 		HashMap<String,Character> code = Tools.getCode( in );
 		
 		Ambiguity ambi = (Ambiguity) parameters.getParameterForName("Ambiguity").getValue();
+		boolean fullLength = (Boolean) parameters.getParameterForName("full-length").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		
 		ArrayList<File> file = new ArrayList<File>();
@@ -126,23 +127,9 @@ public class Extractor implements JstacsTool {
 		getOut( name[1], file, out );
 		getOut( ((Boolean)parameters.getParameterForName(name[2]).getValue()) ? name[2] : null, file, out );
 		getOut( ((Boolean)parameters.getParameterForName(name[3]).getValue()) ? name[3] : null, file, out );
-		
-		int intronic, exonic;
-		exonic = intronic = 2;
-		p = parameters.getParameterForName("splice sites");
-		boolean splice = p!= null;
-		if( splice ) {
-			ParameterSet ps = (ParameterSet) p.getValue();
-			splice = ps.getNumberOfParameters() > 0;
-			if( splice ) {
-				exonic = (Integer) ps.getParameterForName("exonic").getValue();
-				intronic = (Integer) ps.getParameterForName("intronic").getValue();
-				System.out.println(intronic + "\t" + exonic);
-			}
-		}
-		getOut( splice ? name[4] : null, file, out );
-		getOut( splice ? name[5] : null, file, out  );
 	
+		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length" );
+		
 		//read genome contig by contig
 		r = new BufferedReader( new FileReader( parameters.getParameterForName("genome").getValue().toString() ) );
 		
@@ -152,7 +139,7 @@ public class Extractor implements JstacsTool {
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( ambi, protocol, verbose, comment, problem, info, count, intronic, exonic, seq, annot, code, out, donor, acceptor );
+				extract( fullLength, ambi, protocol, verbose, comment, problem, info, count, seq, annot, code, out, donor, acceptor );
 				//clear
 				comment = line.substring(1);
 				seq.delete(0, seq.length());
@@ -162,7 +149,7 @@ public class Extractor implements JstacsTool {
 			}
 		}
 		//do
-		extract( ambi, protocol, verbose, comment, problem, info, count, intronic, exonic, seq, annot, code, out, donor, acceptor );
+		extract( fullLength, ambi, protocol, verbose, comment, problem, info, count, seq, annot, code, out, donor, acceptor );
 		r.close();
 
 		
@@ -301,7 +288,8 @@ public class Extractor implements JstacsTool {
 					gene.add( parent[j], new int[]{
 							split[6].charAt(0)=='+'?1:-1, //strand
 							Integer.parseInt( split[3] ), //start
-							Integer.parseInt( split[4] ) //end
+							Integer.parseInt( split[4] ), //end
+							split[7].charAt(0)=='.' ? -1 : Integer.parseInt(split[7]) //phase
 					} );
 				}
 			}			
@@ -454,8 +442,8 @@ public class Extractor implements JstacsTool {
 		return true;
 	}	
 	
-	private static void extract( Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] problem, int[] info, HashMap<Integer,int[]> count,
-			int intronic, int exonic, StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code,
+	private static void extract( boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] problem, int[] info, HashMap<Integer,int[]> count,
+			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code,
 			ArrayList<SafeOutputStream> out, HashMap<String, int[]> donor, HashMap<String, int[]> acceptor) throws Exception {
 		if( comment == null ) {
 			return;
@@ -521,8 +509,8 @@ public class Extractor implements JstacsTool {
 				for( i = 0; i < gene.exon.size(); i++ ) {
 					val = gene.exon.get(i);
 					
-					int off1 = val[1]-1>=intronic ? intronic : 0;
-					int off2 = val[2]+intronic<=seq.length() ? intronic : 0;
+					int off1 = val[1]-1>=2 ? 2 : 0;
+					int off2 = val[2]+2<=seq.length() ? 2 : 0;
 					String p, s;
 					try {
 						p = seq.substring( val[1]-1-off1, val[2]+off2 );
@@ -533,14 +521,17 @@ public class Extractor implements JstacsTool {
 						
 						if( strand > 0 ) {
 							s=p.substring(off1,p.length()-off2);
+							acc[i] = off1 > 0 ? p.substring(0,off1) : "";
+							don[i] = off2 > 0 ? p.substring(p.length()-off2,p.length()) : "";
 						} else {
 							s=p.substring(off2,p.length()-off1);
+							acc[i] = off2 > 0 ? p.substring(0,off2) : "";
+							don[i] = off1 > 0 ? p.substring(p.length()-off1,p.length()) : "";
 						}
-						acc[i]=don[i]="";
 					} catch( StringIndexOutOfBoundsException sioobe ) {
 						s=null;//TODO
 					}					
-					part.add(new Part(s));
+					part.add(new Part(s,val[3]));
 				}
 				
 				Arrays.fill( used, false );
@@ -556,9 +547,12 @@ public class Extractor implements JstacsTool {
 					}
 					int start = strand>0 ? gene.exon.get(il.get(0))[1] : gene.exon.get(il.get(il.length()-1))[1];
 					int end = strand>0 ? gene.exon.get(il.get(il.length()-1))[2] : gene.exon.get(il.get(0))[2];
-					int offset = 0;
+					
+					int startPhase = fullLength ? 0 : part.get(il.get(0)).offsetLeft;
+					int offset = 3-startPhase, pa = -1;
 					for( j = 0; j < il.length(); j++ ) {
-						current = part.get(il.get(j));
+						pa = il.get(j);
+						current = part.get(pa);
 						if( current.dna == null ) {
 							currentProb=1;
 							break;
@@ -568,7 +562,10 @@ public class Extractor implements JstacsTool {
 						//translate
 						if( current.offsetLeft < 0 ) {
 							current.offsetLeft = (3-offset)%3;
-							//System.out.println( trans + "\t" + il.get(j) +"\t" +current.dna );
+						}
+						
+						if( current.aa == null ) {
+							//System.out.println( trans + "\t" + pa +"\t" +current.dna );
 							try {
 								current.aa = Tools.translate(current.offsetLeft, current.dna, code, false, ambi);
 							} catch( IllegalArgumentException iae ) {
@@ -578,7 +575,7 @@ public class Extractor implements JstacsTool {
 							}
 							current.offsetRight = current.dna.length() - current.offsetLeft - 3*current.aa.length();
 						} else {
-							if( current.offsetLeft != (3-offset)%3 ) {
+							if( (fullLength || j>0) && current.offsetLeft != (3-offset)%3 ) {
 								currentProb=2;
 								break;
 							}
@@ -593,7 +590,7 @@ public class Extractor implements JstacsTool {
 							currentProb=0;
 						} else {
 							try {
-								p = Tools.translate(0, dnaSeqBuff.toString(), code, false, ambi);
+								p = Tools.translate(startPhase, dnaSeqBuff.toString(), code, false, ambi);
 							} catch( IllegalArgumentException iae ) {
 								j=il.length()+1;
 								currentProb=0;
@@ -610,10 +607,10 @@ public class Extractor implements JstacsTool {
 						if( anz > 1 ) {
 							if( verbose ) protocol.appendWarning(trans + "\tskip premature stop, " + p + "\n" + dnaSeqBuff+"\n");
 							problem[2]++;
-						} else if( last != p.length()-1 ){
+						} else if( fullLength && last != p.length()-1 ){
 							if( verbose ) protocol.appendWarning(trans + "\tskip missing stop\n" );
 							problem[1]++;
-						} else if( p.charAt(0)!='M' ) {
+						} else if( fullLength && p.charAt(0)!='M' ) {
 							if( verbose ) protocol.appendWarning(trans + "\tskip missing start\n" );
 							problem[3]++;
 						} else {
@@ -626,7 +623,7 @@ public class Extractor implements JstacsTool {
 							for( j = 0; j < il.length(); j++ ) {
 								sos.write( (j==0?"\t":",") + part.get(il.get(j)).offsetLeft );		
 							}
-							sos.write( "\t" + chr + "\t" + strand + "\t" + start + "\t" + end + "\n" );
+							sos.write( "\t" + chr + "\t" + strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\n" );
 							for( j = 0; j < il.length(); j++ ) {
 								used[il.get(j)] = true;
 							}
@@ -642,14 +639,15 @@ public class Extractor implements JstacsTool {
 							int MAX_INTRON_LENGTH=15000, ignoreAAForSpliceSite=30, targetStart, targetEnd;
 							last=-1;
 							for( j = 0; j < il.length(); j++ ) {
-								current = part.get(il.get(j));
+								pa = il.get(j);
+								current = part.get(pa);
 								if( last != -1 ) {
-									splits[last][il.get(j)] = true;
+									splits[last][pa] = true;
 								}
-								last = il.get(j);
+								last = pa;
 								
 								//find splice sites
-								int[] exon = gene.exon.get(il.get(j));
+								int[] exon = gene.exon.get(pa);
 								if( forward ) {
 									targetStart = exon[1] + current.offsetLeft;
 									targetEnd = exon[2] - current.offsetRight;
@@ -669,50 +667,24 @@ public class Extractor implements JstacsTool {
 								}
 								
 								if( current.dna.length()>0 ) {
-
-									if( j!=0 && current.acc==null ) {
-										aa.delete(0, aa.length());
-										spliceSeq.delete(0, spliceSeq.length());
-										Tools.getMaximalExtension(seq, forward, false, -strand, forward ? targetStart+add-1 : (targetEnd-add), '*','*', spliceSeq, aa, current.aa.substring(0,add/3), exonic, intronic-1, MAX_INTRON_LENGTH, code );
-										int d = aa.length()-add/3-(current.offsetLeft>0?1:0);
-
-										int border = intronic-1 + 3*d + ((3-current.offsetLeft)%3);
-										current.acc = spliceSeq.substring(0, border).toLowerCase() + spliceSeq.substring(border).toUpperCase();
-										
-										out.get(4).writeln(">" + gene.id + "_" + il.get(j) + "\t" + border );
-										out.get(4).writeln( current.acc );
-										acc[il.get(j)] = spliceSeq.substring(border-2, border);
-										
-										int[] stat = acceptor.get(acc[il.get(j)]);
+									if( j > 0 && acc[pa].length() > 0 ) {
+										int[] stat = acceptor.get(acc[pa]);
 										if( stat == null ) {
 											stat = new int[1];
-											acceptor.put(acc[il.get(j)], stat);
+											acceptor.put(acc[pa], stat);
 										}
 										stat[0]++;
 									}
-									if( j+1<il.length() && current.don==null ){
-										aa.delete(0, aa.length());
-										spliceSeq.delete(0, spliceSeq.length());
-										
-										Tools.getMaximalExtension(seq, forward, true, forward?1:-1, forward ? targetEnd-add : (targetStart+add-1), '*','*', spliceSeq, aa, current.aa.substring(current.aa.length() - add/3), exonic, intronic-1, MAX_INTRON_LENGTH, code );
-
-										int border = exonic + add + current.offsetRight;
-										current.don = spliceSeq.substring(0, border).toUpperCase() + spliceSeq.substring(border).toLowerCase();
-										
-										out.get(5).writeln(">" + gene.id + "_" + il.get(j) + "\t" + border );
-										out.get(5).writeln( current.don );
-										don[il.get(j)] = spliceSeq.substring(border, border+2);
-										
-										int[] stat = donor.get(don[il.get(j)]);
+									if( j+1<il.length() && don[pa].length() > 0 ) {
+										int[] stat = donor.get(don[pa]);
 										if( stat == null ) {
 											stat = new int[1];
-											donor.put(don[il.get(j)], stat);
+											donor.put(don[pa], stat);
 										}
 										stat[0]++;
 									}
 								}
 							}
-							//TODO? System.out.println(trans + "\t" + (j-1) + "\t"+gt+"\t"+gc+"\t"+ag);
 						}
 					} else {
 						switch (currentProb ) {
@@ -783,15 +755,18 @@ public class Extractor implements JstacsTool {
 	}
 	
 	static class Part {
-		String dna, aa, don, acc;
+		String dna, aa;
 		int offsetLeft, offsetRight;
 		
 		Part( String dna ) {
+			this(dna, -100000);
+		}
+		
+		Part( String dna, int phase ) {
 			this.dna= dna;
 			aa = null;
-			don=null;
-			acc=null;
-			offsetLeft = offsetRight = -100000;
+			offsetLeft = phase;
+			offsetRight = -100000;
 		}
 	}
 	
@@ -821,6 +796,7 @@ public class Extractor implements JstacsTool {
 						+ "EXCEPTION, which will remove the corresponding transcript, "
 						+ "AMBIGUOUS, which will use an X for the corresponding amino acid, and "
 						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),	
+				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
 			);		
 		}catch(Exception e){
@@ -871,6 +847,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.2";
+		return "1.3";
 	}
 }
