@@ -7,7 +7,7 @@
     <property name="dir.workspace" value="${dir.buildfile}/.."/>
     <property name="dir.jarfile" value="${dir.buildfile}/projects/gemoma/"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/GeMoMa-1.2.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/GeMoMa-1.3.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="projects.gemoma.GeMoMa"/>
                 <attribute name="Class-Path" value="."/>

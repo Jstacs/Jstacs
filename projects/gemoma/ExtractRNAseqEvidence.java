@@ -553,7 +553,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.0";
+		return "1.3";
 	}
 
 	@Override

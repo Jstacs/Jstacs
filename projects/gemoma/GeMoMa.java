@@ -153,9 +153,7 @@ public class GeMoMa implements JstacsTool {
 	//canonical 
 	private static final String[] DONOR = {"GT", "GC"};
 	private static final String ACCEPTOR = "AG";
-	//model
-	private static TrainSMBasedClassifier[] classifier = new TrainSMBasedClassifier[2];
-	private static int[] intronic = new int[2];
+	private static int[] intronic = { DONOR[0].length(), ACCEPTOR.length()};
 	
 	//statistics
 	private int numberOfLines,
@@ -474,26 +472,6 @@ public class GeMoMa implements JstacsTool {
 		} else {
 			coverage = null;
 		}
-		
-		StringBuffer xml;
-		p = parameters.getParameterForName("donor model");
-		if( p!= null && p.isSet() ) {
-			xml = FileManager.readFile( p.getValue().toString() );
-			classifier[0] = XMLParser.extractObjectForTags(xml, "donor",TrainSMBasedClassifier.class);
-			intronic[0] = classifier[0].getLength()-XMLParser.extractObjectForTags(xml, "offset",Integer.class);
-		} else {
-			intronic[0] = DONOR[0].length();
-		}		
-		p = parameters.getParameterForName("acceptor model"); 
-		if( p!= null && p.isSet() ) {
-			xml = FileManager.readFile( p.getValue().toString() );
-			classifier[1] = XMLParser.extractObjectForTags(xml, "donor",TrainSMBasedClassifier.class);
-			intronic[1] = XMLParser.extractObjectForTags(xml, "offset",Integer.class);;
-		} else {
-			intronic[1] = ACCEPTOR.length();
-		}
-		
-		
 		
 		//read blast output and compute result
 		boolean okay = true;
@@ -928,16 +906,16 @@ public class GeMoMa implements JstacsTool {
 		 * @see Hit#down
 		 */
 		public void prepareSpliceCandidates( String chr ) throws CloneNotSupportedException, WrongAlphabetException {
-			if( !splice ) {				
+			if( !splice ) {
 				if( accCand == null )  {
 					accCand = ArrayHandler.createArrayOf(new IntList(), 3);
 					accCandScore = ArrayHandler.createArrayOf(new IntList(), 3);
-					donCand = new IntList[classifier[0]==null?2:1][];
-					donCandScore = new IntList[classifier[0]==null?2:1][];
+					donCand = new IntList[2][];
+					donCandScore = new IntList[2][];
 				}
 				int l = Math.abs(targetStart-1-targetEnd), add, t = 3*ignoreAAForSpliceSite;
-				int eDon = (classifier[0] == null ? DONOR[0].length() : classifier[0].getLength())-intronic[0];
-				int eAcc = (classifier[1] == null ? ACCEPTOR.length() : classifier[1].getLength())-intronic[1];
+				int eDon = intronic[0];
+				int eAcc = intronic[1];
 				
 				//add = the length which is used inside the exon to find a splice site
 				if( l / 3 < t ) {
@@ -1011,12 +989,7 @@ public class GeMoMa implements JstacsTool {
 
 				//fall back
 				if( acceptorSites == null || (sp && anz == 0) ) {
-					if( classifier[1] == null ) {
-						getCandidates( seqUp, accCand, ACCEPTOR, true, true, s );
-					} else {
-						Tools.getUnambigious( seqUp );
-						getCandidatesFromModel(seqUp, accCand, 1, true, s );
-					}
+					getCandidates( seqUp, accCand, ACCEPTOR, true, true, s );
 				}
 
 				int max = Integer.MIN_VALUE;
@@ -1126,21 +1099,16 @@ public class GeMoMa implements JstacsTool {
 				//fall back
 				if( donorSites == null || (sp && anz == 0) )
 				{
-					if( classifier[0] == null ) {
-						for( m = 0; m < DONOR.length; m++ ) {
-							getCandidates( seqDown, donCand[m], DONOR[m], false, false, s );
-						}
-						
-						//GC directly after the hit
-						for( int i = 0; i < 3; i++ ) {
-							if( add+i+2 <= seqDown.length() && seqDown.substring(add+i, add+i+2).equals(DONOR[1]) ) {
-								donCand[0][i].add(i);
-							}
-						}/**/
-					} else {
-						Tools.getUnambigious( seqDown );
-						getCandidatesFromModel(seqDown, donCand[0], 0, false, s );
+					for( m = 0; m < DONOR.length; m++ ) {
+						getCandidates( seqDown, donCand[m], DONOR[m], false, false, s );
 					}
+					
+					//GC directly after the hit
+					for( int i = 0; i < 3; i++ ) {
+						if( add+i+2 <= seqDown.length() && seqDown.substring(add+i, add+i+2).equals(DONOR[1]) ) {
+							donCand[0][i].add(i);
+						}
+					}/**/
 				}					
 
 //System.out.println(); for( int i = 0; i < 3; i++ ) { System.out.println(donCand[0][i]); }		
@@ -1203,47 +1171,6 @@ public class GeMoMa implements JstacsTool {
 				sites[i].add(pos);
 				
 				idxSite++;
-			}
-		}
-		
-		private void getCandidatesFromModel( StringBuffer region, IntList[] sites, int m, boolean reverse, int ref ) throws IllegalArgumentException, WrongAlphabetException {
-			for( int i = 0; i < 3; i++) {
-				sites[i].clear();
-			}
-			Sequence s = Sequence.create(DNAAlphabetContainer.SINGLETON, region.toString());
-			int len = s.getLength()-classifier[m].getLength();
-			double[] logScore;
-			try {
-				logScore = classifier[m].getLogLikelihoodRatio(s);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			
-			/*new double[len+1];
-			for( int i = 0; i <= len; i++ ) {
-				logScore[i] = classifier[m].getLogScoreFor(s, i);
-			}
-			*/
-			Normalisation.logSumNormalisation(logScore,0,len+1);
-			int[] rank = ToolBox.rank(logScore, TiedRanks.PESSIMISTIC_SPORTS);
-//System.out.println(Arrays.toString(logScore));
-			double t = 1E-3;
-			int e = m==0 ? classifier[m].getLength() - intronic[m] : intronic[m];
-			for( int idxSite = 0; idxSite < logScore.length; idxSite++ ) {
-				if( rank[idxSite] < 10 ){//logScore[idxSite] >= t ) {
-					int pos = idxSite+e;
-					if( reverse ) {
-						pos = ref-pos;
-					} else {
-						pos = pos-ref;
-					}
-					//System.out.println(idxSite + "\t" +  ref + "\t" + intronic + "\t" + pos + "\t" + logScore[idxSite] + "\t" + region.substring(idxSite, idxSite+model.getLength()));
-					int i = pos%3;
-					if( i < 0 ) {
-						i = 3+i;
-					}
-					sites[i].add(pos);
-				}
 			}
 		}
 		
@@ -1979,7 +1906,7 @@ public class GeMoMa implements JstacsTool {
 					Solution best = result.poll();
 					if( best.hits.size() > 0 ) {
 						counts++;
-						best = best.refine();
+						best = best.refine(transcriptName);
 									
 						//write results
 						blastLike.append( "#" + transcriptName + "\t" + best.score + "\t" + Arrays.toString(parts)+ (info==null?"":("\t"+info)) + "\n" );
@@ -2773,13 +2700,15 @@ public class GeMoMa implements JstacsTool {
 			//prepare splicing for DP
 			for( int h = 0; h <parts.length; h++ ) {
 				ArrayList<Hit> list = filtered.get(parts[h]);
+				String r = geneName + (transcriptInfo==null? "":("_" + parts[h]));
+				String ref = cds.get(r);
 				for( int k = 0; list!= null && k < list.size(); k++ ) {
 					Hit hit = list.get(k);
 					if( !hit.splice ) {
 						hit.prepareSpliceCandidates(chr);
 					}
 					if( h == 0 || h+1==parts.length ) {
-						hit.setBorderConstraints(h==0, h+1==parts.length);
+						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==parts.length && ref.charAt(ref.length()-1)=='*');//Laura Kelly: partial?
 					}
 				}
 				/*
@@ -3203,6 +3132,7 @@ public class GeMoMa implements JstacsTool {
 			int anz = 0;
 			if( m != null ) {
 				int len = m.length();
+				boolean findStart = idx==0 && startPos<=0 && m.charAt(0)=='M'; //Laura Kelly: partial?
 				if( startPos >= 0 && endPos>= 0 ) {
 					m = m.substring(startPos, endPos);
 				}
@@ -3242,7 +3172,7 @@ public class GeMoMa implements JstacsTool {
 							}
 							
 							if( split[a].length()>0 //split not empty
-									&& (idx != 0 || m.length() > 2*missingAA || split[a].indexOf('M')>=0 ) //either not first part or long enough or contains M
+									&& (!findStart || m.length() > 2*missingAA || split[a].indexOf('M')>=0 ) //either not first part or long enough or contains M
 									//XXX && testForAlignment( forward, upstream, acc, accFrom, accTo, downstream, don, donFrom, donTo, e, x)//TODO splicing?
 							) {
 								//do an optimal local alignment
@@ -3259,7 +3189,7 @@ public class GeMoMa implements JstacsTool {
 									
 									while( (endAlign2 = split[a].indexOf( xx, endAlign2+1 )) >= 0 ) {
 										//TODO check
-										if( idx != 0 || sa.getStartIndexOfAlignmentForFirst() > missingAA || (z>=0 && z<endAlign2+xx.length()) )
+										if( !findStart || sa.getStartIndexOfAlignmentForFirst() > missingAA || (z>=0 && z<endAlign2+xx.length()) )
 										{										
 											int pos, start, end;
 											if( forward ) {
@@ -3746,7 +3676,7 @@ public class GeMoMa implements JstacsTool {
 				return res;
 			}
 			
-			public Solution refine() throws WrongAlphabetException, CloneNotSupportedException {
+			public Solution refine( String transcriptName ) throws WrongAlphabetException, CloneNotSupportedException {
 				if( hits.size() == 0 ) {
 					return this;
 				}
@@ -3774,10 +3704,28 @@ public class GeMoMa implements JstacsTool {
 					l=c;
 				}
 				
-				c = res.hits.get(0);
-				c.extend( c.part == parts[0], false ); //START
-				c = res.hits.get(res.hits.size()-1);
-				c.extend( false, c.part == parts[parts.length-1]); //STOP
+				//Laura Kelly: partial?
+				String prot = protein == null ? null : protein.get(transcriptName), ref;
+				if( prot == null ) {
+					String r = geneName + (transcriptInfo==null? "":("_" + parts[0]));
+					ref = cds.get(r);
+				} else {
+					ref = prot; 
+				}				
+				if( ref==null || ref.charAt(0)=='M' ) {
+					c = res.hits.get(0);
+					c.extend( c.part == parts[0], false ); //START
+				}
+				if( prot == null ) {
+					String r = geneName + (transcriptInfo==null? "":("_" + parts[parts.length-1]));
+					ref = cds.get(r);
+				} else {
+					ref = prot; 
+				}
+				if( ref==null || ref.charAt(ref.length()-1)=='*' ) {
+					c = res.hits.get(res.hits.size()-1);
+					c.extend( false, c.part == parts[parts.length-1]); //STOP
+				}
 				return res;
 			}
 			
@@ -3956,8 +3904,7 @@ public class GeMoMa implements JstacsTool {
 						sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref 
 								+ (acceptorSites==null || first?"":(";ae="+ae))
 								+ (donorSites==null?"":(";de="+de))
-								+ (coverage != null && coverage[forward?0:1]==null?"":(";pc=" + decFormat.format(covered/(double)l)))
-								+ (coverage != null && coverage[forward?0:1]==null?"":(";minCov=" + min))
+								+ (cov == null?"":(";pc=" + decFormat.format(covered/(double)l)+";minCov=" + min))
 								+ "\n"
 						);
 						
@@ -4041,8 +3988,7 @@ public class GeMoMa implements JstacsTool {
 				
 				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref
 						+ (acceptorSites==null || first?"":(";ae="+ae))
-						+ (coverage != null && coverage[forward?0:1]==null?"":(";pc=" + decFormat.format(covered/(double)l)))
-						+ (coverage != null && coverage[forward?0:1]==null?"":(";minCov=" + min))
+						+ (cov != null?"":(";pc=" + decFormat.format(covered/(double)l)+";minCov=" + min))
 						+ "\n"
 				);
 				if( !first ) {
@@ -4218,7 +4164,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.2";
+		return "1.3";
 	}
 	
 	public String getShortName() {

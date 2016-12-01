@@ -1,0 +1,32 @@
+GeMoMa-1.1.1 (01.02.2016)
+- initial release for paper
+GeMoMa-1.1.2. (05.02.2016)
+- GeMoMa bugfix (upstream, downstream sequence for splice site detection)
+- Extractor: new parameter s for selecting transcripts
+- improved Galaxy integration
+
+includes in next version:
+- ERE: new tool for extracting RNA-seq evidence
+- GeMoMa:
+	- RNA-seq
+		- defining splice sites
+		- additional feature in GFF and output
+			- transcript intron evidence (tie)
+			- transcript acceptor evidence (tae)
+			- transcript donor evidence (tde)
+			- transcript percentage coverage (tpc)
+			- ...
+	- improved GFF
+	- optional output: genomic region
+- Extractor: allow for 
+	- partial gene models
+	- ambiguities
+- GAF: new tool for filtering and combining different predictions (especially of different reference organisms)
+
+TODOs:
+- splice sites: model
+- missing exons
+- gene-wise prediction
+- synteny
+- UTR
+- pairwise alignment => faster

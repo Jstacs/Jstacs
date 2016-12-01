@@ -1,0 +1,63 @@
+Running GeMoMa:
+===============
+
+GeMoMa is an abbreviation for "Gene Model Mapper" and implements a homology-based gene predictor that uses the conservation of the exon-intron pattern between different organisms.
+
+There are 6 essential steps that are divided into 3 phases. However, if you do not have any RNAseq data you can skip the first phase.
+This guide only provides a rough overview. If your are interested in individual parameters you can call:
+java -jar GeMoMa-<version>.jar CLI <toolname>
+which will provide description for all available parameters.
+
+Keep in mind that homology-based gene prediction only allows to infer genes with known peers in at least one reference organism.
+Hence, homology based gene prediction might miss genes with no known peer in the reference organism(s).
+On the other hand, homology-based gene prediction allows for inferring genes that are not or rarely expressed in the RNAseq samples.
+
+Preprocessing RNAseq data:
+--------------------------
+For this phase, you need RNAseq data and a reference sequence or assembly of your target organism.
+This allows for inferring experimental verified introns and coverage.
+
+1)	Run your favorite read mapper (e.g. TopHat, ...) on your RNAseq data
+2)	Extract introns (and coverage) running: java –jar GeMoMa-<version>.jar CLI ERE ...
+
+Prediction candidate transcripts:
+---------------------------------
+For this phase, you need at least one reference organism with reference sequence/assembly and annotation as well as a reference sequence/assembly for the target organism.
+Keep in mind that the outcome of GeMoMa highly depends on the quality of the reference annotation.
+It’s possible to run step 3 to 5 with multiple reference organisms.
+
+3)	Extract CDS-parts (and proteins) of the reference organism running: java -jar GeMoMa-<version>.jar CLI Extractor...
+4)	Find homologous parts in the target organism running: tblastn ...
+5)	Find homologous candidate transcripts in the target organism running: GeMoMa-<version>.jar CLI GeMoMa ...
+	Currently, we use p=10 and ct=0.4 instead of the default values.
+
+Aggregate and filter predictions:
+---------------------------------
+For this phase, you need only the output of step 5.
+Keep in mind that you can run the second phase for multiple reference organisms. The individual predictions can be combined in step 6.
+
+6)	Aggregate predictions running: java -jar GeMoMa-<version>.jar CLI GAF ...
+
+
+General speed-up:
+=================
+
+If you 
+1) like to speed-up the computation,
+2) have lots of compute cores and
+3) have large data set (i.e., a large number of lines in the cds parts file),
+you can split the job in several independent jobs. Splitting the job can be done using
+
+java -cp GeMoMa-<version>.jar projects.FastaSplitter <cds-parts> <numberOfSplits> "_"
+
+This will result in several independent FastA files containing some CDS-parts. You can run steps 4 and 5 on these individual parts.
+Afterwards, you have to concatenate the resulting predicted annotations, protein, ...
+
+Reference, questions and comments:
+==================================
+If you use GeMoMa please cite:
+Using intron position conservation for homology-based gene prediction.
+J. Keilwagen, M. Wenk, J. L. Erickson, M. H. Schattat, J. Grau, and F. Hartung. 
+Nucleic Acids Research, 2016. doi: 10.1093/nar/gkw092 
+
+For any questions or comments please contact jens.keilwagen@julius-kuehn.de 
