@@ -8,6 +8,9 @@ GeMoMa 1.1.3 (06.06.2016)
 - minor modifications to the Extractor tool 
 GeMoMa 1.3 (06.12.2016)
 - ERE: new tool for extracting RNA-seq evidence
+- Extractor: offers options for 
+	- partial gene models
+	- ambiguities
 - GeMoMa:
 	- RNA-seq
 		- defining splice sites
@@ -20,7 +23,4 @@ GeMoMa 1.3 (06.12.2016)
 	- improved GFF
 	- simplified the command line parameters
 	- IMPORTANT: parameter names changed for some parameters
-- Extractor: offers options for 
-	- partial gene models
-	- ambiguities
 - GAF: new tool for filtering and combining different predictions (especially of different reference organisms)
