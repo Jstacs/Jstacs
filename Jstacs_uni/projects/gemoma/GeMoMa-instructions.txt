@@ -38,20 +38,37 @@ Keep in mind that you can run the second phase for multiple reference organisms.
 
 6)	Aggregate predictions running: java -jar GeMoMa-<version>.jar CLI GAF ...
 
-
 General speed-up:
 =================
 
 If you 
 1) like to speed-up the computation,
 2) have lots of compute cores and
-3) have large data set (i.e., a large number of lines in the cds parts file),
+3) have large data set (i.e., a large number of lines in the CDS-parts file),
 you can split the job in several independent jobs. Splitting the job can be done using
 
-java -cp GeMoMa-<version>.jar projects.FastaSplitter <cds-parts> <numberOfSplits> "_"
+java -cp GeMoMa-<version>.jar projects.FastaSplitter <CDS-parts> <numberOfSplits> "_"
 
 This will result in several independent FastA files containing some CDS-parts. You can run steps 4 and 5 on these individual parts.
-Afterwards, you have to concatenate the resulting predicted annotations, protein, ...
+Finally, you have to concatenate the resulting predicted annotations, protein, ...
+
+Genomewide vs. specific genes:
+==============================
+
+By default, GeMoMa tries to make predictions for all CDS of the reference organism in the target organism. Hence, we call this a genomewide approach. Additionally, Extractor and GeMoMa have an option to allow for using only a list of some reference CDS (cf. parameter selected). This approach allows to further speed up the predictions especially if one is interested only in a certain part of the annotation.
+
+Galaxy integration:
+===================
+
+GeMoMa provides a command line interface s well as everything to be integrated in your local Galaxy instance. For creating the XML files that are needed to be integrated into Galaxy, just run: 
+
+java -jar GeMoMa-<version>.jar --create
+
+If you like to modify some VM arguments for the java calls made by Galaxy you can alter them for each subtool individually. If you like to allow GeMoMa to allocate at most 40GB of RAM, you have to run
+
+java -jar GeMoMa-<version>.jar --create GeMoMa -Xmx40g
+
+to create the corresponding XML integration for GeMoMa.
 
 Reference, questions and comments:
 ==================================

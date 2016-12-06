@@ -1,0 +1,46 @@
+Frequently asked questions:
+===========================
+
+1) Why does the Extractor not return a single CDS-part, protein, ...?
+
+Please check whether the names of your contigs/chromosomes in your annotation (gff) and genome file (fasta) are identical. The fasta comments should only contain the contig/chromosome name.
+
+2) How can I force GeMoMa to make more predictions?
+
+There are several parameters for this. The most prominent are the number of predictions (p) and the contig threshold (ct).
+For each reference transcript/CDS, GeMoMa initially makes simple prediction and uses this prediction to determine whether a contig is promising and should be used to determine the final predictions. You have to decrease ct and increase p to have more contigs in the final prediction. Increasing the number of predictions allows GeMoMa to output more predictions that have been computed. Decreasing the contig threshold allows to increase the number of predictions that are (internally) computed. Increasing p to a very large number without decreasing ct does not help.
+
+3) Running GeMoMa on a single contig of my assembly yield thousands of weird predictions. What went wrong?
+
+By default, GeMoMa is not build to be run on a single contig. GeMoMa tries to make predictions for all given reference CDS in the given target sequence(s). If the given target sequence is only a fraction of the complete target genome/assembly, GeMoMa will produce weird predictions as it does not filter for the quality of the predictions internally. There are two options to handle this: 
+a) Use a list of gene models that you expect to be located on this contig (cf. parameter selected).
+b) Filter the predictions using GAF (cf. java -jar GeMoMa-<version>.jar CLI GAF).
+
+4) Is it mandatory to use RNAseq data?
+
+No, GeMoMa is able to make predictions with and without RNAseq evidence.
+
+5) Is it possible to use multiple reference organisms?
+
+It's possible to use multiple reference organisms for GeMoMa. Just run GeMoMa on each reference organism separately. Finally, you can employ GAF (cf. java -jar GeMoMa-<version>.jar CLI GAF) to combine these annotations.
+
+6) Why do some reference genes not lead to a prediction in the target genome?
+
+Please first check whether your reference genes have been discarded by the Extractor (cf. assignment file). If the genes have been discarded, there are two possibilities:
+i) The CDS might be redundant. In this case only one CDS is further evaluated.
+ii) There might be something wrong with your reference genes, e.g., missing start codon, missing stop codon, premature stop codon, ambiguous nucleotides, ... and you should check the options of Extractor or the annotation.
+
+If the reference genes passed the Extractor, there are several possibilities for this behavior. The two most prominent are:
+a) GeMoMa stopped the prediction of a reference genes since it does not return a result within the given time (cf. parameter timeout).
+b) GeMoMa simply did not find anything
+
+7) For two different reference transcripts the predictions of GeMoMa overlap or are identical. What should I do with those?
+
+GeMoMa makes the predictions for each reference transcript independently. Hence, it can occur that some of predictions of different reference transcripts overlap or are identical especially in gene families. Typically, you like to filter or rank these predictions. We have implemented GAF (cf. java -jar GeMoMa-<version>.jar CLI GAF) to do this automatically. However, you can also do it by hand using the GFF attributes. Using RNAseq data in GeMoMa yields additional fields in the annotation that can be used, e.g., average coverage (avgCov).
+
+8) I choose full-length CDS, but obtain premature stop codons within my CDS-parts. What could be the reason?
+
+Probably the phase column in the GFF file is not correctly filled. GeMoMa can handle "." and correctly set phase 0, 1, or 2. However, sometimes we received GFFs which contain 0 for all CDS entries in the phase column of the GFF. This is probably not correct. Replacing these zeros by "." solves the problem.
+
+
+For any further questions or comments please contact jens.keilwagen@julius-kuehn.de 
