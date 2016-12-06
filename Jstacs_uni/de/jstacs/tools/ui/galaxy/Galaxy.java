@@ -247,28 +247,30 @@ public class Galaxy {
 			for(int k=0;k<n;k++){
 				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
 				for(int j=0;j<template.getNumberOfParameters();j++){
-					Parameter par2 = template.getParameterAt(j);
-					//if( par2 instanceof ParameterSet ) //TODO
-
-					System.out.println( tabPrefix+"\t" + par2.getName() + (n>1?" ("+(k+1)+") ":"") + ""+ps2.getParameterAt(j).toString() );
+					System.out.println( tabPrefix+"\t" + (n>1?"("+(k+1)+") ":"") + ps2.getParameterAt(j).toString() );
 				}
 			}
 		} else {		
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
 				Parameter par = parameters.getParameterAt( i );
 				if(par.getDatatype() != DataType.PARAMETERSET){
-					System.out.println( tabPrefix + par.getName() + " - " + par.toString() );
+					System.out.println( tabPrefix + par.toString() );
 				}else{
 					if(par instanceof AbstractSelectionParameter){
 						System.out.println( tabPrefix+par.toString() );
+						String offset = tabPrefix;
+						int l = par.getName().length();
+						for( int k = 0; k<=l; k++ ) {
+							offset += " ";
+						}
 						ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
 						for(int j=0;j<incoll.getNumberOfParameters();j++){
 							ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 							if( cont.getValue().getNumberOfParameters()>0 ) {
-								System.out.println( "Parameters for selection \""+cont.getName()+"\":" );
-								print(cont.getValue(),"\t");
+								System.out.println( offset+"Parameters for selection \""+cont.getName()+"\":" );
+								print(cont.getValue(),offset+"\t");
 							} else {
-								System.out.println( "No parameters for selection \""+cont.getName()+"\"" );
+								System.out.println( offset+"No parameters for selection \""+cont.getName()+"\"" );
 							}
 						}
 					} else {

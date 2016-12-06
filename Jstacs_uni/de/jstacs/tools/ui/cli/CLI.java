@@ -19,7 +19,7 @@
 package de.jstacs.tools.ui.cli;
 
 import java.io.File;
-import java.io.Flushable;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -269,7 +269,7 @@ public class CLI {
 				System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+opt+" <toolname> info\n");
 				System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+opt+" <toolname>\n");
 			}else{
-				printToolParameters(0,protocol,outdir,1);
+				printToolParameters(0,protocol,outdir,1);//TODO Jens@Jan: replace 1 by threads?
 			}
 			return;
 		}/*else if( ( tools.length == 1 && args.length==0) || args.length == 1){
@@ -314,10 +314,7 @@ public class CLI {
 			}
 			
 			FileManager.writeFile( protout, protocol.getLog() );
-			
-		}
-		
-		
+		}		
 	}
 
 
@@ -501,20 +498,25 @@ public class CLI {
 		if(configureThreads[toolIndex]){
 			protocol.appendWarning( "threads - The number of threads used for the tool, defaults to 1\t= "+threads+"\n" );
 		}
-		/*XXX
-		try {
-			PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
-			fos.append( "<table border=0 cellpadding=10 align=\"center\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
-			printTable(keyMap[toolIndex], ps, fos);
-			fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
-			fos.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
-			fos.append( "<td>STRING</td>\n</tr>\n" );
-			fos.append( "</table>" );
-			fos.close();
-		} catch( Exception ex ) {
-			//nothing
+	}
+	
+	
+	public void wiki() {
+		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
+			ParameterSet ps = toolParameters[toolIndex];
+			try {
+				PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
+				fos.append( "<table border=0 cellpadding=10 align=\"center\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
+				printTable(keyMap[toolIndex], ps, fos);
+				fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
+				fos.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
+				fos.append( "<td>STRING</td>\n</tr>\n" );
+				fos.append( "</table>" );
+				fos.close();
+			} catch( Exception ex ) {
+				//nothing
+			}
 		}
-		/**/
 	}
 	
 	
