@@ -189,11 +189,16 @@ public class GeMoMa implements JstacsTool {
 		if( args.length == 0 ) {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
-			if( args[0].equalsIgnoreCase("CLI") ) {
+			if( args[0].equalsIgnoreCase("CLI") || args[0].equalsIgnoreCase("wiki") ) {
 				CLI cli = new CLI( "CLI", null, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
-				String[] part = new String[args.length-1];
-				System.arraycopy(args, 1, part, 0, part.length);
-				cli.run(part);
+				if( args[0].equalsIgnoreCase("CLI") ) {
+					String[] part = new String[args.length-1];
+					System.arraycopy(args, 1, part, 0, part.length);
+					cli.run(part);
+				} else {
+					System.out.println("Creating tables for the Jstacs wiki as separate files.");
+					cli.wiki();
+				}
 			} else {
 				if( "--create".equals(args[0]) ) {
 					if( args.length != 1 ) {
