@@ -42,5 +42,9 @@ GeMoMa makes the predictions for each reference transcript independently. Hence,
 
 Probably the phase column in the GFF file is not correctly filled. GeMoMa can handle "." and correctly set phase 0, 1, or 2. However, sometimes we received GFFs which contain 0 for all CDS entries in the phase column of the GFF. This is probably not correct. Replacing these zeros by "." solves the problem.
 
+9) Is GeMoMa able to predict pseudo-genes?
+
+No, currently not.
+
 
 For any further questions or comments please contact jens.keilwagen@julius-kuehn.de 
