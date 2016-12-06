@@ -53,7 +53,7 @@ This will result in several independent FastA files containing some CDS-parts. Y
 Finally, you have to concatenate the resulting predicted annotations, protein, ... before starting step 6.
 
 Genome-wide vs. specific genes:
-==============================
+===============================
 
 By default, GeMoMa tries to make predictions for all CDS of the reference organism in the target organism. Hence, we call this a genome-wide approach. Additionally, Extractor and GeMoMa have an option for filtering based on a list of some reference CDS (cf. parameter selected). This approach allows to further speed up the predictions especially if one is interested only in a certain part of the annotation.
 

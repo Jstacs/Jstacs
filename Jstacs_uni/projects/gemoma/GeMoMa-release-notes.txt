@@ -6,8 +6,7 @@ GeMoMa-1.1.2. (05.02.2016)
 - improved Galaxy integration
 GeMoMa 1.1.3 (06.06.2016)
 - minor modifications to the Extractor tool 
-
-next version:
+GeMoMa 1.3 (06.12.2016)
 - ERE: new tool for extracting RNA-seq evidence
 - GeMoMa:
 	- RNA-seq
