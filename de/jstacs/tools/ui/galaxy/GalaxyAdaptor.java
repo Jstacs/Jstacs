@@ -1284,7 +1284,8 @@ public class GalaxyAdaptor {
 
 		@Override
 		public void appendThrowable(Throwable th) {
-			wr.append("<em>"+th.getMessage().replaceAll( "\n", "<br />\n" )+"</em>\n");
+			String msg = th.getMessage();
+			wr.append("<em>"+(msg==null?th.getClass().getName():msg.replaceAll( "\n", "<br />\n" ))+"</em>\n");
 			wr.flush();
 		}
 		
