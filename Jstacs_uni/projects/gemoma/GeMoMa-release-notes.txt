@@ -21,7 +21,7 @@ next version:
 	- improved GFF
 	- simplified the command line parameters
 	- IMPORTANT: parameter names changed for some parameters
-- Extractor: allow for 
+- Extractor: offers options for 
 	- partial gene models
 	- ambiguities
 - GAF: new tool for filtering and combining different predictions (especially of different reference organisms)
