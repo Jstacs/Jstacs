@@ -1,0 +1,7 @@
+TODOs:
+- splice sites: model
+- missing exons
+- gene-wise prediction
+- synteny
+- UTR
+- pairwise alignment => faster

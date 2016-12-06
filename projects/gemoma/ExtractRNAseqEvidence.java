@@ -563,7 +563,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 	@Override
 	public String getDescription() {
-		return "extract introns and coverage from SAM/BAM";
+		return "extract introns and coverage from SAM/BAM that can be used in GeMoMa";
 	}
 
 	@Override
