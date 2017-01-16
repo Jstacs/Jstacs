@@ -87,13 +87,16 @@ public class Tools {
 		}
 		
 		int problem = 0;
+		boolean onlyStop = c1==c2 && c1=='*';
+		boolean fromBackup = true;
 		while( 3*i < MAX_INTRON_LENGTH //TODO  for runtime reasons (in N-stretches) 
-				&& startPos >= 0 && startPos+3 <= chr.length() && c != c1 && c != c2 ) {
+				&& startPos >= 0 && startPos+3 <= chr.length() && ((fromBackup && onlyStop) || (c != c1 && c != c2)) ) {
 			codon = chr.subSequence(startPos,startPos+3);
 			if( !forward ) {
 				codon = Tools.rc(codon);
 			}
-			if( backup != null && i < backup.length() ) {
+			fromBackup = backup != null && i < backup.length();
+			if( fromBackup ) {
 				c = backup.charAt( end ? i : (backup.length()-1-i) );
 				problem = 0;
 			} else {

@@ -491,7 +491,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.3";
+		return "1.3.2";
 	}
 
 	@Override
