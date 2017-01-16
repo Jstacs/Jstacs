@@ -161,6 +161,8 @@ public class GeMoMa implements JstacsTool {
 		numberOfPairwiseAlignments;
 	private int[] stats = new int[5];
 
+	private boolean writeGenomic;
+	
 	//for logging
 	private Time time;
 	private boolean verbose;
@@ -309,6 +311,8 @@ public class GeMoMa implements JstacsTool {
 		prefix = (String) parameters.getParameterForName("prefix").getValue();
 		tag = (String) parameters.getParameterForName("tag").getValue();
 		timeOut = (Long) parameters.getParameterForName( "timeout" ).getValue();
+		
+		writeGenomic = (Boolean) parameters.getParameterForName("genomic").getValue();
 		
 		Parameter p = parameters.getParameterForName("selected"); 
 		if( p.isSet() ) {
@@ -535,7 +539,7 @@ public class GeMoMa implements JstacsTool {
 				if( (Boolean) parameters.getParameterForName("align").getValue() ) {
 					res.add( new TextResult("alignment", "Result", new FileParameter.FileRepresentation(alignFile.getAbsolutePath()), "tabular", getToolName(), null, true) );
 				}
-				if( (Boolean) parameters.getParameterForName("genomic").getValue() ) {
+				if( writeGenomic ) {
 					res.add( new TextResult("genomic", "Result", new FileParameter.FileRepresentation(genomicFile.getAbsolutePath()), "fasta", getToolName(), null, true) );
 				}
 			}
@@ -919,8 +923,8 @@ public class GeMoMa implements JstacsTool {
 					donCandScore = new IntList[2][];
 				}
 				int l = Math.abs(targetStart-1-targetEnd), add, t = 3*ignoreAAForSpliceSite;
-				int eDon = intronic[0];
-				int eAcc = intronic[1];
+				int eDon = 0;
+				int eAcc = 0;
 				
 				//add = the length which is used inside the exon to find a splice site
 				if( l / 3 < t ) {
@@ -929,7 +933,7 @@ public class GeMoMa implements JstacsTool {
 				} else {
 					add=t;
 				}
-//System.out.println(this);	
+
 				String a = targetAlign.replaceAll( "-", "" );
 				
 				Sequence tPart, qPart;
@@ -1542,7 +1546,7 @@ public class GeMoMa implements JstacsTool {
 						}
 						c.put(split[1].toUpperCase(), getArray(split[2], 
 								null) );
-								//TODO exonPhase split.length>3 ? split[3] : null) );
+								//TODO exonPhase split[3]) );
 					}
 				}
 				r.close();
@@ -2712,8 +2716,8 @@ public class GeMoMa implements JstacsTool {
 					if( !hit.splice ) {
 						hit.prepareSpliceCandidates(chr);
 					}
-					if( h == 0 || h+1==parts.length ) {
-						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==parts.length && ref.charAt(ref.length()-1)=='*');//Laura Kelly: partial?
+					if( ref != null && ((h==0 && ref.charAt(0)=='M') || (h+1==parts.length && ref.charAt(ref.length()-1)=='*')) ) {
+						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==parts.length && ref.charAt(ref.length()-1)=='*');//Laura Kelly: partial
 					}
 				}
 				/*
@@ -3696,8 +3700,8 @@ public class GeMoMa implements JstacsTool {
 				String chr = seqs.get(l.targetID);
 				//splicing				
 				for( int i = 1; i < hits.size(); i++ ) {//iterate over found parts
-					c = hits.get(i);
-					res.hits.add(c.clone());
+					c = hits.get(i).clone();
+					res.hits.add(c);
 					int delta = 0;
 					for( int j = revParts[l.part]+1; j < revParts[c.part]; j++ ) {
 						delta += length[j];
@@ -3807,20 +3811,20 @@ public class GeMoMa implements JstacsTool {
 				}
 
 				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName + ";AA="+getNumberOfAA() );
-				genomic.append(">" + prefix+transcriptName + "_R" + i );
-				//genomic.newLine();
-				//genomic.append(genomicRegion);
-				genomic.newLine();
-				for( Hit t : hits ) {
-					int a = t.targetStart-s, b = t.targetEnd-s;
-					if( forward ) {
-						genomicRegion.replace(a, b+1, genomicRegion.substring(a, b+1).toUpperCase() );
-					} else {
-						genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() );
+				if( writeGenomic ) {//> v1.3.1
+					genomic.append(">" + prefix+transcriptName + "_R" + i );
+					genomic.newLine();
+					for( Hit t : hits ) {
+						int a = t.targetStart-s, b = t.targetEnd-s;
+						if( forward ) {
+							genomicRegion.replace(a, b+1, genomicRegion.substring(a, b+1).toUpperCase() );
+						} else {
+								genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() ); //TODO Bug Sven
+						}
 					}
+					genomic.append(genomicRegion);
+					genomic.newLine();
 				}
-				genomic.append(genomicRegion);
-				genomic.newLine();
 			}
 			
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {
@@ -4146,7 +4150,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 1 ), 
-					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start end end of region", "tabular,txt", maxSize>-1 ), 
+					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
 			
@@ -4169,7 +4173,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.3";
+		return "1.3.2";
 	}
 	
 	public String getShortName() {
