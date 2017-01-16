@@ -85,6 +85,9 @@ public class Extractor implements JstacsTool {
 	}
 	
 	private static BufferedWriter intron;
+	private static int[] problem = new int[9];
+	private static int repair = 0;
+	private static boolean rep;
 	
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
@@ -101,13 +104,7 @@ public class Extractor implements JstacsTool {
 		}
 		
 		HashMap<String, HashMap<String,Gene>> annot = readGFF( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
-		HashMap<Integer,int[]> count = new HashMap<Integer, int[]>();
-		int[] problem = new int[6];
-		Arrays.fill(problem, 0);
-		int[] info = new int[3];
-		Arrays.fill(info, 0);
 		
-		count.clear();
 		InputStream in;// = parameters.getParameterForName("genetic code").getValue().toString();
 		p = parameters.getParameterForName("genetic code");
 		if( p.isSet() ) {
@@ -120,9 +117,10 @@ public class Extractor implements JstacsTool {
 		Ambiguity ambi = (Ambiguity) parameters.getParameterForName("Ambiguity").getValue();
 		boolean fullLength = (Boolean) parameters.getParameterForName("full-length").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
+		rep = (Boolean) parameters.getParameterForName("repair").getValue();
 		
 		ArrayList<File> file = new ArrayList<File>();
-		ArrayList<SafeOutputStream> out = new ArrayList<SafeOutputStream>();
+		out = new ArrayList<SafeOutputStream>();
 		getOut( name[0], file, out );
 		getOut( name[1], file, out );
 		getOut( ((Boolean)parameters.getParameterForName(name[2]).getValue()) ? name[2] : null, file, out );
@@ -134,12 +132,17 @@ public class Extractor implements JstacsTool {
 		r = new BufferedReader( new FileReader( parameters.getParameterForName("genome").getValue().toString() ) );
 		
 		StringBuffer seq = new StringBuffer();
-		HashMap<String, int[]> donor = new HashMap<String, int[]>();
-		HashMap<String, int[]> acceptor = new HashMap<String, int[]>();
+		donor = new HashMap<String, int[]>();
+		acceptor = new HashMap<String, int[]>();
+		count = new HashMap<Integer, int[]>();
+		Arrays.fill(problem, 0);
+		int[] info = new int[3];
+		Arrays.fill(info, 0);
+		
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( fullLength, ambi, protocol, verbose, comment, problem, info, count, seq, annot, code, out, donor, acceptor );
+				extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
 				//clear
 				comment = line.substring(1);
 				seq.delete(0, seq.length());
@@ -149,7 +152,7 @@ public class Extractor implements JstacsTool {
 			}
 		}
 		//do
-		extract( fullLength, ambi, protocol, verbose, comment, problem, info, count, seq, annot, code, out, donor, acceptor );
+		extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
 		r.close();
 
 		
@@ -169,11 +172,16 @@ public class Extractor implements JstacsTool {
 		
 		protocol.append( "reasons for discarding transcripts:\n");
 		protocol.append( "ambigious nucleotide\t" + problem[0] +"\n");
-		protocol.append( "missing stop\t" + problem[1] +"\n");
-		protocol.append( "premature stop\t" + problem[2]+"\n");
-		protocol.append( "missing start\t" + problem[3]+"\n");
-		protocol.append( "no DNA\t" + problem[4]+"\n");
-		protocol.append( "frame problems\t" + problem[5]+"\n\n");
+		protocol.append( "start phase not zero\t" + problem[1]+"\n");
+		protocol.append( "missing start\t" + problem[2]+"\n");
+		protocol.append( "missing stop\t" + problem[3] +"\n");
+		protocol.append( "premature stop\t" + problem[4]+"\n");
+		protocol.append( "no DNA\t" + problem[5]+"\n");
+		protocol.append( "wrong phase\t" + problem[6]+"\n");
+		protocol.append( "conflicting phase\t" + problem[7]+"\n\n");
+		protocol.append( "unexpected error\t" + problem[8]+"\n\n");
+		
+		protocol.append( "repaired\t" + repair+"\n\n");
 		
 		//log
 		protocol.append("coding exons\t#\n");
@@ -289,7 +297,7 @@ public class Extractor implements JstacsTool {
 							split[6].charAt(0)=='+'?1:-1, //strand
 							Integer.parseInt( split[3] ), //start
 							Integer.parseInt( split[4] ), //end
-							split[7].charAt(0)=='.' ? -1 : Integer.parseInt(split[7]) //phase
+							split[7].charAt(0)=='.' ? Part.NO_PHASE : Integer.parseInt(split[7]) //phase
 					} );
 				}
 			}			
@@ -442,9 +450,9 @@ public class Extractor implements JstacsTool {
 		return true;
 	}	
 	
-	private static void extract( boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] problem, int[] info, HashMap<Integer,int[]> count,
-			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code,
-			ArrayList<SafeOutputStream> out, HashMap<String, int[]> donor, HashMap<String, int[]> acceptor) throws Exception {
+	private static void extract( boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
+			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code
+			) throws Exception {
 		if( comment == null ) {
 			return;
 		}
@@ -463,19 +471,17 @@ public class Extractor implements JstacsTool {
 		ArrayList<Gene> genes = new ArrayList<Gene>( chrAnnot.values() );
 		Collections.sort(genes);
 
-		ArrayList<Part> part = new ArrayList<Part>();
-		int[] val = null;
-		StringBuffer dnaSeqBuff = new StringBuffer();
-		Part current;
-		boolean[] used = new boolean[5000];
-		boolean[] donS = new boolean[5000];
-		boolean[] accS = new boolean[5000];
-		String[] don = new String[5000];
-		String[] acc = new String[5000];
-		StringBuffer aa = new StringBuffer();
+		int max = 5000;
+		boolean[] used = new boolean[max];
+		boolean[] donS = new boolean[max];
+		boolean[] accS = new boolean[max];
+		String[] don = new String[max];
+		String[] acc = new String[max];
 		StringBuffer spliceSeq = new StringBuffer();
+		
 		for( Gene gene: genes ) {
 			if( gene.transcript.size()>0 ) {
+				int[] val = null;
 				boolean[][] splits = new boolean[gene.exon.size()][gene.exon.size()];
 				for( int k = 0; k < splits.length; k++ ) {
 					Arrays.fill( splits[k], false );
@@ -530,189 +536,61 @@ public class Extractor implements JstacsTool {
 						}
 					} catch( StringIndexOutOfBoundsException sioobe ) {
 						s=null;//TODO
-					}					
+					}
 					part.add(new Part(s,val[3]));
 				}
 				
 				Arrays.fill( used, false );
-				int currentProb=-1;
 				for( int k = 0; k < id.length; k++ ) {
-					dnaSeqBuff.delete(0, dnaSeqBuff.length());
-					
-					String trans = id[k];
-					IntList il = gene.transcript.get( trans );
-					if( il.length() == 0 ) {
-						System.out.println("No coding exon(s) for: " + id[k] );
-						continue;
-					}
-					int start = strand>0 ? gene.exon.get(il.get(0))[1] : gene.exon.get(il.get(il.length()-1))[1];
-					int end = strand>0 ? gene.exon.get(il.get(il.length()-1))[2] : gene.exon.get(il.get(0))[2];
-					
-					int startPhase = fullLength ? 0 : part.get(il.get(0)).offsetLeft;
-					int offset = 3-startPhase, pa = -1;
+					IntList il = gene.transcript.get( id[k] );
+					boolean[] set = new boolean[il.length()];
 					for( j = 0; j < il.length(); j++ ) {
-						pa = il.get(j);
-						current = part.get(pa);
-						if( current.dna == null ) {
-							currentProb=1;
-							break;
-						}
-						dnaSeqBuff.append( current.dna );
-						
-						//translate
-						if( current.offsetLeft < 0 ) {
-							current.offsetLeft = (3-offset)%3;
-						}
-						
-						if( current.aa == null ) {
-							//System.out.println( trans + "\t" + pa +"\t" +current.dna );
-							try {
-								current.aa = Tools.translate(current.offsetLeft, current.dna, code, false, ambi);
-							} catch( IllegalArgumentException iae ) {
-								current.aa=null;
-								currentProb=0;
-								break;
-							}
-							current.offsetRight = current.dna.length() - current.offsetLeft - 3*current.aa.length();
-						} else {
-							if( (fullLength || j>0) && current.offsetLeft != (3-offset)%3 ) {
-								currentProb=2;
-								break;
-							}
-						}
-						offset = current.offsetRight;
+						Part current = part.get( il.get(j) );
+						set[j] = current.aa != null;
 					}
-
-					String p=null;
-					if( j == il.length() ) {
-						if( ambi == Ambiguity.EXCEPTION && !dnaSeqBuff.toString().matches("[ACGT]*") ) {//to be compatible with older versions
-							j=il.length()+1;
-							currentProb=0;
+					int prob = transcript(chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don );
+					
+					//try to repair
+					if( prob>=0 && rep) {
+						int phase = -1, test;
+						do {
+							phase++;
+							//clear CONDITIONALLY
+							for( j = 0; j < il.length(); j++ ) {
+								Part current = part.get( il.get(j) );
+								if( !set[j] ) {
+									current.offsetLeft = Part.NO_PHASE;
+									current.aa = null;
+								}
+							}
+							test = transcript(chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don);
+						} while( test >= 0 && phase <= 2 );
+						if( test < 0 ) {
+							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
+							repair++;
+							prob=-1;
 						} else {
-							try {
-								p = Tools.translate(startPhase, dnaSeqBuff.toString(), code, false, ambi);
-							} catch( IllegalArgumentException iae ) {
-								j=il.length()+1;
-								currentProb=0;
+							if( prob>= 0 ) {
+								//clear CONDITIONALLY							
+								for( j = 0; j < il.length(); j++ ) {
+									Part current = part.get( il.get(j) );
+									if( !set[j] ) {
+										current.offsetLeft = Part.NO_PHASE;
+										current.aa = null;
+									}
+								}
 							}
 						}
 					}
 					
-					if( j == il.length() ) {
-						int anz = 0, index=-1, last = 0;
-						while( (index=p.indexOf('*',index+1))>= 0 ) {
-							anz++;
-							last = index;
-						}
-						if( anz > 1 ) {
-							if( verbose ) protocol.appendWarning(trans + "\tskip premature stop, " + p + "\n" + dnaSeqBuff+"\n");
-							problem[2]++;
-						} else if( fullLength && last != p.length()-1 ){
-							if( verbose ) protocol.appendWarning(trans + "\tskip missing stop\n" );
-							problem[1]++;
-						} else if( fullLength && p.charAt(0)!='M' ) {
-							if( verbose ) protocol.appendWarning(trans + "\tskip missing start\n" );
-							problem[3]++;
-						} else {
-							info[2]++;
-							out.get(3).write( ">" + trans + "\n" + dnaSeqBuff.toString() + "\n" );
-							out.get(2).write( ">" + trans + "\n" + p + "\n" );
-							String x = il.toString();
-							SafeOutputStream sos = out.get(1);
-							sos.write( gene.id + "\t" + trans + "\t" + x.substring(1,x.length()-1) );
-							for( j = 0; j < il.length(); j++ ) {
-								sos.write( (j==0?"\t":",") + part.get(il.get(j)).offsetLeft );		
-							}
-							sos.write( "\t" + chr + "\t" + strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\n" );
-							for( j = 0; j < il.length(); j++ ) {
-								used[il.get(j)] = true;
-							}
-																		
-							int[] c = count.get(il.length());
-							if( c == null ) {
-								c = new int[1];
-								count.put(il.length(), c);
-							}
-							c[0]++;
-							
-							//splice sites
-							int MAX_INTRON_LENGTH=15000, ignoreAAForSpliceSite=30, targetStart, targetEnd;
-							last=-1;
-							for( j = 0; j < il.length(); j++ ) {
-								pa = il.get(j);
-								current = part.get(pa);
-								if( last != -1 ) {
-									splits[last][pa] = true;
-								}
-								last = pa;
-								
-								//find splice sites
-								int[] exon = gene.exon.get(pa);
-								if( forward ) {
-									targetStart = exon[1] + current.offsetLeft;
-									targetEnd = exon[2] - current.offsetRight;
-								} else {
-									targetStart = exon[1] + current.offsetRight;
-									targetEnd = exon[2] - current.offsetLeft;
-								}
-								
-								int l = Math.abs(targetStart-1-targetEnd), add, t = 3*ignoreAAForSpliceSite;
-								
-								//add = the length which is used inside the exon to find a splice site
-								if( l / 3 < t ) {
-									add=l/3;
-									add-=add%3; //;)
-								} else {
-									add=t;
-								}
-								
-								if( current.dna.length()>0 ) {
-									if( j > 0 && acc[pa].length() > 0 ) {
-										int[] stat = acceptor.get(acc[pa]);
-										if( stat == null ) {
-											stat = new int[1];
-											acceptor.put(acc[pa], stat);
-										}
-										stat[0]++;
-									}
-									if( j+1<il.length() && don[pa].length() > 0 ) {
-										int[] stat = donor.get(don[pa]);
-										if( stat == null ) {
-											stat = new int[1];
-											donor.put(don[pa], stat);
-										}
-										stat[0]++;
-									}
-								}
-							}
-						}
-					} else {
-						switch (currentProb ) {
-							case 0:
-								if( verbose ) {
-									if( j < il.length() ) {
-										protocol.appendWarning(trans + "\tskip non-ACGT coding part "+j+"\n");
-									} else {
-										protocol.appendWarning(trans + "\tskip non-ACGT coding protein\n");
-									}
-								}
-								problem[0]++;
-								break;
-							case 1:
-								if( verbose ) protocol.appendWarning(trans + "\tskip no DNA for coding part "+j+"\n");
-								problem[4]++;
-								break;
-							case 2:
-								if( verbose ) protocol.appendWarning(trans + "\tskip frame problems for coding part "+j+"\n");
-								problem[5]++;
-								break;
-						}
-						
+					if( prob >= 0 ) {
+						problem[prob]++;
 					}
 				}
 				
+				//write cds parts, ...
 				for( j = 0; j < gene.exon.size(); j++ ) {
-					if( used[j]) {
+					if( used[j] ) {
 						Part p = part.get(j);
 						if( p.aa.length() > 0 ) {
 							out.get(0).write(">" + gene.id + "_" + j + "\n" + p.aa + "\n");
@@ -754,19 +632,230 @@ public class Extractor implements JstacsTool {
 		}
 	}
 	
+	static ArrayList<SafeOutputStream> out;
+	static ArrayList<Part> part = new ArrayList<Part>();
+	static StringBuffer dnaSeqBuff = new StringBuffer();
+	static IntList message = new IntList();
+	static HashMap<String, int[]> donor, acceptor;
+	static HashMap<Integer,int[]> count;
+	
+	static int transcript(String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
+		int j;
+		dnaSeqBuff.delete(0, dnaSeqBuff.length());
+		int currentProb=-1;
+		
+		IntList il = gene.transcript.get( trans );
+		if( il.length() == 0 ) {
+			System.out.println("No coding exon(s) for: " + trans );
+			return -1;
+		}
+		int start = gene.strand>0 ? gene.exon.get(il.get(0))[1] : gene.exon.get(il.get(il.length()-1))[1];
+		int end = gene.strand>0 ? gene.exon.get(il.get(il.length()-1))[2] : gene.exon.get(il.get(0))[2];
+		
+		int startPhase = (s>=0 && s<3) ? s : part.get(il.get(0)).offsetLeft;
+		if( startPhase == Part.NO_PHASE ) {
+			startPhase = 0;
+		}
+		int offset = 3-startPhase, pa = -1;
+		message.clear();
+		Part current;
+		for( j = 0; j < il.length(); j++ ) {
+			pa = il.get(j);
+			current = part.get(pa);
+			if( current.dna == null ) {
+				currentProb=1;
+				break;
+			}
+			dnaSeqBuff.append( current.dna );
+			
+			//translate
+			if( current.offsetLeft == Part.NO_PHASE ) {
+				current.offsetLeft = (3-offset)%3;
+			}
+			
+			if( current.aa == null ) {
+				try {
+					current.aa = Tools.translate(current.offsetLeft, current.dna, code, false, ambi);
+				} catch( IllegalArgumentException iae ) {
+					current.aa=null;
+					currentProb=0;
+					break;
+				}							
+				current.offsetRight = current.dna.length() - current.offsetLeft - 3*current.aa.length();
+			} else {
+				if( (fullLength || j>0) && current.offsetLeft != (3-offset)%3 ) {
+					currentProb=2;
+					break;
+				}
+			}
+			
+			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length()?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//TODO > v1.3.1
+				message.add(pa);
+			}
+			
+			offset = current.offsetRight;
+		}
+
+		String p=null;
+		if( j == il.length() ) {
+			if( ambi == Ambiguity.EXCEPTION && !dnaSeqBuff.toString().matches("[ACGT]*") ) {//to be compatible with older versions
+				j=il.length()+1;
+				currentProb=0;
+			} else {
+				try {
+					p = Tools.translate(startPhase, dnaSeqBuff.toString(), code, false, ambi);
+				} catch( IllegalArgumentException iae ) {
+					j=il.length()+1;
+					currentProb=0;
+				}
+			}
+		}
+		
+		if( j == il.length() ) {
+			int anz = 0, index=-1, last = 0;
+			while( (index=p.indexOf('*',index+1))>= 0 ) {
+				anz++;
+				last = index;
+			}
+			if( fullLength && startPhase!= 0 ) {
+				if( verbose ) protocol.appendWarning(trans + "\tskip start phase not zero\n" );
+				return 1;
+			} else if( fullLength && p.charAt(0)!='M' ) {
+				if( verbose ) protocol.appendWarning(trans + "\tskip missing start\n" );
+				return 2;
+			} else if( fullLength && last != p.length()-1 ){
+				if( verbose ) protocol.appendWarning(trans + "\tskip missing stop\n" );
+				return 3;
+			} else if( anz > 1 ) {
+				if( verbose ) protocol.appendWarning(trans + "\tskip premature stop, " + p + "\n" + dnaSeqBuff+"\n");
+				return 4;
+			} else if( message.length() > 0 ) {
+				if( verbose ) {
+					String c = "";
+					for( j = 0; j < il.length(); j++ ) {
+						pa = il.get(j);
+						current = part.get(pa);
+						c+="cds-parts: " + pa + " (phase: " + current.offsetLeft + ")\nDNA: " + current.dna +"\nAA: " +current.aa +"\n";
+					}
+					
+					protocol.appendWarning( trans + "\tskip wrong phase for coding part(s) = "+message+"\n" +
+						"\nCDS: " + dnaSeqBuff.toString() +
+						"\nprotein: " + p +
+						"\n\nparts:\n" + c ); //TODO > v1.3.1
+				}
+				return 6;
+			} else {
+				info[2]++;
+				out.get(3).write( ">" + trans + "\n" + dnaSeqBuff.toString() + "\n" );
+				out.get(2).write( ">" + trans + "\n" + p + "\n" );
+				String x = il.toString();
+				SafeOutputStream sos = out.get(1);
+				sos.write( gene.id + "\t" + trans + "\t" + x.substring(1,x.length()-1) );
+				for( j = 0; j < il.length(); j++ ) {
+					sos.write( (j==0?"\t":",") + part.get(il.get(j)).offsetLeft );		
+				}
+				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\n" );
+				for( j = 0; j < il.length(); j++ ) {
+					used[il.get(j)] = true;
+				}
+															
+				int[] c = count.get(il.length());
+				if( c == null ) {
+					c = new int[1];
+					count.put(il.length(), c);
+				}
+				c[0]++;
+				
+				//splice sites
+				int ignoreAAForSpliceSite=30, targetStart, targetEnd;
+				last=-1;
+				for( j = 0; j < il.length(); j++ ) {
+					pa = il.get(j);
+					current = part.get(pa);
+					if( last != -1 ) {
+						splits[last][pa] = true;
+					}
+					last = pa;
+					
+					//find splice sites
+					int[] exon = gene.exon.get(pa);
+					if( gene.strand == 1 ) {
+						targetStart = exon[1] + current.offsetLeft;
+						targetEnd = exon[2] - current.offsetRight;
+					} else {
+						targetStart = exon[1] + current.offsetRight;
+						targetEnd = exon[2] - current.offsetLeft;
+					}
+					
+					int l = Math.abs(targetStart-1-targetEnd), add, t = 3*ignoreAAForSpliceSite;
+					
+					//add = the length which is used inside the exon to find a splice site
+					if( l / 3 < t ) {
+						add=l/3;
+						add-=add%3; //;)
+					} else {
+						add=t;
+					}
+					
+					if( current.dna.length()>0 ) {
+						if( j > 0 && acc[pa].length() > 0 ) {
+							int[] stat = acceptor.get(acc[pa]);
+							if( stat == null ) {
+								stat = new int[1];
+								acceptor.put(acc[pa], stat);
+							}
+							stat[0]++;
+						}
+						if( j+1<il.length() && don[pa].length() > 0 ) {
+							int[] stat = donor.get(don[pa]);
+							if( stat == null ) {
+								stat = new int[1];
+								donor.put(don[pa], stat);
+							}
+							stat[0]++;
+						}
+					}
+				}
+				return -1;
+			}
+		} else {
+			switch ( currentProb ) {
+				case 0:
+					if( verbose ) {
+						if( j < il.length() ) {
+							protocol.appendWarning(trans + "\tskip non-ACGT coding part "+j+"\n");
+						} else {
+							protocol.appendWarning(trans + "\tskip non-ACGT coding protein\n");
+						}
+					}
+					return 0;
+				case 1:
+					if( verbose ) protocol.appendWarning(trans + "\tskip no DNA for coding part "+j+"\n");
+					return 5;
+				case 2:
+					if( verbose ) protocol.appendWarning(trans + "\tskip conflicting phase for coding part "+j+"\n");
+					return 7;
+					
+			}
+			return 8;	
+		}
+	}	
+	
 	static class Part {
+		static final int NO_PHASE = -100000;
+		
 		String dna, aa;
 		int offsetLeft, offsetRight;
 		
 		Part( String dna ) {
-			this(dna, -100000);
+			this(dna, NO_PHASE);
 		}
 		
 		Part( String dna, int phase ) {
 			this.dna= dna;
 			aa = null;
 			offsetLeft = phase;
-			offsetRight = -100000;
+			offsetRight = NO_PHASE;
 		}
 	}
 	
@@ -780,6 +869,7 @@ public class Extractor implements JstacsTool {
 					
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the programm will try to infer the phase of the CDS parts to \"repair\" the annotation", true, false ),
 				
 				/*
 				new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{
@@ -847,6 +937,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.3";
+		return "1.3.2";
 	}
 }
