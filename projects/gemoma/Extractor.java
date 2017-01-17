@@ -126,7 +126,7 @@ public class Extractor implements JstacsTool {
 		getOut( ((Boolean)parameters.getParameterForName(name[2]).getValue()) ? name[2] : null, file, out );
 		getOut( ((Boolean)parameters.getParameterForName(name[3]).getValue()) ? name[3] : null, file, out );
 	
-		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length" );
+		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tmicro-exons" );
 		
 		//read genome contig by contig
 		r = new BufferedReader( new FileReader( parameters.getParameterForName("genome").getValue().toString() ) );
@@ -563,7 +563,7 @@ public class Extractor implements JstacsTool {
 									current.aa = null;
 								}
 							}
-							test = transcript(chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don);
+							test = transcript(chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, false, used, acc, don);
 						} while( test >= 0 && phase <= 2 );
 						if( test < 0 ) {
 							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
@@ -659,6 +659,7 @@ public class Extractor implements JstacsTool {
 		int offset = 3-startPhase, pa = -1;
 		message.clear();
 		Part current;
+		int minLength=Integer.MAX_VALUE;
 		for( j = 0; j < il.length(); j++ ) {
 			pa = il.get(j);
 			current = part.get(pa);
@@ -691,6 +692,9 @@ public class Extractor implements JstacsTool {
 			
 			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length()?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//TODO > v1.3.1
 				message.add(pa);
+			}
+			if( current.aa!= null && current.aa.length()<minLength ) {
+				minLength=current.aa.length();
 			}
 			
 			offset = current.offsetRight;
@@ -754,7 +758,7 @@ public class Extractor implements JstacsTool {
 				for( j = 0; j < il.length(); j++ ) {
 					sos.write( (j==0?"\t":",") + part.get(il.get(j)).offsetLeft );		
 				}
-				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\n" );
+				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + minLength + "\n" );
 				for( j = 0; j < il.length(); j++ ) {
 					used[il.get(j)] = true;
 				}
@@ -869,7 +873,7 @@ public class Extractor implements JstacsTool {
 					
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
-				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the programm will try to infer the phase of the CDS parts to \"repair\" the annotation", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the program will try to infer the phase of the CDS parts to repair the annotation", true, false ),
 				
 				/*
 				new SelectionParameter(DataType.PARAMETERSET, new String[]{"no","yes"}, new ParameterSet[]{

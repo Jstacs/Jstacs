@@ -177,6 +177,11 @@ public class GeMoMa implements JstacsTool {
 	 * @throws Exception forwarded from {@link CLI#run(String[])}
 	 */
 	public static void main(String[] args) throws Exception{
+		File jarfile = new File(Galaxy.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+		if( jarfile != null ) {
+			System.out.println("jar time stamp: " + new Date(jarfile.lastModified()) + "\n" );
+		}
+		
 		int maxSize = -1;
 		long timeOut=3600, maxTimeOut=60*60*24*7;
 		
@@ -277,11 +282,6 @@ public class GeMoMa implements JstacsTool {
 	
 	@Override
 	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
-		File jarfile = new File(Galaxy.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-		if( jarfile != null ) {
-			protocol.append("jar time stamp: " + new Date(jarfile.lastModified()) + "\n" );
-		}
-		
 		this.protocol=protocol;
 		
 		BufferedReader r = null;
@@ -3692,8 +3692,8 @@ public class GeMoMa implements JstacsTool {
 				String chr = seqs.get(l.targetID);
 				//splicing				
 				for( int i = 1; i < hits.size(); i++ ) {//iterate over found parts
-					c = hits.get(i).clone();
-					res.hits.add(c);
+					c = hits.get(i);
+					res.hits.add(c.clone());
 					int delta = 0;
 					for( int j = revParts[l.part]+1; j < revParts[c.part]; j++ ) {
 						delta += length[j];
