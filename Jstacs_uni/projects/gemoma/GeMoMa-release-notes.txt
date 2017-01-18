@@ -24,3 +24,8 @@ GeMoMa 1.3 (06.12.2016)
 	- simplified the command line parameters
 	- IMPORTANT: parameter names changed for some parameters
 - GAF: new tool for filtering and combining different predictions (especially of different reference organisms)
+GeMoMa 1.3.1 (09.12.2016)
+- GeMoMa bugfix (finding start/stop codon for very small exons) 
+GeMoMa 1.3.2 (18.01.2017)
+- ERE: new parameter repair for broken transcript annotations
+- Extractor: bugfixes
