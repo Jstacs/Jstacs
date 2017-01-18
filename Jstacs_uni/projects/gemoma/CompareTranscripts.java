@@ -350,7 +350,7 @@ public class CompareTranscripts {
 
 		String transcript, predictionID;
 		w.append("#gene\ttranscript\t#exons");//
-		w.append("\tprediction\t# predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,perfect start,perfect end\tinfo");
+		w.append("\tprediction\t# predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
 		w.newLine();
 		String[] array = prediction.keySet().toArray(new String[0]);
 		Arrays.sort(array);
