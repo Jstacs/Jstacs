@@ -91,7 +91,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	private static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
+	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
 	/**
 	 * The index of the score in the blast output.
@@ -143,8 +143,8 @@ public class GeMoMa implements JstacsTool {
 	//coverage
 	private static HashMap<String, int[][]>[] coverage;	
 	//canonical 
-	private static final String[] DONOR = {"GT", "GC"};
-	private static final String ACCEPTOR = "AG";
+	public static final String[] DONOR = {"GT", "GC"};
+	public static final String ACCEPTOR = "AG";
 	private static int[] intronic = { DONOR[0].length(), ACCEPTOR.length()};
 	
 	//statistics
@@ -280,6 +280,122 @@ public class GeMoMa implements JstacsTool {
 		//}
 	}
 	
+	public static HashMap<String, int[][][]>[] readIntrons( int threshold, String intronGFF, Protocol protocol, boolean verbose, HashMap<String, String> seqs ) throws IOException {
+		BufferedReader r = new BufferedReader( new FileReader( intronGFF ) );
+		HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
+		ArrayList<int[]>[] h;
+		
+		String[] donor = null;
+		String acceptor = null;
+		String line;
+		while( (line=r.readLine()) != null ) {
+			if( line.charAt(0) != '#' ) {
+				String[] split = line.split( "\t" );
+				int reads;
+				try {
+					reads = Integer.parseInt(split[5]);
+				} catch( NumberFormatException nfe ) {
+					if( verbose ) {
+						protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line  + "\n");
+					}
+					reads = threshold;
+				}
+				if( reads >= threshold ) {
+					h = spliceHash.get(split[0]);
+					if( h == null ) {
+						h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
+						spliceHash.put( split[0], h );
+					}
+					/*
+					int idx= split[6].charAt(0)=='+'?0:1;
+					
+					//donor = first element, acceptor = second
+					h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
+					*/
+					char c = split[6].charAt(0);
+					int a=Integer.parseInt(split[3]);
+					int b =Integer.parseInt(split[4]);
+					
+					if( c=='.' ) {
+						//try to identify on which strand the intron is located
+						if( donor == null ) {
+							donor = new String[]{Tools.rc(DONOR[0]),Tools.rc(DONOR[1])};
+							acceptor = Tools.rc(ACCEPTOR);
+						}
+						String s = seqs.get(split[0]);
+						String x = s.substring(a-1,a+1);
+						String y = s.substring(b-3,b-1);
+						boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
+						boolean bwd =  (y.equals(donor[0]) || y.equals(donor[1])) && x.equals(acceptor);
+						if( fwd && !bwd ) {
+							c='+';
+						} else if( bwd && !fwd ) {
+							c='-';
+						}
+						//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
+					}
+					
+					if( c =='+' || c=='.' ) {
+						h[0].add( new int[]{a, b, reads} );
+					}
+					if( c =='-' || c=='.' ) {
+						h[1].add( new int[]{b, a, reads} );
+					}
+				}
+			}
+		}
+		r.close();
+		
+		//reformat
+		HashMap<String, int[][][]> donorSites = new HashMap<String, int[][][]>();
+		HashMap<String, int[][][]> acceptorSites = new HashMap<String, int[][][]>();
+		
+		Entry<String, ArrayList<int[]>[]> e;
+		int[][][] vals, help;
+		int[] site;
+		Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
+		int num = 0;
+		while( it.hasNext() ) {
+			e = it.next();
+			h = e.getValue();
+			num += h[0].size() + h[1].size();
+			vals = new int[2][][];
+			help = new int[2][][];
+			for( int k = 0; k < vals.length; k++ ) {
+				help[k] = new int[h[k].size()][3];
+				for( int m = 0; m<h[k].size(); m++ ) {
+					site = h[k].get(m);
+					help[k][m][0] = site[0];
+					help[k][m][1] = site[1];
+					help[k][m][2] = site[2];
+				}
+				
+				Arrays.sort(help[k], IntArrayComparator.comparator[1]);
+				vals[k] = new int[3][h[k].size()];
+				for( int m = 0; m<h[k].size(); m++ ) {
+					vals[k][0][m] = help[k][m][0];
+					vals[k][1][m] = help[k][m][1];
+					vals[k][2][m] = help[k][m][2];
+				}
+			}
+			acceptorSites.put(e.getKey(), vals);
+			
+			vals = new int[2][][];
+			for( int k = 0; k < vals.length; k++ ) {
+				Arrays.sort(help[k], IntArrayComparator.comparator[0]);
+				vals[k] = new int[3][h[k].size()];
+				for( int m = 0; m<h[k].size(); m++ ) {
+					vals[k][0][m] = help[k][m][0];
+					vals[k][1][m] = help[k][m][1];
+					vals[k][2][m] = help[k][m][2];
+				}
+			}
+			donorSites.put(e.getKey(), vals);
+		}
+		protocol.append("possible introns from RNA-seq (split reads>="+threshold+"): " + num + "\n");
+		return new HashMap[]{donorSites, acceptorSites};
+	}
+	
 	@Override
 	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
 		this.protocol=protocol;
@@ -344,119 +460,9 @@ public class GeMoMa implements JstacsTool {
 		
 		p = parameters.getParameterForName("introns"); 
 		if( p!= null && p.isSet() ) {
-			int threshold = (Integer) parameters.getParameterForName("reads").getValue();
-			r = new BufferedReader( new FileReader( p.getValue().toString() ) );
-			HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
-			ArrayList<int[]>[] h;
-			
-			String[] donor = null;
-			String acceptor = null;
-			
-			while( (line=r.readLine()) != null ) {
-				if( line.charAt(0) != '#' ) {
-					String[] split = line.split( "\t" );
-					int reads;
-					try {
-						reads = Integer.parseInt(split[5]);
-					} catch( NumberFormatException nfe ) {
-						if( verbose ) {
-							protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line  + "\n");
-						}
-						reads = threshold;
-					}
-					if( reads >= threshold ) {
-						h = spliceHash.get(split[0]);
-						if( h == null ) {
-							h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
-							spliceHash.put( split[0], h );
-						}
-						/*
-						int idx= split[6].charAt(0)=='+'?0:1;
-						
-						//donor = first element, acceptor = second
-						h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
-						*/
-						char c = split[6].charAt(0);
-						int a=Integer.parseInt(split[3]);
-						int b =Integer.parseInt(split[4]);
-						
-						if( c=='.' ) {
-							//try to identify on which strand the intron is located
-							if( donor == null ) {
-								donor = new String[]{Tools.rc(DONOR[0]),Tools.rc(DONOR[1])};
-								acceptor = Tools.rc(ACCEPTOR);
-							}
-							String s = seqs.get(split[0]);
-							String x = s.substring(a-1,a+1);
-							String y = s.substring(b-3,b-1);
-							boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
-							boolean bwd =  (y.equals(donor[0]) || y.equals(donor[1])) && x.equals(acceptor);
-							if( fwd && !bwd ) {
-								c='+';
-							} else if( bwd && !fwd ) {
-								c='-';
-							}
-							//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
-						}
-						
-						if( c =='+' || c=='.' ) {
-							h[0].add( new int[]{a, b, reads} );
-						}
-						if( c =='-' || c=='.' ) {
-							h[1].add( new int[]{b, a, reads} );
-						}
-					}
-				}
-			}
-			r.close();
-			
-			//reformat
-			donorSites = new HashMap<String, int[][][]>();
-			acceptorSites = new HashMap<String, int[][][]>();
-			
-			Entry<String, ArrayList<int[]>[]> e;
-			int[][][] vals, help;
-			int[] site;
-			Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
-			int num = 0;
-			while( it.hasNext() ) {
-				e = it.next();
-				h = e.getValue();
-				num += h[0].size() + h[1].size();
-				vals = new int[2][][];
-				help = new int[2][][];
-				for( int k = 0; k < vals.length; k++ ) {
-					help[k] = new int[h[k].size()][3];
-					for( int m = 0; m<h[k].size(); m++ ) {
-						site = h[k].get(m);
-						help[k][m][0] = site[0];
-						help[k][m][1] = site[1];
-						help[k][m][2] = site[2];
-					}
-					
-					Arrays.sort(help[k], IntArrayComparator.comparator[1]);
-					vals[k] = new int[3][h[k].size()];
-					for( int m = 0; m<h[k].size(); m++ ) {
-						vals[k][0][m] = help[k][m][0];
-						vals[k][1][m] = help[k][m][1];
-						vals[k][2][m] = help[k][m][2];
-					}
-				}
-				acceptorSites.put(e.getKey(), vals);
-				
-				vals = new int[2][][];
-				for( int k = 0; k < vals.length; k++ ) {
-					Arrays.sort(help[k], IntArrayComparator.comparator[0]);
-					vals[k] = new int[3][h[k].size()];
-					for( int m = 0; m<h[k].size(); m++ ) {
-						vals[k][0][m] = help[k][m][0];
-						vals[k][1][m] = help[k][m][1];
-						vals[k][2][m] = help[k][m][2];
-					}
-				}
-				donorSites.put(e.getKey(), vals);
-			}
-			protocol.append("possible introns from RNA-seq (split reads>="+threshold+"): " + num + "\n");
+			HashMap<String, int[][][]>[] res = readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), p.getValue().toString(), protocol, verbose, seqs );
+			donorSites = res[0];
+			acceptorSites = res[1];
 			sp = (Boolean) parameters.getParameterForName("splice").getValue();
 		} else {
 			acceptorSites = donorSites = null;
@@ -585,7 +591,7 @@ public class GeMoMa implements JstacsTool {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	private static class IntArrayComparator implements Comparator<int[]> {
+	public static class IntArrayComparator implements Comparator<int[]> {
 		/**
 		 * The default instances
 		 */
@@ -3829,7 +3835,7 @@ public class GeMoMa implements JstacsTool {
 				int[][] donSites = null;
 				int[][] cov = null;
 				
-				a = A = d = D = Len = Cov = Sum = 0;
+				Len = Cov = Sum = 0;
 				minC= Integer.MAX_VALUE;
 				
 				int last = -1;
