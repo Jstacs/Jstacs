@@ -38,9 +38,9 @@ b) GeMoMa simply did not find a prediction matching the remaining quality criter
 
 GeMoMa makes the predictions for each reference transcript independently. Hence, it can occur that some of predictions of different reference transcripts overlap or are identical especially in gene families. Typically, you might like to filter or rank these predictions. We have implemented GAF (cf. java -jar GeMoMa-<version>.jar CLI GAF) to do this automatically. However, you can also do it by hand using the GFF attributes. Using RNAseq data in GeMoMa yields additional fields in the annotation that can be used, e.g., average coverage (avgCov).
 
-8) I choose full-length CDS, but obtain premature stop codons within my CDS-parts. What could be the reason?
+8) A lot of transcripts have been filtered out by the Extractor. What can I do?
 
-Probably the phase column in the GFF file is not correctly filled. GeMoMa can handle "." and correctly set phase 0, 1, or 2. However, sometimes we received GFFs which contain 0 for all CDS entries in the phase column of the GFF. This is probably not correct. Replacing these zeros by "." solves the problem.
+There are several reasons for remove transcripts by the Extractor. At least in two cases you can try to get more transcripts by setting specific parameter values. First, if the transcript contains ambiguous nucleotides, please test the parameter "Ambiguity". Second, sometimes we received GFFs which contain wrong phases for CDS entries (e.g., 0 for all CDS entries in the phase column of the GFF). Since version 1.3.2, we provide the option "r" which stands for repair. If r=true is chosen, the Extractor tries to infer all phases for transcripts that show an error and would be filtered out. 
 
 9) Is GeMoMa able to predict pseudo-genes?
 
