@@ -513,13 +513,16 @@ public class GeMoMa implements JstacsTool {
 			progress.setLast(selected.size());
 		}
 		
-		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue(); 
-		if( eps.getNumberOfParameters()>0 ) {
-			String[] fName = new String[eps.getNumberOfParameters()];
-			for( int i = 0; i < fName.length; i++ ) {
-				fName[i] = ((ParameterSet)eps.getParameterAt(i).getValue()).getParameterAt(0).getValue().toString();
+		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue();
+		ArrayList<String> fName = new ArrayList<String>();
+		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
+			Parameter y = ((ParameterSet)eps.getParameterAt(i).getValue()).getParameterAt(0);
+			if( y.isSet() ) {
+				fName.add(y.getValue().toString());
 			}
-			HashMap<String, int[][][]>[] res = readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, verbose, seqs, fName );
+		}
+		if( fName.size()>0 ) {
+			HashMap<String, int[][][]>[] res = readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, verbose, seqs, fName.toArray(new String[fName.size()]) );
 			donorSites = res[0];
 			acceptorSites = res[1];
 			sp = (Boolean) parameters.getParameterForName("splice").getValue();
@@ -4176,7 +4179,7 @@ public class GeMoMa implements JstacsTool {
 
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
-						), "introns", "", 0 ) ),
+						), "introns", "", 1 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
 					
