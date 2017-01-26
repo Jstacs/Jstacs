@@ -318,7 +318,7 @@ public class CLI {
 	}
 
 
-	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException {
+	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
 		HashMap<String, LinkedList<String>> valueMap = new HashMap<String, LinkedList<String>>();
 		String outdir = ".";
 		int threads = 1;
@@ -359,11 +359,20 @@ public class CLI {
 
 
 
-	private void set( ParameterSet parameters, HashMap<Parameter, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException {
+	private void set( ParameterSet parameters, HashMap<Parameter, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ParameterSet template = null;
 		if( isExp ) {
-			template=(ParameterSet) parameters.getParameterAt(0).getValue(); //Problem if initial size is 0
+			//TODO Jens@Jan: Problem if initial size is 0, work around
+			ExpandableParameterSet eps = (ExpandableParameterSet) parameters;
+			boolean remove = eps.getNumberOfParameters() == 0;
+			if( remove ) {
+				eps.addParameterToSet();
+			}
+			template=(ParameterSet) eps.getParameterAt(0).getValue();
+			if( remove ) {
+				eps.removeParameterFromSet();
+			}
 			exp++;
 			if( exp > 1 ) {
 				throw new RuntimeException("Nested ExpandableParameterSets not implemented.");//TODO
@@ -416,10 +425,10 @@ public class CLI {
 		ExpandableParameterSet exp = null;
 		if( isExp ) {
 			exp = (ExpandableParameterSet) parameters;
-			parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
+			//parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
 			
 			protocol.appendWarning( tabPrefix+"This parameter can be used multiple times:\n" );//TODO
-			ParameterSet template = (ParameterSet) exp.getParameterAt(0).getValue();
+			ParameterSet template = (ParameterSet) exp.getParameterAt(0).getValue(); //TODO Jens@Jan
 			int n = exp.getNumberOfParameters();
 			for(int k=0;k<n;k++){
 				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
