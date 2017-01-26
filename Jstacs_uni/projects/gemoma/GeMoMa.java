@@ -65,9 +65,11 @@ import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
@@ -234,123 +236,149 @@ public class GeMoMa implements JstacsTool {
 		return f;
 	}
 	
-	private static void readCoverage( int index, Parameter p, Protocol protocol, boolean verbose ) throws IOException {
-		//if( p!= null && p.isSet() ) {
-			protocol.append("read coverage file: " + p.getName() + "\n");
-			coverage[index] = new HashMap<String, int[][]>();
-			BufferedReader r = new BufferedReader( new FileReader( p.getValue().toString() ) );
-			int threshold = 1;
-			String chr = null;
-			ArrayList<int[]> list = new ArrayList<int[]>();
-			String line;
-			int i = 0;
-			while( (line=r.readLine()) != null ) {
-				if( i==0 && line.startsWith("track type=bedgraph") ) {
-					//ignore
-				} else{
-					String[] split = line.split( "\t" );
-					if( chr == null || !split[0].equals(chr)) {
-						if( chr != null && list.size()>0 ) {
-							//Collections.sort(list, CovComparator.def);
-							coverage[index].put( chr, list.toArray( new int[0][] ) );
-							list.clear();
-						}
-						chr = split[0];
+	private static void readCoverage( HashMap<String, int[][]> coverage, Parameter p, Protocol protocol, boolean verbose ) throws IOException {
+		protocol.append("read coverage file: " + p.getName() + "\n");
+		BufferedReader r = new BufferedReader( new FileReader( p.getValue().toString() ) );
+		int threshold = 1;
+		String chr = null;
+		ArrayList<int[]> list = new ArrayList<int[]>();
+		String line;
+		int i = 0;
+		while( (line=r.readLine()) != null ) {
+			if( i==0 && line.startsWith("track type=bedgraph") ) {
+				//ignore
+			} else{
+				String[] split = line.split( "\t" );
+				if( chr == null || !split[0].equals(chr)) {
+					if( chr != null && list.size()>0 ) {
+						//Collections.sort(list, CovComparator.def);
+						coverage.put( chr, list.toArray( new int[0][] ) );
+						list.clear();
 					}
-					int reads;
-					try {
-						reads = Integer.parseInt(split[3]);
-					} catch( Exception e ) {
-						if( verbose ) {
-							protocol.appendWarning("Could not parse number of reads. Set coverage to " +threshold + ". Line: " + line + "\n" );
-						}
-						reads = threshold;
-					}
-					if( reads >= threshold ) {
-						list.add( new int[]{Integer.parseInt(split[1])+1, Integer.parseInt(split[2]), reads} );
-					}
+					chr = split[0];
 				}
-				i++;
+				int reads;
+				try {
+					reads = Integer.parseInt(split[3]);
+				} catch( Exception e ) {
+					if( verbose ) {
+						protocol.appendWarning("Could not parse number of reads. Set coverage to " +threshold + ". Line: " + line + "\n" );
+					}
+					reads = threshold;
+				}
+				if( reads >= threshold ) {
+					list.add( new int[]{Integer.parseInt(split[1])+1, Integer.parseInt(split[2]), reads} );
+				}
 			}
-			r.close();
-			if( chr != null && list.size()>0 ) {
-				//Collections.sort(list, CovComparator.def);
-				coverage[index].put( chr, list.toArray( new int[0][] ) );
-			}
-		//}
+			i++;
+		}
+		r.close();
+		if( chr != null && list.size()>0 ) {
+			//Collections.sort(list, CovComparator.def);
+			coverage.put( chr, list.toArray( new int[0][] ) );
+		}
 	}
 	
-	public static HashMap<String, int[][][]>[] readIntrons( int threshold, String intronGFF, Protocol protocol, boolean verbose, HashMap<String, String> seqs ) throws IOException {
-		BufferedReader r = new BufferedReader( new FileReader( intronGFF ) );
+	public static HashMap<String, int[][][]>[] readIntrons( int threshold, Protocol protocol, boolean verbose, HashMap<String, String> seqs, String... intronGFF ) throws IOException {
 		HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
 		ArrayList<int[]>[] h;
 		
 		String[] donor = null;
 		String acceptor = null;
 		String line;
-		while( (line=r.readLine()) != null ) {
-			if( line.charAt(0) != '#' ) {
-				String[] split = line.split( "\t" );
-				int reads;
-				try {
-					reads = Integer.parseInt(split[5]);
-				} catch( NumberFormatException nfe ) {
-					if( verbose ) {
-						protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line  + "\n");
-					}
-					reads = threshold;
-				}
-				if( reads >= threshold ) {
-					h = spliceHash.get(split[0]);
-					if( h == null ) {
-						h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
-						spliceHash.put( split[0], h );
-					}
-					/*
-					int idx= split[6].charAt(0)=='+'?0:1;
-					
-					//donor = first element, acceptor = second
-					h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
-					*/
-					char c = split[6].charAt(0);
-					int a=Integer.parseInt(split[3]);
-					int b =Integer.parseInt(split[4]);
-					
-					if( c=='.' ) {
-						//try to identify on which strand the intron is located
-						if( donor == null ) {
-							donor = new String[]{Tools.rc(DONOR[0]),Tools.rc(DONOR[1])};
-							acceptor = Tools.rc(ACCEPTOR);
+		BufferedReader r;
+		for( String file : intronGFF ) {
+			System.out.println(file);
+			r = new BufferedReader( new FileReader( file ) );
+			while( (line=r.readLine()) != null ) {
+				if( line.charAt(0) != '#' ) {
+					String[] split = line.split( "\t" );
+					int reads;
+					try {
+						reads = Integer.parseInt(split[5]);
+					} catch( NumberFormatException nfe ) {
+						if( verbose ) {
+							protocol.appendWarning("Could not parse number of reads. Set " +threshold + ": " + line  + "\n");
 						}
-						String s = seqs.get(split[0]);
-						String x = s.substring(a-1,a+1);
-						String y = s.substring(b-3,b-1);
-						boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
-						boolean bwd =  (y.equals(donor[0]) || y.equals(donor[1])) && x.equals(acceptor);
-						if( fwd && !bwd ) {
-							c='+';
-						} else if( bwd && !fwd ) {
-							c='-';
+						reads = threshold;
+					}
+					if( reads >= threshold ) {
+						h = spliceHash.get(split[0]);
+						if( h == null ) {
+							h = new ArrayList[]{ new ArrayList<int[]>(), new ArrayList<int[]>() };
+							spliceHash.put( split[0], h );
 						}
-						//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
-					}
-					
-					if( c =='+' || c=='.' ) {
-						h[0].add( new int[]{a, b, reads} );
-					}
-					if( c =='-' || c=='.' ) {
-						h[1].add( new int[]{b, a, reads} );
+						/*
+						int idx= split[6].charAt(0)=='+'?0:1;
+						
+						//donor = first element, acceptor = second
+						h[idx].add( new int[]{Integer.parseInt(split[3+idx]), Integer.parseInt(split[4-idx])} );
+						*/
+						char c = split[6].charAt(0);
+						int a=Integer.parseInt(split[3]);
+						int b =Integer.parseInt(split[4]);
+						
+						if( c=='.' ) {
+							//try to identify on which strand the intron is located
+							if( donor == null ) {
+								donor = new String[]{Tools.rc(DONOR[0]),Tools.rc(DONOR[1])};
+								acceptor = Tools.rc(ACCEPTOR);
+							}
+							String s = seqs.get(split[0]);
+							String x = s.substring(a-1,a+1);
+							String y = s.substring(b-3,b-1);
+							boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
+							boolean bwd =  (y.equals(donor[0]) || y.equals(donor[1])) && x.equals(acceptor);
+							if( fwd && !bwd ) {
+								c='+';
+							} else if( bwd && !fwd ) {
+								c='-';
+							}
+							//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
+						}
+						
+						if( c =='+' || c=='.' ) {
+							h[0].add( new int[]{a, b, reads} );
+						}
+						if( c =='-' || c=='.' ) {
+							h[1].add( new int[]{b, a, reads} );
+						}
 					}
 				}
 			}
+			r.close();
 		}
-		r.close();
 		
 		//reformat
 		HashMap<String, int[][][]> donorSites = new HashMap<String, int[][][]>();
 		HashMap<String, int[][][]> acceptorSites = new HashMap<String, int[][][]>();
 		
 		Entry<String, ArrayList<int[]>[]> e;
+		int[][][] help;
+		int[] site;
+		Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
+		int num = 0;
+		while( it.hasNext() ) {
+			e = it.next();
+			h = e.getValue();
+			help = new int[2][][];
+			for( int k = 0; k < 2; k++ ) {
+				help[k] = new int[h[k].size()][3];
+				for( int m = 0; m<h[k].size(); m++ ) {
+					site = h[k].get(m);
+					help[k][m][0] = site[0];
+					help[k][m][1] = site[1];
+					help[k][m][2] = site[2];
+				}
+			}
+			//new version 1.3.3
+			int[][][] x = get(help, 1);
+			num += x[0][0].length + x[1][0].length;
+			acceptorSites.put(e.getKey(), x);
+			donorSites.put(e.getKey(), get(help,0));
+		}
+		
+		/*old
 		int[][][] vals, help;
 		int[] site;
 		Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
@@ -391,9 +419,36 @@ public class GeMoMa implements JstacsTool {
 				}
 			}
 			donorSites.put(e.getKey(), vals);
-		}
+		}*/
 		protocol.append("possible introns from RNA-seq (split reads>="+threshold+"): " + num + "\n");
 		return new HashMap[]{donorSites, acceptorSites};
+	}
+	
+	private static int[][][] get( int[][][] help, int idx ) {
+		int[][][] vals = new int[2][][];
+		for( int k = 0; k < vals.length; k++ ) {
+			Arrays.sort(help[k], IntArrayComparator.comparator[idx]);
+			int N=0;			
+			for( int m = 0; m<help[k].length; m++ ) {
+				if( m > 0 && help[k][m][0] == help[k][m-1][0] && help[k][m][1] == help[k][m-1][1] ) {
+					//nothing
+				} else {
+					N++;
+				}
+			}
+			vals[k] = new int[3][N];
+			for( int m = 0, n=-1; m<help[k].length; m++ ) {
+				if( m > 0 && help[k][m][0] == help[k][m-1][0] && help[k][m][1] == help[k][m-1][1] ) {
+					vals[k][2][n] += help[k][m][2];
+				} else {
+					n++;
+					vals[k][0][n] = help[k][m][0];
+					vals[k][1][n] = help[k][m][1];
+					vals[k][2][n] = help[k][m][2];
+				}
+			}
+		}
+		return vals;
 	}
 	
 	@Override
@@ -458,9 +513,13 @@ public class GeMoMa implements JstacsTool {
 			progress.setLast(selected.size());
 		}
 		
-		p = parameters.getParameterForName("introns"); 
-		if( p!= null && p.isSet() ) {
-			HashMap<String, int[][][]>[] res = readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), p.getValue().toString(), protocol, verbose, seqs );
+		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue(); 
+		if( eps.getNumberOfParameters()>0 ) {
+			String[] fName = new String[eps.getNumberOfParameters()];
+			for( int i = 0; i < fName.length; i++ ) {
+				fName[i] = ((ParameterSet)eps.getParameterAt(i).getValue()).getParameterAt(0).getValue().toString();
+			}
+			HashMap<String, int[][][]>[] res = readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, verbose, seqs, fName );
 			donorSites = res[0];
 			acceptorSites = res[1];
 			sp = (Boolean) parameters.getParameterForName("splice").getValue();
@@ -471,10 +530,13 @@ public class GeMoMa implements JstacsTool {
 		coverage = new HashMap[2];
 		SimpleParameterSet sps = (SimpleParameterSet) parameters.getParameterForName("coverage").getValue();
 		if( sps.getNumberOfParameters() == 2 ) {
-			readCoverage(0, sps.getParameterForName("coverage_forward"), protocol, verbose);
-			readCoverage(1, sps.getParameterForName("coverage_reverse"), protocol, verbose);
+			coverage[0] = new HashMap<String, int[][]>();
+			readCoverage(coverage[0],sps.getParameterForName("coverage_forward"), protocol, verbose);
+			coverage[1] = new HashMap<String, int[][]>();
+			readCoverage(coverage[1],sps.getParameterForName("coverage_reverse"), protocol, verbose);
 		} else if( sps.getNumberOfParameters() == 1 ) {
-			readCoverage(0, sps.getParameterForName("coverage_unstranded"), protocol, verbose);
+			coverage[0] = new HashMap<String, int[][]>();
+			readCoverage(coverage[0], sps.getParameterForName("coverage_unstranded"), protocol, verbose);
 			coverage[1] = coverage[0];
 		} else {
 			coverage = null;
@@ -596,18 +658,23 @@ public class GeMoMa implements JstacsTool {
 		 * The default instances
 		 */
 		static IntArrayComparator[] comparator = {
-				new IntArrayComparator(0),
-				new IntArrayComparator(1)
+				new IntArrayComparator(0,1),
+				new IntArrayComparator(1,0),
+				new IntArrayComparator(0)
 		};
 		
-		private int idx;
+		private int[] idx;
 		
-		private IntArrayComparator( int idx ) {
+		private IntArrayComparator( int... idx ) {
 			this.idx = idx;
 		}
 		
 		public int compare( int[] o1, int[] o2) {
-			return Integer.compare( o1[idx], o2[idx] );
+			int res=0, i = 0;
+			while( i < idx.length && (res=Integer.compare(o1[idx[i]], o2[idx[i]])) == 0 ) {
+				i++;
+			}
+			return res;
 		}	
 	}
 	
@@ -3868,7 +3935,7 @@ public class GeMoMa implements JstacsTool {
 						int l = end-start+1;
 						int covered = 0, min = Integer.MAX_VALUE;
 						if( cov != null ) {
-							int idx = Arrays.binarySearch(cov, new int[]{start}, CovComparator.def );
+							int idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
 							if( idx < 0 ) {
 								idx = -(idx+1);
 								idx = Math.max(0, idx-1);
@@ -3953,7 +4020,7 @@ public class GeMoMa implements JstacsTool {
 				int l = end-start+1;
 				int covered = 0, min = Integer.MAX_VALUE;
 				if( cov != null ) {
-					int idx = Arrays.binarySearch(cov, new int[]{start}, CovComparator.def );
+					int idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
 					if( idx < 0 ) {
 						idx = -(idx+1);
 						idx = Math.max(0, idx-1);
@@ -4107,7 +4174,9 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
-					new FileParameter( "introns", "Introns (GFF), which might be obtained from RNAseq", "gff", false ),
+					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(	
+							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
+						), "introns", "", 0 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
 					
@@ -4129,10 +4198,6 @@ public class GeMoMa implements JstacsTool {
 							},  "coverage", "experimental coverage (RNAseq)", true
 					),
 					
-					/*splice site models
-					new FileParameter( "classifier donor", "The path to the donor splice site classifier (XML)", "xml", false ),
-					new FileParameter( "classifier acceptor", "The path to the donor splice site classifier (XML)", "xml", false ),					
-					/**/
 					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
 					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false ),
@@ -4203,16 +4268,5 @@ public class GeMoMa implements JstacsTool {
 				new ResultEntry(TextResult.class, "gff", "predicted annotation"),
 				new ResultEntry(TextResult.class, "fasta", "predicted protein")
 		};
-	}
-	
-	private static class CovComparator implements Comparator<int[]> {
-
-		static CovComparator def = new CovComparator();
-		
-		@Override
-		public int compare(int[] o1, int[] o2) {
-			return Integer.compare(o1[0], o2[0]);
-		}
-		
 	}
 }
