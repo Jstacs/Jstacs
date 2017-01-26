@@ -126,7 +126,7 @@ public class Extractor implements JstacsTool {
 		getOut( ((Boolean)parameters.getParameterForName(name[2]).getValue()) ? name[2] : null, file, out );
 		getOut( ((Boolean)parameters.getParameterForName(name[3]).getValue()) ? name[3] : null, file, out );
 	
-		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tmicro-exons" );
+		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tsmallest exon" );
 		
 		//read genome contig by contig
 		r = new BufferedReader( new FileReader( parameters.getParameterForName("genome").getValue().toString() ) );
@@ -219,6 +219,23 @@ public class Extractor implements JstacsTool {
 
 	private static String par = "Parent=";
 	
+	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String c, String strand, String geneID, String transcriptID ) {
+		HashMap<String,Gene> chr = annot.get(c);
+		if( chr == null ) {
+			chr = new HashMap<String,Gene>();
+			annot.put(c, chr);
+		}
+		
+		Gene gene = chr.get(geneID);			
+		if( gene == null ) {
+			gene = new Gene(geneID,strand);
+			chr.put(geneID, gene);
+			
+		}
+		gene.add( transcriptID );
+		trans.put(transcriptID, gene);
+	}
+	
 	//gff has to be sorted 
 	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
@@ -232,22 +249,46 @@ public class Extractor implements JstacsTool {
 		//read transcripts
 		r = new BufferedReader( new FileReader(input) );
 		HashMap<String, Gene> trans = new HashMap<String, Gene>();
-		ArrayList<String> cds = new ArrayList<String>();
+		ArrayList<String[]> cds = new ArrayList<String[]>();
 		while( (line=r.readLine()) != null ) {
 			if( line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
 			if( line.length() == 0 || line.startsWith("#") ) continue; 
+			
+			split = line.split("\t");
+			/*
 			idx = line.indexOf('\t')+1;
 			idx = line.indexOf('\t',idx)+1;
 			end = line.indexOf('\t',idx); 
 			
 			t = line.substring(idx,end);
 			switch( t ) {
+			*/
+			switch( split[2] ) {
 				case "CDS":
-					cds.add(line);
+					boolean add=true;
+					if( split[8].indexOf(par)<0 ) {//new version 1.3.3
+						idx = split[8].indexOf("ID=");
+						if( idx>= 0 ) {
+							split[8] = split[8].replace("ID=", par);
+							
+							idx = split[8].indexOf(par) + par.length();
+							h = split[8].indexOf(';',idx);
+							
+							String transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
+							String geneID = transcriptID+".gene";
+							
+							//System.out.println(Arrays.toString(split));
+							
+							add(trans, annot, split[0], split[6], geneID, transcriptID);
+						} else {
+							add=false;
+						}
+					}
+					if( add ) {
+						cds.add(split);
+					}
 					break;
 				case "mRNA": case "transcript":
-					split = line.split("\t");
-					
 					idx = split[8].indexOf("ID=")+3;
 					h = split[8].indexOf(';',idx);
 					String transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
@@ -262,20 +303,7 @@ public class Extractor implements JstacsTool {
 							protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
 						}
 						
-						chr = annot.get(split[0]);
-						if( chr == null ) {
-							chr = new HashMap<String,Gene>();
-							annot.put(split[0], chr);
-						}
-						
-						gene = chr.get(geneID);			
-						if( gene == null ) {
-							gene = new Gene(geneID,split[6]);
-							chr.put(geneID, gene);
-							
-						}
-						gene.add( transcriptID );
-						trans.put(transcriptID, gene);
+						add(trans, annot, split[0], split[6], geneID, transcriptID);
 					}
 					break;
 			}
@@ -284,8 +312,8 @@ public class Extractor implements JstacsTool {
 		
 		//read cds
 		for( int i = 0 ; i < cds.size(); i++ ) {
-			line = cds.get(i);
-			split = line.split("\t");
+			split = cds.get(i);
+			//split = line.split("\t");
 				
 			idx = split[8].indexOf(par)+par.length();
 			h = split[8].indexOf(';',idx);

@@ -110,8 +110,8 @@ public class GeMoMaJUnitTest {
 						e );
 			} else {
 				throw new AssertionError(name + ": The files differ in line "+ l+"."
-						+ "\nFile 1("+f1.getAbsolutePath()+"): " + (l1==null?"[EOF]":l1) 
-						+ "\nFile 2("+f2.getAbsolutePath()+"): " + (l2==null?"[EOF]":l2) );
+						+ "\nFile 1: "+f1.getAbsolutePath()+"\nContent: " + (l1==null?"[EOF]":l1) 
+						+ "\nFile 2: "+f2.getAbsolutePath()+"\nContent: " + (l2==null?"[EOF]":l2) );
 			}
 		} finally {
 			if( r1 != null ) {
@@ -132,14 +132,17 @@ public class GeMoMaJUnitTest {
 		}
 	}
 	
-	void set( ParameterSet ps, int idx, String value ) throws IllegalValueException {
+	void set( ParameterSet ps, int idx, int i, String value ) throws IllegalValueException, CloneNotSupportedException {
 		ParameterSetContainer psc = (ParameterSetContainer) ps.getParameterAt(idx);
 		ExpandableParameterSet eps = (ExpandableParameterSet) psc.getValue();
-		SimpleParameterSet sps = (SimpleParameterSet) ((ParameterSetContainer) eps.getParameterAt(0)).getValue();
+		while( i >= eps.getNumberOfParameters() ) {
+			eps.addParameterToSet();
+		}
+		SimpleParameterSet sps = (SimpleParameterSet) ((ParameterSetContainer) eps.getParameterAt(i)).getValue();
 		sps.getParameterAt(0).setValue(in + value);
 	}
 	
-	@Test
+	//@Test
 	public void testExtractor() throws Exception {
 		Extractor e = new Extractor(-1);
 		
@@ -162,14 +165,14 @@ public class GeMoMaJUnitTest {
 		assertFile("proteins", "proteins.fasta", rs[0] );
 	}
 	
-	@Test
+	//@Test
 	public void testERE() throws Exception {
 		ExtractRNAseqEvidence e = new ExtractRNAseqEvidence();
 		
 		//parameters
 		ParameterSet ps = e.getToolParameters();
 		ps.getParameterForName("Stranded").setValue( Stranded.FR_UNSTRANDED );
-		set( ps, 1, "RNAseq.bam");
+		set( ps, 1, 0, "RNAseq.bam");
 		ps.getParameterForName("coverage output").setValue( true );
 
 		//get results
@@ -194,7 +197,10 @@ public class GeMoMaJUnitTest {
 		ps.getParameterForName("assignment").setValue( in + "assignment.tabular");
 		ps.getParameterForName("cds parts").setValue( in + "cds-parts.fasta");
 		ps.getParameterForName("query proteins").setValue( in + "proteins.fasta");
-		ps.getParameterForName("introns").setValue( in + "at-introns.gff");
+		//ps.getParameterForName("introns").setValue( in + "at-introns.gff");
+		//set( ps, 4, 0, "at-introns.gff");
+		set( ps, 4, 0, "at-introns-1.gff");
+		set( ps, 4, 1, "at-introns-2.gff");
 		SelectionParameter sp = (SelectionParameter) ps.getParameterForName("coverage");
 		sp.setValue("UNSTRANDED");
 		((SimpleParameterSet) sp.getValue()).getParameterAt(0).setValue( in + "coverage.bedgraph");
@@ -209,13 +215,13 @@ public class GeMoMaJUnitTest {
 		assertFile("predicted protein", "predicted-protein.fasta", rs[0] );
 	}
 	
-	@Test
+	//@Test
 	public void testGAF() throws Exception {
 		GeMoMaAnnotationFilter e = new GeMoMaAnnotationFilter();
 		
 		//parameters
 		ParameterSet ps = e.getToolParameters();
-		set( ps, 6, "prediction.gff");
+		set( ps, 6, 0, "prediction.gff");
 		
 		//get results
 		ResultSet[] rs = e.run(ps, new SysProtocol(), new ProgressUpdater(), 1).getValue();
