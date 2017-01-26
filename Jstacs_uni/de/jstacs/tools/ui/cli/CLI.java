@@ -363,7 +363,7 @@ public class CLI {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ParameterSet template = null;
 		if( isExp ) {
-			template=(ParameterSet) parameters.getParameterAt(0).getValue();
+			template=(ParameterSet) parameters.getParameterAt(0).getValue(); //Problem if initial size is 0
 			exp++;
 			if( exp > 1 ) {
 				throw new RuntimeException("Nested ExpandableParameterSets not implemented.");//TODO
