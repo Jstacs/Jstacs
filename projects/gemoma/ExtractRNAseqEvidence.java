@@ -479,7 +479,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		long i = 0;
 		while(it.hasNext()){
 			Intron in = it.next();
-			sos.writeln(chrom+"\tsam\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
+			sos.writeln(chrom+"\tRNAseq\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
 			i++;
 		}
 		return i;
