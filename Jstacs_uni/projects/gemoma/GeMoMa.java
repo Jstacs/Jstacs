@@ -236,7 +236,151 @@ public class GeMoMa implements JstacsTool {
 		return f;
 	}
 	
-	private static void readCoverage( HashMap<String, int[][]> coverage, Parameter p, Protocol protocol, boolean verbose ) throws IOException {
+	public static HashMap<String, int[][]> simplify( HashMap<String, ArrayList<int[]>> current ) {
+		Iterator<String> it = current.keySet().iterator();
+		HashMap<String, int[][]> res = new HashMap<String, int[][]>();
+		ArrayList<int[]> list = new ArrayList<int[]>();
+		while( it.hasNext() ) {
+			String key = it.next();
+			int[][] val = current.get(key).toArray(new int[0][]);
+			
+			//sort
+			Arrays.sort(val,GeMoMa.IntArrayComparator.comparator[0]);
+
+			//iterate
+			int i = 0;
+			list.clear();
+			while( i < val.length ) {
+				//find continuous stretch
+				int j = i+1;
+				int max = val[i][1];
+				
+				while( j < val.length && max>=val[j][0] ) {
+					if( max < val[j][1] ) {
+						max = val[j][1];
+					}
+					j++;
+				}
+				
+				if( j-i == 1 ) {
+					//use as given
+					list.add( val[i] );
+				} else {
+					/*
+					System.out.println(key + " =====================================");
+					for( int k=i; k <j; k++ ) {
+						System.out.println(k + "\t" + Arrays.toString(val[k]) );
+					}
+					System.out.println();
+					/**/
+					//combine
+					int second=0;
+					do {
+						int min = max;
+						for( int k = i; k<j; k++ ) {
+							if( val[k][2] > 0 && val[k][0] < min ) {
+								min=val[k][0];
+							}
+						}
+						second = max;
+						for( int k = i; k<j; k++ ) {
+							if( val[k][2] > 0 && val[k][0] > min && val[k][0] < second ) {
+								second=val[k][0]-1;
+							}
+							if( val[k][2] > 0 && val[k][1] < second ) {
+								second=val[k][1];
+							}
+						}
+						int s = 0;
+						for( int k = i; k<j; k++ ) {
+							if( min == val[k][0] && val[k][1] >= second ) {
+								s += val[k][2];
+							}
+						}
+						list.add( new int[]{min,second,s} );
+						//System.out.println(key + "\t" + min + "\t" + second + "\t" + s );
+						for( int k = i; k<j; k++ ) {
+							val[k][0]=min;
+							if( val[k][0]==min && val[k][1]>=second ) {
+								val[k][0]=second+1;
+								if( val[k][0]>val[k][1] ) {
+									val[k][2] = 0;
+								}
+							}
+						}
+					} while( second<max );
+				}				
+				i = j;
+			}
+			
+			//set
+			res.put(key, list.toArray(new int[list.size()][]));
+		}
+		return res;
+	}
+	
+	public static HashMap<String, int[][]> combine( boolean clone,  HashMap<String, ArrayList<int[]>> basis,  HashMap<String, ArrayList<int[]>> add ) {
+		Iterator<String> it = add.keySet().iterator();
+		//System.out.println("~~~~~~~~~~");
+		//System.out.println(basis.size() + "\t" + add.size());
+		while( it.hasNext() ) {
+			String key = it.next();
+			ArrayList<int[]> a = add.get(key);
+			ArrayList<int[]> b = basis.get(key);
+			//System.out.println(key + "\t" +a.size() + "\t" + (b==null?null:b.size()) );
+			if( b==null ) {
+				b = new ArrayList<int[]>();
+				basis.put(key, b);
+			}
+			//add
+			if( clone ) {
+				for( int i = 0; i < a.size(); i++ ) {
+					b.add(a.get(i).clone());
+				}
+			} else {
+				b.addAll(a);
+			}
+			//System.out.println("=>" + b.size() );
+		}
+		return simplify( basis );
+	}
+	
+	public static HashMap<String, int[][]>[] readCoverage( ExpandableParameterSet eps, Protocol protocol ) throws IOException {
+		HashMap<String, ArrayList<int[]>>[] initialCoverage = new HashMap[3];
+		for( int i = 0; i < initialCoverage.length; i++ ) {
+			initialCoverage[i] = new HashMap<String, ArrayList<int[]>>();
+		}
+		int anz = 0, u = 0;
+		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
+			anz++;
+			SimpleParameterSet sps = (SimpleParameterSet) eps.getParameterAt(i).getValue();
+			sps = (SimpleParameterSet) sps.getParameterAt(0).getValue();
+			if( sps.getNumberOfParameters() == 2 ) {
+				readCoverage(initialCoverage[0],sps.getParameterForName("coverage_forward"), protocol, false);
+				readCoverage(initialCoverage[1],sps.getParameterForName("coverage_reverse"), protocol, false);
+			} else if( sps.getNumberOfParameters() == 1 ) {
+				readCoverage(initialCoverage[2], sps.getParameterForName("coverage_unstranded"), protocol, false);
+				u++;
+			} else {
+				anz--;
+			}
+		}
+		HashMap<String, int[][]>[] coverage;
+		if( anz > 0 ) {
+			coverage = new HashMap[2];
+			coverage[0] =  GeMoMa.combine(true, initialCoverage[0], initialCoverage[2] );
+			if( anz == u ) {
+				coverage[1] = coverage[0];
+			} else {
+				coverage[1] =  GeMoMa.combine(false, initialCoverage[1], initialCoverage[2] );
+			}
+		} else {
+			coverage = null;
+		}
+		return coverage;
+	}
+	
+	private static void readCoverage( HashMap<String, ArrayList<int[]>> coverage, Parameter p, Protocol protocol, boolean verbose ) throws IOException {
 		protocol.append("read coverage file: " + p.getName() + "\n");
 		BufferedReader r = new BufferedReader( new FileReader( p.getValue().toString() ) );
 		int threshold = 1;
@@ -244,18 +388,19 @@ public class GeMoMa implements JstacsTool {
 		ArrayList<int[]> list = new ArrayList<int[]>();
 		String line;
 		int i = 0;
+		//TODO add
 		while( (line=r.readLine()) != null ) {
 			if( i==0 && line.startsWith("track type=bedgraph") ) {
 				//ignore
 			} else{
 				String[] split = line.split( "\t" );
 				if( chr == null || !split[0].equals(chr)) {
-					if( chr != null && list.size()>0 ) {
-						//Collections.sort(list, CovComparator.def);
-						coverage.put( chr, list.toArray( new int[0][] ) );
-						list.clear();
-					}
 					chr = split[0];
+					list = coverage.get(chr);
+					if( list==null ) {
+						list = new ArrayList<int[]>();
+						coverage.put( chr, list );
+					}
 				}
 				int reads;
 				try {
@@ -273,10 +418,6 @@ public class GeMoMa implements JstacsTool {
 			i++;
 		}
 		r.close();
-		if( chr != null && list.size()>0 ) {
-			//Collections.sort(list, CovComparator.def);
-			coverage.put( chr, list.toArray( new int[0][] ) );
-		}
 	}
 	
 	public static HashMap<String, int[][][]>[] readIntrons( int threshold, Protocol protocol, boolean verbose, HashMap<String, String> seqs, String... intronGFF ) throws IOException {
@@ -288,7 +429,7 @@ public class GeMoMa implements JstacsTool {
 		String line;
 		BufferedReader r;
 		for( String file : intronGFF ) {
-			System.out.println(file);
+			//System.out.println(file);
 			r = new BufferedReader( new FileReader( file ) );
 			while( (line=r.readLine()) != null ) {
 				if( line.charAt(0) != '#' ) {
@@ -325,6 +466,10 @@ public class GeMoMa implements JstacsTool {
 								acceptor = Tools.rc(ACCEPTOR);
 							}
 							String s = seqs.get(split[0]);
+							if( s == null ) {
+								r.close();
+								throw new IllegalArgumentException("Did not find sequence " + split[0] + " , which should contain an intron");
+							}
 							String x = s.substring(a-1,a+1);
 							String y = s.substring(b-3,b-1);
 							boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
@@ -378,48 +523,6 @@ public class GeMoMa implements JstacsTool {
 			donorSites.put(e.getKey(), get(help,0));
 		}
 		
-		/*old
-		int[][][] vals, help;
-		int[] site;
-		Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
-		int num = 0;
-		while( it.hasNext() ) {
-			e = it.next();
-			h = e.getValue();
-			num += h[0].size() + h[1].size();
-			vals = new int[2][][];
-			help = new int[2][][];
-			for( int k = 0; k < vals.length; k++ ) {
-				help[k] = new int[h[k].size()][3];
-				for( int m = 0; m<h[k].size(); m++ ) {
-					site = h[k].get(m);
-					help[k][m][0] = site[0];
-					help[k][m][1] = site[1];
-					help[k][m][2] = site[2];
-				}
-				
-				Arrays.sort(help[k], IntArrayComparator.comparator[1]);
-				vals[k] = new int[3][h[k].size()];
-				for( int m = 0; m<h[k].size(); m++ ) {
-					vals[k][0][m] = help[k][m][0];
-					vals[k][1][m] = help[k][m][1];
-					vals[k][2][m] = help[k][m][2];
-				}
-			}
-			acceptorSites.put(e.getKey(), vals);
-			
-			vals = new int[2][][];
-			for( int k = 0; k < vals.length; k++ ) {
-				Arrays.sort(help[k], IntArrayComparator.comparator[0]);
-				vals[k] = new int[3][h[k].size()];
-				for( int m = 0; m<h[k].size(); m++ ) {
-					vals[k][0][m] = help[k][m][0];
-					vals[k][1][m] = help[k][m][1];
-					vals[k][2][m] = help[k][m][2];
-				}
-			}
-			donorSites.put(e.getKey(), vals);
-		}*/
 		protocol.append("possible introns from RNA-seq (split reads>="+threshold+"): " + num + "\n");
 		return new HashMap[]{donorSites, acceptorSites};
 	}
@@ -530,17 +633,34 @@ public class GeMoMa implements JstacsTool {
 			acceptorSites = donorSites = null;
 		}
 		
-		coverage = new HashMap[2];
-		SimpleParameterSet sps = (SimpleParameterSet) parameters.getParameterForName("coverage").getValue();
-		if( sps.getNumberOfParameters() == 2 ) {
-			coverage[0] = new HashMap<String, int[][]>();
-			readCoverage(coverage[0],sps.getParameterForName("coverage_forward"), protocol, verbose);
-			coverage[1] = new HashMap<String, int[][]>();
-			readCoverage(coverage[1],sps.getParameterForName("coverage_reverse"), protocol, verbose);
-		} else if( sps.getNumberOfParameters() == 1 ) {
-			coverage[0] = new HashMap<String, int[][]>();
-			readCoverage(coverage[0], sps.getParameterForName("coverage_unstranded"), protocol, verbose);
-			coverage[1] = coverage[0];
+		eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(7)).getValue();
+		HashMap<String, ArrayList<int[]>>[] initialCoverage = new HashMap[3];
+		for( int i = 0; i < initialCoverage.length; i++ ) {
+			initialCoverage[i] = new HashMap<String, ArrayList<int[]>>();
+		}
+		int anz = 0, u = 0;
+		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
+			anz++;
+			SimpleParameterSet sps = (SimpleParameterSet) eps.getParameterAt(i).getValue();
+			sps = (SimpleParameterSet) sps.getParameterAt(0).getValue();
+			if( sps.getNumberOfParameters() == 2 ) {
+				readCoverage(initialCoverage[0],sps.getParameterForName("coverage_forward"), protocol, verbose);
+				readCoverage(initialCoverage[1],sps.getParameterForName("coverage_reverse"), protocol, verbose);
+			} else if( sps.getNumberOfParameters() == 1 ) {
+				readCoverage(initialCoverage[2], sps.getParameterForName("coverage_unstranded"), protocol, verbose);
+				u++;
+			} else {
+				anz--;
+			}
+		}
+		if( anz > 0 ) {
+			coverage = new HashMap[2];
+			coverage[0] = combine(true, initialCoverage[0], initialCoverage[2] );
+			if( anz == u ) {
+				coverage[1] = coverage[0];
+			} else {
+				coverage[1] = combine(false, initialCoverage[1], initialCoverage[2] );
+			}
 		} else {
 			coverage = null;
 		}
@@ -4177,29 +4297,30 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
-					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(	
+					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
 						), "introns", "", 1 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
 					
-					//TODO
-					new SelectionParameter( DataType.PARAMETERSET, 
-							new String[]{"NO", "UNSTRANDED", "STRANDED"},
-							new Object[]{
-								//no coverage
-								new SimpleParameterSet(),
-								//unstranded coverage
-								new SimpleParameterSet(
-										new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
-								),
-								//stranded coverage
-								new SimpleParameterSet(
-										new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-										new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
-								)
-							},  "coverage", "experimental coverage (RNAseq)", true
-					),
+					new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
+						new SelectionParameter( DataType.PARAMETERSET, 
+								new String[]{"NO", "UNSTRANDED", "STRANDED"},
+								new Object[]{
+									//no coverage
+									new SimpleParameterSet(),
+									//unstranded coverage
+									new SimpleParameterSet(
+											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+									),
+									//stranded coverage
+									new SimpleParameterSet(
+											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
+											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+									)
+								},  "coverage file", "experimental coverage (RNAseq)", true
+						)
+					), "coverage", "", 1 ) ),
 					
 					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
 					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
@@ -4239,7 +4360,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.3.2";
+		return "1.3.3";
 	}
 	
 	public String getShortName() {

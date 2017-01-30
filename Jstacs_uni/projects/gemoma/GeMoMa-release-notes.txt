@@ -29,4 +29,7 @@ GeMoMa 1.3.1 (09.12.2016)
 GeMoMa 1.3.2 (18.01.2017)
 - Extractor: new parameter repair for broken transcript annotations
 - GeMoMa: bugfixes (splice site computation)
+GeMoMa 1.3.3 (??.??.2017)
+- Extractor: reading CDS with no parent tag (cf. discontinuous feature)
+- GeMoMa: allowing for multiple intron and coverage files (= using different library types at the same time)
 

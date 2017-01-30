@@ -237,7 +237,7 @@ public class Extractor implements JstacsTool {
 	}
 	
 	//gff has to be sorted 
-	private static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
+	public static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String,Gene> chr;
 		Gene gene = null;
@@ -334,7 +334,7 @@ public class Extractor implements JstacsTool {
 		return annot;
 	}
 	
-	private static class Gene implements Comparable<Gene>{
+	public static class Gene implements Comparable<Gene>{
 		HashMap<String,IntList> transcript;
 		ArrayList<int[]> exon;
 		int start, end;
@@ -969,6 +969,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.3.2";
+		return "1.3.3";
 	}
 }
