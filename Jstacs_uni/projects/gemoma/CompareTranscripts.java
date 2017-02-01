@@ -20,16 +20,27 @@ package projects.gemoma;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.results.ResultSet;
+import de.jstacs.results.TextResult;
+import de.jstacs.tools.JstacsTool;
+import de.jstacs.tools.ProgressUpdater;
+import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 
 
@@ -39,43 +50,24 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen
  */
-public class CompareTranscripts {
-
-	/**
-	 * Just the main.
-	 * 
-	 * @param args
-	 * 0 ... transcript info (query organism)<br/>
-	 * 1 ... transcript info (target organism)<br/>
-	 * 2 ... true annotation (gff)<br/>
-	 * 3 ... predicted annotation (gff)<br/>
-	 * 4 ... alias file for prediction (if not found <code>null</code>)<br/>
-	 * 5 ... output file<br/>
-	 * 
-	 * @throws Exception if something went wrong
-	 */
-	public static void main(String[] args) throws Exception {
-		HashMap<String, String[]> gene = Tools.getAlias(args[0], 1, 0, 2);
-		//System.out.println(gene.toString().substring(0,1000) + "...");
-		HashMap<String, String[]> alias = Tools.getAlias(args[4], 0, 1, -1);
-		System.out.println(alias==null);
-		/*for( int i = 0; i < args.length; i++ ) {
-			System.out.println(i+"\t" + args[i]);
-		}*/
-		HashMap<String,Annotation> discarded = new HashMap<String, Annotation>();
-		HashMap<String,Annotation> truth = readGFF( args[2], "CDS", false, args[1], discarded, true, ";" );
-		HashMap<String,Annotation> prediction;
-		if( alias == null ) {
-			prediction = readGFF( args[3], "CDS", false, null, null, false, ";" );//_R" );//standard
-		} else {
-			prediction = readGFF( args[3], "coding_exon", true, null, null, false, "-R" );//genBlast
-		}
-		System.out.println(truth.size() + " vs. " + prediction.size() );
-		//System.out.println(truth.toString().substring(0,1000) + "...");
-		//System.out.println(prediction.toString().substring(0,1000) + "...");
+public class CompareTranscripts implements JstacsTool {
+	
+	@Override
+	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+		HashMap<String, String[]> gene = Tools.getAlias(parameters.getParameterForName("assignment").getValue().toString(), 1, 0, 2);
 		
-		bestHit(gene, alias==null?"_R":"-R", alias, truth, discarded, prediction, args[5]);
-		System.out.println("problem: " + Arrays.toString(problem));
+		HashMap<String,Annotation> truth = readGFF( parameters.getParameterForName("annotation").getValue().toString(), false );
+		HashMap<String,Annotation> prediction = readGFF( parameters.getParameterForName("prediction").getValue().toString(), true );//standard
+		protocol.append( "truth: " + truth.size()  +"\n");
+		protocol.append( "prediction: " + prediction.size() +"\n" );
+		
+		File f = GeMoMa.createTempFile("CompareTranscript");
+		bestHit(gene, /*TODO*/"_R", null, truth, prediction, f,protocol);
+		protocol.append("problem: " + Arrays.toString(problem));
+
+		return new ToolResult("", "", null, new ResultSet(
+				new TextResult("comparison", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true)
+			), parameters, getToolName(), new Date());
 	}
 	
 	private static int problem[] = new int[2];
@@ -83,8 +75,6 @@ public class CompareTranscripts {
 	private static String par = "Parent=";
 	
 	private static HashMap<String, String> info = new HashMap<String, String>();
-	
-	private static HashMap<String, StringBuffer> trueAnnotation = new HashMap<String, StringBuffer>();
 		
 	/**
 	 * 
@@ -97,100 +87,57 @@ public class CompareTranscripts {
 	 * 
 	 * @throws Exception
 	 */
-	private static HashMap<String,Annotation> readGFF( String input, String type, boolean skip, String selected, HashMap<String,Annotation> discarded, boolean save, String... sep ) throws Exception {
-		BufferedReader r;
+	private static HashMap<String,Annotation> readGFF( String input, boolean information ) throws Exception {
 		String line;
-		
-		
-		HashMap<String,String[]> sel = Tools.getAlias(selected, 1, 1, -1);
-		HashSet<String> del = new HashSet<String>();
-		System.out.println("read " + (selected==null) );
-		
-		HashMap<String,Annotation> hAnnot, annot = new HashMap<String,Annotation>();
+				
+		HashMap<String,Annotation> annot = new HashMap<String,Annotation>();
 		Annotation current;
-		r = new BufferedReader( new FileReader(input) );
+		BufferedReader r = new BufferedReader( new FileReader(input) );
 		while( (line=r.readLine()) != null ) {
-			if( line.length() != 0 && !line.startsWith("#") ) {
-				String[] split = line.split("\t");
-				/*
-				int idx = line.indexOf('\t')+1;
-				idx = line.indexOf('\t',idx)+1;
-				int end = line.indexOf('\t',idx); 
-				String t = line.substring(idx,end);*/
-				if( split[2].equalsIgnoreCase(type) ) {
-					
-					int idx = split[8].indexOf(par)+par.length();
-					int h=split[8].length(), f;
-					for( int i = 0; i < sep.length; i++ ) {
-						f = split[8].indexOf(sep[i],idx);
-						if( f >= 0 ) {
-							h = Math.min(h, f);
-						}
+			if( line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
+			if( line.length() == 0 || line.startsWith("#") ) continue; 
+			
+			String[] split = line.split("\t");
+			/*
+			int idx = line.indexOf('\t')+1;
+			idx = line.indexOf('\t',idx)+1;
+			int end = line.indexOf('\t',idx); 
+			String t = line.substring(idx,end);*/
+			if( split[2].equalsIgnoreCase("CDS") ) {
+				
+				int idx = split[8].indexOf(par);
+				if( idx >= 0 ) {
+					idx+=par.length();
+				} else {
+					idx = split[8].indexOf("ID=");
+					if( idx<0 ) {
+						throw new IllegalArgumentException("correput line: " + line);
 					}
-					//System.out.println(idx + "\t" + h + "\t" + split[8]);
-					if( !skip || h> 0 ) {
-						
-						String[] t = split[8].substring(idx, h).toUpperCase().split(",");
-						for( String transcriptID: t ) {
-							if( sel == null || sel.containsKey(transcriptID) ) {
-								hAnnot = annot;
-							} else if( discarded != null ) {
-								hAnnot = discarded;
-							} else {
-								hAnnot = null;
-							}
-							
-							if( hAnnot != null ) {
-								current = hAnnot.get(transcriptID);
-								if( current == null ) {
-									current = new Annotation( transcriptID, split[0], split[6].trim().charAt(0) == '+');
-									hAnnot.put(transcriptID, current);
-									if( hAnnot == discarded ) {
-										del.add(transcriptID);
-									}
-								}
-								current.add( split[3], split[4] );
-							}
-							
-							StringBuffer sb = trueAnnotation.get(transcriptID);
-							if( sb == null )  {
-								sb = new StringBuffer();
-								trueAnnotation.put(transcriptID, sb);
-							}
-							sb.append(line+"\n");
-						}
-					}
-				} else if( split[2].equalsIgnoreCase("mRNA") ) {
-					int idx = split[8].indexOf("ID=")+3;
-					int h=split[8].indexOf(";",idx);
-					if( h < 0 ) {
-						h = split[8].length();
-					}
-					String id = split[8].substring(idx, h).toUpperCase();
-					
-					StringBuffer sb = trueAnnotation.get(id);
-					if( sb == null )  {
-						sb = new StringBuffer();
-						trueAnnotation.put(id, sb);
-					}
-					sb.append(line+"\n");
-				} else if( split[2].equalsIgnoreCase("prediction") ) {
-					int idx = split[8].indexOf("ID=")+3;
-					int h=split[8].indexOf(";",idx);
-					if( h < 0 ) {
-						h = split[8].length();
-					}
-					String id = split[8].substring(idx, h).toUpperCase();
-					info.put( id, split[8] );
+					idx+=3;
 				}
+				int h = split[8].indexOf(';',idx);
+				String[] t = split[8].substring(idx, h<0?split[8].length():h).toUpperCase().split(",");
+				
+				for( String transcriptID: t ) {
+					current = annot.get(transcriptID);
+					if( current == null ) {
+						current = new Annotation( transcriptID, split[0], split[6].trim().charAt(0) == '+');
+						annot.put(transcriptID, current);
+					}
+					current.add( split[3], split[4] );
+				}
+			} else if( information &&  (split[2].equalsIgnoreCase("mRNA") || split[2].equalsIgnoreCase("prediction") || split[2].equalsIgnoreCase("transcript")) ) {
+				int idx = split[8].indexOf("ID=")+3;
+				int h=split[8].indexOf(";",idx);
+				if( h < 0 ) {
+					h = split[8].length();
+				}
+				String id = split[8].substring(idx, h).toUpperCase();
+				info.put( id, split[8] );
 			}
 		}
 		r.close();
-		
-		if( del.size() > 0 ) {
-			System.out.println(del.size());
-			//System.out.println(del);
-		}		
+			
 		return annot;
 	}
 	
@@ -318,45 +265,35 @@ public class CompareTranscripts {
 	 * @param alias the {@link HashMap} for the alias names or <code>null</code>
 	 * @param truth the true annotation
 	 * @param prediction the predicted annotation
-	 * @param fileName the output file name
+	 * @param file the output file
+	 * @param protocol for writing messages
 	 * 
 	 * @throws IOException if there is any problem with the files
 	 */
-	private static void bestHit( HashMap<String,String[]> gene, String sep, HashMap<String,String[]> alias, HashMap<String,Annotation> truth, HashMap<String,Annotation> discarded, HashMap<String,Annotation> prediction, String fileName ) throws IOException {
+	private static void bestHit( HashMap<String,String[]> gene, String sep, HashMap<String,String[]> alias, HashMap<String,Annotation> truth, HashMap<String,Annotation> prediction, File file, Protocol protocol ) throws IOException {
 		Annotation[] a = new Annotation[truth.size()];
 		truth.values().toArray(a);
 		int[] end = getEnds(a);
 		
-		Annotation[] b = new Annotation[discarded.size()];
-		discarded.values().toArray(b);
-		int[] endDis = getEnds(b);
-				
-		System.out.println(a.length + "\t" + b.length);
-
 		int[] counts = new int[9];
 		int[] bestCounts = new int[9];
 		
 		HashSet<Integer> check = new HashSet<Integer>();
 		IntList best = new IntList();
 
-		HashSet<Integer> checkDis = new HashSet<Integer>();
-		int[] bestCountsDis = new int[6];
-		IntList bestDis = new IntList();
-
 		PseudoAnnotation ps = new PseudoAnnotation();
 		
-		BufferedWriter w = new BufferedWriter( new FileWriter( fileName ) );
+		BufferedWriter w = new BufferedWriter( new FileWriter( file ) );
 		String[] id = { "?", "?"};
 
 		String transcript, predictionID;
 		w.append("#gene\ttranscript\t#exons");//
-		w.append("\tprediction\t# predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
+		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
 		w.newLine();
 		String[] array = prediction.keySet().toArray(new String[0]);
 		Arrays.sort(array);
 		
 		HashSet<String> used = new HashSet<String>();
-		
 		for( int i = 0; i < array.length; i++ ) {
 			predictionID = array[i];
 			int index = predictionID.lastIndexOf(sep);
@@ -374,7 +311,6 @@ public class CompareTranscripts {
 				//find overlapping transcripts
 				Annotation test = prediction.get(predictionID);
 				check.clear();
-				checkDis.clear();
 				if( test == null ) {
 					w.append( "\tNA\tNA\tNA\tNA\tNA" );
 				}
@@ -382,7 +318,7 @@ public class CompareTranscripts {
 					w.append( "\t" + test.cdsParts.size() + "\t" + test.chr + "\t" + (test.forward?"+":"-") + "\t" + test.getMin() + "\t" + test.getMax() );
 					
 					getCandidates(test, ps, a, end, check);
-					getCandidates(test, ps, b, endDis, checkDis);
+					//getCandidates(test, ps, b, endDis, checkDis);
 				}
 				
 				if( check.size()>0 ) {
@@ -394,43 +330,16 @@ public class CompareTranscripts {
 				
 				//select best
 				double x = getBest(test, a, check, counts, bestCounts, best, false );
-				double y = getBest(test, b, checkDis, counts, bestCountsDis, bestDis, false );
+				//double y = getBest(test, b, checkDis, counts, bestCountsDis, bestDis, false );
 				
-				if( best.length() > 0 || bestDis.length() > 0 ) {
-					/*
-					if( test.id.startsWith("AT1G01020")
-							|| (bestCounts[0]+bestCounts[1]) % 3 > 0
-							||  (bestCounts[0]+bestCounts[2]) % 3 > 0) {
-						if( (bestCounts[0]+bestCounts[1]) % 3 > 0 ) {
-							problem[0]++;
-						}
-						if( (bestCounts[0]+bestCounts[2]) % 3 > 0 ) {
-							problem[1]++;
-						}
-						
-						System.out.println(Arrays.toString(bestCounts));
-						System.out.println();
-						System.out.println( (bestCounts[0]+bestCounts[2]) % 3 );
-						System.out.println("prediction:\n"+test.toString(true));
-						System.out.println();
-						System.out.println( (bestCounts[0]+bestCounts[1]) % 3 );
-						System.out.println("truth:\n"+a[best.get(0)].toString(true));
-						System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-						System.exit(1);
-					}/**/
-					
+				if( best.length() > 0 ) {
+
 					double f1;
 					IntList idx;
 					Annotation[] c;
-					if( best.length() > 0 ) {
-						f1 = x;
-						idx = best;
-						c = a;
-					} else {
-						f1 = -100+y;
-						idx = bestDis;
-						c = b;
-					}
+					f1 = x;
+					idx = best;
+					c = a;
 					w.append( "\t" + idx.length() + "\t" + f1);
 					
 					for( int j = 0; j < idx.length(); j++ ) {
@@ -457,21 +366,20 @@ public class CompareTranscripts {
 				w.append("\t"+info.get(predictionID));
 				w.newLine();
 			} else {
-				System.out.println(transcript);
+				protocol.append(transcript+"\n");
 			}
 		}
 		w.close();
 		
+		protocol.append("\n");
 		int count = 0;
-		w = new BufferedWriter( new FileWriter("unused.gff"));
 		for( int i = 0; i < a.length; i++ ) {
 			if( !used.contains( a[i].id ) ) {
 				count++;
-				w.append(trueAnnotation.get(a[i].id));
+				protocol.append(a[i].id+ "\n");
 			}
 		}
-		w.close();
-		System.out.println(count);
+		protocol.append("unused: " + count +"\n\n");
 	}
 	
 	private static int[] getEnds( Annotation[] a ) {
@@ -623,5 +531,53 @@ public class CompareTranscripts {
 		}
 		h.and(b2);
 		return h.cardinality();
+	}
+
+	@Override
+	public ParameterSet getToolParameters() {
+		try{
+			return new SimpleParameterSet(
+					new FileParameter( "prediction", "The predicted annotation", "gff", true ),
+					new FileParameter( "annotation", "The true annotation", "gff", true ),
+					new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false )
+			);
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
+	}
+
+	@Override
+	public String getToolName() {
+		return "CompareTranscripts";
+	}
+
+	@Override
+	public String getToolVersion() {
+		return "1.4";
+	}
+
+	@Override
+	public String getShortName() {
+		return getToolName();
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getHelpText() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResultEntry[] getDefaultResultInfos() {
+		return new ResultEntry[] {
+				new ResultEntry(TextResult.class, "tabular", "comparison")
+		};
 	}
 }

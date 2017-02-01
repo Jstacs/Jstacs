@@ -191,7 +191,11 @@ public class GeMoMa implements JstacsTool {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
 			if( args[0].equalsIgnoreCase("CLI") || args[0].equalsIgnoreCase("wiki") ) {
-				CLI cli = new CLI( "CLI", null, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
+				CLI cli = new CLI( "This jar allows to run all parts of GeneModelMapper (GeMoMa) except the tblastn.\n"
+						+ "For more information, please visit http://www.jstacs.de/index.php/GeMoMa\n"
+						+ "If you have any questions, comments or bugs, please contact jens.keilwagen@julius-kuehn.de\n\n"
+						+ "If you use GeMoMa, please cite:\n Using intron position conservation for homology-based gene prediction.\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89",
+					"CLI", null, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter(), new AnnotationEvidence(), new CompareTranscripts() );
 				if( args[0].equalsIgnoreCase("CLI") ) {
 					String[] part = new String[args.length-1];
 					System.arraycopy(args, 1, part, 0, part.length);
@@ -214,7 +218,7 @@ public class GeMoMa implements JstacsTool {
 					}
 					System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 				}
-				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter() );
+				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter(), new AnnotationEvidence(), new CompareTranscripts() );
 				galaxy.run(args);
 			}
 		}
@@ -230,8 +234,8 @@ public class GeMoMa implements JstacsTool {
 		return in;
 	}
 	
-	private static File createTempFile( String prefix ) throws IOException {
-		File f = File.createTempFile(prefix, "_GeMoMa.temp", new File("."));//default temp directory?
+	public static File createTempFile( String infix ) throws IOException {
+		File f = File.createTempFile("GeMoMa-"+infix + "-", ".temp", new File("."));//default temp directory?
 		f.deleteOnExit();
 		return f;
 	}
@@ -1806,7 +1810,11 @@ public class GeMoMa implements JstacsTool {
 		 */
 		@SuppressWarnings("unchecked")
 		public void compute( String name, HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash ) throws Exception {
-			geneName = name.substring(0,name.length()-1);
+			if( transcriptInfo != null ) {
+				geneName = name.substring(0,name.length()-1);
+			} else {
+				geneName = name;
+			}
 			
 			HashMap<String,int[][]> transcript;
 			int[][] current;
@@ -4185,7 +4193,7 @@ public class GeMoMa implements JstacsTool {
 				
 				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref
 						+ (acceptorSites==null || first?"":(";ae="+ae))
-						+ (cov != null?"":(";pc=" + decFormat.format(covered/(double)l)+";minCov=" + min))
+						+ (cov == null?"":(";pc=" + decFormat.format(covered/(double)l)+";minCov=" + min))
 						+ "\n"
 				);
 				if( !first ) {
@@ -4298,7 +4306,7 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
+							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
 						), "introns", "", 1 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
@@ -4318,7 +4326,7 @@ public class GeMoMa implements JstacsTool {
 											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
 											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
 									)
-								},  "coverage file", "experimental coverage (RNAseq)", true
+								},  "coverage", "experimental coverage (RNAseq)", true
 						)
 					), "coverage", "", 1 ) ),
 					
@@ -4332,11 +4340,11 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.INT, "intron-loss-gain-penalty", "The penalty used for intron loss and gain", true, 25 ),
 			
 					new SimpleParameter( DataType.DOUBLE, "e-value", "The e-value for filtering blast results", true, 1E2 ),
-					new SimpleParameter( DataType.DOUBLE, "contig threshold", "The threshold for evaluating contigs", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
+					new SimpleParameter( DataType.DOUBLE, "contig threshold", "The threshold for evaluating contigs", true, new NumberValidator<Double>(0d, 1d), 0.4 ),
 					new SimpleParameter( DataType.DOUBLE, "region threshold", "The threshold for evaluating regions", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
-					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 1 ), 
+					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 10 ), 
 					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),

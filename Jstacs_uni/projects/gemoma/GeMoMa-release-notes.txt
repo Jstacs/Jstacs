@@ -29,7 +29,15 @@ GeMoMa 1.3.1 (09.12.2016)
 GeMoMa 1.3.2 (18.01.2017)
 - Extractor: new parameter repair for broken transcript annotations
 - GeMoMa: bugfixes (splice site computation)
-GeMoMa 1.3.3 (??.??.2017)
+GeMoMa 1.? (??.??.2017)
+- AnnotationEvidence: new tool computing tie and tpc for given annotation (gff)
+- CompareTranscripts: new tool comparing predicted and given annotation (gff)
 - Extractor: reading CDS with no parent tag (cf. discontinuous feature)
-- GeMoMa: allowing for multiple intron and coverage files (= using different library types at the same time)
+- GeMoMa: 
+	- allowing for multiple intron and coverage files (= using different library types at the same time)
+	- new default values for the parameters: predictions (10 instead of 1) and contig threshold (0.4 instead of 0.9)
+	- bugfix (write pc and minCov if possible for last CDS part in predicted annotation)
+	- bugfix (ref-gene name if no assignment is used)
+- GAF: bugfix (if nothing passes the filter)
+
 
