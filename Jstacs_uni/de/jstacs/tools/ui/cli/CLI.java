@@ -26,6 +26,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
@@ -55,7 +56,7 @@ import de.jstacs.utils.Pair;
  * 
  * If this class is used for a single {@link JstacsTool}, the parameters may be supplied directly using a <code>key=value</code> interface. In case of multiple tools, each specific tool may be addressed by its short name ({@link JstacsTool#getShortName()}).
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  *
  */
 public class CLI {
@@ -132,7 +133,8 @@ public class CLI {
 	private boolean[] configureThreads;
 	
 	private ParameterSet[] toolParameters;
-	private HashMap<Parameter,String>[] keyMap;
+	private HashMap<String,String>[] keyMap;
+	private String description;
 	
 	public CLI(JstacsTool... tools) {
 		this(null,tools);
@@ -148,6 +150,10 @@ public class CLI {
 	}
 	
 	public CLI( String opt, boolean[] configureThreads, JstacsTool... tools) {
+		this(null, opt, configureThreads, tools);
+	}
+	
+	public CLI( String description, String opt, boolean[] configureThreads, JstacsTool... tools) {
 		if(configureThreads == null){
 			this.configureThreads = new boolean[tools.length];
 		}else{
@@ -158,35 +164,37 @@ public class CLI {
 		this.keyMap = new HashMap[tools.length];
 		for(int i=0;i<tools.length;i++){
 			toolParameters[i] = tools[i].getToolParameters();
-			keyMap[i] = new HashMap<Parameter, String>();
+			keyMap[i] = new HashMap<String, String>();
 			addToKeyMap(keyMap[i],toolParameters[i]);
 		}
 		this.opt = opt.trim();
-		if( this.opt.length()>0 ) {
+		if( this.opt.indexOf(' ') >= 0 ) {
+			throw new IllegalArgumentException(opt);
+		} else if( this.opt.length()>0 ) {
 			this.opt = " " +this.opt;
 		}
+		this.description=description;
 	}
 	
 	
 	
 	
-	private void addToKeyMap( HashMap<Parameter, String> hashMap, ParameterSet parameterSet ) {
-		//TODO Jens@Jan: ExpandableParameterSet with initSize=0
+	private static void addToKeyMap( HashMap<String, String> hashMap, ParameterSet parameterSet ) {
 		for(int i=0;i<parameterSet.getNumberOfParameters();i++){
 			Parameter par = parameterSet.getParameterAt( i );
 			if(par.getDatatype() != DataType.PARAMETERSET){
 				String key = getKey(hashMap,par);
-				hashMap.put( par, key );
+				hashMap.put( par.getName(), key );
 			}else{
 				if(par instanceof AbstractSelectionParameter){
 					String key = getKey(hashMap,par);
-					hashMap.put( par, key );
+					hashMap.put( par.getName(), key );
 					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
 					for(int j=0;j<incoll.getNumberOfParameters();j++){
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 						addToKeyMap( hashMap, cont.getValue() );
 					}
-				} else {
+				}else{
 					ParameterSet ps = (ParameterSet)par.getValue();
 					addToKeyMap( hashMap, ps );
 				}
@@ -196,7 +204,7 @@ public class CLI {
 
 
 
-	private String getKey( HashMap<Parameter, String> hashMap, Parameter par ) {
+	private static String getKey( HashMap<String, String> hashMap, Parameter par ) {
 		Collection<String> valueSet2 = hashMap.values();
 		LinkedList<String> valueSet = new LinkedList<String>( valueSet2 );
 		valueSet.add( "outdir" );
@@ -237,8 +245,6 @@ public class CLI {
 		}
 		return -1;
 	}
-
-	
 	
 	/**
 	 * Runs this command line application with the specified arguments in <code>args</code>. This method would typically be called directly from the <code>main</code>
@@ -249,40 +255,34 @@ public class CLI {
 	public void run(String[] args) throws Exception {
 		SysProtocol protocol = new SysProtocol();
 		
-		String jar = "<name>.jar";
-		
-		try{
-			File jarfile = new File(CLI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-			jar = jarfile.getName();
-		}catch(Exception e){ }
-		
 		String outdir = ".";
+		int toolIndex = args.length>0 ? getToolIndex( args[0] ) : -1;
 		
-		if( (args.length == 0 && (tools.length > 1 || !tools[0].getToolParameters().hasDefaultOrIsSet()) ) ||
-				( tools.length > 1 && getToolIndex( args[0] ) < 0 ) ){
-			if(tools.length > 1){
-				System.err.println( "Available tools:\n" );
-				for(int i=0;i<tools.length;i++){
-					System.err.println("\t"+tools[i].getShortName()+" - "+tools[i].getToolName());
-				}
-				System.err.println();
-				System.err.println("Syntax: java -jar "+jar+opt+" <toolname> [<parameter=value> ...]\n");
-				System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+opt+" <toolname> info\n");
-				System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+opt+" <toolname>\n");
-			}else{
-				printToolParameters(0,protocol,outdir,1);//TODO Jens@Jan: replace 1 by threads?
+		if( toolIndex < 0 ){
+			//show summary
+			String jar = "<name>.jar";
+			
+			try{
+				File jarfile = new File(CLI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+				jar = jarfile.getName();
+			}catch(Exception e){ }
+			
+			if( description!=null && description.length()>0) {
+				System.err.println( description + "\n" );
 			}
-			return;
-		}/*else if( ( tools.length == 1 && args.length==0) || args.length == 1){
-			int toolIndex = getToolIndex( args[0] );
-			printToolParameters(toolIndex,protocol,".");
-			System.err.println( "Syntax: java -jar "+jar+" [<parameter=value> ...]" );
-			return;
-		}*/else if(args.length > 1 && args[1].equals( "info" )){
-			int toolIndex = getToolIndex( args[0] );
+			System.err.println( "Available tools:\n" );
+			for(int i=0;i<tools.length;i++){
+				System.err.println("\t"+tools[i].getShortName()+" - "+tools[i].getToolName());
+			}
+			System.err.println();
+			System.err.println("Syntax: java -jar "+jar+opt+" <toolname> [<parameter=value> ...]\n");
+			System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+opt+" <toolname> info\n");
+			System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+opt+" <toolname>\n");
+		} else if(args.length > 1 && args[1].equals( "info" )) {
+			//show info
 			System.err.println("\n"+parse(tools[toolIndex].getHelpText()));
-		}else{
-			int toolIndex = tools.length == 1 ? 0 : getToolIndex( args[0] );
+		} else {
+			//run tool			
 			Pair<String,Integer> pair = setToolParameters(configureThreads[toolIndex], tools.length == 1 ? 0 : 1, toolParameters[toolIndex],keyMap[toolIndex],args, protocol);
 			outdir = pair.getFirstElement();
 			int threads = pair.getSecondElement();
@@ -294,18 +294,12 @@ public class CLI {
 			}else{
 				printToolParameters(toolIndex,protocol,outdir,threads);
 			}
-			
 			protocol.flush();
 			
 			ToolResult results = tools[toolIndex].run( toolParameters[toolIndex], protocol, new ProgressUpdater(), threads );
-			
-		//	ResultSetResult res = new ResultSetResult( "Tool results", "", null, results );
-			
-			ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );
-			
+			ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );	
 			saver.writeOutput( results, new File(outdir) );
-			
-			
+						
 			String prefix = outdir+File.separator+"protocol_" + tools[toolIndex].getShortName();//new
 			File protout = new File( prefix + ".txt");
 			int k=1;
@@ -319,7 +313,7 @@ public class CLI {
 	}
 
 
-	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<Parameter, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
+	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<String, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException {
 		HashMap<String, LinkedList<String>> valueMap = new HashMap<String, LinkedList<String>>();
 		String outdir = ".";
 		int threads = 1;
@@ -347,35 +341,34 @@ public class CLI {
 				valueMap.get(temp[0]).add(temp[1]);
 			}
 		}
+
 		if( newLine ) {
 			protocol.append("\n");
 		}
 		set(parameterSet,hashMap,valueMap,protocol,0);
 		if( valueMap.size() > 0 ) {
-			throw new IllegalValueException("Unknown parameters: "+ valueMap );
+			Iterator<String> it = valueMap.keySet().iterator();
+			HashSet<String> h = new HashSet<String>();
+			h.addAll( hashMap.values() );
+			while( it.hasNext() ) {
+				String k = it.next();
+				if( h.contains(k) ) {
+					throw new IllegalArgumentException( "Parameter "+k+" specified multiple times. Could not use: "+ valueMap.get(k) );
+				}
+			}
+			throw new IllegalArgumentException("Unknown parameters: "+ valueMap );
 		}
 		return new Pair<String, Integer>(outdir, threads);
 	}
 
-	//TODO Jens@Jan: Problem if initial size is 0, work around
-	private static ParameterSet getTemplate( ExpandableParameterSet eps ) throws CloneNotSupportedException {
-		boolean remove = eps.getNumberOfParameters() == 0;
-		if( remove ) {
-			eps.addParameterToSet();
-		}
-		ParameterSet template=(ParameterSet) eps.getParameterAt(0).getValue();
-		if( remove ) {
-			eps.removeParameterFromSet();
-		}
-		return template;
-	}
 
 
-	private void set( ParameterSet parameters, HashMap<Parameter, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
+
+	private void set( ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ParameterSet template = null;
 		if( isExp ) {
-			template= getTemplate( (ExpandableParameterSet) parameters );
+			template=(ParameterSet) parameters.getParameterAt(0).getValue();
 			exp++;
 			if( exp > 1 ) {
 				throw new RuntimeException("Nested ExpandableParameterSets not implemented.");//TODO
@@ -385,12 +378,12 @@ public class CLI {
 		for(int i=0;i<n;i++){
 			Parameter par = (isExp ? template : parameters).getParameterAt( i );
 			if(par.getDatatype() != DataType.PARAMETERSET || par instanceof AbstractSelectionParameter){
-				String key = hashMap.get( par );
-				LinkedList<String> value = valueMap.remove( key );
+				String key = hashMap.get( par.getName() );
+				LinkedList<String> value = valueMap.get( key );
 				
 				if(value != null){
 					if( isExp ) {
-						for(int k=0;k<value.size();k++){
+						for(int k=0;value.size()>0;k++){
 							if(k >= parameters.getNumberOfParameters()){
 								try {
 									((ExpandableParameterSet)parameters).addParameterToSet();
@@ -399,23 +392,27 @@ public class CLI {
 								}
 							}
 							Parameter par2 = ((ParameterSet) parameters.getParameterAt(k).getValue()).getParameterAt(i);
-							par2.setValue(value.get(k));
+							par2.setValue(value.removeFirst());
+							
+							if( par2.getDatatype() == DataType.PARAMETERSET ) {
+								set((ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
+							}
 						}						
 					} else {
-						if(value.size() > 1){
-							protocol.appendWarning("Parameter "+key+" specified multiple times ("+value+"). Using only first value: "+value.getFirst()+".\n");
-						}
-						par.setValue( value.getFirst() );
+						par.setValue( value.removeFirst() );
 						if( par.getDatatype() == DataType.PARAMETERSET ) {
-							set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp);
+							set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 						}
 					}
-				}//TODO from here
-				else if( par.getDatatype() == DataType.PARAMETERSET ) {
-					set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp);
-				}//to here
+				} else if( par.getDatatype() == DataType.PARAMETERSET ) {
+					set((ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+				}
+				
+				if( value != null && value.size() == 0 ) {
+					valueMap.remove(key);
+				}
 			} else {
-				set((ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp);
+				set((ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
 			}
 		}
 	}
@@ -423,62 +420,58 @@ public class CLI {
 
 
 
-	private void print(HashMap<Parameter, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol){
+	private static void print(HashMap<String, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add ){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ExpandableParameterSet exp = null;
 		if( isExp ) {
 			exp = (ExpandableParameterSet) parameters;
-			//parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
+			parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
 			
 			protocol.appendWarning( tabPrefix+"This parameter can be used multiple times:\n" );//TODO
-			int n = exp.getNumberOfParameters();//TODO Jan@Jens: n==0?
+			int n = exp.getNumberOfParameters();
 			for(int k=0;k<n;k++){
 				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
-				for(int j=0;j<ps2.getNumberOfParameters();j++){
-					Parameter par2 = ps2.getParameterAt(j);
-					//if( par2 instanceof ParameterSet ) //TODO
-
-					protocol.appendWarning( tabPrefix+"\t"+keyMap.get( par2 )+ (n>1?" ("+(k+1)+")":"") + " - "+ps2.getParameterAt(j).toString()+"\n" );
-				}
+				print(keyMap, ps2, tabPrefix, protocol, n>1?" ("+(k+1)+")":"" );
 			}
 		} else {		
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
 				Parameter par = parameters.getParameterAt( i );
 				if(par.getDatatype() != DataType.PARAMETERSET){
-					protocol.appendWarning( tabPrefix+keyMap.get( par )+" - "+par.toString()+"\n" );
+					protocol.appendWarning( tabPrefix+keyMap.get( par.getName() )+add+" - "+par.toString()+"\n" );
 				}else{
 					if(par instanceof AbstractSelectionParameter){
-						protocol.appendWarning( tabPrefix+keyMap.get( par )+" - "+par.toString()+"\n" );
+						String k = keyMap.get( par.getName() );
+						protocol.appendWarning( tabPrefix+k+add+" - "+par.toString()+"\n" );
 						ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
-						char[] array = new char[keyMap.get( par ).length()+3];
+						char[] array = new char[k.length()+3];
 						Arrays.fill(array,' ');
 						String off = tabPrefix+(new String(array));
 						for(int j=0;j<incoll.getNumberOfParameters();j++){
 							ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 							if( cont.getValue().getNumberOfParameters()>0 ) {
 								protocol.appendWarning( off+"Parameters for selection \""+cont.getName()+"\":\n" );
-								print(keyMap,cont.getValue(),off+"\t",protocol);
+								print(keyMap,cont.getValue(),off+"\t",protocol,add);
 							} else {
 								protocol.appendWarning( off+"No parameters for selection \""+cont.getName()+"\"\n" );
 							}
 						}
 					} else {
 						ParameterSet ps = (ParameterSet)par.getValue();
-						print(keyMap,ps,tabPrefix+"\t",protocol);
+						print(keyMap,ps,tabPrefix+"\t",protocol,add);
 					}
 				}
 			}
 		}
 	}
 	
-	private void printTable(HashMap<Parameter, String> keyMap, ParameterSet parameters, PrintStream out){
+	private static void printTable(HashMap<String, String> keyMap, ParameterSet parameters, PrintStream out){
 		for(int i=0;i<parameters.getNumberOfParameters();i++){
 			Parameter par = parameters.getParameterAt( i );
 			if(par.getDatatype() == DataType.PARAMETERSET && ! (par instanceof AbstractSelectionParameter) ){
 				ParameterSet ps = (ParameterSet)par.getValue();
 				printTable(keyMap, ps, out);
 			} else {
-				out.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">" + keyMap.get( par )+ "</font></td>\n" );
+				out.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">" + keyMap.get( par.getName() )+ "</font></td>\n" );
 				String s = par.toString();
 				out.append( "<td>"+s.substring(0,s.lastIndexOf(")\t= ")+1) );
 				if( par.getDatatype() != DataType.PARAMETERSET ) {
@@ -489,10 +482,10 @@ public class CLI {
 					for(int j=0;j<incoll.getNumberOfParameters();j++){
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 						if( cont.getValue().getNumberOfParameters()>0 ) {
-							out.append( "Parameters for selection &quot;"+cont.getName()+"&quot;:<br/>\n" );
+							out.append( "<tr><td colspan=3>Parameters for selection &quot;"+cont.getName()+"&quot;:</td></tr>\n" );
 							printTable(keyMap,cont.getValue(),out);
 						} else {
-							out.append( "No parameters for selection &quot;"+cont.getName()+"&quot;<br/>\n" );
+							out.append( "<tr><td colspan=3>No parameters for selection &quot;"+cont.getName()+"&quot;</td></tr>\n" );
 						}
 					}
 					out.append( "</table></td><td></td>\n</tr>\n" );
@@ -504,7 +497,7 @@ public class CLI {
 	private void printToolParameters( int toolIndex, Protocol protocol, String outdir, int threads ) {
 		ParameterSet ps = toolParameters[toolIndex];
 		protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+", version: " + tools[toolIndex].getToolVersion() + "):\n" );
-		print( keyMap[toolIndex], ps, "", protocol );
+		print( keyMap[toolIndex], ps, "", protocol, "" );
 		protocol.appendWarning( "outdir - The output directory, defaults to the current working directory (.)\t= "+outdir+"\n" );
 		if(configureThreads[toolIndex]){
 			protocol.appendWarning( "threads - The number of threads used for the tool, defaults to 1\t= "+threads+"\n" );
