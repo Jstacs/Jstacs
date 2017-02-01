@@ -31,8 +31,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 import de.jstacs.DataType;
 import de.jstacs.parameters.ExpandableParameterSet;
@@ -126,8 +124,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		
 		File out = GeMoMa.createTempFile("GAF-filtered");
 		if( filtered > 0 ) {
+			/*
 			Iterator<Entry<Integer,int[]>> it = counts.entrySet().iterator();
-			/*while( it.hasNext() ) {
+			while( it.hasNext() ) {
 				Entry<Integer,int[]> e = it.next();
 				System.out.println(e.getKey() + "\t" + e.getValue()[0]);
 			}/**/
