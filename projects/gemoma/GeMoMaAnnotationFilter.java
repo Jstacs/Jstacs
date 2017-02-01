@@ -106,7 +106,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		protocol.append( "all: " + pred.size() + "\n" );
 		
 		//initial filter
-		int filtered = 0;
+		int filtered = 0, clustered=0, transcripts=0;
 		HashMap<Integer, int[]> counts = new HashMap<Integer, int[]>();
 		for( int i = pred.size()-1; i >= 0; i-- ){
 			Prediction p = pred.get(i);
@@ -123,47 +123,50 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			c[0]++;
 		}
 		protocol.append( "filtered: " + filtered + "\n" );
-		Iterator<Entry<Integer,int[]>> it = counts.entrySet().iterator();
-		/*while( it.hasNext() ) {
-			Entry<Integer,int[]> e = it.next();
-			System.out.println(e.getKey() + "\t" + e.getValue()[0]);
-		}/**/
 		
-		//sort
-		Collections.sort(pred);
-
-		//cluster predictions and filter them
-		File out = File.createTempFile("filtered_gff", "_GeMoMa.temp", new File("."));
-		out.deleteOnExit(); 
-		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
-		w.append("##gff-version 3");
-		w.newLine();
-		int i = 0, clustered=0, transcripts=0;
-		Prediction next = pred.get(i);
-		while( i < pred.size() ) {
-			current = next;
-			int alt=i, best=i, end = current.end;
-			i++;	
-
-			while( i < pred.size() && (next = pred.get(i)).contigStrand.equals(current.contigStrand)
-					//&& (end-Integer.parseInt(next.split[3])+1d)/(end-start+1d) > 0.1
-					&& end>Integer.parseInt(next.split[3])
-			) {
-				end = Math.max(end,Integer.parseInt(next.split[4]));
-				
-				if( next.score > current.score ) {
-					best = i;
-					current = next;
-				}
-				i++;
-			}
-			//Kalkuel: next=pre.get(i), best = argmax_{j \in [alt,i-1]} pred.get(j).score 
+		File out = GeMoMa.createTempFile("GAF-filtered");
+		if( filtered > 0 ) {
+			Iterator<Entry<Integer,int[]>> it = counts.entrySet().iterator();
+			/*while( it.hasNext() ) {
+				Entry<Integer,int[]> e = it.next();
+				System.out.println(e.getKey() + "\t" + e.getValue()[0]);
+			}/**/
 			
-			int p=create( pred, alt, best, i, w, noTie, tieTh, cbTh, epTh );
-			clustered++;
-			transcripts+=p;
+			//sort
+			Collections.sort(pred);
+	
+			//cluster predictions and filter them
+			
+			BufferedWriter w = new BufferedWriter( new FileWriter(out) );
+			w.append("##gff-version 3");
+			w.newLine();
+			int i = 0;
+			Prediction next = pred.get(i);
+			while( i < pred.size() ) {
+				current = next;
+				int alt=i, best=i, end = current.end;
+				i++;	
+	
+				while( i < pred.size() && (next = pred.get(i)).contigStrand.equals(current.contigStrand)
+						//&& (end-Integer.parseInt(next.split[3])+1d)/(end-start+1d) > 0.1
+						&& end>Integer.parseInt(next.split[3])
+				) {
+					end = Math.max(end,Integer.parseInt(next.split[4]));
+					
+					if( next.score > current.score ) {
+						best = i;
+						current = next;
+					}
+					i++;
+				}
+				//Kalkuel: next=pre.get(i), best = argmax_{j \in [alt,i-1]} pred.get(j).score 
+				
+				int p=create( pred, alt, best, i, w, noTie, tieTh, cbTh, epTh );
+				clustered++;
+				transcripts+=p;
+			}
+			w.close();
 		}
-		w.close();
 				
 		protocol.append( "clustered: " + clustered + "\n" );
 		protocol.append( "transcripts: " + transcripts + "\n" );

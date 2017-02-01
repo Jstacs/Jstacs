@@ -69,7 +69,7 @@ public class Extractor implements JstacsTool {
 	}
 	
 	private static void getOut( String prefix, List<File> file, List<SafeOutputStream> out ) throws IOException {
-		File f = prefix == null ? null : File.createTempFile(prefix,"tmp_GeMoMa");
+		File f = prefix == null ? null : GeMoMa.createTempFile("Extractor-" + prefix);
 		BufferedOutputStream b = (f == null) ? null : new BufferedOutputStream( new FileOutputStream( f ) );
 		file.add(f);
 		out.add(SafeOutputStream.getSafeOutputStream(b));
@@ -162,7 +162,7 @@ public class Extractor implements JstacsTool {
 			if( current != null ) {
 				out.get(i).close();
 				res.add( new TextResult(name[i], "Result", new FileParameter.FileRepresentation(current.getAbsolutePath()), type[i], getToolName(), null, true) );
-				current.deleteOnExit();
+				//current.deleteOnExit();
 			}
 		}
 		

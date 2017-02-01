@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +26,6 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.utils.IntList;
 import projects.gemoma.Extractor.Gene;
 import projects.gemoma.GeMoMa.IntArrayComparator;
@@ -39,11 +36,6 @@ import projects.gemoma.GeMoMa.IntArrayComparator;
  * @author Jens Keilwagen
  */
 public class AnnotationEvidence implements JstacsTool {
-
-	public static void main( String[] args ) throws Exception {
-		CLI cli = new CLI( "CLI", null, new AnnotationEvidence() );
-		cli.run(args);
-	}
 	
 	private HashMap<String, int[][][]> donorSites;
 	private static HashMap<String, int[][]>[] coverage;
@@ -79,8 +71,7 @@ public class AnnotationEvidence implements JstacsTool {
 		String[] chr = seqs.keySet().toArray(new String[seqs.size()]);
 		Arrays.sort(chr);
 		
-		File file = File.createTempFile("tie-", "tabular", new File("."));
-		file.deleteOnExit();
+		File file = GeMoMa.createTempFile("AnnotationEvidence");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
 		for( String c: chr ) {
 			HashMap<String,Gene> current = annotation.get(c);
@@ -123,7 +114,8 @@ public class AnnotationEvidence implements JstacsTool {
 								//TODO?
 								int start = part[1];//t.targetStart;
 								int end = part[2];//t.targetEnd;
-							
+								l += end-start+1;
+								
 								idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
 								if( idx < 0 ) {
 									idx = -(idx+1);
@@ -162,7 +154,12 @@ public class AnnotationEvidence implements JstacsTool {
 						} else {
 							w.append( GeMoMa.decFormat.format( tie/(parts.length()-1d)) );
 						}
-						w.append( "\t" + GeMoMa.decFormat.format(covered/(double)l) );
+						w.append( "\t" );
+						if( coverage ==null ) {
+							w.append( "NA" );
+						} else {
+							w.append( GeMoMa.decFormat.format(covered/(double)l) );
+						}
 						w.newLine();
 					}
 				}

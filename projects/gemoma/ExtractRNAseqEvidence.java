@@ -209,15 +209,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		}
 		
 	}
-	
-	
-	public static void main(String[] args) throws Exception{
-		CLI cli = new CLI(new ExtractRNAseqEvidence());
 		
-		cli.run(args);
-	}
-	
-	
 	@Override
 	public ParameterSet getToolParameters() {
 		
@@ -274,14 +266,10 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		SafeOutputStream sosFwd, sosRev;
 		File outFwd = null, outRev = null;
 		if( coverage ) {
-			outFwd = File.createTempFile("coveragefwd_bedgraph", "_GeMoMa.temp", new File("."));
-			outFwd.deleteOnExit(); 
-		
+			outFwd = GeMoMa.createTempFile("ERE-coveragefwd_bedgraph");
 			sosFwd = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outFwd));
 			
-			outRev = File.createTempFile("coveragerev_bedgraph", "_GeMoMa.temp", new File("."));
-			outRev.deleteOnExit();
-			
+			outRev = GeMoMa.createTempFile("ERE-coveragerev_bedgraph");
 			sosRev = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outRev));
 		} else {
 			sosFwd = SafeOutputStream.getSafeOutputStream(null);
@@ -291,8 +279,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		sosFwd.writeln("track type=bedgraph");
 		sosRev.writeln("track type=bedgraph");
 		
-		File outInt = File.createTempFile("intron_gff", "_GeMoMa.temp", new File("."));
-		outInt.deleteOnExit(); 
+		File outInt = GeMoMa.createTempFile("ERE-intron");
 		SafeOutputStream sosInt = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outInt));	
 		
 		
