@@ -98,11 +98,6 @@ public class CompareTranscripts implements JstacsTool {
 			if( line.length() == 0 || line.startsWith("#") ) continue; 
 			
 			String[] split = line.split("\t");
-			/*
-			int idx = line.indexOf('\t')+1;
-			idx = line.indexOf('\t',idx)+1;
-			int end = line.indexOf('\t',idx); 
-			String t = line.substring(idx,end);*/
 			if( split[2].equalsIgnoreCase("CDS") ) {
 				
 				int idx = split[8].indexOf(par);
@@ -111,7 +106,8 @@ public class CompareTranscripts implements JstacsTool {
 				} else {
 					idx = split[8].indexOf("ID=");
 					if( idx<0 ) {
-						throw new IllegalArgumentException("correput line: " + line);
+						r.close();
+						throw new IllegalArgumentException("corrupt line: " + line);
 					}
 					idx+=3;
 				}
