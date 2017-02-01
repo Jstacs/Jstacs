@@ -36,7 +36,7 @@ import projects.gemoma.Tools.Ambiguity;
  * 
  * @author Jens Keilwagen
  */
-public class GeMoMaJUnitTest {
+public class GeMoMaTest {
 
 //for creating infrastructure, clean up, and nice things
 	@BeforeClass
@@ -61,7 +61,13 @@ public class GeMoMaJUnitTest {
 //own test implementation	
 	static String in = "projects/gemoma/JunitTest/given/";
 
-	void assertFile( String name, String givenName, ResultSet rs ) throws AssertionError, IOException {
+	static void assertFile( String name, String givenName, ResultSet rs ) throws AssertionError, IOException {
+		TextResult tr = (TextResult) (rs.getResultForName(name));
+		FileRepresentation fr = tr.getValue();
+		assertFile(name, in + givenName, fr.getFilename() );
+	}
+	
+	static void assertFile( String name, String givenName, String fName ) throws AssertionError, IOException {	
 		long l = -100;
 		String l1, l2;
 		File f1, f2;
@@ -69,44 +75,36 @@ public class GeMoMaJUnitTest {
 		l1=l2=null;
 		f1=f2=null;
 		r1=r2=null;
-		try { 
-			TextResult tr = (TextResult) (rs.getResultForName(name));
-			FileRepresentation fr = tr.getValue();
-
+		try {
 			//File help = File.createTempFile(name.replaceAll(" ", "_"), ".tmp", new File(in));
 			//FileManager.writeFile(help, fr.getContent() );
-			f1 = new File(in + givenName);
-			f2 = new File(fr.getFilename()); //help
+			f1 = new File(givenName);
+			f2 = new File(fName);
 			
-			if( f1.exists() != f2.exists() ) {
-				throw new AssertionError(name + ": The files differ.\nFile 1: "  + f1 );
-			} else {
-				r1= new BufferedReader( new FileReader(f1) );
-				r2= new BufferedReader( new FileReader(f2) );
-				l=0;
-				while( true ) {
-					l1=r1.readLine();
-					l2=r2.readLine();
-					
-					if( l1==null || l2 == null || !l1.equals(l2) ) {
-						break;
-					}
-					l++;
+			r1= new BufferedReader( new FileReader(f1) );
+			r2= new BufferedReader( new FileReader(f2) );
+			l=0;
+			while( true ) {
+				l1=r1.readLine();
+				l2=r2.readLine();
+				
+				if( l1==null || l2 == null || !l1.equals(l2) ) {
+					break;
 				}
-				r1.close();
-				r2.close();
-				if( l1 == null && l2 == null ) {
-					//okay
-				} else {
-					throw new RuntimeException();
-				}
+				l++;
 			}
-			//help.deleteOnExit();
+			r1.close();
+			r2.close();
+			if( l1 == null && l2 == null ) {
+				//okay
+			} else {
+				throw new RuntimeException();
+			}
 		} catch( Exception e ) {
 			if( l < 0 ) {
 				throw new AssertionError(name + ": The files differ."
 						+ "\nFile 1 ("  + f1.getAbsolutePath() + "): " + (f1.exists() ? "exists" : "does not exist")
-						+ "\nFile 1 ("  + f2.getAbsolutePath() + "): " + (f2.exists() ? "exists" : "does not exist"),
+						+ "\nFile 2 ("  + f2.getAbsolutePath() + "): " + (f2.exists() ? "exists" : "does not exist"),
 						e );
 			} else {
 				throw new AssertionError(name + ": The files differ in line "+ l+"."
@@ -125,7 +123,7 @@ public class GeMoMaJUnitTest {
 		//assertTrue( name + ": The files differ!", FileUtils.contentEquals( f1, f2 ));
 	}
 	
-	void assertStructure( ResultSet[] rs, int num, int... len ) {
+	static void assertStructure( ResultSet[] rs, int num, int... len ) {
 		assertTrue( "Different number of ResultSets", rs.length == num );
 		for( int i = 0; i < len.length; i++ ) {
 			assertTrue( "Different number of Results in ResultSet " + i, rs[i].getNumberOfResults() == len[i] );
@@ -142,7 +140,7 @@ public class GeMoMaJUnitTest {
 		sps.getParameterAt(0).setValue(in + value);
 	}
 	
-	//@Test
+	@Test
 	public void testExtractor() throws Exception {
 		Extractor e = new Extractor(-1);
 		
@@ -165,7 +163,7 @@ public class GeMoMaJUnitTest {
 		assertFile("proteins", "proteins.fasta", rs[0] );
 	}
 	
-	//@Test
+	@Test
 	public void testERE() throws Exception {
 		ExtractRNAseqEvidence e = new ExtractRNAseqEvidence();
 		
@@ -181,12 +179,14 @@ public class GeMoMaJUnitTest {
 		//compare that everything is correct
 		assertStructure( rs, 1, 2 );
 		assertFile("coverage", "coverage.bedgraph", rs[0] );
-		assertFile("introns", "at-introns.gff", rs[0] );
+		assertFile("introns", "introns.gff", rs[0] );
 	}
 	
 	@Test
 	public void testGeMoMa() throws Exception {
 		GeMoMa e = new GeMoMa(-1, 3600, 60*60*24*7);
+		
+		boolean simple = false;
 		
 		//parameters
 		ParameterSet ps = e.getToolParameters();
@@ -197,31 +197,50 @@ public class GeMoMaJUnitTest {
 		ps.getParameterForName("assignment").setValue( in + "assignment.tabular");
 		ps.getParameterForName("cds parts").setValue( in + "cds-parts.fasta");
 		ps.getParameterForName("query proteins").setValue( in + "proteins.fasta");
-		//ps.getParameterForName("introns").setValue( in + "at-introns.gff");
-		//set( ps, 4, 0, "at-introns.gff");
-		set( ps, 4, 0, "at-introns-1.gff");
-		set( ps, 4, 1, "at-introns-2.gff");
-		SelectionParameter sp = (SelectionParameter) ps.getParameterForName("coverage");
-		sp.setValue("UNSTRANDED");
-		((SimpleParameterSet) sp.getValue()).getParameterAt(0).setValue( in + "coverage.bedgraph");
+		if( simple ) {
+			set( ps, 4, 0, "at-introns.gff");
+		} else {
+			set( ps, 4, 0, "at-introns-1.gff");
+			set( ps, 4, 1, "at-introns-2.gff");
+		}
+		ExpandableParameterSet eps = (ExpandableParameterSet) ps.getParameterAt(7).getValue();
+		if( simple ) {
+			SimpleParameterSet x = (SimpleParameterSet) ((ParameterSetContainer) eps.getParameterAt(0)).getValue();	
+			SelectionParameter sp = (SelectionParameter) x.getParameterAt(0);
+			sp.setValue("UNSTRANDED");
+			((SimpleParameterSet) sp.getValue()).getParameterAt(0).setValue( in + "coverage.bedgraph");
+		} else {
+			SimpleParameterSet x = (SimpleParameterSet) ((ParameterSetContainer) eps.getParameterAt(0)).getValue();	
+			SelectionParameter sp = (SelectionParameter) x.getParameterAt(0);
+			sp.setValue("UNSTRANDED");
+			((SimpleParameterSet) sp.getValue()).getParameterAt(0).setValue( in + "coverage.bedgraph-0.txt");
+			
+			eps.addParameterToSet();
+			x = (SimpleParameterSet) ((ParameterSetContainer) eps.getParameterAt(1)).getValue();	
+			sp = (SelectionParameter) x.getParameterAt(0);
+			sp.setValue("UNSTRANDED");
+			((SimpleParameterSet) sp.getValue()).getParameterAt(0).setValue( in + "coverage.bedgraph-1.txt");
+		}
 		
+		//only first part
+		//ps.getParameterForName("selected").setValue( in + "selected-first.txt" );
 		
 		//get results
 		ResultSet[] rs = e.run(ps, new SysProtocol(), new ProgressUpdater(), 1).getValue();
 		
 		//compare that everything is correct
 		assertStructure( rs, 1, 2 );
-		assertFile("predicted annotation", "prediction.gff", rs[0] );
-		assertFile("predicted protein", "predicted-protein.fasta", rs[0] );
+		assertFile("predicted annotation", "predicted_annotation.gff", rs[0] );
+		assertFile("predicted protein", "predicted_protein.fasta", rs[0] );
 	}
 	
-	//@Test
+	@Test
 	public void testGAF() throws Exception {
 		GeMoMaAnnotationFilter e = new GeMoMaAnnotationFilter();
 		
 		//parameters
 		ParameterSet ps = e.getToolParameters();
-		set( ps, 6, 0, "prediction.gff");
+		set( ps, 6, 0, "predicted-annotation.gff");
 		
 		//get results
 		ResultSet[] rs = e.run(ps, new SysProtocol(), new ProgressUpdater(), 1).getValue();
