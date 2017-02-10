@@ -73,6 +73,8 @@ public class AnnotationEvidence implements JstacsTool {
 		
 		File file = GeMoMa.createTempFile("AnnotationEvidence");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
+		w.append( "#gene id\tstrand\ttranscript id\t#exons\ttie\ttpc" );
+		w.newLine();
 		for( String c: chr ) {
 			HashMap<String,Gene> current = annotation.get(c);
 			int[][][] sites = donorSites.get(c);
@@ -92,30 +94,30 @@ public class AnnotationEvidence implements JstacsTool {
 						
 						double tie=0;
 						int last=-10;
-						int covered=0, l=0;
-						int[][] donSites = sites[g.strand==1?0:1];
+						int covered=0, l=0, idx;
+						int[][] donSites = sites==null? null : sites[g.strand==1?0:1];
 						for( int j = 0;j < parts.length(); j++ ) {
 							int[] part = g.exon.get(parts.get(j));
 							
 							//tie
-							int v = g.strand==1 ? part[1] : (part[2]+1);
-							int idx = Arrays.binarySearch( donSites[0], last );
-							if( idx >= 0 ) {
-								while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
-									idx++;
-								}
-								if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-									tie++;
+							if( donSites != null ) {
+								int v = g.strand==1 ? part[1] : (part[2]+1);
+								idx = Arrays.binarySearch( donSites[0], last );
+								if( idx >= 0 ) {
+									while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
+										idx++;
+									}
+									if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
+										tie++;
+									}
 								}
 							}
 							
 							//cov
+							int start = part[1];//t.targetStart;
+							int end = part[2];//t.targetEnd;
+							l += end-start+1;
 							if( cov != null ) {
-								//TODO?
-								int start = part[1];//t.targetStart;
-								int end = part[2];//t.targetEnd;
-								l += end-start+1;
-								
 								idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
 								if( idx < 0 ) {
 									idx = -(idx+1);
@@ -212,11 +214,11 @@ public class AnnotationEvidence implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.3.2";
+		return "1.4";
 	}
 	
 	public String getShortName() {
-		return "Annotation evidence";
+		return "AnnotationEvidence";
 	}
 
 	public String getDescription() {
