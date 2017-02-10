@@ -284,7 +284,7 @@ public class CompareTranscripts implements JstacsTool {
 
 		String transcript, predictionID;
 		w.append("#gene\ttranscript\t#exons");//
-		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfected exons,missed exon,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
+		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfect exons,missed exons,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
 		w.newLine();
 		String[] array = prediction.keySet().toArray(new String[0]);
 		Arrays.sort(array);
@@ -342,7 +342,7 @@ public class CompareTranscripts implements JstacsTool {
 						int k = idx.get(j);
 						w.append( (j==0?"\t":";") );
 						compare( test, c[k], counts, true );
-						if( counts[6] < Integer.MAX_VALUE && counts[1]+counts[2] < counts[6] ) {
+						/*if( counts[6] < Integer.MAX_VALUE && counts[1]+counts[2] < counts[6] ) {
 							System.out.println(Arrays.toString(counts));
 							System.out.println( (counts[1]+counts[2]) + " < " + counts[6] );
 							System.out.println();
@@ -456,6 +456,7 @@ public class CompareTranscripts implements JstacsTool {
 			counts[7] = (trueAnnot.forward ? trueRegion.nextSetBit(0) == predictedRegion.nextSetBit(0) : trueRegion.previousSetBit(end-start) == predictedRegion.previousSetBit(end-start)  ) ? 1 : 0;
 			counts[8] = (!trueAnnot.forward ? trueRegion.nextSetBit(0) == predictedRegion.nextSetBit(0) : trueRegion.previousSetBit(end-start) == predictedRegion.previousSetBit(end-start)  ) ? 1 : 0;
 			if( exon ) {
+				//perfect exon
 				for( int i = 0; i < trueAnnot.cdsParts.size(); i++ ) {
 					int[] border = trueAnnot.cdsParts.get(i);
 					int s = border[0]-1, e = border[1]+2;
@@ -467,6 +468,7 @@ public class CompareTranscripts implements JstacsTool {
 					}
 				}
 				
+				//missed exon
 				for( int i = 0; i < trueAnnot.cdsParts.size(); i++ ) {
 					int[] border = trueAnnot.cdsParts.get(i);
 					int p = predictedRegion.nextSetBit(border[0]-start);
@@ -479,8 +481,31 @@ public class CompareTranscripts implements JstacsTool {
 					int[] border = predictedAnnot.cdsParts.get(i);
 					int p = trueRegion.nextSetBit(border[0]-start);
 					if( p==-1 || p > border[1]-start ) {
-						counts[5]++;
+						counts[5]++;//superfluous exon
 					} else {
+						int dist;
+						
+						//left difference
+						if( p > border[0]-start ) {
+							dist= p - (border[0]-start);
+						} else {
+							dist= (border[0]-start) - (trueRegion.previousClearBit(border[0]-start)+1);
+						}
+						if( dist > counts[6] ) {
+							counts[6] = dist;
+						}
+						
+						//right difference
+						p = trueRegion.previousSetBit(border[1]-start);
+						if( p < border[1]-start ) {
+							dist = (border[1]-start)-p;
+						} else {
+							dist= trueRegion.nextClearBit(border[1]-start)-1 - (border[1]-start);
+						}
+						if( dist > counts[6] ) {
+							counts[6] = dist;
+						}
+						/*
 						if( counts[4]==0 ) {
 							int b0 = trueRegion.get(border[0]-start) ? trueRegion.previousClearBit(border[0]-start)+1 : trueRegion.nextSetBit(border[0]-start);
 							int b1 = trueRegion.get(border[1]-start) ? trueRegion.nextClearBit(border[1]-start)-1 : trueRegion.previousSetBit(border[1]-start);
@@ -500,7 +525,7 @@ public class CompareTranscripts implements JstacsTool {
 							}
 						} else {
 							counts[6] = Integer.MAX_VALUE;
-						}
+						}*/
 					}
 				}
 				//System.out.println();
@@ -545,7 +570,7 @@ public class CompareTranscripts implements JstacsTool {
 
 	@Override
 	public String getToolName() {
-		return "CompareTranscripts";
+		return "Compare transcripts";
 	}
 
 	@Override
@@ -555,19 +580,17 @@ public class CompareTranscripts implements JstacsTool {
 
 	@Override
 	public String getShortName() {
-		return getToolName();
+		return "CompareTranscripts";
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return "This tool  helps to compare transcripts from different annotations (e.g. prediction vs. given annotation)";
 	}
 
 	@Override
 	public String getHelpText() {
-		// TODO Auto-generated method stub
-		return null;
+		return "The main measure is the F1 measure. If the F1 measure is 1 both annotations are in perefct agreement for this transcript. The smaller the value is the low is the agreement. If it is NA then there is no overlapping annotation.";
 	}
 
 	@Override

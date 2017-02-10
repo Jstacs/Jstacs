@@ -472,7 +472,7 @@ public class GeMoMa implements JstacsTool {
 							String s = seqs.get(split[0]);
 							if( s == null ) {
 								r.close();
-								throw new IllegalArgumentException("Did not find sequence " + split[0] + " , which should contain an intron");
+								throw new IllegalArgumentException("Did not find sequence " + split[0] + ", which should contain an intron");
 							}
 							String x = s.substring(a-1,a+1);
 							String y = s.substring(b-3,b-1);
@@ -2128,12 +2128,12 @@ public class GeMoMa implements JstacsTool {
 						int anz = best.writeGFF( transcriptName, i, gffHelp );
 						
 						if( acceptorSites != null ) {
-							gff.append( ";tae=" + (best.A==0? "?": decFormat.format(best.a/(double)best.A)) );
+							gff.append( ";tae=" + (best.A==0? "NA": decFormat.format(best.a/(double)best.A)) );
 						}
 						if( donorSites != null ) {
-							gff.append( ";tde=" + (best.D==0? "?": decFormat.format(best.d/(double)best.D)) );
-							gff.append( ";tie=" + (best.I==0? "?": decFormat.format(best.i/(double)best.I)) );
-							gff.append( ";minSplitReads=" + (best.I==0? "?": best.minSplitReads) );
+							gff.append( ";tde=" + (best.D==0? "NA": decFormat.format(best.d/(double)best.D)) );
+							gff.append( ";tie=" + (best.I==0? "NA": decFormat.format(best.i/(double)best.I)) );
+							gff.append( ";minSplitReads=" + (best.I==0? "NA": best.minSplitReads) );
 						}
 						if( coverage != null && coverage[best.forward?0:1] != null ) {
 							gff.append( ";tpc=" + decFormat.format(best.Cov/(double)best.Len) );
@@ -2213,9 +2213,9 @@ public class GeMoMa implements JstacsTool {
 										+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
 										+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + "\t" + maxGap + "\t" + seq.length() + "\t" + pred.length()
 										: "" )
-								+ (acceptorSites == null ? "" : ("\t" + (best.A==0? "?": decFormat.format(best.a/(double)best.A))) )
-								+ (donorSites == null ? "" : ("\t" + (best.D==0? "?": decFormat.format(best.d/(double)best.D))) )
-								+ (donorSites == null ? "" : ("\t" + (best.I==0? "?": decFormat.format(best.i/(double)best.I))) )
+								+ (acceptorSites == null ? "" : ("\t" + (best.A==0? "NA": decFormat.format(best.a/(double)best.A))) )
+								+ (donorSites == null ? "" : ("\t" + (best.D==0? "NA": decFormat.format(best.d/(double)best.D))) )
+								+ (donorSites == null ? "" : ("\t" + (best.I==0? "NA": decFormat.format(best.i/(double)best.I))) )
 								+ (coverage == null ? "" : ("\t" + decFormat.format(best.Cov/(double)best.Len) + "\t" + best.minC))
 								+ "\t" + best.similar(result.peek())
 								+ "\n"
@@ -4101,10 +4101,13 @@ public class GeMoMa implements JstacsTool {
 								//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
 							}
 							
-							Len +=l;
 							Cov +=covered;
-							minC = Math.min(minC, min);
-						}				
+						}
+						Len +=l;
+						if( covered == 0 ) {
+							min=0;
+						}
+						minC = Math.min(minC, min);
 						
 						sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref 
 								+ (acceptorSites==null || first?"":(";ae="+ae))
@@ -4135,6 +4138,8 @@ public class GeMoMa implements JstacsTool {
 								} else {
 									minSplitReads = 0;
 								}
+							} else {
+								minSplitReads = 0;
 							}
 						}
 						parts++;
@@ -4186,10 +4191,13 @@ public class GeMoMa implements JstacsTool {
 						//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
 					}
 					
-					Len +=l;
 					Cov +=covered;
-					minC = Math.min(minC, min);
 				}
+				Len +=l;
+				if( covered == 0 ) {
+					min=0;
+				}
+				minC = Math.min(minC, min);
 				
 				sb.append( id + "\tGeMoMa\tCDS\t" + start + "\t" + end + "\t.\t" + (forward?"+":"-") + "\t" +phase+ "\tID=" +pref+"_cds"+parts+ ";Parent=" + pref
 						+ (acceptorSites==null || first?"":(";ae="+ae))
@@ -4217,6 +4225,8 @@ public class GeMoMa implements JstacsTool {
 						} else {
 							minSplitReads = 0;
 						}
+					} else {
+						minSplitReads = 0;
 					}
 				}
 				parts++;
@@ -4368,7 +4378,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.3.3";
+		return "1.4";
 	}
 	
 	public String getShortName() {
