@@ -37,10 +37,14 @@ import de.jstacs.DataType;
 import de.jstacs.io.FileManager;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.results.Result;
+import de.jstacs.results.ResultSet;
+import de.jstacs.results.TextResult;
 import de.jstacs.results.savers.ResultSaver;
 import de.jstacs.results.savers.ResultSaverLibrary;
 import de.jstacs.tools.JstacsTool;
@@ -297,9 +301,23 @@ public class CLI {
 			protocol.flush();
 			
 			ToolResult results = tools[toolIndex].run( toolParameters[toolIndex], protocol, new ProgressUpdater(), threads );
+			
+			ResultSet[] rs = results.getRawResult();
+			Result[] r = new Result[rs[0].getNumberOfResults()+1];
+			for( int i = 0; i+1 < r.length; i ++ ) {
+				r[i] = rs[0].getResultAt(i);
+			}
+			String n = File.createTempFile("CLI-potocol-", ".txt").getAbsolutePath();
+			FileManager.writeFile(n, protocol.getLog());
+			r[r.length-1] = new TextResult( "protocol " + tools[toolIndex].getShortName(), "Result", new FileRepresentation(n), "txt", tools[toolIndex].getToolName(), null, true );
+			
+			results = new ToolResult(results.getName(), results.getComment(), results.getAnnotation(), 
+				new ResultSet( r ),
+				toolParameters[toolIndex], results.getToolName(), results.getFinishedDate() );
+			
 			ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );	
 			saver.writeOutput( results, new File(outdir) );
-						
+/*
 			String prefix = outdir+File.separator+"protocol_" + tools[toolIndex].getShortName();//new
 			File protout = new File( prefix + ".txt");
 			int k=1;
@@ -309,6 +327,7 @@ public class CLI {
 			}
 			
 			FileManager.writeFile( protout, protocol.getLog() );
+*/
 		}		
 	}
 

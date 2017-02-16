@@ -32,7 +32,7 @@ import de.jstacs.tools.ToolResult;
  * {@link Result#getName()} method, replacing whitespace with underscores. If a file with the corresponding name
  * already exists, a number is appended and the existing file is not overwritten.
  *  
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  *
  */
 public class ResultSetResultSaver implements ResultSaver<ResultSetResult> {
@@ -70,29 +70,55 @@ public class ResultSetResultSaver implements ResultSaver<ResultSetResult> {
 		ResultSet set = result.getRawResult()[0];
 		HashSet<String> names = new HashSet<String>();
 		boolean wroteAll = true;
+		
+		//find names
+		String[] filename = new String[set.getNumberOfResults()];
 		for(int i=0;i<set.getNumberOfResults();i++){
 			Result res = set.getResultAt( i );
 			ResultSaver saver = ResultSaverLibrary.getSaver( res.getClass() );
 			if(saver != null){
-				String filename = res.getName().replaceAll( "[\\s\\:\\/]", "_" );
-				String temp = filename;
-				if(saver.isAtomic()){
-					temp = temp + "." + saver.getFileExtensions( res )[0];
+				filename[i] = res.getName().replaceAll( "[\\s\\:\\/]", "_" );
+				String temp = filename[i] , ext = saver.isAtomic() ?  "." + saver.getFileExtensions( res )[0] : "";
+				int j=0;
+				while( names.contains( temp ) ) {
+					j++;
+					temp = filename[i]+"-"+j+ext;
 				}
-				int j=1;
-				while(names.contains( temp ) || new File(dir.getAbsolutePath()+File.separator+temp).exists()){//TODO correct?
-					temp = filename+"_"+j;
+				filename[i] = filename[i]+(j<=0?"":("-"+j));
+			}
+		}
+		
+		//find suffix j
+		int j = -1, i=0;
+		do {
+			j++;
+			for(i=0;i<set.getNumberOfResults();i++){
+				Result res = set.getResultAt( i );
+				ResultSaver saver = ResultSaverLibrary.getSaver( res.getClass() );
+				if(saver != null){
+					String temp = filename[i] + (j<=0?"":("_"+j));
 					if(saver.isAtomic()){
 						temp = temp + "." + saver.getFileExtensions( res )[0];
 					}
-					j++;
+					
+					if( new File(dir.getAbsolutePath()+File.separator+temp).exists() ){
+						break;
+					}
 				}
-				filename = temp;
-				names.add( filename );
-				
-				
-				wroteAll &= saver.writeOutput( res, new File(dir.getAbsolutePath()+File.separator+filename) );
-				
+			}
+			
+		} while( i < set.getNumberOfResults() );
+
+		//write
+		for(i=0;i<set.getNumberOfResults();i++){
+			Result res = set.getResultAt( i );
+			ResultSaver saver = ResultSaverLibrary.getSaver( res.getClass() );
+			if(saver != null){
+				String temp = filename[i] + (j<=0?"":("_"+j));
+				if(saver.isAtomic()){
+					temp = temp + "." + saver.getFileExtensions( res )[0];
+				}
+				wroteAll &= saver.writeOutput( res, new File(dir.getAbsolutePath()+File.separator+temp) );
 			}
 		}
 		return wroteAll;
