@@ -280,12 +280,14 @@ public class GeMoMa implements JstacsTool {
 					//combine
 					int second=0;
 					do {
+						//get minimal value
 						int min = max;
 						for( int k = i; k<j; k++ ) {
 							if( val[k][2] > 0 && val[k][0] < min ) {
 								min=val[k][0];
 							}
 						}
+						//get smallest value larger than min
 						second = max;
 						for( int k = i; k<j; k++ ) {
 							if( val[k][2] > 0 && val[k][0] > min && val[k][0] < second ) {
@@ -295,6 +297,7 @@ public class GeMoMa implements JstacsTool {
 								second=val[k][1];
 							}
 						}
+						//compute combined coverage
 						int s = 0;
 						for( int k = i; k<j; k++ ) {
 							if( min == val[k][0] && val[k][1] >= second ) {
@@ -302,9 +305,9 @@ public class GeMoMa implements JstacsTool {
 							}
 						}
 						list.add( new int[]{min,second,s} );
+						
 						//System.out.println(key + "\t" + min + "\t" + second + "\t" + s );
 						for( int k = i; k<j; k++ ) {
-							val[k][0]=min;
 							if( val[k][0]==min && val[k][1]>=second ) {
 								val[k][0]=second+1;
 								if( val[k][0]>val[k][1] ) {
@@ -323,7 +326,7 @@ public class GeMoMa implements JstacsTool {
 		return res;
 	}
 	
-	public static HashMap<String, int[][]> combine( boolean clone,  HashMap<String, ArrayList<int[]>> basis,  HashMap<String, ArrayList<int[]>> add ) {
+	public static HashMap<String, int[][]> combine( boolean clone, HashMap<String, ArrayList<int[]>> basis, HashMap<String, ArrayList<int[]>> add ) {
 		Iterator<String> it = add.keySet().iterator();
 		//System.out.println("~~~~~~~~~~");
 		//System.out.println(basis.size() + "\t" + add.size());
@@ -503,7 +506,7 @@ public class GeMoMa implements JstacsTool {
 		HashMap<String, int[][][]> acceptorSites = new HashMap<String, int[][][]>();
 		
 		Entry<String, ArrayList<int[]>[]> e;
-		int[][][] help;
+		int[][][] help; //strand / type(+,-,.) / info(start,end,reads)
 		int[] site;
 		Iterator<Entry<String, ArrayList<int[]>[]>> it = spliceHash.entrySet().iterator();
 		int num = 0;
@@ -521,17 +524,17 @@ public class GeMoMa implements JstacsTool {
 				}
 			}
 			//new version 1.3.3
-			int[][][] x = get(help, 1);
+			int[][][] x = combineIntrons(help, 1);
 			num += x[0][0].length + x[1][0].length;
 			acceptorSites.put(e.getKey(), x);
-			donorSites.put(e.getKey(), get(help,0));
+			donorSites.put(e.getKey(), combineIntrons(help,0));
 		}
 		
 		protocol.append("possible introns from RNA-seq (split reads>="+threshold+"): " + num + "\n");
 		return new HashMap[]{donorSites, acceptorSites};
 	}
 	
-	private static int[][][] get( int[][][] help, int idx ) {
+	private static int[][][] combineIntrons( int[][][] help, int idx ) {
 		int[][][] vals = new int[2][][];
 		for( int k = 0; k < vals.length; k++ ) {
 			Arrays.sort(help[k], IntArrayComparator.comparator[idx]);

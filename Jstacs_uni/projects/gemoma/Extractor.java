@@ -799,7 +799,7 @@ public class Extractor implements JstacsTool {
 				for( j = 0; j < il.length(); j++ ) {
 					sos.write( (j==0?"\t":",") + part.get(il.get(j)).offsetLeft );		
 				}
-				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (part.size()>0?maxIntron:"NA") + "\t" + minExon + "\n" );
+				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (part.size()>1?maxIntron:"NA") + "\t" + minExon + "\n" );
 				for( j = 0; j < il.length(); j++ ) {
 					used[il.get(j)] = true;
 				}
