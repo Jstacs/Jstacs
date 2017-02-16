@@ -37,6 +37,7 @@ public class GeMoMaCLITest {
 	public static void tearDownAfterClass() throws Exception {
 		if( end == start ) {
 			//if successful then delete
+			System.out.println("all tests successful -> delete all files");
 			File dir = new File( out );
 			for(File file: dir.listFiles()) { 
 			        file.delete();
@@ -72,7 +73,7 @@ public class GeMoMaCLITest {
 		end++;
 	}
 	
-	//@Test
+	@Test
 	public void testExtractor() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Extractor");
@@ -92,7 +93,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	//@Test
+	@Test
 	public void testERE() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("ERE");
@@ -108,7 +109,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	//@Test
+	@Test
 	public void testGeMoMa() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMa");
