@@ -22,12 +22,12 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMaCLITest {
 
-	static int counter;
+	static int start, end;
 	
 //for creating infrastructure, clean up, and nice things
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		counter=0;
+		start = end = 0;
 		File dir = new File( out );
 		dir.mkdirs();
 		System.out.println("start: " + new Date());
@@ -35,7 +35,7 @@ public class GeMoMaCLITest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		if( counter == 4 ) {
+		if( end == start ) {
 			//if successful then delete
 			File dir = new File( out );
 			for(File file: dir.listFiles()) { 
@@ -60,6 +60,7 @@ public class GeMoMaCLITest {
 	static String out = "projects/gemoma/JunitTest/results/";
 
 	static void cliCheck( ArrayList<String> args, String[] given, String[] newResults ) throws Exception {
+		start++;
 		assertTrue( "Different number of results", given.length == newResults.length );
 		args.add(0, "CLI");
 		args.add("outdir="+out);
@@ -68,10 +69,10 @@ public class GeMoMaCLITest {
 		for( int i = 0; i < given.length; i++ ) {
 			GeMoMaTest.assertFile( null, in + given[i], out+newResults[i] );
 		}
-		counter++;
+		end++;
 	}
 	
-	@Test
+	//@Test
 	public void testExtractor() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Extractor");
@@ -91,7 +92,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testERE() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("ERE");
@@ -107,12 +108,12 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testGeMoMa() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMa");
 		
-		boolean simple = true;
+		boolean simple = false;
 		//only first part
 		//list.add("selected=" + in + "selected-first.txt" );
 		

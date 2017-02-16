@@ -257,7 +257,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		if( pred>0 ) {
 			//write
-			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + pred + ";complete="+complete+";maxEvidence="+maxEvidence+";maxTie=" + (maxTie<0?"?":maxTie) );
+			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + pred + ";complete="+complete+";maxEvidence="+maxEvidence+";maxTie=" + (maxTie<0?"NA":maxTie) );
 			w.newLine();
 			gene++;
 		}
