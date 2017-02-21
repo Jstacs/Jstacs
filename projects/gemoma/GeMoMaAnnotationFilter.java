@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -46,6 +47,7 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.utils.IntList;
 
 /**
  * This class allows to filter GeMoMa annotation files (GFFs) to obtain the most relevant predictions.
@@ -76,7 +78,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		ArrayList<Prediction> pred = new ArrayList<Prediction>();
 		Prediction current = null;
 
-		//read genes
+		//read genes in GeMoMa gff format!
 		BufferedReader r;
 		MAX = eps.getNumberOfParameters();
 		for( int k = 0; k < MAX; k++ ) {
@@ -103,7 +105,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		protocol.append( "all: " + pred.size() + "\n" );
 		
-		//initial filter
+		//initial filter //TODO if no start, stop, rel score
 		int filtered = 0, clustered=0, transcripts=0;
 		HashMap<Integer, int[]> counts = new HashMap<Integer, int[]>();
 		for( int i = pred.size()-1; i >= 0; i-- ){
@@ -141,9 +143,12 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			w.newLine();
 			int i = 0;
 			Prediction next = pred.get(i);
+			IntList cand = new IntList();
 			while( i < pred.size() ) {
 				current = next;
 				int alt=i, best=i, end = current.end;
+				cand.clear();
+				cand.add(i);
 				i++;	
 	
 				while( i < pred.size() && (next = pred.get(i)).contigStrand.equals(current.contigStrand)
@@ -151,7 +156,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 						&& end>Integer.parseInt(next.split[3])
 				) {
 					end = Math.max(end,Integer.parseInt(next.split[4]));
-					
+					cand.add(i);
 					if( next.score > current.score ) {
 						best = i;
 						current = next;
@@ -160,9 +165,11 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				}
 				//Kalkuel: next=pre.get(i), best = argmax_{j \in [alt,i-1]} pred.get(j).score 
 				
-				int p=create( pred, alt, best, i, w, noTie, tieTh, cbTh, epTh );
+				int p=create( pred, cand, best-alt, w, noTie, tieTh, cbTh, epTh );
 				clustered++;
 				transcripts+=p;
+				
+				transcripts += checkNestedSameStrand(pred, alt, i, w, noTie, tieTh, cbTh, epTh );
 			}
 			w.close();
 		}
@@ -177,21 +184,104 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		return new ToolResult("", "", null, new ResultSet(new TextResult("filtered predictions", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 	
+	static int checkNestedSameStrand( ArrayList<Prediction> list, int start, int end, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
+		IntList used = new IntList(), notUsed = new IntList();
+		int s = Integer.MAX_VALUE, e = 0;
+		for( int i = start; i < end; i++ ) {
+			Prediction p = list.get(i);
+			if( p.start < s ) {
+				s = p.start;
+			}
+			if( p.end > e ) {
+				e = p.end;
+			}
+			if( p.used ) {
+				used.add(i);
+			} else {
+				notUsed.add(i);
+			}
+		}
+		
+		if( used.length() > 0 && notUsed.length()>0 ) {
+			IntList cand = new IntList();
+			int best = -1;
+			for( int n = 0; n < notUsed.length(); n++ ) {
+				Prediction not = list.get(notUsed.get(n));
+				boolean overlap = false;
+				for( int u = 0; u < used.length(); u++ ) {
+					Prediction use = list.get(used.get(u));
+					overlap |= use.overlap(s,e,not);
+				}
+				if( !overlap ) {
+					not.discard=false;
+					if( best < 0 || not.score > list.get(cand.get(best)).score ) {
+						best = cand.length();
+					}
+					cand.add(notUsed.get(n));
+				}
+			}
+			
+			if( cand.length() > 0 ) {
+				return create(list, cand, best, w, noTie, tieTh, cbTh, epTh);
+				/*
+				System.out.println( start +  " ... " + end );
+				System.out.println( s +  ", " + e );
+				double tieU = 0;
+				int naU = 0;
+				for( int u = 0; u < used.length(); u++ ) {
+					Prediction use = list.get(used.get(u));
+					String st = use.hash.get("tie");
+					boolean noInfo = st == null || st.equals("NA");
+					if( noInfo ) {
+						naU++;
+					} else {
+						tieU = Math.max( tieU, Double.parseDouble(st) );
+					}
+					System.out.println(use);
+				}
+				System.out.println();
+				double tie = 0;
+				int na = 0;
+				for( int c = 0; c < cand.length(); c++ ) {
+					Prediction can = list.get(cand.get(c));
+					String st = can.hash.get("tie");
+					boolean noInfo = st == null || st.equals("NA");
+					if( noInfo ) {
+						na++;
+					} else {
+						tie = Math.max( tie, Double.parseDouble(st) );
+					}
+					System.out.println(can);
+				}
+				
+				if( (na>0 || tie == 1) && (na>0 || tieU==1) ) {
+					System.out.println("HIER " + ++h);
+					//System.exit(1);
+				}
+				*/
+			}
+		}
+		return 0;
+	}
+	
+	static int h = 0;
+	
 	static int gene=0, noTie=0, tie1;
 	
-	static int create( ArrayList<Prediction> list, int start, int best, int end, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
-		Prediction current = list.get(best);
+	static int create( ArrayList<Prediction> list, IntList cand, int best, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
+		Prediction current = list.get(cand.get(best));
 		ArrayList<Prediction> used = new ArrayList<Prediction>();
 		used.add( current );
-		current.discard = true;	
+		current.discard = true;
+		current.used=true;
 
 		int count = 0, idx=-1;
-		if( end - start > 1 ) {
-			for( int i = start; i < end; i++ ) {
-				Prediction n = list.get(i);
+		if( cand.length() > 1 ) {
+			for( int i = 0; i < cand.length(); i++ ) {
+				Prediction n = list.get(cand.get(i));
 				if( !n.discard ) {
 					if( n.end < current.start || current.end < n.start ) {//no overlap
-						if( idx<0 || list.get(idx).score<n.score ) {
+						if( idx<0 || list.get(cand.get(idx)).score<n.score ) {
 							idx=i;
 						}
 						count++;
@@ -204,7 +294,8 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 						int j = 0; 
 						if( cb/max == 1d ) { // identical
 							x.addAlternative(n);
-						} else if( cb/min>=cbTh ) {//hinreichende Überlappung, aber keine perfekte überlappung
+							n.used=true;
+						} else if( cb/min>=cbTh ) {//hinreichende Überlappung, aber keine perfekte Überlappung
 							j++;
 							while( j < used.size() ) {
 								x = used.get(j); 
@@ -213,10 +304,12 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 								if( cb/max==1d )  {
 									if( x.score >= n.score  ) {
 										x.addAlternative(n);
+										n.used=true;
 									} else {
 										n.copyAlternatives(x);
 										used.remove(j);
 										used.add(n);
+										n.used=true;
 									}
 									break;
 								}
@@ -263,7 +356,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		if( count>0  ) {
-			pred += create(list, start, idx, end, w, noTie, tieTh, cbTh, epTh);
+			pred += create(list, cand, idx, w, noTie, tieTh, cbTh, epTh);
 		}
 
 		return pred;
@@ -282,7 +375,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	}
 	
 	static class Prediction implements Comparable<Prediction>{
-		boolean discard = false;
+		boolean discard = false, used=false;
 		String[] split;
 		ArrayList<String> cds;
 		HashMap<String,String> hash;
@@ -328,9 +421,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		public int compareTo(Prediction o) {
 			int res = contigStrand.compareTo(o.contigStrand);
 			if( res == 0 ) {
-				res = Integer.compare( Integer.parseInt(split[3]), Integer.parseInt(o.split[3]) );
+				res = Integer.compare( start, o.start );
 				if( res == 0 ) {
-					res = Integer.compare( Integer.parseInt(split[4]), Integer.parseInt(o.split[4]) );
+					res = Integer.compare( end, o.end );
 				}
 			}
 			return res;
@@ -461,6 +554,26 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			}
 			return anz;
 		}
+		
+		BitSet nuc;
+		
+		void fillNuc(int s, int e) {
+			if( nuc == null ) {
+				nuc = new BitSet(e-s+1);
+				for( int i = 0; i < cds.size(); i++ ) {
+					String c = cds.get(i);
+					String[] split = c.split("\t");
+					nuc.set( Integer.parseInt(split[3])-s, Integer.parseInt(split[4])-s );
+				}
+			}
+		}
+		
+		public boolean overlap(int s, int e, Prediction o) {
+			fillNuc(s, e);
+			o.fillNuc(s, e);
+			
+			return nuc.intersects(o.nuc);
+		}		
 	}
 
 
