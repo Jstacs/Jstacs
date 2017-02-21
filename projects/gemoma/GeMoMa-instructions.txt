@@ -1,7 +1,7 @@
 Running GeMoMa:
 ===============
 
-GeMoMa is an abbreviation for "Gene Model Mapper" and implements a homology-based gene predictor that uses the conservation of the exon-intron pattern between different organisms.
+GeMoMa is an abbreviation for "Gene Model Mapper" and implements a homology-based gene predictor that uses the intron position conservation between different organisms.
 
 There are 6 essential steps that are divided into 3 phases. However, if you do not have any RNAseq data you can skip the first phase.
 This guide only provides a rough overview. If your are interested in individual parameters you can call:
@@ -28,8 +28,8 @@ It is possible to run step 3 to 5 with multiple reference organisms.
 
 3)	Extract CDS-parts (and proteins) of the reference organism running: java -jar GeMoMa-<version>.jar CLI Extractor...
 4)	Find homologous parts in the target organism running: tblastn ...
-5)	Find homologous candidate transcripts in the target organism running: GeMoMa-<version>.jar CLI GeMoMa ...
-	Currently, we use p=10 and ct=0.4 instead of the default values.
+5)	Find homologous candidate transcripts in the target organism running: java -jar GeMoMa-<version>.jar CLI GeMoMa ...
+	Since version 1.4, p=10 and ct=0.4 are new default values.
 
 Aggregate and filter predictions:
 ---------------------------------
