@@ -506,6 +506,9 @@ if( key == null ) {
 				}else{
 					if(par instanceof AbstractSelectionParameter){
 						String k = keyMap.get( parKey );
+if( k == null ) {
+	throw new IllegalArgumentException("Could not find a key for parameter: " + par.getName() + "\t" + parKey);
+}
 						protocol.appendWarning( tabPrefix+k+add+" - "+par.toString()+"\n" );
 						ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
 						char[] array = new char[k.length()+3];
