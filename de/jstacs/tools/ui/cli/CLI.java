@@ -171,6 +171,7 @@ public class CLI {
 		for(int i=0;i<tools.length;i++){
 			toolParameters[i] = tools[i].getToolParameters();
 			keyMap[i] = new HashMap<String, String>();
+			//System.out.println(tools[i].getToolName() + "===================================================");
 			addToKeyMap("",keyMap[i],toolParameters[i]);
 		}
 		this.opt = opt.trim();
@@ -186,12 +187,12 @@ public class CLI {
 	
 	
 	private static void addToKeyMap( String pathPrefix, HashMap<String, String> hashMap, ParameterSet parameterSet ) {
-		
+		boolean isExp = parameterSet instanceof ExpandableParameterSet;
 		for(int i=0;i<parameterSet.getNumberOfParameters();i++){
 			Parameter par = parameterSet.getParameterAt( i );
 			
 			String parKey = pathPrefix+":"+par.getName();
-			
+			String add = isExp ? "?" : i + "";
 			if(par.getDatatype() != DataType.PARAMETERSET){
 				String key = hashMap.get(parKey); 
 				if(key == null){	
@@ -216,17 +217,17 @@ public class CLI {
 						HashMap<String,String> copy = (HashMap) copyTemp.clone();
 						
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
-						addToKeyMap( pathPrefix+":"+i+"-"+j, copy, cont.getValue() );
+						addToKeyMap( pathPrefix+":"+add+"-"+j, copy, cont.getValue() );
 						
 						hashMap.putAll(copy);
 						
 					}
 				}else{
 					ParameterSet ps = (ParameterSet)par.getValue();
-					addToKeyMap( pathPrefix+":"+i, hashMap, ps );
+					addToKeyMap( pathPrefix+":"+add, hashMap, ps );
 				}
 			}
-		}		
+		}
 	}
 
 
@@ -253,7 +254,7 @@ public class CLI {
 			return key;
 		}
 		
-		key = parName.replaceAll( "[\\s=]", "" ).toLowerCase();
+		key = parName.replaceAll( "[\\s=]", "" );//TODO .toLowerCase();
 		int k=1;
 		String temp2 = key;
 		while(valueSet.contains( temp2 )){
@@ -429,6 +430,7 @@ public class CLI {
 			if( exp > 1 ) {
 				throw new RuntimeException("Nested ExpandableParameterSets not implemented.");//TODO
 			}
+			pathPrefix += ":?";
 		}
 		int n = (isExp ? template : parameters).getNumberOfParameters();
 		for(int i=0;i<n;i++){
@@ -438,6 +440,9 @@ public class CLI {
 			
 			if(par.getDatatype() != DataType.PARAMETERSET || par instanceof AbstractSelectionParameter){
 				String key = hashMap.get( parKey );
+if( key == null ) {
+	throw new IllegalArgumentException("Could not find a key for parameter: " + par.getName() + "\t" + parKey);
+}
 				LinkedList<String> value = valueMap.get( key );
 				
 				if(value != null){
@@ -454,7 +459,7 @@ public class CLI {
 							par2.setValue(value.removeFirst());
 							
 							if( par2.getDatatype() == DataType.PARAMETERSET ) {
-								set(pathPrefix,(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
+								set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
 							}
 						}						
 					} else {
@@ -490,7 +495,7 @@ public class CLI {
 			int n = exp.getNumberOfParameters();
 			for(int k=0;k<n;k++){
 				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
-				print(pathPrefix, keyMap, ps2, tabPrefix, protocol, n>1?" ("+(k+1)+")":"" );
+				print(pathPrefix+":?", keyMap, ps2, tabPrefix, protocol, n>1?" ("+(k+1)+")":"" );
 			}
 		} else {		
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
