@@ -216,14 +216,14 @@ public class CLI {
 						HashMap<String,String> copy = (HashMap) copyTemp.clone();
 						
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
-						addToKeyMap( pathPrefix+i+j, copy, cont.getValue() );
+						addToKeyMap( pathPrefix+":"+i+"-"+j, copy, cont.getValue() );
 						
 						hashMap.putAll(copy);
 						
 					}
 				}else{
 					ParameterSet ps = (ParameterSet)par.getValue();
-					addToKeyMap( pathPrefix+i, hashMap, ps );
+					addToKeyMap( pathPrefix+":"+i, hashMap, ps );
 				}
 			}
 		}		
@@ -460,18 +460,18 @@ public class CLI {
 					} else {
 						par.setValue( value.removeFirst() );
 						if( par.getDatatype() == DataType.PARAMETERSET ) {
-							set(pathPrefix+i+(par instanceof SelectionParameter ? ((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+							set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 						}
 					}
 				} else if( par.getDatatype() == DataType.PARAMETERSET ) {
-					set(pathPrefix+i+(par instanceof SelectionParameter ? ((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+					set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 				}
 				
 				if( value != null && value.size() == 0 ) {
 					valueMap.remove(key);
 				}
 			} else {
-				set(pathPrefix+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
+				set(pathPrefix+":"+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
 			}
 		}
 	}
@@ -510,14 +510,14 @@ public class CLI {
 							ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 							if( cont.getValue().getNumberOfParameters()>0 ) {
 								protocol.appendWarning( off+"Parameters for selection \""+cont.getName()+"\":\n" );
-								print(pathPrefix+i+j, keyMap,cont.getValue(),off+"\t",protocol,add);
+								print(pathPrefix+":"+i+"-"+j, keyMap,cont.getValue(),off+"\t",protocol,add);
 							} else {
 								protocol.appendWarning( off+"No parameters for selection \""+cont.getName()+"\"\n" );
 							}
 						}
 					} else {
 						ParameterSet ps = (ParameterSet)par.getValue();
-						print(pathPrefix+i,keyMap,ps,tabPrefix+"\t",protocol,add);
+						print(pathPrefix+":"+i,keyMap,ps,tabPrefix+"\t",protocol,add);
 					}
 				}
 			}
