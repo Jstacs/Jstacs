@@ -750,7 +750,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * Sets the current parameters for the class weights and in all scoring functions 
 	 * @param currentParameters
 	 */
-	private void setParameters( double[] currentParameters ) {
+	protected void setParameters( double[] currentParameters ) {
 		this.setClassWeights( false, currentParameters, 0 );
 		for(int i=0;i<scoringFunctions.length;i++){
 			scoringFunctions[i].setParameters( currentParameters, parameterOffsets[i] );
