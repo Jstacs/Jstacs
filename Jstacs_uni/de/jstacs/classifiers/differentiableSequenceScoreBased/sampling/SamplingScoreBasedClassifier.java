@@ -35,7 +35,6 @@ import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.algorithms.optimization.Function;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
-import de.jstacs.classifiers.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
@@ -320,7 +319,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @throws Exception
 	 *             if the function could not be created
 	 */
-	protected abstract DiffSSBasedOptimizableFunction getFunction( DataSet[] data, double[][] weights ) throws Exception;
+	protected abstract Function getFunction( DataSet[] data, double[][] weights ) throws Exception;
 	
 	/**
 	 * Allows for a modification of the value returned by the function
@@ -820,7 +819,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		s = pair.getFirstElement();
 		weights = pair.getSecondElement();
 		init( 1, params.getAdaptVariance(), outfilePrefix );
-		DiffSSBasedOptimizableFunction function = getFunction( s, weights );
+		Function function = getFunction( s, weights );
 		DiffSMSamplingComponent sfsc = getSamplingComponent();
 		sfsc.extendSampling( 0, false );
 		sampleNSteps( function, sfsc, null, numSteps, params.getSamplingScheme() );
@@ -839,7 +838,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		if(burnInTest != null){
 			burnInTest.resetAllValues();
 		}
-		DiffSSBasedOptimizableFunction function = getFunction( s, weights );
+		Function function = getFunction( s, weights );
 		sample( sfsc, function );
 		sfsc.samplingStopped();
 		burnInLength = 0;
