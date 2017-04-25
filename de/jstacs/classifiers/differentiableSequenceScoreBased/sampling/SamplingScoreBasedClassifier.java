@@ -32,15 +32,16 @@ import javax.naming.OperationNotSupportedException;
 import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
+import de.jstacs.algorithms.optimization.Function;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.WrongAlphabetException;
-import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
@@ -496,7 +497,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @throws Exception if either the function could not be evaluated on the current parameters or the 
 	 * 					sampled parameters could not be stored
 	 */
-	protected double sampleNSteps( DiffSSBasedOptimizableFunction function, DiffSMSamplingComponent component, BurnInTest test, int numSteps, SamplingScheme scheme ) throws Exception{
+	protected double sampleNSteps( Function function, DiffSMSamplingComponent component, BurnInTest test, int numSteps, SamplingScheme scheme ) throws Exception{
 		double previousValue, newValue;
 		if(currentScore == Double.NEGATIVE_INFINITY){
 			newValue = modifyFunctionValue( function.evaluateFunction( currentParameters ) );
@@ -526,7 +527,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @param function the objective function
 	 * @throws Exception if the sampling could not be extended, e.g. due to evaluation errors
 	 */
-	protected void sample(DiffSMSamplingComponent sfsc, DiffSSBasedOptimizableFunction function) throws Exception{
+	protected void sample(DiffSMSamplingComponent sfsc, Function function) throws Exception{
 		boolean afterBurnIn = false;
 		int numIterations = 0;
 		int starts = params.getNumberOfStarts(), numberOfTestIterations = params.getNumberOfTestSamplings(), numberOfStationaryIterations = params.getNumberOfStationarySamplings();
@@ -561,7 +562,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * 			of the sampled parameters where accepted
 	 * @throws Exception if the function could not be evaluated or an unknown {@link SamplingScheme} was provided
 	 */
-	protected double doOneSamplingStep(DiffSSBasedOptimizableFunction function, SamplingScheme scheme, double previousValue ) throws Exception{
+	protected double doOneSamplingStep( Function function, SamplingScheme scheme, double previousValue ) throws Exception{
 		double returnValue = Double.NaN;
 		switchPars( 0, currentParameters.length, false );
 		for(int i=0;i<scoringFunctions.length;i++){
@@ -630,7 +631,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @throws DimensionException if the current parameters do not fit the function
 	 * @throws EvaluationException if the function could not be evaluated due to other problems, e.g. infinite values
 	 */
-	private double testParameters(DiffSSBasedOptimizableFunction function, double previousValue) throws DimensionException, EvaluationException{
+	private double testParameters( Function function, double previousValue) throws DimensionException, EvaluationException{
 		double newValue = modifyFunctionValue( function.evaluateFunction( currentParameters ) );
 		//System.out.println(newValue+" "+previousValue+" "+Math.exp(newValue - previousValue));
 		if(Math.log( r.nextDouble() ) < newValue - previousValue){
