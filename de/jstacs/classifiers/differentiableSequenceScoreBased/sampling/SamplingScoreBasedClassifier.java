@@ -165,7 +165,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	/**
 	 * The length of the burn-in phase as determined by {@link SamplingScoreBasedClassifier#burnInTest}
 	 */
-	private Integer burnInLength;
+	protected Integer burnInLength;
 	
 	/**
 	 * The sampling component that handles the (temporary) parameter files.
@@ -531,9 +531,10 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		int numIterations = 0;
 		int starts = params.getNumberOfStarts(), numberOfTestIterations = params.getNumberOfTestSamplings(), numberOfStationaryIterations = params.getNumberOfStationarySamplings();
 		SamplingScheme scheme = params.getSamplingScheme();
+		boolean first = true;
 		while(!afterBurnIn){
 			for(int i=0;i<starts;i++){
-				sfsc.extendSampling( i, true );
+				sfsc.extendSampling( i, !first );
 				burnInTest.setCurrentSamplingIndex( i );
 				sampleNSteps( function, sfsc, burnInTest, numberOfTestIterations, scheme );
 			}
@@ -542,9 +543,10 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 			if(numIterations > burnInLength){
 				afterBurnIn = true;
 			}
+			first=false;
 		}
 		for(int i=0;i<starts;i++){
-			sfsc.extendSampling( i, false );
+			sfsc.extendSampling( i, true );
 			sampleNSteps( function, sfsc, burnInTest, numberOfStationaryIterations-(numIterations-burnInLength), scheme );
 		}
 		
@@ -685,7 +687,6 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		}
 		DiffSMSamplingComponent sfsc = getSamplingComponent();
 		int starts = params.getNumberOfStarts();
-		sfsc.initForSampling( starts );
 		sfsc.samplingStopped();
 		if(burnInLength == null){
 			precomputeBurnInLength( sfsc );
@@ -713,7 +714,6 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		check( s );
 		int starts = params.getNumberOfStarts();
 		DiffSMSamplingComponent sfsc = getSamplingComponent();
-		sfsc.initForSampling( starts );
 		sfsc.samplingStopped();
 		if(burnInLength == null){
 			precomputeBurnInLength( sfsc );
@@ -841,7 +841,6 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		Function function = getFunction( s, weights );
 		sample( sfsc, function );
 		sfsc.samplingStopped();
-		burnInLength = 0;
 		isTrained = true;
 	}
 	
@@ -1099,13 +1098,25 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 			}
 			return true;
 		}
+		
+		//TODO new
+		public int getNumberOfParameterSets( int sampling ) throws Exception {
+			currSampling = sampling;
+			extract = new SparseStringExtractor( outfiles[sampling] );
+			int i=0;
+			while(extract.hasMoreElements() ){
+				extract.nextElement();
+				i++;
+			}
+			return i;
+		}
 
 		@Override
 		public boolean parseParameterSet( int sampling, int n ) throws Exception {
 			currSampling = sampling;
 			extract = new SparseStringExtractor( outfiles[sampling] );
 			int i=0;
-			while(extract.hasMoreElements() && i < n){
+			while(extract.hasMoreElements() && ++i < n){
 				extract.nextElement();
 			}
 			return parseNextParameterSet();
