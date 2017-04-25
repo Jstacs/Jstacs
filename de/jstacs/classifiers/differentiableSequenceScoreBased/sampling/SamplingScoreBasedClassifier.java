@@ -564,63 +564,82 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @throws Exception if the function could not be evaluated or an unknown {@link SamplingScheme} was provided
 	 */
 	protected double doOneSamplingStep( Function function, SamplingScheme scheme, double previousValue ) throws Exception{
-		double returnValue = Double.NaN;
+		double returnValue = Double.NaN, temp;
 		switchPars( 0, currentParameters.length, false );
 		for(int i=0;i<scoringFunctions.length;i++){
 			currentParameters[i] = r.nextGaussian()*samplingSds[i] + previousParameters[i];
 		}
-		if(scheme == SamplingScheme.ALL_PARAMETERS){
-			for(int i=scoringFunctions.length;i<currentParameters.length;i++){
-				currentParameters[i] = r.nextGaussian()*samplingSds[i] + previousParameters[i];
-			}
-			double temp = testParameters( function, previousValue );
-			if(Double.isNaN( temp )){
-				switchPars( 0, currentParameters.length, true );
-			}
-			return temp;
-		}else if(scheme == SamplingScheme.FUNCTION_WISE){
-			double temp = testParameters( function, previousValue );
-			if(!Double.isNaN( temp )){
-				previousValue = temp;
-				returnValue = temp;
-			}
-			switchPars( 0, scoringFunctions.length, Double.isNaN( temp ) );
-			for(int i=0;i<scoringFunctions.length;i++){
-				for(int j=parameterOffsets[i];j<parameterOffsets[i+1];j++){
-					currentParameters[i] = r.nextGaussian()*samplingSds[j] + previousParameters[j];
+		switch( scheme ) {
+			case ALL_PARAMETERS:
+				for(int i=scoringFunctions.length;i<currentParameters.length;i++){
+					currentParameters[i] = r.nextGaussian()*samplingSds[i] + previousParameters[i];
 				}
+				returnValue = testParameters( function, previousValue );
+				if(Double.isNaN( returnValue )){
+					switchPars( 0, currentParameters.length, true );
+				}
+				break;
+			case FUNCTION_WISE:
 				temp = testParameters( function, previousValue );
 				if(!Double.isNaN( temp )){
 					previousValue = temp;
 					returnValue = temp;
 				}
-				switchPars( parameterOffsets[i], parameterOffsets[i+1], Double.isNaN( temp ) );
-			}
-			return returnValue;
-		}else if(scheme == SamplingScheme.GROUPED){
-			double temp = testParameters( function, previousValue );
-			if(!Double.isNaN( temp )){
-				previousValue = temp;
-				returnValue = temp;
-			}
-			switchPars( 0, scoringFunctions.length, Double.isNaN( temp ) );
-			int idx;
-			for(int i=0;i<groupedParameters.length;i++){
-				for(int j=1;j<groupedParameters[i].length;j++){
-					idx = groupedParameters[i][j];
-					currentParameters[idx] = r.nextGaussian()*samplingSds[idx] + previousParameters[idx];
+				switchPars( 0, scoringFunctions.length, Double.isNaN( temp ) );
+				for(int i=0;i<scoringFunctions.length;i++){
+					for(int j=parameterOffsets[i];j<parameterOffsets[i+1];j++){
+						currentParameters[i] = r.nextGaussian()*samplingSds[j] + previousParameters[j];
+					}
+					temp = testParameters( function, previousValue );
+					if(!Double.isNaN( temp )){
+						previousValue = temp;
+						returnValue = temp;
+					}
+					switchPars( parameterOffsets[i], parameterOffsets[i+1], Double.isNaN( temp ) );
 				}
+				break;
+			case GROUPED:
 				temp = testParameters( function, previousValue );
 				if(!Double.isNaN( temp )){
 					previousValue = temp;
 					returnValue = temp;
 				}
-				switchPars( groupedParameters[i], Double.isNaN( temp ) );
-			}
-			return returnValue;
-		}else{
-			throw new Exception( "Sampling scheme not implemented." );
+				switchPars( 0, scoringFunctions.length, Double.isNaN( temp ) );
+				int idx;
+				for(int i=0;i<groupedParameters.length;i++){
+					for(int j=1;j<groupedParameters[i].length;j++){
+						idx = groupedParameters[i][j];
+						currentParameters[idx] = r.nextGaussian()*samplingSds[idx] + previousParameters[idx];
+					}
+					temp = testParameters( function, previousValue );
+					if(!Double.isNaN( temp )){
+						previousValue = temp;
+						returnValue = temp;
+					}
+					switchPars( groupedParameters[i], Double.isNaN( temp ) );
+				}
+				break;
+			case INDIVIDUAL:
+				temp = testParameters( function, previousValue );
+				if(!Double.isNaN( temp )){
+					previousValue = temp;
+					returnValue = temp;
+				}
+				for(int j=0;j<currentParameters.length;j++){
+					currentParameters[j] = r.nextGaussian()*samplingSds[j] + previousParameters[j];
+					temp = testParameters( function, previousValue );
+					if(!Double.isNaN( temp )){
+						previousValue = temp;
+						returnValue = temp;
+					} else {
+						currentParameters[j] = previousParameters[j];
+					}
+				}
+				break;
+			default:
+				throw new Exception( "Sampling scheme not implemented." );
 		}
+		return returnValue;
 	}
 	
 	/**
@@ -982,7 +1001,9 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		/**
 		 * The parameters of each group are drawn before decision of acceptance
 		 */
-		GROUPED
+		GROUPED, 
+		//for testing Jens
+		INDIVIDUAL
 	}
 	
 	/**
