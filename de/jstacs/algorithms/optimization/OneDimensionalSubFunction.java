@@ -37,22 +37,12 @@ public class OneDimensionalSubFunction extends OneDimensionalFunction {
 	 * 
 	 * @param f
 	 *            the high dimensional function
-	 * @param current
-	 *            the current vector
-	 * @param d
-	 *            the direction along which the line search will be performed
-	 * 
-	 * @throws DimensionException
-	 *             if there is something wrong with the dimension of a vector
+	 * @see OneDimensionalSubFunction#set(double[], double[])
 	 */
-	public OneDimensionalSubFunction( Function f, double[] current, double[] d ) throws DimensionException {
-		int n = f.getDimensionOfScope();
-		if( n != d.length && n != current.length ) {
-			throw new DimensionException();
-		}
+	public OneDimensionalSubFunction( Function f ) {
 		this.f = f;
-		this.d = d;
-		this.current = current;
+		d = null;
+		current = null;
 	}
 
 	/* (non-Javadoc)
@@ -70,6 +60,31 @@ public class OneDimensionalSubFunction extends OneDimensionalFunction {
 			EvaluationException ee = new EvaluationException( impossible.getMessage() );
 			ee.setStackTrace( impossible.getStackTrace() );
 			throw ee;
+		}
+	}
+	
+	/**
+	 * Sets the current values and direction.
+	 * 
+	 * @param current
+	 *            the current vector
+	 * @param d
+	 *            the direction along which the line search will be performed
+	 * 
+	 * @throws DimensionException
+	 *             if there is something wrong with the dimension of a vector
+	 */
+	public void set( double[] current, double[] d ) throws DimensionException {
+		int n = f.getDimensionOfScope();
+		if( n != d.length && n != current.length ) {
+			throw new DimensionException();
+		}
+		if( this.d == null ) {
+			this.d = d.clone();
+			this.current = current.clone();
+		} else {
+			System.arraycopy( current, 0, this.current, 0, this.current.length );
+			System.arraycopy( d, 0, this.d, 0, this.d.length );
 		}
 	}
 }

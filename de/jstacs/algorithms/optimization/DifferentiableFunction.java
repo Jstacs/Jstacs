@@ -25,6 +25,12 @@ package de.jstacs.algorithms.optimization;
  * @author Jens Keilwagen
  */
 public abstract class DifferentiableFunction implements Function {
+	
+	private OneDimensionalSubFunction fun;
+	
+	public DifferentiableFunction() {
+		fun = new OneDimensionalSubFunction( this );
+	}
 
 	/**
 	 * Evaluates the gradient of a function at a certain vector (in mathematical
@@ -82,16 +88,17 @@ public abstract class DifferentiableFunction implements Function {
 	 * 
 	 * @see OneDimensionalFunction#findMin(double, double, double, double)
 	 */
-	protected double[] findOneDimensionalMin( double[] x, double[] d, double alpha_0, double fAlpha_0, double linEps,
+	public double[] findOneDimensionalMin( double[] x, double[] d, double alpha_0, double fAlpha_0, double linEps,
 			double startDistance ) throws DimensionException, EvaluationException {
 		int i=0;
 		while(i<d.length && d[i] == 0){
 			i++;
 		}
-		OneDimensionalSubFunction fun = new OneDimensionalSubFunction( this, x, d );
 		if(i==d.length){
-			return new double[]{0,fun.evaluateFunction( 0 )};
+			return new double[]{0,evaluateFunction(x)};
+		} else {
+			fun.set( x, d );
+			return fun.findMin( alpha_0, fAlpha_0, linEps, startDistance );
 		}
-		return fun.findMin( alpha_0, fAlpha_0, linEps, startDistance );
 	}
 }
