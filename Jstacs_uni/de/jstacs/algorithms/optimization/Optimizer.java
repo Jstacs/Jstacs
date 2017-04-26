@@ -120,27 +120,65 @@ public class Optimizer {
 	public static double[] findBracket( OneDimensionalFunction f, double lower, double fLower, double startDistance ) throws EvaluationException {
 		double[] erg = { lower, fLower, lower + startDistance, 0, 0, 0 };
 		erg[3] = f.evaluateFunction( erg[2] );
-		if( erg[1] < erg[3] ) {
+		//System.out.println("find bracket start" + Arrays.toString(erg) );
+		if( Double.isNaN(erg[3]) || erg[1] <= erg[3] ) {
+			//shrink upper bound
+			//System.out.println("if");
 			do {
 				erg[4] = erg[2];
 				erg[5] = erg[3];
 				erg[2] = erg[0] + ( 1 - limFib ) * ( erg[2] - erg[0] );
 				erg[3] = f.evaluateFunction( erg[2] );
-			} while( erg[0] != erg[2] && erg[1] < erg[3] );
-			return erg;
+				//System.out.println(Arrays.toString(erg) );
+			} while( Double.isNaN(erg[3]) || (erg[0] != erg[2] && erg[1] < erg[3]) );
 		} else {
+			//expand upper bound
+			//System.out.println("else");
+			boolean b;
 			do {
 				erg[4] = limFibPlus2 * erg[2] - limFibPlus1 * erg[0];
 				erg[5] = f.evaluateFunction( erg[4] );
-				if( erg[3] >= erg[5] ) {
+				b = erg[3]>erg[5];
+				if( b ) {
 					erg[0] = erg[2];
 					erg[1] = erg[3];
 					erg[2] = erg[4];
 					erg[3] = erg[5];
 				}
-			} while( erg[3] == erg[5] );
-			return erg;
+				//System.out.println(Arrays.toString(erg) );
+			} while( !Double.isNaN(erg[5]) && b );
 		}
+		if( Double.isNaN(erg[5]) ) {
+			//nicht optimal
+			//System.out.println("PROBLEM");
+			//System.out.println(Arrays.toString(erg) );
+			do{
+				double x = erg[2] + ( 1 - limFib ) * ( erg[4] - erg[2] );
+				if( Double.compare( erg[2], x) == 0 ) {
+					break;
+				}
+				double fx = f.evaluateFunction( x );
+				if( Double.isNaN(fx) || fx > erg[3] ) {
+					erg[4]=x;
+					erg[5]=fx;
+				} else {					
+					if( fx != erg[3] ) {
+						erg[0] = erg[2];
+						erg[1] = erg[3];
+					}
+					erg[2] = x;
+					erg[3] = fx;
+				}
+				//System.out.println(Arrays.toString(erg) );
+			} while( Double.isNaN(erg[5]) );
+			
+			if( Double.isNaN(erg[3]) ) {
+				erg[5] = erg[3];
+				erg[4] = erg[2];
+			}
+		}
+		//System.out.println("find bracket end" + Arrays.toString(erg) );
+		return erg;
 	}
 
 	/**
