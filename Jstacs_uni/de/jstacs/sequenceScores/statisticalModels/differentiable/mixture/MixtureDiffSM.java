@@ -23,8 +23,10 @@ import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
 
+import de.jstacs.NotTrainedException;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.motifDiscovery.MotifDiscoverer;
 import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
@@ -444,5 +446,36 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 	public double[] getStrandProbabilitiesFor( int component, int motif, Sequence sequence, int startpos ) throws Exception {
 		//TODO
 		return new double[]{0.5,0.5};
+	}
+	
+	@Override
+	public DataSet emitDataSet(int numberOfSequences, int... seqLength) throws NotTrainedException, Exception {
+		IntList[] il = seqLength.length>0 ? ArrayHandler.createArrayOf(new IntList(), hiddenPotential.length) : null;
+		
+		int[] anz = new int[hiddenPotential.length];
+		for( int j, i = 0; i < numberOfSequences; i++ ) {
+			double p = r.nextDouble();
+			j=0;
+			while( j < hiddenPotential.length && hiddenPotential[j] < p ) {
+				p -= hiddenPotential[j++];
+			}
+			anz[j]++;
+			if( seqLength.length>0 ) {
+				il[j].add( seqLength[ seqLength.length==1 ? 0 : i ] );
+			}
+		}
+		
+		DataSet d = null;
+		for( int i = 0; i < anz.length; i++ ) {
+			if( anz[i] > 0 )  {
+				DataSet part = this.function[i].emitDataSet(anz[i], il== null ? null : il[i].toArray() );
+				if( d == null ) {
+					d=part;
+				} else {
+					d = DataSet.union(d,part);
+				}
+			}
+		}
+		return d;
 	}
 }
