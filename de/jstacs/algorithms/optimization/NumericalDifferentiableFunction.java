@@ -35,7 +35,7 @@ public class NumericalDifferentiableFunction extends DifferentiableFunction {
 	 */
 	protected double eps;
 	
-	protected DifferentiableFunction f;
+	protected Function f;
 
 	/**
 	 * Sets the function and value for epsilon for this
@@ -49,7 +49,7 @@ public class NumericalDifferentiableFunction extends DifferentiableFunction {
 	 * @throws IllegalArgumentException
 	 *             if <code>epsilon = 0</code>
 	 */
-	public NumericalDifferentiableFunction( DifferentiableFunction f, double epsilon ) throws IllegalArgumentException {
+	public NumericalDifferentiableFunction( Function f, double epsilon ) throws IllegalArgumentException {
 		if( epsilon == 0 ) {
 			throw new IllegalArgumentException( "Epsilon can not be 0." );
 		}
