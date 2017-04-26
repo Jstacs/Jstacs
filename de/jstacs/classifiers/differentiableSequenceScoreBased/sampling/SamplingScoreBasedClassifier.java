@@ -42,6 +42,7 @@ import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.SparseStringExtractor;
@@ -265,7 +266,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	protected SamplingScoreBasedClassifier(SamplingScoreBasedClassifierParameterSet params, BurnInTest burnInTest, double[] classVariances, SamplingDifferentiableStatisticalModel... scoringFunctions) throws CloneNotSupportedException{
 		super(params.getAlphabetContainer(), params.getLength(), scoringFunctions.length);
 		this.params = params.clone();
-		this.scoringFunctions = scoringFunctions.clone();
+		this.scoringFunctions = ArrayHandler.clone(scoringFunctions);
 		this.burnInLength = null;
 		this.classVariances = classVariances.clone();
 		if(burnInTest != null){
@@ -845,7 +846,13 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		sfsc.samplingStopped();
 	}
 
-	
+	protected int getNumberOfParameters() {
+		int res = scoringFunctions.length;
+		for( int i = 0; i < scoringFunctions.length; i++ ) {
+			res += scoringFunctions[i].getNumberOfParameters();
+		}
+		return res;
+	}
 	
 	@Override
 	public void train( DataSet[] s, double[][] weights ) throws Exception {
@@ -863,6 +870,34 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		isTrained = true;
 	}
 	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		try {
+			int starts = params.getNumberOfStarts();
+			DiffSMSamplingComponent sfsc = getSamplingComponent();
+			sfsc.samplingStopped();
+			if(burnInLength == null){
+				precomputeBurnInLength( sfsc );
+			}
+			System.out.println("burnInLength= " + burnInLength);
+			out=sb;
+			for(int i=0;i<starts;i++){
+				sb.append( "start = " + i +"\n"); 
+				sfsc.parseParameterSet( i, burnInLength );
+				while(sfsc.parseNextParameterSet()){
+					sb.append( currentScore + "\t" + Arrays.toString(currentParameters) + "\n" );
+				}
+				sb.append("\n");
+			}
+			out=null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+	}
+	
+	static StringBuffer out = null;
+		
 	/**
 	 * Precomputes the length of the burn-in phase, e.g. useful for computing scores of
 	 * multiple sequences
@@ -891,7 +926,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	 * @return the best parameters
 	 * @throws Exception if the parameters values could not be parsed
 	 */
-	protected double[] getBestParameters() throws Exception {
+	public double[] getBestParameters() throws Exception {
 		int starts = params.getNumberOfStarts();
 		DiffSMSamplingComponent sfsc = getSamplingComponent();
 		
@@ -910,6 +945,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 				}
 			}
 		}
+		System.out.println(best);
 		return bestParameters;
 	}
 	
@@ -1138,8 +1174,14 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 			extract = new SparseStringExtractor( outfiles[sampling] );
 			int i=0;
 			while(extract.hasMoreElements() && ++i < n){
-				extract.nextElement();
+				String s = extract.nextElement();
+				/*if( out!=null ) {
+					out.append(s+"\n");
+				}/**/
 			}
+			/*if( out!=null ) {
+				out.append("\n");
+			}/**/
 			return parseNextParameterSet();
 		}
 
