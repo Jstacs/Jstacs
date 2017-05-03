@@ -65,6 +65,8 @@ import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
+import de.jstacs.io.FileManager;
+import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
@@ -171,6 +173,8 @@ public class GeMoMa implements JstacsTool {
 		this.maxTimeOut = maxTimeOut;
 	}
 	
+	//java -jar GeMoMa-1.4.jar --create 10 120 3600 GeMoMa --Xmx7G
+	
 	/**
 	 * The main method for running the tool.
 	 * 
@@ -186,6 +190,24 @@ public class GeMoMa implements JstacsTool {
 		
 		int maxSize = -1;
 		long timeOut=3600, maxTimeOut=60*60*24*7;
+		File ini = new File( "GeMoMa.ini.xml" );
+		if( ini.exists() ) {
+			//read
+			StringBuffer xml = FileManager.readFile(ini);
+			maxSize = XMLParser.extractObjectForTags(xml, "maxSize", Integer.class);
+			timeOut = XMLParser.extractObjectForTags(xml, "timeOut", Long.class);
+			maxTimeOut = XMLParser.extractObjectForTags(xml, "maxTimeOut", Long.class);
+		} else {
+			//default an write
+			StringBuffer xml = new StringBuffer();
+			XMLParser.appendObjectWithTags( xml, maxSize, "maxSize" );
+			xml.append("\n");
+			XMLParser.appendObjectWithTags( xml, timeOut, "timeOut" );
+			xml.append("\n");
+			XMLParser.appendObjectWithTags( xml, maxTimeOut, "maxTimeOut" );
+			FileManager.writeFile(ini, xml);
+		}
+		System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 		
 		if( args.length == 0 ) {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
@@ -205,19 +227,6 @@ public class GeMoMa implements JstacsTool {
 					cli.wiki();
 				}
 			} else {
-				if( "--create".equals(args[0]) ) {
-					if( args.length != 1 ) {
-						try {
-							maxSize = Integer.parseInt(args[1]);
-							timeOut = Long.parseLong(args[2]);
-							maxTimeOut = Long.parseLong(args[3]);
-							System.out.println("Try to parse <maxSize> <timeOut> <maxTimeOut> for the Galaxy integration");
-						} catch (Exception e){
-							System.out.println("Forwarding the arguments: " +  Arrays.toString(args) );
-						}
-					}
-					System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
-				}
 				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter(), new AnnotationEvidence(), new CompareTranscripts() );
 				galaxy.run(args);
 			}
