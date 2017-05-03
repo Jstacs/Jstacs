@@ -46,7 +46,7 @@ public class AnnotationEvidence implements JstacsTool {
 		seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
 		
 		//annotation
-		HashMap<String, HashMap<String,Gene>> annotation = Extractor.readGFF( parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
+		HashMap<String, HashMap<String,Gene>> annotation = Extractor.read( parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
 
 		//introns
 		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(2)).getValue();

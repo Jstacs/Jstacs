@@ -28,8 +28,11 @@ public class GeMoMaCLITest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		start = end = 0;
-		File dir = new File( out );
+		File dir = new File( out + "-"+ System.currentTimeMillis() + File.separator );
 		dir.mkdirs();
+		out = dir.getAbsolutePath() + File.separator;
+		System.out.println(out);
+		System.out.println();
 		System.out.println("start: " + new Date());
 	}
 
@@ -58,7 +61,7 @@ public class GeMoMaCLITest {
 
 //own test implementation	
 	static String in = "projects/gemoma/JunitTest/given/";
-	static String out = "projects/gemoma/JunitTest/results/";
+	static String out = "projects/gemoma/JunitTest/results";
 
 	static void cliCheck( ArrayList<String> args, String[] given, String[] newResults ) throws Exception {
 		start++;
@@ -114,7 +117,7 @@ public class GeMoMaCLITest {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMa");
 		
-		boolean simple = false;
+		boolean simple = true;
 		//only first part
 		//list.add("selected=" + in + "selected-first.txt" );
 		
