@@ -29,10 +29,13 @@ GeMoMa 1.3.1 (09.12.2016)
 GeMoMa 1.3.2 (18.01.2017)
 - Extractor: new parameter repair for broken transcript annotations
 - GeMoMa: bugfixes (splice site computation)
-GeMoMa 1.4 (??.??.2017)
+GeMoMa 1.4 (03.05.2017)
 - AnnotationEvidence: new tool computing tie and tpc for given annotation (gff)
 - CompareTranscripts: new tool comparing predicted and given annotation (gff)
-- Extractor: reading CDS with no parent tag (cf. discontinuous feature)
+- Extractor:
+	- reading CDS with no parent tag (cf. discontinuous feature)
+	- automatic recognition of GFF or GTF annotation
+	- Warning if sequences mentioned in the annotation are not included in the reference sequence
 - GeMoMa: 
 	- allowing for multiple intron and coverage files (= using different library types at the same time)
 	- NA instead of "?" for tae, tde, tie, minSplitReads of single coding exon genes

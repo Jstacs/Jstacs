@@ -1732,7 +1732,7 @@ public class GeMoMa implements JstacsTool {
 				HashMap<String,int[][]> c;
 				r = new BufferedReader( new FileReader( assignment ) );
 				while( (line=r.readLine())!= null ) {
-					if( line.charAt(0) != '#' ) {
+					if( line.length()>0 && line.charAt(0) != '#' ) {
 						split = line.split("\t");
 						c = transcriptInfo.get( split[0] );
 						if( c == null ) {

@@ -102,12 +102,12 @@ public class GeMoMaTest {
 			}
 		} catch( Exception e ) {
 			if( l < 0 ) {
-				throw new AssertionError(name + ": The files differ."
+				throw new AssertionError((name==null?"":(name + ": "))+"The files differ."
 						+ "\nFile 1 ("  + f1.getAbsolutePath() + "): " + (f1.exists() ? "exists" : "does not exist")
 						+ "\nFile 2 ("  + f2.getAbsolutePath() + "): " + (f2.exists() ? "exists" : "does not exist"),
 						e );
 			} else {
-				throw new AssertionError(name + ": The files differ in line "+ l+"."
+				throw new AssertionError((name==null?"":(name + ": "))+"The files differ in line "+ l+"."
 						+ "\nFile 1: "+f1.getAbsolutePath()+"\nContent: " + (l1==null?"[EOF]":l1) 
 						+ "\nFile 2: "+f2.getAbsolutePath()+"\nContent: " + (l2==null?"[EOF]":l2) );
 			}
@@ -240,7 +240,7 @@ public class GeMoMaTest {
 		
 		//parameters
 		ParameterSet ps = e.getToolParameters();
-		set( ps, 6, 0, "predicted-annotation.gff");
+		set( ps, 6, 0, "predicted_annotation.gff");
 		
 		//get results
 		ResultSet[] rs = e.run(ps, new SysProtocol(), new ProgressUpdater(), 1).getValue();

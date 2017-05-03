@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -103,7 +104,7 @@ public class Extractor implements JstacsTool {
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
 		}
 		
-		HashMap<String, HashMap<String,Gene>> annot = readGFF( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
+		HashMap<String, HashMap<String,Gene>> annot = read( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
 		
 		InputStream in;// = parameters.getParameterForName("genetic code").getValue().toString();
 		p = parameters.getParameterForName("genetic code");
@@ -139,22 +140,31 @@ public class Extractor implements JstacsTool {
 		int[] info = new int[3];
 		Arrays.fill(info, 0);
 		
+		HashSet<String> unUsedChr = new HashSet<String>( annot.keySet() );
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
 				extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
+				unUsedChr.remove(comment);
+				
 				//clear
-				comment = line.substring(1);
+				int idx = line.indexOf(' ');
+				comment = line.substring(1,idx < 0 ? line.length() : idx);
 				seq.delete(0, seq.length());
 			} else {
 				//add
-				seq.append(line.trim().toUpperCase() );
+				seq.append( line.trim().toUpperCase() );
 			}
 		}
 		//do
 		extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
+		unUsedChr.remove(comment);
 		r.close();
 
+		if( unUsedChr.size() > 0 ) {
+			protocol.append( "WARNING: There are gene annotations on chromosomes/contigs with missing reference sequence: " + unUsedChr );
+		}
+		protocol.append("\n");
 		
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		for( int i = 0; i < file.size(); i++ ) {
@@ -171,7 +181,7 @@ public class Extractor implements JstacsTool {
 		protocol.append( "transcripts\t" + info[2]+"\n\n");
 		
 		protocol.append( "reasons for discarding transcripts:\n");
-		protocol.append( "ambigious nucleotide\t" + problem[0] +"\n");
+		protocol.append( "ambiguous nucleotide\t" + problem[0] +"\n");
 		protocol.append( "start phase not zero\t" + problem[1]+"\n");
 		protocol.append( "missing start\t" + problem[2]+"\n");
 		protocol.append( "missing stop\t" + problem[3] +"\n");
@@ -184,12 +194,14 @@ public class Extractor implements JstacsTool {
 		protocol.append( "repaired\t" + repair+"\n\n");
 		
 		//log
-		protocol.append("coding exons\t#\n");
 		Integer[] array = new Integer[count.size()];
-		count.keySet().toArray(array);
-		Arrays.sort(array);
-		for( int i = 0; i < array.length; i++ ) {
-			protocol.append( array[i] + "\t" + count.get(array[i])[0] + "\n");
+		if( array.length > 0 ) {
+			protocol.append("coding exons\t#\n");
+			count.keySet().toArray(array);
+			Arrays.sort(array);
+			for( int i = 0; i < array.length; i++ ) {
+				protocol.append( array[i] + "\t" + count.get(array[i])[0] + "\n");
+			}
 		}
 		
 		Iterator<Entry<String,int[]>> it;
@@ -218,6 +230,8 @@ public class Extractor implements JstacsTool {
 	}
 
 	private static String par = "Parent=";
+	private static String gID = "gene_id \"";
+	private static String tID = "transcript_id \"";
 	
 	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String c, String strand, String geneID, String transcriptID ) {
 		HashMap<String,Gene> chr = annot.get(c);
@@ -237,7 +251,7 @@ public class Extractor implements JstacsTool {
 	}
 	
 	//gff has to be sorted 
-	public static HashMap<String, HashMap<String,Gene>> readGFF( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
+	public static HashMap<String, HashMap<String,Gene>> read( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String,Gene> chr;
 		Gene gene = null;
@@ -250,11 +264,24 @@ public class Extractor implements JstacsTool {
 		r = new BufferedReader( new FileReader(input) );
 		HashMap<String, Gene> trans = new HashMap<String, Gene>();
 		ArrayList<String[]> cds = new ArrayList<String[]>();
+		boolean first = true, gff = true;
 		while( (line=r.readLine()) != null ) {
-			if( line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
-			if( line.length() == 0 || line.startsWith("#") ) continue; 
+			if( gff && line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
+			if( line.length() == 0 || line.startsWith("#") ) continue;
+			if( !gff ) {
+				int index = line.indexOf('#');
+				if( index > 0 ) {
+					line = line.substring(0, index);
+				}
+			}
 			
 			split = line.split("\t");
+			
+			if( first ) {
+				gff = !( split[8].indexOf(tID)>=0 && split[8].indexOf(gID)>=0 );
+				protocol.append("detected reference annotation format: " + (gff?"GFF":"GTF") + "\n");
+				first = false;
+			}
 			/*
 			idx = line.indexOf('\t')+1;
 			idx = line.indexOf('\t',idx)+1;
@@ -265,45 +292,64 @@ public class Extractor implements JstacsTool {
 			*/
 			switch( split[2] ) {
 				case "CDS":
-					boolean add=true;
-					if( split[8].indexOf(par)<0 ) {//new version 1.3.3
-						idx = split[8].indexOf("ID=");
-						if( idx>= 0 ) {
-							split[8] = split[8].replace("ID=", par);
-							
-							idx = split[8].indexOf(par) + par.length();
-							h = split[8].indexOf(';',idx);
-							
-							String transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
-							String geneID = transcriptID+".gene";
-							
-							//System.out.println(Arrays.toString(split));
-							
-							add(trans, annot, split[0], split[6], geneID, transcriptID);
-						} else {
-							add=false;
+					if( gff ) {
+						boolean add=true;
+						if( split[8].indexOf(par)<0 ) {//new version 1.3.3
+							idx = split[8].indexOf("ID=");
+							if( idx>= 0 ) {
+								split[8] = split[8].replace("ID=", par);
+								
+								idx = split[8].indexOf(par) + par.length();
+								h = split[8].indexOf(';',idx);
+								
+								/*
+								String transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
+								String geneID = transcriptID+".gene";
+								
+								//System.out.println(Arrays.toString(split));
+								
+								add(trans, annot, split[0], split[6], geneID, transcriptID);*/
+							} else {
+								add=false;
+							}
 						}
-					}
-					if( add ) {
+						if( add ) {
+							cds.add(split);
+						}
+					} else {
+						idx = split[8].indexOf(tID) + tID.length();
+						String transcriptID = split[8].substring(idx, split[8].indexOf('\"',idx));
+						String tr = transcriptID.toUpperCase();
+						split[8] = split[8].replace(tID+transcriptID+"\"", par+tr);
+						transcriptID=tr;
+						
+						idx = split[8].indexOf(gID) + gID.length();
+						String geneID = split[8].substring(idx, split[8].indexOf('\"',idx));
+						if( geneID.length() == 0 ) {
+							geneID = transcriptID+".gene";
+						}
+						add(trans, annot, split[0], split[6], geneID, transcriptID);
 						cds.add(split);
 					}
 					break;
 				case "mRNA": case "transcript":
-					idx = split[8].indexOf("ID=")+3;
-					h = split[8].indexOf(';',idx);
-					String transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
-					if( selected == null || selected.containsKey(transcriptID) ) {
-						idx = split[8].indexOf(par);
-						if( idx>=0 ) {
-							idx+=par.length();
-							h = split[8].indexOf(';',idx);
+					if( gff ) {
+						idx = split[8].indexOf("ID=")+3;
+						h = split[8].indexOf(';',idx);
+						String transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
+						if( selected == null || selected.containsKey(transcriptID) ) {
+							idx = split[8].indexOf(par);
+							if( idx>=0 ) {
+								idx+=par.length();
+								h = split[8].indexOf(';',idx);
+							}
+							String geneID = idx<0 ? transcriptID+".gene" : split[8].substring(idx, h>0?h:split[8].length() );
+							if( geneID.indexOf(',')>= 0 ) {
+								protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
+							}
+							
+							add(trans, annot, split[0], split[6], geneID, transcriptID);
 						}
-						String geneID = idx<0 ? transcriptID+".gene" : split[8].substring(idx, h>0?h:split[8].length() );
-						if( geneID.indexOf(',')>= 0 ) {
-							protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
-						}
-						
-						add(trans, annot, split[0], split[6], geneID, transcriptID);
 					}
 					break;
 			}
@@ -311,6 +357,7 @@ public class Extractor implements JstacsTool {
 		r.close();
 		
 		//read cds
+		protocol.append("number of detected CDS lines: " + cds.size() + "\n");
 		for( int i = 0 ; i < cds.size(); i++ ) {
 			split = cds.get(i);
 			//split = line.split("\t");
@@ -320,7 +367,11 @@ public class Extractor implements JstacsTool {
 			String[] parent = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase().split(",");
 			for( int j = 0; j < parent.length; j++ ) {
 				gene = trans.get(parent[j]);
-				if( gene != null && (selected==null || selected.containsKey(parent[j])) ) {
+				if( selected==null || selected.containsKey(parent[j]) ) {
+					if( gene == null  ) {
+						add(trans, annot, split[0], split[6], parent[j]+".gene", parent[j]);
+						gene = trans.get(parent[j]);
+					}
 					gene.add( parent[j], new int[]{
 							split[6].charAt(0)=='+'?1:-1, //strand
 							Integer.parseInt( split[3] ), //start
@@ -341,6 +392,10 @@ public class Extractor implements JstacsTool {
 		int strand;
 		String id;
 		
+		public String toString() {
+			return id + ": " + transcript.size() + " transcripts";
+		}
+		
 		Gene(String id, String strand) {
 			transcript = new HashMap<String, IntList>();
 			exon = new ArrayList<int[]>();
@@ -356,7 +411,10 @@ public class Extractor implements JstacsTool {
 		}*/
 		
 		void add( String t ) {
-			transcript.put(t,new IntList());
+			IntList i = transcript.get(t);
+			if( i == null ) {
+				transcript.put(t,new IntList());
+			}
 		}
 	
 		void add( String t, int[] border ) {
@@ -674,7 +732,7 @@ public class Extractor implements JstacsTool {
 		
 		IntList il = gene.transcript.get( trans );
 		if( il.length() == 0 ) {
-			System.out.println("No coding exon(s) for: " + trans );
+			protocol.append("No coding exon(s) for: " + trans + "\n");
 			return -1;
 		}
 		int start = gene.strand>0 ? gene.exon.get(il.get(0))[1] : gene.exon.get(il.get(il.length()-1))[1];
@@ -907,7 +965,7 @@ public class Extractor implements JstacsTool {
 	public ParameterSet getToolParameters() {
 		try{
 			return new SimpleParameterSet(
-				new FileParameter( "annotation", "Reference annotation file (GFF), which contains gene models annotated in the reference genome", "gff", true ),
+				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
 				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta",  true ),
 
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
