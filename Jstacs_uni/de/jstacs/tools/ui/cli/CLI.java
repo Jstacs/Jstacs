@@ -532,14 +532,17 @@ if( k == null ) {
 		}
 	}
 	
-	private static void printTable(HashMap<String, String> keyMap, ParameterSet parameters, PrintStream out){
+	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, PrintStream out){
+		boolean isExp = parameters instanceof ExpandableParameterSet;
 		for(int i=0;i<parameters.getNumberOfParameters();i++){
 			Parameter par = parameters.getParameterAt( i );
+			String parKey = prefix+":"+par.getName();
+			String add = isExp ? "?" : i + "";
 			if(par.getDatatype() == DataType.PARAMETERSET && ! (par instanceof AbstractSelectionParameter) ){
 				ParameterSet ps = (ParameterSet)par.getValue();
-				printTable(keyMap, ps, out);
+				printTable(prefix+":"+add, keyMap, ps, out);
 			} else {
-				out.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">" + keyMap.get( par.getName() )+ "</font></td>\n" );
+				out.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">" + keyMap.get( parKey )+ "</font></td>\n" );
 				String s = par.toString();
 				out.append( "<td>"+s.substring(0,s.lastIndexOf(")\t= ")+1) );
 				if( par.getDatatype() != DataType.PARAMETERSET ) {
@@ -551,7 +554,7 @@ if( k == null ) {
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 						if( cont.getValue().getNumberOfParameters()>0 ) {
 							out.append( "<tr><td colspan=3>Parameters for selection &quot;"+cont.getName()+"&quot;:</td></tr>\n" );
-							printTable(keyMap,cont.getValue(),out);
+							printTable(prefix+":"+add+"-"+j, keyMap, cont.getValue(), out);
 						} else {
 							out.append( "<tr><td colspan=3>No parameters for selection &quot;"+cont.getName()+"&quot;</td></tr>\n" );
 						}
@@ -579,7 +582,7 @@ if( k == null ) {
 			try {
 				PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
 				fos.append( "<table border=0 cellpadding=10 align=\"center\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
-				printTable(keyMap[toolIndex], ps, fos);
+				printTable("", keyMap[toolIndex], ps, fos);
 				fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
 				fos.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
 				fos.append( "<td>STRING</td>\n</tr>\n" );
