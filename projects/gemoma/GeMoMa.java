@@ -40,13 +40,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -173,8 +173,6 @@ public class GeMoMa implements JstacsTool {
 		this.maxTimeOut = maxTimeOut;
 	}
 	
-	//java -jar GeMoMa-1.4.jar --create 10 120 3600 GeMoMa --Xmx7G
-	
 	/**
 	 * The main method for running the tool.
 	 * 
@@ -207,7 +205,7 @@ public class GeMoMa implements JstacsTool {
 			XMLParser.appendObjectWithTags( xml, maxTimeOut, "maxTimeOut" );
 			FileManager.writeFile(ini, xml);
 		}
-		System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
+		//System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 		
 		if( args.length == 0 ) {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
@@ -1726,7 +1724,7 @@ public class GeMoMa implements JstacsTool {
 		private Solution sol = new Solution();
 		
 		private ProgressUpdater progress;
-		private ExecutorService executorService;
+		private final ScheduledThreadPoolExecutor executorService;
 		
 		private StringBuffer gffHelp;
 						
@@ -1767,7 +1765,11 @@ public class GeMoMa implements JstacsTool {
 			
 			//read genome
 			seqs = Tools.getFasta(seqsFileName,20,' ');
-			protocol.append("genome parts: " + seqs.size() + "\t" + Arrays.toString(seqs.keySet().toArray()) +"\n" );
+			String x = Arrays.toString(seqs.keySet().toArray());
+			if( x.length() > 200 ) {
+				x = x.substring(0, 200) + "...";
+			}
+			protocol.append("genome parts: " + seqs.size() + "\t" + x +"\n" );
 						
 			//read protein
 			protein = Tools.getFasta(proteinFileName,15000,' ');		
@@ -1803,13 +1805,24 @@ public class GeMoMa implements JstacsTool {
 			
 			result = new PriorityQueue<Solution>();
 			
-			executorService = Executors.newSingleThreadExecutor();
+			executorService = //Executors.newSingleThreadExecutor();
+				new ScheduledThreadPoolExecutor(1, (runnable) -> {
+		            Thread thread = new Thread(runnable, this.getClass().getName());
+		            thread.setDaemon(true);
+		            return thread;
+		        });
+			executorService.setRemoveOnCancelPolicy(true);
 			
 			gffHelp = new StringBuffer();
 		}
 		
 		public void close() {
-			executorService.shutdown();			
+			List<Runnable> list = executorService.shutdownNow();
+			if( list.size()> 0 ) {
+				for( Runnable r: list ) {
+					System.out.println( "open Runnable: " + r.toString() );
+				}
+			}
 		}
 
 		/**

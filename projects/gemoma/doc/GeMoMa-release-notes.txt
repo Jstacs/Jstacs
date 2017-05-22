@@ -47,4 +47,8 @@ GeMoMa 1.4 (03.05.2017)
 	- nested genes on the same strand
 	- bugfix (if nothing passes the filter)
 
+GeMoMa ??? (??.??.????)
+- CompareTranscripts: bugfix (NullPointerException)
+- GeMoMa: bugfix (shutdown problem after timeout)
+- modified additional scripts and documentation
 
