@@ -278,7 +278,7 @@ public class Extractor implements JstacsTool {
 			split = line.split("\t");
 			
 			if( first ) {
-				gff = !( split[8].indexOf(tID)>=0 && split[8].indexOf(gID)>=0 );
+				gff = split[8].indexOf('=')>0;//!( split[8].indexOf(tID)>=0 && split[8].indexOf(gID)>=0 );
 				protocol.append("detected reference annotation format: " + (gff?"GFF":"GTF") + "\n");
 				first = false;
 			}
@@ -358,6 +358,8 @@ public class Extractor implements JstacsTool {
 		
 		//read cds
 		protocol.append("number of detected CDS lines: " + cds.size() + "\n");
+		HashSet<String> usedG = new HashSet<String>();
+		HashSet<String> usedT = new HashSet<String>();
 		for( int i = 0 ; i < cds.size(); i++ ) {
 			split = cds.get(i);
 			//split = line.split("\t");
@@ -372,6 +374,8 @@ public class Extractor implements JstacsTool {
 						add(trans, annot, split[0], split[6], parent[j]+".gene", parent[j]);
 						gene = trans.get(parent[j]);
 					}
+					usedG.add(gene.id);
+					usedT.add(parent[j]);
 					gene.add( parent[j], new int[]{
 							split[6].charAt(0)=='+'?1:-1, //strand
 							Integer.parseInt( split[3] ), //start
@@ -381,7 +385,8 @@ public class Extractor implements JstacsTool {
 				}
 			}			
 		}
-		
+		protocol.append("number of detected genes: " + usedG.size() + "\n");
+		protocol.append("number of detected transcripts: " + usedT.size() + "\n");
 		return annot;
 	}
 	

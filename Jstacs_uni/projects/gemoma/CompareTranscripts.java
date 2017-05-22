@@ -54,7 +54,8 @@ public class CompareTranscripts implements JstacsTool {
 	
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
-		HashMap<String, String[]> gene = Tools.getAlias(parameters.getParameterForName("assignment").getValue().toString(), 1, 0, 2);
+		String fName = (String) parameters.getParameterForName("assignment").getValue();
+		HashMap<String, String[]> gene = Tools.getAlias(fName, 1, 0, 2);
 		
 		HashMap<String,Annotation> truth = readGFF( parameters.getParameterForName("annotation").getValue().toString(), false );
 		HashMap<String,Annotation> prediction = readGFF( parameters.getParameterForName("prediction").getValue().toString(), true );//standard

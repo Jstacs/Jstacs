@@ -2,7 +2,9 @@ Frequently asked questions:
 ===========================
 
 1) Why does the Extractor not return a single CDS-part, protein, ...?
-Please check whether the names of your contigs/chromosomes in your annotation (gff) and genome file (fasta) are identical. The fasta comments should at best only contain the contig/chromosome name. (Since GeMoMa 1.4, comments, which contain the contig/chromosome name and some additional information separated by a space, are also fine.) In addition, check the statistics that are given by the Extractor. It lists how many genes have been read and how many genes have been removed for different reasons. One common problem is that some annotation files do not include the stop codon in the CDS annotation.
+First, please check whether the names of your contigs/chromosomes in your annotation (gff) and genome file (fasta) are identical. The fasta comments should at best only contain the contig/chromosome name. (Since GeMoMa 1.4, comments, which contain the contig/chromosome name and some additional information separated by a space, are also fine.) 
+Second, please check whether you have a valid GFF/GTF file. Valid GFF files should have a valid "ID" or "Parent" entry in the attributes column. Valid GTF files should have a valid "gene_id" and "transcript_id" entry.
+Finally, please check the statistics that are given by the Extractor. It lists how many genes have been read and how many genes have been removed for different reasons. One common problem is that some annotation files do not include the stop codon in the CDS annotation.
 
 2) How can I force GeMoMa to make more predictions?
 There are several parameters affecting the number of predictions. The most prominent are the number of predictions (p) and the contig threshold (ct).
