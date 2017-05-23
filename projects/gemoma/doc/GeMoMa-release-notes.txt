@@ -46,8 +46,7 @@ GeMoMa 1.4 (03.05.2017)
 - GAF:
 	- nested genes on the same strand
 	- bugfix (if nothing passes the filter)
-
-GeMoMa ??? (??.??.????)
+GeMoMa 1.4.1 (23.05.2017)
 - CompareTranscripts: bugfix (NullPointerException)
 - Extractor: reference genome can be .*fa.gz and .*fasta.gz
 - GeMoMa: 
