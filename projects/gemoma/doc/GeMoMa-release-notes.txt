@@ -49,8 +49,6 @@ GeMoMa 1.4 (03.05.2017)
 GeMoMa 1.4.1 (23.05.2017)
 - CompareTranscripts: bugfix (NullPointerException)
 - Extractor: reference genome can be .*fa.gz and .*fasta.gz
-- GeMoMa: 
-	- bugfix (shutdown problem after timeout)
-	- target genome can be .*fa.gz and .*fasta.gz
+- GeMoMa: bugfix (shutdown problem after timeout)
 - modified additional scripts and documentation
 

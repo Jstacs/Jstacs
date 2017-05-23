@@ -428,7 +428,7 @@ public class Tools {
 		HashMap<String,String> seqs = null;
 		if( fName!=null ) {
 			seqs = new HashMap<String, String>(initSize);
-			BufferedReader r = openGzOrPlain( fName );
+			BufferedReader r = new BufferedReader( new FileReader( fName ) );
 			StringBuffer seq = new StringBuffer();
 			String comment=null, line;
 			while( (line=r.readLine()) != null ) {

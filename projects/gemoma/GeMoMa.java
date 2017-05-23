@@ -4336,7 +4336,7 @@ public class GeMoMa implements JstacsTool {
 		try{
 			return new SimpleParameterSet(
 					new FileParameter( "tblastn results", "The sorted tblastn results", "tabular", true ),
-					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa.gz,fasta.gz", true ),
+					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
