@@ -23,10 +23,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +38,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 
 import de.jstacs.DataType;
 import de.jstacs.parameters.EnumParameter;
@@ -130,7 +134,7 @@ public class Extractor implements JstacsTool {
 		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon" );
 		
 		//read genome contig by contig
-		r = new BufferedReader( new FileReader( parameters.getParameterForName("genome").getValue().toString() ) );
+		r = Tools.openGzOrPlain( parameters.getParameterForName("genome").getValue().toString() );
 		
 		StringBuffer seq = new StringBuffer();
 		donor = new HashMap<String, int[]>();
@@ -971,7 +975,7 @@ public class Extractor implements JstacsTool {
 		try{
 			return new SimpleParameterSet(
 				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
-				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta",  true ),
+				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
 
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					
