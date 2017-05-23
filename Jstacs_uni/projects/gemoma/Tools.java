@@ -28,6 +28,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 import java.util.Random;
 
 import de.jstacs.tools.Protocol;
@@ -376,7 +378,6 @@ public class Tools {
 		return changed;
 	}
 	
-	
 	public static String translate( int offset, String seq, HashMap<String, Character> code, boolean check, Ambiguity ambiguity ) throws IllegalArgumentException {
 		StringBuffer aaSeqBuff = new StringBuffer();
 		char as;
@@ -412,11 +413,22 @@ public class Tools {
 		return res;
 	}
 	
+	public static BufferedReader openGzOrPlain( String fName ) throws IOException {
+		InputStream ins = new FileInputStream(fName);
+		try {
+			GZIPInputStream gz = new GZIPInputStream(ins);
+			ins = gz;
+		} catch( ZipException ze ) {
+			
+		}
+		return new BufferedReader( new InputStreamReader(ins) );
+	}
+	
 	public static HashMap<String,String> getFasta( String fName, int initSize, char c ) throws Exception {
 		HashMap<String,String> seqs = null;
 		if( fName!=null ) {
 			seqs = new HashMap<String, String>(initSize);
-			BufferedReader r = new BufferedReader( new FileReader( fName ) );
+			BufferedReader r = openGzOrPlain( fName );
 			StringBuffer seq = new StringBuffer();
 			String comment=null, line;
 			while( (line=r.readLine()) != null ) {
