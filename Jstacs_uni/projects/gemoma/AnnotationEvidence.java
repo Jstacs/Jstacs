@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import de.jstacs.DataType;
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
@@ -31,7 +32,7 @@ import projects.gemoma.Extractor.Gene;
 import projects.gemoma.GeMoMa.IntArrayComparator;
 
 /**
- * This class computes the (RNAseq) evidence for a given set of annotations.
+ * This class computes the (RNA-seq) evidence for a given set of annotations.
  * 
  * @author Jens Keilwagen
  */
@@ -44,6 +45,7 @@ public class AnnotationEvidence implements JstacsTool {
 	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
 		//sequence
 		seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
+		//System.out.println( Arrays.toString(seqs.keySet().toArray()) );
 		
 		//annotation
 		HashMap<String, HashMap<String,Gene>> annotation = Extractor.read( parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
@@ -168,8 +170,8 @@ public class AnnotationEvidence implements JstacsTool {
 			}
 		}
 		w.close();
-		
-		TextResult t = new TextResult("evidence", "Result", new FileParameter.FileRepresentation(file.getAbsolutePath()), "tabular", getToolName(), null, true);
+				
+		TextResult t = new TextResult(defResult, "Result", new FileParameter.FileRepresentation(file.getAbsolutePath()), "tabular", getToolName(), null, true);
 		
 		return new ToolResult("", "", null, new ResultSet(t), parameters, getToolName(), new Date());
 	}
@@ -180,7 +182,7 @@ public class AnnotationEvidence implements JstacsTool {
 					new FileParameter( "annotation", "The genome annotaion file (GFF)", "gff", true ),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
+							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
 						), "introns", "", 1 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 
@@ -199,7 +201,7 @@ public class AnnotationEvidence implements JstacsTool {
 											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
 											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
 									)
-								},  "coverage file", "experimental coverage (RNAseq)", true
+								},  "coverage file", "experimental coverage (RNA-seq)", true
 						)
 					), "coverage", "", 1 ) )
 			);		
@@ -214,7 +216,7 @@ public class AnnotationEvidence implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.4";
+		return GeMoMa.version;
 	}
 	
 	public String getShortName() {
@@ -227,15 +229,17 @@ public class AnnotationEvidence implements JstacsTool {
 
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tool is the main part of GeMoMa, a homology-based gene prediction tool. AnnotationEvidence computes for each annotated coding sequence the transcription intron evidence (tie) and the transcript percentage coverage (tpc) given mapped RNAseq evidence. Please use ERE to preprocess the mapped reads."
-			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n"
+			"**What it does**\n\nThis tool computes for each annotated coding sequence the transcription intron evidence (tie) and the transcript percentage coverage (tpc) given mapped RNA-seq evidence. Please use *ERE* to preprocess the mapped reads.\n\n"
+			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n\n"
 				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89";
 	}
 
+	private static final String defResult = "evidence";
+	
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "tabular", "tie"),
+				new ResultEntry(TextResult.class, "tabular", defResult),
 		};
 	}
 }

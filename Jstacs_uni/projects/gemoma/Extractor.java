@@ -23,12 +23,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,8 +36,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipException;
 
 import de.jstacs.DataType;
 import de.jstacs.parameters.EnumParameter;
@@ -1024,7 +1020,7 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getHelpText() {
-		return "**What it does**\n\nThis tools can be used to create input files for GeMoMa, i.e., it creates at least a fasta file containing the translated parts of the CDS and a tabular file containing the assignment of transcripts to genes and parts of CDS to transcripts\n\n"
+		return "**What it does**\n\nThis tool can be used to create input files for GeMoMa, i.e., it creates at least a fasta file containing the translated parts of the CDS and a tabular file containing the assignment of transcripts to genes and parts of CDS to transcripts\n\n"
 				+ "**Data format**\n\nThe input format is fasta for the genome and gff for the annotation. The gff file should be sorted.\n\nIf you like to set a user-specific genetic code, please use a tab-delimited file with two columns. The first contains the amino acid in one letter code. The second a list of tripletts. Here is a sample example\n\n"
 					+ "+---+------------------------------+\n"
 					+ "| I | ATT, ATC, ATA                |\n"
@@ -1049,6 +1045,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.4";
+		return GeMoMa.version;
 	}
 }
