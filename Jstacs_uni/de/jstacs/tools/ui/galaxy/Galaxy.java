@@ -165,11 +165,12 @@ public class Galaxy {
 			
 			ProgressUpdater progress = new ProgressUpdater();
 			
-			//out
+			/*out
 			ParameterSet ps = toolParameters[idx];
 			System.out.println( "Parameters of tool \""+tools[idx].getToolName()+"\" ("+tools[idx].getShortName()+", version: " + tools[idx].getToolVersion() + "):" );
 			print( ps, "" );
 			System.out.println( "The number of threads used for the tool, defaults to 1\t= "+ga.getThreads() );
+			/**/
 			
 			ResultSet ress = tools[idx].run( toolParameters[idx], protocol, progress, ga.getThreads() ).getRawResult()[0];			
 			
@@ -233,6 +234,7 @@ public class Galaxy {
 		
 	}
 	
+	@Deprecated
 	private void print(ParameterSet parameters, String tabPrefix){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ExpandableParameterSet exp = null;
