@@ -20,6 +20,7 @@
 package de.jstacs.utils;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -175,33 +176,40 @@ public class StatisticalModelTester {
 	 * @param m
 	 *            a discrete model
 	 * @param constraint
-	 *            <code>constraint[i] < 0</code> stands for an irrelevant
-	 *            position, <code>constraint[i] = c</code> with
-	 * 
+	 *            <code>constraint[j][i] < 0</code> stands for an irrelevant
+	 *            position, <code>constraint[j][i] = c</code> with
 	 *            <code>0 <= c < m.getAlphabets()[(m.getLength==0)?0:i].getAlphabetLength()</code>
 	 *            is the encoded character of position <code>i</code>
 	 * 
-	 * @return the marginal distribution for a discrete model
+	 * @return the marginal distributions of the given constraints for the discrete model
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	public static double getMarginalDistribution(StatisticalModel m, int[] constraint)
+	public static double[] getMarginalDistribution(StatisticalModel m, int[]... constraint)
 			throws Exception {
-		if (m.getLength() != 0 && m.getLength() != constraint.length) {
-			throw new IOException(
-					"This model can only classify sequences of length "
-							+ m.getLength() + ".");
+		int l = constraint[0].length, len = m.getLength();
+		for( int i = 0; i < constraint.length; i++ ) {
+			if (l!= constraint[i].length || (len != 0 && len != constraint[i].length)) {
+				throw new IOException(
+						"This model can only classify sequences of length "
+								+ m.getLength() + ".");
+			}
 		}
-		double erg = Double.NEGATIVE_INFINITY;
-		SeqIterator s = new SeqIterator(m.getAlphabetContainer(),
-				constraint.length);
+		double[] erg = new double[constraint.length];
+		Arrays.fill(erg, Double.NEGATIVE_INFINITY);
+		SeqIterator s = new SeqIterator(m.getAlphabetContainer(),l);
 		do {
-			if (s.isSatisfied(constraint)) {
-				erg = Normalisation.getLogSum( erg, m.getLogProbFor(s.getSequence()) );
+			for( int i = 0; i < constraint.length; i++ ) {
+				if (s.isSatisfied(constraint[i])) {
+					erg[i] = Normalisation.getLogSum( erg[i], m.getLogProbFor(s.getSequence()) );
+				}
 			}
 		} while (s.next());
-		return Math.exp( erg );
+		for( int i = 0; i < constraint.length; i++ ) {
+			erg[i] = Math.exp( erg[i] );
+		}
+		return erg;
 	}
 
 	/**

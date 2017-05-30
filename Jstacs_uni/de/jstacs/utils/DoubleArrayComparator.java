@@ -42,6 +42,6 @@ public class DoubleArrayComparator implements Comparator<double[]> {
 	
 	@Override
 	public int compare(double[] o1, double[] o2) {
-		return (int) Math.signum( o1[index] - o2[index] );
+		return Double.compare( o1[index], o2[index] );
 	}		
 }
