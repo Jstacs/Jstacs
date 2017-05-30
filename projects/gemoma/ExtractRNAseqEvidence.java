@@ -539,7 +539,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.4";
+		return GeMoMa.version;
 	}
 
 	@Override
@@ -554,7 +554,8 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 	@Override
 	public String getHelpText() {
-		return "";
+		return "**What it does**\n\nThis tools extracts introns and coverage from mapped RNA-seq reads. The results can be used in **GeMoMa**.\n\n"
+				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
 	}
 
 	@Override

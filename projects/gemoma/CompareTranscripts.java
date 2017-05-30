@@ -576,7 +576,7 @@ public class CompareTranscripts implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.4";
+		return GeMoMa.version;
 	}
 
 	@Override
@@ -586,12 +586,12 @@ public class CompareTranscripts implements JstacsTool {
 
 	@Override
 	public String getDescription() {
-		return "This tool  helps to compare transcripts from different annotations (e.g. prediction vs. given annotation)";
+		return "This tool helps to compare transcripts from different annotations (e.g. prediction vs. given annotation)";
 	}
 
 	@Override
 	public String getHelpText() {
-		return "The main measure is the F1 measure. If the F1 measure is 1 both annotations are in perefct agreement for this transcript. The smaller the value is the low is the agreement. If it is NA then there is no overlapping annotation.";
+		return "This tool compares a predicted annotation with a given annotation in terms of F1 measure. If the F1 measure is 1 both annotations are in perfect agreement for this transcript. The smaller the value is the low is the agreement. If it is NA then there is no overlapping annotation.";
 	}
 
 	@Override

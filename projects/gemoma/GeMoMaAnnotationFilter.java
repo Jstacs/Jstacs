@@ -606,7 +606,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.4";
+		return GeMoMa.version;
 	}
 
 	@Override
@@ -622,7 +622,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	@Override
 	public String getHelpText() {
 		return
-				"**What it does**\n\nThis tools filters (and combines) gene predictions obtained from GeMoMa. It allows to combine the predictions from multiple reference organisms, but works also using only one reference organism. This tool does not modify the predictions, but filters redundant and low-quality predictions.\n\n"
+				"**What it does**\n\nThis tool filters (and combines) gene predictions obtained from GeMoMa. It allows to combine the predictions from multiple reference organisms, but works also using only one reference organism. This tool does not modify the predictions, but filters redundant and low-quality predictions.\n\n"
 				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
 	}
 

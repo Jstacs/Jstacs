@@ -95,6 +95,8 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
+	public static final String version = "1.4.1";
+	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
 	/**
@@ -3551,7 +3553,7 @@ public class GeMoMa implements JstacsTool {
 			Sequence targetSeq, cdsSeq = null;
 			String region = null;
 						
-			//"intron-loss"
+			//"intron-loss" //TODO 1.5: pc>=1 & (de=F || ae=F)
 			int diff = first.forward ? (second.targetStart-1 - first.targetEnd) : (first.targetStart-1 - second.targetEnd);
 			if( spliceType[3] && diff >= 0 
 					&& diff % 3 == 0 //in-frame
@@ -3598,6 +3600,7 @@ public class GeMoMa implements JstacsTool {
 							//protocol.appendln( DONOR[p] + "\t" + remainingSecond + "\t" + second.accCand[remainingSecond] + "\t" + first.donCand[p][remainingFirst]);
 							for( int j = 0; j < second.accCand[remainingSecond].length(); j++ ) {
 								a = second.accCand[remainingSecond].get(j);
+								//TODO 1.5: (de && ae)=F || intron
 								if( remainingSecond != 0 ) {
 									current = f ? (second.targetStart-1 - a) : (second.targetEnd + a - remainingSecond);
 									remaining2 = chr.substring( current, current + remainingSecond );
@@ -4341,10 +4344,10 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNAseq", "gff", false )
+							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
 						), "introns", "", 1 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
-					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNAseq, compute candidate splice sites or not", true, true ),
+					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNA-seq, compute candidate splice sites or not", true, true ),
 					
 					new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
 						new SelectionParameter( DataType.PARAMETERSET, 
@@ -4361,7 +4364,7 @@ public class GeMoMa implements JstacsTool {
 											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
 											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
 									)
-								},  "coverage", "experimental coverage (RNAseq)", true
+								},  "coverage", "experimental coverage (RNA-seq)", true
 						)
 					), "coverage", "", 1 ) ),
 					
@@ -4403,7 +4406,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return "1.4";
+		return GeMoMa.version;
 	}
 	
 	public String getShortName() {
@@ -4421,11 +4424,15 @@ public class GeMoMa implements JstacsTool {
 				+ "As first step, you should run **Extractor** obtaining *cds parts* and *assignment*. Second, you should run **tblastn** with *cds parts* as query. Finally, these results are then used in **GeMoMa**.\n"
 				//protein
 				+ "If you like to run GeMoMa ignoring intron position conservation, you should blast protein sequences and feed the results in *query cds parts* and leave *assignment* unselected.\n\n"
+				//RNA-seq
+				+ "If you like to run GeMoMa using RNA-seq evidence, you should map your RNA-seq reads to the genome and run **ERE** on thhe mapped reads. Subsequently, you can use the obtained *introns* (and *coverage*) in GeMoMa.\n\n"
 				//multiple predictions
 				+ "If you like to obtain multiple predictions per gene model of the reference organism, you should set *predictions* accordingly. In addition, we suggest to decrease the value of *contig threshold* allowing GeMoMa to evaluate more candidate contigs/chromosomes.\n\n"
 				//runtime
 				+ "If you change the values of *contig threshold*, *region threshold* and *hit threshold*, this will influence the predictions as well as the runtime of the algorithm. The lower the values are, the slower the algorithm is.\n\n"
-			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n"
+				//filter
+				+ "You can filter your predictions using **GAF**, which also allows for combining predictions from different reference organismns.\\n\\n"	
+			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n\n"
 				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89";
 	}
 	
