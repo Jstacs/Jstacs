@@ -49,6 +49,7 @@ public class ToolBox {
 		 * Identical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by the multiplicity.
 		 */
 		SPORTS,
+		PESSIMISTIC_SPORTS,
 		/**
 		 * Identical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by one.
 		 */
@@ -310,13 +311,13 @@ public class ToolBox {
 	 * @return the percentile value
 	 */
 	public static double percentile( int start, int end, double[] array, double percent ) {
-		if( end <= start || percent < 0 || percent > 1 ) {
+		if( array == null || end <= start || array.length == 0 || start < 0 || end > array.length || percent < 0 || percent > 1 ) {
 			throw new IllegalArgumentException();
 		} else {
 			double[] ar2 = new double[end-start];
 			System.arraycopy( array, start, ar2, 0, ar2.length );
 			Arrays.sort( ar2 );
-			int idx = (int)Math.ceil( percent*ar2.length );
+			int idx = (int)Math.ceil( percent*(ar2.length-1) );
 			return ar2[idx];
 		}
 	}
@@ -396,19 +397,28 @@ public class ToolBox {
 		Arrays.sort( help, new DoubleArrayComparator(0) );
 		int[] ranks = new int[n];
 		n--;
-		int rank = 0;
+		int rank = 0, l=0;
 		int temp = 0;
 		for(int i=n;i>=0;i--){
 			ranks[(int)Math.round(help[i][1])] = rank; 
+			l = rank;
+	
 			if( ties == TiedRanks.IN_ORDER || (i > 0 && help[i][0] != help[i-1][0]) ){
 				rank+= temp + 1;
 				temp = 0;
 			}else if(ties == TiedRanks.CONTIGUOUS){
 				temp = 0;
-			}else if(ties == TiedRanks.SPORTS){
+			}else if(ties == TiedRanks.SPORTS || ties == TiedRanks.PESSIMISTIC_SPORTS ){
 				temp++;
 			}else{
 				throw new RuntimeException( ties.name()+" not supported." );
+			}
+			if( l != rank && ties == TiedRanks.PESSIMISTIC_SPORTS ) {
+				int j = i;
+				while( j <=n && ranks[(int)Math.round(help[j][1])]==l ) {
+					ranks[(int)Math.round(help[j][1])]=rank-1;
+					j++;
+				}
 			}
 		}
 		
@@ -451,6 +461,33 @@ public class ToolBox {
 		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
 	}
 	
+	public static double spearmanCorrelation(double[] v1, double[] v2, double[] w) throws Exception{
+		if(v1.length != v2.length || v1.length != w.length){
+			throw new Exception("Number of values in vector differ.");
+		}
+		
+		int[] rankTruth = ToolBox.rank( v2, true );
+		int[] rankPred = ToolBox.rank( v1, true );
+		
+		double sumTruth = 0;
+		double sumPred = 0;
+		double sqTruth = 0;
+		double sqPred = 0;
+		double cross = 0;
+		double n = 0;
+		
+		for(int i=0;i<rankTruth.length;i++){
+			sumTruth += rankTruth[i]*w[i];
+			sumPred += rankPred[i]*w[i];
+			sqTruth += rankTruth[i]*rankTruth[i]*w[i];
+			sqPred += rankPred[i]*rankPred[i]*w[i];
+			cross += rankTruth[i]*rankPred[i]*w[i];
+			n += w[i];
+		}
+		
+		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
+	}
+	
 	/**
 	 * The method computes the Pearson correlation of two vectors.
 	 * 	
@@ -479,6 +516,30 @@ public class ToolBox {
 			sqTruth += v2[i]*v2[i];
 			sqPred += v1[i]*v1[i];
 			cross += v2[i]*v1[i];
+		}
+		
+		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
+	}
+	
+	public static double pearsonCorrelation(double[] v1, double[] v2, double[] w) throws Exception{
+		if(v1.length != v2.length){
+			throw new Exception("Number of values in both vector differ.");
+		}
+		
+		double sumTruth = 0;
+		double sumPred = 0;
+		double sqTruth = 0;
+		double sqPred = 0;
+		double cross = 0;
+		double n = 0;
+		
+		for(int i=0;i<v2.length;i++){
+			sumTruth += v2[i]*w[i];
+			sumPred += v1[i]*w[i];
+			sqTruth += v2[i]*v2[i]*w[i];
+			sqPred += v1[i]*v1[i]*w[i];
+			cross += v2[i]*v1[i]*w[i];
+			n += w[i];
 		}
 		
 		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );

@@ -187,7 +187,21 @@ public final class DoubleList implements Storable, Cloneable {
 	 * @return a <code>double</code> array containing all elements of the list
 	 */
 	public double[] toArray() {
-		double[] erg = new double[size];
+		return toArray(null);
+	}
+	
+	/**
+	 * This method returns a <code>double</code> array containing all elements
+	 * of the list.
+	 * 
+	 * @param erg this array will be used to return the values if it is not equal to &gt;code&lt;null&gt;/code&lt; and larger than the internal array
+	 * 
+	 * @return a <code>double</code> array containing all elements of the list
+	 */
+	public double[] toArray( double[] erg ) {
+		if( erg == null || erg.length < size ) {
+			erg = new double[size];
+		}
 		System.arraycopy( array, 0, erg, 0, size );
 		return erg;
 	}
@@ -295,6 +309,22 @@ public final class DoubleList implements Storable, Cloneable {
 	}
 	
 	/**
+	 * This method computes the maximum of a part of the list. Please note that
+	 * <code>start</code> has to be smaller than <code>end</code> and
+	 * <code>end</code> has to be smaller than {@link DoubleList#length()}.
+	 * 
+	 * @param start
+	 *            the start index (inclusive)
+	 * @param end
+	 *            the end index (exclusive)
+	 * 
+	 * @return the maximum of the part of the list
+	 */
+	public double max( int start, int end ) {
+		return ToolBox.max( start, end, array );
+	}
+	
+	/**
 	 * This method computes the median of a part of the list. Please note that
 	 * <code>start</code> has to be smaller than <code>end</code> and
 	 * <code>end</code> has to be smaller than {@link DoubleList#length()}.
@@ -332,5 +362,17 @@ public final class DoubleList implements Storable, Cloneable {
 		}
 		sb.append( "]" );
 		return sb.toString();
+	}
+
+	public int getMinIndex() {
+		return ToolBox.getMinIndex(0, size, array);
+	}
+	
+	public int getMaxIndex() {
+		return ToolBox.getMaxIndex(0, size, array);
+	}
+	
+	public void sort() {
+		Arrays.sort( array, 0, size );
 	}
 }
