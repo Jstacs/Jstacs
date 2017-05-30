@@ -188,7 +188,7 @@ public class GeMoMa implements JstacsTool {
 		
 		int maxSize = -1;
 		long timeOut=3600, maxTimeOut=60*60*24*7;
-		File ini = new File( "GeMoMa.ini.xml" );
+		File ini = new File( jarfile.getParentFile().getAbsolutePath() + File.separator + "GeMoMa.ini.xml" );
 		if( ini.exists() ) {
 			//read
 			StringBuffer xml = FileManager.readFile(ini);
