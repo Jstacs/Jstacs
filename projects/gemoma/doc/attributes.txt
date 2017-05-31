@@ -1,0 +1,35 @@
+== GFF attributes ==
+
+Using GeMoMa and GAF, you'll obtain GFFs containing some special attributes. We briefly explain the most prominent attributes in the following table.
+
+{| class="wikitable sortable"
+|-
+!Attribute	!!Long name	!!Tool	!!Type	!!Description
+|-
+| tae	|| transcript acceptor evidence	|| GeMoMa	|| prediction	|| percentage of predicted acceptor sites per predicted transcript with RNA-seq evidence
+|-
+| tde	|| transcript donor evidence	|| GeMoMa	|| prediction	|| percentage of predicted donor sites per predicted transcript  with RNA-seq evidence
+|-
+| tie	|| transcript intron evidence	|| GeMoMa	|| prediction	|| percentage of predicted introns per predicted transcript with RNA-seq evidence
+|-
+| minSplitReads	|| minimal split reads	|| GeMoMa	|| prediction	|| minimal number of split reads for any of the predicted introns per predicted transcript
+|-
+| tpc	|| transcript precentage coverage	|| GeMoMa	|| prediction	|| percentage of covered bases per predicted transcript given RNA-seq evidence
+|-
+| minCov	|| minimal coverage	|| GeMoMa	|| prediction	|| minimal coverage of any base of the prediction given RNA-seq evidence
+|-
+| avgCov	|| average coverage	|| GeMoMa	|| prediction	|| average coverage of all bases of the predition given RNA-seq evidence
+|-
+| score	|| GeMoMa score	|| GeMoMa	|| prediction	|| the score comupted by GeMoMa using the subsitution matrix, gap costs and additional penalties
+|-
+| iAA	|| identical amino acid	|| GeMoMa	|| prediction	|| percentage of identical amino acids between reference transcript and prediction
+|-
+| evidence	|| 	|| GAF	|| prediction	|| the number of reference organisms that have a transcript yielding this predicition
+|-
+| alternative	|| 	|| GAF	|| prediction	|| alternative gene ID(s) leading to the same prediction
+|-
+| maxTie	|| maximal tie	|| GAF	|| gene	|| maximal tie of all transcripts of this gene
+|-
+| maxEvidence	|| maximal evidence	|| GAF	|| gene	|| maximal evidence of all transcripts of this gene
+|-
+|}
