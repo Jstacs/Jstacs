@@ -285,7 +285,7 @@ public class CompareTranscripts implements JstacsTool {
 
 		String transcript, predictionID;
 		w.append("#gene\ttranscript\t#exons");//
-		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfect exons,missed exons,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
+		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop\tnumber of all hits\tall ids\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfect exons,missed exons,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
 		w.newLine();
 		String[] array = prediction.keySet().toArray(new String[0]);
 		Arrays.sort(array);
@@ -328,7 +328,7 @@ public class CompareTranscripts implements JstacsTool {
 				//select best
 				double x = getBest(test, a, check, counts, bestCounts, best, false );
 				//double y = getBest(test, b, checkDis, counts, bestCountsDis, bestDis, false );
-				
+				w.append( "\t" + all + "\t" + ids );
 				if( best.length() > 0 ) {
 
 					double f1;
@@ -405,15 +405,24 @@ public class CompareTranscripts implements JstacsTool {
 		}
 	}
 	
+	private static int all;
+	private static StringBuffer ids = new StringBuffer();
+	
 	private static double getBest( Annotation test, Annotation[] a, HashSet<Integer> check, int[] counts, int[] bestCounts, IntList best, boolean exon ) {
 		best.clear();
 		Arrays.fill(bestCounts, 0);
 		double d = 0;
 		Iterator<Integer> it = check.iterator();
+		all=0;
+		ids.delete(0, ids.length());
 		while( it.hasNext() ) {
 			int k = it.next();
 			compare(test, a[k], counts, exon );
 			double h = getF1(counts);
+			if( h > 0 ) {
+				ids.append( (all==0?"":", ") + a[k].id );
+				all++;
+			}
 			if( h > d ) {
 				d = h;
 				best.clear();
