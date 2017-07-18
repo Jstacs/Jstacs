@@ -28,6 +28,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String version = "1.4.1";
+	public static final String version = "1.4.2";
 	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
@@ -188,6 +189,44 @@ public class GeMoMa implements JstacsTool {
 			System.out.println("jar time stamp: " + new Date(jarfile.lastModified()) + "\n" );
 		}
 		
+		//checking for available updates
+		System.setProperty("java.net.useSystemProxies", "true");
+		String site="http://www.jstacs.de/index.php/GeMoMa";
+		System.out.println( "Searching for the new GeMoMa updates ..." );
+		boolean checked = false;
+		try{
+			URL url = new URL(site);
+			BufferedReader br = new BufferedReader( new InputStreamReader(url.openStream()) );
+			String line = null;
+			while( (line=br.readLine()) != null ) {
+				if( line.startsWith("<h") && line.contains("Version history") ) {
+					break;
+				}
+			}
+			if( line != null ) {
+				line = br.readLine();
+				int idx = line.lastIndexOf("GeMoMa");
+				if( idx >= 0 ) {
+					idx+=6;
+					int idx2 = line.indexOf("<",idx);
+					if( idx2 >= 0 ) {
+						String ver = line.substring(idx, idx2).trim();
+						if( !ver.equals(GeMoMa.version) ) {
+							System.out.println("You are using GeMoMa " + GeMoMa.version + ", but the latest version is " + ver + ".\nYou can download the latest version from " + site );
+						} else {
+							System.out.println("You are using the latest GeMoMa version.");
+						}
+						checked=true;
+					}
+				}
+			}
+		} catch( Exception ex ) {}
+		if( !checked ) {
+			System.out.println("Could not connect to the GeMoMa-Homepage.");
+		}
+		System.out.println();
+		
+		//reading parameters
 		int maxSize = -1;
 		long timeOut=3600, maxTimeOut=60*60*24*7;
 		File ini = new File( jarfile.getParentFile().getAbsolutePath() + File.separator + "GeMoMa.ini.xml" );
@@ -209,6 +248,7 @@ public class GeMoMa implements JstacsTool {
 		}
 		//System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 		
+		//running the program
 		if( args.length == 0 ) {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
 		} else {
@@ -3746,7 +3786,7 @@ public class GeMoMa implements JstacsTool {
 		class Solution implements Comparable<Solution>, Cloneable {
 			LinkedList<Hit> hits;
 			boolean forward, backup, cut;
-			int score, a, d, A, D, i, I, minSplitReads;
+			int score, minSplitReads, a, A, d, D, i, I;
 			int Len, Cov, minC, Sum;
 			
 			public Solution() {
@@ -4066,7 +4106,6 @@ public class GeMoMa implements JstacsTool {
 				
 				int last = -1;
 				String pref = prefix+transcriptName + "_R" + pred;
-				
 				for( Hit t : hits ) {
 					if( id == null ) {
 						id = t.targetID;
@@ -4146,31 +4185,9 @@ public class GeMoMa implements JstacsTool {
 						
 						D++;
 						d += de ? 1 : 0;
-						if( !first ) {
-							A++;
-							a += ae ? 1 : 0;
-							if( donSites != null ) {
-								I++;
-								int v = forward ? start : (end+1);
-								int idx = Arrays.binarySearch( donSites[0], last );
-								if( idx >= 0 ) {
-									while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
-										idx++;
-									}
-									if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-										minSplitReads = Math.min(minSplitReads, donSites[2][idx] );
-										i++;
-									} else {
-										minSplitReads = 0;
-									}
-								} else {
-									minSplitReads = 0;
-								}
-							} else {
-								minSplitReads = 0;
-							}
-						}
+						combineIntronStat(first, ae, donSites, forward, start, end, last);
 						parts++;
+						
 						last = forward ? end+1 : start;
 						start = t.targetStart;
 						end = t.targetEnd;
@@ -4232,18 +4249,30 @@ public class GeMoMa implements JstacsTool {
 						+ (cov == null?"":(";pc=" + decFormat.format(covered/(double)l)+";minCov=" + min))
 						+ "\n"
 				);
+				combineIntronStat(first, ae, donSites, forward, start, end, last);
+				parts++;
+								
+				return parts;
+			}
+			
+			void combineIntronStat( boolean first, boolean ae, int[][] donSites, boolean forward, int start, int end, int last ) {
 				if( !first ) {
 					A++;
 					a += ae ? 1 : 0;
-					
-					I++;
 					if( donSites != null ) {
-						int v = forward ? start : (end+1);
-						int idx = Arrays.binarySearch( donSites[0], last );
-						if( idx >= 0 ) {
-							while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
-								idx++;
+							I++;
+							int v = forward ? start : (end+1);
+							//TODO faster
+							int idx = Arrays.binarySearch( donSites[0], last );
+							if( idx > 0 ) {
+								while( idx>0 &&  donSites[0][idx-1] == last ) {
+									idx--;
+								}
 							}
+							if( idx >= 0 ) {
+								while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
+									idx++;
+								}
 							if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
 								minSplitReads = Math.min(minSplitReads, donSites[2][idx]);
 								i++;
@@ -4257,10 +4286,8 @@ public class GeMoMa implements JstacsTool {
 						minSplitReads = 0;
 					}
 				}
-				parts++;
-								
-				return parts;
 			}
+			
 		}
 	}
 	

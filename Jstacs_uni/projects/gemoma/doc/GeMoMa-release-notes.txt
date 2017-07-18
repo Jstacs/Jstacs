@@ -52,3 +52,8 @@ GeMoMa 1.4.1 (30.05.2017)
 - GeMoMa: bugfix (shutdown problem after timeout)
 - modified additional scripts and documentation
 
+GeMoMa ??? (???)
+- automatic searching for available updates
+- GeMoMa: bugfix (tie computation: Arrays.binarysearch does not find first match)
+- AnnotationEvidence: bugfix (tie computation: Arrays.binarysearch does not find first match)
+

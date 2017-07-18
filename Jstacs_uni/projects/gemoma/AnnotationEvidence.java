@@ -104,7 +104,13 @@ public class AnnotationEvidence implements JstacsTool {
 							//tie
 							if( donSites != null ) {
 								int v = g.strand==1 ? part[1] : (part[2]+1);
+								
 								idx = Arrays.binarySearch( donSites[0], last );
+								if( idx > 0 ) {
+									while( idx>0 &&  donSites[0][idx-1] == last ) {
+										idx--;
+									}
+								}
 								if( idx >= 0 ) {
 									while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
 										idx++;
