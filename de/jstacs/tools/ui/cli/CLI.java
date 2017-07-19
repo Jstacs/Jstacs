@@ -459,7 +459,7 @@ if( key == null ) {
 							par2.setValue(value.removeFirst());
 							
 							if( par2.getDatatype() == DataType.PARAMETERSET ) {
-								set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
+								set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
 							}
 						}						
 					} else {
