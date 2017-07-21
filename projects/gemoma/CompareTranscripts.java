@@ -285,7 +285,7 @@ public class CompareTranscripts implements JstacsTool {
 
 		String transcript, predictionID;
 		w.append("#gene\ttranscript\t#exons");//
-		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop\tnumber of all hits\tall ids\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfect exons,missed exons,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
+		w.append("\tprediction\t#predicted exons\tchr\tstrand\tstart\tstop" + /*XXX \tnumber of all hits\tall ids*/ "\tnumber of best hits\tf1\tinfo: id,annotated exons,tp,fn,fp,perfect exons,missed exons,superfluous exons,max exon splice error,perfect start,perfect end\tinfo");
 		w.newLine();
 		String[] array = prediction.keySet().toArray(new String[0]);
 		Arrays.sort(array);
@@ -328,7 +328,7 @@ public class CompareTranscripts implements JstacsTool {
 				//select best
 				double x = getBest(test, a, check, counts, bestCounts, best, false );
 				//double y = getBest(test, b, checkDis, counts, bestCountsDis, bestDis, false );
-				w.append( "\t" + all + "\t" + ids );
+				//XXX w.append( "\t" + all + "\t" + ids );
 				if( best.length() > 0 ) {
 
 					double f1;
