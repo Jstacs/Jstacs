@@ -419,7 +419,8 @@ public class Tools {
 			GZIPInputStream gz = new GZIPInputStream(ins);
 			ins = gz;
 		} catch( ZipException ze ) {
-			
+			ins.close();
+			ins = new FileInputStream(fName);
 		}
 		return new BufferedReader( new InputStreamReader(ins) );
 	}
