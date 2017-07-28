@@ -749,7 +749,9 @@ public class GeMoMa implements JstacsTool {
 					addHit(hash, line);
 				}
 			}
-			tp.compute(old, hash);		
+			if( old != null ) {
+				tp.compute(old, hash);
+			}
 		} catch ( Throwable er ) {
 			protocol.appendThrowable(er);
 			if( er instanceof Exception ) {

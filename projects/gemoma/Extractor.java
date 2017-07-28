@@ -146,7 +146,6 @@ public class Extractor implements JstacsTool {
 				//do
 				extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
 				unUsedChr.remove(comment);
-				
 				//clear
 				int idx = line.indexOf(' ');
 				comment = line.substring(1,idx < 0 ? line.length() : idx);
