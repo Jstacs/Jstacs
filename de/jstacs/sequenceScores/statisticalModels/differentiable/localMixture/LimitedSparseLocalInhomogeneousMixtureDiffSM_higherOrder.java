@@ -33,6 +33,7 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDiffere
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.Time;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.random.DiMRGParams;
 import de.jstacs.utils.random.DirichletMRG;
@@ -99,19 +100,6 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 		 * A complex mixture prior
 		 */
 		Complex_Mixture
-	}
-	
-	/**
-	 * Creates a new Slim model with given number of components and maximum distance. Uses the BDeu prior.
-	 * @param alphabets the alphabet of sequences the model is defined on
-	 * @param length the length of the sequences that may be scores
-	 * @param components the number of components, i.e., the number of preceding positions considered jointly
-	 * @param distance the maximum distance of preceding positions considered
-	 * @param ess the equivalent sample size
-	 * @throws IllegalArgumentException if the ess or other parameters are not allowed
-	 */
-	public LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder( AlphabetContainer alphabets, int length, int components, int distance, double ess ) throws IllegalArgumentException {
-		this(alphabets,length,components,distance,ess,1,PriorType.BDeu);
 	}
 	
 	/**
@@ -603,7 +591,287 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 		return (context*dependencyParameters[l][c][0].length + seq.discreteVal(start+l-c-m))%dependencyParameters[l][c].length;
 	}
 	
+	public boolean[][] XXX( int kmer, double thresh, boolean naive, int... start ) throws Exception {
+		if( order > 1 ) {
+			throw new Exception("not supported for order>1");
+		}
+		
+Time t = Time.getTimeInstance(null);
+		double[][] val = naive ? getCum_Naive(kmer) : getCum_Complex(kmer);//XXX
+		System.out.println(t.getElapsedTime());
+		double[] cum = val[0];
+		double[] revCum = val[1];
+		
+		int a = dependencyParameters[0][0][0].length;
+		boolean[][] use = new boolean[start.length][(int)Math.pow(a, kmer)];
+		int i;
+
+		//more tricky (faster)
+		int maxSymbol = a-1;
+		int z=0;
+		int[] seq = new int[kmer + 1];
+		int[] pow = new int[kmer+1];
+		pow[0]=1;
+		for( i = 1; i < pow.length; i++ ) {
+			pow[i] = pow[i-1]*a;
+		}
+		double[][] prefixScore = new double[start.length][kmer+1];
+		int l=0, an=-1;
+		double[] best=new double[start.length];
+		Arrays.fill( best, Double.NEGATIVE_INFINITY );
+t.reset();
+		do {
+			int h=l;
+			//System.out.println(Arrays.toString(seq));
+			for( int s = 0; s  < start.length; s++ ) {
+				l = h;
+				while( l < kmer ) {
+					int pos = l+start[s];
+					int ll = kmer-1-l;
+					int current = seq[ll];
+					localMixtureScore[0] = componentMixtureParameters[pos][0] - componentMixtureLogNorm[pos] + dependencyParameters[pos][0][0][current] - dependencyLogNorm[pos][0][0];
+					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
+						int g=ancestorMixtureParameters[pos][c].length;
+						boolean maxVal=false;
+						for( int m = 0; m < g; m++ ) {
+							if( ll+c+m < kmer ) {
+								an = seq[ll+c+m];
+							} else {
+								if( maxVal ) {
+									an=0;
+									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
+										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
+											an=i;
+										}
+									}
+								}
+							}
+							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
+						}
+						localMixtureScore[c] = componentMixtureParameters[pos][c] - componentMixtureLogNorm[pos] + Normalisation.getLogSum(0, g, ancestorScore[c]);
+					}
+					double score = Normalisation.getLogSum(0, componentMixtureParameters[pos].length, localMixtureScore );
+					
+					prefixScore[s][l+1]=prefixScore[s][l]+score;
+					l++;
+				}
+				if( prefixScore[s][kmer]> best[s] ) {
+					best[s] = prefixScore[s][kmer];
+				}
+				use[s][z]= (cum[start[s]] + prefixScore[s][kmer]+revCum[start[s]+kmer]) >= thresh;
+				//System.out.println( start[s] + "\t" + cum[start[s]] +"+"+ prefixScore[s][kmer]+"+"+revCum[start[s]+kmer]  );
+			}
+			//System.out.println();
+			z++;
+			
+			i=0;
+			while( seq[i] == maxSymbol ) {
+				seq[i++] = 0;
+			}
+			seq[i]++;
+			l = kmer-1-i;
+		} while( seq[kmer]==0 );
+		
+System.out.println(t.getElapsedTime());
+System.out.println("cum "+ Arrays.toString(cum) );
+System.out.println("revCum "+ Arrays.toString(revCum) );
+		
+		return use;
+	}
 	
+	public double[][] getCum_Naive( int kmer ) {
+		int len = getLength();
+		//int[] best = new int[len];
+		double[] max = new double[len];
+		double[] cum = new double[len+1];
+		double[] revCum = new double[len+1];
+		double last =0;
+		for( int l = 0; l < max.length; l++ ) {
+			max[l] = Double.NEGATIVE_INFINITY;
+			//System.out.print(l);
+			for( int a = 0; a < dependencyPotential[l][0][0].length; a++ ) {
+				double v=0;
+				for( int c = 0; c < componentMixtureParameters[l].length; c++ ) {
+					int an = 0;
+					for( int i = 1; i < dependencyParameters[l][c].length; i++ ) {
+						if( dependencyPotential[l][c][an][a] < dependencyPotential[l][c][i][a] ) {
+							an=i;
+						}
+					}
+					localMixtureScore[c] = componentMixtureParameters[l][c] - componentMixtureLogNorm[l] + dependencyParameters[l][c][an][a] - dependencyLogNorm[l][c][an];
+				}
+				v=Normalisation.getLogSum(0, componentMixtureParameters[l].length, localMixtureScore );
+				//System.out.print("\t"+v);
+				if( v > max[l] ) {
+					max[l] = v;
+					//best[l] = a;
+				}
+			}
+			//System.out.println();
+			
+			cum[l+1] = last + max[l];
+			last = cum[l+1];
+		}
+		last = 0;
+		for( int l = len-1; l>=0; l-- ) {
+			revCum[l] = last+max[l];
+			last = revCum[l];
+		}
+		return new double[][]{cum, revCum};
+	}
+	
+	public double[][] getCum_Complex( int kmer ) throws Exception {
+		int start = getLength()-kmer+1;
+		int len = getLength();
+		double[][] max = new double[kmer][];
+		for( int k = 0; k < max.length; k++ ) {
+			max[k] = new double[len-k];
+			Arrays.fill( max[k],  Double.NEGATIVE_INFINITY );
+		}
+		
+		int a = dependencyParameters[0][0][0].length;
+		boolean[][] use = new boolean[start][(int)Math.pow(a, kmer)];
+		int i;
+
+		//fill max table
+		int maxSymbol = a-1;
+		int[] seq = new int[kmer + 1];
+		int[] pow = new int[kmer+1];
+		pow[0]=1;
+		for( i = 1; i < pow.length; i++ ) {
+			pow[i] = pow[i-1]*a;
+		}
+		double[][] prefixScore = new double[len][kmer+1];
+		int l=0, an=-1;
+		do {
+			int h=l;
+			//System.out.println(Arrays.toString(seq));
+			for( int s = 0; s < start; s++ ) {
+				l = h;
+				while( l < kmer ) {
+					int pos = l+s;
+					int ll = kmer-1-l;
+					int current = seq[ll];
+					localMixtureScore[0] = componentMixtureParameters[pos][0] - componentMixtureLogNorm[pos] + dependencyParameters[pos][0][0][current] - dependencyLogNorm[pos][0][0];
+					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
+						int g=ancestorMixtureParameters[pos][c].length;
+						boolean maxVal=false;
+						for( int m = 0; m < g; m++ ) {
+							if( ll+c+m < kmer ) {
+								an = seq[ll+c+m];
+							} else {
+								if( maxVal ) {
+									an=0;
+									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
+										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
+											an=i;
+										}
+									}
+								}
+							}
+							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
+						}
+						localMixtureScore[c] = componentMixtureParameters[pos][c] - componentMixtureLogNorm[pos] + Normalisation.getLogSum(0, g, ancestorScore[c]);
+					}
+					double score = Normalisation.getLogSum(0, componentMixtureParameters[pos].length, localMixtureScore );
+					
+					prefixScore[s][l+1]=prefixScore[s][l]+score;
+					
+					if( prefixScore[s][l+1] > max[l][s] ) {
+						max[l][s] = prefixScore[s][l+1];
+					}
+					
+					
+					l++;
+				}
+			}
+			
+			i=0;
+			while( seq[i] == maxSymbol ) {
+				seq[i++] = 0;
+			}
+			seq[i]++;
+			l = kmer-1-i;
+		} while( seq[kmer]==0 );
+		
+		//fill missing values
+		for( int s = start; s < len; s++ ) {
+			int gg = len-s;
+			Arrays.fill(seq, 0);
+			l=0;
+			do {
+				while( l < gg ) {
+					int pos = l+s;
+					int ll = gg-1-l;
+					int current = seq[ll];
+					localMixtureScore[0] = componentMixtureParameters[pos][0] - componentMixtureLogNorm[pos] + dependencyParameters[pos][0][0][current] - dependencyLogNorm[pos][0][0];
+					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
+						int g=ancestorMixtureParameters[pos][c].length;
+						boolean maxVal=false;
+						for( int m = 0; m < g; m++ ) {
+							if( ll+c+m < gg ) {
+								an = seq[ll+c+m];
+							} else {
+								if( maxVal ) {
+									an=0;
+									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
+										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
+											an=i;
+										}
+									}
+								}
+							}
+							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
+						}
+						localMixtureScore[c] = componentMixtureParameters[pos][c] - componentMixtureLogNorm[pos] + Normalisation.getLogSum(0, g, ancestorScore[c]);
+					}
+					double score = Normalisation.getLogSum(0, componentMixtureParameters[pos].length, localMixtureScore );
+					
+					prefixScore[s][l+1]=prefixScore[s][l]+score;
+					
+					if( prefixScore[s][l+1] > max[l][s] ) {
+						max[l][s] = prefixScore[s][l+1];
+					}
+					
+					
+					l++;
+				}
+				
+				i=0;
+				while( seq[i] == maxSymbol ) {
+					seq[i++] = 0;
+				}
+				seq[i]++;
+				l = gg-1-i;
+			} while( seq[gg]==0 );
+		}
+		
+		//cumulative
+		double[] cum = new double[len+1];
+		Arrays.fill(cum, Double.POSITIVE_INFINITY);
+		cum[0] = 0;
+		for( i = 0; i < len; i++ ) {
+			//cum[i+1] = cum[i]+max[0][i];
+			for( int j = Math.min(i, kmer-1); j>=0; j-- ) {
+				if( cum[i+1] > cum[i-j]+max[j][i-j] ) {
+					cum[i+1] = cum[i-j]+max[j][i-j];
+				}
+			}
+		}
+		//cumulative
+		double[] revCum = new double[len+1];
+		Arrays.fill(revCum, Double.POSITIVE_INFINITY);
+		revCum[len] = 0;
+		for( i = len-1; i >= 0; i-- ) {
+			//revCum[i] = revCum[i+1]+max[0][i];
+			for( int j = Math.min(len-1-i, kmer-1); j>=0; j-- ) {
+				if( revCum[i] > revCum[i+1+j]+max[j][i] ) {
+					revCum[i] = revCum[i+1+j]+max[j][i];
+				}
+			}
+		}
+		return new double[][]{cum, revCum};
+	}
 	
 	
 	@Override
