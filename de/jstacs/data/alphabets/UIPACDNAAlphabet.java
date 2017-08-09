@@ -22,7 +22,7 @@ import de.jstacs.Singleton;
 import de.jstacs.data.WrongAlphabetException;
 
 /**
- * This class implements the discrete alphabet that is used for DNA.
+ * This class implements a discrete alphabet for the IUPAC DNA code.
  * 
  * @author Jan Grau, Jens Keilwagen
  */
@@ -46,7 +46,7 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 	}
 
 	/**
-	 * The main constructor. Creates a new {@link DNAAlphabet} with the standard
+	 * The main constructor. Creates a new {@link UIPACDNAAlphabet} with the standard
 	 * UIPAC DNA-alphabet.
 	 * 
 	 * @throws DoubleSymbolException
@@ -74,7 +74,7 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 	}
 	
 	/**
-	 * The parameter set for a {@link DNAAlphabet}.
+	 * The parameter set for a {@link UIPACDNAAlphabet}.
 	 * 
 	 * @author Jan Grau, Jens Keilwagen
 	 */
@@ -101,7 +101,7 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 		
 
 		/**
-		 * Creates a new {@link DNAAlphabetParameterSet}.
+		 * Creates a new {@link UIPACDNAAlphabetParameterSet}.
 		 * 
 		 * @throws Exception
 		 *             if an error occurred
