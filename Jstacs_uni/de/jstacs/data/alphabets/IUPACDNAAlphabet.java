@@ -26,19 +26,19 @@ import de.jstacs.data.WrongAlphabetException;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet implements Singleton {
+public final class IUPACDNAAlphabet extends ComplementableDiscreteAlphabet implements Singleton {
 
 	/**
 	 * The only instance of this class.
 	 * 
 	 * @see Singleton
 	 */
-	public final static UIPACDNAAlphabet SINGLETON = get(); 
+	public final static IUPACDNAAlphabet SINGLETON = get(); 
 	
-	private static UIPACDNAAlphabet get() {
-		UIPACDNAAlphabet res = null;
+	private static IUPACDNAAlphabet get() {
+		IUPACDNAAlphabet res = null;
 		try {
-			res = new UIPACDNAAlphabet();
+			res = new IUPACDNAAlphabet();
 		} catch (Exception doesNotHappen) {
 			throw new RuntimeException( doesNotHappen.getMessage() );
 		}
@@ -46,7 +46,7 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 	}
 
 	/**
-	 * The main constructor. Creates a new {@link UIPACDNAAlphabet} with the standard
+	 * The main constructor. Creates a new {@link IUPACDNAAlphabet} with the standard
 	 * UIPAC DNA-alphabet.
 	 * 
 	 * @throws DoubleSymbolException
@@ -56,9 +56,9 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 	 * 
 	 * @see ComplementableDiscreteAlphabet#ComplementableDiscreteAlphabet(boolean, String...)
 	 */
-	private UIPACDNAAlphabet() throws DoubleSymbolException, IllegalArgumentException {
-		super( true, UIPACDNAAlphabetParameterSet.DNA );
-		this.parameters = UIPACDNAAlphabetParameterSet.SINGLETON;
+	private IUPACDNAAlphabet() throws DoubleSymbolException, IllegalArgumentException {
+		super( true, IUPACDNAAlphabetParameterSet.DNA );
+		this.parameters = IUPACDNAAlphabetParameterSet.SINGLETON;
 	}
 
 	/* (non-Javadoc)
@@ -73,24 +73,32 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 		}
 	}
 	
+	public boolean isPart( String query, String code ) throws WrongAlphabetException {
+		return isPart( getCode(query), getCode(code) );
+	}
+	
+	public boolean isPart( int query, int code ) {
+		return IUPACDNAAlphabetParameterSet.subset[query][code];
+	}
+	
 	/**
-	 * The parameter set for a {@link UIPACDNAAlphabet}.
+	 * The parameter set for a {@link IUPACDNAAlphabet}.
 	 * 
 	 * @author Jan Grau, Jens Keilwagen
 	 */
-	public static final class UIPACDNAAlphabetParameterSet extends AlphabetParameterSet<UIPACDNAAlphabet> implements Singleton {
+	public static final class IUPACDNAAlphabetParameterSet extends AlphabetParameterSet<IUPACDNAAlphabet> implements Singleton {
 
 		/**
 		 * The only instance of this class.
 		 * 
 		 * @see Singleton
 		 */
-		public final static UIPACDNAAlphabetParameterSet SINGLETON = get(); 
+		public final static IUPACDNAAlphabetParameterSet SINGLETON = get(); 
 		
-		private static UIPACDNAAlphabetParameterSet get() {
-			UIPACDNAAlphabetParameterSet res = null;
+		private static IUPACDNAAlphabetParameterSet get() {
+			IUPACDNAAlphabetParameterSet res = null;
 			try {
-				res = new UIPACDNAAlphabetParameterSet();
+				res = new IUPACDNAAlphabetParameterSet();
 			} catch (Exception doesNotHappen) {
 				throw new RuntimeException( doesNotHappen.getMessage() );
 			}
@@ -98,7 +106,34 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 		}
 		
 		private static final String[] DNA = { "A", "C", "R", "K", "B", "D", "H", "V", "M", "Y", "G", "T", "S", "W", "N"};
+		private static final boolean[][] subset = new boolean[DNA.length][DNA.length];
+		static {
+			for( int i = 0; i < DNA.length; i++ ) {
+				subset[i][i] = true;
+			}
+			
+			try {
+				set( 2, 0, 10 );
+				set( 3, 10, 11 );
+				set( 4, 1, 10, 11,     3, 9, 12 );
+				set( 5, 0, 10, 11,     3, 13, 2 );
+				set( 6, 0, 1, 11,      9, 13, 8 );
+				set( 7, 0, 1, 10,      12, 2, 8 );
+				set( 8, 0, 1 );
+				set( 9, 1, 11 );
+				set( 12, 1, 10 );
+				set( 13, 0, 11 );
+				set( 14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 );
+			} catch( WrongAlphabetException doesNotHappen ) {
+				throw new RuntimeException(doesNotHappen.getCause());
+			}
+		}
 		
+		private static void set( int ambigious, int... subsets ) throws WrongAlphabetException {
+			for( int i = 0; i < subsets.length; i++ ) {
+				subset[subsets[i]][ambigious] = true;
+			}
+		}
 
 		/**
 		 * Creates a new {@link UIPACDNAAlphabetParameterSet}.
@@ -108,8 +143,8 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 		 * 
 		 * @see de.jstacs.data.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class) Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
-		private UIPACDNAAlphabetParameterSet() throws Exception {
-			super( UIPACDNAAlphabet.class );
+		private IUPACDNAAlphabetParameterSet() throws Exception {
+			super( IUPACDNAAlphabet.class );
 		}
 
 		/* (non-Javadoc)
@@ -117,7 +152,7 @@ public final class UIPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 		 */
 		@Override
 		public String getInstanceComment() {
-			return "A UIPAC alphabet for DNA.";
+			return "A IUPAC alphabet for DNA.";
 		}
 	}
 }
