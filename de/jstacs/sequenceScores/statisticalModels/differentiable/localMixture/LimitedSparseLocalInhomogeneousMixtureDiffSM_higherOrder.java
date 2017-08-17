@@ -610,11 +610,6 @@ Time t = Time.getTimeInstance(null);
 		int maxSymbol = a-1;
 		int z=0;
 		int[] seq = new int[kmer + 1];
-		int[] pow = new int[kmer+1];
-		pow[0]=1;
-		for( i = 1; i < pow.length; i++ ) {
-			pow[i] = pow[i-1]*a;
-		}
 		double[][] prefixScore = new double[start.length][kmer+1];
 		int l=0, an=-1;
 		double[] best=new double[start.length];
@@ -731,11 +726,6 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		}
 		
 		int a = dependencyParameters[0][0][0].length, i;
-		int[] pow = new int[kmer+1];
-		pow[0]=1;
-		for( i = 1; i < pow.length; i++ ) {
-			pow[i] = pow[i-1]*a;
-		}
 
 		//fill max table
 		double[][] prefixScore = new double[len][kmer+1];
@@ -760,21 +750,18 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 					//conditional scores
 					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
 						int g=ancestorMixtureParameters[pos][c].length;
-						//XXX??? boolean maxVal=false;
 						for( int m = 0; m < g; m++ ) {
 							if( ll+c+m < kmer ) {
 								//context known
 								an = seq[ll+c+m];
 							} else {
 								//context not known
-								//if( maxVal ) {
-									an=0;
-									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
-										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
-											an=i;
-										}
+								an=0;
+								for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
+									if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
+										an=i;
 									}
-								//}
+								}
 							}
 							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
 						}
@@ -815,19 +802,16 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 					localMixtureScore[0] = componentMixtureParameters[pos][0] - componentMixtureLogNorm[pos] + dependencyParameters[pos][0][0][current] - dependencyLogNorm[pos][0][0];
 					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
 						int g=ancestorMixtureParameters[pos][c].length;
-						//XXX??? boolean maxVal=false;
 						for( int m = 0; m < g; m++ ) {
 							if( ll+c+m < gg ) {
 								an = seq[ll+c+m];
 							} else {
-								//if( maxVal ) {
-									an=0;
-									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
-										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
-											an=i;
-										}
+								an=0;
+								for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
+									if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
+										an=i;
 									}
-								//}
+								}
 							}
 							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
 						}
