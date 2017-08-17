@@ -687,6 +687,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		double[] revCum = new double[len+1];
 		double last =0;
 		for( int l = 0; l < max.length; l++ ) {
+			//compute maximum for position l independent of all other positions
 			max[l] = Double.NEGATIVE_INFINITY;
 			//System.out.print(l);
 			for( int a = 0; a < dependencyPotential[l][0][0].length; a++ ) {
@@ -723,25 +724,25 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 	public double[][] getCum_Complex( int kmer ) throws Exception {
 		int start = getLength()-kmer+1;
 		int len = getLength();
-		double[][] max = new double[kmer][];
+		double[][] max = new double[kmer][]; // max[k][l] = maximum score of a infix of length k at position l
 		for( int k = 0; k < max.length; k++ ) {
 			max[k] = new double[len-k];
 			Arrays.fill( max[k],  Double.NEGATIVE_INFINITY );
 		}
 		
-		int a = dependencyParameters[0][0][0].length;
-		boolean[][] use = new boolean[start][(int)Math.pow(a, kmer)];
-		int i;
-
-		//fill max table
-		int maxSymbol = a-1;
-		int[] seq = new int[kmer + 1];
+		int a = dependencyParameters[0][0][0].length, i;
 		int[] pow = new int[kmer+1];
 		pow[0]=1;
 		for( i = 1; i < pow.length; i++ ) {
 			pow[i] = pow[i-1]*a;
 		}
+
+		//fill max table
 		double[][] prefixScore = new double[len][kmer+1];
+		int maxSymbol = a-1;
+		int[] seq = new int[kmer + 1];
+		
+		// compute all max values where a full kmer is possible
 		int l=0, an=-1;
 		do {
 			int h=l;
@@ -749,25 +750,31 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 			for( int s = 0; s < start; s++ ) {
 				l = h;
 				while( l < kmer ) {
-					int pos = l+s;
-					int ll = kmer-1-l;
+					int pos = l+s; // position in (L)slim model
+					int ll = kmer-1-l; //position in the sequence seq
 					int current = seq[ll];
+					
+					//unconditional score
 					localMixtureScore[0] = componentMixtureParameters[pos][0] - componentMixtureLogNorm[pos] + dependencyParameters[pos][0][0][current] - dependencyLogNorm[pos][0][0];
+
+					//conditional scores
 					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
 						int g=ancestorMixtureParameters[pos][c].length;
-						boolean maxVal=false;
+						//XXX??? boolean maxVal=false;
 						for( int m = 0; m < g; m++ ) {
 							if( ll+c+m < kmer ) {
+								//context known
 								an = seq[ll+c+m];
 							} else {
-								if( maxVal ) {
+								//context not known
+								//if( maxVal ) {
 									an=0;
 									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
 										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
 											an=i;
 										}
 									}
-								}
+								//}
 							}
 							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
 						}
@@ -786,6 +793,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 				}
 			}
 			
+			// increment the sequence seq and save the position of the modification (l)
 			i=0;
 			while( seq[i] == maxSymbol ) {
 				seq[i++] = 0;
@@ -794,7 +802,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 			l = kmer-1-i;
 		} while( seq[kmer]==0 );
 		
-		//fill missing values
+		//fill missing values of max array
 		for( int s = start; s < len; s++ ) {
 			int gg = len-s;
 			Arrays.fill(seq, 0);
@@ -807,19 +815,19 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 					localMixtureScore[0] = componentMixtureParameters[pos][0] - componentMixtureLogNorm[pos] + dependencyParameters[pos][0][0][current] - dependencyLogNorm[pos][0][0];
 					for( int c = 1; c < componentMixtureParameters[pos].length; c++ ) {
 						int g=ancestorMixtureParameters[pos][c].length;
-						boolean maxVal=false;
+						//XXX??? boolean maxVal=false;
 						for( int m = 0; m < g; m++ ) {
 							if( ll+c+m < gg ) {
 								an = seq[ll+c+m];
 							} else {
-								if( maxVal ) {
+								//if( maxVal ) {
 									an=0;
 									for( i = 1; i < dependencyParameters[pos][c].length; i++ ) {
 										if( dependencyPotential[pos][c][an][current] < dependencyPotential[pos][c][i][current] ) {
 											an=i;
 										}
 									}
-								}
+								//}
 							}
 							ancestorScore[c][m] = ancestorMixtureParameters[pos][c][m] - ancestorMixtureLogNorm[pos][c] + dependencyParameters[pos][c][an][current] - dependencyLogNorm[pos][c][an];
 						}
