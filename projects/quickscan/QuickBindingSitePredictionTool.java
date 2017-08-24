@@ -9,15 +9,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.jstacs.DataType;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
-import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
-import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterException;
