@@ -103,7 +103,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		String genomePath = parameters.getParameterAt(1).getValue().toString();
 		
 		protocol.appendHeading("Starting predictions...\n");
-		protocol.append("using "+(backgroundSet? " background set.\n" : " sub-sample of input data.\n"));
+		protocol.append("Using "+(backgroundSet? " background set.\n" : " sub-sample of input data.\n"));
 		
 		boolean byp = ((SelectionParameter)parameters.getParameterAt(3)).getSelected()==0;
 		double p_value = 0;
@@ -111,7 +111,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			p_value = (Double) ((ParameterSet)parameters.getParameterAt(3).getValue()).getParameterAt(0).getValue();
 		}else{
 			int nsites = (Integer) ((ParameterSet)parameters.getParameterAt(3).getValue()).getParameterAt(0).getValue();
-			p_value = nsites/(new File(genomePath)).length();
+			p_value = nsites/(double)(new File(genomePath)).length()/2.0;
 		}
 		protocol.append("Significance level: "+p_value+"\n");
 		protocol.appendWarning("The p-values and, hence, the significance level are only approximate values and may not fully reflect the number of predictions for a specific input file.\n");
@@ -120,7 +120,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		if(backgroundSet){
 			subsamp = 1;
 		}else{
-			subsamp = 1E6/(new File(backgroundPath)).length();
+			subsamp = 1E6/(double)(new File(backgroundPath)).length();
 		}
 		//System.out.println("subsamp: "+subsamp);
 		
@@ -167,7 +167,8 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 		protocol.appendHeading("Predicting sites...\n");
 		ListResult lr = getSites(progress,genomePath,lslim,nd,t,kmer,use,starts);
-		protocol.append("...finished.\n");
+		progress.setCurrent(1.0);
+		protocol.append("...finished predicting "+lr.getNumberOfResultSets()+" sites.\n");
 		
 		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(lr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 	}
@@ -232,6 +233,8 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 		
+		double prog = 0.3;
+		
 		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model.getLength()) ) != null ){
 			IntList starts = pair.getFirstElement();
 			ArrayList<Sequence> seqs = pair.getSecondElement();
@@ -241,7 +244,9 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			
 			while( it.hasNext() ) {
 				Sequence seq = it.next();
-				progress.setCurrent(0.3+(seq.getLength()/approxTotal)*0.7);
+				
+				prog += (seq.getLength()/(double)approxTotal)*0.7;
+				progress.setCurrent(prog);
 				
 				String id = seq.getSequenceAnnotationByType("id", 0).getIdentifier().trim();
 				int off = starts.get(itIdx);
@@ -277,6 +282,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 										new NumericalResult("Position", "",(d==0 ? off+j : off+seq.getLength()-j-model.getLength()) ),
 										new CategoricalResult("Strand","",d==0 ? "+" : "-"),
 										new NumericalResult("Score", "", score),
+										new CategoricalResult("Sequence", "", seq.toString(j, j+model.getLength())),
 										new NumericalResult("Approx. p-value", "", (1.0-nd.cdf(score)))
 								});
 								ll.add(rs);
