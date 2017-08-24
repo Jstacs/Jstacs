@@ -29,17 +29,18 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.motifDiscovery.Mutable;
+import de.jstacs.sequenceScores.QuickScanningSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
-import de.jstacs.utils.Time;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.random.DiMRGParams;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
 import de.jstacs.utils.random.FastDirichletMRGParams;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Class for a sparse local inhomogeneous mixture (Slim) model.
@@ -48,7 +49,7 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends AbstractDifferentiableStatisticalModel implements Mutable {
+public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends AbstractDifferentiableStatisticalModel implements Mutable, QuickScanningSequenceScore {
 
 	private int order;
 	private int distance;
@@ -579,6 +580,8 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 		return ess;
 	}
 	
+	
+	
 	private int getOffset( Sequence seq, int start, int order, int a ) {
 		int offset = 0;
 		for( int o = 1; o < order; o++ ) {
@@ -587,17 +590,28 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 		return offset;
 	}
 	
+	private int getOffset( int[] seq, int start, int order, int a ) {
+		int offset = 0;
+		for( int o = 1; o < order; o++ ) {
+			offset = offset*a +seq[start-o];
+		}
+		return offset;
+	}
+	
 	private int next( int context, Sequence seq, int start, int l, int c, int m ) {
 		return (context*dependencyParameters[l][c][0].length + seq.discreteVal(start+l-c-m))%dependencyParameters[l][c].length;
 	}
 	
-	//XXX getInfixFilter
-	public boolean[][] XXX( int kmer, double thresh, boolean naive, int... start ) throws Exception {
+	private int next( int context, int[] seq, int start, int l, int c, int m ) {
+		return (context*dependencyParameters[l][c][0].length + seq[start+l-c-m])%dependencyParameters[l][c].length;
+	}
+	
+	public boolean[][] getInfixFilter( int kmer, double thresh, int... start ) {
 		if( order > 1 ) {
-			throw new Exception("not supported for order>1");
+			throw new NotImplementedException();
 		}
 		
-		double[][] val = naive ? getCum_Naive(kmer) : getCum_Complex(kmer);
+		double[][] val = getCum_Complex(kmer);
 		double[] cum = val[0];
 		double[] revCum = val[1];
 		
@@ -615,7 +629,7 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 
 		do {
 			for( int s = 0; s  < start.length; s++ ) {
-				YYY(s, start[s], l, kmer, seq, prefixScore, null);
+				getInfixScores(s, start[s], l, kmer, seq, prefixScore, null);
 				if( prefixScore[s][kmer]> best[s] ) {
 					best[s] = prefixScore[s][kmer];
 				}
@@ -669,7 +683,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		return new double[][]{cum, revCum};
 	}
 	
-	public double[][] getCum_Complex( int kmer ) throws Exception {
+	public double[][] getCum_Complex( int kmer ) {
 		int start = getLength()-kmer+1;
 		int len = getLength();
 		double[][] max = new double[kmer][]; // max[k][l] = maximum score of a infix of length (k+1) at position l
@@ -689,7 +703,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		int l=0;
 		do {
 			for( int s = 0; s < start; s++ ) {
-				YYY(s, s, l, kmer, seq, prefixScore, max);
+				getInfixScores(s, s, l, kmer, seq, prefixScore, max);
 			}			
 			// increment the sequence seq and save the position of the modification (l)
 			l = kmer-1-next(seq, maxSymbol);
@@ -701,7 +715,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 			Arrays.fill(seq, 0);
 			l=0;
 			do {
-				YYY(s, s, l, gmer, seq, prefixScore, max);
+				getInfixScores(s, s, l, gmer, seq, prefixScore, max);
 				l = gmer-1-next(seq, maxSymbol);
 			} while( seq[gmer]==0 );
 		}
@@ -734,8 +748,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		return new double[][]{cum, revCum};
 	}
 
-	//XXX getPrefixScores
-	private void YYY(int s, int start, int l, int kmer, int[] seq, double[][] prefixScore, double[][] max) {
+	private void getInfixScores(int s, int start, int l, int kmer, int[] seq, double[][] prefixScore, double[][] max) {
 		while( l < kmer ) {
 			int pos = l+start; // position in (L)slim model
 			int ll = kmer-1-l; //position in the sequence seq
@@ -1226,4 +1239,24 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		}
 		return true;
 	}
+	
+	public void fillInfixScore(int[] seq, int start, int length, double[] scores) {
+		
+		for( int l = start; l < start+length; l++ ) {
+			int current = seq[l];
+			localMixtureScore[0] = componentMixtureParameters[l][0] - componentMixtureLogNorm[l] + dependencyParameters[l][0][0][current] - dependencyLogNorm[l][0][0];
+			for( int c = 1; c < componentMixtureParameters[l].length; c++ ) {
+				int k=ancestorMixtureParameters[l][c].length;
+				int an=getOffset(seq, l, c, dependencyParameters[0][0][0].length);
+				for( int m = 0; m < k; m++ ) {
+					an = next(an, seq, 0, l, c, m );
+					ancestorScore[c][m] = ancestorMixtureParameters[l][c][m] - ancestorMixtureLogNorm[l][c] + dependencyParameters[l][c][an][current] - dependencyLogNorm[l][c][an]; 
+				}
+				localMixtureScore[c] = componentMixtureParameters[l][c] - componentMixtureLogNorm[l] + Normalisation.getLogSum(0, k, ancestorScore[c]);
+			}
+			scores[l] = Normalisation.getLogSum(0, componentMixtureParameters[l].length, localMixtureScore );
+		}
+		
+	}
+	
 }
