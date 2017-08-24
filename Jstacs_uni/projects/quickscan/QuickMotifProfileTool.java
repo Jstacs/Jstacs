@@ -10,22 +10,16 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
-import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.WrongAlphabetException;
-import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
-import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.FileManager;
 import de.jstacs.sequenceScores.QuickScanningSequenceScore;
-import de.jstacs.sequenceScores.statisticalModels.differentiable.localMixture.LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.LargeSequenceReader;
 import de.jstacs.utils.Pair;
