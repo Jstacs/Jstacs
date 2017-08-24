@@ -22,6 +22,8 @@ package de.jstacs.results;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
@@ -66,6 +68,33 @@ public class ListResult extends Result {
 		super(name, comment, DataType.LIST);
 		this.list = new ResultSet[results.length];
 		System.arraycopy(results, 0, list, 0, results.length);
+		this.annotation = annotation;
+		this.export = false;
+	}
+	
+	/**
+	 * Creates a new {@link ListResult} from a {@link java.util.Collection} of {@link ResultSet}s and
+	 * a {@link ResultSet} of annotations, which may provide additional
+	 * information on this {@link ListResult}.
+	 * 
+	 * @param name
+	 *            the name of the {@link ListResult}
+	 * @param comment
+	 *            the comment on the {@link ListResult}
+	 * @param annotation
+	 *            an annotation on this {@link ListResult}
+	 * @param coll
+	 *            the {@link Collection} of {@link ResultSet}s
+	 */
+	public ListResult( String name, String comment, ResultSet annotation, Collection<ResultSet> coll ) {
+		super(name, comment, DataType.LIST);
+		this.list = new ResultSet[coll.size()];
+		Iterator<ResultSet> it = coll.iterator();
+		int i=0;
+		while(it.hasNext()){
+			list[i] = it.next();
+			i++;
+		}
 		this.annotation = annotation;
 		this.export = false;
 	}
