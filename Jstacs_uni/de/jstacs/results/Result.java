@@ -25,6 +25,7 @@ import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 
 /**
@@ -37,6 +38,8 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  */
 public abstract class Result extends AnnotatedEntity {
 
+	private String originalName;
+	
 	/**
 	 * The main constructor which takes the main information of a result.
 	 * 
@@ -215,9 +218,40 @@ public abstract class Result extends AnnotatedEntity {
 		}
 	}
 	
+	/**
+	 * Renames this Result. The original name will be stored and is available from {@link #getOriginalName()}. 
+	 * @param newName the new name
+	 */
 	public void rename(String newName){
+		if(this.originalName == null){
+			this.originalName = this.name;
+		}
 		this.name = newName;
 	}
+	
+	/**
+	 * Returns the original name (i.e., the name upon object creation) of this {@link Result}, 
+	 * which may be just the name if {@link #rename(String)} has not been called on this object, yet.
+	 * @return the original name
+	 */
+	public String getOriginalName(){
+		if(this.originalName == null){
+			return this.name;
+		}else{
+			return this.originalName;
+		}
+	}
+
+	@Override
+	protected void appendFurtherInfos(StringBuffer buf) {
+		XMLParser.appendObjectWithTags(buf, originalName, "originalName");		
+	}
+
+	@Override
+	protected void extractFurtherInfos(StringBuffer buf) throws NonParsableException {
+		originalName = (String) XMLParser.extractObjectForTags(buf, "originalName");
+	}
+	
 	
 
 }
