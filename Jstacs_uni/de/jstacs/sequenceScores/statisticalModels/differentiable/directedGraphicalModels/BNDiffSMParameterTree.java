@@ -209,6 +209,19 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 	public BNDiffSMParameter getParameterFor(Sequence seq, int start) {
 		return root.getParameterFor(seq, start);
 	}
+	
+	/**
+	 * Returns the {@link BNDiffSMParameter} that is responsible for the suffix of
+	 * sequence <code>seq</code> starting at position <code>start</code>.
+	 * 
+	 * @param seq the sequence encoded as int array
+	 * @param start  the first position in the suffix
+	 * 
+	 * @return the {@link BNDiffSMParameter} that is responsible for the suffix
+	 */
+	public BNDiffSMParameter getParameterFor(int[] seq, int start) {
+		return root.getParameterFor(seq, start);
+	}
 
 	/**
 	 * Sets the instance of the {@link BNDiffSMParameter} for symbol <code>symbol</code> and
@@ -964,6 +977,15 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 				return pars[seq.discreteVal(pos + start)];
 			}
 		}
+		
+		private BNDiffSMParameter getParameterFor(int[] seq, int start) {
+			if (children != null) {
+				return children[seq[contextPos + start]]
+						.getParameterFor(seq, start);
+			} else {
+				return pars[seq[pos + start]];
+			}
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -1457,7 +1479,14 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 
 		private double getMaximumScore() {
 			if(this.children != null){
-				throw new RuntimeException("Not implemented");
+				double max = Double.NEGATIVE_INFINITY, temp;
+				for(int i=0;i<children.length;i++){
+					temp = children[i].getMaximumScore();
+					if(temp > max){
+						max = temp;
+					}
+				}
+				return max;
 			}else{
 				double max = Double.NEGATIVE_INFINITY, temp;
 				for(int i=0;i<pars.length;i++){
@@ -1531,6 +1560,27 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 				return p;
 			}
 		}
+
+		public double getLocalScoreFor(Sequence seq, int i) {
+			if(children !=null ){
+				if(i+contextPos>=0){
+					return children[seq.discreteVal(i+contextPos)].getLocalScoreFor(seq, i);
+				}else{
+					double max = Double.NEGATIVE_INFINITY;
+					for(int j=0;j<children.length;j++){
+						double temp = children[j].getLocalScoreFor(seq, i);
+						if(temp > max){
+							max = temp;
+						}
+					}
+					return max;
+				}
+			}else{
+				return pars[seq.discreteVal(i+pos)].getValue();
+			}
+		}
+
+		
 
 	}
 
@@ -1607,6 +1657,12 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		all.append( "</table></p>" );
 		return all.toString();
 	}
+
+	public double getLocalScoreFor(Sequence seq, int i) {
+		return root.getLocalScoreFor(seq, i);		
+	}
+
+	
 
 	/*public void set( double[] probs ) {
 		root.set(probs);	

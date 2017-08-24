@@ -24,17 +24,22 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.naming.OperationNotSupportedException;
+
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.graphs.TopSort;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.DataSetKMerEnumerator;
+import de.jstacs.data.DiscreteSequenceEnumerator;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
 import de.jstacs.parameters.InstanceParameterSet;
+import de.jstacs.sequenceScores.QuickScanningSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.FixedStructure;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.InhomogeneousMarkov;
@@ -62,7 +67,7 @@ import de.jstacs.utils.IntList;
  */
 public class BayesianNetworkDiffSM extends
 		AbstractDifferentiableStatisticalModel implements
-		InstantiableFromParameterSet {
+		InstantiableFromParameterSet, QuickScanningSequenceScore {
 
 	/**
 	 * The parameters of the scoring function. This comprises free as well as
@@ -685,6 +690,52 @@ public class BayesianNetworkDiffSM extends
 		}
 		return prob;
 	}
+	
+	public boolean[][] getInfixFilter( int kmer, double thresh,  int... start ) {
+		double[][] cum = getCum();
+		
+		if(! getAlphabetContainer().isSimple() ){
+			throw new RuntimeException();
+		}
+		
+		boolean[][] use = new boolean[start.length][(int) Math.pow(getAlphabetContainer().getAlphabetLengthAt(0), kmer)];
+		
+		for(int i=0;i<start.length;i++){
+			DiscreteSequenceEnumerator en = new DiscreteSequenceEnumerator(getAlphabetContainer().getSubContainer(start[i], kmer), kmer, false);
+			int k=0;
+			while(en.hasMoreElements()){
+				Sequence temp;
+				try {
+					temp = en.nextElement().reverse();
+				} catch (OperationNotSupportedException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}//TODO efficient
+				
+				double score = 0;
+				for(int j=0;j<kmer;j++){
+					score += trees[start[i]+j].getLocalScoreFor(temp,j-start[i]);
+				}
+				use[i][k] = cum[0][start[i]]+score+cum[1][start[i]+kmer] > thresh;
+				k++;
+			}
+			
+		}
+		return use;
+	}
+	
+	private double[][] getCum(){
+		double[][] cum = new double[2][this.getLength()];
+		for(int i=0;i<trees.length-1;i++){
+			double max = trees[i].getMaximumScore();
+			cum[0][i+1] = cum[0][i] + max;
+		}
+		for(int i=trees.length-2;i>=0;i--){
+			double max = trees[i].getMaximumScore();
+			cum[1][i] = cum[1][i+1]+max;
+		}
+		return cum;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -1081,6 +1132,14 @@ public class BayesianNetworkDiffSM extends
 			return buf.toString();
 		} else {
 			return getClass().getSimpleName() + " of length " + length + ": not initialized";
+		}
+		
+	}
+
+	@Override
+	public void fillInfixScore(int[] seq, int start, int length, double[] scores) {
+		for( int l = start; l < start+length; l++ ) {
+			scores[l] = trees[l].getParameterFor(seq, start).getValue();
 		}
 		
 	}
