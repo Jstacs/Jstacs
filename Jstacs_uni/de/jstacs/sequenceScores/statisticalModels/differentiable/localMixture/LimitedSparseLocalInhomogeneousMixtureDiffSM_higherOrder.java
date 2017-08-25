@@ -646,7 +646,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		return use;
 	}
 	
-	public double[][] getCum_Naive( int kmer ) {
+	protected double[][] getCum_Naive( int kmer ) {
 		int len = getLength();
 		double[] max = new double[len];
 		double[] cum = new double[len+1];
@@ -683,7 +683,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		return new double[][]{cum, revCum};
 	}
 	
-	public double[][] getCum_Complex( int kmer ) {
+	protected double[][] getCum_Complex( int kmer ) {
 		int start = getLength()-kmer+1;
 		int len = getLength();
 		double[][] max = new double[kmer][]; // max[k][l] = maximum score of a infix of length (k+1) at position l
@@ -748,7 +748,7 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 		return new double[][]{cum, revCum};
 	}
 
-	private void getInfixScores(int s, int start, int l, int kmer, int[] seq, double[][] prefixScore, double[][] max) {
+	protected void getInfixScores(int s, int start, int l, int kmer, int[] seq, double[][] prefixScore, double[][] max) {
 		while( l < kmer ) {
 			int pos = l+start; // position in (L)slim model
 			int ll = kmer-1-l; //position in the sequence seq
