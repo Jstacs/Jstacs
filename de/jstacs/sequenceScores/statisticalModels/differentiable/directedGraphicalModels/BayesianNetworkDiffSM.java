@@ -714,7 +714,7 @@ public class BayesianNetworkDiffSM extends
 				
 				double score = 0;
 				for(int j=0;j<kmer;j++){
-					score += trees[start[i]+j].getLocalScoreFor(temp,j-start[i]);
+					score += trees[start[i]+j].getLocalScoreFor(temp,-start[i]);
 				}
 				use[i][k] = cum[0][start[i]]+score+cum[1][start[i]+kmer] > thresh;
 				k++;
@@ -725,12 +725,12 @@ public class BayesianNetworkDiffSM extends
 	}
 	
 	private double[][] getCum(){
-		double[][] cum = new double[2][this.getLength()];
-		for(int i=0;i<trees.length-1;i++){
+		double[][] cum = new double[2][this.getLength()+1];
+		for(int i=0;i<trees.length;i++){
 			double max = trees[i].getMaximumScore();
 			cum[0][i+1] = cum[0][i] + max;
 		}
-		for(int i=trees.length-2;i>=0;i--){
+		for(int i=trees.length-1;i>=0;i--){
 			double max = trees[i].getMaximumScore();
 			cum[1][i] = cum[1][i+1]+max;
 		}
