@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import de.jstacs.DataType;
-import de.jstacs.io.FileManager;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;

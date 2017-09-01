@@ -82,7 +82,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		BufferedReader r;
 		MAX = eps.getNumberOfParameters();
 		for( int k = 0; k < MAX; k++ ) {
-			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
+			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
+			String prefix = sps.getParameterAt(0).getValue().toString();
+			String fName = sps.getParameterAt(1).getValue().toString();
 			//System.out.println(fName);
 
 			r = new BufferedReader(new FileReader(fName));
@@ -93,7 +95,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				
 				t = split[2];
 				if( t.equalsIgnoreCase( tag ) ) {
-					current = new Prediction(split, k);
+					current = new Prediction(split, k, prefix);
 					pred.add( current );
 				} else {
 					current.addCDS( line );
@@ -174,11 +176,14 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			w.close();
 		}
 				
-		protocol.append( "clustered: " + clustered + "\n" );
-		protocol.append( "transcripts: " + transcripts + "\n" );
-		protocol.append( "genes: " + gene + "\n\n" );
-		protocol.append( "no tie: " + GeMoMaAnnotationFilter.noTie + "\n" );
-		protocol.append( "tie=1: " + tie1 + "\n" );
+		protocol.append( "clustered: " + clustered + "\n\n" );
+		
+		protocol.append( "genes\t" + gene + "\n" );
+		protocol.append( "genes with maxTie=1\t" + maxTie1 + "\n\n" );
+		
+		protocol.append( "transcripts\t" + transcripts + "\n" );
+		protocol.append( "transcripts with no tie\t" + GeMoMaAnnotationFilter.noTie + "\n" );
+		protocol.append( "transcripts with tie=1\t" + tie1 + "\n" );
 		
 		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("filtered predictions", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
@@ -266,7 +271,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	
 	static int h = 0;
 	
-	static int gene=0, noTie=0, tie1;
+	static int gene=0, noTie=0, tie1=0, maxTie1=0;
 	
 	static int create( ArrayList<Prediction> list, IntList cand, int best, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
 		Prediction current = list.get(cand.get(best));
@@ -353,6 +358,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + pred + ";complete="+complete+";maxEvidence="+maxEvidence+";maxTie=" + (maxTie<0?"NA":maxTie) );
 			w.newLine();
 			gene++;
+			if( maxTie == 1 ) {
+				maxTie1++;
+			}
 		}
 		
 		if( count>0  ) {
@@ -384,8 +392,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		HashSet<String> alternative;
 		int index;
 		boolean[] evidence;
+		String prefix, id;
 		
-		public Prediction( String[] split, int index ) {
+		public Prediction( String[] split, int index, String prefix ) {
 			this.index = index;
 			
 			this.split = split;
@@ -405,6 +414,16 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				hash.put( split[i].substring(0,idx), s );
 			}
 			score = Integer.parseInt(hash.get("score"));
+			if( prefix != null && prefix.length()>0 ) {
+				this.prefix = prefix;
+				if( prefix.charAt(prefix.length()-1) != '_' ) {
+					this.prefix += "_";
+				}
+				id = hash.get("ID");
+				this.split[8] = this.split[8].replace("ID="+id,"ID=" + this.prefix + id);
+				String rg = hash.get("ref-gene");
+				this.split[8] = this.split[8].replace("ref-gene="+rg,"ref-gene=" + this.prefix + rg);
+			}
 
 			cds = new ArrayList<String>();
 			length = 0;
@@ -412,6 +431,9 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		void addCDS( String cds ) {
+			if( prefix != null && prefix.length()>0 ) {
+				cds = cds.replaceAll("="+id, "=" + prefix + id);
+			}
 			this.cds.add( cds );
 			String[] split = cds.split("\t");
 			length+= (Integer.parseInt(split[4])-Integer.parseInt(split[3])+1);
@@ -476,8 +498,10 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				count=1;
 			}
 			
+			String t = hash.get("tie");
+			String tpc = hash.get("tpc");
 			if( count/(double) MAX >= epTh ) {
-				String t = hash.get("tie");
+				//TODO || ((tie!=null && tpc!=null) && ((tie.equals("NA") && Double.parseDouble(tpc) == 1d) || Double.parseDouble(tie) == 1d)) )  {
 				if( t == null || t.equals("NA") ) {
 					noTie++;
 				} else {
@@ -589,9 +613,10 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 					new SimpleParameter(DataType.DOUBLE,"intron evidence filter","the filter on the intron evidence given by RNA-seq-data for overlapping transcripts", true, new NumberValidator<Double>(0d, 1d), 1d ),
 					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
-							new FileParameter( "gene annotation files", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )
-						), "gene annotation file", "", 1 ) ),
-					new SimpleParameter(DataType.DOUBLE,"evidence percentage filter","Each gene annotation file is handle as separate evidence. A prediction is only returned if it is contained at least in this percentage of evidence files.)", true, new NumberValidator<Double>(0d, 1d), 0.5 )
+							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
+							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )
+						), "gene annotations", "", 1 ) ),
+					new SimpleParameter(DataType.DOUBLE,"evidence percentage filter","Each gene annotation file is handled as independent evidence. A prediction is only returned if it is contained at least in this percentage of evidence files.", true, new NumberValidator<Double>(0d, 1d), 0.5 )
 				);		
 		}catch(Exception e){
 			e.printStackTrace();

@@ -280,7 +280,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		
 		File outInt = GeMoMa.createTempFile("ERE-intron");
 		SafeOutputStream sosInt = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outInt));	
-		
+		sosInt.writeln("##gff-version 3");
 		
 		Comparator<String> scomp = new Comparator<String>() {
 			
