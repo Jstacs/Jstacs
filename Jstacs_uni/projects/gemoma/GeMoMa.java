@@ -96,7 +96,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String version = "1.4.2";
+	public static final String version = "1.4.3";
 	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
@@ -248,6 +248,16 @@ public class GeMoMa implements JstacsTool {
 		}
 		//System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 		
+		JstacsTool[] tools = {
+				new Extractor(maxSize),
+				new ExtractRNAseqEvidence(),
+				new GeMoMa(maxSize, timeOut, maxTimeOut),
+				new GeMoMaAnnotationFilter(),
+				new AnnotationEvidence(),
+				new CompareTranscripts(),
+				new TranscribedCluster()
+		};
+		
 		//running the program
 		if( args.length == 0 ) {
 			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
@@ -257,7 +267,7 @@ public class GeMoMa implements JstacsTool {
 						+ "For more information, please visit http://www.jstacs.de/index.php/GeMoMa\n"
 						+ "If you have any questions, comments or bugs, please contact jens.keilwagen@julius-kuehn.de\n\n"
 						+ "If you use GeMoMa, please cite:\n Using intron position conservation for homology-based gene prediction.\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89",
-					"CLI", null, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter(), new AnnotationEvidence(), new CompareTranscripts() );
+					"CLI", null, tools );
 				if( args[0].equalsIgnoreCase("CLI") ) {
 					String[] part = new String[args.length-1];
 					System.arraycopy(args, 1, part, 0, part.length);
@@ -267,7 +277,7 @@ public class GeMoMa implements JstacsTool {
 					cli.wiki();
 				}
 			} else {
-				Galaxy galaxy = new Galaxy("", false, new Extractor(maxSize), new ExtractRNAseqEvidence(), new GeMoMa(maxSize, timeOut, maxTimeOut), new GeMoMaAnnotationFilter(), new AnnotationEvidence(), new CompareTranscripts() );
+				Galaxy galaxy = new Galaxy("", false, tools );
 				galaxy.run(args);
 			}
 		}
@@ -838,7 +848,7 @@ public class GeMoMa implements JstacsTool {
 		/**
 		 * The default instances
 		 */
-		static IntArrayComparator[] comparator = {
+		public static IntArrayComparator[] comparator = {
 				new IntArrayComparator(0,1),
 				new IntArrayComparator(1,0),
 				new IntArrayComparator(0)
