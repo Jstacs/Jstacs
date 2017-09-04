@@ -95,7 +95,7 @@ public class TrainableStatisticalModelFactory {
 				}
 			}
 		}
-		FSDAGModelForGibbsSamplingParameterSet ps = new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, "IMM", graph );
+		FSDAGModelForGibbsSamplingParameterSet ps = new FSDAGModelForGibbsSamplingParameterSet( con, length, ess, "IMM"+order, graph );
 		return (FSDAGTrainSM) ps.getInstance();
 	}
 	

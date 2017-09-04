@@ -310,7 +310,9 @@ public class ParameterSetParser {
 			try {
 				res = (InstantiableFromParameterSet)construct.newInstance( new Object[]{ pars } );
 			} catch ( Exception e ) {
-				throw new NotInstantiableException( e.getCause().getMessage() );
+				NotInstantiableException nie = new NotInstantiableException( instanceClass + ": " + e.getCause().getMessage() );
+				nie.setStackTrace(e.getStackTrace());
+				throw nie;
 			}
 		}
 		return (T) res;

@@ -353,6 +353,11 @@ public class LogGenDisMixFunction extends DiffSSBasedOptimizableFunction
 					+ " + " + beta[LearningPrinciple.LIKELIHOOD_INDEX] + " * " + ll					
 					+ " + " + beta[LearningPrinciple.PRIOR_INDEX] + " * " + lpr );
 			System.out.println( "params " + Arrays.toString( params ) );
+			
+			for( i=0; i < helpArray.length; i++ ) {
+				System.out.println(Arrays.toString(helpArray[i]));
+			}
+			
 			System.out.flush();
 			throw new EvaluationException( "Evaluating the function gives: "
 					+ beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] + " * " + cll

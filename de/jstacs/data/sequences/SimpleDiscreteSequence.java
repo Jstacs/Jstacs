@@ -18,6 +18,9 @@
 
 package de.jstacs.data.sequences;
 
+import java.util.Arrays;
+import java.util.Random;
+
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -29,6 +32,78 @@ import de.jstacs.data.sequences.annotation.SequenceAnnotation;
  */
 public abstract class SimpleDiscreteSequence extends Sequence<int[]> {
 
+	static Random r = new Random();
+	
+	/**
+	 * This method implements the algorithm of D. Kandel et al. Discrete Applied Mathematics (1996) 171-185
+	 * and returns a k-mer preserving shuffled sequence.
+	 * 
+	 * @param original the original sequence
+	 * @param k the value for the k-mers, k should be larger than (or equal to) 1
+	 * 
+	 * @return the shuffled sequence
+	 * 
+	 * @throws Exception
+	 */
+	public static SimpleDiscreteSequence shuffle( SimpleDiscreteSequence original, int k /*, boolean randomRotation*/ ) throws Exception {
+		int n = original.getLength();
+		if( n < 4*(k+1) ) {
+			return original;
+		}
+		
+		int[] shuffle = new int[n], help = shuffle.clone();
+		for( int i = 0; i < n; i++ ) {
+			shuffle[i] = original.discreteVal(i);
+			//System.out.print( ( i % 10 == 0 ) ? "." : " " );
+		}
+		//System.out.println();
+				 
+		int anz = 0;
+		for( int i = 0; i < shuffle.length; i++ ) {
+			int a = r.nextInt(n-4*(k+1));
+			int b = a+1+r.nextInt(n-3*(k+1)-a);
+			int c = b+1+r.nextInt(n-2*(k+1)-b);
+			int d = c+1+r.nextInt(n-k+1-c);
+			
+			boolean matches;
+			int j = 0;
+			//System.out.println();
+			while( j < k-1 && shuffle[a+j] == shuffle[c+j] ) {
+				//System.out.println( j + "\t" + (a+j) + "\t" + shuffle[a+j] + "\t" + (c+j) + "\t" + shuffle[c+j] );
+				j++;
+			}
+			matches = j == k-1;
+			j = 0;
+			while( matches && j < k-1 && shuffle[b+j] == shuffle[d+j] ) {
+				//System.out.println( j + "\t" + (b+j) + "\t" + shuffle[b+j] + "\t" + (d+j) + "\t" + shuffle[d+j] );
+				j++;
+			}
+			matches &= j == k-1;
+			if( matches ) {
+				anz++;
+				//System.out.println( i + "\t" + a + "\t" + b + "\t" + c + "\t" + d + "\t" + anz );
+				Arrays.fill(help, 0);
+				System.arraycopy( shuffle, 0, help, 0, a );
+				System.arraycopy( shuffle, c, help, a, d-c );
+				System.arraycopy( shuffle, b, help, a+d-c, c-b );
+				System.arraycopy( shuffle, a, help, a+d-b, b-a );
+				System.arraycopy( shuffle, d, help, d, n-d );
+				System.arraycopy( help, 0, shuffle, 0, n );
+			}
+		}
+		
+		Exception ex = null;
+		try {
+			return new IntSequence( original.getAlphabetContainer(), shuffle );
+		} catch( WrongAlphabetException wae ) {
+			ex=wae;
+		}  catch( WrongSequenceTypeException wste ) {
+			ex=wste;
+		}
+		//will not happen.
+		throw new RuntimeException(ex.getMessage());
+	}
+	
 	/**
 	 * This constructor creates a new {@link SimpleDiscreteSequence} with the
 	 * {@link AlphabetContainer} <code>container</code> and the annotation

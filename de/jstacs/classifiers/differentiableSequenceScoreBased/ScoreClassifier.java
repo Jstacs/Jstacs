@@ -23,11 +23,13 @@ import java.util.Arrays;
 
 import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
+import de.jstacs.algorithms.optimization.MultiThreadedFunction;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.performance.PerformanceOptimizedClassifierParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
@@ -294,6 +296,10 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		}
 		lastScore = doOptimization( reduced, newWeights );
 	}
+	
+	protected int getIterations() {
+		return AbstractDifferentiableStatisticalModel.getNumberOfStarts(score);
+	}
 
 	/**
 	 * This method does the optimization of the <code>train</code>-method
@@ -320,7 +326,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		double[][] res = new double[2][];		
 		double max = Double.NEGATIVE_INFINITY, current;
 		
-		int iterations = AbstractDifferentiableStatisticalModel.getNumberOfStarts( score );
+		int iterations = getIterations();
 		sostream.writeln( getInstanceName() );
 		DifferentiableSequenceScore[] bestSF = new DifferentiableSequenceScore[score.length], secure;
 		if( iterations > 1 ) {
@@ -386,8 +392,8 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		setClassWeights( false, best );
 		hasBeenOptimized = true;
 		
-		if( f instanceof AbstractMultiThreadedOptimizableFunction ) {
-			((AbstractMultiThreadedOptimizableFunction)f).stopThreads();
+		if( f instanceof MultiThreadedFunction ) {
+			((MultiThreadedFunction)f).stopThreads();
 		}
 		return max;
 	}

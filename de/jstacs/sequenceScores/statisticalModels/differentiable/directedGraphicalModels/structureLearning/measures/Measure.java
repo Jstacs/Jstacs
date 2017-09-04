@@ -24,7 +24,6 @@ import java.util.Arrays;
 
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Storable;
-import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -51,6 +50,10 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 	 * @throws NonParsableException the the XML could not be parsed
 	 */
 	protected Measure( StringBuffer xml ) throws NonParsableException {
+		fromXML(xml);
+	}
+	
+	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, getXMLTag() );
 		parameters = XMLParser.extractObjectForTags( xml, "parameters", MeasureParameterSet.class );
 	}

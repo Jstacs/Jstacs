@@ -700,7 +700,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	
 	private double doOneStep(DataSet data, double[] weights, int start, int end ) throws Exception{
 		Sequence seq;
-		double weight = 1;
+		double weight = 1, score = 0;
 		double newValue = 0;
 		for( int n = start; n < end; n++ ) {
 			seq = data.getElementAt( n );
@@ -709,12 +709,13 @@ public class HigherOrderHMM extends AbstractHMM {
 			}
 			
 			if( trainingParameter instanceof ViterbiParameterSet ) {
-				newValue += viterbi( null, 0, seq.getLength()-1, weight, seq ); //viterbi
+				score = viterbi( null, 0, seq.getLength()-1, weight, seq ); //viterbi
 			} else if ( trainingParameter instanceof BaumWelchParameterSet ) {
-				newValue += baumWelch( 0, seq.getLength()-1, weight, seq ); //Baum-Welch
+				score = baumWelch( 0, seq.getLength()-1, weight, seq ); //Baum-Welch
 			} else {
 				throw new IllegalArgumentException( "Training mode not available." );
 			}
+			newValue += weight*score;
 		}
 		return newValue;
 	}

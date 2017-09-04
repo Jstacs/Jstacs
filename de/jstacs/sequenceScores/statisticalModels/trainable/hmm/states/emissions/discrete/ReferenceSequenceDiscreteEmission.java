@@ -36,9 +36,9 @@ import de.jstacs.io.XMLParser;
 public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscreteEmission {
 
 	private AlphabetContainer refCon;
-	private int refIdx;
+	protected int refIdx;
 	
-	private static final Sequence getReferenceSequence(Sequence seq){
+	protected static final Sequence getReferenceSequence(Sequence seq){
 		return ((ReferenceSequenceAnnotation) seq.getSequenceAnnotationByType( "reference", 0 )).getReferenceSequence();
 	}
 	
@@ -136,7 +136,7 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 		DiscreteAlphabet abc2 = (DiscreteAlphabet) refCon.getAlphabetAt( 0 );
 		for( int i = 0; i < probs.length; i++ ) {
 			for(int j=0;j<probs[i].length;j++){
-				res += "P(X=" + abc.getSymbolAt( j ) + " | "+ abc2.getSymbolAt( i ) + ") = " + nf.format(probs[i][j]) + "\t";
+				res += "P(X=" + abc.getSymbolAt( j ) + " | R_" + refIdx + "=" + abc2.getSymbolAt( i ) + ") = " + nf.format(probs[i][j]) + "\t";
 			}
 			res += "\n";
 		}

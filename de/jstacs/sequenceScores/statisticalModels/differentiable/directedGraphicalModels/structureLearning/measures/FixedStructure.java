@@ -11,7 +11,10 @@ public class FixedStructure extends Measure {
 
 	public FixedStructure(StringBuffer xml) throws NonParsableException {
 		super(xml);
-		xml = XMLParser.extractForTag(xml, "Fixed");
+	}
+	
+	protected void fromXML( StringBuffer xml ) throws NonParsableException {
+		xml = XMLParser.extractForTag(xml, getXMLTag() );
 		structure = (int[][]) XMLParser.extractObjectForTags(xml, "structure");
 	}
 
@@ -37,7 +40,7 @@ public class FixedStructure extends Measure {
 
 	@Override
 	public String getInstanceName() {
-		return "Fixed";
+		return getXMLTag();
 	}
 
 	@Override
@@ -50,7 +53,7 @@ public class FixedStructure extends Measure {
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags(xml, structure, "structure");
-		XMLParser.addTags(xml, "Fixed");
+		XMLParser.addTags(xml, getXMLTag());
 		return xml;
 	}
 	

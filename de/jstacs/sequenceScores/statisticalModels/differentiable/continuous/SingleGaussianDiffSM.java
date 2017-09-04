@@ -36,9 +36,13 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 	private double logNorm;
 	
 	private DinucleotideProperty prop;
+
+	private boolean fixMu;
 	
-	public SingleGaussianDiffSM(double ess, double priorMu, double priorAlpha, double priorBeta, AlphabetContainer alphabet, boolean alwaysInitRandomly){
+	public SingleGaussianDiffSM(double ess, double priorMu, double priorAlpha, double priorBeta, AlphabetContainer alphabet, boolean alwaysInitRandomly, boolean fixMu, double mu ){
 		super(alphabet,1);
+		this.fixMu = fixMu;
+		this.mu = mu;
 		this.ess = ess;
 		this.priorMu = priorMu;
 		this.priorAlpha = priorAlpha;
@@ -48,7 +52,7 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 	}
 	
 	public SingleGaussianDiffSM(AlphabetContainer alphabet, double ess, double priorMu, double expectedPrecision, double sdPrecision, boolean alwaysInitRandomly){
-		this(ess,priorMu,( expectedPrecision/(2.0*sdPrecision*sdPrecision)+Math.sqrt( (expectedPrecision/(2.0*sdPrecision*sdPrecision))*(expectedPrecision/(2.0*sdPrecision*sdPrecision)) + 1.0/(sdPrecision*sdPrecision) ) )*expectedPrecision + 1.0 ,expectedPrecision/(2.0*sdPrecision*sdPrecision)+Math.sqrt( (expectedPrecision/(2.0*sdPrecision*sdPrecision))*(expectedPrecision/(2.0*sdPrecision*sdPrecision)) + 1.0/(sdPrecision*sdPrecision) ), alphabet, alwaysInitRandomly);
+		this(ess,priorMu,( expectedPrecision/(2.0*sdPrecision*sdPrecision)+Math.sqrt( (expectedPrecision/(2.0*sdPrecision*sdPrecision))*(expectedPrecision/(2.0*sdPrecision*sdPrecision)) + 1.0/(sdPrecision*sdPrecision) ) )*expectedPrecision + 1.0 ,expectedPrecision/(2.0*sdPrecision*sdPrecision)+Math.sqrt( (expectedPrecision/(2.0*sdPrecision*sdPrecision))*(expectedPrecision/(2.0*sdPrecision*sdPrecision)) + 1.0/(sdPrecision*sdPrecision) ), alphabet, alwaysInitRandomly, false, 0);
 	}
 	
 	public SingleGaussianDiffSM(StringBuffer buf) throws NonParsableException{
@@ -93,6 +97,7 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 		priorMu = XMLParser.extractObjectForTags( xml, "priorMu", double.class );
 		priorAlpha = XMLParser.extractObjectForTags( xml, "priorAlpha", double.class );
 		priorBeta = XMLParser.extractObjectForTags( xml, "priorBeta", double.class );
+		fixMu = XMLParser.extractObjectForTags( xml, "fixMu", boolean.class );
 		mu = XMLParser.extractObjectForTags( xml, "mu", double.class );
 		logPrecision = XMLParser.extractObjectForTags( xml, "logPrecision", double.class );
 		precision = Math.exp( logPrecision );
@@ -108,6 +113,7 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 		XMLParser.appendObjectWithTags( buf, priorMu, "priorMu" );
 		XMLParser.appendObjectWithTags( buf, priorAlpha, "priorAlpha" );
 		XMLParser.appendObjectWithTags( buf, priorBeta, "priorBeta" );
+		XMLParser.appendObjectWithTags( buf, fixMu, "fixMu" );
 		XMLParser.appendObjectWithTags( buf, mu, "mu" );
 		XMLParser.appendObjectWithTags( buf, logPrecision, "logPrecision" );
 		XMLParser.appendObjectWithTags( buf, initialized, "initialized" );
@@ -119,8 +125,10 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 	public void addGradientOfLogPriorTerm( double[] grad, int start ) throws Exception {
 		double val = (mu-priorMu);
 		double gradmu = ess*precision*val;
-		grad[start] -= gradmu;
-		grad[start + 1] += 0.5 - 0.5*gradmu*val + priorAlpha - priorBeta*precision;
+		if( !fixMu ) {
+			grad[start++] -= gradmu;
+		}
+		grad[start] += 0.5 - 0.5*gradmu*val + priorAlpha - priorBeta*precision;
 		
 	}
 
@@ -128,7 +136,7 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 		return ess;
 	}
 
-	public double getLogPriorTerm() {
+	public double getLogPriorTerm() {//TODO fixMu?
 		double val = mu - priorMu;
 		
 		return 0.5*( Math.log( ess/(2.0*Math.PI) ) + logPrecision  - ess*precision*val*val )
@@ -148,7 +156,11 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 	}
 
 	public double[] getCurrentParameterValues() throws Exception {
-		return new double[]{mu,logPrecision};
+		if( fixMu ) {
+			return new double[]{logPrecision};
+		} else {
+			return new double[]{mu,logPrecision};
+		}
 	}
 
 	public String getInstanceName() {
@@ -179,17 +191,19 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 			val = prop.getProperty( seq, start ) - mu;
 		}
 		
-		indices.add( 0 );
-		partialDer.add( precision*val );
-		
-		indices.add( 1 );
+		int idx = 0;
+		if( !fixMu ) {
+			indices.add( idx++ );
+			partialDer.add( precision*val );
+		}
+		indices.add( idx );
 		partialDer.add( 0.5*(1.0 - precision*val*val) );
 		
 		return logNorm - 0.5*val*val*precision;
 	}
 
 	public int getNumberOfParameters() {
-		return 2;
+		return fixMu?1:2;
 	}
 
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
@@ -216,17 +230,16 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 			}
 
 			double var = xsq/norm - (x/norm)*(x/norm);
-			mu = (x + ess*priorMu)/(norm + ess);
-
-
-			double betap = priorBeta + 0.5*norm*var + (ess*norm*(x/norm - priorMu)*(x/norm - priorMu))/(2*(ess+norm));
-
-			precision = (2*priorAlpha + norm - 1.0)/(2.0*betap);
-	
-			if(Double.isNaN( mu ) && (norm == 0 || Double.isNaN( norm ))){
-				mu = priorMu;
+			if( !fixMu ) {
+				mu = (x + ess*priorMu)/(norm + ess);
+				if(Double.isNaN( mu ) && (norm == 0 || Double.isNaN( norm ))){
+					mu = priorMu;
+				}
 			}
 			
+			double betap = priorBeta + 0.5*norm*var + (ess*norm*(x/norm - priorMu)*(x/norm - priorMu))/(2*(ess+norm));
+
+			precision = (2*priorAlpha + norm - 1.0)/(2.0*betap);			
 			if(Double.isNaN( precision ) && (norm == 0 || Double.isNaN( norm ))){
 				precision = (2*priorAlpha-1.0)/(2.0*priorBeta);
 			}
@@ -243,7 +256,9 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 	public void initializeFunctionRandomly( boolean freeParams ) throws Exception {
 		precision = rand.nextGamma( priorAlpha, 1.0/priorBeta );
 		logPrecision = Math.log( precision );
-		mu = rand.nextGaussian()/precision + priorMu;
+		if( !fixMu ) {
+			mu = rand.nextGaussian()/precision + priorMu;
+		}
 		//System.out.println("prec: "+precision+", mu: "+mu);
 		precomputeNormalization();
 		initialized = true;
@@ -254,8 +269,10 @@ public class SingleGaussianDiffSM extends AbstractDifferentiableStatisticalModel
 	}
 
 	public void setParameters( double[] params, int start ) {
-		mu = params[start];
-		logPrecision = params[start+1];
+		if( !fixMu ) {
+			mu = params[start++];
+		}
+		logPrecision = params[start];
 		precision = Math.exp( logPrecision );
 		precomputeNormalization();
 	}

@@ -18,6 +18,7 @@
 
 package de.jstacs.data.alphabets;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -221,6 +222,10 @@ public class DiscreteAlphabet extends Alphabet {
 		//if( !getClass().equals( b.getClass() ) ) { /TODO FIXME problem with DNAAlphabet vs {A,C,G,T}
 //			return getClass().getName().compareTo( b.getClass().getName() );
 //		} else {
+			if( b instanceof ContinuousAlphabet ) {//TODO not perfect
+				return -1;
+			}
+			
 			if( b == this ) {
 				return 0;
 			}
@@ -270,7 +275,7 @@ public class DiscreteAlphabet extends Alphabet {
 		}
 		Integer i = hash.get( symbol );
 		if( i == null ) {
-			throw new WrongAlphabetException( "Symbol \"" + symbol + "\" from input not defined in alphabet." );
+			throw new WrongAlphabetException( "Symbol \"" + symbol + "\" from input not defined in alphabet: " + Arrays.toString(alphabet) );
 		}
 		return i;
 	}

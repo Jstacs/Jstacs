@@ -29,9 +29,11 @@ import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
@@ -70,6 +72,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	private AbstractTerminationCondition tc;
 	private byte algo;
 	private int threads;
+	private LogPrior prior;
 
 	/**
 	 * The main constructor that creates an instance with the user given parameters.
@@ -84,6 +87,11 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	 * @throws CloneNotSupportedException if <code>nsf</code> can not be cloned
 	 */
 	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD ) throws CloneNotSupportedException
+	{
+		this(nsf, threads, algo, tc, lineps, startD, new CompositeLogPrior() );
+	}
+	
+	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, LogPrior prior ) throws CloneNotSupportedException
 	{
 		super( nsf.getAlphabetContainer(), nsf.getLength() );
 		if( threads < 1 )
@@ -113,6 +121,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 			logNorm = Double.NEGATIVE_INFINITY;
 		}
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
+		this.prior = prior.getNewInstance();
 	}
 
 	/**
@@ -178,7 +187,6 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 			fac = fac / (ess+ fac) * (ess == 0 ? 1d : 2d);
 			
 			DifferentiableStatisticalModel[] score = { (DifferentiableStatisticalModel) nsf.clone() };
-			LogPrior prior = new CompositeLogPrior();
 			double[] beta = LearningPrinciple.getBeta( ess == 0 ? LearningPrinciple.ML : LearningPrinciple.MAP );
 			LogGenDisMixFunction f = new LogGenDisMixFunction( threads, score, new DataSet[]{small}, new double[][]{smallWeights}, prior, beta, true, false );
 			NegativeDifferentiableFunction minusF = new NegativeDifferentiableFunction( f );
@@ -289,6 +297,41 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		{
 			logNorm = Double.NEGATIVE_INFINITY;
 		}
+		StringBuffer pr = XMLParser.extractForTag( xml, "prior" );
+		if( pr != null )
+		{
+			Class clazz = XMLParser.extractObjectForTags( pr, "class", Class.class );
+			try
+			{
+				prior = (LogPrior) clazz.getConstructor( new Class[]{ StringBuffer.class } ).newInstance( pr );
+			}
+			catch( NoSuchMethodException e )
+			{
+				NonParsableException n = new NonParsableException( "You must provide a constructor " + clazz.getSimpleName() + "(StringBuffer)." );
+				n.setStackTrace( e.getStackTrace() );
+				throw n;
+			}
+			catch( Exception e )
+			{
+				NonParsableException n = new NonParsableException( "problem at " + clazz.getSimpleName() + ": " + e.getMessage() );
+				n.setStackTrace( e.getStackTrace() );
+				throw n;
+			}
+		}
+		else
+		{
+			prior = DoesNothingLogPrior.defaultInstance;
+		}
+		try
+		{
+			prior.set( false, nsf );
+		}
+		catch( Exception e )
+		{
+			NonParsableException n = new NonParsableException( "problem when setting the kind of parameter: " + e.getMessage() );
+			n.setStackTrace( e.getStackTrace() );
+			throw n;
+		}
 		alphabets = nsf.getAlphabetContainer();
 		length = nsf.getLength();
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
@@ -303,6 +346,15 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		XMLParser.appendObjectWithTags( xml, tc, "tc" );
 		XMLParser.appendObjectWithTags( xml, lineps, "lineps" );
 		XMLParser.appendObjectWithTags( xml, startD, "startDistance" );
+		if( !(prior instanceof DoesNothingLogPrior) )
+		{
+			StringBuffer pr = new StringBuffer( 1000 );
+			pr.append( "<prior>\n" );
+			XMLParser.appendObjectWithTags( pr, prior.getClass(), "class" );
+			pr.append( prior.toXML() );
+			pr.append( "\t</prior>\n" );
+			xml.append( pr );
+		}
 		XMLParser.addTags( xml, XML_TAG );
 		return xml;
 	}

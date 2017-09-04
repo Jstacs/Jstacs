@@ -89,7 +89,7 @@ public class GenDisMixClassifier extends ScoreClassifier
 	 * 
 	 * @throws CloneNotSupportedException if an instance could not be clone
 	 */	
-	protected GenDisMixClassifier( GenDisMixClassifierParameterSet params, LogPrior prior, double lastScore, double[] beta,
+	public GenDisMixClassifier( GenDisMixClassifierParameterSet params, LogPrior prior, double lastScore, double[] beta,
 			DifferentiableSequenceScore... score ) throws CloneNotSupportedException
 	{
 		super( params, lastScore, score );
