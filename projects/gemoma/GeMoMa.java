@@ -4271,8 +4271,8 @@ public class GeMoMa implements JstacsTool {
 				if( !first ) {
 					A++;
 					a += ae ? 1 : 0;
+					I++;
 					if( donSites != null ) {
-							I++;
 							int v = forward ? start : (end+1);
 							//TODO faster
 							int idx = Arrays.binarySearch( donSites[0], last );
