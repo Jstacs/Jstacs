@@ -43,6 +43,8 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.StatisticalModelTester;
+import de.jstacs.utils.random.DirichletMRG;
+import de.jstacs.utils.random.DirichletMRGParams;
 
 /**
  * This class implements the scoring function for any MRF (Markov Random Field).
@@ -343,11 +345,11 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 		
 		if( d > 5E6 ) {
 			// uniform
-			System.out.println("uniform");
+			//System.out.println("uniform");
 			MEMTools.setParametersToValue( constr, 0 );
 		} else {
 			//somehow data specific
-			System.out.println("MAP");
+			//System.out.println("MAP");
 			ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, constr );
 			ConstraintManager.computeFreqs( ess, constr );
 			SequenceIterator sequence = new SequenceIterator( length );
@@ -369,10 +371,18 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 			this.freeParams = freeParams;
 			getNumberOfParameters();
 		}
+		double f, g = constr.length / (double) length;
 		for (int k, j, i = 0; i < constr.length; i++) {
 			k = constr[i].getNumberOfSpecificConstraints();
+			
+			double[] d = new double[k];
+			f=ess/k;
+			DirichletMRG.DEFAULT_INSTANCE.generateLog(d, 0, k, new DirichletMRGParams(f, k));
 			for (j = 0; j < k; j++) {
-				constr[i].setLambda(j, r.nextGaussian()/*(double)k*/ );
+				constr[i].setLambda(j, 
+						//d[j] 
+						f*r.nextGaussian()/(2*g)
+				);
 			}
 		}
 		norm = Double.NaN;
@@ -598,7 +608,7 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 	}
 	
 	public DataSet emitDataSet( int numberOfSequences, int... seqLength ) throws NotTrainedException, Exception {
-		if( length <= 7 ) {
+		if( length <= 10 ) {
 			return DiscreteInhomogenousDataSetEmitter.emitDataSet( this, numberOfSequences );
 		} else {
 			return super.emitDataSet(numberOfSequences, seqLength);

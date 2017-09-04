@@ -219,7 +219,25 @@ public class OneDataSetLogGenDisMixFunction extends LogGenDisMixFunction
 				offset = Normalisation.getLogSum( helpArray[index] );
 			}
 			for( counter3 = 0; counter3 < cl; counter3++ ) {
-				cll += weights[counter3][counter2] * (helpArray[index][counter3] - offset);
+				double part = weights[counter3][counter2] * (helpArray[index][counter3] - offset);
+				cll+=part;
+				
+				/*if( Double.isNaN( cll ) || Double.isInfinite( cll ) ) {
+					System.out.println("counters: " + index + ", " + counter3 + ", " + counter2);
+					System.out.println("likelihoods: " + Arrays.toString(helpArray[index]));
+					System.out.println("weight: " + weights[counter3][counter2] + "\tcll: " + (helpArray[index][counter3] - offset) );
+					System.out.println("part of global cll: " + part);
+					System.out.println(s);
+					SequenceAnnotation[] annot = s.getAnnotation();
+					for( int z = 0; z < annot.length; z++ ) {
+						System.out.println(annot[z]);
+					}
+					System.out.println();
+					System.out.println(score[index][0]);
+					System.out.println();
+					throw new EvaluationException("CLL will be: " + cll );
+				}/**/
+				
 				ll += weights[counter3][counter2] * helpArray[index][counter3];
 			}
 		}

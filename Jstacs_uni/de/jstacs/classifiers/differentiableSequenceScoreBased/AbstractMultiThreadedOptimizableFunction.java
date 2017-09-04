@@ -20,6 +20,7 @@ package de.jstacs.classifiers.differentiableSequenceScoreBased;
 
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
+import de.jstacs.algorithms.optimization.MultiThreadedFunction;
 import de.jstacs.data.DataSet;
 
 /**
@@ -40,7 +41,7 @@ import de.jstacs.data.DataSet;
  * 
  * @author Jens Keilwagen
  */
-public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractOptimizableFunction
+public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractOptimizableFunction implements MultiThreadedFunction
 {
 	/**
 	 * This method returns the number of available processors. So if no other job is running this is the recommended number of threads.
@@ -156,7 +157,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 		}
 	}
 
-	public final double[] evaluateGradientOfFunction( double[] x ) throws DimensionException, EvaluationException
+	public double[] evaluateGradientOfFunction( double[] x ) throws DimensionException, EvaluationException
 	{
 		setParams( x );
 		waitUntilWorkersFinished( WorkerTask.EVALUATE_GRADIENT );
@@ -183,7 +184,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 */
 	protected abstract double[] joinGradients() throws EvaluationException;
 	
-	public final double evaluateFunction( double[] x ) throws DimensionException, EvaluationException
+	public double evaluateFunction( double[] x ) throws DimensionException, EvaluationException
 	{
 		setParams( x );
 		waitUntilWorkersFinished( WorkerTask.EVALUATE );
@@ -291,6 +292,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	/**
 	 * This method can and should be used to stop all threads if they are not needed any longer.
 	 */
+	@Override
 	public final void stopThreads()
 	{
 		if( worker.length > 1 )
@@ -308,6 +310,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 * 
 	 * @return the number of used threads for evaluating the function and for determining the gradient of the function
 	 */
+	@Override
 	public final int getNumberOfThreads() {
 		return worker.length;
 	}

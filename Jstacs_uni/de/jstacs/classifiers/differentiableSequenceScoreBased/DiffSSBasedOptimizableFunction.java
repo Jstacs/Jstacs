@@ -182,7 +182,8 @@ public abstract class DiffSSBasedOptimizableFunction extends AbstractMultiThread
 				break;
 			case ZEROS:
 				Arrays.fill( erg, 0 );
-				break;
+				return;
+				//TODO break;
 			default:
 				throw new IllegalArgumentException( "Unknown kind of parameter" );
 		}

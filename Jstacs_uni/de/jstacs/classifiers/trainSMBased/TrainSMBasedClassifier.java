@@ -22,6 +22,7 @@ import java.util.LinkedList;
 
 import javax.naming.OperationNotSupportedException;
 
+import de.jstacs.NotTrainedException;
 import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
 import de.jstacs.data.AlphabetContainer;
@@ -313,6 +314,25 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 			check( seq );
 		}
 		return models[i].getLogProbFor( seq ) + getClassWeight( i );
+	}
+	
+	public double[] getLogLikelihoodRatio( Sequence seq ) throws Exception {
+		if( !isInitialized() ) {
+			throw new NotTrainedException( "The classifier is not trained yet." );
+		}
+		if( getNumberOfClasses()!= 2 ) {
+			throw new IllegalArgumentException( "This method can only be used for binary classifiers." );
+		}
+		if( !getAlphabetContainer().checkConsistency( seq.getAlphabetContainer() ) ) {
+			throw new IllegalArgumentException( "The sequence is not defined over the correct alphabets." );
+		}
+		
+		double[] score = new double[seq.getLength()-getLength()+1];
+		double constant = getClassWeight(0) - getClassWeight(1);
+		for( int p = 0; p < score.length; p++ ) {
+			score[p] = models[0].getLogProbFor(seq, p) - models[1].getLogProbFor(seq, p) + constant;
+		}
+		return score;
 	}
 
 	/* (non-Javadoc)

@@ -42,7 +42,7 @@ public abstract class OptimizableFunction extends DifferentiableFunction {
 	 */
 	public enum KindOfParameter {
 		/**
-		 * Indicates that all parameters will have value 0.
+		 * Indicates that all parameters will have value 0.//TODO
 		 */
 		ZEROS,
 		/**

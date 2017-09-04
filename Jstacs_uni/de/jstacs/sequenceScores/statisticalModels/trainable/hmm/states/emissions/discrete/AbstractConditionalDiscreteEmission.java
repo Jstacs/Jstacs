@@ -332,7 +332,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 			if(condIdx < 0){
 				return Double.NEGATIVE_INFINITY;
 			}
-			v = current.discreteVal( s++ );
+			v = getIndex(s++, current);
 			res -= logNorm[condIdx];
 			for(int i=0;i<grad[condIdx].length;i++) {
 				grad[condIdx][i] -= probs[condIdx][i];
@@ -371,7 +371,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 				return Double.NEGATIVE_INFINITY;
 			}
 			res -= logNorm[condIdx];
-			res += params[condIdx][current.discreteVal( s++ )];
+			res += params[condIdx][getIndex(s++, current)];
 		}
 		return res;
 	}
@@ -563,7 +563,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		
 		while( s <= e ) {
 			int condIdx = getConditionIndex( forward, s, seq);
-			statistic[condIdx][current.discreteVal( s++ )] += weight;
+			statistic[condIdx][getIndex(s++, current)] += weight;
 		}
 	}
 
@@ -577,6 +577,10 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	 * @return the index encoding the condition
 	 */
 	protected abstract int getConditionIndex( boolean forward, int seqPos, Sequence seq );
+	
+	protected int getIndex( int seqPos, Sequence seq ) {
+		return seq.discreteVal( seqPos );
+	}
 
 	public void estimateFromStatistic() {
 		for(int j=0;j<statistic.length;j++){

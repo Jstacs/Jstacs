@@ -302,7 +302,7 @@ public class ExpandableParameterSet extends ParameterSet {
 		
 		buf2.append( "#end for" );
 		
-		XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\" title=\""+nameTemplate+"\" default=\""+count+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\" title=\""+nameTemplate+"\" min=\""+count+"\"" );//TODO min vs. default
 		
 		descBuffer.append( buf );
 		configBuffer.append( buf2 );
