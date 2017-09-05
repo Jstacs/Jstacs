@@ -68,6 +68,14 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 		}
 		this.name = name;
 	}
+	
+	public PFMWrapperTrainSM( AlphabetContainer alphabets, String name, double[][] pssm ) throws CloneNotSupportedException{
+		super(alphabets,pssm.length);
+		this.pfm = new double[0][0];
+		logPWM = ArrayHandler.clone(pssm);
+		this.name = name;
+		
+	}
 
 	/**
 	 * Creates a wrapper from its XML representation
@@ -138,7 +146,7 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 			for(int i=0;i<logPWM.length;i++){
 				sb.append( nf.format( Math.exp( logPWM[i][0] ) ) );
 				for(int j=1;j<logPWM[i].length;j++){
-					sb.append( "\t" + nf.format( Math.exp( logPWM[i][0] ) ) );
+					sb.append( "\t" + nf.format( Math.exp( logPWM[i][j] ) ) );
 				}
 				sb.append( "\n" );
 			}
