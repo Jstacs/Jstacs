@@ -56,4 +56,9 @@ public class Pair<E1,E2> {
 	public E2 getSecondElement() {
 		return element2;
 	}
+	
+	
+	public String toString(){
+		return "["+element1+",\n"+element2+"]";
+	}
 }
