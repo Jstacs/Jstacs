@@ -264,12 +264,15 @@ public class ClusterTree<T> implements Storable{
 					tempil[l] = Double.POSITIVE_INFINITY;
 					
 					for(int h=0;h<w[i].length;h++){
-						double temp = w[i][h] + dmat[ leftIdx[h] ][ rightIdx[l] ];
+
+						double temp = w[i][h] + dmat[ Math.max(leftIdx[h],rightIdx[l]) ][ Math.min(leftIdx[h],rightIdx[l]) ];
+
 						//here, we minimize
 						if(temp < tempil[l]){
 							tempil[l] = temp;
 							minil[l] = h;
 						}
+
 					}
 				}
 				//second minimization
@@ -524,25 +527,37 @@ public class ClusterTree<T> implements Storable{
 	}
 
 	/**
-	 * Returns a string representation of this cluster tree in a pseudo newick format.
+	 * Returns a string representation of this cluster tree in newick format.
 	 * @return the string representation
 	 */
 	public String toNewick() {
-		return this.toNewick("");
+		return this.toNewick("")+";";
 	}
 
 	private String toNewick(String indent) {
-		StringBuffer sb = new StringBuffer();
 		if(this.subTrees == null){
-			sb.append(indent+"("+elements[0].toString()+")\n");
+			return indent+elements[0].toString();
 		}else{
-			sb.append(indent+this.distance+" (\n");
+			StringBuffer sb = new StringBuffer();
+			for(int i=0;i<subTrees.length;i++){
+				if(i > 0){
+					sb.append(indent+",");
+				}
+				sb.append(indent+subTrees[i].toNewick(indent+"\t")+":"+this.distance);
+			}
+			return indent+"(\n"+sb.toString()+indent+"\n)";
+		}
+		/*StringBuffer sb = new StringBuffer();
+		if(this.subTrees == null){
+			sb.append(indent+"("+elements[0].toString()+":"+this.distance+")\n");
+		}else{
+			sb.append(indent+" (\n");
 			for(int i=0;i<subTrees.length;i++){
 				sb.append(subTrees[i].toNewick(indent+"\t")+"\n");
 			}
-			sb.append(indent+")\n");
+			sb.append(indent+"):"+this.distance+"\n");
 		}
-		return sb.toString();
+		return sb.toString();*/
 	}
 
 	/**
