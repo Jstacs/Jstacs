@@ -474,7 +474,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		} else {
 			this.value = null;
 			isSet = false;
-			throw new IllegalValueException("value of "+getName()+" not valid: " + value2);
+			throw new IllegalValueException("value of "+getName()+" not valid: " + value2+"\n"+errorMessage);
 		}
 	}
 
