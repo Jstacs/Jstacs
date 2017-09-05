@@ -242,7 +242,10 @@ public class DeBruijnMotifComparison {
 			
 				minPrevShift = Integer.MAX_VALUE;
 				for(int j=0;j<prevShifts[i].length;j++){
-					prevShifts[i][j][0] *= rc;
+					//prevShifts[i][j][0] *= rc;
+					if(rc < 0){
+						prevShifts[i][j][0] = -(subs[i].getClusterElements()[j].getLength()-mat.length) - prevShifts[i][j][0];
+					}
 					if(prevShifts[i][j][0] < minPrevShift){
 						minPrevShift = prevShifts[i][j][0]; 
 					}
@@ -255,7 +258,8 @@ public class DeBruijnMotifComparison {
 					shifts[g][1] = prevShifts[i][j][1]*rc;
 				}
 			}
-
+			
+			
 			return new Pair<double[][],int[][]>(rep,shifts);
 		}
 	}
