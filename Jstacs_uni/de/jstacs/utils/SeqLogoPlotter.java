@@ -31,7 +31,9 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -39,7 +41,6 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 import cern.jet.stat.Gamma;
-import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.WrongAlphabetException;
@@ -50,10 +51,6 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.structureLearning.measures.btMeasures.BTExplainingAwayResidual;
-import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModel;
-import de.jstacs.sequenceScores.statisticalModels.trainable.TrainableStatisticalModelFactory;
-import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM.Parameterization;
-import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.MixtureTrainSM;
 import de.jstacs.utils.graphics.GraphicsAdaptor;
 
 /**
@@ -303,6 +300,31 @@ public class SeqLogoPlotter {
 		
 		return img;
 	}
+	
+	
+	
+	public static void plotDefaultDependencyLogoToGraphicsAdaptor(GraphicsAdaptor ga, DataSet data, double[] weights, int width) throws Exception{
+		
+		
+		
+		int[] numPerChunk = new int[]{Math.min( 250, (int)Math.round( data.getNumberOfElements()*0.1 ) ), Math.min( 1250, (int)Math.round( data.getNumberOfElements()*0.3 ) ),0};
+		numPerChunk[2] = data.getNumberOfElements() - numPerChunk[0] - numPerChunk[1];
+		
+		int logoHeight = (int)Math.round( width/(double)10 );
+		
+		int[] chunkHeights = new int[]{60,75,150};
+		
+		int height = getHeightForDependencyLogo( data.getElementLength(), data.getNumberOfElements(), chunkHeights, width, logoHeight );//getHeightForColorLogo( data.getNumberOfElements(), numOne, numPerChunk, oneHeight, logoHeight );
+		
+		Graphics2D graph = (Graphics2D)ga.getGraphics(width, height);
+		
+		graph.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		graph.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		
+		plotDependencyLogo( data, null, 1, null, weights, graph, width, 0, 0, numPerChunk,chunkHeights, 0.03, logoHeight, false, 3, false, true, true, 0.1 );
+	}
+	
+	
 	
 	/**
 	 * Plots a dependency logo using the supplied parameters.
@@ -838,7 +860,7 @@ public class SeqLogoPlotter {
 		//exclude = exclude.clone();
 		//System.out.println("maxNum: "+maxNum);
 		
-		if(maxNum == 0 || sortTemp.length < minElements){
+		if(maxNum <= 0 || sortTemp.length < minElements){//TODO maxNum == 0 
 			//System.out.println(maxNum+" "+sortTemp.length+" "+minElements);
 			return new Pair[][]{sortTemp};
 		}else{
@@ -1402,7 +1424,8 @@ public class SeqLogoPlotter {
 	 * @return the width
 	 */
 	public static int getWidth(int height, int numCol){
-		return (int)(height/6.0*(numCol+1.5));
+		//return (int)(height/6.0*(numCol+1.5));
+		return (int)(height/6.0*(numCol) + height*0.4);
 	}
 	
 	/**
@@ -1503,7 +1526,7 @@ public class SeqLogoPlotter {
 
 		g.drawString(labY,-(int)(y2-2*h2/4.0 + rect.getCenterX()), (int)(x+rect.getWidth()/2d));
 		g.setTransform( back );
-		
+		x2 = wl;
 		rect = g.getFontMetrics().getStringBounds( labX, g );
 		g.drawString( labX, x+(int)(x2+w2*ps.length/2.0-rect.getCenterX()), (int)(y-0.2*rect.getHeight()) );
 		for(int i=0;i<ps.length;i++){
@@ -1852,6 +1875,39 @@ public class SeqLogoPlotter {
 		a.transform( t );
 		return a;
 	}
+	
+	
+	
+	public static void main(String[] args) throws Exception {
+		
+		BufferedReader read = new BufferedReader(new FileReader("/Users/dev/Desktop/DepLogoR/test.txt"));
+		
+		String str = null;
+		
+		LinkedList<Sequence> seqs = new LinkedList<Sequence>();
+		LinkedList<Pair<Sequence,Double>> list = new LinkedList<Pair<Sequence,Double>>();
+		while( (str = read.readLine()) != null ){
+			String[] parts = str.split("\t");
+			String seqstr = parts[5];
+			Sequence seq = Sequence.create(DNAAlphabetContainer.SINGLETON, seqstr);
+			double w = Double.parseDouble(parts[3]);
+			seqs.add(seq);
+			list.add(new Pair<Sequence, Double>(seq, w));
+		}
+		
+		
+		Pair<Sequence,Double>[][] parts = sortLocal2(list.toArray(new Pair[0]), 3, 3, new boolean[20], 10, true, null, 0.1, null);
+		
+		for(int i=0;i<parts.length;i++){
+			for(int j=0;parts[i]!=null && j<parts[i].length;j++){
+				System.out.println(parts[i][j].getFirstElement()+" "+parts[i][j].getSecondElement());
+			}
+			System.out.println("##########");
+		}
+		
+		
+	}
+	
 	
 	
 	
