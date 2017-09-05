@@ -1116,6 +1116,40 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 				throw new IllegalArgumentException( "The type of algorithm is unknown." );
 		}
 	}
+	
+	/**
+	 * Returns the logarithmic probability for the sequence between start and end and the given
+	 * component.
+	 * 
+	 * @param component
+	 *            the index of the component
+	 * @param s
+	 *            the sequence
+	 * @param start
+	 *            the start position in the sequence
+	 * @param end
+	 *            the end position in the sequence
+	 * 
+	 * 
+	 * @return
+	 *         <code>log P(s[start..end],component) = log P(s[start..end]|component) + log P(component)</code>
+	 * 
+	 * @throws Exception
+	 *             if the model was not trained yet or something else went wrong
+	 * 
+	 * @see AbstractMixtureTrainSM#getNumberOfComponents()
+	 */
+	public double getLogProbFor( int component, Sequence s, int start, int end ) throws Exception {
+		switch( algorithm ) {
+			case EM:
+				return getLogProbUsingCurrentParameterSetFor( component, s, start, end );
+			case GIBBS_SAMPLING:
+				//TODO label switching?
+				throw new OperationNotSupportedException();
+			default:
+				throw new IllegalArgumentException( "The type of algorithm is unknown." );
+		}
+	}
 
 	/**
 	 * Returns the logarithmic probability for the sequence and the given
