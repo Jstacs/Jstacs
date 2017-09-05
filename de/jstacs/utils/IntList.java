@@ -79,6 +79,12 @@ public final class IntList implements Cloneable {
 		array[size++] = val;
 	}
 	
+	public void addToValues(int start, int end, int offset){
+		for(int i=start;i<end;i++){
+			array[i] += offset;
+		}
+	}
+	
 	/**
 	 * Adds <code>val</code> to the list only if
 	 * it is not already contained in the list.
@@ -214,4 +220,55 @@ public final class IntList implements Cloneable {
 		sb.append( "]" );
 		return sb.toString();
 	}
+
+	/**
+	 * Performs a binary search for element <code>key</code> by calling
+	 * {@link Arrays#binarySearch(int[], int, int, int)} on the internal array.
+	 * @param key the key to search for
+	 * @param fromIndex the first element considered
+	 * @param toIndex the first element not considered
+	 * 
+	 * @return see {@link Arrays#binarySearch(int[], int, int, int)}
+	 */
+	public int binarySearch(int key, int fromIndex, int toIndex ) {
+		if(fromIndex<0 || toIndex > size){
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		return Arrays.binarySearch( array, fromIndex, toIndex, key );
+	}
+	
+	/**
+	 * Performs an interpolation search for element <code>key</code> on the internal array.
+	 * @param key the key to search for
+	 * @param fromIndex the first element considered
+	 * @param toIndex the first element not considered
+	 * 
+	 * @return see {@link Arrays#binarySearch(int[], int, int, int)}
+	 */
+	public int interpolationSearch(int idx2, int fromIndex, int toIndex) {
+		if(fromIndex<0 || toIndex > size){
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		return interpolationSearch(idx2, fromIndex, toIndex, array[fromIndex], array[toIndex-1]);
+	}
+	
+	private int interpolationSearch(int idx2, int fromIndex, int toIndex, int first, int last) {
+		int idx = (int)((idx2-first)/(double)(last-first)*(toIndex-fromIndex-1)) + fromIndex;
+		int mid = array[idx];
+
+		while(mid != idx2){
+			if(mid>idx2){
+				toIndex = idx;
+				last = mid;
+			}else{
+				fromIndex = idx+1;
+				first = array[idx+1];
+			}
+			
+			idx = (int)((idx2-first)/(double)(last-first)*(toIndex-fromIndex-1)) + fromIndex;
+			mid = array[idx];
+		}
+		return idx;
+	}
+	
 }
