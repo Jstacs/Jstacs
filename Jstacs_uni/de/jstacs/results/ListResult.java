@@ -159,6 +159,14 @@ public class ListResult extends Result {
 	}
 
 	/**
+	 * Returns the number of {@link ResultSet}s in this {@link ListResult}
+	 * @return the number of {@link ResultSet}s
+	 */
+	public int getNumberOfResultSets(){
+		return list.length;
+	}
+	
+	/**
 	 * Returns a reference to the annotation of this {@link ListResult}.
 	 * 
 	 * @return the annotation of this {@link ListResult}
