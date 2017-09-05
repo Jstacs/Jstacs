@@ -31,7 +31,7 @@ import de.jstacs.io.XMLParser;
 public class MatrixCosts implements Costs {
 
 	private double[][] matrix;
-	private double gap;
+	private double insert, delete;
 	
 	/**
 	 * Creates a new instance of {@link MatrixCosts} where the costs
@@ -40,14 +40,21 @@ public class MatrixCosts implements Costs {
 	 *
 	 * @param matrix
 	 *            the match and mismatch costs
-	 * @param gap
-	 *            the cost for a gap 
+	 * @param insert
+	 *            the cost for an insert gap, i.e., a gap in the first string
+	 * @param delete
+	 * 			  the cost for a delete gap, i.e., a gap in the second string 
 	 *            
 	 * @throws CloneNotSupportedException if <code>matrix</code> could not be cloned
 	 */
-	public MatrixCosts( double[][] matrix, double gap ) throws CloneNotSupportedException {
+	public MatrixCosts( double[][] matrix, double insert, double delete ) throws CloneNotSupportedException {
 		this.matrix = ArrayHandler.clone( matrix );
-		this.gap = gap;
+		this.insert = insert;
+		this.delete = delete;
+	}
+	
+	public MatrixCosts( double[][] matrix, double inDel ) throws CloneNotSupportedException {
+		this(matrix,inDel,inDel);
 	}
 	
 	/**
@@ -58,13 +65,19 @@ public class MatrixCosts implements Costs {
 	public MatrixCosts( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, "MatrixCosts" );
 		matrix = (double[][])XMLParser.extractObjectForTags( xml, "matrix" );
-		gap = (Double)XMLParser.extractObjectForTags( xml, "gap" );
+		try{
+			insert = (Double)XMLParser.extractObjectForTags( xml, "insert" );
+			delete = (Double)XMLParser.extractObjectForTags( xml, "delete" );
+		}catch(NonParsableException ex){
+			insert = delete = (Double)XMLParser.extractObjectForTags( xml, "gap" );
+		}
 	}
 
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags( xml, matrix, "matrix" );
-		XMLParser.appendObjectWithTags( xml, gap, "gap" );
+		XMLParser.appendObjectWithTags( xml, insert, "insert" );
+		XMLParser.appendObjectWithTags( xml, delete, "delete" );
 		XMLParser.addTags( xml, "MatrixCosts" );
 		return xml;
 	}
@@ -74,7 +87,12 @@ public class MatrixCosts implements Costs {
 	}
 
 	@Override
-	public double getGapCosts() {
-		return gap;
+	public double getInsertCosts() {
+		return insert;
+	}
+	
+	@Override
+	public double getDeleteCosts() {
+		return delete;
 	}
 }
