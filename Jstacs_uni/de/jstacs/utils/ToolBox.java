@@ -149,7 +149,7 @@ public class ToolBox {
 	 */
 	public static double min( int start, int end, double[] array ) {
 		if( end <= start ) {
-			throw new IllegalArgumentException("The start index has to be smaller than the end index.");
+			throw new IllegalArgumentException("The start index has to be smaller than the end index: start="+start+" <-> end="+end);
 		} else {
 			double min = array[start];
 			start++;
