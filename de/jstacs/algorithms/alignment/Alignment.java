@@ -112,6 +112,7 @@ public class Alignment {
 	 * This allows to use a banded version of the alignment algorithm.
 	 */
 	private int offDiagonal;
+	
 
 	/**
 	 * Creates a new {@link Alignment} instance that aligns the sequences
@@ -150,7 +151,8 @@ public class Alignment {
 		}
 		this.offDiagonal = offDiagonal;
 	}
-
+	
+	
 	/**
 	 * Computes and returns the alignment of <code>s1</code> and <code>s2</code>
 	 * ({@link #Alignment(Costs)}).
@@ -411,26 +413,26 @@ public class Alignment {
 				if( type != AlignmentType.LOCAL ) {
 					direction = 1;
 				}				
-				d[0][i][j] = type != AlignmentType.GLOBAL && type != AlignmentType.SEMI_GLOBAL ? 0 : d[0][i][j-1]+costs.getGapCosts();
+				d[0][i][j] = type != AlignmentType.GLOBAL && type != AlignmentType.SEMI_GLOBAL ? 0 : d[0][i][j-1]+costs.getInsertCosts();
 			} else if( i > 0 && j == 0 ) {
 				if( type != AlignmentType.LOCAL ) {
 					direction = 2;
 				}
-				d[0][i][j] = type != AlignmentType.GLOBAL ? 0 :  d[0][i-1][j] + costs.getGapCosts();
+				d[0][i][j] = type != AlignmentType.GLOBAL ? 0 :  d[0][i-1][j] + costs.getDeleteCosts();
 			} else {
 				double diag = d[0][i - 1][j - 1] + costs.getCostFor( s1, s2, startS1+i, startS2+j );
 				double left = d[0][i][j - 1];
 				double top = d[0][i-1][j];
 				
 				if(i < l1 && j < l2){
-					top += costs.getGapCosts();
-					left += costs.getGapCosts();
+					top += costs.getDeleteCosts();
+					left += costs.getInsertCosts();
 				}else{
 					if(type != AlignmentType.SEMI_GLOBAL && type != AlignmentType.FREE_SHIFT || j < l2){
-						top += costs.getGapCosts();
+						top += costs.getDeleteCosts();
 					}
 					if(type != AlignmentType.FREE_SHIFT || i < l1){
-						left += costs.getGapCosts();
+						left += costs.getInsertCosts();
 					}
 					
 				}
@@ -486,6 +488,11 @@ public class Alignment {
 		}		
 	}
 	
+	
+	
+	
+	
+	
 	private class AffineAlignment implements AlignmentAlgorithm {
 
 		public void compute(int i, int j) {
@@ -537,14 +544,14 @@ public class Alignment {
 					d[1][i][j] = 0;
 				} else {
 					direction = 1;
-					d[1][i][j] = type==AlignmentType.FREE_SHIFT ? 0 : aCosts.getGapCostsFor( j );					
+					d[1][i][j] = type==AlignmentType.FREE_SHIFT ? 0 : aCosts.getInsertCostsFor( j );					
 				}
 			} else if ( type==AlignmentType.FREE_SHIFT /*&& j > 0*/ && i == l1 ) {
 				direction = 0;//TODO
 				d[1][i][j] = d[0][i][j-1];
 			} else {
-				double elong = d[1][i][j - 1] + aCosts.getElongateCosts();
-				double start = d[0][i][j - 1] + aCosts.getGapCostsFor( 1 );
+				double elong = d[1][i][j - 1] + aCosts.getElongateInsertCosts();
+				double start = d[0][i][j - 1] + aCosts.getInsertCostsFor( 1 );
 				if( elong < start ) {
 					d[1][i][j] = elong;
 					direction = 1;
@@ -562,13 +569,13 @@ public class Alignment {
 				d[2][i][j] = Double.POSITIVE_INFINITY;
 			} else if( /*i > 0 &&*/ j == 0 ) {
 				direction = (byte) (type==AlignmentType.LOCAL ? -1 : 2);
-				d[2][i][j] = type!=AlignmentType.GLOBAL ? 0 : aCosts.getGapCostsFor( i );
+				d[2][i][j] = type!=AlignmentType.GLOBAL ? 0 : aCosts.getDeleteCostsFor( i );
 			} else if ( (type==AlignmentType.SEMI_GLOBAL || type==AlignmentType.FREE_SHIFT) /*&& i > 0*/ && j == l2 ) {
 				direction = 0;
 				d[2][i][j] = d[0][i - 1][j];
 			} else {
-				double elong = d[2][i - 1][j] + aCosts.getElongateCosts();
-				double start = d[0][i - 1][j] + aCosts.getGapCostsFor( 1 );
+				double elong = d[2][i - 1][j] + aCosts.getElongateDeleteCosts();
+				double start = d[0][i - 1][j] + aCosts.getDeleteCostsFor( 1 );
 				if( elong < start ) {
 					d[2][i][j] = elong;
 					direction = 2;
