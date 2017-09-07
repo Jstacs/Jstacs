@@ -734,6 +734,10 @@ public class HigherOrderHMM extends AbstractHMM {
 		initializeRandomly();
 	}
 	
+	/**
+	 * Sets if the model should be initialized (randomly) before optimization
+	 * @param skip if the model should be initialized
+	 */
 	public void setSkiptInit(boolean skip){this.skipInit = skip;}
 	
 	/**
