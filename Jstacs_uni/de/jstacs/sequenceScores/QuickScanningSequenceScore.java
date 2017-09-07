@@ -1,5 +1,12 @@
 package de.jstacs.sequenceScores;
 
+/**
+ * Interface for {@link SequenceScore} that provide additional methods for computing scores of infix sequences
+ * and filtering infix sequences.
+ * 
+ * @author Jan Grau
+ *
+ */
 public interface QuickScanningSequenceScore extends SequenceScore {
 
 	/**
