@@ -35,6 +35,9 @@ public class NumericalDifferentiableFunction extends DifferentiableFunction {
 	 */
 	protected double eps;
 	
+	/**
+	 * The function to be differentiated numerically
+	 */
 	protected Function f;
 
 	/**
