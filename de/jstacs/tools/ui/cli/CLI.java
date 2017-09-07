@@ -142,6 +142,10 @@ public class CLI {
 	private HashMap<String,String>[] keyMap;
 	private String description;
 	
+	/**
+	 * Creates a new command line interface for the tools provided.
+	 * @param tools the tools
+	 */
 	public CLI(JstacsTool... tools) {
 		this(null,tools);
 	}
@@ -155,10 +159,27 @@ public class CLI {
 		this("",configureThreads,tools);
 	}
 	
+	/**
+	 * Creates a new command line interface for the tools provided, where for
+	 * each tool multi-threading may be configured. Additional, required arguments when calling the tools
+	 * may be specified.
+	 * @param opt the additional arguments, may be an empty {@link String}
+	 * @param configureThreads for each tool, if multi-threading option should be added to the list of parameters
+	 * @param tools the tools
+	 */
 	public CLI( String opt, boolean[] configureThreads, JstacsTool... tools) {
 		this(null, opt, configureThreads, tools);
 	}
 	
+	/**
+	 * Creates a new command line interface for the tools provided, where for
+	 * each tool multi-threading may be configured. Additional, required arguments when calling the tools
+	 * may be specified.
+	 * @param description a description of this {@link CLI} displayed on the command line
+	 * @param opt the additional arguments, may be an empty {@link String}
+	 * @param configureThreads for each tool, if multi-threading option should be added to the list of parameters
+	 * @param tools the tools
+	 */
 	public CLI( String description, String opt, boolean[] configureThreads, JstacsTool... tools) {
 		if(configureThreads == null){
 			this.configureThreads = new boolean[tools.length];
@@ -576,6 +597,9 @@ if( k == null ) {
 	}
 	
 	
+	/**
+	 * Creates the HTML code for wiki entries for the supplied tools.
+	 */
 	public void wiki() {
 		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
 			ParameterSet ps = toolParameters[toolIndex];
