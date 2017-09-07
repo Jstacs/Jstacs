@@ -168,6 +168,7 @@ public class Hclust<T> {
 	 * grouped by their origin in the sub-trees below the cut
 	 * @param tree the tree
 	 * @param distance the cut distance
+	 * @param <T> the type of the leaves
 	 * @return the leaf elements
 	 */
 	public static <T> T[][] cutTree(ClusterTree<T> tree, double distance){
@@ -191,6 +192,7 @@ public class Hclust<T> {
 	 * Cuts the cluster tree at the given distance and returns the sub-trees below the cut.
 	 * @param distance the distance
 	 * @param tree the tree
+	 * @param <T> the type of the leaves
 	 * @return the sub-trees
 	 */
 	public static <T> ClusterTree<T>[] cutTree(double distance, ClusterTree<T> tree){

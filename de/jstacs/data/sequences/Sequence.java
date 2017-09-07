@@ -973,9 +973,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	}
 	
 	/**
-	 * The method returns <code>true</code> if the sequence is multidimensional, otherwise <code<false</code>.
+	 * The method returns <code>true</code> if the sequence is multidimensional, otherwise <code>false</code>.
 	 * 
-	 * @return <code>true</code> if the sequence is multidimensional, otherwise <code<false</code>
+	 * @return <code>true</code> if the sequence is multidimensional, otherwise <code>false</code>
 	 */
 	public abstract boolean isMultiDimensional();
 	

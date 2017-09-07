@@ -57,7 +57,7 @@ import de.jstacs.utils.Pair;
 
 /**
  * A classifier that samples the parameters of {@link SamplingDifferentiableStatisticalModel}s by the Metropolis-Hastings algorithm.
- * The distribution the parameters are sampled from is the distribution {@latex.inline $P(\\vec{\\lambda}^{t})$} represented by the {@link DiffSSBasedOptimizableFunction} returned by
+ * The distribution the parameters are sampled from is the distribution {@latex.inline $P(\\vec{\\lambda}^{t})$} represented by the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction} returned by
  * {@link SamplingScoreBasedClassifier#getFunction(DataSet[], double[][])}. As proposal distribution, a Gaussian distribution with given sampling
  * variance is used for each parameter.
  * Specifically, a new set of parameters {@latex.inline $\\vec{\\lambda}^{t}$} is drawn from a proposal distribution {@latex.inline $Q(\\vec{\\lambda}^{t} | \\vec{\\lambda}^{t-1})$},
@@ -768,7 +768,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	
 	/**
 	 * Sets the current parameters for the class weights and in all scoring functions 
-	 * @param currentParameters
+	 * @param currentParameters the new parameter values
 	 */
 	protected void setParameters( double[] currentParameters ) {
 		this.setClassWeights( false, currentParameters, 0 );
@@ -996,7 +996,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 	/**
 	 * Combines parameter files such that they are accepted as parameter files
 	 * of this {@link SamplingScoreBasedClassifier}
-	 * @param add if <code>true, parameter files are appended to the current ones, i.e., the number
+	 * @param add if <code>true</code>, parameter files are appended to the current ones, i.e., the number
 	 * 			of samplings is augmented by these files
 	 * @param files the parameter files
 	 * @throws Exception if the parameter files could not be joined

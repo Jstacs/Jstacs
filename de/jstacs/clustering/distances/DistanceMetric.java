@@ -40,6 +40,7 @@ public abstract class DistanceMetric<T> {
 	 * of the supplied objects.
 	 * @param metric the metric
 	 * @param objects the objects
+	 * @param <T> the generic type on which the metric is defined
 	 * @return the pairwise distances
 	 * @throws Exception if the distance could not be computed for one pair of objects
 	 */

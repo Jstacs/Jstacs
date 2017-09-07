@@ -990,7 +990,7 @@ public class DataSet implements Iterable<Sequence>{
 
 	/**
 	 * This method returns the element, i.e. the {@link Sequence}, with index
-	 * <code>i</code>. <a name="getElementAt"> See also <a href="#access">this
+	 * <code>i</code>. See also <a href="#access">this
 	 * comment</a>.
 	 * 
 	 * @param i
@@ -1882,15 +1882,15 @@ public class DataSet implements Iterable<Sequence>{
 	 * <br><br>
 	 * 
 	 * Here is a short example, how to interpret the returned matrix:
-	 * <code><pre>
+	 * <pre>
 	 * int[][] matrix = s.getSequenceAnnotationIndexMatrix( rowType, rowHash, columnType, columnHash )
 	 * 
-	 * if( matrix[i][j] < 0 ) {
+	 * if( matrix[i][j] &lt; 0 ) {
 	 * 	System.out.println( "There is no Sequence in the DataSet with this SequenceAnnotation combination");
 	 * } else {
 	 * 	System.out.println( "This is the Sequence: " + s.getElementAt( matrix[i][j] ) );
 	 * }
-	 * </pre></code>
+	 * </pre>
 	 * 
 	 * 
 	 * @param rowType the {@link SequenceAnnotation} type for the rows
@@ -1899,7 +1899,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * @param columnHash a {@link Hashtable} of {@link SequenceAnnotation} identifier and indices for the columns
 	 * 
 	 * @return a matrix with the indices of the {@link Sequence}s with each specific combination of
-	 * 		   {@link SequenceAnnotation} for code>rowType</code> and <code>columnType</code> and -1
+	 * 		   {@link SequenceAnnotation} for <code>rowType</code> and <code>columnType</code> and -1
 	 * 		   if this combination does not exist in the {@link DataSet}
 	 * 
 	 * @see DataSet#getAnnotationTypesAndIdentifier()

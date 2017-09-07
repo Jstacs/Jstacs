@@ -510,6 +510,7 @@ public class ClusterTree<T> implements Storable{
 	 * is returned.
 	 * @param rootOriginalIndexes the original indexes of the inner nodes to be replaced
 	 * @param newElements the leaf element replacements
+	 *  @param <S> the type of the new leaves
 	 * @return the modified tree
 	 */
 	public <S> ClusterTree<S> dropBelow( IntList rootOriginalIndexes, S[] newElements ) {

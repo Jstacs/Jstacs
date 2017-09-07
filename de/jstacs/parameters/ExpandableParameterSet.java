@@ -233,7 +233,7 @@ public class ExpandableParameterSet extends ParameterSet {
 	 * be removed from the set.
 	 * 
 	 * @return
-	 *         <code>true</coede> if a {@link Parameter} can be removed from the set
+	 *         <code>true</code> if a {@link Parameter} can be removed from the set
 	 */
 	public boolean parameterRemovable() {
 		return count > 0;

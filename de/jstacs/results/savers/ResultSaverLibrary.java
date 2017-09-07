@@ -48,6 +48,7 @@ public class ResultSaverLibrary {
 	 * Registers the supplied {@link ResultSaver} for the given class in the library.
 	 * @param clazz the class
 	 * @param saver the {@link ResultSaver}
+	 * @param <T> the class of the result
 	 */
 	public static <T extends Result> void register(Class<? extends T> clazz, ResultSaver<T> saver){
 		if(map == null){
@@ -63,6 +64,7 @@ public class ResultSaverLibrary {
 	 * a superclass of <code>T</code> and the first hit is returned.
 	 * 
 	 * @param resultClass the class of the result to be saved
+	 * @param <T> the class of the result
 	 * @return the appropriate {@link ResultSaver} or <code>null</code> if not such {@link ResultSaver} has been registered
 	 */
 	public static <T extends Result> ResultSaver<T> getSaver(Class<? extends T> resultClass){

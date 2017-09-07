@@ -29,14 +29,14 @@ import de.jstacs.io.NonParsableException;
  * are determined from a set of class-specific base variances and the class
  * variances, respectively. The formula to determine the shape hyperparameter
  * <code>b[i]</code> for a parameter <code>i</code> from a variance
- * <code>v[i]</code> is<br />
- * <code>b[i] = Math.sqrt(v[i]/2)</code>.<br />
+ * <code>v[i]</code> is<br>
+ * <code>b[i] = Math.sqrt(v[i]/2)</code>.<br>
  * The variances <code>v[i]</code> for a parameter <code>i</code> of a
  * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}
  * <code>fun[j]</code> are determined from the base variance <code>v[j]</code>
- * as<br />
+ * as<br>
  * <code>v[i] = v[j]*funs[j].getSizeOfEventSpaceForRandomVariablesOfParameter(j)</code>
- * .<br />
+ * .<br>
  * The mean parameters are set to 0 for the parameters of the
  * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s and to the
  * user-specified means for the class parameters.

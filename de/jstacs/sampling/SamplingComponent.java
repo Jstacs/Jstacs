@@ -67,16 +67,14 @@ public interface SamplingComponent {
 	 * 
 	 * <p>
 	 * <code>
-	 * for( sampling = 0; sampling < numSampling; sampling++ )<br>
-	 * {
-	 * <dir>
+	 * for( sampling = 0; sampling &lt; numSampling; sampling++ )<br>
+	 * {<br>
 	 *     boolean b = parseParameterSet( sampling, n );<br>
 	 *     while( b )<br>
 	 *     {<br>
 	 *        //do something<br>
 	 *        b = parseNextParameterSet();<br>
-	 *     }
-	 * </dir>
+	 *     }<br>
 	 * }<br>
 	 * </code>
 	 * </p>

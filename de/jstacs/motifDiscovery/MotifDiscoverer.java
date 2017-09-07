@@ -129,7 +129,7 @@ public interface MotifDiscoverer extends Cloneable, Storable {
 	 *            the motif index in the component
 	 * 
 	 * @return the global index of the
-	 *         <code>motif<code> in <code>component</code>
+	 *         <code>motif</code> in <code>component</code>
 	 */
 	public int getGlobalIndexOfMotifInComponent(int component, int motif);
 

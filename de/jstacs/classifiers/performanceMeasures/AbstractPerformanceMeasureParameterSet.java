@@ -138,7 +138,7 @@ public class AbstractPerformanceMeasureParameterSet<T extends PerformanceMeasure
 	 * {@link de.jstacs.classifiers.AbstractClassifier#evaluate(AbstractPerformanceMeasureParameterSet, boolean, de.jstacs.data.DataSet...)}.
 	 * If <code>numerical = false</code>, the parameter set also contains curve measures (e.g. {@link PRCurve}, {@link ROCCurve}).
 	 * 
-	 * @param numerical if <code>true</code the return type is {@link NumericalPerformanceMeasureParameterSet}, otherwise {@link AbstractPerformanceMeasureParameterSet} 
+	 * @param numerical if <code>true</code> the return type is {@link NumericalPerformanceMeasureParameterSet}, otherwise {@link AbstractPerformanceMeasureParameterSet} 
 	 * @param spForSn the specificity for computing the sensitivity (cf. {@link SensitivityForFixedSpecificity})
 	 * @param snForFPR the specificity for computing the sensitivity (cf. {@link FalsePositiveRateForFixedSensitivity})
 	 * @param snForPPV the specificity for computing the sensitivity (cf. {@link PositivePredictiveValueForFixedSensitivity})
@@ -146,7 +146,7 @@ public class AbstractPerformanceMeasureParameterSet<T extends PerformanceMeasure
 	 * 
 	 * @return a filled {@link AbstractPerformanceMeasureParameterSet}
 	 * 
-	 * @throws Exception if a performance measure could not be created properly (e.g. wrong parameters: sensitivity < 0, ...) 
+	 * @throws Exception if a performance measure could not be created properly (e.g. wrong parameters: sensitivity &lt; 0, ...) 
 	 */
 	public static AbstractPerformanceMeasureParameterSet createFilledParameters( boolean numerical, double spForSn, double snForFPR, double snForPPV, double beta ) throws Exception {
 		AbstractPerformanceMeasureParameterSet res;

@@ -25,7 +25,7 @@ import de.jstacs.utils.DoubleList;
 /**
  * In this class the Variance-Ratio method of Gelman and Rubin is implemented to
  * test the length of the burn-in phase of a multi-chain Gibbs Sampling (number
- * of chains >2). The number of initial iterations is calculated by comparing
+ * of chains &gt;2). The number of initial iterations is calculated by comparing
  * the variances between the different chains with the variances within the
  * chains. The method returns the same length of the burn-in for all sampled
  * chains.

@@ -738,7 +738,7 @@ public abstract class ClassifierAssessment<T extends ClassifierAssessmentAssessP
 	 * @param s
 	 *            contains the data to be used for assessment.<br>
 	 *            The order of the data sets in <code>s</code> are important.<br>
-	 *            <code>s[iter][train/test][]</code> -> the first dimension
+	 *            <code>s[iter][train/test][]</code> -&gt; the first dimension
 	 *            codes for which data sets (train, test) are used in iteration
 	 *            <code>iter</code>. <br>
 	 *            The second dimension codes for training:

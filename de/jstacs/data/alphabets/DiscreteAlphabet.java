@@ -164,7 +164,7 @@ public class DiscreteAlphabet extends Alphabet {
 	 *            the maximal value (inclusive)
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if <code>min > max</code>
+	 *             if <code>min &gt; max</code>
 	 */
 	public DiscreteAlphabet( int min, int max ) throws IllegalArgumentException {
 		if( min > max ) {

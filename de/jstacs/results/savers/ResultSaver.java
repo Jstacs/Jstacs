@@ -35,7 +35,7 @@ import de.jstacs.results.Result;
 public interface ResultSaver<T extends Result> {
 
 	/**
-	 * Returns <code>true<code> if this {@link ResultSaver} is for storing atomic {@link Result}s.
+	 * Returns <code>true</code> if this {@link ResultSaver} is for storing atomic {@link Result}s.
 	 * @return if this {@link ResultSaver} is for storing atomic {@link Result}s.
 	 */
 	public boolean isAtomic();
