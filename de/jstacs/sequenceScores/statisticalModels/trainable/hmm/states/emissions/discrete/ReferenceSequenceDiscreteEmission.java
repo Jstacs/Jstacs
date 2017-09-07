@@ -36,8 +36,17 @@ import de.jstacs.io.XMLParser;
 public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscreteEmission {
 
 	private AlphabetContainer refCon;
+	/**
+	 * The index in the reference sequence
+	 */
 	protected int refIdx;
 	
+	/**
+	 * Returns the reference sequence annotated to <code>seq</code>.
+	 * @param seq the sequence
+	 * @return the reference sequence
+	 * @see ReferenceSequenceAnnotation
+	 */
 	protected static final Sequence getReferenceSequence(Sequence seq){
 		return ((ReferenceSequenceAnnotation) seq.getSequenceAnnotationByType( "reference", 0 )).getReferenceSequence();
 	}
