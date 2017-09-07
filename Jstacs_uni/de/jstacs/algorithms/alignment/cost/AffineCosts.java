@@ -33,6 +33,7 @@ import de.jstacs.io.XMLParser;
 public class AffineCosts implements Costs {
 	private double startInsert, startDelete;
 	private double elongInsert, elongDelete;
+	private boolean equal;
 	private Costs c;
 	
 	/**
@@ -66,6 +67,7 @@ public class AffineCosts implements Costs {
 		}
 		this.startInsert = startInsert;
 		this.startDelete = startDelete;
+		this.equal = elongInsert == elongDelete && startInsert == startDelete;
 	}
 	
 	/**
@@ -147,6 +149,25 @@ public class AffineCosts implements Costs {
 	public double getDeleteCostsFor( int length ) {
 		return startDelete + ( length * elongDelete );
 	}
+	
+	/**
+	 * Returns the costs for a gap of length <code>length</code>.
+	 * 
+	 * 
+	 * @param length
+	 *            the length of the gap
+	 * 
+	 * @return the corresponding costs
+	 */
+	public double getGapCostsFor( int length ) {
+		if(equal){
+			return startDelete + ( length * elongDelete );
+		}else{
+			throw new IllegalArgumentException("Costs for delete and insert not equal.");
+		}
+	}
+	
+	
 	
 	@Override
 	public double getCostFor(Sequence s1, Sequence s2, int i, int j) {
