@@ -89,7 +89,7 @@ public class SlimDimontWeb extends SlimDimont {
 		ByteArrayOutputStream baos = prot.getOutputStream();
 		
 		
-		Result[][] res = run( data,motifLength,restarts,fgOrder,bgOrder,position,value,weightingFactor,ess,delete,threads, SafeOutputStream.getSafeOutputStream( baos ),sd,modify);
+		Result[][] res = run( data,null,motifLength,restarts,fgOrder,bgOrder,position,value,weightingFactor,ess,delete,threads, SafeOutputStream.getSafeOutputStream( baos ),sd,modify);
 
 		
 		
