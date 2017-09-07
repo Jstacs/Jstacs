@@ -242,8 +242,6 @@ public class PFMComparator {
 		
 		ArrayList<SimpleEntry<String, double[][]>> res = new ArrayList<SimpleEntry<String, double[][]>>();
 		
-		ArrayList<String> strs = new ArrayList<String>();
-		
 		while(dirs.size() > 0){
 			File dir = dirs.pop();
 			File[] files = dir.listFiles();
