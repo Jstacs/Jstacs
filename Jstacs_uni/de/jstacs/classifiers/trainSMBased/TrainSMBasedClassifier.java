@@ -316,6 +316,13 @@ public class TrainSMBasedClassifier extends AbstractScoreBasedClassifier {
 		return models[i].getLogProbFor( seq ) + getClassWeight( i );
 	}
 	
+	/**
+	 * Returns the log likelihood ratios along the sequence <code>seq</code> for all
+	 * sliding windows of length {@link #getLength()}. 
+	 * @param seq the sequence
+	 * @return the log likelihood ratios
+	 * @throws Exception if the classifier has not been trained, it is no binary classifier, or the {@link AlphabetContainer}s of sequence and classifier do not match
+	 */
 	public double[] getLogLikelihoodRatio( Sequence seq ) throws Exception {
 		if( !isInitialized() ) {
 			throw new NotTrainedException( "The classifier is not trained yet." );
