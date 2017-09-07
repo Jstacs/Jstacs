@@ -846,6 +846,10 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		sfsc.samplingStopped();
 	}
 
+	/**
+	 * Returns the number of parameters of all internal {@link SamplingDifferentiableStatisticalModel}s.
+	 * @return the number of parameters
+	 */
 	protected int getNumberOfParameters() {
 		int res = scoringFunctions.length;
 		for( int i = 0; i < scoringFunctions.length; i++ ) {
