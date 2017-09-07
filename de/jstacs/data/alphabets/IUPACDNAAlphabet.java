@@ -73,10 +73,25 @@ public final class IUPACDNAAlphabet extends ComplementableDiscreteAlphabet imple
 		}
 	}
 	
+	/**
+	 * Indicates if <code>query</code> is contained in <code>code</code>
+	 * according to the IUPAC DNA alphabet.
+	 * @param query the query symbol
+	 * @param code the reference symbol
+	 * @return if <code>query</code> is contained in <code>code</code>
+	 * @throws WrongAlphabetException if either of the arguments is not defined in the IUPAC alphabet
+	 */
 	public boolean isPart( String query, String code ) throws WrongAlphabetException {
 		return isPart( getCode(query), getCode(code) );
 	}
 	
+	/**
+	 * Indicates if <code>query</code> is contained in <code>code</code>
+	 * according to the IUPAC DNA alphabet.
+	 * @param query the code of the query symbol
+	 * @param code the code of the reference symbol
+	 * @return if <code>query</code> is contained in <code>code</code>
+	 */
 	public boolean isPart( int query, int code ) {
 		return IUPACDNAAlphabetParameterSet.subset[query][code];
 	}
