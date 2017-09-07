@@ -550,6 +550,13 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			this.filename = filename;
 		}
 		
+		/**
+		 * Returns the size of the file of the {@link FileRepresentation}
+		 * as specified in the constructor. If  <code>filename</code> is <code>null</code> in
+		 * the constructor, -1 is returned.
+		 * @return the size of the file
+		 * @see File#length()
+		 */
 		public long getFilesize(){
 			if(filename == null){
 				return -1;
