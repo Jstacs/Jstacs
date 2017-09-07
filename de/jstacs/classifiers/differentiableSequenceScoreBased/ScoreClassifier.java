@@ -296,6 +296,11 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		lastScore = doOptimization( reduced, newWeights );
 	}
 	
+	/**
+	 * Returns the number of starts of the internal {@link DifferentiableSequenceScore}s
+	 * according to {@link AbstractDifferentiableStatisticalModel#getNumberOfStarts(DifferentiableSequenceScore[])}.
+	 * @return the number of starts
+	 */
 	protected int getIterations() {
 		return AbstractDifferentiableStatisticalModel.getNumberOfStarts(score);
 	}
