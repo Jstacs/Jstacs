@@ -53,6 +53,18 @@ public class MatrixCosts implements Costs {
 		this.delete = delete;
 	}
 	
+	/**
+	 * Creates a new instance of {@link MatrixCosts} where the costs
+	 * for mismatch and match are given in <code>matrix</code>.
+	 * Additionally, the costs for a gap can be specified.
+	 *
+	 * @param matrix
+	 *            the match and mismatch costs
+	 * @param inDel
+	 *            the cost for a gap
+	 *            
+	 * @throws CloneNotSupportedException if <code>matrix</code> could not be cloned
+	 */
 	public MatrixCosts( double[][] matrix, double inDel ) throws CloneNotSupportedException {
 		this(matrix,inDel,inDel);
 	}
