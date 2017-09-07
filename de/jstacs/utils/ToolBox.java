@@ -49,6 +49,9 @@ public class ToolBox {
 		 * Identical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by the multiplicity.
 		 */
 		SPORTS,
+		/**
+		 * Identical values obtain an identical rank, which is the (numerically) largest in the range occupied by those values. If multiple values obtain identical ranks, the following rank is incremented by the multiplicity.
+		 */
 		PESSIMISTIC_SPORTS,
 		/**
 		 * Identical values obtain identical ranks. If multiple values obtain identical ranks, the following rank is incremented by one.
@@ -461,6 +464,17 @@ public class ToolBox {
 		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
 	}
 	
+	/**
+	 * Computes the Spearman correlation of two vectors with weights on the individual entries.
+	 * 	
+	 * @param v1 the first vector
+	 * @param v2 the second vector
+	 * @param w the weights of the paired elements in <code>v1</code> and <code>v2</code>
+	 * 
+	 * @return the weighted Spearman correlation of the two vectors
+	 * 
+	 * @throws Exception if the vectors have different length
+	 */
 	public static double spearmanCorrelation(double[] v1, double[] v2, double[] w) throws Exception{
 		if(v1.length != v2.length || v1.length != w.length){
 			throw new Exception("Number of values in vector differ.");
@@ -521,6 +535,17 @@ public class ToolBox {
 		return (cross - sumTruth*sumPred/n)/( Math.sqrt( sqTruth - sumTruth*sumTruth/n )*Math.sqrt( sqPred - sumPred*sumPred/n) );
 	}
 	
+	/**
+	 * Computes the Pearson correlation of two vectors with weights on the individual entries.
+	 * 	
+	 * @param v1 the first vector
+	 * @param v2 the second vector
+	 * @param w the weights of the paired elements in <code>v1</code> and <code>v2</code>
+	 * 
+	 * @return the weighted Pearson correlation of the two vectors
+	 * 
+	 * @throws Exception if the vectors have different length
+	 */
 	public static double pearsonCorrelation(double[] v1, double[] v2, double[] w) throws Exception{
 		if(v1.length != v2.length){
 			throw new Exception("Number of values in both vector differ.");
