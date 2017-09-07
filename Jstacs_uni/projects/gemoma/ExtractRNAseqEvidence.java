@@ -447,6 +447,17 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		protocol.append("#split reads:\t" + splits + "\n");
 		protocol.append("#introns:\t" + intronNum + "\n");
 		
+		protocol.append("\n");
+		Integer[] il = new Integer[intronL.size()];
+		intronL.keySet().toArray(il);
+		Arrays.sort(il);
+		double all = 0;
+		for( int j = 0; j < il.length; j++ ) {
+			int[] stat = intronL.get(il[j]);
+			all += stat[0];
+			protocol.append(il[j] + "\t" + stat[0] + "\t" + (all/anz) + "\n");
+		}
+		
 		Result[] res = new Result[coverage?(stranded==Stranded.FR_UNSTRANDED?2:3):1];
 		res[0] = new TextResult("introns", "Result", new FileParameter.FileRepresentation(outInt.getAbsolutePath()), "gff", getToolName(), null, true);
 		if( coverage ) {
@@ -460,11 +471,22 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		
 	}
 	
+	private static HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
+	private static long anz = 0;
+	
 	private static long print(String chrom, ArrayList<Intron> introns,SafeOutputStream sos) throws IOException{
 		Iterator<Intron> it = introns.iterator();
 		long i = 0;
 		while(it.hasNext()){
 			Intron in = it.next();
+			int l = in.getEnd()-in.getStart();
+			int[] stat = intronL.get(l);
+			if( stat == null ) {
+				stat = new int[1];
+				intronL.put(l, stat);
+			}
+			stat[0]++;
+			anz++;
 			sos.writeln(chrom+"\tRNAseq\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
 			i++;
 		}
