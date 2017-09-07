@@ -79,6 +79,12 @@ public final class IntList implements Cloneable {
 		array[size++] = val;
 	}
 	
+	/**
+	 * Adds a constant to all internal values between start and end
+	 * @param start the first index
+	 * @param end the last index (exclusive)
+	 * @param offset the constant to be added
+	 */
 	public void addToValues(int start, int end, int offset){
 		for(int i=start;i<end;i++){
 			array[i] += offset;
@@ -245,11 +251,11 @@ public final class IntList implements Cloneable {
 	 * 
 	 * @return see {@link Arrays#binarySearch(int[], int, int, int)}
 	 */
-	public int interpolationSearch(int idx2, int fromIndex, int toIndex) {
+	public int interpolationSearch(int key, int fromIndex, int toIndex) {
 		if(fromIndex<0 || toIndex > size){
 			throw new ArrayIndexOutOfBoundsException();
 		}
-		return interpolationSearch(idx2, fromIndex, toIndex, array[fromIndex], array[toIndex-1]);
+		return interpolationSearch(key, fromIndex, toIndex, array[fromIndex], array[toIndex-1]);
 	}
 	
 	private int interpolationSearch(int idx2, int fromIndex, int toIndex, int first, int last) {
