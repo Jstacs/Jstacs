@@ -6,15 +6,31 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.GalaxyConvertible;
 
+/**
+ * {@link ParameterValidator} that checks if a given input {@link String} matches a regular expression.
+ * 
+ * @author Jan Grau, Jens Keilwagen
+ *
+ */
 public class RegExpValidator implements ParameterValidator, GalaxyConvertible {
 
 	private String regExp;
 	private String errorMessage;
 	
+	/**
+	 * Creates a validator for the given regular expression.
+	 * @param regExp the regular expression
+	 * @see Pattern
+	 */
 	public RegExpValidator(String regExp){
 		this.regExp = regExp;
 	}
 	
+	/**
+	 * Creates a {@link RegExpValidator} from its XML representation.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML representation could not be parsed
+	 */
 	public RegExpValidator(StringBuffer xml) throws NonParsableException{
 		xml = XMLParser.extractForTag(xml, "RegExpValidator");
 		regExp = (String) XMLParser.extractObjectForTags(xml, "regExp");
