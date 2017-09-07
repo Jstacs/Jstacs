@@ -364,14 +364,27 @@ public final class DoubleList implements Storable, Cloneable {
 		return sb.toString();
 	}
 
+	
+	/**
+	 * Returns the index of the first value that is equal to the minimal value.
+	 * @return the index of the minimum
+	 */
 	public int getMinIndex() {
 		return ToolBox.getMinIndex(0, size, array);
 	}
 	
+	/**
+	 * Returns the index of the first value that is equal to the maximal value.
+	 * @return the index of the maximum
+	 */
 	public int getMaxIndex() {
 		return ToolBox.getMaxIndex(0, size, array);
 	}
 	
+	/**
+	 * Sorts the elements of this {@link DoubleList}
+	 * @see Arrays#sort(double[])
+	 */
 	public void sort() {
 		Arrays.sort( array, 0, size );
 	}
