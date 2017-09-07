@@ -128,6 +128,11 @@ public class DataColumnParameter extends SimpleParameter {
 		
 	}
 	
+	
+	/**
+	 * Returns the  ID of the referenced parameter (tabular) in Galaxy.
+	 * @return the ID
+	 */
 	public String getDataRef(){
 		return dataRef;
 	}
@@ -228,7 +233,12 @@ public class DataColumnParameter extends SimpleParameter {
 	
 	
 	
-	
+	/**
+	 * Finds the parameter for the given ID in a {@link ParameterSet}.
+	 * @param top the {@link ParameterSet}
+	 * @param dataRef the ID
+	 * @return the parameter
+	 */
 	public static FileParameter find(ParameterSet top, String dataRef) {
 		
 		while(top.getParent() != null){
