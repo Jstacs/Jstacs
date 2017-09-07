@@ -256,7 +256,7 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 			this.stop = true;
 			synchronized(this){
 				//System.out.println("notified this in stop");
-				notify();
+				this.notify();
 			}
 		}
 		
@@ -265,7 +265,7 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 			synchronized(this){
 				try {
 					//System.out.println("worker waits");
-					wait();
+					this.wait();
 				} catch ( InterruptedException e ) {
 					e.printStackTrace();
 				}
