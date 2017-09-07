@@ -834,8 +834,8 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		 *            <ol>
 		 *            <li>recommended for {@link ROCCurve#NAME} or {@link PRCurve#NAME}</li>
 		 *            <li>any String that can be parsed to R plot options</li>
-		 *            <li>
-		 * 
+		 *            </ol>
+		 * 				
 		 * @return a {@link StringBuffer} containing the plot commands
 		 * 
 		 * @throws Exception
@@ -857,7 +857,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		 *            <ol>
 		 *            <li>recommended for {@link ROCCurve#NAME} or {@link PRCurve#NAME}</li>
 		 *            <li>any String that can be parsed to R plot options</li>
-		 *            <li>
+		 *            </ol>
 		 * @param colors array of colors for the dtrs
 		 * 
 		 * @return a {@link StringBuffer} containing the plot commands
@@ -885,7 +885,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 		 *            <ol>
 		 *            <li>recommended for {@link ROCCurve#NAME} or {@link PRCurve#NAME}</li>
 		 *            <li>any String that can be parsed to R plot options</li>
-		 *            <li>
+		 *            </ol>
 		 * @param colors array of colors for the dtrs
 		 * 
 		 * @return a {@link StringBuffer} containing the plot commands

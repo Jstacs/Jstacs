@@ -30,7 +30,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
  * e.g. a name and a comment, the data type, and additional properties for
  * non-atomic parameters. The intention of the {@link Parameter} classes is to
  * link this annotation directly to the parameter values, which could not be
- * achieved by primitive data types.<br/> {@link Parameter}s should always be
+ * achieved by primitive data types.<br> {@link Parameter}s should always be
  * embedded into a {@link ParameterSet} and then passed to the respective
  * method.
  * 

@@ -127,7 +127,7 @@ public final class XMLParser {
 	 * @param tag
 	 *            the tags by which the {@link StringBuffer} should be framed
 	 * @param attributes
-	 *            <code>null<code> or some attributes, i.e. <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
+	 *            <code>null</code> or some attributes, i.e. <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
 	 *            
 	 * @see #parseAttributes(Map)
 	 */
@@ -167,7 +167,7 @@ public final class XMLParser {
 	 * @param tag
 	 *            the tags by which the value should be framed
 	 * @param attributes
-	 *            <code>null<code> or some attributes, e.g., <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
+	 *            <code>null</code> or some attributes, e.g., <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
 	 *            
 	 * @see #parseAttributes(Map)           
 	 * @see XMLParser#appendObjectWithTagsAndAttributes(StringBuffer, Object, String, String, boolean)
@@ -188,7 +188,7 @@ public final class XMLParser {
 	 * @param tag
 	 *            the tags by which the value should be framed
 	 * @param attributes
-	 *            <code>null<code> or some attributes, e.g., <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
+	 *            <code>null</code> or some attributes, e.g., <code>value=&quot;100&quot; confidence=&quot;0&quot;</code>
 	 * @param writeClassInfo
 	 *            a boolean to enable to write class information (e.g. {@link Class#getSimpleName()}) of the {@link Object} <code>s</code> into the XML.
 	 *            

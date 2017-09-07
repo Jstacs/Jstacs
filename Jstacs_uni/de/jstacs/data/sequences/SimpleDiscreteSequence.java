@@ -43,7 +43,7 @@ public abstract class SimpleDiscreteSequence extends Sequence<int[]> {
 	 * 
 	 * @return the shuffled sequence
 	 * 
-	 * @throws Exception
+	 * @throws Exception if the shuffled sequence could not be created
 	 */
 	public static SimpleDiscreteSequence shuffle( SimpleDiscreteSequence original, int k /*, boolean randomRotation*/ ) throws Exception {
 		int n = original.getLength();

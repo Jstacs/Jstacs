@@ -44,8 +44,8 @@ public abstract class AbstractStringExtractor implements Enumeration<String> {
 	public final static char USUALLY = '#';
 
 	/**
-	 * The comment character for FastA-formatted files is &quot;>&quot;. If
-	 * &quot;>&quot; is specified as the comment character, the file or
+	 * The comment character for FastA-formatted files is &quot;&gt;&quot;. If
+	 * &quot;&gt;&quot; is specified as the comment character, the file or
 	 * {@link String} will be interpreted as in FastA format.
 	 */
 	public final static char FASTA = '>';

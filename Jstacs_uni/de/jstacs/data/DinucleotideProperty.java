@@ -419,10 +419,11 @@ public enum DinucleotideProperty {
 	}
 	
 	/**
-	 * Computes this dinucleotide property for all overlapping twomers in <code>original</code>
+	 * Computes this dinucleotide property for all overlapping dimers in <code>original</code>
 	 * and returns the result as a {@link Sequence} of length <code>original.getLength()-1</code>
 	 * @param original the original nucleotide sequence
-	 * @return the property for all overlapping twomers
+	 * @return the property for all overlapping dimers
+	 * @throws WrongAlphabetException if the new sequence could not be created
 	 * @throws WrongSequenceTypeException if <code>original</code> is not a DNA sequence
 	 */
 	public ArbitrarySequence getPropertyAsSequence(Sequence original) throws WrongAlphabetException, WrongSequenceTypeException{
@@ -430,11 +431,11 @@ public enum DinucleotideProperty {
 	}
 	
 	/**
-	 * Computes this dinucleotide property for all overlapping twomers in <code>original</code>, smoothes the result using <code>smoothing</code>,
+	 * Computes this dinucleotide property for all overlapping dimers in <code>original</code>, smoothes the result using <code>smoothing</code>,
 	 * and returns the smoothed property as a {@link Sequence}. The length of this {@link Sequence} depends on the smoothing applied.
 	 * @param original the original nucleotide sequence
 	 * @param smoothing the smoothing applied to the property values
-	 * @return the smoothed property for all overlapping twomers
+	 * @return the smoothed property for all overlapping dimers
 	 * @throws WrongSequenceTypeException if <code>original</code> is not a DNA sequence
 	 */
 	public ArbitrarySequence getPropertyAsSequence(Sequence original, Smoothing smoothing) throws WrongSequenceTypeException{
@@ -618,6 +619,7 @@ public enum DinucleotideProperty {
 	 * @param smoothing the smoothing
 	 * @param addToAnnotation if <code>true</code> the converted {@link Sequence}s are added to the current annotation, otherwise the current annotation is replaced
 	 * @param properties the properties
+	 * @return the {@link DataSet} of property sequences
 	 * @throws WrongSequenceTypeException if <code>original</code> contains non-DNA sequences
 	 */
 	public static DataSet getDataSetForProperty(DataSet original, Smoothing smoothing, boolean addToAnnotation, DinucleotideProperty... properties) throws WrongSequenceTypeException{

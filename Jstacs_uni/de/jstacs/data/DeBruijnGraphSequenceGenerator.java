@@ -119,8 +119,8 @@ public class DeBruijnGraphSequenceGenerator {
 	 * @param alphabet the alphabet
 	 * @param n the exponent of length length, corresponds to the length of n-mers covered exactly once
 	 * @return the sequence (wrapped in an array)
-	 * @throws WrongAlphabetException if the alphabet is 
-	 * @throws WrongSequenceTypeException
+	 * @throws WrongAlphabetException if the sequence for this alphabet could not be created
+	 * @throws WrongSequenceTypeException if the sequence could not be created
 	 */
 	public static CyclicSequenceAdaptor[] generate(DiscreteAlphabet alphabet, int n) throws WrongAlphabetException, WrongSequenceTypeException {
 
@@ -134,10 +134,9 @@ public class DeBruijnGraphSequenceGenerator {
 	 * @param n the length of the covered n-mers
 	 * @param alphabetShift the alphabet shift (0 equals no shift)
 	 * @return the De Bruijn sequence
-	 * @throws WrongAlphabetException 
-	 * @throws IllegalArgumentException 
+	 * @throws WrongAlphabetException if the sequence for this alphabet could not be created
 	 */
-	public static CyclicSequenceAdaptor generate(DiscreteAlphabet alphabet, int n, int alphabetShift) throws IllegalArgumentException, WrongAlphabetException {
+	public static CyclicSequenceAdaptor generate(DiscreteAlphabet alphabet, int n, int alphabetShift) throws WrongAlphabetException {
 
 		Random r = new Random(117);
 		

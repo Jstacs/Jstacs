@@ -29,9 +29,9 @@ import de.jstacs.io.NonParsableException;
  * parameter <code>i</code> of a
  * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}
  * <code>fun[j]</code> are determined from the base variance <code>v[j]</code>
- * as<br />
+ * as<br>
  * <code>v[i] = v[j]*funs[j].getSizeOfEventSpaceForRandomVariablesOfParameter(j)</code>
- * . <br />
+ * . <br>
  * The variances for the class parameters are used as defined by the user. The
  * mean parameters are set to 0 for the parameters of the
  * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel}s and to the

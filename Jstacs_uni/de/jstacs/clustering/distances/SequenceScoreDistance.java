@@ -60,8 +60,8 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 	 * @param alphabet the alphabet of the models that may be compared
 	 * @param n the length of n-mers represented in the De Bruijn sequence
 	 * @param exp if exponential scores should be used
-	 * @throws WrongAlphabetException
-	 * @throws WrongSequenceTypeException
+	 * @throws WrongAlphabetException if the sequence of this alphabet could not be created
+	 * @throws WrongSequenceTypeException if the sequence could not be created
 	 */
 	public SequenceScoreDistance(DiscreteAlphabet alphabet, int n, boolean exp) throws WrongAlphabetException, WrongSequenceTypeException{
 		this(DeBruijnGraphSequenceGenerator.generate( alphabet, n ), exp);
