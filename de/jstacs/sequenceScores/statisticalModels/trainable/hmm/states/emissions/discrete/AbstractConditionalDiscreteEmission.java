@@ -578,6 +578,12 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 	 */
 	protected abstract int getConditionIndex( boolean forward, int seqPos, Sequence seq );
 	
+	/**
+	 * Returns the index for position <code>seqPos</code> in sequence <code>seq</code>.
+	 * @param seqPos the position
+	 * @param seq the sequence
+	 * @return the index
+	 */
 	protected int getIndex( int seqPos, Sequence seq ) {
 		return seq.discreteVal( seqPos );
 	}
@@ -637,6 +643,13 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		return offset;
 	}
 	
+	/**
+	 * Draws the parameters of this {@link AbstractConditionalDiscreteEmission} from a Dirichlet distribution
+	 * with given hyper-parameters. If the equivalent sample size (ess) according to the provided hyper-parameters
+	 * is zero, parameters may be drawn from a uniform distribution on the simplex.
+	 * @param hyper the hyper-parameters
+	 * @param uniformBackup if a uniform distribution should be used in case of ess zero
+	 */
 	protected void drawParameters( double[][] hyper, boolean uniformBackup ) {
 		double ess;
 		DiMRGParams p;
