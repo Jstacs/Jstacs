@@ -75,7 +75,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	private LogPrior prior;
 
 	/**
-	 * The main constructor that creates an instance with the user given parameters.
+	 * The main constructor that creates an instance with the user given parameters and {@link CompositeLogPrior}.
 	 * 
 	 * @param nsf the {@link DifferentiableStatisticalModel} that should be used
 	 * @param threads the number of threads that should be used for optimization
@@ -91,6 +91,19 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		this(nsf, threads, algo, tc, lineps, startD, new CompositeLogPrior() );
 	}
 	
+	/**
+	 * Constructor that creates an instance with the user given parameters.
+	 * 
+	 * @param nsf the {@link DifferentiableStatisticalModel} that should be used
+	 * @param threads the number of threads that should be used for optimization
+	 * @param algo the algorithm that should be used for the optimization
+	 * @param tc the {@link AbstractTerminationCondition} for stopping the optimization
+	 * @param lineps the line epsilon for stopping the line search in the optimization
+	 * @param startD the start distance that should be used initially
+	 * @param prior The prior on the parameters
+	 * 
+	 * @throws CloneNotSupportedException if <code>nsf</code> can not be cloned
+	 */
 	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, LogPrior prior ) throws CloneNotSupportedException
 	{
 		super( nsf.getAlphabetContainer(), nsf.getLength() );
