@@ -86,7 +86,7 @@ public class ConstraintManager
 	 *            the weights for the sequences,
 	 *            <ol>
 	 *            <li> <code>weights==null</code> or
-	 *            <li> <code>weights.length = data.getNumberOfElements()</code>, for all i:<code>weights[i]>=0</code>
+	 *            <li> <code>weights.length = data.getNumberOfElements()</code>, for all i:<code>weights[i]&lt;=0</code>
 	 *            </ol>
 	 * @param reset whether the constraints should be reseted
 	 * @param constr
@@ -199,7 +199,7 @@ public class ConstraintManager
 	 *            	<li> items are separated by &quot;;&quot;
 	 *            	<li> short notation for sets of constraints, e.g. &quot;m2sx&quot;
 	 *            	<li> or each constraint as e.g. &quot;i,j,k;&quot; 
-	 *            <ul>
+	 *            </ul>
 	 * 
 	 * @return an ArrayList of int[]
 	 * 

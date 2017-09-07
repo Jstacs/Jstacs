@@ -262,7 +262,7 @@ public class PFMComparator {
 	 * @param annotPrefix a prefix on the PFM's annotation 
 	 * @param file the {@link File} to read
 	 * @return the PFM and annotation
-	 * @throws IOException
+	 * @throws IOException if the file could not be read
 	 */
 	public static SimpleEntry<String, double[][]> readPFMFromUniprobe(String annotPrefix, File file) throws IOException {
 		String annot = annotPrefix+file.getName().substring( 0, file.getName().lastIndexOf( '.' ) );

@@ -137,7 +137,7 @@ public interface JstacsTool {
 	
 	/**
 	 * Returns a detailed help text for this tool, describing the purpose of the tool, all parameters and results.
-	 * May use <href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">reStructureText</a> markup.
+	 * May use <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">reStructuredText</a> markup.
 	 * @return the help text
 	 */
 	public String getHelpText();

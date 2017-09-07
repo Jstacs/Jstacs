@@ -54,8 +54,8 @@ import de.jstacs.utils.IntList;
  * order (including weight array matrix models (WAM) and position weight
  * matrices (PWM)) or Bayesian trees. Different structures can be achieved by
  * using the corresponding {@link Measure}, e.g. {@link InhomogeneousMarkov} for
- * Markov models of arbitrary order. <br />
- * <br />
+ * Markov models of arbitrary order. <br>
+ * <br>
  * 
  * This scoring function can be used in any
  * {@link de.jstacs.classifiers.differentiableSequenceScoreBased.ScoreClassifier}, e.g. in a
@@ -150,7 +150,7 @@ public class BayesianNetworkDiffSM extends
 	 *            the {@link Measure} used for the structure, e.g.
 	 *            {@link InhomogeneousMarkov}
 	 * @throws Exception
-	 *             if the length of the scoring function is not admissible (<=0)
+	 *             if the length of the scoring function is not admissible (&lt;=0)
 	 *             or the alphabet is not discrete
 	 */
 	public BayesianNetworkDiffSM(AlphabetContainer alphabet,
@@ -183,7 +183,7 @@ public class BayesianNetworkDiffSM extends
 	 *             instantiated from the
 	 *             {@link BayesianNetworkDiffSMParameterSet}
 	 * @throws Exception
-	 *             if the length of the scoring function is not admissible (<=0)
+	 *             if the length of the scoring function is not admissible (&lt;=0)
 	 *             or the alphabet is not discrete
 	 */
 	public BayesianNetworkDiffSM(
@@ -943,9 +943,9 @@ public class BayesianNetworkDiffSM extends
 	}
 	
 	/**
-	 * Returns the probability of <code>kmer</code> for all possible positions in this {@link BayesianNetworkDiffSM} starting at position <code>kmer.getLength()-1<code>.
+	 * Returns the probability of <code>kmer</code> for all possible positions in this {@link BayesianNetworkDiffSM} starting at position <code>kmer.getLength()-1</code>.
 	 * @param kmer the k-mer
-	 * @return the position-dependent probabilities of this k-mer for position <code>kmer.getLength()-1<code> to <code>{@link BayesianNetworkDiffSM#getLength()}-1</code>
+	 * @return the position-dependent probabilities of this k-mer for position <code>kmer.getLength()-1</code> to <code>{@link BayesianNetworkDiffSM#getLength()}-1</code>
 	 * @throws Exception if the method is called for non-Markov model structures
 	 */
 	public double[] getPositionDependentKMerProb(Sequence kmer) throws Exception{

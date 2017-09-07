@@ -26,7 +26,7 @@ package de.jstacs.utils;
  * 
  * If you like to use this class you must set the VM option
  * <code>-Djava.library.path</code> to the directory where the native library
- * resides.<br />
+ * resides.<br>
  * The native library is
  * <ul>
  * <li> <code>UserTime.dll</code> for Windows,</li>

@@ -28,9 +28,9 @@ import de.jstacs.utils.Normalisation;
  * Class for generating random numbers of many different distributions.<br>
  * <br>
  * 
- * This class was written by Sundar Dorai-Raj and was downloaded from <a
- * href="http://www.stat.vt.edu/~sundar/java/"
- * >http://www.stat.vt.edu/~sundar/java/</a>. Only a few modifications were made
+ * This class was written by Sundar Dorai-Raj and was downloaded from 
+ * <a href="http://www.stat.vt.edu/~sundar/java/">http://www.stat.vt.edu/~sundar/java/</a>. 
+ * Only a few modifications were made
  * by Jens Keilwagen eliminating some not used variables and making the comments
  * visible for javadoc.<br>
  * <br>
@@ -55,8 +55,7 @@ import de.jstacs.utils.Normalisation;
  * ACM Transactions on Modeling and Computer Simulation, Vol. 8, No. 1, January
  * 1998, pp 3--30.
  * 
- * @author Sundar Dorai-Raj Email: <a
- *         href="mailto:sdoraira@vt.edu">sdoraira@vt.edu</a>
+ * @author Sundar Dorai-Raj Email: <a href="mailto:sdoraira@vt.edu">sdoraira@vt.edu</a>
  */
 
 public class RandomNumberGenerator implements java.io.Serializable {
