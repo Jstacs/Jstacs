@@ -600,7 +600,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	}
 	
 	/**
-	 * This method is used if {@link #fillLogStatePosteriorMatrix(double[][], int, int, Sequence, boolean)} is used with code>silentZero==true</code>
+	 * This method is used if {@link #fillLogStatePosteriorMatrix(double[][], int, int, Sequence, boolean)} is used with <code>silentZero==true</code>
 	 * to eliminate the first row.
 	 * 
 	 * @param intermediate the intermediate (log) state posterior matrix containing one additional row for silent states before the first emission
