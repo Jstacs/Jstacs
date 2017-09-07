@@ -1561,7 +1561,8 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 			}
 		}
 
-		public double getLocalScoreFor(Sequence seq, int i) {
+		
+		private double getLocalScoreFor(Sequence seq, int i) {
 			if(children !=null ){
 				if(i+contextPos>=0){
 					return children[seq.discreteVal(i+contextPos)].getLocalScoreFor(seq, i);
@@ -1658,6 +1659,13 @@ public class BNDiffSMParameterTree implements Cloneable, Storable {
 		return all.toString();
 	}
 
+	/**
+	 * Returns the score for the symbol at this {@link BNDiffSMParameterTree} starting
+	 * from offset <code>i</code>
+	 * @param seq the sequence
+	 * @param i the offset
+	 * @return the score
+	 */
 	public double getLocalScoreFor(Sequence seq, int i) {
 		return root.getLocalScoreFor(seq, i);		
 	}
