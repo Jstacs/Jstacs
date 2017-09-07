@@ -42,6 +42,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ProgressUpdater;
+import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
