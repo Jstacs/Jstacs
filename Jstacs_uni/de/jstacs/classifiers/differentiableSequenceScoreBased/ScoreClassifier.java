@@ -29,7 +29,6 @@ import de.jstacs.algorithms.optimization.termination.AbstractTerminationConditio
 import de.jstacs.classifiers.AbstractScoreBasedClassifier;
 import de.jstacs.classifiers.ClassDimensionException;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifiers.differentiableSequenceScoreBased.performance.PerformanceOptimizedClassifierParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
