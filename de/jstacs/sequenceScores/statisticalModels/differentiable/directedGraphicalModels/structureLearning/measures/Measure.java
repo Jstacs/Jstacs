@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import de.jstacs.InstantiableFromParameterSet;
 import de.jstacs.Storable;
+import de.jstacs.algorithms.graphs.MST;
 import de.jstacs.algorithms.graphs.tensor.Tensor;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
@@ -53,6 +54,12 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 		fromXML(xml);
 	}
 	
+	/**
+	 * Parses this {@link Measure} from its XML representation. Used in
+	 * constructor {@link Measure#Measure(StringBuffer)}.
+	 * @param xml the XML representation
+	 * @throws NonParsableException if the XML representation could not be parsed
+	 */
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, getXMLTag() );
 		parameters = XMLParser.extractObjectForTags( xml, "parameters", MeasureParameterSet.class );
@@ -67,6 +74,9 @@ public abstract class Measure implements Cloneable, Storable, InstantiableFromPa
 		this.parameters = (MeasureParameterSet) parameters.clone();
 	}
 	
+	/**
+	 * Default constructor.
+	 */
 	protected Measure(){
 		
 	}
