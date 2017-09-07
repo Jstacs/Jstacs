@@ -493,7 +493,7 @@ public class Cookbook {
 	public static void optimization() throws Exception{
 		
 		//create numerical differentiable function
-		NumericalDifferentiableFunction ndf = new NumericalDifferentiableFunction(1E-10) {
+		NumericalDifferentiableFunction ndf = new NumericalDifferentiableFunction(null,1E-10) {
 			
 			@Override
 			public int getDimensionOfScope() {
