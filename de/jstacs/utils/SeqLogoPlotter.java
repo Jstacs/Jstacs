@@ -302,7 +302,14 @@ public class SeqLogoPlotter {
 	}
 	
 	
-	
+	/**
+	 * Plots a dependency logo using default parameters to a {@link GraphicsAdaptor}.
+	 * @param ga the graphics adaptor
+	 * @param data the sequences
+	 * @param weights the weights of the sequences
+	 * @param width the width of the image
+	 * @throws Exception if the logo could not be plotted
+	 */
 	public static void plotDefaultDependencyLogoToGraphicsAdaptor(GraphicsAdaptor ga, DataSet data, double[] weights, int width) throws Exception{
 		
 		
@@ -1875,40 +1882,5 @@ public class SeqLogoPlotter {
 		a.transform( t );
 		return a;
 	}
-	
-	
-	
-	public static void main(String[] args) throws Exception {
-		
-		BufferedReader read = new BufferedReader(new FileReader("/Users/dev/Desktop/DepLogoR/test.txt"));
-		
-		String str = null;
-		
-		LinkedList<Sequence> seqs = new LinkedList<Sequence>();
-		LinkedList<Pair<Sequence,Double>> list = new LinkedList<Pair<Sequence,Double>>();
-		while( (str = read.readLine()) != null ){
-			String[] parts = str.split("\t");
-			String seqstr = parts[5];
-			Sequence seq = Sequence.create(DNAAlphabetContainer.SINGLETON, seqstr);
-			double w = Double.parseDouble(parts[3]);
-			seqs.add(seq);
-			list.add(new Pair<Sequence, Double>(seq, w));
-		}
-		
-		
-		Pair<Sequence,Double>[][] parts = sortLocal2(list.toArray(new Pair[0]), 3, 3, new boolean[20], 10, true, null, 0.1, null);
-		
-		for(int i=0;i<parts.length;i++){
-			for(int j=0;parts[i]!=null && j<parts[i].length;j++){
-				System.out.println(parts[i][j].getFirstElement()+" "+parts[i][j].getSecondElement());
-			}
-			System.out.println("##########");
-		}
-		
-		
-	}
-	
-	
-	
 	
 }
