@@ -69,6 +69,13 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 		this.name = name;
 	}
 	
+	/**
+	 * Creates a new wrapper for a given position frequency matrix.
+	 * @param alphabets the alphabet
+	 * @param name the name of the matrix
+	 * @param pssm the position specific scoring matrix
+	 * @throws CloneNotSupportedException if the PSSM could not be cloned
+	 */
 	public PFMWrapperTrainSM( AlphabetContainer alphabets, String name, double[][] pssm ) throws CloneNotSupportedException{
 		super(alphabets,pssm.length);
 		this.pfm = new double[0][0];
