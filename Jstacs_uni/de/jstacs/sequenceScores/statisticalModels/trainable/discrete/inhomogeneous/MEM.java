@@ -172,12 +172,12 @@ public final class MEM implements Storable, Cloneable
 	}
 
 	/**
-	 * Returns the score for the <code>sequence<code> beginning at <code>start</code>.
+	 * Returns the score for the <code>sequence</code> beginning at <code>start</code>.
 	 * 
 	 * @param seq the sequence
 	 * @param start the start position
 	 * 
-	 * @return the score for the <code>sequence<code> beginning at <code>start</code>
+	 * @return the score for the <code>sequence</code> beginning at <code>start</code>
 	 */
 	public double getScoreFor( Sequence seq, int start )
 	{
@@ -190,12 +190,12 @@ public final class MEM implements Storable, Cloneable
 	}
 	
 	/**
-	 * Returns the logarithmic score for the <code>sequence<code> beginning at <code>start</code>.
+	 * Returns the logarithmic score for the <code>sequence</code> beginning at <code>start</code>.
 	 * 
 	 * @param seq the sequence
 	 * @param start the start position
 	 * 
-	 * @return the logarithmic score for the <code>sequence<code> beginning at <code>start</code>
+	 * @return the logarithmic score for the <code>sequence</code> beginning at <code>start</code>
 	 */
 	public double getLogScoreFor( Sequence seq, int start )
 	{

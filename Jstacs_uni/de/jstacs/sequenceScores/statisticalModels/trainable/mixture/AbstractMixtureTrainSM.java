@@ -82,9 +82,8 @@ import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
  * 
  * The model stores a reference to the last data set used in <code>train</code>.
  * This enables the user to estimate the parameters iteratively beginning with
- * the current set of parameters. Therefore you can use the method
- * {@link AbstractMixtureTrainSM#continueIterations(double[], double[][], int, int)}
- * </code>.
+ * the current set of parameters. To this end, you can use the method
+ * {@link AbstractMixtureTrainSM#continueIterations(double[], double[][], int, int)}.
  * 
  * <br>
  * <br>
@@ -370,27 +369,26 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	 *            <li>it is recommended to use the same parameterization for the
 	 *            components and the component assignment probabilities
 	 *            <li>it is recommended to use {@link Parameterization#LAMBDA}
-	 *            <ul>
+	 *            </ul>
 	 * @param initialIteration
-	 *            only for {@link Algorithm#GIBBS_SAMPLING}<br>
+	 *            only for {@link Algorithm#GIBBS_SAMPLING}
 	 *            the positive length of the initial sampling phase (at least 1,
 	 *            at most <code>stationaryIteration/starts</code>)
 	 * @param stationaryIteration
-	 *            only for {@link Algorithm#GIBBS_SAMPLING}<br>
+	 *            only for {@link Algorithm#GIBBS_SAMPLING}
 	 *            the positive length of the stationary phase (at least 1)
 	 *            (summed over all starts), i.e. the number of parameter sets
 	 *            that is used for approximation
 	 * @param burnInTest
-	 *            only for {@link Algorithm#GIBBS_SAMPLING}<br>
+	 *            only for {@link Algorithm#GIBBS_SAMPLING}
 	 *            the test that will be used to determine the length of the
 	 *            burn-in phase
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if
-	 *             <ul>
+	 *             if <ul>
 	 *             <li>the models are not able to score the sequence of length
 	 *             <code>length</code> <li><code>dimension &lt; 1</code> <li>
-	 *             <code>weights != null && weights.length != dimension</code>
+	 *             <code>weights != null &amp;&amp; weights.length != dimension</code>
 	 *             <li><code>weights != null</code> and it exists an <code>i
 	 *             </code> where <code>weights[i] &lt; 0</code> <li><code>starts
 	 *             &lt; 1</code> <li><code>componentHyperParams</code> are not
@@ -1344,7 +1342,7 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 
 	/**
 	 * Returns the index <code>i</code> of the component with
-	 * <code>P(i|s)<code> maximal. Therefore it computes 
+	 * <code>P(i|s)</code> maximal. Therefore it computes 
 	 * {@latex.ilb %preamble{\\usepackage{amsmath}}
 	 * \\[i = \\operatorname{argmax}_j P(j|s)
 	 * 	= \\operatorname{argmax}_j P(s|j) \\cdot P(j).\\]} 

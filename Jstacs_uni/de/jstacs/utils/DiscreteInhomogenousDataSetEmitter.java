@@ -38,7 +38,7 @@ import de.jstacs.sequenceScores.statisticalModels.StatisticalModel;
 public class DiscreteInhomogenousDataSetEmitter {
 	/**
 	 * This method emits a data set with
-	 * <code>n<code> sequences from the discrete inhomogeneous model <code>m</code>
+	 * <code>n</code> sequences from the discrete inhomogeneous model <code>m</code>
 	 * .
 	 * 
 	 * @param m

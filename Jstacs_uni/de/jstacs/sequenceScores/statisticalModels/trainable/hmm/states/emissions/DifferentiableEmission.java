@@ -33,7 +33,7 @@ import de.jstacs.utils.IntList;
 public interface DifferentiableEmission extends Emission {
 	
 	/**
-	 * Fills the current parameters in the global code>params</code> array using the internal offset.
+	 * Fills the current parameters in the global <code>params</code> array using the internal offset.
 	 * 
 	 * @param params the global parameter array of the HMM
 	 * 

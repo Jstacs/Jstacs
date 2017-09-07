@@ -173,7 +173,7 @@ public class StructureLearner {
 	 *            the ess of the {@link StructureLearner}
 	 * 
 	 * @throws IllegalArgumentException
-	 *             if <code>ess < 0</code>
+	 *             if <code>ess &lt; 0</code>
 	 */
 	public void setESS( double ess ) throws IllegalArgumentException {
 		if( ess < 0 ) {

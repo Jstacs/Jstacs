@@ -130,7 +130,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 *             <ul>
 	 *             <li>the models are not able to score the sequence of length
 	 *             <code>length</code> <li><code>dimension &lt; 1</code> <li>
-	 *             <code>weights != null && weights.length != dimension</code>
+	 *             <code>weights != null &amp;&amp; weights.length != dimension</code>
 	 *             <li><code>weights != null</code> and it exists an <code>i
 	 *             </code> where <code>weights[i] &lt; 0</code> <li><code>starts
 	 *             &lt; 1</code> <li><code>componentHyperParams</code> are not
@@ -222,7 +222,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 *             <code>length</code>
 	 *             <li><code>dimension &lt; 1</code>
 	 *             <li>
-	 *             <code>weights != null && weights.length != dimension</code>
+	 *             <code>weights != null &amp;&amp; weights.length != dimension</code>
 	 *             <li><code>weights != null</code> and it exists an
 	 *             <code>i</code> where <code>weights[i] &lt; 0</code>
 	 *             <li><code>starts &lt; 1</code>
@@ -296,7 +296,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 *             <code>length</code>
 	 *             <li><code>dimension &lt; 1</code>
 	 *             <li>
-	 *             <code>weights != null && weights.length != dimension</code>
+	 *             <code>weights != null &amp;&amp; weights.length != dimension</code>
 	 *             <li><code>weights != null</code> and it exists an
 	 *             <code>i</code> where <code>weights[i] &lt; 0</code>
 	 *             <li><code>starts &lt; 1</code>
@@ -371,7 +371,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 *             <code>length</code>
 	 *             <li><code>dimension &lt; 1</code>
 	 *             <li>
-	 *             <code>weights != null && weights.length != dimension</code>
+	 *             <code>weights != null &amp;&amp; weights.length != dimension</code>
 	 *             <li><code>weights != null</code> and it exists an
 	 *             <code>i</code> where <code>weights[i] &lt; 0</code>
 	 *             <li><code>starts &lt; 1</code>
@@ -448,7 +448,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 *             <code>length</code>
 	 *             <li><code>dimension &lt; 1</code>
 	 *             <li>
-	 *             <code>weights != null && weights.length != dimension</code>
+	 *             <code>weights != null &amp;&amp; weights.length != dimension</code>
 	 *             <li><code>weights != null</code> and it exists an
 	 *             <code>i</code> where <code>weights[i] &lt; 0</code>
 	 *             <li><code>starts &lt; 1</code>

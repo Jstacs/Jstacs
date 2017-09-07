@@ -71,7 +71,7 @@ public class PMMExplainingAwayResidual extends Measure {
 
 	/**
 	 * Creates a new {@link PMMExplainingAwayResidual} from the corresponding
-	 * {@link de.jstacs.parameters.InstanceParameterSet} <code>parameters/code>.
+	 * {@link de.jstacs.parameters.InstanceParameterSet} <code>parameters</code>.
 	 * 
 	 * @param parameters
 	 *            the corresponding parameters

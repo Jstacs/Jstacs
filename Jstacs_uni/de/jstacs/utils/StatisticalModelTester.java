@@ -176,9 +176,9 @@ public class StatisticalModelTester {
 	 * @param m
 	 *            a discrete model
 	 * @param constraint
-	 *            <code>constraint[j][i] < 0</code> stands for an irrelevant
+	 *            <code>constraint[j][i] &lt; 0</code> stands for an irrelevant
 	 *            position, <code>constraint[j][i] = c</code> with
-	 *            <code>0 <= c < m.getAlphabets()[(m.getLength==0)?0:i].getAlphabetLength()</code>
+	 *            <code>0 &lt;= c &lt; m.getAlphabets()[(m.getLength==0)?0:i].getAlphabetLength()</code>
 	 *            is the encoded character of position <code>i</code>
 	 * 
 	 * @return the marginal distributions of the given constraints for the discrete model

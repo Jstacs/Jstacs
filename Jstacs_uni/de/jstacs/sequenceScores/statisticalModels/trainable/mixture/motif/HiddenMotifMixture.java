@@ -137,7 +137,7 @@ public abstract class HiddenMotifMixture extends AbstractMixtureTrainSM implemen
 	 *             <ul>
 	 *             <li>the models are not able to score the sequence of the
 	 *             corresponding length
-	 *             <li><code>weights != null && weights.length != 2</code>
+	 *             <li><code>weights != null &amp;&amp; weights.length != 2</code>
 	 *             <li><code>weights != null</code> and it exists an
 	 *             <code>i</code> where <code>weights[i] &lt; 0</code>
 	 *             <li><code>starts &lt; 1</code>

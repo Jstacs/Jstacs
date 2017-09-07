@@ -493,7 +493,7 @@ public abstract class AbstractMixtureDiffSM extends AbstractDifferentiableStatis
 	 * @param index
 	 *            the class index
 	 * @param freeParams
-	 *            if <code>true<code>, the (reduced) parameterization is used
+	 *            if <code>true</code>, the (reduced) parameterization is used
 	 * @param data
 	 *            the data
 	 * @param weights
