@@ -28,6 +28,10 @@ public abstract class DifferentiableFunction implements Function {
 	
 	private OneDimensionalSubFunction fun;
 	
+	/**
+	 * Default constructor, automatically sets the internal function for line search
+	 * to a {@link OneDimensionalSubFunction} of <code>this</code> {@link DifferentiableFunction}.
+	 */
 	public DifferentiableFunction() {
 		fun = new OneDimensionalSubFunction( this );
 	}
