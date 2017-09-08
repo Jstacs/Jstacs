@@ -5,10 +5,25 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 
+/**
+ * Class for a network structure of a
+ * {@link de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.BayesianNetworkDiffSM}
+ * that has a given fixed dependency structure.
+ * 
+ * @author Jan Grau and Jens Keilwagen
+ *
+ */
 public class FixedStructure extends Measure {
+	
+	//XXX problem: implements InstantiableFromParameterSet, but has no constructor
 
 	private int[][] structure;
 
+	/**
+	 * Creates a new {@link FixedStructure} from its XML-representation.
+	 * @param xml the XML-representation
+	 * @throws NonParsableException the the XML could not be parsed
+	 */
 	public FixedStructure(StringBuffer xml) throws NonParsableException {
 		super(xml);
 	}
@@ -19,11 +34,11 @@ public class FixedStructure extends Measure {
 	}
 
 	/**
+	 * The main constructor.
 	 * 
-	 * @param structure
-	 * @throws CloneNotSupportedException
+	 * @param structure the dependency structure, <code>structure[i]</code> contains the parents of position <code>i</code>
 	 */
-	public FixedStructure(int[][] structure) throws CloneNotSupportedException {
+	public FixedStructure(int[][] structure) {
 		super();
 		this.structure = new int[structure.length][];
 		for(int i=0;i<structure.length;i++){
@@ -56,7 +71,4 @@ public class FixedStructure extends Measure {
 		XMLParser.addTags(xml, getXMLTag());
 		return xml;
 	}
-	
-	
-
 }
