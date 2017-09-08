@@ -297,9 +297,15 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 	}
 	
 	/**
-	 * Returns the number of starts of the internal {@link DifferentiableSequenceScore}s
-	 * according to {@link AbstractDifferentiableStatisticalModel#getNumberOfStarts(DifferentiableSequenceScore[])}.
+	 * Returns the number of independent re-starts in the training. The default implementation uses
+	 * {@link AbstractDifferentiableStatisticalModel#getNumberOfStarts(DifferentiableSequenceScore[])}
+	 * for the internal {@link DifferentiableSequenceScore}s.
+	 * 
 	 * @return the number of starts
+	 * 
+	 * @see ScoreClassifier#doOptimization(DataSet[], double[][])
+	 * @see #train(DataSet...)
+	 * @see #train(DataSet[], double[][])
 	 */
 	protected int getIterations() {
 		return AbstractDifferentiableStatisticalModel.getNumberOfStarts(score);
