@@ -23,6 +23,7 @@
 			<link href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/"/>
 			<link href="http://math.nist.gov/javanumerics/jama/doc/"/>
 			<link href="https://xmlgraphics.apache.org/batik/javadoc/"/>
+			<link href="https://samtools.github.io/htsjdk/javadoc/htsjdk/"/>
 		</javadoc>
 		<zip destfile="${builddir}/jstacs-api-${version}.zip">
 			<zipfileset dir="${builddir}" includes="jstacs-api/**" />
@@ -65,7 +66,7 @@
 		</zip>
 		<tar destfile="${builddir}/jstacs-bin-${version}.tar.gz" compression="gzip" longfile="gnu">
 			<tarfileset dir="${builddir}" includes="jstacs-${version}.jar" prefix="jstacs-bin-${version}" />
-			<tarfileset dir="lib" prefix="jstacs-bin-${version}/lib"  excludes="LaTeXlet-1.1.jar" />
+			<tarfileset dir="lib" prefix="jstacs-bin-${version}/lib"  excludes="LaTeXlet-*.jar" />
 			<tarfileset dir="." includes="COPYING.txt,ReadMe.txt" prefix="jstacs-bin-${version}" />
 			<tarfileset dir="de/jstacs/utils" includes="de_jstacs_utils_UserTime.h,de_jstacs_utils_UserTime.c,libUserTime.jnilib,libUserTime.so,UserTime.dll" prefix="jstacs-bin-${version}/native" />
 		</tar>
