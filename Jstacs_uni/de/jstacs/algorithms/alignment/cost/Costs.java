@@ -43,7 +43,7 @@ public interface Costs extends Storable {
 	 * 
 	 * @see Sequence#discreteVal(int)
 	 */
-	public abstract double getCostFor( Sequence s1, Sequence s2, int i, int j );
+	public double getCostFor( Sequence s1, Sequence s2, int i, int j );
 	
 	/**
 	 * Returns the costs for an insert gap, i.e., a gap in the first string.
