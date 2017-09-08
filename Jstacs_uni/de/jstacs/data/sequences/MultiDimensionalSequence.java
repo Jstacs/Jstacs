@@ -78,7 +78,21 @@ public abstract class MultiDimensionalSequence<T> extends Sequence<T> {
 		return content[0].discreteVal( pos );
 	}
 	
-	//TODO Jens?
+	/**
+	 * Returns a new instance of a {@link MultiDimensionalSequence} with given {@link SequenceAnnotation}s and given {@link Sequence}s.
+	 * 
+	 * @param seqAn the sequence annotations
+	 * @param seqs the sequence buidl9ing the new {@link MultiDimensionalSequence}
+	 * 
+	 * @return a new instance of a {@link MultiDimensionalSequence} with given {@link SequenceAnnotation}s and given {@link Sequence}s
+	 * 
+	 * @throws WrongLengthException if the sequences have different lengths
+	 * @throws WrongAlphabetException if the sequences have different {@link de.jstacs.data.AlphabetContainer}s
+	 *  
+	 * @see #flatCloneWithoutAnnotation()
+	 * @see #complement()
+	 * @see #reverseComplement()
+	 */
 	protected abstract MultiDimensionalSequence<T> getInstance( SequenceAnnotation[] seqAn, Sequence... seqs ) throws WrongLengthException, WrongAlphabetException;
 
 	/*
