@@ -620,7 +620,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 					switchPars( groupedParameters[i], Double.isNaN( temp ) );
 				}
 				break;
-			case INDIVIDUAL:
+			/*case INDIVIDUAL:
 				temp = testParameters( function, previousValue );
 				if(!Double.isNaN( temp )){
 					previousValue = temp;
@@ -636,7 +636,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 						currentParameters[j] = previousParameters[j];
 					}
 				}
-				break;
+				break;*/
 			default:
 				throw new Exception( "Sampling scheme not implemented." );
 		}
@@ -1041,9 +1041,9 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		/**
 		 * The parameters of each group are drawn before decision of acceptance
 		 */
-		GROUPED, 
+		GROUPED/*, 
 		//for testing Jens
-		INDIVIDUAL
+		INDIVIDUAL*/
 	}
 	
 	/**
@@ -1160,8 +1160,19 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 			return true;
 		}
 		
-		//TODO new
-		public int getNumberOfParameterSets( int sampling ) throws Exception {
+		/**
+		 * Returns the number of parameters set that can be retrieved from an internal file which has been creating while previous training.
+		 * 
+		 * @param sampling the index of the sampling
+		 * 
+		 * @return the number of parameters set that can be retrieved
+		 * 
+		 * @throws IOException if some problem occur during the file handling 
+		 * 
+		 * @see #parseNextParameterSet()
+		 * @see #parseParameterSet(int, int)
+		 */
+		public int getNumberOfParameterSets( int sampling ) throws IOException {
 			currSampling = sampling;
 			extract = new SparseStringExtractor( outfiles[sampling] );
 			int i=0;
@@ -1173,7 +1184,7 @@ public abstract class SamplingScoreBasedClassifier extends AbstractScoreBasedCla
 		}
 
 		@Override
-		public boolean parseParameterSet( int sampling, int n ) throws Exception {
+		public boolean parseParameterSet( int sampling, int n ) throws IOException {
 			currSampling = sampling;
 			extract = new SparseStringExtractor( outfiles[sampling] );
 			int i=0;
