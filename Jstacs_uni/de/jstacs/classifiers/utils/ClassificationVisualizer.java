@@ -212,6 +212,18 @@ public class ClassificationVisualizer {
 				e.plot( pltcmd, 720, 720 ) );
 	}
 	
+	/**
+	 * Scatters the classification scores of two binary classifiers for given data.
+	 * 
+	 * @param cl1 the first classifier
+	 * @param cl2 the second classifier
+	 * @param e the {@link REnvironment}
+	 * @param data the data
+	 * 
+	 * @return a scatter plot of the classification scores of two classifiers for given data
+	 * 
+	 * @throws Exception if the classifiers are not binary, the scores cannot be computed correctly or some problems occur in the communication with the {@link REnvironment}
+	 */
 	public static ImageResult getFancyScatterplot( AbstractScoreBasedClassifier cl1, AbstractScoreBasedClassifier cl2, REnvironment e, DataSet... data ) throws Exception {
 		if( cl1.getNumberOfClasses() != 2 || cl2.getNumberOfClasses() != 2 ) {
 			throw new OperationNotSupportedException( "This method is only possible for binary classifiers." );
