@@ -111,7 +111,7 @@ public interface DifferentiableEmission extends Emission {
 	 * Adds the groups of indexes of those parameters of this emission that should be sampled
 	 * together in one step of a grouped sampling procedure, each as an <code>int[]</code>, into <code>list</code>. 
 	 * In most cases, one group should contain the parameters that are living on a common simplex.
-	 * The internal indexes of the parameters are incremeneted by an external <code>parameterOffset</code>
+	 * The internal indexes of the parameters are incremented by an external <code>parameterOffset</code>
 	 * @param parameterOffset the external parameter offset
 	 * @param list the list of sampling groups
 	 */
