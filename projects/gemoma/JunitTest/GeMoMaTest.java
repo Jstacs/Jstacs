@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Date;
 
 import org.junit.After;
@@ -50,11 +52,22 @@ public class GeMoMaTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public static void setUp() throws Exception {
+		//this is a hack to avoid throwing useless exceptions while comparing files that include a version information
+		
+		Field f = GeMoMa.class.getField("version");
+		f.setAccessible(true);
+		
+		Field modifiersField = Field.class.getDeclaredField("modifiers");
+		modifiersField.setAccessible(true);
+		modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+
+		f.set(null, "0.0.0");//TODO
+		/**/
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public static void tearDown() throws Exception {
 		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 

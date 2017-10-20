@@ -265,7 +265,10 @@ public class Extractor implements JstacsTool {
 		ArrayList<String[]> cds = new ArrayList<String[]>();
 		boolean first = true, gff = true;
 		while( (line=r.readLine()) != null ) {
-			if( gff && line.equalsIgnoreCase("##FASTA") ) break; //http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
+			if( gff && line.equalsIgnoreCase("##FASTA") ) {//http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
+				protocol.append("Stop reading the annotation file because of '##FASTA'\n"); 
+				break;  
+			}
 			if( line.length() == 0 || line.startsWith("#") ) continue;
 			if( !gff ) {
 				int index = line.indexOf('#');

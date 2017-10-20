@@ -217,7 +217,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 						new EnumParameter(Stranded.class, "Defines whether the reads are stranded. "
 								+ "In case of FR_FIRST_STRAND, the first read of a read pair or the only read in case of single-end data is assumed to be located on forward strand of the cDNA, i.e., reverse to the mRNA orientation. "
 								+ "If you are using Illumina TruSeq you should use FR_FIRST_STRAND."
-								, true),
+								, true ),
 						new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
 								new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam",  true )
 							), "mapped reads", "", 1 ) ),
@@ -234,8 +234,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
-			throws Exception {
-		
+			throws Exception {		
 		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
 		ValidationStringency stringency = (ValidationStringency) parameters.getParameterAt(2).getValue();
@@ -281,6 +280,12 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		File outInt = GeMoMa.createTempFile("ERE-intron");
 		SafeOutputStream sosInt = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outInt));	
 		sosInt.writeln("##gff-version 3");
+		sosInt.write(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+		String info = JstacsTool.getSimpleNonDefaultParameterInfo(parameters);
+		if( info != null ) {
+			sosInt.write("SIMPLE NON DEFAULT PARAMETERS: " + info );
+		}
+		sosInt.writeln();
 		
 		Comparator<String> scomp = new Comparator<String>() {
 			
