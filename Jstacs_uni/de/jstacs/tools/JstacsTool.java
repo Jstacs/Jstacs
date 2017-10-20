@@ -18,11 +18,14 @@
 
 package de.jstacs.tools;
 
+import de.jstacs.DataType;
+import de.jstacs.parameters.AbstractSelectionParameter;
+import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.ParameterSetContainer;
+import de.jstacs.parameters.SelectionParameter;
+import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.results.Result;
-import de.jstacs.tools.ui.cli.CLI;
-import de.jstacs.tools.ui.galaxy.Galaxy;
-import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
 /**
  * Interface for a generic Jstacs tool.
@@ -85,11 +88,46 @@ public interface JstacsTool {
 		 */
 		public String getName() {
 			return name;
+		}	
+	}
+	
+	/**
+	 * This method returns a short {@link String} representation of simple parameters that have values different than default.
+	 * 
+	 * @return a short {@link String} representation of simple parameters that have values different than default
+	 */
+	public static String getSimpleNonDefaultParameterInfo( ParameterSet parameters ) {
+		String res = null;
+		for( int i = 0; i < parameters.getNumberOfParameters(); i++ ) {
+			Parameter p = parameters.getParameterAt(i);
+			if( (p instanceof SimpleParameter || p instanceof AbstractSelectionParameter) && p.isSet() ){ 
+				if( res == null ) {
+					res = "";
+				} else {
+					res +="; ";
+				}
+				Object o;
+				if ( p instanceof SelectionParameter ) {
+					SelectionParameter a = (SelectionParameter) p;
+					o = a.getParametersInCollection().getParameterAt(a.getSelected()).getName();
+				} else {
+					o = p.getValue();
+				}
+				res += p.getName() + ": " + o;
+			}
+			if( p instanceof ParameterSetContainer ) {
+				String subRes = getSimpleNonDefaultParameterInfo( ((ParameterSetContainer)p).getValue() );
+				if( subRes != null ) {
+					if( res == null ) {
+						res = "";
+					} else {
+						res +="; ";
+					}
+					res += subRes;
+				}				
+			} 
 		}
-		
-		
-		
-		
+		return res;
 	}
 	
 	/**
