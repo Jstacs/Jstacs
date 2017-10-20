@@ -62,6 +62,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+		
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		double relScoTh = (Double) parameters.getParameterForName("relative score filter").getValue();
 		boolean complete = (Boolean) parameters.getParameterForName("complete").getValue();
@@ -81,21 +82,30 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		//read genes in GeMoMa gff format!
 		BufferedReader r;
 		MAX = eps.getNumberOfParameters();
+		evidenceStat = new int[MAX];
+		String[] prefix = new String[MAX];
+		ArrayList<String> infos = new ArrayList<String>();
 		for( int k = 0; k < MAX; k++ ) {
 			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
-			String prefix = sps.getParameterAt(0).getValue().toString();
+			prefix[k] = sps.getParameterAt(0).getValue().toString();
 			String fName = sps.getParameterAt(1).getValue().toString();
 			//System.out.println(fName);
 
 			r = new BufferedReader(new FileReader(fName));
 			while( (line=r.readLine()) != null ) {
-				if( line.length() == 0 || line.startsWith("##") ) continue;
+				if( line.length() == 0 ) continue;
+				if( line.charAt(0)=='#' ) {
+					if( line.startsWith(GeMoMa.INFO) ) {
+						infos.add(line);
+					}
+					continue;
+				}
 				
 				split = line.split("\t");
 				
 				t = split[2];
 				if( t.equalsIgnoreCase( tag ) ) {
-					current = new Prediction(split, k, prefix);
+					current = new Prediction(split, k, prefix[k]);
 					pred.add( current );
 				} else {
 					current.addCDS( line );
@@ -143,6 +153,17 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 			w.append("##gff-version 3");
 			w.newLine();
+			for( int i = 0; i < infos.size(); i++ ) {
+				w.append( infos.get(i) );
+				w.newLine();
+			}
+			w.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+			String info = JstacsTool.getSimpleNonDefaultParameterInfo(parameters);
+			if( info != null ) {
+				w.append("SIMPLE NON DEFAULT PARAMETERS: " + info );
+			}
+			w.newLine();
+			
 			int i = 0;
 			Prediction next = pred.get(i);
 			IntList cand = new IntList();
@@ -184,6 +205,13 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		protocol.append( "transcripts\t" + transcripts + "\n" );
 		protocol.append( "transcripts with no tie\t" + GeMoMaAnnotationFilter.noTie + "\n" );
 		protocol.append( "transcripts with tie=1\t" + tie1 + "\n" );
+		
+		if( MAX > 1 ) {
+			protocol.append("\n");
+			for( int i = 0; i < MAX; i++ ) {
+				protocol.append( "input " + i + (prefix[i].length()>0?" ("+prefix[i]+")":"") + "\t" + evidenceStat[i] + "\n" );
+			}
+		}
 		
 		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("filtered predictions", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
@@ -372,6 +400,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	
 	static int maxEvidence, st, en, complete;
 	static double maxTie;
+	static int[] evidenceStat;
 	
 	static class ScoreComparator implements Comparator<Prediction> {
 		static ScoreComparator DEF = new ScoreComparator();
@@ -535,6 +564,17 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 					w.append( cds.get(i) );
 					w.newLine();
 				}
+				
+				if( evidence == null ) {
+					evidenceStat[index]++;
+				} else {
+					for( int i = 0; i < MAX; i++ ) {
+						if( evidence[i] ) {
+							evidenceStat[i]++;
+						}
+					}
+				}
+				
 				return 1;
 			} else {
 				return 0;

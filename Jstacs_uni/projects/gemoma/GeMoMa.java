@@ -96,7 +96,13 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String version = "1.4.3";
+	public static final String version;
+	static {
+		//need to be doone this way, because of a hack in the JUnit
+		version = "1.4.3beta";
+	}
+	
+	public static final String INFO = "#PROGRAM INFO: ";
 	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
@@ -198,11 +204,14 @@ public class GeMoMa implements JstacsTool {
 			URL url = new URL(site);
 			BufferedReader br = new BufferedReader( new InputStreamReader(url.openStream()) );
 			String line = null;
+			int l=0;
 			while( (line=br.readLine()) != null ) {
 				if( line.startsWith("<h") && line.contains("Version history") ) {
 					break;
 				}
+				l++;
 			}
+			//System.out.println(l);
 			if( line != null ) {
 				line = br.readLine();
 				int idx = line.lastIndexOf("GeMoMa");
@@ -212,7 +221,11 @@ public class GeMoMa implements JstacsTool {
 					if( idx2 >= 0 ) {
 						String ver = line.substring(idx, idx2).trim();
 						if( !ver.equals(GeMoMa.version) ) {
-							System.out.println("You are using GeMoMa " + GeMoMa.version + ", but the latest version is " + ver + ".\nYou can download the latest version from " + site );
+							if( ver.compareTo(GeMoMa.version)>0 ) {
+								System.out.println("You are using GeMoMa " + GeMoMa.version + ", but the latest version is " + ver + ".\nYou can download the latest version from " + site );
+							} else {
+								System.out.println("You are using an unofficial GeMoMa " + GeMoMa.version + "; the latest official version is " + ver + "." );
+							}
 						} else {
 							System.out.println("You are using the latest GeMoMa version.");
 						}
@@ -220,7 +233,9 @@ public class GeMoMa implements JstacsTool {
 					}
 				}
 			}
-		} catch( Exception ex ) {}
+		} catch( Exception ex ) {
+			//ex.printStackTrace();
+		}
 		if( !checked ) {
 			System.out.println("Could not connect to the GeMoMa-Homepage.");
 		}
@@ -621,7 +636,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	@Override
-	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {	
 		this.protocol=protocol;
 		
 		BufferedReader r = null;
@@ -661,6 +676,13 @@ public class GeMoMa implements JstacsTool {
 		gff = new BufferedWriter( new FileWriter( gffFile ) );
 		gff.append("##gff-version 3");
 		gff.newLine();
+		gff.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+		String info = JstacsTool.getSimpleNonDefaultParameterInfo(parameters);
+		if( info != null ) {
+			gff.append("SIMPLE NON DEFAULT PARAMETERS: " + info );
+		}
+		gff.newLine();
+		
 		predicted = new BufferedWriter( new FileWriter( predictedFile ) );
 		blastLike = new BufferedWriter( new FileWriter( alignFile ) );
 		genomic = new BufferedWriter( new FileWriter( genomicFile ) );
@@ -878,39 +900,48 @@ public class GeMoMa implements JstacsTool {
 	@SuppressWarnings("unchecked")
 	void addHit( HashMap<String, HashMap<Integer,ArrayList<Hit>>[]> hash, String line ) {
 		String[] split = line.split("\t");
-		
-		if( Double.parseDouble(split[10]) > eValue ) {//skip if e-Value of the hit is too large
-			return;
+		try {
+			if( Double.parseDouble(split[10]) > eValue ) {//skip if e-Value of the hit is too large
+				return;
+			}
+			
+			//get list for insertion
+			boolean forward = Integer.parseInt(split[8]) < Integer.parseInt(split[9]);
+			
+			HashMap<Integer,ArrayList<Hit>>[] current = hash.get(split[1]);
+			if( current == null ) {
+				current = new HashMap[] {
+					new HashMap<Integer,ArrayList<Hit>>(),
+					new HashMap<Integer,ArrayList<Hit>>()
+				};
+				hash.put(split[1],current);
+			}
+			int idx = forward ? 0 : 1;
+			Integer part = transcriptInfo == null ? 0 : new Integer( split[0].substring(1+split[0].lastIndexOf("_")) );
+			ArrayList<Hit> lines = current[idx].get(part);
+			if( lines == null ) {
+				lines = new ArrayList<Hit>();
+				current[idx].put(part,lines);
+			}
+			
+			//insert
+			Hit h = new Hit( split[0], split[1], 
+					Integer.parseInt(split[6]), Integer.parseInt(split[7]), Integer.parseInt(split[22]),  
+					Integer.parseInt(split[8]), Integer.parseInt(split[9]), 
+					Integer.parseInt(split[scoreIndex]), split[20], split[21], "tblastn;" );
+			
+			lines.add(h);
+			//h.addSplitHits(lines);
+			numberOfLines++;
+		} catch( ArrayIndexOutOfBoundsException aiobe ) {
+			ArrayIndexOutOfBoundsException moreDetails = new ArrayIndexOutOfBoundsException(
+					"Please check the tblastn input. It seems to have less than expected columns."
+					+ "\nline: " + line
+					+ "\nsplit: " + Arrays.toString(split)
+					+ "\noriginal message: " + aiobe.getMessage()
+			); 
+			throw moreDetails;
 		}
-		
-		//get list for insertion
-		boolean forward = Integer.parseInt(split[8]) < Integer.parseInt(split[9]);
-		
-		HashMap<Integer,ArrayList<Hit>>[] current = hash.get(split[1]);
-		if( current == null ) {
-			current = new HashMap[] {
-				new HashMap<Integer,ArrayList<Hit>>(),
-				new HashMap<Integer,ArrayList<Hit>>()
-			};
-			hash.put(split[1],current);
-		}
-		int idx = forward ? 0 : 1;
-		Integer part = transcriptInfo == null ? 0 : new Integer( split[0].substring(1+split[0].lastIndexOf("_")) );
-		ArrayList<Hit> lines = current[idx].get(part);
-		if( lines == null ) {
-			lines = new ArrayList<Hit>();
-			current[idx].put(part,lines);
-		}
-		
-		//insert
-		Hit h = new Hit( split[0], split[1], 
-				Integer.parseInt(split[6]), Integer.parseInt(split[7]), Integer.parseInt(split[22]),  
-				Integer.parseInt(split[8]), Integer.parseInt(split[9]), 
-				Integer.parseInt(split[scoreIndex]), split[20], split[21], "tblastn;" );
-		
-		lines.add(h);
-		//h.addSplitHits(lines);
-		numberOfLines++;
 	}
 	
 	
@@ -4432,7 +4463,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false ),
-					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not ouput a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, maxTimeOut), timeOut )
+					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not output a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, maxTimeOut), timeOut )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();

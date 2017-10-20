@@ -52,11 +52,12 @@ public class GeMoMaCLITest {
 
 	@Before
 	public void setUp() throws Exception {
+		GeMoMaTest.setUp();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		GeMoMaTest.tearDown();
 	}
 
 //own test implementation	
