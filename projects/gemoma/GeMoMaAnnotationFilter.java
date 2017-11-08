@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import de.jstacs.DataType;
 import de.jstacs.parameters.ExpandableParameterSet;
@@ -84,19 +85,21 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		MAX = eps.getNumberOfParameters();
 		evidenceStat = new int[MAX];
 		String[] prefix = new String[MAX];
-		ArrayList<String> infos = new ArrayList<String>();
+		ArrayList<String> allInfos = new ArrayList<String>();
+		HashSet<String> hash = new HashSet<String>();
 		for( int k = 0; k < MAX; k++ ) {
 			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
 			prefix[k] = sps.getParameterAt(0).getValue().toString();
 			String fName = sps.getParameterAt(1).getValue().toString();
 			//System.out.println(fName);
 
+			hash.clear();
 			r = new BufferedReader(new FileReader(fName));
 			while( (line=r.readLine()) != null ) {
 				if( line.length() == 0 ) continue;
 				if( line.charAt(0)=='#' ) {
 					if( line.startsWith(GeMoMa.INFO) ) {
-						infos.add(line);
+						hash.add(line);
 					}
 					continue;
 				}
@@ -113,6 +116,18 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				
 			}
 			r.close();
+			if( hash.size() != 1 ) {
+				if( hash.size() == 0  ) {
+					protocol.appendWarning("Evidence file " + k + " contains no parameter description\n" );
+				} else {
+					protocol.appendWarning("Evidence file " + k + " contains different parameter descriptions\n" );
+				}
+			}
+			Iterator<String> it = hash.iterator();
+			while( it.hasNext() ) {
+				allInfos.add(it.next());
+			}
+			
 			//System.out.println( pred.size() + "\t" + k + "\t" +current.index);
 		}
 		protocol.append( "all: " + pred.size() + "\n" );
@@ -153,8 +168,8 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 			w.append("##gff-version 3");
 			w.newLine();
-			for( int i = 0; i < infos.size(); i++ ) {
-				w.append( infos.get(i) );
+			for( int i = 0; i < allInfos.size(); i++ ) {
+				w.append( allInfos.get(i) );
 				w.newLine();
 			}
 			w.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");

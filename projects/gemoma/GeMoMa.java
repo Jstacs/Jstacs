@@ -98,7 +98,7 @@ public class GeMoMa implements JstacsTool {
 
 	public static final String version;
 	static {
-		//need to be doone this way, because of a hack in the JUnit
+		//need to be done this way, because of a hack in the JUnit
 		version = "1.4.3beta";
 	}
 	
@@ -269,8 +269,9 @@ public class GeMoMa implements JstacsTool {
 				new GeMoMa(maxSize, timeOut, maxTimeOut),
 				new GeMoMaAnnotationFilter(),
 				new AnnotationEvidence(),
-				new CompareTranscripts(),
-				new TranscribedCluster()
+				new CompareTranscripts()
+				/*,
+				new TranscribedCluster()/**/
 		};
 		
 		//running the program

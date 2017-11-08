@@ -184,7 +184,7 @@ public class AnnotationEvidence implements JstacsTool {
 	public ParameterSet getToolParameters() {
 		try{
 			return new SimpleParameterSet(
-					new FileParameter( "annotation", "The genome annotaion file (GFF)", "gff", true ),
+					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff", true ),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
