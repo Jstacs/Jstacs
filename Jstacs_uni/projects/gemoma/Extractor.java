@@ -249,7 +249,19 @@ public class Extractor implements JstacsTool {
 		trans.put(transcriptID, gene);
 	}
 	
-	//gff has to be sorted 
+	//gff has to be sorted
+	/**
+	 * This method reads an annotation file and create a data structure to be used in a GeMoMa module.
+	 * 
+	 * @param input the annotation file either GFF or GTF
+	 * @param selected the user-specified selected transcript IDS, if <code>null</code> all transcripts are used  
+	 * @param protocol the protocol for reporting
+	 * 
+	 * @return a {@link HashMap} with contigs/chromosome IDs as keys and another {@link HashMap} as values.
+	 * 		The values {@link HashMap} used gene ID as keys and {@link Gene} as values.
+	 * 
+	 * @throws Exception
+	 */
 	public static HashMap<String, HashMap<String,Gene>> read( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String,Gene> chr;
@@ -392,10 +404,25 @@ public class Extractor implements JstacsTool {
 		return annot;
 	}
 	
+	/**
+	 * This class represents a gene.
+	 * 
+	 * @author Jens Keilwagen
+	 */
 	public static class Gene implements Comparable<Gene>{
+		/**
+		 * The {@link HashMap} contains all transcripts for this gene. 
+		 * The keys are the transcript IDs and the values are {@link IntList}. Each {@link IntList} contains  the indices of the (coding) exons this specific transcript.  
+		 */
 		HashMap<String,IntList> transcript;
+		/**
+		 * The list of (coding) exons of this gene. The indices of the exon included in this list are used in {@link #transcript}.
+		 */
 		ArrayList<int[]> exon;
 		int start, end;
+		/**
+		 * The strand of the gene
+		 */
 		int strand;
 		String id;
 		
