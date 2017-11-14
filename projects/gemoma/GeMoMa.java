@@ -427,6 +427,20 @@ public class GeMoMa implements JstacsTool {
 		return simplify( basis );
 	}
 	
+	
+	/**
+	 * This method reads the coverage form user-specified files.
+	 * 
+	 * @param eps the user-specified data
+	 * @param protocol the protocol for reporting
+	 * 
+	 * @return an array of {@link HashMap} where the first entry is the coverage of the forward strand and the second entry is coverage of the reverse strand.
+	 * 		The coverage for one strand is given as {@link HashMap} with contig/chromosome names as key and <code>int[][]</code> arrays as entries.
+	 * 		Each <code>int[]</code> array represents a tuple of start position, end position, and number of reads.
+	 * 		The <code>int[][]</code> array is sorted according to the first entry (genomic order).  
+	 * 
+	 * @throws IOException
+	 */
 	public static HashMap<String, int[][]>[] readCoverage( ExpandableParameterSet eps, Protocol protocol ) throws IOException {
 		HashMap<String, ArrayList<int[]>>[] initialCoverage = new HashMap[3];
 		for( int i = 0; i < initialCoverage.length; i++ ) {
@@ -502,6 +516,21 @@ public class GeMoMa implements JstacsTool {
 		r.close();
 	}
 	
+	/**
+	 * 
+	 * @param threshold minimal number of reads to pass the filter
+	 * @param protocol the protocol for reporting
+	 * @param verbose whether to output additional information
+	 * @param seqs the genome sequence
+	 * @param intronGFF the input files
+	 * 
+	 * @return  an array of {@link HashMap} where the first entry is the introns of the forward strand and the second entry is introns of the reverse strand.
+	 * 		The introns for one strand are given as {@link HashMap} with contig/chromosome names as key and <code>int[][][]</code> arrays as entries.
+	 * 		The first dimension of the <code>int[][][]</code> array is sorted according to the donor sites, the second is sorted according to the acceptor sites.
+	 * 		Each <code>int[]</code> array represents a tuple of start position, end position, and number of split reads.
+	 * 
+	 * @throws IOException if at least one {@link File} cannot be read correctly 
+	 */
 	public static HashMap<String, int[][][]>[] readIntrons( int threshold, Protocol protocol, boolean verbose, HashMap<String, String> seqs, String... intronGFF ) throws IOException {
 		HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
 		ArrayList<int[]>[] h;
