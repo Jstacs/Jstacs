@@ -197,7 +197,7 @@ public final class ArrayHandler {
 					Method cloneMethod = k.getMethod( "clone" );
 					res = cloneMethod.invoke( s );
 				} catch ( Exception e ) {
-					CloneNotSupportedException cnse = new CloneNotSupportedException( e.getMessage() );
+					CloneNotSupportedException cnse = new CloneNotSupportedException( e.getMessage()+" for class "+k );
 					cnse.setStackTrace( e.getStackTrace() );
 					throw cnse;
 				}
