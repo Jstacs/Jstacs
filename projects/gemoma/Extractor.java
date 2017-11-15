@@ -293,7 +293,7 @@ public class Extractor implements JstacsTool {
 			
 			if( first ) {
 				gff = split[8].indexOf('=')>0;//!( split[8].indexOf(tID)>=0 && split[8].indexOf(gID)>=0 );
-				protocol.append("detected reference annotation format: " + (gff?"GFF":"GTF") + "\n");
+				protocol.append("detected annotation format: " + (gff?"GFF":"GTF") + "\n");
 				first = false;
 			}
 			/*
