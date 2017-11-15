@@ -435,7 +435,7 @@ public class GeMoMa implements JstacsTool {
 	 * @param protocol the protocol for reporting
 	 * 
 	 * @return an array of {@link HashMap} where the first entry is the coverage of the forward strand and the second entry is coverage of the reverse strand.
-	 * 		The coverage for one strand is given as {@link HashMap} with contig/chromosome names as key and <code>int[][]</code> arrays as entries.
+	 * 		The coverage for each strand is given as {@link HashMap} with contig/chromosome names as key and <code>int[][]</code> arrays as entries.
 	 * 		Each <code>int[]</code> array represents a tuple of start position, end position, and number of reads.
 	 * 		The <code>int[][]</code> array is sorted according to the first entry (genomic order).  
 	 * 
