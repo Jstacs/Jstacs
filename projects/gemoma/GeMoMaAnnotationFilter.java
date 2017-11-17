@@ -558,7 +558,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				for( int i = 0; i < split.length; i++ ) {
 					w.append( (i==0?"":"\t") + split[i] );
 				}
-				w.write( ";evidence=" + count + ";Parent=gene_"+gene );
+				w.write( ";evidence=" + count + ";Parent=gene_"+gene + ";" );
 			
 				maxEvidence = Math.max(count, maxEvidence);
 				st=Math.min(st, start);
@@ -568,7 +568,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				if( alternative.size() > 0 ) {
 					String[] it = alternative.toArray(new String[0]);
 					Arrays.sort(it);
-					w.write( ";alternative=\"" + it[0] );
+					w.write( "alternative=\"" + it[0] );
 					for( int i = 1; i < it.length; i++ ) {
 						w.write("," + it[i] );
 					}
