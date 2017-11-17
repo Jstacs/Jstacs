@@ -346,7 +346,7 @@ public class Extractor implements JstacsTool {
 						cds.add(split);
 					}
 					break;
-				case "mRNA": case "transcript":
+				case "mRNA": case "transcript": case "prediction":
 					if( gff ) {
 						idx = split[8].indexOf("ID=")+3;
 						h = split[8].indexOf(';',idx);
