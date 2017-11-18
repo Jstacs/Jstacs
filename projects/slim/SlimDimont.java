@@ -30,11 +30,6 @@ import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.naming.OperationNotSupportedException;
 
-import projects.dimont.AbstractSingleMotifChIPper;
-import projects.dimont.HeuristicOneDataSetLogGenDisMixFunction;
-import projects.dimont.Interpolation;
-import projects.dimont.ThresholdedStrandChIPper;
-
 import de.jstacs.Storable;
 import de.jstacs.algorithms.optimization.ConstantStartDistance;
 import de.jstacs.algorithms.optimization.NegativeDifferentiableFunction;
@@ -45,6 +40,7 @@ import de.jstacs.algorithms.optimization.termination.CombinedCondition;
 import de.jstacs.algorithms.optimization.termination.IterationCondition;
 import de.jstacs.algorithms.optimization.termination.MultipleIterationsCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.algorithms.optimization.termination.TimeCondition;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.AbstractMultiThreadedOptimizableFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
@@ -66,7 +62,6 @@ import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotationParser;
-import de.jstacs.data.sequences.annotation.SimpleSequenceAnnotationParser;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.SparseStringExtractor;
@@ -89,7 +84,6 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.Hom
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.UniformHomogeneousDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.localMixture.LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.localMixture.LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder.PriorType;
-import de.jstacs.sequenceScores.statisticalModels.trainable.discrete.inhomogeneous.TwoPointEvaluater;
 import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.PFMComparator;
@@ -99,6 +93,10 @@ import de.jstacs.utils.SeqLogoPlotter;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.ToolBox.TiedRanks;
 //import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.MarkovModelDiffSM;
+import projects.dimont.AbstractSingleMotifChIPper;
+import projects.dimont.HeuristicOneDataSetLogGenDisMixFunction;
+import projects.dimont.Interpolation;
+import projects.dimont.ThresholdedStrandChIPper;
 
 
 public class SlimDimont { 
@@ -364,7 +362,6 @@ public class SlimDimont {
 		}
 		
 		
-		
 		if( numKmers != sortedPars.length ) {
 			InitMethodForDiffSM[] initMeth = {InitMethodForDiffSM.PLUG_IN, InitMethodForDiffSM.NOTHING};
 			ComparableElement<double[], Double>[] sortedPars2 = MutableMotifDiscovererToolbox.getSortedInitialParameters( score, initMeth, initObjective, Math.max( 100, restarts ), SafeOutputStream.getSafeOutputStream( null ), 0 );
@@ -375,9 +372,10 @@ public class SlimDimont {
 		}
 		
 		//preoptimization
-		AbstractTerminationCondition stop2 = new CombinedCondition( 2,
+		AbstractTerminationCondition stop2 = new CombinedCondition( 3,
 				new MultipleIterationsCondition( 5, new SmallDifferenceOfFunctionEvaluationsCondition(eps) ),
-				new IterationCondition(25) 
+				new IterationCondition(50),
+				new TimeCondition(900)
 		);
 		ComparableElement<double[], Double>[] preOpt = new ComparableElement[restarts];
 		for( int r = 0; r < restarts; r++ ) {
@@ -393,12 +391,14 @@ public class SlimDimont {
 			p = sortedPars[sortedPars.length-1-r].getElement();			
 			objective.setParams(p);
 			System.out.println(score[0]);
-			Optimizer.optimize( algo, neg, p, stop, eps*1E-1, start, null );
+			long time = System.currentTimeMillis();
+			Optimizer.optimize( algo, neg, p, stop2, eps, start, null );
 			
 			data[0] = completeData;
 			weights = completeWeight;
 			objective.setDataAndWeights( data, weights );
 			preOpt[r] = new ComparableElement<double[], Double>( p, objective.evaluateFunction(p) );
+			System.out.println("time: "+(System.currentTimeMillis()-time));
 			
 			//out.writeln("consensus: "+getConsensus( DNAAlphabetContainer.SINGLETON, (((MarkovModelDiffSM)((AbstractSingleMotifChIPper) score[0]).getFunction( 0 ) ).getPWM())));
 			out.writeln("model: "+((AbstractSingleMotifChIPper) score[0]).getFunction( 0 ));
@@ -639,7 +639,7 @@ public class SlimDimont {
 		return new Pair<DataSet, double[][]>( new DataSet( "", seqs.toArray( new Sequence[0] ) ), new double[][]{rw, Interpolation.getBgWeight( rw )} );
 	}
 
-	private static DataSet annotate( Sequence[] annotated, double[][] weights, double[] mean, double sd, boolean[][] allowed, int fg ) throws WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException {
+	static DataSet annotate( Sequence[] annotated, double[][] weights, double[] mean, double sd, boolean[][] allowed, int fg ) throws WrongAlphabetException, WrongSequenceTypeException, EmptyDataSetException {
 		AlphabetContainer ref = new AlphabetContainer( new ContinuousAlphabet() );
 		float[][] histogram = new float[annotated.length][];
 		for( int j = 0; j < weights[0].length; j++ ) {
@@ -670,12 +670,17 @@ public class SlimDimont {
 						max = histogram[j][i];
 					}
 				}
-//Jens->Jan: if real bg exists then mixture Gauß and uniform?				
+			
 				float[] histBg = histogram[j].clone();
 				sum = 0;
 				for(int i=0;i<histBg.length;i++){
 					if(allowed[j][i]){
-						histBg[i] = max - histBg[i];
+//Jens->Jan: if real bg exists then mixture Gauï¿½ and uniform?	
+						if(fg<weights[0].length){
+							histBg[i] = 1;
+						}else{
+							histBg[i] = max - histBg[i];
+						}
 						sum += histBg[i];
 					}
 				}
