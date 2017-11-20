@@ -79,7 +79,7 @@ public class OneDimensionalSubFunction extends OneDimensionalFunction {
 		if( n != d.length && n != current.length ) {
 			throw new DimensionException();
 		}
-		if( this.d == null ) {
+		if( this.d == null || this.current.length != current.length ) {
 			this.d = d.clone();
 			this.current = current.clone();
 		} else {
