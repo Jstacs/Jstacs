@@ -707,7 +707,7 @@ public class GeMoMa implements JstacsTool {
 		gff.append("##gff-version 3");
 		gff.newLine();
 		gff.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
-		String info = JstacsTool.getSimpleNonDefaultParameterInfo(parameters);
+		String info = JstacsTool.getSimpleParameterInfo(parameters);
 		if( info != null ) {
 			gff.append("SIMPLE NON DEFAULT PARAMETERS: " + info );
 		}
