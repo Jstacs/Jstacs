@@ -92,15 +92,15 @@ public interface JstacsTool {
 	}
 	
 	/**
-	 * This method returns a short {@link String} representation of simple parameters that have values different than default.
+	 * This method returns a short {@link String} representation of simple parameters.
 	 * 
-	 * @return a short {@link String} representation of simple parameters that have values different than default
+	 * @return a short {@link String} representation of simple parameters
 	 */
-	public static String getSimpleNonDefaultParameterInfo( ParameterSet parameters ) {
+	public static String getSimpleParameterInfo( ParameterSet parameters ) {
 		String res = null;
 		for( int i = 0; i < parameters.getNumberOfParameters(); i++ ) {
 			Parameter p = parameters.getParameterAt(i);
-			if( (p instanceof SimpleParameter || p instanceof AbstractSelectionParameter) && p.isSet() ){ 
+			if( (p instanceof SimpleParameter || p instanceof AbstractSelectionParameter) ){ 
 				if( res == null ) {
 					res = "";
 				} else {
@@ -116,7 +116,7 @@ public interface JstacsTool {
 				res += p.getName() + ": " + o;
 			}
 			if( p instanceof ParameterSetContainer ) {
-				String subRes = getSimpleNonDefaultParameterInfo( ((ParameterSetContainer)p).getValue() );
+				String subRes = getSimpleParameterInfo( ((ParameterSetContainer)p).getValue() );
 				if( subRes != null ) {
 					if( res == null ) {
 						res = "";
