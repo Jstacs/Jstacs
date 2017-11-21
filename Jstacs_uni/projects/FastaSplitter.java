@@ -59,7 +59,11 @@ public class FastaSplitter {
 				if( delim==null ) {
 					current = (current+1) % num;
 				} else {
-					id = line.substring(1, line.lastIndexOf(delim) );
+					int h = line.lastIndexOf(delim);
+					if( h < 0 ) {
+						h = line.length();
+					}
+					id = line.substring( 1, h );
 					Integer idx = hash.get(id);
 					if( idx == null ) {
 						//this id occurs the first time => find a split with minimal number of sequences so far
