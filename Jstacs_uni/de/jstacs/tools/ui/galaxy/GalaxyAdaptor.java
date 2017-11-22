@@ -82,6 +82,7 @@ public class GalaxyAdaptor {
 	private ParameterSet parameters;
 	private ResultEntry[] defaultResults;
 	private String[] defaultResultPaths;
+	private LinkedList<String> path;
 	private boolean[] addLine;
 	private String toolname;
 	private String description;
@@ -173,6 +174,7 @@ public class GalaxyAdaptor {
 			this.defaultResults = defaultResults;
 			this.defaultResultPaths = new String[defaultResults.length];
 		}
+		path = new LinkedList<String>();
 		this.addLine = addLine == null ? null : addLine.clone();
 		this.toolname = toolname;
 		this.description = description;
@@ -744,22 +746,22 @@ public class GalaxyAdaptor {
 					i++;
 					String name = i+": "+((Result)res).getName().replaceAll(System.getProperty( "file.separator" ), " ");
 					
-					String defPath = getDefaultPath((Result)res);
+					String defPath = getPath((Result)res);
 					if(defPath == null){
-						String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res, el.exportExtension );
+						export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", (Result)res, el.exportExtension );
 					}else{
-						String ext = export( defPath, (Result)res, "" );
+						export( defPath, (Result)res, "" );
 					}
 				}else{
 					ResultSet rs = (ResultSet)res;
 					for(int j=0;j<rs.getNumberOfResults();j++){
 						i++;
 						String name = i+": "+rs.getResultAt( j ).getName().replaceAll(System.getProperty( "file.separator" ), " ");
-						String defPath = getDefaultPath(rs.getResultAt(j));
+						String defPath = getPath(rs.getResultAt(j));
 						if(defPath == null){
-							String ext = export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ), el.exportExtension );
+							export( newFilePath+System.getProperty( "file.separator" )+"primary_"+outfileId+"_"+name+"_visible_", rs.getResultAt( j ), el.exportExtension );
 						}else{
-							String ext = export( defPath, rs.getResultAt( j ), "" );
+							export( defPath, rs.getResultAt( j ), "" );
 						}
 					}
 				}
@@ -802,15 +804,19 @@ public class GalaxyAdaptor {
 		
 	}
 	
-	private String getDefaultPath(Result res) {
+	private String getPath(Result res) {
+		String def = null;
 		for(int i=0;i<defaultResults.length;i++){
 			if(res.getClass().equals(defaultResults[i].getDeclaredClass()) && res.getName().equals(defaultResults[i].getName())){
-				String def = defaultResultPaths[i];
+				def = defaultResultPaths[i];
 				defaultResultPaths[i] = null;
-				return def;
+				break;
 			}
 		}
-		return null;
+		if( def == null && path.size()>0 ) {
+			def = path.pop();
+		}
+		return def;
 	}
 
 	/**
@@ -843,8 +849,12 @@ public class GalaxyAdaptor {
 				i=7;
 				//System.out.println("Number of threads: "+threads);
 			}
-			for(int j=i;j<args.length;j++){
-				defaultResultPaths[j-i] = args[j];
+			
+			for(int j=0;j<defaultResultPaths.length;j++){
+				defaultResultPaths[j] = args[i+j];
+			}
+			for(int j=i+defaultResultPaths.length; j < args.length;j++){
+				path.add( args[j] );
 			}
 			return true;
 		}
