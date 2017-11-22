@@ -32,8 +32,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import de.jstacs.DataType;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSet;
+import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -63,7 +65,8 @@ public class CompareTranscripts implements JstacsTool {
 		protocol.append( "prediction: " + prediction.size() +"\n" );
 		
 		File f = GeMoMa.createTempFile("CompareTranscript");
-		bestHit(gene, /*TODO*/"_R", null, truth, prediction, f,protocol);
+		boolean prefix = (Boolean) parameters.getParameterForName("prefix").getValue();
+		bestHit(gene, /*TODO*/"_R", null, truth, prediction, f,protocol, prefix);
 		protocol.append("problem: " + Arrays.toString(problem));
 
 		return new ToolResult("", "", null, new ResultSet(
@@ -264,10 +267,11 @@ public class CompareTranscripts implements JstacsTool {
 	 * @param prediction the predicted annotation
 	 * @param file the output file
 	 * @param protocol for writing messages
+	 * @param deletePrefix if the string before the first underscore should be deleted
 	 * 
 	 * @throws IOException if there is any problem with the files
 	 */
-	private static void bestHit( HashMap<String,String[]> gene, String sep, HashMap<String,String[]> alias, HashMap<String,Annotation> truth, HashMap<String,Annotation> prediction, File file, Protocol protocol ) throws IOException {
+	private static void bestHit( HashMap<String,String[]> gene, String sep, HashMap<String,String[]> alias, HashMap<String,Annotation> truth, HashMap<String,Annotation> prediction, File file, Protocol protocol, boolean deletePrefix ) throws IOException {
 		Annotation[] a = new Annotation[truth.size()];
 		truth.values().toArray(a);
 		int[] end = getEnds(a);
@@ -301,7 +305,8 @@ public class CompareTranscripts implements JstacsTool {
 				//System.out.println(" -> " + id);
 			}
 			if( gene != null ) {
-				id = gene.get(transcript);
+				String t = !deletePrefix ? transcript : transcript.substring(transcript.indexOf('_')+1);
+				id = gene.get(t);
 			}
 			if( id != null ) {
 				w.append( id[0] + "\t" + transcript + "\t" + id[1] + "\t" + predictionID);
@@ -570,7 +575,8 @@ public class CompareTranscripts implements JstacsTool {
 			return new SimpleParameterSet(
 					new FileParameter( "prediction", "The predicted annotation", "gff", true ),
 					new FileParameter( "annotation", "The true annotation", "gff", true ),
-					new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false )
+					new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false ),
+					new SimpleParameter( DataType.BOOLEAN, "prefix", "whether the prefix should be deleted", true, false )
 			);
 		}catch(Exception e){
 			e.printStackTrace();
