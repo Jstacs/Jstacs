@@ -175,7 +175,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			w.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
 			String info = JstacsTool.getSimpleParameterInfo(parameters);
 			if( info != null ) {
-				w.append("SIMPLE NON DEFAULT PARAMETERS: " + info );
+				w.append("SIMPLE PARAMETERS: " + info );
 			}
 			w.newLine();
 			
