@@ -116,6 +116,7 @@ public class Extractor implements JstacsTool {
 		HashMap<String,Character> code = Tools.getCode( in );
 		
 		Ambiguity ambi = (Ambiguity) parameters.getParameterForName("Ambiguity").getValue();
+		boolean stopCodonEx = (Boolean) parameters.getParameterForName("stop-codon excluded from CDS").getValue();
 		boolean fullLength = (Boolean) parameters.getParameterForName("full-length").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		rep = (Boolean) parameters.getParameterForName("repair").getValue();
@@ -144,7 +145,7 @@ public class Extractor implements JstacsTool {
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
+				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
 				unUsedChr.remove(comment);
 				//clear
 				int idx = line.indexOf(' ');
@@ -156,7 +157,7 @@ public class Extractor implements JstacsTool {
 			}
 		}
 		//do
-		extract( fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
+		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
 		unUsedChr.remove(comment);
 		r.close();
 
@@ -570,7 +571,7 @@ public class Extractor implements JstacsTool {
 		return true;
 	}	
 	
-	private static void extract( boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
+	private static void extract( boolean stopCodonEx, boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
 			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code
 			) throws Exception {
 		if( comment == null ) {
@@ -668,7 +669,7 @@ public class Extractor implements JstacsTool {
 						Part current = part.get( il.get(j) );
 						set[j] = current.aa != null;
 					}
-					int prob = transcript(chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don );
+					int prob = transcript( stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don );
 					
 					//try to repair
 					if( prob>=0 && rep) {
@@ -683,7 +684,7 @@ public class Extractor implements JstacsTool {
 									current.aa = null;
 								}
 							}
-							test = transcript(chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, false, used, acc, don);
+							test = transcript(stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, false, used, acc, don);
 						} while( test >= 0 && phase <= 2 );
 						if( test < 0 ) {
 							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
@@ -759,7 +760,7 @@ public class Extractor implements JstacsTool {
 	static HashMap<String, int[]> donor, acceptor;
 	static HashMap<Integer,int[]> count;
 	
-	static int transcript(String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
+	static int transcript(boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
 		int j;
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
@@ -778,7 +779,7 @@ public class Extractor implements JstacsTool {
 		}
 		int offset = 3-startPhase, pa = -1;
 		message.clear();
-		Part current;
+		Part current = null;
 		int minExon=Integer.MAX_VALUE, maxIntron=0;
 		for( j = 0; j < il.length(); j++ ) {
 			pa = il.get(j);
@@ -810,7 +811,7 @@ public class Extractor implements JstacsTool {
 				}
 			}
 			
-			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length()?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//TODO > v1.3.1
+			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length() && !stopCodonEx?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//TODO > v1.3.1
 				message.add(pa);
 			}
 			if( current.aa!= null && current.aa.length()<minExon ) {
@@ -832,6 +833,14 @@ public class Extractor implements JstacsTool {
 			
 			offset = current.offsetRight;
 		}
+		
+		if( stopCodonEx && current != null ) {
+			if( current.aa == null ) {
+				current.aa="*";
+			} else if( current.aa.charAt(current.aa.length()-1)=='*' ) {
+				current.aa +="*";
+			}
+		}
 
 		String p=null;
 		if( j == il.length() ) {
@@ -841,6 +850,9 @@ public class Extractor implements JstacsTool {
 			} else {
 				try {
 					p = Tools.translate(startPhase, dnaSeqBuff.toString(), code, false, ambi);
+					if( stopCodonEx ) {
+						p += "*";
+					}
 				} catch( IllegalArgumentException iae ) {
 					j=il.length()+1;
 					currentProb=0;
@@ -882,6 +894,10 @@ public class Extractor implements JstacsTool {
 				}
 				return 6;
 			} else {
+				if( p.length() == 0 ) {
+					return 8;
+				}
+				
 				info[2]++;
 				out.get(3).write( ">" + trans + "\n" + dnaSeqBuff.toString() + "\n" );
 				out.get(2).write( ">" + trans + "\n" + p + "\n" );
@@ -1022,7 +1038,8 @@ public class Extractor implements JstacsTool {
 				new EnumParameter( Ambiguity.class, "This parameter defines how to deal with ambiguities in the DNA. There are 3 options: "
 						+ "EXCEPTION, which will remove the corresponding transcript, "
 						+ "AMBIGUOUS, which will use an X for the corresponding amino acid, and "
-						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),	
+						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),
+				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
 			);		
