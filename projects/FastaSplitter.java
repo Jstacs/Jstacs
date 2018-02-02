@@ -35,6 +35,11 @@ public class FastaSplitter {
 
 	/**
 	 * @param args
+	 * <ul>
+	 * <li>0 ... the fastA file to be split</li>
+	 * <li>1 ... the number of splits</li>
+	 * <li>2 ... optional: the delimiter for the sequence names. The last occurrence of the delimiter is used to determine a common prefix. All sequences with a common prefix are assigned to one file, if the input file is sorted according to the prefixes.</li>
+	 * </ul>
 	 */
 	public static void main(String[] args) throws IOException {
 		int num = Integer.parseInt(args[1]);
