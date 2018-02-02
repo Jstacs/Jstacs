@@ -74,7 +74,7 @@ public class AnnotationEvidence implements JstacsTool {
 		
 		File file = GeMoMa.createTempFile("AnnotationEvidence");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
-		w.append( "#gene id\tstrand\ttranscript id\t#exons\ttie\ttpc" );
+		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc" );
 		w.newLine();
 		for( String c: chr ) {
 			HashMap<String,Gene> current = annotation.get(c);
@@ -84,6 +84,7 @@ public class AnnotationEvidence implements JstacsTool {
 				while( it.hasNext() ) {
 					Gene g = it.next();
 					g.sortExons();
+					g.precompute();
 		
 					int[][] cov = (coverage != null && coverage[g.strand==1?0:1]!= null) ? coverage[g.strand==1?0:1].get(c) : null;
 					
@@ -91,7 +92,7 @@ public class AnnotationEvidence implements JstacsTool {
 					while( cds.hasNext() ) {
 						Entry<String,IntList> e = cds.next();
 						IntList parts = e.getValue();
-						w.append( g.id + "\t" + g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
+						w.append( g.id + "\t" + c + "\t" + g.start + "\t" + g.end + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
 						
 						double tie=0;
 						int last=-10;
