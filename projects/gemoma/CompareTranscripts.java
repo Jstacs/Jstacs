@@ -299,14 +299,16 @@ public class CompareTranscripts implements JstacsTool {
 			predictionID = array[i];
 			int index = predictionID.lastIndexOf(sep);
 			transcript = index>0 ? predictionID.substring(0,index) : predictionID;
+			if( deletePrefix ) {
+				transcript = transcript.substring(transcript.indexOf('_')+1);
+			}
 			if( alias != null ) {
 				//System.out.print(id);
 				transcript = alias.get(transcript)[0];
 				//System.out.println(" -> " + id);
 			}
 			if( gene != null ) {
-				String t = !deletePrefix ? transcript : transcript.substring(transcript.indexOf('_')+1);
-				id = gene.get(t);
+				id = gene.get(transcript);
 			}
 			if( id != null ) {
 				w.append( id[0] + "\t" + transcript + "\t" + id[1] + "\t" + predictionID);
