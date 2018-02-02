@@ -99,7 +99,7 @@ public class GeMoMa implements JstacsTool {
 	public static final String version;
 	static {
 		//need to be done this way, because of a hack in the JUnit
-		version = "1.4.3beta";
+		version = "1.5";
 	}
 	
 	public static final String INFO = "#PROGRAM INFO: ";
@@ -734,7 +734,7 @@ public class GeMoMa implements JstacsTool {
 			progress.setLast(selected.size());
 		}
 		
-		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue();
+		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(5)).getValue();
 		ArrayList<String> fName = new ArrayList<String>();
 		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
 			Parameter y = ((ParameterSet)eps.getParameterAt(i).getValue()).getParameterAt(0);
@@ -751,7 +751,7 @@ public class GeMoMa implements JstacsTool {
 			acceptorSites = donorSites = null;
 		}
 		
-		eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(7)).getValue();
+		eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(8)).getValue();
 		HashMap<String, ArrayList<int[]>>[] initialCoverage = new HashMap[3];
 		for( int i = 0; i < initialCoverage.length; i++ ) {
 			initialCoverage[i] = new HashMap<String, ArrayList<int[]>>();
@@ -2337,7 +2337,7 @@ public class GeMoMa implements JstacsTool {
 							}
 							
 							//TODO additional GFF tags
-							gff.append( ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+							gff.append( ";pAA=" + decFormat.format(id/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						
 						//short info
@@ -4442,7 +4442,8 @@ public class GeMoMa implements JstacsTool {
 					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
-
+					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
+					
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
 						), "introns", "", 1 ) ),
@@ -4468,7 +4469,6 @@ public class GeMoMa implements JstacsTool {
 						)
 					), "coverage", "", 1 ) ),
 					
-					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
 					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false ),
 					
