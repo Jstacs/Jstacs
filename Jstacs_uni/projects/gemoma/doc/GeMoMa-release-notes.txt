@@ -56,3 +56,20 @@ GeMoMa 1.4.2 (21.07.2017)
 - AnnotationEvidence: bugfix (tie computation: Arrays.binarysearch does not find first match)
 - Extractor: bugfix (files that are not zipped)
 - GeMoMa: bugfix (tie computation: Arrays.binarysearch does not find first match)
+
+GeMoMa next (??????)
+- AnnotationEvidence: add chromosome to output
+- CompareTranscripts: new parameter that allows to remove prefixes introduces by GAF
+- Extractor: new parameter "stop-codon excluded from CDS" that might be used if the annotation does not contain the stop codons
+- ExtractRNASeqEvidence: 
+	- print intron length stats
+	- include program infos in introns.gff3
+- GeMoMa:
+	- new attribute pAA in gff output if query protein is given
+	- include program infos in predicted_annotation.gff3
+	- minor bugfix
+- GAF:
+	- new parameter that allows to specify a prefix for each input gff
+	- collect and print program infos to filtered_prediction.gff3
+	- improved statistics output
+	
