@@ -283,7 +283,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		sosInt.write(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
 		String info = JstacsTool.getSimpleParameterInfo(parameters);
 		if( info != null ) {
-			sosInt.write("SIMPLE NON DEFAULT PARAMETERS: " + info );
+			sosInt.write("SIMPLE PARAMETERS: " + info );
 		}
 		sosInt.writeln();
 		
