@@ -96,11 +96,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String version;
-	static {
-		//need to be done this way, because of a hack in the JUnit
-		version = "1.5";
-	}
+	public static final String version = "1.5";
 	
 	public static final String INFO = "#PROGRAM INFO: ";
 	

@@ -54,7 +54,7 @@ public class GeMoMaTest {
 	@Before
 	public static void setUp() throws Exception {
 		//this is a hack to avoid throwing useless exceptions while comparing files that include a version information
-		
+		/*
 		Field f = GeMoMa.class.getField("version");
 		f.setAccessible(true);
 		
