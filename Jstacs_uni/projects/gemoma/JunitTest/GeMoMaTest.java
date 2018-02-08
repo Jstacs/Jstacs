@@ -98,8 +98,8 @@ public class GeMoMaTest {
 			r2= new BufferedReader( new FileReader(f2) );
 			l=0;
 			while( true ) {
-				l1=r1.readLine();
-				l2=r2.readLine();
+				while( (l1=r1.readLine()) != null && l1.charAt(0)=='#' );//ignore comment lines
+				while( (l2=r2.readLine()) != null && l2.charAt(0)=='#' );
 				
 				if( l1==null || l2 == null || !l1.equals(l2) ) {
 					break;
