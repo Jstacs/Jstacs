@@ -2337,7 +2337,7 @@ public class GeMoMa implements JstacsTool {
 							}
 							
 							//TODO additional GFF tags
-							gff.append( ";pAA=" + decFormat.format(id/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						
 						//short info
