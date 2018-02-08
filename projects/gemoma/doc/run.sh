@@ -1,10 +1,10 @@
 #!/bin/bash
-version="1.4.1";
+version="1.4.2";
 
 # This script allows to run GeMoMa with minimal work from command line. 
 #
 # A simple example without RNA-seq is
-# ./run.sh test_data/annotation.gff test_data/reference.fasta test_data/contig.fasta
+# ./run.sh test_data/annotation.gff test_data/reference.fasta test_data/contig.fasta results/sw
 #
 # If you like to run GeMoMa with RNA-seq data you have to run the script with the following parameters
 # ./run.sh <reference annotation> <reference geneome> <target genome> <library type> <mapped reads>
@@ -16,16 +16,16 @@ version="1.4.1";
 annotation=$1
 reference=$2
 target=$3
+out=$4
 
-if [ $# -ne 3 ]; then
-	echo "GeMoMa using RNA-seq data: library type=" $4 "mapped reads=" $5
-	lib=$4;
-	reads=$5;
+if [ $# -ne 4 ]; then
+	echo "GeMoMa using RNA-seq data: library type=" $5 "mapped reads=" $6
+	lib=$5;
+	reads=$6;
 else 
 	echo "GeMoMa without RNA-seq data"
 fi
 
-out=results/sw
 
 
 echo "============================================================================="
@@ -43,7 +43,7 @@ echo ""
 echo "============================================================================="
 echo ""
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 4 ]; then
 	echo "ERE:"
 	echo ""
 
@@ -80,7 +80,7 @@ echo ""
 echo "GeMoMa:"
 echo ""
 
-if [ $# -eq 3 ]; then
+if [ $# -eq 4 ]; then
 	java -jar GeMoMa-${version}.jar CLI GeMoMa t=${out}/tblastn.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular tg=${target} outdir=${out}
 else
 	if [ ${lib} == "FR_UNSTRANDED" ]; then

@@ -38,6 +38,13 @@ which will provide descriptions of all available parameters.
 
 Keep in mind that homology-based gene prediction only allows us to infer genes with known peers in at least one reference organism. Hence, homology based gene prediction might miss genes with no known peer in the reference organism(s), even if these are expressed in the RNA-seq data. On the other hand, homology-based gene prediction allows for inferring genes that are not or rarely expressed in the RNA-seq samples.
 
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{drawing.pdf}
+\caption{GeMoMa workflow. Blue items represent input data sets, green boxes represent GeMoMa modules, while grey boxes represent external modules. The GeMoMa Annotation Filter allows to combine predictions from different reference species and produces the final output. RNA-seq data is optional.}
+\end{figure}
+
+\clearpage
+
 \subsection{Quick start}
 We provide two scripts:
 \begin{enumerate}
@@ -46,11 +53,11 @@ We provide two scripts:
 \begin{itemize}
 	\item Without RNA-seq data:
 \begin{verbatim}
-./run.sh <ref-anno> <ref-genome> <target-genome>
+./run.sh <ref-anno> <ref-genome> <target-genome> <out-dir>
 \end{verbatim}	
 	\item With RNA-seq data:
 \begin{verbatim}
-./run.sh <ref-anno> <ref-genome> <target-genome>
+./run.sh <ref-anno> <ref-genome> <target-genome> <out-dir>
          <lib-type> <mapped-reads>
 \end{verbatim}
 \end{itemize}
@@ -59,15 +66,18 @@ where
 	\item \texttt{ref-anno} is the annotation of the reference organism (GFF/GTF)
 	\item \texttt{ref-genome} is the genome of the reference organism (FastA)
 	\item \texttt{target-genome} is the genome of the target organism (FastA)
+	\item \texttt{out-dir} is the output directory
 	\item \texttt{lib-type} is the RNA-seq library type\\
 		(\verb"{FR_UNSTRANDED, FR_FIRST_STRAND, FR_SECOND_STRAND}")
 	\item \texttt{mapped-reads} are the mapped RNA-seq reads (SAM/BAM)
 \end{enumerate}
 \end{enumerate}
 
+\clearpage
+
 \subsection{Phase 1: Preprocessing RNA-seq data}
 For this phase, you need RNA-seq data and a reference sequence or assembly of your target organism.
-This allows for inferring experimental verified introns and coverage.
+This allows for inferring experimental verified introns and coverage. In the following command lines ''\verb"..."`` should be replaced by your specific parameters.
 
 \begin{enumerate}
 \item	Run your favorite read mapper (e.g. TopHat, \ldots) on your RNA-seq data
@@ -145,6 +155,11 @@ By default, GeMoMa tries to make predictions for all CDS of the reference organi
 \subsection{Galaxy integration}
 GeMoMa provides a command line interface as well as everything to be integrated in your local Galaxy instance. For creating the XML files that are needed for integration into Galaxy, just run: 
 \begin{verbatim}
+createGalaxyIntegration.sh <version>
+\end{verbatim}
+
+Alternatively, you can run the individual commands on your own using the command line
+\begin{verbatim}
 java -jar GeMoMa-<version>.jar --create
 \end{verbatim}
 If you like to modify some VM arguments for the java calls made by Galaxy you can alter them for each sub-tool individually. If you like to allow GeMoMa to allocate at most 40GB of RAM, you may do so by running
@@ -152,11 +167,6 @@ If you like to modify some VM arguments for the java calls made by Galaxy you ca
 java -jar GeMoMa-<version>.jar --create GeMoMa -Xmx40g
 \end{verbatim}
 to create the corresponding XML integration for GeMoMa.
-
-\begin{sidewaysfigure}
-\includegraphics[width=\linewidth]{workflow2.PNG}
-\caption{GeMoMa workflow adapted from Galaxy.}
-\end{sidewaysfigure}
 
 \section{Reference, questions and comments}
 If you use GeMoMa please cite:\\
