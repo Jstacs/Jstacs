@@ -67,17 +67,19 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		double relScoTh = (Double) parameters.getParameterForName("relative score filter").getValue();
 		boolean complete = (Boolean) parameters.getParameterForName("complete").getValue();
+		int maxTranscripts = (Integer) parameters.getParameterForName("maximal number of transcripts per gene").getValue();
 		boolean noTie = (Boolean) parameters.getParameterForName("missing intron evidence filter").getValue();
 		double tieTh = (Double) parameters.getParameterForName("intron evidence filter").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
 		double epTh = (Double) parameters.getParameterForName("evidence percentage filter").getValue();
 				
-		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(6).getValue();
+		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(7).getValue();
 		
 		String line, t;
 		String[] split;
 				
 		ArrayList<Prediction> pred = new ArrayList<Prediction>();
+		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
 		Prediction current = null;
 
 		//read genes in GeMoMa gff format!
@@ -181,33 +183,28 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			
 			int i = 0;
 			Prediction next = pred.get(i);
-			IntList cand = new IntList();
 			while( i < pred.size() ) {
 				current = next;
-				int alt=i, best=i, end = current.end;
-				cand.clear();
-				cand.add(i);
+				int end = current.end, alt = i;
 				i++;	
 	
+				currentCluster.clear();
+				currentCluster.add(current);
 				while( i < pred.size() && (next = pred.get(i)).contigStrand.equals(current.contigStrand)
 						//&& (end-Integer.parseInt(next.split[3])+1d)/(end-start+1d) > 0.1
 						&& end>Integer.parseInt(next.split[3])
 				) {
 					end = Math.max(end,Integer.parseInt(next.split[4]));
-					cand.add(i);
-					if( next.score > current.score ) {
-						best = i;
-						current = next;
-					}
+					currentCluster.add(next);
 					i++;
 				}
-				//Kalkuel: next=pre.get(i), best = argmax_{j \in [alt,i-1]} pred.get(j).score 
 				
-				int p=create( pred, cand, best-alt, w, noTie, tieTh, cbTh, epTh );
+				Collections.sort( currentCluster, ScoreComparator.DEF );
+				int p=create( maxTranscripts, currentCluster, w, noTie, tieTh, cbTh, epTh );
 				clustered++;
 				transcripts+=p;
 				
-				transcripts += checkNestedSameStrand(pred, alt, i, w, noTie, tieTh, cbTh, epTh );
+				transcripts += checkNestedSameStrand( maxTranscripts, pred, alt, i, w, noTie, tieTh, cbTh, epTh );
 			}
 			w.close();
 		}
@@ -232,7 +229,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		return new ToolResult("", "", null, new ResultSet(new TextResult("filtered predictions", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 	
-	static int checkNestedSameStrand( ArrayList<Prediction> list, int start, int end, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
+	static int checkNestedSameStrand( int maxTranscripts, ArrayList<Prediction> list, int start, int end, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
 		IntList used = new IntList(), notUsed = new IntList();
 		int s = Integer.MAX_VALUE, e = 0;
 		for( int i = start; i < end; i++ ) {
@@ -251,8 +248,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		if( used.length() > 0 && notUsed.length()>0 ) {
-			IntList cand = new IntList();
-			int best = -1;
+			ArrayList<Prediction> cand = new ArrayList<Prediction>();
 			for( int n = 0; n < notUsed.length(); n++ ) {
 				Prediction not = list.get(notUsed.get(n));
 				boolean overlap = false;
@@ -262,15 +258,13 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				}
 				if( !overlap ) {
 					not.discard=false;
-					if( best < 0 || not.score > list.get(cand.get(best)).score ) {
-						best = cand.length();
-					}
-					cand.add(notUsed.get(n));
+					cand.add(not);
 				}
 			}
 			
-			if( cand.length() > 0 ) {
-				return create(list, cand, best, w, noTie, tieTh, cbTh, epTh);
+			if( cand.size() > 0 ) {
+				Collections.sort( cand, ScoreComparator.DEF );
+				return create(maxTranscripts, cand, w, noTie, tieTh, cbTh, epTh);
 				/*
 				System.out.println( start +  " ... " + end );
 				System.out.println( s +  ", " + e );
@@ -316,68 +310,52 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	
 	static int gene=0, noTie=0, tie1=0, maxTie1=0;
 	
-	static int create( ArrayList<Prediction> list, IntList cand, int best, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
-		Prediction current = list.get(cand.get(best));
+	static int create( int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
+		if( list.size() == 0 ) {
+			return 0;
+		}
+		Prediction current = list.remove(0);
 		ArrayList<Prediction> used = new ArrayList<Prediction>();
 		used.add( current );
 		current.discard = true;
 		current.used=true;
 
-		int count = 0, idx=-1;
-		if( cand.length() > 1 ) {
-			for( int i = 0; i < cand.length(); i++ ) {
-				Prediction n = list.get(cand.get(i));
-				if( !n.discard ) {
-					if( n.end < current.start || current.end < n.start ) {//no overlap
-						if( idx<0 || list.get(cand.get(idx)).score<n.score ) {
-							idx=i;
-						}
-						count++;
-					} else { //overlapping
-						Prediction x = used.get(0); 
-						double cb = x.commonBorders(n);
-						double min=2d*Math.min(n.cds.size(),x.cds.size());
-						double max=2d*Math.max(n.cds.size(),x.cds.size());
+		int count = 0, i = 0;
+		while( i < list.size() ) {
+			Prediction n = list.get(i);
+			if( n.end < current.start || current.end < n.start ) {//no overlap
+				count++;
+				i++;
+			} else { //overlapping
+				double min=2d*Math.min(n.cds.size(),current.cds.size());
+				double cb = current.commonBorders(n);
 				
-						int j = 0; 
-						if( cb/max == 1d ) { // identical
+				int j = 0;
+				if( cb/min>=cbTh ) {//hinreichende Überlappung
+					while( j < used.size() ) {
+						Prediction x = used.get(j); 
+						cb = x.commonBorders(n);
+						double max=2d*Math.max(n.cds.size(),x.cds.size());								
+						if( cb/max==1d )  {
 							x.addAlternative(n);
 							n.used=true;
-						} else if( cb/min>=cbTh ) {//hinreichende Überlappung, aber keine perfekte Überlappung
-							j++;
-							while( j < used.size() ) {
-								x = used.get(j); 
-								cb = x.commonBorders(n);
-								max=2d*Math.max(n.cds.size(),x.cds.size());								
-								if( cb/max==1d )  {
-									if( x.score >= n.score  ) {
-										x.addAlternative(n);
-										n.used=true;
-									} else {
-										n.copyAlternatives(x);
-										used.remove(j);
-										used.add(n);
-										n.used=true;
-									}
-									break;
-								}
-								j++;
-							}
+							break;
 						}
-						
-						if( j == used.size() ) {
-							String s = n.hash.get("tie");
-							boolean noInfo = s == null || s.equals("NA");
-							double tie = noInfo ? Double.NaN : Double.parseDouble(s);
-							if( (noInfo && noTie) || tie >= tieTh ) {
-								used.add(n);
-							}
-						}
-						n.discard=true;
+						j++;
 					}
 				}
+				
+				if( j == used.size() ) {
+					String s = n.hash.get("tie");
+					boolean noInfo = s == null || s.equals("NA");
+					double tie = noInfo ? Double.NaN : Double.parseDouble(s);
+					if( (noInfo && noTie) || tie >= tieTh ) {
+						used.add(n);
+						n.used=true;
+					}
+				}
+				list.remove(i);
 			}
-			
 		}
 		
 		int pred=0;
@@ -388,10 +366,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		en=Integer.MIN_VALUE;
 		Prediction n=null;
 		
-		//sort
-		Collections.sort(used, ScoreComparator.DEF);
-		
-		for( int i = 0; i < used.size(); i++ ) {
+		for( i = 0; i < used.size() && pred < maxTranscripts; i++ ) {
 			n = used.get(i);
 			int cont = n.write(w, epTh);
 			pred += cont;
@@ -407,7 +382,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		if( count>0  ) {
-			pred += create(list, cand, idx, w, noTie, tieTh, cbTh, epTh);
+			pred += create(maxTranscripts, list, w, noTie, tieTh, cbTh, epTh);
 		}
 
 		return pred;
@@ -667,6 +642,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 					new SimpleParameter(DataType.BOOLEAN,"missing intron evidence filter","the filter for single-exon transcripts or if no RNA-seq data is used, decides for overlapping other transcripts whether they should be used (=true) or discarded (=false)", true, false ),
 					new SimpleParameter(DataType.DOUBLE,"intron evidence filter","the filter on the intron evidence given by RNA-seq-data for overlapping transcripts", true, new NumberValidator<Double>(0d, 1d), 1d ),
 					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
+					new SimpleParameter(DataType.INT,"maximal number of transcripts per gene","the maximimal number of allowed transcript predictions per gene", true, new NumberValidator<Comparable<Integer>>(1, Integer.MAX_VALUE), Integer.MAX_VALUE ),
 					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
 							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
 							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )

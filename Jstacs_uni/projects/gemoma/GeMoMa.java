@@ -96,9 +96,9 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String version = "1.5";
+	public static final String version = "1.5.1beta";
 	
-	public static final String INFO = "#PROGRAM INFO: ";
+	public static final String INFO = "#SOFTWARE INFO: ";
 	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
