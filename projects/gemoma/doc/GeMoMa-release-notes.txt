@@ -56,8 +56,7 @@ GeMoMa 1.4.2 (21.07.2017)
 - AnnotationEvidence: bugfix (tie computation: Arrays.binarysearch does not find first match)
 - Extractor: bugfix (files that are not zipped)
 - GeMoMa: bugfix (tie computation: Arrays.binarysearch does not find first match)
-
-GeMoMa next (??????)
+GeMoMa 1.5 (13.02.2018)
 - AnnotationEvidence: add chromosome to output
 - CompareTranscripts: new parameter that allows to remove prefixes introduces by GAF
 - Extractor: new parameter "stop-codon excluded from CDS" that might be used if the annotation does not contain the stop codons
