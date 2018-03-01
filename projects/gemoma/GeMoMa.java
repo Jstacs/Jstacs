@@ -128,7 +128,7 @@ public class GeMoMa implements JstacsTool {
 	private static HashMap<String, String> cds, protein;
 	private static HashMap<String, String> seqs;
 	private static HashMap<String,Character> code;
-	private static HashMap<String,HashMap<String,int[][]>> transcriptInfo;
+	private static HashMap<String,HashMap<String,Info>> transcriptInfo;
 	private static HashMap<String, String> selected = null; //optional
 
 	//out
@@ -1778,21 +1778,45 @@ public class GeMoMa implements JstacsTool {
 		return -res;
 	}
 	
-	private static int[][] getArray( String exonId, String phase ) {
-		int[][] res = new int[2][]; 
-		String[] split = exonId.split( "," );
-		res[0] = new int[split.length];
-		for( int i = 0; i < res[0].length; i++ ) {
-			res[0][i] = Integer.parseInt(split[i].trim());
-		}
-		if( phase != null ) {
-			split = phase.split( "," );
-			res[1] = new int[split.length];
-			for( int i = 0; i < res[1].length; i++ ) {
-				res[1][i] = Integer.parseInt(split[i].trim());
+	private static class Info {
+		int[] exonID;
+		int[] phase;
+		String[] splitAA;
+		
+		Info( String exonID, String phase, String splitAA ) {
+			String[] split = exonID.split( "," );
+			this.exonID = new int[split.length];
+			for( int i = 0; i < this.exonID.length; i++ ) {
+				this.exonID[i] = Integer.parseInt(split[i].trim());
+			}
+			if( phase != null ) {
+				split = phase.split( "," );
+				this.phase = new int[split.length];
+				for( int i = 0; i < this.phase.length; i++ ) {
+					this.phase[i] = Integer.parseInt(split[i].trim());
+				}
+			}
+			if( splitAA != null ) {
+				split = splitAA.split( "," );
+				this.splitAA = new String[this.exonID.length];
+				Arrays.fill(this.splitAA, "");
+				System.arraycopy(split, 0, this.splitAA, 0, split.length);
 			}
 		}
-		return res;
+		
+		private Info() {
+			exonID = new int[1];
+			phase = new int[0];
+			splitAA = new String[0];
+		}
+		
+		static Info DUMMY = new Info();
+		
+		public String toString() {
+			return "parts: "+ Arrays.toString(exonID)+"\n"
+					+ "phase: "+ Arrays.toString(phase)+"\n"
+					+ "splitAA: "+ Arrays.toString(splitAA)+"\n";
+		}
 	}
 	
 	/**
@@ -1808,7 +1832,8 @@ public class GeMoMa implements JstacsTool {
 		 * Contains the sums of the scores of the stacked {@link Hit}s. Main DP field.
 		 */
 		private int[][] sums;
-		private int[] parts, revParts, oldSize, phase;
+		//private int[] parts, phase;
+		private int[] revParts, oldSize;
 		private int[] length, cumLength, revCumLength;
 		private int[][] start, end, qStart, qEnd, qL;
 		
@@ -1819,7 +1844,7 @@ public class GeMoMa implements JstacsTool {
 		static final int NO_SPLICE_VARIANT = Integer.MIN_VALUE;
 				
 		/**
-		 * This filed is used to store the possible extensions for a splice variant
+		 * This field is used to store the possible extensions for a splice variant
 		 */
 		private int[] refined = new int[2];
 				
@@ -1838,6 +1863,8 @@ public class GeMoMa implements JstacsTool {
 		private final ScheduledThreadPoolExecutor executorService;
 		
 		private StringBuffer gffHelp;
+		
+		private Info currentInfo;
 						
 		public TranscriptPredictor( ProgressUpdater progress, String assignment, String cdsFileName, String seqsFileName, InputStream codeIn, InputStream subsitutionMatrixIn, String proteinFileName ) throws Exception {
 			BufferedReader r;
@@ -1846,20 +1873,18 @@ public class GeMoMa implements JstacsTool {
 			//read assignment
 			this.progress = progress;
 			if( assignment != null ) {
-				transcriptInfo = new HashMap<String,HashMap<String,int[][]>>();
-				HashMap<String,int[][]> c;
+				transcriptInfo = new HashMap<String,HashMap<String,Info>>();
+				HashMap<String,Info> c;
 				r = new BufferedReader( new FileReader( assignment ) );
 				while( (line=r.readLine())!= null ) {
 					if( line.length()>0 && line.charAt(0) != '#' ) {
 						split = line.split("\t");
 						c = transcriptInfo.get( split[0] );
 						if( c == null ) {
-							c = new HashMap<String, int[][]>();
+							c = new HashMap<String, Info>();
 							transcriptInfo.put(split[0], c);
 						}
-						c.put(split[1].toUpperCase(), getArray(split[2], 
-								null) );
-								//TODO exonPhase split[3]) );
+						c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "" ) );//TODO
 					}
 				}
 				r.close();
@@ -1868,7 +1893,6 @@ public class GeMoMa implements JstacsTool {
 			} else {
 				this.progress.setIndeterminate();
 				transcriptInfo = null;
-				parts = new int[1];
 			}
 
 			cds = Tools.getFasta(cdsFileName,15000,'\t');
@@ -1952,8 +1976,8 @@ public class GeMoMa implements JstacsTool {
 				geneName = name;
 			}
 			
-			HashMap<String,int[][]> transcript;
-			int[][] current;
+			HashMap<String,Info> transcript;
+			Info current;
 			String[] s;
 			if( transcriptInfo != null ) {
 				transcript = transcriptInfo.get(geneName);
@@ -1989,26 +2013,26 @@ public class GeMoMa implements JstacsTool {
 					
 					int max = 0;
 					if( transcript != null ) {
-						current = transcript.get(s[i]);
-						parts = current[0];
-						for( int p = 0; p < parts.length; p++ ) {
-							if( parts[p] > max ) {
-								max = parts[p];
+						currentInfo = transcript.get(s[i]);
+						for( int p = 0; p < currentInfo.exonID.length; p++ ) {
+							if( currentInfo.exonID[p] > max ) {
+								max = currentInfo.exonID[p];
 							}
 						}
-						phase = current[1];
+					} else {
+						currentInfo=Info.DUMMY;
 					}
 					
 					revParts = new int[max+1];
 					if( transcript != null ) {
 						Arrays.fill(revParts, -1);
-						for( int p = 0; p < parts.length; p++ ) {
-							revParts[parts[p]] = p;
+						for( int p = 0; p < currentInfo.exonID.length; p++ ) {
+							revParts[currentInfo.exonID[p]] = p;
 						}
 						
-						length = new int[parts.length];
-						for( int j = 0; j < parts.length; j++ ) {
-							String st = geneName + (transcriptInfo==null ? "" : ("_" + parts[j]));
+						length = new int[currentInfo.exonID.length];
+						for( int j = 0; j < currentInfo.exonID.length; j++ ) {
+							String st = geneName + (transcriptInfo==null ? "" : ("_" + currentInfo.exonID[j]));
 							st = cds.get( st );
 							length[j] = st!=null ? st.length() : 0;
 								
@@ -2028,7 +2052,7 @@ public class GeMoMa implements JstacsTool {
 						revCumLength[j] = revCumLength[j+1] + length[j+1];
 					}
 					
-					int l = parts.length;
+					int l = currentInfo.exonID.length;
 					sums = new int[l][];
 					start = new int[l][];
 					end = new int[l][];			
@@ -2037,7 +2061,7 @@ public class GeMoMa implements JstacsTool {
 					qL = new int[l][];
 					
 					if( transcriptInfo == null ) {
-						computeTranscript( s[i], info, parts, hash );
+						computeTranscript( s[i], info, hash );
 					} else {
 						boolean hasHits=false;
 						data.clear();
@@ -2048,10 +2072,10 @@ public class GeMoMa implements JstacsTool {
 									new HashMap<Integer,ArrayList<Hit>>()
 								};
 							for( int f = 0; f < 2; f++ ) {
-								for( int k = 0; k < parts.length; k++ ) {
-									hits = v[f].get(parts[k]);
+								for( int k = 0; k < currentInfo.exonID.length; k++ ) {
+									hits = v[f].get(currentInfo.exonID[k]);
 									if( hits != null ) {
-										w[f].put( parts[k], clone( hits ) );
+										w[f].put( currentInfo.exonID[k], clone( hits ) );
 										hasHits=true;
 									}
 								}
@@ -2059,7 +2083,7 @@ public class GeMoMa implements JstacsTool {
 							data.put(h[j], w);
 						}
 						if( hasHits ) {
-							computeTranscript( s[i], info, parts, data );
+							computeTranscript( s[i], info, data );
 						}
 					}
 				}
@@ -2091,10 +2115,10 @@ public class GeMoMa implements JstacsTool {
 		 * 
 		 * @throws Exception if something went wrong
 		 */
-		private void computeTranscript( String transcriptName, String info, int[] assign, HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash ) throws Exception {
+		private void computeTranscript( String transcriptName, String info, HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash ) throws Exception {
 			if( verbose ) {
 				protocol.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-				protocol.append( geneName + "\t" + transcriptName + "\t" + Arrays.toString(parts) + "\t" + new Date() + (info==null?"":("\t"+info)) + "\n");
+				protocol.append( geneName + "\t" + transcriptName + "\t" + Arrays.toString(currentInfo.exonID) + "\t" + new Date() + (info==null?"":("\t"+info)) + "\n");
 				protocol.append( Arrays.toString(length) + "\n");
 				protocol.append( Arrays.toString(cumLength) + "\n");
 				protocol.append( Arrays.toString(revCumLength) + "\n");
@@ -2103,7 +2127,7 @@ public class GeMoMa implements JstacsTool {
 			protocol.flush();
 
 			numberOfTestedStrands=numberOfPairwiseAlignments=0;
-			oldSize = new int[parts.length];
+			oldSize = new int[currentInfo.exonID.length];
 			result.clear();
 			
 			HashMap<Integer,ArrayList<Hit>>[] lines;
@@ -2250,7 +2274,7 @@ public class GeMoMa implements JstacsTool {
 						best = best.refine(transcriptName);
 									
 						//write results
-						blastLike.append( "#" + transcriptName + "\t" + best.score + "\t" + Arrays.toString(parts)+ (info==null?"":("\t"+info)) + "\n" );
+						blastLike.append( "#" + transcriptName + "\t" + best.score + "\t" + Arrays.toString(currentInfo.exonID)+ (info==null?"":("\t"+info)) + "\n" );
 						for( Hit t : best.hits ) {
 							//blast like output
 							if( verbose ) protocol.append(t.toString() + "\n");
@@ -2337,7 +2361,7 @@ public class GeMoMa implements JstacsTool {
 						}
 						
 						//short info
-						protocol.append( ((i == 0 && !verbose)? "" : (geneName+"\t"+transcriptName)) + "\t" + parts.length + "\t" + best.hits.size()
+						protocol.append( ((i == 0 && !verbose)? "" : (geneName+"\t"+transcriptName)) + "\t" + currentInfo.exonID.length + "\t" + best.hits.size()
 								+ "\t" + numberOfLines + "\t" + numberOfTestedStrands + "\t" + res[0]
 								+ "\t" + res[1] + "\t" + (result.size()+1) + "\t" + numberOfPairwiseAlignments
 								+ "\t" + best.score
@@ -2345,7 +2369,7 @@ public class GeMoMa implements JstacsTool {
 								+ "\t" + (best.forward? best.hits.getFirst().targetStart + "\t" + best.hits.getLast().targetEnd : best.hits.getLast().targetStart + "\t" + best.hits.getFirst().targetEnd )
 								+ "\t" + time.getElapsedTime() + "\t" + anz + "\t" + best.getInfo(gff) + "\t" + best.backup + "\t" + best.cut
 								+ ( seq != null ?  
-										"\t" + getGapCost(seq.length(), parts.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
+										"\t" + getGapCost(seq.length(), currentInfo.exonID.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
 										+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
 										+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + "\t" + maxGap + "\t" + seq.length() + "\t" + pred.length()
 										: "" )
@@ -2388,9 +2412,9 @@ public class GeMoMa implements JstacsTool {
 			//filter out
 			Hit h;
 			if( verbose ) protocol.append("\n");
-			for( int i = 0; i < parts.length; i++ ) {
-				ArrayList<Hit> current = hash.get(parts[i]);
-				if( verbose ) protocol.append(i + "\t" + parts[i] + "\t#=" + (current==null?0:current.size()) + "\n");
+			for( int i = 0; i < currentInfo.exonID.length; i++ ) {
+				ArrayList<Hit> current = hash.get(currentInfo.exonID[i]);
+				if( verbose ) protocol.append(i + "\t" + currentInfo.exonID[i] + "\t#=" + (current==null?0:current.size()) + "\n");
 				if( current != null ) {
 					int j = 0;
 					while( j < current.size() ) {
@@ -2405,7 +2429,7 @@ public class GeMoMa implements JstacsTool {
 					}
 				}
 				
-				if( verbose ) protocol.append(i + "\t" + parts[i] + "\t#=" + (current==null?0:current.size()) + "\n\n");
+				if( verbose ) protocol.append(i + "\t" + currentInfo.exonID[i] + "\t#=" + (current==null?0:current.size()) + "\n\n");
 			}
 		}
 		
@@ -2440,7 +2464,7 @@ public class GeMoMa implements JstacsTool {
 		 */
 		private int forwardDP( boolean forward, HashMap<Integer,ArrayList<Hit>> lines, boolean gap ) throws WrongAlphabetException, IOException {
 			if( lines.size() == 0 ) {
-				for( int i = parts.length-1; i >= 0; i-- ) {
+				for( int i = currentInfo.exonID.length-1; i >= 0; i-- ) {
 					sums[i] = start[i] = end[i] = qStart[i] = qEnd[i] = null;
 				}
 				bestIdx[0].clear();
@@ -2452,8 +2476,8 @@ public class GeMoMa implements JstacsTool {
 			ArrayList<Hit> l;
 			int b;
 			String chr = null;
-			for( int i = parts.length-1; i >= 0; i-- ) {
-				l = lines.get(parts[i]);
+			for( int i = currentInfo.exonID.length-1; i >= 0; i-- ) {
+				l = lines.get(currentInfo.exonID[i]);
 				if( l == null || l.size() == 0 ) {
 					sums[i] = start[i] = end[i] = qStart[i] = qEnd[i] = null;
 				} else {				
@@ -2466,7 +2490,7 @@ public class GeMoMa implements JstacsTool {
 					qL[i] = new int[anz];
 					if( splice != null && splice[i] == null ) {
 //protocol.append( "create " + anz + "\n");
-						splice[i] = new int[anz][parts.length-i][];
+						splice[i] = new int[anz][currentInfo.exonID.length-i][];
 					}
 					for( int j = anz-1; j >= 0; j-- ) {
 						o = l.get(j);
@@ -2485,7 +2509,7 @@ public class GeMoMa implements JstacsTool {
 						sums[i][j] = b + getCost( o, gap, false, i );
 									
 						//same & downstream exons
-						int m=Math.min(i+MAX_GAP,parts.length), startIdx=j+1, max = 0;
+						int m=Math.min(i+MAX_GAP,currentInfo.exonID.length), startIdx=j+1, max = 0;
 						for( int k = i ; k < m; k++ ) {
 							max = getMax(forward, lines, i, j, k, startIdx, chr, gap);
 							if( sums[i][j] < b+max ) {
@@ -2510,10 +2534,10 @@ public class GeMoMa implements JstacsTool {
 						return getGapCost(o.queryStart-1 + cumLength[i], i-1 );
 					}
 				} else {
-					if( i == parts.length-1 ) {
+					if( i == currentInfo.exonID.length-1 ) {
 						return o.lastAddScore;
 					} else {
-						return getGapCost(o.queryLength-o.queryEnd + revCumLength[i], parts.length-1-i);
+						return getGapCost(o.queryLength-o.queryEnd + revCumLength[i], currentInfo.exonID.length-1-i);
 					}
 				}
 			}
@@ -2547,13 +2571,13 @@ public class GeMoMa implements JstacsTool {
 		 * @return the best score
 		 */
 		private final int getMax( boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int i, int j, int k, int startIdx, String chr, boolean gap) throws WrongAlphabetException {
-			int max = getCost( lines.get(parts[i]).get(j), gap, false, i);
+			int max = getCost( lines.get(currentInfo.exonID[i]).get(j), gap, false, i);
 			
-			ArrayList<Hit> ref = lines.get(parts[k]);
+			ArrayList<Hit> ref = lines.get(currentInfo.exonID[k]);
 			if( ref == null ) {
 				return max;
 			}
-			Hit upstreamHit = lines.get(parts[i]).get(j);
+			Hit upstreamHit = lines.get(currentInfo.exonID[i]).get(j);
 			
 			int introns= Math.max(1,k-i);
 //protocol.append(splice + "\t" + i + "\t" + j + "/" + ((splice!= null && splice[i]!=null)?splice[i].length:"?") + "\t" + (k-i) +"\n");//TODO
@@ -2563,7 +2587,7 @@ public class GeMoMa implements JstacsTool {
 					splice[i][j][k-i] = new int[ref.size()];
 					Arrays.fill(splice[i][j][k-i], NOT_COMPUTED );
 				} catch( OutOfMemoryError e ) {
-					protocol.append(parts[i] + "\t" + length[i] + "\n" );
+					protocol.append(currentInfo.exonID[i] + "\t" + length[i] + "\n" );
 					protocol.append(splice[i].length+"\n");
 					protocol.append(ref.size()+"\n");
 					throw e;
@@ -2623,10 +2647,10 @@ public class GeMoMa implements JstacsTool {
 		 * @param best the best {@link Solution}
 		 */
 		private void backTracking( boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int i, int j, double diff, Solution current, Solution best, boolean gap ) {
-			Hit o = lines.get(parts[i]).get(j);
+			Hit o = lines.get(currentInfo.exonID[i]).get(j);
 			if( used != null ) {
 				if( used[i] == null ) {
-					used[i] = new double[lines.get(parts[i]).size()];
+					used[i] = new double[lines.get(currentInfo.exonID[i]).size()];
 					Arrays.fill(used[i], Double.NEGATIVE_INFINITY);
 				}
 				if( diff >= 0 && diff >= used[i][j] ) {
@@ -2644,7 +2668,7 @@ public class GeMoMa implements JstacsTool {
 			//protocol.appendln( "\t" + diff);
 			
 			//same & downstream exons
-			int min=Math.min(i+MAX_GAP,parts.length), startIdx=j+1;
+			int min=Math.min(i+MAX_GAP,currentInfo.exonID.length), startIdx=j+1;
 			for( int k = i; k < min; k++ ) {
 				findNext( forward, lines, i, j, k, startIdx, diff, current, best, gap );
 				startIdx=0;
@@ -2733,8 +2757,8 @@ public class GeMoMa implements JstacsTool {
 			
 			//XXX split region?
 			ArrayList<Hit> current, all = new ArrayList<Hit>();
-			for( int j=0; j<parts.length; j++ ) {
-				current = filtered.get(parts[j]);
+			for( int j=0; j<currentInfo.exonID.length; j++ ) {
+				current = filtered.get(currentInfo.exonID[j]);
 				if( current != null && current.size() > 0 ) {
 					all.addAll( current );
 				}
@@ -2798,9 +2822,9 @@ public class GeMoMa implements JstacsTool {
 		}
 		
 		private void show( HashMap<Integer, ArrayList<Hit>> lines ) throws IOException {
-			for( int h = 0; h <parts.length; h++ ) {
-				ArrayList<Hit> list = lines.get(parts[h]);
-				protocol.append(h + "\t" + parts[h]+"\t#=" + (list==null?0:list.size()) + "\n");
+			for( int h = 0; h <currentInfo.exonID.length; h++ ) {
+				ArrayList<Hit> list = lines.get(currentInfo.exonID[h]);
+				protocol.append(h + "\t" + currentInfo.exonID[h]+"\t#=" + (list==null?0:list.size()) + "\n");
 				for( int k = 0; list!= null && k < list.size(); k++ ) {
 					protocol.append( list.get(k) +"\n" );
 				}/**/
@@ -2809,11 +2833,11 @@ public class GeMoMa implements JstacsTool {
 		}
 		
 		private HashMap<Integer, ArrayList<Hit>> reduce( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, boolean avoidStop, boolean gap, double thresh ) throws IOException, WrongAlphabetException {
-			used = new double[parts.length][];
+			used = new double[currentInfo.exonID.length][];
 			//mark unused blast hits
 			ArrayList<Hit> list;
 			for( int i = 0; i < sums.length; i++ ) {
-				list = lines.get(parts[i]);
+				list = lines.get(currentInfo.exonID[i]);
 				for( int j = 0; sums[i] != null && j < sums[i].length; j++ ) {
 					int c = getCost(list.get(j), gap, true, i);
 					//System.out.println(i+"\t"+j + "\t" + (sums[i][j]+c - thresh));
@@ -2822,7 +2846,7 @@ public class GeMoMa implements JstacsTool {
 			}			
 			
 			if( splice != null ) {
-				int[] anz = new int[parts.length];
+				int[] anz = new int[currentInfo.exonID.length];
 				boolean changed = false;
 				for( int i = 0; i < used.length; i++ ) {
 					int a = 0;
@@ -2835,7 +2859,7 @@ public class GeMoMa implements JstacsTool {
 							}
 						}
 					} else {
-						list = lines.get(parts[i]);
+						list = lines.get(currentInfo.exonID[i]);
 						if( list != null && list.size()>0 ) {
 							changed = true;
 						}
@@ -2845,11 +2869,11 @@ public class GeMoMa implements JstacsTool {
 				if( verbose ) protocol.append("#new hits: " + Arrays.toString(anz) + "\n");
 				
 				if( changed ) {
-					int[][][][] splice2 = new int[parts.length][][][]; 
+					int[][][][] splice2 = new int[currentInfo.exonID.length][][][]; 
 					int[] su, st, e, qS, qE, qL;
 					for( int i = 0; i < used.length; i++ ) {
 						if( anz[i] > 0 ) {
-							splice2[i] = new int[anz[i]][parts.length-i][];
+							splice2[i] = new int[anz[i]][currentInfo.exonID.length-i][];
 							su = new int[anz[i]];
 							st = new int[anz[i]];
 							e = new int[anz[i]];
@@ -2899,7 +2923,7 @@ public class GeMoMa implements JstacsTool {
 			HashMap<Integer,ArrayList<Hit>> filtered = new HashMap<Integer,ArrayList<Hit>>();
 			for( int i = 0; i < used.length; i++ ) {
 				if( used[i] != null ) {
-					list = lines.get(parts[i]);
+					list = lines.get(currentInfo.exonID[i]);
 					ArrayList<Hit> add = new ArrayList<Hit>();
 					for( int j = 0; j < used[i].length; j++ ) {
 						if( used[i][j] >= 0 ) {
@@ -2911,7 +2935,7 @@ public class GeMoMa implements JstacsTool {
 						}
 					}
 					if( add.size() > 0 ) {
-						filtered.put( parts[i], add );
+						filtered.put( currentInfo.exonID[i], add );
 					}
 				}
 			}
@@ -2925,15 +2949,15 @@ public class GeMoMa implements JstacsTool {
 			ArrayList<Hit> current;
 			
 			//prepare
-			for( int i = 0; i < parts.length; i++ ) {
-				current = filtered.get(parts[i]);
+			for( int i = 0; i < currentInfo.exonID.length; i++ ) {
+				current = filtered.get(currentInfo.exonID[i]);
 				oldSize[i] = current == null ? 0 : current.size();
 			}
 			
 			String chr = seqs.get(chromosome);
 			if( acceptorSites!= null && donorSites != null ) {
-				for( int h = 0; h <parts.length; h++ ) {
-					ArrayList<Hit> list = filtered.get(parts[h]);
+				for( int h = 0; h <currentInfo.exonID.length; h++ ) {
+					ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
 					for( int k = 0; list!= null && k < list.size(); k++ ) {
 						Hit hit = list.get(k);
 						hit.prepareSpliceCandidates(chr);
@@ -2941,18 +2965,18 @@ public class GeMoMa implements JstacsTool {
 				}
 			}
 			
-			//TASK 2: add missing CDS parts
-			int first = -1, last=parts.length;
+			//TASK 2: add missing CDS currentInfo.exonID
+			int first = -1, last=currentInfo.exonID.length;
 			int end, start, old = -1;
-			for( int j=0; j<parts.length; j++ ) {
-				current = filtered.get(parts[j]);
+			for( int j=0; j<currentInfo.exonID.length; j++ ) {
+				current = filtered.get(currentInfo.exonID[j]);
 				if( current != null && current.size() > 0 ) {
 					if( first < 0 ) {
 						first = j;
 					}
 					last=j;
 					if( old >= 0 && old+1 != j ) {//missing part
-						ArrayList<Hit> previous = filtered.get(parts[old]);
+						ArrayList<Hit> previous = filtered.get(currentInfo.exonID[old]);
 						int offset = current.size(), d;
 						UnionFind uf = new UnionFind(offset+previous.size());
 						for( int a = 0; a < current.size(); a++ ) {
@@ -3005,7 +3029,7 @@ public class GeMoMa implements JstacsTool {
 							
 							//align cds parts in this region to find hits
 							if( (start > end ) == forward ) {
-								if( verbose ) protocol.append("INTERNAL\t" + (old+1) + ".." + j + "\t" + parts[old+1] + ".." + parts[j] + "\n");
+								if( verbose ) protocol.append("INTERNAL\t" + (old+1) + ".." + j + "\t" + currentInfo.exonID[old+1] + ".." + currentInfo.exonID[j] + "\n");
 								align(chromosome, forward, end, start, old+1, j, filtered, "internal", ae && de, ae && de );
 							}
 						}
@@ -3016,19 +3040,19 @@ public class GeMoMa implements JstacsTool {
 			
 			//add upstream CDS part candidates
 			if( first > 0 ) {
-				if( verbose ) protocol.append("FIRST\t" + first + "\t" + parts[first] + "\n");
+				if( verbose ) protocol.append("FIRST\t" + first + "\t" + currentInfo.exonID[first] + "\n");
 				extend(chromosome, forward, filtered, first, true, "upstream");
 			}
 			//add downstream CDS part candidates
-			if( last < parts.length-1 ) {
-				if( verbose ) protocol.append("LAST\t" + last + "\t" + parts[last] + "\n");
+			if( last < currentInfo.exonID.length-1 ) {
+				if( verbose ) protocol.append("LAST\t" + last + "\t" + currentInfo.exonID[last] + "\n");
 				extend(chromosome, forward, filtered, last, false, "downstream");
 			}
 			
 			//check
 			boolean cut = false;
-			for( int i = 0; i < parts.length; i++ ) {
-				current = filtered.get(parts[i]);
+			for( int i = 0; i < currentInfo.exonID.length; i++ ) {
+				current = filtered.get(currentInfo.exonID[i]);
 				if( current != null && current.size()-oldSize[i] > 20000 ) {
 					while( current.size() > oldSize[i] ) {
 						current.remove( current.size()-1 );
@@ -3039,17 +3063,17 @@ public class GeMoMa implements JstacsTool {
 			
 			//TASK 3: find new solution
 			//prepare splicing for DP
-			for( int h = 0; h <parts.length; h++ ) {
-				ArrayList<Hit> list = filtered.get(parts[h]);
-				String r = geneName + (transcriptInfo==null? "":("_" + parts[h]));
+			for( int h = 0; h <currentInfo.exonID.length; h++ ) {
+				ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
+				String r = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[h]));
 				String ref = cds.get(r);
 				for( int k = 0; list!= null && k < list.size(); k++ ) {
 					Hit hit = list.get(k);
 					if( !hit.splice ) {
 						hit.prepareSpliceCandidates(chr);
 					}
-					if( ref != null && ((h==0 && ref.charAt(0)=='M') || (h+1==parts.length && ref.charAt(ref.length()-1)=='*')) ) {
-						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==parts.length && ref.charAt(ref.length()-1)=='*');//Laura Kelly: partial
+					if( ref != null && ((h==0 && ref.charAt(0)=='M') || (h+1==currentInfo.exonID.length && ref.charAt(ref.length()-1)=='*')) ) {
+						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==currentInfo.exonID.length && ref.charAt(ref.length()-1)=='*');//Laura Kelly: partial
 					}
 				}
 				/*
@@ -3060,13 +3084,13 @@ public class GeMoMa implements JstacsTool {
 							protocol.appendln(hit);
 							protocol.appendln(hit.accMaxScore);
 							
-							//alignPart(chromosome, forward, endLast, forward?hit.targetStart:hit.targetEnd, parts[h], 0, hit.queryStart, region, list, "extra-internal");
+							//alignPart(chromosome, forward, endLast, forward?hit.targetStart:hit.targetEnd, currentInfo.exonID[h], 0, hit.queryStart, region, list, "extra-internal");
 							
 							System.exit(1);
 						}
 					}
 				}  else {
-					protocol.appendln( "MISSING\t" + parts[h]  + "\t" + Arrays.toString(parts) );
+					protocol.appendln( "MISSING\t" + currentInfo.exonID[h]  + "\t" + Arrays.toString(currentInfo.exonID) );
 					System.exit(1);
 				}*/
 			}
@@ -3077,7 +3101,7 @@ public class GeMoMa implements JstacsTool {
 			//filter if RNA-seq data
 //TODO
 /*
-			if( parts.length > 1 && acceptorSites != null && donorSites != null ) {
+			if( currentInfo.exonID.length > 1 && acceptorSites != null && donorSites != null ) {
 				int[][][] acc = acceptorSites.get(chromosome);
 				int[][][] don = donorSites.get(chromosome);
 				int z = forward ? 0 : 1;
@@ -3085,17 +3109,17 @@ public class GeMoMa implements JstacsTool {
 					&& don != null && don[z][0].length > 0 ) {
 					//show(filtered);
 					
-					used = new double[parts.length][];			
-					for( int j=parts.length-1; j>=0; j-- ) {
-						current = filtered.get(parts[j]);
+					used = new double[currentInfo.exonID.length][];			
+					for( int j=currentInfo.exonID.length-1; j>=0; j-- ) {
+						current = filtered.get(currentInfo.exonID[j]);
 						if( current != null && current.size() > 0 ) {
 							used[j] = new double[current.size()];
 						}
 					}
 					ArrayList<Hit> next;
 
-					for( int i = 0; i < parts.length; i++ ) {
-						current = filtered.get(parts[i]);
+					for( int i = 0; i < currentInfo.exonID.length; i++ ) {
+						current = filtered.get(currentInfo.exonID[i]);
 						if( current!= null && current.size()>0 ) {
 							Arrays.fill(used[i], 0);
 							
@@ -3105,7 +3129,7 @@ public class GeMoMa implements JstacsTool {
 								//acceptor
 								if( hi.ae ) {
 									outerloop: for( int x = i; x >= Math.max(i-1,0); x-- ) {
-										next = filtered.get(parts[x]);
+										next = filtered.get(currentInfo.exonID[x]);
 										if( next != null ) {
 											//outerloop: 
 											for( int j = 0; j < 3; j++ ) {
@@ -3127,8 +3151,8 @@ public class GeMoMa implements JstacsTool {
 								
 								//donor
 								if( hi.de ) {
-									outerloop: for( int x = i; x <= Math.min(i+1,parts.length-1); x++ ) {
-										next = filtered.get(parts[x]);
+									outerloop: for( int x = i; x <= Math.min(i+1,currentInfo.exonID.length-1); x++ ) {
+										next = filtered.get(currentInfo.exonID[x]);
 										if( next != null ) {
 											//outerloop:
 											for( int j = 0; j < 3; j++ ) {
@@ -3153,12 +3177,12 @@ public class GeMoMa implements JstacsTool {
 						}
 					}
 //System.out.println();		
-					for( int i = 0; i < parts.length; i++ ) {
-						current = filtered.get(parts[i]);
+					for( int i = 0; i < currentInfo.exonID.length; i++ ) {
+						current = filtered.get(currentInfo.exonID[i]);
 						if( current!= null && current.size()>0 ) {
-							int t = (i==0 || i+1 == parts.length) ? 1 : 2;
+							int t = (i==0 || i+1 == currentInfo.exonID.length) ? 1 : 2;
 							if( ToolBox.max(used[i])>=t ) {
-//System.out.println("filter " + parts[i] );
+//System.out.println("filter " + currentInfo.exonID[i] );
 								for( int aa = 0, a = 0; a < current.size(); a++ ) {
 									if( used[i][a] >= t ) {
 											aa++;
@@ -3171,10 +3195,10 @@ public class GeMoMa implements JstacsTool {
 					}				
 /*
 					
-					int[] u = new int[parts.length];
-					evidence = new boolean[parts.length][MAX_GAP+1];
-					for( int j=parts.length-1; j>=0; j-- ) {
-						current = filtered.get(parts[j]);
+					int[] u = new int[currentInfo.exonID.length];
+					evidence = new boolean[currentInfo.exonID.length][MAX_GAP+1];
+					for( int j=currentInfo.exonID.length-1; j>=0; j-- ) {
+						current = filtered.get(currentInfo.exonID[j]);
 						if( current != null && current.size() > 0 ) {
 							for( int a = current.size()-1; a >= 0; a-- ) {
 								Hit hi = current.get(a);
@@ -3185,7 +3209,7 @@ public class GeMoMa implements JstacsTool {
 
 											int m=Math.max(j-5,0);
 											for( int k=j; k>=m; k-- ) {
-												next = filtered.get(parts[k]);
+												next = filtered.get(currentInfo.exonID[k]);
 												if( next != null ) {
 													for( int c = k==j?a-1:next.size()-1; c >= 0; c-- ) {
 														Hit hi2 = next.get(c);
@@ -3205,10 +3229,10 @@ public class GeMoMa implements JstacsTool {
 							}
 						}
 					}
-					for( int j=parts.length-1; j>=0; j-- ) {
+					for( int j=currentInfo.exonID.length-1; j>=0; j-- ) {
 //if(verbose) System.out.println(j + "\t" + Arrays.toString(evidence[j]));
 						if( u[j] != 0 && used[j] != null ) {
-							current = filtered.get(parts[j]);
+							current = filtered.get(currentInfo.exonID[j]);
 							for( int a = current.size()-1; a >= 0; a-- ) {
 								if( used[j][a] == 0 ) {
 									current.remove(a);
@@ -3228,13 +3252,13 @@ public class GeMoMa implements JstacsTool {
 			}
 */			
 			//DP with splicing
-			splice = new int[parts.length][][][];
+			splice = new int[currentInfo.exonID.length][][][];
 			int bestValue = forwardDP(forward, filtered, true);
 			filtered = reduce(chromosome, forward, filtered, avoidStop, true, bestValue);
 			if( verbose ) {			
-				for( int h = 0; h <parts.length; h++ ) {
-					ArrayList<Hit> list = filtered.get(parts[h]);
-					protocol.append( parts[h] + "\t" + Arrays.toString(sums[h]) + "\n" );
+				for( int h = 0; h <currentInfo.exonID.length; h++ ) {
+					ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
+					protocol.append( currentInfo.exonID[h] + "\t" + Arrays.toString(sums[h]) + "\n" );
 					for( int k = 0; list!= null && k < list.size(); k++ ) {
 						Hit hi = list.get(k);
 						protocol.append( hi + "\t" + hi.firstAddScore + "\t" + hi.lastAddScore + "\t" + hi.up + "\t" + hi.seqUp + "\t" + hi.down + "\t" + hi.seqDown + "\n" );
@@ -3279,14 +3303,14 @@ public class GeMoMa implements JstacsTool {
 				end = -1;
 			} else {
 				dir=1;
-				end = parts.length;
+				end = currentInfo.exonID.length;
 			}
 			int d = MAX_INTRON_LENGTH/10, f=0;
 			int startIndex, a = (upstream?0:d), stop;
 			ArrayList<Hit> current;
 			int[][] array = null;
 			do {
-				current = lines.get(parts[index]);
+				current = lines.get(currentInfo.exonID[index]);
 				if( current != null ) {
 					array = new int[current.size()][2];
 					for( int i = 0; i < array.length; i++ ) {
@@ -3354,7 +3378,7 @@ public class GeMoMa implements JstacsTool {
 			}
 			for( int i = startIdx; i < endIdx; i++ ) {//for each missing parts
 				alignPart(chromosome, forward, endLast, startNext, i, -1, -1, region, lines, info, up, down);
-				//protocol.append( "added " + parts[i] + "\t" + lines.get(parts[i]).size() );
+				//protocol.append( "added " + currentInfo.exonID[i] + "\t" + lines.get(currentInfo.exonID[i]).size() );
 			}
 		}
 		
@@ -3465,7 +3489,7 @@ public class GeMoMa implements JstacsTool {
 			}
 /**/
 			Sequence cdsSeq = null;
-			String r = geneName + (transcriptInfo==null? "":("_" + parts[idx]));
+			String r = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[idx]));
 			String m = cds.get(r);
 				
 			//collect candidate regions/alignments
@@ -3478,7 +3502,7 @@ public class GeMoMa implements JstacsTool {
 					m = m.substring(startPos, endPos);
 				}
 				
-				ArrayList<Hit> cand = lines.get(parts[idx]);
+				ArrayList<Hit> cand = lines.get(currentInfo.exonID[idx]);
 				boolean add = cand == null;
 				if( add ) {
 					cand = new ArrayList<Hit>();
@@ -3496,7 +3520,7 @@ public class GeMoMa implements JstacsTool {
 						//protocol.appendln(trans);
 						String[] split = trans.split("\\*");
 						for( int a = 0; a < split.length; a++ ) {
-							if( idx+1==parts.length && a+1 < split.length ) {
+							if( idx+1==currentInfo.exonID.length && a+1 < split.length ) {
 								split[a] +="*";
 								off=0;
 							} else {
@@ -3577,7 +3601,7 @@ public class GeMoMa implements JstacsTool {
 						j--;
 					}
 					if( add && cand.size() > oldSize ) {
-						lines.put( parts[idx], cand );
+						lines.put( currentInfo.exonID[idx], cand );
 					}
 					anz = cand.size() - oldSize;
 					tested++;
@@ -3589,7 +3613,7 @@ public class GeMoMa implements JstacsTool {
 			return anz;
 		}
 		
-		String getProteinSeqFromExons( Hit first, Hit second ) {
+		String getProteinSeqFromExons( Hit first, Hit second ) {//TODO add split AA at intron-exon border
 			String m;
 			String firstCDS = cds.get( first.queryID );
 			int partStart = first.part, partEnd = second.part;
@@ -3598,9 +3622,12 @@ public class GeMoMa implements JstacsTool {
 			} else {
 				m = firstCDS.substring(first.queryStart-1);
 				for( int idx = revParts[partStart]+1; idx < revParts[partEnd]; idx++ ) {
-					String p=cds.get(geneName + (transcriptInfo==null?"":("_" + parts[idx])) );
+					String p=cds.get(geneName + (transcriptInfo==null?"":("_" + currentInfo.exonID[idx])) );
 					if( p != null ) {
 						m += p;
+					}
+					if( idx+1 < revParts[partEnd] ) {
+						m += currentInfo.splitAA[idx];
 					}
 				}
 				m += cds.get( second.queryID ).substring(0, second.queryEnd);
@@ -3826,7 +3853,7 @@ public class GeMoMa implements JstacsTool {
 			int bestValue = Integer.MIN_VALUE;
 			
 			for( int i = 0; i < sums.length; i++ ) {
-				ArrayList<Hit> current = hits.get(parts[i]);
+				ArrayList<Hit> current = hits.get(currentInfo.exonID[i]);
 				//if( (i == 0 && sums[i] != null ) || (i>0 && bestValue <= maxs[i] + cumLength[i]) ) 
 				{
 					for( int j = 0; sums[i] != null && j < sums[i].length; j++ ) {
@@ -3913,7 +3940,7 @@ public class GeMoMa implements JstacsTool {
 			
 			public int matchParts() {
 				int p = 0;
-				boolean[] match = new boolean[parts.length];
+				boolean[] match = new boolean[currentInfo.exonID.length];
 				Arrays.fill(match, false);
 				for( int i = 0; i < hits.size(); i++ ) {
 					int part = hits.get(i).part;
@@ -4049,24 +4076,24 @@ public class GeMoMa implements JstacsTool {
 				//Laura Kelly: partial?
 				String prot = protein == null ? null : protein.get(transcriptName), ref;
 				if( prot == null ) {
-					String r = geneName + (transcriptInfo==null? "":("_" + parts[0]));
+					String r = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[0]));
 					ref = cds.get(r);
 				} else {
 					ref = prot; 
 				}				
 				if( ref==null || ref.charAt(0)=='M' ) {
 					c = res.hits.get(0);
-					c.extend( c.part == parts[0], false ); //START
+					c.extend( c.part == currentInfo.exonID[0], false ); //START
 				}
 				if( prot == null ) {
-					String r = geneName + (transcriptInfo==null? "":("_" + parts[parts.length-1]));
+					String r = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[currentInfo.exonID.length-1]));
 					ref = cds.get(r);
 				} else {
 					ref = prot; 
 				}
 				if( ref==null || ref.charAt(ref.length()-1)=='*' ) {
 					c = res.hits.get(res.hits.size()-1);
-					c.extend( false, c.part == parts[parts.length-1]); //STOP
+					c.extend( false, c.part == currentInfo.exonID[currentInfo.exonID.length-1]); //STOP
 				}
 				return res;
 			}
@@ -4112,8 +4139,8 @@ public class GeMoMa implements JstacsTool {
 				
 				gff.append(";start=" + protein.charAt(0) + ";stop=" + protein.charAt(protein.length()-1) );
 				
-				String res = (hits.getFirst().part == parts[0]) + "\t" + protein.charAt(0) + "\t" 
-							+ (hits.getLast().part == parts[parts.length-1]) + "\t" + protein.charAt(protein.length()-1) + "\t" 
+				String res = (hits.getFirst().part == currentInfo.exonID[0]) + "\t" + protein.charAt(0) + "\t" 
+							+ (hits.getLast().part == currentInfo.exonID[currentInfo.exonID.length-1]) + "\t" + protein.charAt(protein.length()-1) + "\t" 
 							+ anz + "\t" + intronGain +"\t" + intronLoss;
 		
 				stats[0]++;

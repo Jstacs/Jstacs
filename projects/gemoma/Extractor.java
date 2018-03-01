@@ -128,7 +128,7 @@ public class Extractor implements JstacsTool {
 		getOut( ((Boolean)parameters.getParameterForName(name[2]).getValue()) ? name[2] : null, file, out );
 		getOut( ((Boolean)parameters.getParameterForName(name[3]).getValue()) ? name[3] : null, file, out );
 	
-		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon" );
+		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon\tsplit AA" );
 		
 		//read genome contig by contig
 		r = Tools.openGzOrPlain( parameters.getParameterForName("genome").getValue().toString() );
@@ -904,10 +904,22 @@ public class Extractor implements JstacsTool {
 				String x = il.toString();
 				SafeOutputStream sos = out.get(1);
 				sos.write( gene.id + "\t" + trans + "\t" + x.substring(1,x.length()-1) );
+				String splitAA = "";
+				int currentPos = 0;
 				for( j = 0; j < il.length(); j++ ) {
-					sos.write( (j==0?"\t":",") + part.get(il.get(j)).offsetLeft );		
+					current = part.get(il.get(j));
+					sos.write( (j==0?"\t":",") + current.offsetLeft );
+					
+					currentPos += current.dna.length();
+					int pos = currentPos / 3;
+					if( currentPos % 3 > 0 && pos+1 <= p.length() ) {
+						splitAA += p.substring(pos, pos+1);
+					}
+					if( j+1 < il.length() ) {
+						splitAA += ",";
+					}
 				}
-				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (part.size()>1?maxIntron:"NA") + "\t" + minExon + "\n" );
+				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (part.size()>1?maxIntron:"NA") + "\t" + minExon + "\t" + splitAA + "\n" );
 				for( j = 0; j < il.length(); j++ ) {
 					used[il.get(j)] = true;
 				}
