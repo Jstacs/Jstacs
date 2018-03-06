@@ -593,7 +593,7 @@ public class CompareTranscripts implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return GeMoMa.version;
+		return GeMoMa.VERSION;
 	}
 
 	@Override

@@ -222,7 +222,7 @@ public class AnnotationEvidence implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return GeMoMa.version;
+		return GeMoMa.VERSION;
 	}
 	
 	public String getShortName() {

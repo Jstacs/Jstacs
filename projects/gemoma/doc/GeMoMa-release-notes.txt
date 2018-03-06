@@ -76,3 +76,7 @@ GeMoMa XXX (??.??.????)
 - GAF:
 	- new parameter that allows to restrict the maximal number of transcript predictions per gene
 	- bugfix: nested genes 
+- GeMoMa:
+	- TODO split AA?
+	- TODO improved splice site alignment?
+- GeMoMaPipeline: new tool for running the complete GeMoMa pipeline at once allowing multi-threading
