@@ -76,8 +76,8 @@ public class Extractor implements JstacsTool {
 		out.add(SafeOutputStream.getSafeOutputStream(b));
 	}
 
-	private static String[] name = {"cds-parts", "assignment", "proteins", "cds"};
-	private static String[] type;
+	static String[] name = {"cds-parts", "assignment", "proteins", "cds"};
+	static String[] type;
 	static {
 		type = new String[name.length];
 		for( int i = 0; i < name.length; i++ ) {
@@ -85,10 +85,10 @@ public class Extractor implements JstacsTool {
 		};
 	}
 	
-	private static BufferedWriter intron;
-	private static int[] problem = new int[9];
-	private static int repair = 0;
-	private static boolean rep;
+	private BufferedWriter intron;
+	private int[] problem = new int[9];
+	private int repair = 0;
+	private boolean rep;
 	
 	@Override
 	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
@@ -571,7 +571,7 @@ public class Extractor implements JstacsTool {
 		return true;
 	}	
 	
-	private static void extract( boolean stopCodonEx, boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
+	private void extract( boolean stopCodonEx, boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
 			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code
 			) throws Exception {
 		if( comment == null ) {
@@ -753,14 +753,14 @@ public class Extractor implements JstacsTool {
 		}
 	}
 	
-	static ArrayList<SafeOutputStream> out;
-	static ArrayList<Part> part = new ArrayList<Part>();
-	static StringBuffer dnaSeqBuff = new StringBuffer();
-	static IntList message = new IntList();
-	static HashMap<String, int[]> donor, acceptor;
-	static HashMap<Integer,int[]> count;
+	ArrayList<SafeOutputStream> out;
+	ArrayList<Part> part = new ArrayList<Part>();
+	StringBuffer dnaSeqBuff = new StringBuffer();
+	IntList message = new IntList();
+	HashMap<String, int[]> donor, acceptor;
+	HashMap<Integer,int[]> count;
 	
-	static int transcript(boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
+	int transcript(boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
 		int j;
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
@@ -1103,6 +1103,6 @@ public class Extractor implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return GeMoMa.version;
+		return GeMoMa.VERSION;
 	}
 }

@@ -643,7 +643,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 					new SimpleParameter(DataType.DOUBLE,"intron evidence filter","the filter on the intron evidence given by RNA-seq-data for overlapping transcripts", true, new NumberValidator<Double>(0d, 1d), 1d ),
 					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
 					new SimpleParameter(DataType.INT,"maximal number of transcripts per gene","the maximimal number of allowed transcript predictions per gene", true, new NumberValidator<Comparable<Integer>>(1, Integer.MAX_VALUE), Integer.MAX_VALUE ),
-					new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
+					new ParameterSetContainer( "predicted annotation", "", new ExpandableParameterSet( new SimpleParameterSet(		
 							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
 							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )
 						), "gene annotations", "", 1 ) ),
@@ -662,7 +662,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return GeMoMa.version;
+		return GeMoMa.VERSION;
 	}
 
 	@Override
