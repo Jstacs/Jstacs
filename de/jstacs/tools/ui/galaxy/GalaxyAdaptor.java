@@ -423,7 +423,7 @@ public class GalaxyAdaptor {
 		}else{
 			XMLParser.addTagsAndAttributes( temp2, "div", "class=\"head\"" );
 		}
-		temp2.append( "<br />" );
+		temp2.append( "<br />\n" );
 		/*if(res instanceof ResultSetResult){//TODO
 			//buf.append("<table border=\"1\"><tr><td>");
 			//buf.append(getOutput( ((ResultSetResult)res).getRawResult()[0] ));
@@ -431,7 +431,7 @@ public class GalaxyAdaptor {
 			
 		}else */if(res instanceof SimpleResult){
 			StringBuffer temp = new StringBuffer();
-			temp.append( res.getValue().toString().replaceAll( "\\n", "<br />" ) );
+			temp.append( res.getValue().toString().replaceAll( "\\n", "<br />\n" ) );
 			XMLParser.addTags( temp, "div" );
 			buf.append( temp );
 		}else if(res instanceof ListResult){
@@ -449,15 +449,15 @@ public class GalaxyAdaptor {
 		}else if(res instanceof LineBasedResult){
 			buf.append( getLBOutput( (LineBasedResult)res ) );
 		}else if(res instanceof TextResult){
-			buf.append( "<div class=\"tt\">"+((TextResult)res).getValue().getContent().replaceAll( "\n", "<br>" )+"</div>" );
+			buf.append( "<div class=\"tt\">"+((TextResult)res).getValue().getContent().replaceAll( "\n", "<br/>\n" )+"</div>" );
 		}
 		StringBuffer temp = new StringBuffer();
 		temp.append( res.getComment() );
 		if(res instanceof LinkedImageResult){
-			temp.append("<br />Obtain &quot;"+((LinkedImageResult)res).getLink().getName()+"&quot; ("+((LinkedImageResult)res).getLink().getComment()+") by clicking on the image");
+			temp.append("<br />\nObtain &quot;"+((LinkedImageResult)res).getLink().getName()+"&quot; ("+((LinkedImageResult)res).getLink().getComment()+") by clicking on the image");
 		}
 		XMLParser.addTagsAndAttributes( temp, "div", "class=\"comment\"" );
-		temp.append( "<br />" );
+		temp.append( "<br />\n" );
 		buf.append( temp );
 		//XMLParser.addTagsAndAttributes( buf, "div", "class=\"form-row\"" );
 		//XMLParser.addTagsAndAttributes( buf, "div", "class=\"toolFormBody\"" );
@@ -530,7 +530,7 @@ public class GalaxyAdaptor {
 		}else{
 			data.save( baos,'>', res.getParser() );
 		}
-		return baos.toString().replaceAll( "\\n", "<br />" );
+		return baos.toString().replaceAll( "\\n", "<br />\n" );
 	}
 
 	private String getOutput(ResultSet res) throws IOException{
@@ -736,7 +736,7 @@ public class GalaxyAdaptor {
 				}else if(res instanceof ResultSet){
 					str = getOutput( (ResultSet) res );
 				}else{
-					str = res.toString().replaceAll( "\\n", "<br />" );
+					str = res.toString().replaceAll( "\\n", "<br />\n" );
 				}
 				summary.append( str );
 			}
