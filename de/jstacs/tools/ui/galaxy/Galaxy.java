@@ -20,6 +20,7 @@ package de.jstacs.tools.ui.galaxy;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -67,7 +68,11 @@ public class Galaxy {
 	private ResultEntry[][] defaultResults;
 	private boolean[][] addLine;
 	private String vmargs;
-	private boolean configThreads;
+	private boolean[] configThreads;
+	
+	public Galaxy(String vmargs, boolean configThreads, JstacsTool... tools){
+		this( vmargs, new boolean[]{configThreads}, tools );
+	}
 	
 	/**
 	 * Creates a new Galaxy interface from a set of {@link JstacsTool}s.
@@ -76,7 +81,7 @@ public class Galaxy {
 	 * @param tools the tools that should be displayed
 	 * @see GalaxyAdaptor#parse(String[], boolean)
 	 */
-	public Galaxy(String vmargs, boolean configThreads, JstacsTool... tools){
+	public Galaxy(String vmargs, boolean[] configThreads, JstacsTool... tools){
 		this.tools = tools;
 		this.vmargs = vmargs;
 		if(this.vmargs == null){
@@ -84,6 +89,15 @@ public class Galaxy {
 		}else if(this.vmargs.length()!=0){
 			this.vmargs = " "+this.vmargs;
 		}
+		if( configThreads == null || configThreads.length==1 ) {
+			this.configThreads = new boolean[tools.length];
+			Arrays.fill(this.configThreads, configThreads==null ? false : configThreads[0] );
+		} else if( configThreads.length == tools.length ) {
+			this.configThreads = configThreads.clone();
+		} else {
+			throw new IllegalArgumentException("Check the length of the configureThreads array.");
+		}
+		
 		this.configThreads = configThreads;
 		toolParameters = new ParameterSet[tools.length];
 		this.addLine = new boolean[tools.length][];
@@ -113,7 +127,7 @@ public class Galaxy {
 		
 		ga.setHelp( tools[i].getHelpText() );
 		
-		ga.parse( args, configThreads );
+		ga.parse( args, configThreads[i] );
 		return ga;
 	}
 	
