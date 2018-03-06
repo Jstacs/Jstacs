@@ -8,7 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -94,10 +98,9 @@ public class GeMoMaPipeline implements JstacsTool {
 		((ParameterSetContainer)((ParameterSetContainer)e.getParameterAt(1)).getValue().getParameterAt(0)).getValue().getParameterAt(0).setValue(args[4]);
 		e.getParameterForName("coverage output").setValue(true);
 
-		ToolResult res = p.run( ps, new SysProtocol(), new ProgressUpdater(), 4 );
-		System.out.println( res.getValue()[0].getNumberOfResults() );
-		System.out.println(res);
-		
+		ToolResult res = p.run( ps, new SysProtocol(), new ProgressUpdater(), 8 );
+
+		System.out.println( res.getValue()[0].getNumberOfResults() );		
 	}/**/
 
 	static int maxSize;
@@ -295,10 +298,8 @@ public class GeMoMaPipeline implements JstacsTool {
 		protocol.append("Running the GeMoMaPipeline with " + threads + " threads\n\n" );
 		
 		//create temp dir
-		File h = new File("./");
-		File dir = Files.createTempDirectory(h.toPath(), "GeMoMaPipeline-").toFile();
+		File dir = Files.createTempDirectory(new File("./results/").toPath(), "GeMoMaPipeline-").toFile();
 		home = dir.toString() + "/";
-		dir.deleteOnExit();
 		System.out.println(home);//TODO
 		
 		Extractor extractor = new Extractor(maxSize);
@@ -468,6 +469,8 @@ public class GeMoMaPipeline implements JstacsTool {
 			er+=val[1];
 		}
 		protocol.append("\n");
+		
+		ToolResult result;
 		if( er==0 ) {
 			protocol.append("No errors detected.\n");
 			ArrayList<Result> res = new ArrayList<Result>();
@@ -476,11 +479,39 @@ public class GeMoMaPipeline implements JstacsTool {
 				res.add( new TextResult("unfiltered predictions from species "+i, "Result", new FileParameter.FileRepresentation(home+"/" + i + "/unfiltered-predictions.gff"), "gff", gemoma.getToolName(), null, true) );
 			}
 			
-			return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
+			result = new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 		} else {
 			protocol.append( er + " errors detected. Please check the output carefully.\n");
-			return null;
+			result = null;
 		}		
+		
+		
+		//delete
+		//avoid erroneously deleting important files: 2 tricks have been implemented:
+		// a) temporary folder "results/"
+		// b) RegExFilenameFilter 
+		Files.walkFileTree(new File( home ).toPath(), new SimpleFileVisitor<Path>() {
+			RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, ".*fasta", ".*gff", ".*txt", "blastdb.*", ".*tabular", ".*bedgraph");
+			
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				return delete( file );
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				return delete(dir);
+			}
+			
+			FileVisitResult delete( Path p ) throws IOException {
+				if( filter.accept( p.toFile() ) )  {
+					Files.delete(p);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
+		
+		return result;
 	}
 	
 	void add( FlaggedRunnable f ) {
