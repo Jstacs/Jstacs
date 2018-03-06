@@ -20,6 +20,7 @@ package de.jstacs.tools.ui.cli;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -76,29 +77,31 @@ public class CLI {
 	public static class SysProtocol implements Protocol {
 
 		private StringBuffer log;
-		
+		protected PrintStream out, err;
 		/**
 		 * Creates a new, empty protocol.
 		 */
 		public SysProtocol() {
 			this.log = new StringBuffer();
+			out = System.out;
+			err = System.err;
 		}
 		
 		@Override
 		public void append( String str ) {
-			System.out.print(str);
+			out.print(str);
 			log.append( str );
 		}
 
 		@Override
 		public void appendHeading( String heading ) {
-			System.out.print("* "+heading);	
+			out.print("* "+heading);	
 			log.append( "* "+heading );
 		}
 
 		@Override
 		public void appendWarning( String warning ) {
-			System.err.print(warning);
+			err.print(warning);
 			log.append( warning );
 		}
 		
@@ -119,7 +122,7 @@ public class CLI {
 			th.printStackTrace(new PrintWriter(str));
 			
 			String strstr = str.toString();
-			System.err.println(strstr);
+			err.println(strstr);
 			log.append(strstr);
 		}
 		
@@ -128,10 +131,9 @@ public class CLI {
 		}
 
 		public void flush() {
-			System.err.flush();
-			System.out.flush();
+			err.flush();
+			out.flush();
 		}
-		
 	}
 	
 	private String opt;
@@ -359,33 +361,38 @@ public class CLI {
 			
 			ToolResult results = tools[toolIndex].run( toolParameters[toolIndex], protocol, new ProgressUpdater(), threads );
 			
-			ResultSet[] rs = results.getRawResult();
-			Result[] r = new Result[rs[0].getNumberOfResults()+1];
-			for( int i = 0; i+1 < r.length; i ++ ) {
-				r[i] = rs[0].getResultAt(i);
-			}
-			String n = File.createTempFile("CLI-potocol-", ".txt").getAbsolutePath();
-			FileManager.writeFile(n, protocol.getLog());
-			r[r.length-1] = new TextResult( "protocol " + tools[toolIndex].getShortName(), "Result", new FileRepresentation(n), "txt", tools[toolIndex].getToolName(), null, true );
-			
-			results = new ToolResult(results.getName(), results.getComment(), results.getAnnotation(), 
-				new ResultSet( r ),
-				toolParameters[toolIndex], results.getToolName(), results.getFinishedDate() );
-			
-			ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );	
-			saver.writeOutput( results, new File(outdir) );
-/*
-			String prefix = outdir+File.separator+"protocol_" + tools[toolIndex].getShortName();//new
-			File protout = new File( prefix + ".txt");
-			int k=1;
-			while(protout.exists()){
-				protout = new File(prefix + "_"+k+".txt");
-				k++;
-			}
-			
-			FileManager.writeFile( protout, protocol.getLog() );
-*/
+			writeToolResults( results, protocol, outdir, tools[toolIndex], toolParameters[toolIndex] );
 		}		
+	}
+	
+	public static void writeToolResults( ToolResult results, SysProtocol protocol, String outdir, JstacsTool tool, ParameterSet toolParameters ) throws IOException {
+		ResultSet[] rs = results.getRawResult();
+		Result[] r = new Result[rs[0].getNumberOfResults()+1];
+		for( int i = 0; i+1 < r.length; i ++ ) {
+			r[i] = rs[0].getResultAt(i);
+		}
+		String n = File.createTempFile("CLI-potocol-", ".txt").getAbsolutePath();
+		FileManager.writeFile(n, protocol.getLog());
+		r[r.length-1] = new TextResult( "protocol " + tool.getShortName(), "Result", new FileRepresentation(n), "txt", tool.getToolName(), null, true );
+		
+		results = new ToolResult(results.getName(), results.getComment(), results.getAnnotation(), 
+			new ResultSet( r ),
+			toolParameters, results.getToolName(), results.getFinishedDate() );
+		
+		ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );	
+		saver.writeOutput( results, new File(outdir) );
+
+/*
+		String prefix = outdir+File.separator+"protocol_" + tools[toolIndex].getShortName();//new
+		File protout = new File( prefix + ".txt");
+		int k=1;
+		while(protout.exists()){
+			protout = new File(prefix + "_"+k+".txt");
+			k++;
+		}
+		
+		FileManager.writeFile( protout, protocol.getLog() );
+*/
 	}
 
 
