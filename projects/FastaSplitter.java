@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 /**
@@ -100,7 +101,7 @@ public class FastaSplitter {
 		for( int i = 0; i < num; i++ ) {
 			w[i].close();	
 			if( stats[i] == 0 ) {
-				new File(path+"split-"+i+".fasta").deleteOnExit();
+				Files.delete( new File(path+"split-"+i+".fasta").toPath() );
 			}
 		}
 	}
