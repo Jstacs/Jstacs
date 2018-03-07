@@ -39,21 +39,27 @@ public class FastaSplitter {
 	 * <li>0 ... the fastA file to be split</li>
 	 * <li>1 ... the number of splits</li>
 	 * <li>2 ... optional: the delimiter for the sequence names. The last occurrence of the delimiter is used to determine a common prefix. All sequences with a common prefix are assigned to one file, if the input file is sorted according to the prefixes.</li>
+	 * <li>3 ... optional: path for the output</li>
 	 * </ul>
 	 */
 	public static void main(String[] args) throws IOException {
+		//System.out.println(Arrays.toString(args));
 		int num = Integer.parseInt(args[1]);
 		BufferedReader r = new BufferedReader( new FileReader(args[0]) );
 		String delim=null, id = null;
 		HashMap<String, Integer> hash = null;
+		String path ="";
 		if( args.length>2 ) {
 			delim=args[2];
 			hash = new HashMap<String, Integer>();
+			if( args.length>3 ) {
+				path = args[3];
+			}
 		}
 		BufferedWriter[] w = new BufferedWriter[num];
 		int[] stats = new int[num];
 		for( int i = 0; i < num; i++ ) {
-			w[i] = new BufferedWriter(new FileWriter("split-"+i+".fasta"));			
+			w[i] = new BufferedWriter(new FileWriter(path+"split-"+i+".fasta"));			
 		}
 		
 		String line;
