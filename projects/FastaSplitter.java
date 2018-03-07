@@ -100,7 +100,7 @@ public class FastaSplitter {
 		for( int i = 0; i < num; i++ ) {
 			w[i].close();	
 			if( stats[i] == 0 ) {
-				new File("split-"+i+".fasta").deleteOnExit();
+				new File(path+"split-"+i+".fasta").deleteOnExit();
 			}
 		}
 	}
