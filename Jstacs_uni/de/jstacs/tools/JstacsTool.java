@@ -18,7 +18,6 @@
 
 package de.jstacs.tools;
 
-import de.jstacs.DataType;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
@@ -26,6 +25,9 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.results.Result;
+import de.jstacs.tools.ui.cli.CLI;
+import de.jstacs.tools.ui.galaxy.Galaxy;
+import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
 /**
  * Interface for a generic Jstacs tool.
@@ -135,7 +137,7 @@ public interface JstacsTool {
 	 * The parameters should be empty but may have default values, which are used in all interface variants (command line, Galaxy, JavaFX GUI).
 	 * @return the input parameters
 	 */
-	public ParameterSet getToolParameters();
+	public ToolParameterSet getToolParameters();
 	
 	/**
 	 * Runs the tool using the provided (now filled) parameters, which are in structure identical to those returned by {@link #getToolParameters()}. These parameters should only be used for this run and should not affect subsequent runs of the same tool.
@@ -147,7 +149,7 @@ public interface JstacsTool {
 	 * @return the results of this tool
 	 * @throws Exception if the tool can not be run properly
 	 */
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception;
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception;
 
 	/**
 	 * Returns a descriptive, human readable name for this tool.

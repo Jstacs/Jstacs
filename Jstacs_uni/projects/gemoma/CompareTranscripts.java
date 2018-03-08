@@ -34,14 +34,13 @@ import java.util.Iterator;
 
 import de.jstacs.DataType;
 import de.jstacs.parameters.FileParameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 
@@ -55,7 +54,7 @@ import de.jstacs.utils.IntList;
 public class CompareTranscripts implements JstacsTool {
 	
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		String fName = (String) parameters.getParameterForName("assignment").getValue();
 		HashMap<String, String[]> gene = Tools.getAlias(fName, 1, 0, 2);
 		
@@ -572,9 +571,9 @@ public class CompareTranscripts implements JstacsTool {
 	}
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(),
 					new FileParameter( "prediction", "The predicted annotation", "gff", true ),
 					new FileParameter( "annotation", "The true annotation", "gff", true ),
 					new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false ),
