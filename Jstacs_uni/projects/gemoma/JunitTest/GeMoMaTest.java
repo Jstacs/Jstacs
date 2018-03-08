@@ -6,8 +6,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Date;
 
 import org.junit.After;
@@ -26,6 +24,7 @@ import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.ProgressUpdater;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import projects.gemoma.ExtractRNAseqEvidence;
 import projects.gemoma.ExtractRNAseqEvidence.Stranded;
@@ -158,7 +157,7 @@ public class GeMoMaTest {
 		Extractor e = new Extractor(-1);
 		
 		//parameters
-		ParameterSet ps = e.getToolParameters();
+		ToolParameterSet ps = e.getToolParameters();
 		ps.getParameterForName("annotation").setValue( in + "Arabidopsis_lyrata.v.1.0.31.chr.gff3");
 		ps.getParameterForName("genome").setValue( in + "Arabidopsis_lyrata.v.1.0.31.dna.genome.fa");
 		ps.getParameterForName("repair").setValue( true );
@@ -181,7 +180,7 @@ public class GeMoMaTest {
 		ExtractRNAseqEvidence e = new ExtractRNAseqEvidence();
 		
 		//parameters
-		ParameterSet ps = e.getToolParameters();
+		ToolParameterSet ps = e.getToolParameters();
 		ps.getParameterForName("Stranded").setValue( Stranded.FR_UNSTRANDED );
 		set( ps, 1, 0, "RNAseq.bam");
 		ps.getParameterForName("coverage output").setValue( true );
@@ -202,7 +201,7 @@ public class GeMoMaTest {
 		boolean simple = false;
 		
 		//parameters
-		ParameterSet ps = e.getToolParameters();
+		ToolParameterSet ps = e.getToolParameters();
 		ps.getParameterForName("tblastn results").setValue( in + "tblastn.tabular");
 		ps.getParameterForName("contig threshold").setValue( 0.4 );
 		ps.getParameterForName("predictions").setValue(10);
@@ -252,7 +251,7 @@ public class GeMoMaTest {
 		GeMoMaAnnotationFilter e = new GeMoMaAnnotationFilter();
 		
 		//parameters
-		ParameterSet ps = e.getToolParameters();
+		ToolParameterSet ps = e.getToolParameters();
 		set( ps, 6, 0, "predicted_annotation.gff");
 		
 		//get results
