@@ -80,3 +80,4 @@ GeMoMa XXX (??.??.????)
 	- TODO split AA?
 	- TODO improved splice site alignment?
 - GeMoMaPipeline: new tool for running the complete GeMoMa pipeline at once allowing multi-threading
+- folder for temporary files of GeMoMa
