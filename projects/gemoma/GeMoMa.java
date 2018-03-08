@@ -100,6 +100,8 @@ public class GeMoMa implements JstacsTool {
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 	
+	public static final String GeMoMa_TEMP = "GeMoMa_temp/";
+	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
 	/**
@@ -119,7 +121,7 @@ public class GeMoMa implements JstacsTool {
 	//coverage
 	private static HashMap<String, int[][]>[] coverage;	
 
-	//TODO fill
+	//fill
 	static synchronized void fill( Protocol protocol, boolean verbose, int maxSize, String targetGenome, String selectedFile, int reads, ExpandableParameterSet introns, ExpandableParameterSet cov ) throws Exception {
 		//read genome
 		seqs = Tools.getFasta(targetGenome,20,' ');
@@ -381,7 +383,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	public static File createTempFile( String infix ) throws IOException {
-		File f = File.createTempFile("GeMoMa-"+infix + "-", ".temp", new File("."));//default temp directory?
+		File f = File.createTempFile("GeMoMa-"+infix + "-", ".temp", new File(GeMoMa_TEMP));
 		f.deleteOnExit();
 		return f;
 	}
