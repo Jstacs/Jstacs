@@ -43,6 +43,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ProgressUpdater;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
@@ -64,7 +65,7 @@ import de.jstacs.utils.graphics.RasterizedAdaptor;
 public class Galaxy {
 
 	private JstacsTool[] tools;
-	private ParameterSet[] toolParameters;
+	private ToolParameterSet[] toolParameters;
 	private ResultEntry[][] defaultResults;
 	private boolean[][] addLine;
 	private String vmargs;
@@ -99,7 +100,7 @@ public class Galaxy {
 		}
 		
 		this.configThreads = configThreads;
-		toolParameters = new ParameterSet[tools.length];
+		toolParameters = new ToolParameterSet[tools.length];
 		this.addLine = new boolean[tools.length][];
 		this.defaultResults = new ResultEntry[tools.length][];
 		for(int i=0;i<tools.length;i++){

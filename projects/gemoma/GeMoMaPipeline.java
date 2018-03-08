@@ -37,6 +37,7 @@ import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
+import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.Result;
@@ -45,6 +46,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
@@ -89,7 +91,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	double eValue;
 	boolean rnaSeq;
 	
-	ParameterSet extractorParams, gemomaParams, gafParams;
+	ToolParameterSet extractorParams, gemomaParams, gafParams;
 	ExecutorService queue;
 	ExecutorCompletionService ecs;
 	
@@ -100,7 +102,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	ArrayList<Process> process;
 	ArrayList<FlaggedRunnable> list;
 	
-	public ParameterSet getRelevantParameters( ParameterSet params, String... remove ) {
+	public ToolParameterSet getRelevantParameters( ToolParameterSet params, String... remove ) {
 		HashSet<String> removeNames = new HashSet<String>();
 		for( String r : remove ) {
 			removeNames.add(r);
@@ -112,17 +114,17 @@ public class GeMoMaPipeline implements JstacsTool {
 				list.add(p);
 			}			
 		}
-		return new SimpleParameterSet( list.toArray(new Parameter[0]) );
+		return new ToolParameterSet( params.getToolName(), list.toArray(new Parameter[0])  );
 	}
 	
-	public ParameterSet getToolParameters() {
-		ParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
-		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code");
-		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code" );
-		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation");
+	public ToolParameterSet getToolParameters() {
+		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
+		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code");
+		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag" );
+		ToolParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		
 		try{
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(),
 				new FileParameter( "target genome", "Target genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
 
 				new ParameterSetContainer( "reference species", "", 
@@ -144,19 +146,17 @@ public class GeMoMaPipeline implements JstacsTool {
 								)
 						), "reference", "", 1 )
 				),/**/
-				/*//old
-				new ParameterSetContainer( "reference species", "", new ExpandableParameterSet( new SimpleParameterSet(		
-						new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
-						new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true )
-					), "reference", "", 1 ) ),
-				*/
 				
 				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ),
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
-								
+				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
+				
 				new SelectionParameter( DataType.PARAMETERSET, 
-						new String[]{"NO", "YES"},
-						new Object[]{new SimpleParameterSet(), ere},
+						new String[]{"NO", "YES"}, //TODO Jan: RNAseq given as introns and coverage, what about stranded?
+						new Object[]{
+								new SimpleParameterSet(),
+								ere
+						},
 						"RNA-seq evidence", "", true ),
 
 				new ParameterSetContainer("Extractor parameter set", "parameters for the Extrator module of GeMoMa", ex ),
@@ -257,7 +257,16 @@ public class GeMoMaPipeline implements JstacsTool {
 		String cds, assignment, protein = null;
 	}
 	
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	private static void setParameters( ToolParameterSet global, String key, ToolParameterSet... local ) throws IllegalValueException {
+		Object o = global.getParameterForName(key).getValue();
+		if( o != null ) {
+			for( int i = 0; i < local.length; i++ ) {
+				local[i].getParameterForName(key).setValue(o);
+			}
+		}
+	}
+	
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		this.protocol = protocol;
 		this.threads=threads;
 		
@@ -289,12 +298,9 @@ public class GeMoMaPipeline implements JstacsTool {
 
 		String[] key = {"selected", "genetic code"};
 		for( int i = 0; i < key.length; i++ ) {
-			Object o = parameters.getParameterForName(key[i]).getValue();
-			if( o != null ) {
-				extractorParams.getParameterForName(key[i]).setValue(o);
-				gemomaParams.getParameterForName(key[i]).setValue(o);
-			}
+			setParameters(parameters, key[i], extractorParams, gemomaParams);
 		}		
+		setParameters(parameters, "tag", gemomaParams, gafParams );
 		
 		
 		eValue = (Double) gemomaParams.getParameterForName("e-value").getValue();
@@ -362,7 +368,12 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 		
 		//ERE
-		JEREAndFill ere = new JEREAndFill(pa);
+		JEREAndFill ere;
+		if( rnaSeq ) {
+			ere = new JEREAndFill((ToolParameterSet) pa);
+		} else {
+			ere = new JEREAndFill();
+		}
 		add(ere);
 		
 		//wait until first phase has been finished
@@ -570,11 +581,13 @@ public class GeMoMaPipeline implements JstacsTool {
 	 * @see ExtractRNAseqEvidence
 	 */
 	class JEREAndFill extends FlaggedRunnable {
-		ExtractRNAseqEvidence ere;
-		ParameterSet params;
+		ToolParameterSet params;
 		
-		JEREAndFill( ParameterSet ps ) {
-			ere = new ExtractRNAseqEvidence();
+		JEREAndFill() {
+			params = null;			
+		}
+		
+		JEREAndFill( ToolParameterSet ps ) {
 			params = ps;			
 		}
 		
@@ -585,6 +598,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			if( rnaSeq ) {
 				protocol = new QuiteSysProtocol();
 				//run ERE
+				ExtractRNAseqEvidence ere = new ExtractRNAseqEvidence();
 				ToolResult res = ere.run(params, protocol, new ProgressUpdater(), 1);
 				CLI.writeToolResults(res, (SysProtocol) protocol, home+"/", ere, params);
 			}
@@ -626,7 +640,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	 */
 	class JExtractorAndSplit extends FlaggedRunnable {
 		int speciesIndex;
-		ParameterSet params;
+		ToolParameterSet params;
 		
 		private JExtractorAndSplit() {
 			species.add( new Species() );
@@ -725,7 +739,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			protocol.append("starting GeMoMa split=" + split + " for species " + species + "\n");
 			
 			Species sp = GeMoMaPipeline.this.species.get(species);
-			ParameterSet params = gemomaParams.clone();
+			ToolParameterSet params = gemomaParams.clone();
 			params.getParameterForName("tblastn results").setValue(home + "/" + species + "/tblastn-"+split+".txt");
 			params.getParameterForName("cds parts").setValue(sp.cds);
 			params.getParameterForName("assignment").setValue(sp.assignment);

@@ -28,6 +28,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
@@ -210,10 +211,9 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 	}
 		
 	@Override
-	public ParameterSet getToolParameters() {
-		
+	public ToolParameterSet getToolParameters() {
 		try {
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(),
 						new EnumParameter(Stranded.class, "Defines whether the reads are stranded. "
 								+ "In case of FR_FIRST_STRAND, the first read of a read pair or the only read in case of single-end data is assumed to be located on forward strand of the cDNA, i.e., reverse to the mRNA orientation. "
 								+ "If you are using Illumina TruSeq you should use FR_FIRST_STRAND."
@@ -228,12 +228,11 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException();
-		}
-		
+		}		
 	}
 
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
 			throws Exception {		
 		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();

@@ -82,6 +82,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.Galaxy;
@@ -739,7 +740,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	@Override
-	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {	
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {	
 		this.protocol=protocol;
 		
 		verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
@@ -4488,9 +4489,9 @@ public class GeMoMa implements JstacsTool {
 		}		
 	}
 
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(), 
 					new FileParameter( "tblastn results", "The sorted tblastn results", "tabular", true ),
 					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),

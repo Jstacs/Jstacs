@@ -41,14 +41,13 @@ import de.jstacs.DataType;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
@@ -91,7 +90,7 @@ public class Extractor implements JstacsTool {
 	private boolean rep;
 	
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		progress.setIndeterminate();
 		intron = null;//new BufferedWriter(new FileWriter("intron.gff"));//TODO
 		
@@ -1024,9 +1023,9 @@ public class Extractor implements JstacsTool {
 		}
 	}
 	
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(),
 				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
 				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
 

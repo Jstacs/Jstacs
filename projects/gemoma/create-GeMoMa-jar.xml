@@ -7,7 +7,7 @@
     <property name="dir.workspace" value="${dir.buildfile}/.."/>
     <property name="dir.jarfile" value="${dir.buildfile}/projects/gemoma/"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/GeMoMa-1.4.3.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/GeMoMa-1.5.1beta.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="projects.gemoma.GeMoMa"/>
                 <attribute name="Class-Path" value="."/>
@@ -29,11 +29,15 @@
            		<exclude name="projects/talen/**"/>
         		<exclude name="projects/tsp/**"/>
         		<exclude name="supplementary/**"/>
+        		<exclude name="GeMoMa_temp/**"/>
 	        	<exclude name="*.*"/>
 	        	<exclude name="**/*.xml"/>
 	        	<exclude name="**/*.jar"/>
 	        	<exclude name="**/*.jardesc"/>
 				<exclude name="**/*.fasta"/>
+        		<exclude name="**/*.gff"/>
+        		<exclude name="**/*.bedgraph"/>
+        		<exclude name="**/*.tabular"/>
         		<exclude name="**/*.zip"/>
         	</fileset>
         	

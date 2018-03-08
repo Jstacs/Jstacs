@@ -25,6 +25,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import projects.gemoma.Extractor.Gene;
@@ -41,7 +42,7 @@ public class AnnotationEvidence implements JstacsTool {
 	private static HashMap<String, int[][]>[] coverage;
 	private HashMap<String, String> seqs;
 	
-	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
 		//sequence
 		seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
 		//System.out.println( Arrays.toString(seqs.keySet().toArray()) );
@@ -182,9 +183,9 @@ public class AnnotationEvidence implements JstacsTool {
 		return new ToolResult("", "", null, new ResultSet(t), parameters, getToolName(), new Date());
 	}
 	
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(),
 					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff", true ),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	

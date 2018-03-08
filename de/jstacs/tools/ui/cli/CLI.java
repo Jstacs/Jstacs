@@ -54,6 +54,7 @@ import de.jstacs.results.savers.ResultSaverLibrary;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.Pair;
 
@@ -141,7 +142,7 @@ public class CLI {
 	private JstacsTool[] tools;
 	private boolean[] configureThreads;
 	
-	private ParameterSet[] toolParameters;
+	private ToolParameterSet[] toolParameters;
 	private HashMap<String,String>[] keyMap;
 	private String description;
 	
@@ -190,13 +191,13 @@ public class CLI {
 			this.configureThreads = configureThreads;
 		}
 		this.tools = tools;
-		this.toolParameters = new ParameterSet[tools.length];
+		this.toolParameters = new ToolParameterSet[tools.length];
 		this.keyMap = new HashMap[tools.length];
 		for(int i=0;i<tools.length;i++){
 			toolParameters[i] = tools[i].getToolParameters();
 			keyMap[i] = new HashMap<String, String>();
 			//System.out.println(tools[i].getToolName() + "===================================================");
-			addToKeyMap("",keyMap[i],toolParameters[i]);
+			addToKeyMap("","",keyMap[i],toolParameters[i]);
 		}
 		this.opt = opt.trim();
 		if( this.opt.indexOf(' ') >= 0 ) {
@@ -210,7 +211,7 @@ public class CLI {
 	
 	
 	
-	private static void addToKeyMap( String pathPrefix, HashMap<String, String> hashMap, ParameterSet parameterSet ) {
+	private static void addToKeyMap( String pathPrefix, String keyPrefix, HashMap<String, String> hashMap, ParameterSet parameterSet ) {
 		boolean isExp = parameterSet instanceof ExpandableParameterSet;
 		for(int i=0;i<parameterSet.getNumberOfParameters();i++){
 			Parameter par = parameterSet.getParameterAt( i );
@@ -220,7 +221,7 @@ public class CLI {
 			if(par.getDatatype() != DataType.PARAMETERSET){
 				String key = hashMap.get(parKey); 
 				if(key == null){	
-					key = getKey(hashMap,par);
+					key = getKey(keyPrefix,hashMap,par);
 					hashMap.put( parKey, key );
 				}
 			}else{
@@ -231,7 +232,7 @@ public class CLI {
 					
 					String key = hashMap.get(parKey);
 					if(key == null){
-						key = getKey(hashMap,par);
+						key = getKey(keyPrefix,hashMap,par);
 						hashMap.put( parKey, key );
 					}
 					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
@@ -241,14 +242,24 @@ public class CLI {
 						HashMap<String,String> copy = (HashMap) copyTemp.clone();
 						
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
-						addToKeyMap( pathPrefix+":"+add+"-"+j, copy, cont.getValue() );
+						ParameterSet ps = cont.getValue();
+						if( ps instanceof ToolParameterSet ) {
+							addToKeyMap( pathPrefix+":"+add+"-"+j, keyPrefix + ((ToolParameterSet)ps).getToolName() + ".", copy, ps );
+						} else {
+							addToKeyMap( pathPrefix+":"+add+"-"+j, keyPrefix, copy, ps );
+						}
+						
 						
 						hashMap.putAll(copy);
 						
 					}
 				}else{
 					ParameterSet ps = (ParameterSet)par.getValue();
-					addToKeyMap( pathPrefix+":"+add, hashMap, ps );
+					if( ps instanceof ToolParameterSet ) {
+						addToKeyMap( pathPrefix+":"+add, keyPrefix + ((ToolParameterSet)ps).getToolName() + ".", hashMap, ps );
+					} else {
+						addToKeyMap( pathPrefix+":"+add, keyPrefix, hashMap, ps );
+					}
 				}
 			}
 		}
@@ -256,14 +267,14 @@ public class CLI {
 
 
 
-	private static String getKey( HashMap<String, String> hashMap, Parameter par ) {
+	private static String getKey( String keyPrefix, HashMap<String, String> hashMap, Parameter par ) {
 		Collection<String> valueSet2 = hashMap.values();
 		LinkedList<String> valueSet = new LinkedList<String>( valueSet2 );
 		valueSet.add( "outdir" );
 		valueSet.add( "info" );
 		valueSet.add( "threads" );
 		String parName = par.getName();
-		String key = (parName.charAt( 0 )+"").toLowerCase();
+		String key = keyPrefix+(parName.charAt( 0 )+"").toLowerCase();
 		if(!valueSet.contains( key )){
 			return key;
 		}
@@ -273,12 +284,12 @@ public class CLI {
 		for(int i=0;i<temp.length;i++){
 			key += temp[i].charAt( 0 );
 		}
-		key = key.toLowerCase();
+		key = keyPrefix+key.toLowerCase();
 		if(!valueSet.contains( key )){
 			return key;
 		}
 		
-		key = parName.replaceAll( "[\\s=]", "" );//TODO .toLowerCase();
+		key = keyPrefix+parName.replaceAll( "[\\s=]", "" );//TODO .toLowerCase();
 		int k=1;
 		String temp2 = key;
 		while(valueSet.contains( temp2 )){
@@ -554,8 +565,8 @@ if( k == null ) {
 						}
 					} else {
 						ParameterSet ps = (ParameterSet)par.getValue();
-						boolean b = parameters.getNumberOfParameters()>1 && ps instanceof SimpleParameterSet;
-						if( b ) protocol.appendWarning("\n" + par.getName() + "\n" );
+						boolean b = ps instanceof ToolParameterSet;
+						if( b ) protocol.appendWarning("\n" + ((ToolParameterSet)ps).getToolName() + " parameters" + "\n" );
 						print(pathPrefix+":"+i,keyMap,ps,tabPrefix+(!b?"\t":""),protocol,add);
 						if( b ) protocol.appendWarning("\n");
 					}

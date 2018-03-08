@@ -37,7 +37,6 @@ import java.util.Iterator;
 import de.jstacs.DataType;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
@@ -47,6 +46,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 
@@ -62,7 +62,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	private static int MAX;
 	
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		double relScoTh = (Double) parameters.getParameterForName("relative score filter").getValue();
@@ -632,10 +632,10 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
 			return
-				new SimpleParameterSet(
+				new ToolParameterSet( getShortName(),
 					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,"prediction"),
 					new SimpleParameter(DataType.DOUBLE,"relative score filter","the initial filter on the relative score (i.e. score devided by length)", true, 0.75 ),
 					new SimpleParameter(DataType.BOOLEAN,"complete","only complete predictions (having start and stop codon) pass the initial filter", true, true ),
