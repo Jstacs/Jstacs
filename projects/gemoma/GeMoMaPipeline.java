@@ -33,6 +33,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
@@ -274,7 +275,6 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		//create temp dir
 		File basic = new File(GeMoMa.GeMoMa_TEMP);
-		basic.mkdirs();
 		File dir = Files.createTempDirectory(basic.toPath(), "GeMoMaPipeline-").toFile();
 		dir.mkdirs();
 		home = dir.toString() + "/";
@@ -461,7 +461,11 @@ public class GeMoMaPipeline implements JstacsTool {
 			ArrayList<Result> res = new ArrayList<Result>();
 			res.add( filtered.getResultAt(0) );
 			for( int i = 0; i < speciesCounter; i++ ) {
-				res.add( new TextResult("unfiltered predictions from species "+i, "Result", new FileParameter.FileRepresentation(home+"/" + i + "/unfiltered-predictions.gff"), "gff", gemoma.getToolName(), null, true) );
+				String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
+				//protocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
+				FileRepresentation fr = new FileRepresentation(unfiltered);
+				fr.getContent();
+				res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
 			}
 			
 			result = new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
@@ -475,6 +479,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		// for avoiding erroneously deleting important files: 2 tricks have been implemented:
 		// a) temporary folder GeMoMa_TEMP
 		// b) RegExFilenameFilter
+		
 		Files.walkFileTree(new File( home ).toPath(), new SimpleFileVisitor<Path>() {
 			RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, ".*fasta", ".*gff", ".*txt", "blastdb.*", ".*tabular", ".*bedgraph");
 			

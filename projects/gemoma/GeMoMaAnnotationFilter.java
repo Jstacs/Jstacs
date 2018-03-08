@@ -89,6 +89,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		String[] prefix = new String[MAX];
 		ArrayList<String> allInfos = new ArrayList<String>();
 		HashSet<String> hash = new HashSet<String>();
+		HashSet<String> ids = new HashSet<String>();
 		for( int k = 0; k < MAX; k++ ) {
 			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
 			prefix[k] = sps.getParameterAt(0).getValue().toString();
@@ -111,6 +112,14 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				t = split[2];
 				if( t.equalsIgnoreCase( tag ) ) {
 					current = new Prediction(split, k, prefix[k]);
+					if( ids.contains( current.id ) ) {
+						System.out.println(line);
+						System.out.println(current);
+						r.close();
+						throw new IllegalArgumentException("The id (" + current.id + ") has been used before. You can try to use a prefix (cf. parameters)." );
+					} else {
+						ids.add(current.id);
+					}
 					pred.add( current );
 				} else {
 					current.addCDS( line );
@@ -433,12 +442,12 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				hash.put( split[i].substring(0,idx), s );
 			}
 			score = Integer.parseInt(hash.get("score"));
+			id = hash.get("ID");
 			if( prefix != null && prefix.length()>0 ) {
 				this.prefix = prefix;
 				if( prefix.charAt(prefix.length()-1) != '_' ) {
 					this.prefix += "_";
 				}
-				id = hash.get("ID");
 				this.split[8] = this.split[8].replace("ID="+id,"ID=" + this.prefix + id);
 				String rg = hash.get("ref-gene");
 				this.split[8] = this.split[8].replace("ref-gene="+rg,"ref-gene=" + this.prefix + rg);
