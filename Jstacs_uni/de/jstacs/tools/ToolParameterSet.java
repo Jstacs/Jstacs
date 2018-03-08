@@ -1,6 +1,7 @@
 package de.jstacs.tools;
 
 import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.results.ResultSetResult;
@@ -16,8 +17,6 @@ import de.jstacs.results.ResultSetResult;
  * @see JstacsTool#getToolParameters()
  */
 public class ToolParameterSet extends ParameterSet {
-
-	//TODO fromXML, toXML, toGalaxy
 	
 	protected String toolName;
 	
@@ -60,4 +59,26 @@ public class ToolParameterSet extends ParameterSet {
 	public ToolParameterSet clone() throws CloneNotSupportedException {
 		return (ToolParameterSet) super.clone();
 	}
+	
+	public StringBuffer toXML() {
+		StringBuffer representation = new StringBuffer();
+		XMLParser.appendObjectWithTags(representation, toolName, "toolName");
+		representation.append(super.toXML());
+		XMLParser.addTags(representation, "ToolParameterSet");
+		return representation;
+	}
+	protected void fromXML( StringBuffer representation ) throws NonParsableException {
+		representation = XMLParser.extractForTag(representation, "ToolParameterSet");
+		toolName = (String) XMLParser.extractObjectForTags(representation, "toolName");
+		super.fromXML(representation);
+	}
+	
+	//XXX toGalaxy:  https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-inputs-section
+	/*
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+		descBuffer.append( "<section name=\"" + toolName + "\" title=\"" + toolName + " parameters\" expanded=\"" + hasDefaultOrIsSet() + "\">\n");
+		super.toGalaxy(toolName + "." + namePrefix, configPrefix, depth, descBuffer, configBuffer, addLine);
+		descBuffer.append( "</section>" );
+	}
+	/**/
 }
