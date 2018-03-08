@@ -23,7 +23,8 @@
         		<exclude name="projects/gemoma/old/**"/>
         		<exclude name="projects/gemoma/quatsch/**"/>
         		<exclude name="projects/gemoma/JunitTest/**"/>
-        		<exclude name="projects/motifcomp/**"/>
+        		<exclude name="projects/motifComp/**"/>
+        		<exclude name="projects/quickscan/**"/>
         		<exclude name="projects/slim/**"/>
         		<exclude name="projects/tals/**"/>
            		<exclude name="projects/talen/**"/>
@@ -32,6 +33,7 @@
         		<exclude name="GeMoMa_temp/**"/>
 	        	<exclude name="*.*"/>
 	        	<exclude name="**/*.xml"/>
+        		<exclude name="**/*.foo"/>
 	        	<exclude name="**/*.jar"/>
 	        	<exclude name="**/*.jardesc"/>
 				<exclude name="**/*.fasta"/>
