@@ -464,7 +464,7 @@ public class GeMoMaPipeline implements JstacsTool {
 				String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
 				//protocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
 				FileRepresentation fr = new FileRepresentation(unfiltered);
-				fr.getContent();
+				fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
 				res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
 			}
 			
