@@ -383,7 +383,7 @@ public class CLI {
 		for( int i = 0; i+1 < r.length; i ++ ) {
 			r[i] = rs[0].getResultAt(i);
 		}
-		String n = File.createTempFile("CLI-potocol-", ".txt").getAbsolutePath();
+		String n = File.createTempFile("CLI-protocol-", ".txt").getAbsolutePath();
 		FileManager.writeFile(n, protocol.getLog());
 		r[r.length-1] = new TextResult( "protocol " + tool.getShortName(), "Result", new FileRepresentation(n), "txt", tool.getToolName(), null, true );
 		

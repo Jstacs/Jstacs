@@ -311,6 +311,9 @@ public class GeMoMa implements JstacsTool {
 		}
 		System.out.println();
 		
+		File basic = new File(GeMoMa.GeMoMa_TEMP);
+		basic.mkdirs();
+		
 		//reading parameters
 		int maxSize = -1;
 		long timeOut=3600, maxTimeOut=60*60*24*7;
