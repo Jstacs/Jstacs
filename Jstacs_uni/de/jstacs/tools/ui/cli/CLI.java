@@ -45,6 +45,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -553,7 +554,10 @@ if( k == null ) {
 						}
 					} else {
 						ParameterSet ps = (ParameterSet)par.getValue();
-						print(pathPrefix+":"+i,keyMap,ps,tabPrefix+"\t",protocol,add);
+						boolean b = parameters.getNumberOfParameters()>1 && ps instanceof SimpleParameterSet;
+						if( b ) protocol.appendWarning("\n" + par.getName() + "\n" );
+						print(pathPrefix+":"+i,keyMap,ps,tabPrefix+(!b?"\t":""),protocol,add);
+						if( b ) protocol.appendWarning("\n");
 					}
 				}
 			}
