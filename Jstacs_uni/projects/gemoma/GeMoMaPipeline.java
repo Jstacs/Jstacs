@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
@@ -90,7 +91,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	String target;
 	int threads, gapOpen, gapExt;
 	double eValue;
-	boolean rnaSeq;
+	boolean rnaSeq, stop;
 	
 	ToolParameterSet extractorParams, gemomaParams, gafParams;
 	ExecutorService queue;
@@ -267,7 +268,10 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 	}
 	
+	Thread killer;
+	
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+		stop=false;
 		this.protocol = protocol;
 		this.threads=threads;
 		
@@ -312,7 +316,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		list = new ArrayList<FlaggedRunnable>();
 		queue = Executors.newFixedThreadPool(threads);
 		ecs = new ExecutorCompletionService<>(queue);
-		Runtime.getRuntime().addShutdownHook( new Thread() {
+		killer = new Thread() {
 			public void run() {
 				//protocol.append("shut down hook\n");
 				queue.shutdown();
@@ -329,12 +333,13 @@ public class GeMoMaPipeline implements JstacsTool {
 				for( int i = 0; i < process.size(); i++ ) {
 					Process p = process.get(i);
 					if( p.isAlive() ) {
-						System.out.println("shutdown thread: " + i);
+						//System.out.println("shutdown thread: " + i);
 						p.destroyForcibly();
 					}
 				}
 			}
-		});
+		};
+		Runtime.getRuntime().addShutdownHook(killer);
 		
 		target = parameters.getParameterForName("target genome").getValue().toString();
 		
@@ -431,32 +436,39 @@ public class GeMoMaPipeline implements JstacsTool {
 		HashMap<String,int[]> stat = new HashMap<String, int[]>();
 		for( int i = 0; i < list.size(); i++ ) {
 			FlaggedRunnable f = list.get(i);
-			if( f.isDone() ) {
-				int[] val = stat.get(f.getClass().getName());
-				if( val  == null ) {
-					val = new int[2];
-					stat.put(f.getClass().getName(), val);
-				}
-				val[f.hasError()?1:0]++;
+			int[] val = stat.get(f.getClass().getName());
+			if( val  == null ) {
+				val = new int[JobStatus.values().length];
+				stat.put(f.getClass().getName(), val);
 			}
+			val[f.status.ordinal()]++;
 		}
 		
 		protocol.append("\nStatistics:\n");
-		protocol.append("Job\tOkay\tError\n");
+		protocol.append("Job");
+		JobStatus[] st = JobStatus.values();
+		for( int i = 0; i < st.length; i++ ) {
+			protocol.append("\t" + st[i] );
+		}
+		protocol.append("\n");
 		Iterator<Entry<String,int[]>> it = stat.entrySet().iterator();
-		int er = 0;
+		int success = 0;
 		while( it.hasNext() ) {
 			Entry<String,int[]> e = it.next();
 			int[] val = e.getValue();
 			String name = e.getKey();
 			int idx = name.lastIndexOf("$");
-			protocol.append( (idx>0 ? name.substring(idx+2) : name) + "\t" + val[0] + "\t" + val[1] + "\n");
-			er+=val[1];
+			protocol.append( (idx>0 ? name.substring(idx+2) : name) );
+			for( int i = 0; i < val.length; i++ ) {
+				protocol.append( "\t" + val[i] );
+			}
+			protocol.append( "\n");
+			success+=val[4];
 		}
 		protocol.append("\n");
 		
 		ToolResult result;
-		if( er==0 ) {
+		if( success==list.size() ) {
 			protocol.append("No errors detected.\n");
 			ArrayList<Result> res = new ArrayList<Result>();
 			res.add( filtered.getResultAt(0) );
@@ -470,7 +482,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			
 			result = new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 		} else {
-			protocol.append( er + " errors detected. Please check the output carefully.\n");
+			protocol.append( (list.size()-success) + " jobs did not finish as expected. Please check the output carefully.\n");
 			result = null;
 		}		
 		
@@ -502,6 +514,8 @@ public class GeMoMaPipeline implements JstacsTool {
 		});/**/
 		
 		if( result == null ) {
+			protocol.flush();
+			Thread.sleep(1000);
 			throw new RuntimeException("Did not finish as intended");
 		} else {
 			return result;
@@ -518,6 +532,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	void wait( int num ) throws InterruptedException, ExecutionException {
 		for (int i = 0; i < num; i++) {
 			  ecs.take();
+			  if( stop ) break;
 		}
 	}
 	
@@ -528,38 +543,53 @@ public class GeMoMaPipeline implements JstacsTool {
 	}
 	
 	/**
+	 * Enum for the status of {@link FlaggedRunnable} jobs.
+	 * 
+	 * @author Jens Keilwagen
+	 * 
+	 * @see FlaggedRunnable
+	 */
+	static enum JobStatus {
+		WAITING,
+		RUNNING,
+		INTERRUPTED,
+		FAILED,
+		SUCCEEDED;
+	}
+	
+	/**
 	 * Abstract class for all jobs.
 	 * 
 	 * @author Jens Keilwagen
 	 */
 	abstract class FlaggedRunnable implements Runnable {
-		boolean error=false, done=false;
+		JobStatus status;
+		
+		public FlaggedRunnable() {
+			status = JobStatus.WAITING;
+		}
 
 		public final void run() {
-			error = done = false;
+			status = JobStatus.RUNNING;
 			try {
 				doJob();
 			} catch (InterruptedException e ) {
-				error=true;
+				status = JobStatus.INTERRUPTED;
 			} catch ( Exception e ) {
 				e.printStackTrace();
-				error=true;
+				status = JobStatus.FAILED;
 			}
-			if( error && !queue.isShutdown() ) {
+			if( status == JobStatus.FAILED && !queue.isShutdown() ) {
 				queue.shutdown();
+				stop=true;
+				killer.run();
 			}
-			done=true;
+			if( status == JobStatus.RUNNING ) {
+				status = JobStatus.SUCCEEDED;
+			}
 		}
 		
 		public abstract void doJob() throws Exception;
-
-		public boolean hasError() {
-			return error;
-		}
-		
-		public boolean isDone() {
-			return done;
-		}
 		
 		int runProcess( String... cmd ) throws Exception {
 			ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -719,7 +749,7 @@ public class GeMoMaPipeline implements JstacsTool {
 					add(new JGeMoMa(species, split));
 				}
 			} else {
-				error = true;
+				status = JobStatus.FAILED;
 			}
 		}
 	}
