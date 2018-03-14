@@ -19,17 +19,36 @@ import de.jstacs.results.ResultSetResult;
 public class ToolParameterSet extends ParameterSet {
 	
 	protected String toolName;
+	protected boolean included;
 	
 	/**
 	 * Constructs a {@link ToolParameterSet} given a tool name and some {@link Parameter}s.
 	 * The {@link Parameter}s are not cloned, but passed by reference.
 	 * 
+	 * @param toolName
+	 *            the name of the tool
 	 * @param parameters
 	 *            the {@link Parameter}s
 	 */
 	public ToolParameterSet( String toolName, Parameter... parameters) {
+		this(toolName,false,parameters);
+	}
+	
+	/**
+	 * Constructs a {@link ToolParameterSet} given a tool name and some {@link Parameter}s.
+	 * The {@link Parameter}s are not cloned, but passed by reference.
+	 * 
+	 * @param toolName
+	 *            the name of the tool
+	 * @param included
+	 *            whether the tool is included in another {@link ParameterSet}, e.g. in {@link ParameterSet} of pipelines
+	 * @param parameters
+	 *            the {@link Parameter}s
+	 */
+	public ToolParameterSet( String toolName, boolean included, Parameter... parameters) {
 		super(parameters);
 		this.toolName = toolName;
+		this.included = included;
 	}
 
 	/**
@@ -63,6 +82,7 @@ public class ToolParameterSet extends ParameterSet {
 	public StringBuffer toXML() {
 		StringBuffer representation = new StringBuffer();
 		XMLParser.appendObjectWithTags(representation, toolName, "toolName");
+		XMLParser.appendObjectWithTags(representation, included, "included");
 		representation.append(super.toXML());
 		XMLParser.addTags(representation, "ToolParameterSet");
 		return representation;
@@ -70,15 +90,19 @@ public class ToolParameterSet extends ParameterSet {
 	protected void fromXML( StringBuffer representation ) throws NonParsableException {
 		representation = XMLParser.extractForTag(representation, "ToolParameterSet");
 		toolName = (String) XMLParser.extractObjectForTags(representation, "toolName");
+		included = (Boolean) XMLParser.extractObjectForTags(representation, "included");
 		super.fromXML(representation);
 	}
 	
 	//XXX toGalaxy:  https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-inputs-section
-	/*
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
-		descBuffer.append( "<section name=\"" + toolName + "\" title=\"" + toolName + " parameters\" expanded=\"" + hasDefaultOrIsSet() + "\">\n");
-		super.toGalaxy(toolName + "." + namePrefix, configPrefix, depth, descBuffer, configBuffer, addLine);
-		descBuffer.append( "</section>" );
+		if( included ) {
+			descBuffer.append( "<section name=\"" + toolName + "\" title=\"" + toolName + " parameters\" expanded=\"" + !hasDefaultOrIsSet() + "\">\n");
+			super.toGalaxy(namePrefix, toolName + "." + configPrefix, depth, descBuffer, configBuffer, addLine);
+			descBuffer.append( "</section>" );
+		} else {
+			super.toGalaxy(namePrefix, configPrefix, depth, descBuffer, configBuffer, addLine);
+		}
 	}
 	/**/
 }
