@@ -115,11 +115,16 @@ public class GeMoMaPipeline implements JstacsTool {
 				list.add(p);
 			}			
 		}
-		return new ToolParameterSet( params.getToolName(), list.toArray(new Parameter[0])  );
+		return new ToolParameterSet( params.getToolName(), true, list.toArray(new Parameter[0])  );
 	}
 	
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
+		Parameter[] p = new Parameter[ere.getNumberOfParameters()];
+		for( int i = 0; i < p.length; i++ ) {
+			p[i] = ere.getParameterAt(i);
+		}
+		ere = new ToolParameterSet(ere.getToolName(),true,p);
 		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code");
 		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag" );
 		ToolParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
@@ -240,7 +245,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	}
 
 	ResultSet filtered;
-	Protocol protocol;
+	Protocol pipelineProtocol;
 	
 	int phase = 0;
 	
@@ -251,7 +256,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		for( int i = 0; i < l; i++ ) {
 			s += "=";
 		}
-		protocol.append("\n" + s + "\n");
+		pipelineProtocol.append("\n" + s + "\n");
 	}
 	
 	private class Species {
@@ -271,17 +276,19 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		stop=false;
-		this.protocol = protocol;
+		pipelineProtocol = 
+				//new SysProtocol(); //XXX for debugging the Galaxy integration
+				protocol;
 		this.threads=threads;
 		
-		protocol.append("Running the GeMoMaPipeline with " + threads + " threads\n\n" );
+		pipelineProtocol.append("Running the GeMoMaPipeline with " + threads + " threads\n\n" );
 		
 		//create temp dir
 		File basic = new File(GeMoMa.GeMoMa_TEMP);
 		File dir = Files.createTempDirectory(basic.toPath(), "GeMoMaPipeline-").toFile();
 		dir.mkdirs();
 		home = dir.toString() + "/";
-		protocol.append("temporary directory: " + home);
+		pipelineProtocol.append("temporary directory: " + home);
 		
 		Extractor extractor = new Extractor(maxSize);
 		GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
@@ -317,7 +324,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		ecs = new ExecutorCompletionService<>(queue);
 		killer = new Thread() {
 			public void run() {
-				//protocol.append("shut down hook\n");
+				//pipelineProtocol.append("shut down hook\n");
 				queue.shutdown();
                 try {
                     if (!queue.awaitTermination(10, TimeUnit.MILLISECONDS)) {
@@ -352,7 +359,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		//extract gene models from reference
 		ExpandableParameterSet ref = (ExpandableParameterSet) ((ParameterSetContainer) parameters.getParameterForName("reference species")).getValue();
 		int sp = ref.getNumberOfParameters();
-		protocol.append("Running GeMoMa for "+ sp + " species.\n");
+		pipelineProtocol.append("Running GeMoMa for "+ sp + " species.\n");
 		species = new ArrayList<Species>();
 		for( int s=0; s < sp; s++){			
 			SelectionParameter sel = (SelectionParameter) ((ParameterSetContainer)ref.getParameterAt(s)).getValue().getParameterAt(0);
@@ -396,7 +403,7 @@ public class GeMoMaPipeline implements JstacsTool {
 				File d = new File( home + s );
 				String[] f = d.list(filter);
 				splitsPerSpecies.add(f.length);
-				protocol.append("species " + s + ": " + f.length + " splits\n");
+				pipelineProtocol.append("species " + s + ": " + f.length + " splits\n");
 				for( int p = 0; p < f.length; p++ ) {
 					add( new JTblastn(s, p) );
 					anz++;
@@ -443,13 +450,13 @@ public class GeMoMaPipeline implements JstacsTool {
 			val[f.status.ordinal()]++;
 		}
 		
-		protocol.append("\nStatistics:\n");
-		protocol.append("Job");
+		pipelineProtocol.append("\nStatistics:\n");
+		pipelineProtocol.append("Job");
 		JobStatus[] st = JobStatus.values();
 		for( int i = 0; i < st.length; i++ ) {
-			protocol.append("\t" + st[i] );
+			pipelineProtocol.append("\t" + st[i] );
 		}
-		protocol.append("\n");
+		pipelineProtocol.append("\n");
 		Iterator<Entry<String,int[]>> it = stat.entrySet().iterator();
 		int success = 0;
 		while( it.hasNext() ) {
@@ -457,23 +464,23 @@ public class GeMoMaPipeline implements JstacsTool {
 			int[] val = e.getValue();
 			String name = e.getKey();
 			int idx = name.lastIndexOf("$");
-			protocol.append( (idx>0 ? name.substring(idx+2) : name) );
+			pipelineProtocol.append( (idx>0 ? name.substring(idx+2) : name) );
 			for( int i = 0; i < val.length; i++ ) {
-				protocol.append( "\t" + val[i] );
+				pipelineProtocol.append( "\t" + val[i] );
 			}
-			protocol.append( "\n");
+			pipelineProtocol.append( "\n");
 			success+=val[4];
 		}
-		protocol.append("\n");
+		pipelineProtocol.append("\n");
 		
 		ToolResult result;
 		if( success==list.size() ) {
-			protocol.append("No errors detected.\n");
+			pipelineProtocol.append("No errors detected.\n");
 			ArrayList<Result> res = new ArrayList<Result>();
 			res.add( filtered.getResultAt(0) );
 			for( int i = 0; i < speciesCounter; i++ ) {
 				String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
-				//protocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
+				//pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
 				FileRepresentation fr = new FileRepresentation(unfiltered);
 				fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
 				res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
@@ -481,7 +488,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			
 			result = new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 		} else {
-			protocol.append( (list.size()-success) + " jobs did not finish as expected. Please check the output carefully.\n");
+			pipelineProtocol.append( (list.size()-success) + " jobs did not finish as expected. Please check the output carefully.\n");
 			result = null;
 		}		
 		
@@ -513,8 +520,8 @@ public class GeMoMaPipeline implements JstacsTool {
 		});/**/
 		
 		if( result == null ) {
-			protocol.flush();
-			Thread.sleep(1000);
+			pipelineProtocol.flush();
+			//Thread.sleep(1000);
 			throw new RuntimeException("Did not finish as intended");
 		} else {
 			return result;
@@ -594,14 +601,14 @@ public class GeMoMaPipeline implements JstacsTool {
 			ProcessBuilder pb = new ProcessBuilder(cmd);
 			pb.redirectErrorStream(true);//TODO ?
 			Process p = pb.start();
+			InputStream in = p.getInputStream();
 			process.add(p);
 			p.waitFor();
-			
-			InputStream in = p.getInputStream();
+						
 			if( in.available() > 0 ) {
 				byte[] b = new byte[in.available()];
 				in.read(b);
-				protocol.appendWarning(new String(b));
+				pipelineProtocol.appendWarning(new String(b));
 			}
 			return p.exitValue();
 		}
@@ -627,7 +634,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		@Override
 		public void doJob() throws Exception {
-			protocol.append("starting ERE\n");
+			pipelineProtocol.append("starting ERE\n");
 			Protocol protocol;
 			if( rnaSeq ) {
 				protocol = new QuiteSysProtocol();
@@ -639,7 +646,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			//prepare GeMoMa
 			setGeMoMaParams( rnaSeq && ((Boolean) params.getParameterForName("coverage output").getValue()) );
 			
-			protocol = GeMoMaPipeline.this.protocol;
+			protocol = GeMoMaPipeline.this.pipelineProtocol;
 			//protocol.append(gemomaParams.getParameterForName("target genome").getValue()+"\n");
 			GeMoMa.fill( protocol, false, maxSize, 
 					(String) gemomaParams.getParameterForName("target genome").getValue(), 
@@ -659,8 +666,45 @@ public class GeMoMaPipeline implements JstacsTool {
 	class JmakeBlastDB extends FlaggedRunnable {
 		@Override
 		public void doJob() throws Exception {
-			protocol.append("starting makeblastdb\n");
-			runProcess( "makeblastdb","-out",home+"/blastdb", "-hash_index", "-in", target, "-title", "\"target\"", "-dbtype", "nucl" );
+			pipelineProtocol.append("starting makeblastdb\n");
+			//log file is necessary as otherwise Java sometimes does not finish waitFor() 
+			runProcess( "makeblastdb","-out",home+"/blastdb", "-hash_index", "-in", target, "-title", "target", "-dbtype", "nucl", "-logfile", home+"/blastdb-logfile" );
+			
+			//read logfile
+			BufferedReader r = new BufferedReader( new FileReader(home+"/blastdb-logfile") );
+			String line;
+			StringBuffer log = new StringBuffer();
+			HashMap<String,int[]> problems = new HashMap<String, int[]>();
+			while( (line=r.readLine()) != null ) {
+				if( line.startsWith("Error:")) {
+					line = line.replaceAll("about ..%", "about xx%");
+					
+					int[] num = problems.get(line);
+					if( num == null ) {
+						num = new int[1];
+						problems.put(line, num);
+					}
+					num[0]++;
+				} else {
+					log.append(line + "\n");
+				}
+			}
+			r.close();
+			
+			//summarize errors
+			Iterator<Entry<String, int[]>> it = problems.entrySet().iterator();
+			log.append("\nproblems:\n");
+			while( it.hasNext() ) {
+				Entry<String,int[]> e = it.next();
+				int num = e.getValue()[0];
+				if( num == 1 ) {
+					log.append( "once: " + e.getKey() + "\n");
+				} else {
+					log.append( num + " times: " + e.getKey() + "\n");
+				}
+			}
+			
+			pipelineProtocol.append(log.toString());
 		}	
 	}
 	
@@ -699,7 +743,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		@Override
 		public void doJob() throws Exception {
-			protocol.append("starting extractor for species " + speciesIndex+"\n");
+			pipelineProtocol.append("starting extractor for species " + speciesIndex+"\n");
 			Species sp = species.get(speciesIndex);
 			String outDir = home + "/" + speciesIndex + "/";
 			File home = new File( outDir );
@@ -737,7 +781,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		@Override
 		public void doJob() throws Exception {
-			protocol.append("starting tblastn split=" + split + " for species " + species + "\n");
+			pipelineProtocol.append("starting tblastn split=" + split + " for species " + species + "\n");
 			int exitCode = runProcess( "tblastn", "-query", home+species+"/split-"+split+".fasta",
 					"-db", home+ "blastdb", "-evalue",""+eValue, "-out", home+species+"/tblastn-"+split+".txt",
 					"-outfmt", "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles",
@@ -770,7 +814,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		@Override
 		public void doJob() throws Exception {
-			protocol.append("starting GeMoMa split=" + split + " for species " + species + "\n");
+			pipelineProtocol.append("starting GeMoMa split=" + split + " for species " + species + "\n");
 			
 			Species sp = GeMoMaPipeline.this.species.get(species);
 			ToolParameterSet params = gemomaParams.clone();
@@ -803,7 +847,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		@Override
 		public void doJob () throws Exception {
-			protocol.append("starting cat for species " + speciesIndex + "\n");
+			pipelineProtocol.append("starting cat for species " + speciesIndex + "\n");
 			BufferedWriter w= new BufferedWriter( new FileWriter(home+"/" + speciesIndex + "/unfiltered-predictions.gff") );
 			for( int sp = 0; sp <splitsPerSpecies.get(speciesIndex); sp++ ) {
 				BufferedReader r = new BufferedReader( new FileReader(home+"/" + speciesIndex + "/" + sp + "/predicted_annotation.gff") );
@@ -830,7 +874,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	class JGAF extends FlaggedRunnable {
 		@Override
 		public void doJob() throws Exception {
-			protocol.append("starting GAF\n");
+			pipelineProtocol.append("starting GAF\n");
 			SysProtocol protocol = new QuiteSysProtocol();
 			
 			GeMoMaAnnotationFilter gaf = new GeMoMaAnnotationFilter();
