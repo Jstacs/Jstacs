@@ -115,16 +115,11 @@ public class GeMoMaPipeline implements JstacsTool {
 				list.add(p);
 			}			
 		}
-		return new ToolParameterSet( params.getToolName(), true, list.toArray(new Parameter[0])  );
+		return new ToolParameterSet( params.getToolName(), list.toArray(new Parameter[0])  );
 	}
 	
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
-		Parameter[] p = new Parameter[ere.getNumberOfParameters()];
-		for( int i = 0; i < p.length; i++ ) {
-			p[i] = ere.getParameterAt(i);
-		}
-		ere = new ToolParameterSet(ere.getToolName(),true,p);
 		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code");
 		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag" );
 		ToolParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
