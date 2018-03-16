@@ -19,7 +19,7 @@ import de.jstacs.results.ResultSetResult;
 public class ToolParameterSet extends ParameterSet {
 	
 	protected String toolName;
-	protected boolean included;
+	protected boolean included; //TODO getParent()
 	
 	/**
 	 * Constructs a {@link ToolParameterSet} given a tool name and some {@link Parameter}s.
