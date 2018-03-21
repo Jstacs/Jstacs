@@ -100,6 +100,8 @@ public class GeMoMaPipeline implements JstacsTool {
 	int speciesCounter = 0;
 	IntList splitsPerSpecies;
 	
+	RNASeq rnaSeqData;
+	
 	ArrayList<Process> process;
 	ArrayList<FlaggedRunnable> list;
 	
@@ -153,16 +155,42 @@ public class GeMoMaPipeline implements JstacsTool {
 				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
 				
 				new SelectionParameter( DataType.PARAMETERSET, 
-						new String[]{"NO", "YES"}, //TODO Jan: RNAseq given as introns and coverage, what about stranded?
+						new String[]{"NO", "MAPPED","EXTRACTED"},
 						new Object[]{
 								new SimpleParameterSet(),
-								ere
+								ere,
+								new SimpleParameterSet(
+										new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
+												new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+											), "introns", "", 1 ) ),
+	
+										new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
+											new SelectionParameter( DataType.PARAMETERSET, 
+													new String[]{"NO", "UNSTRANDED", "STRANDED"},
+													new Object[]{
+														//no coverage
+														new SimpleParameterSet(),
+														//unstranded coverage
+														new SimpleParameterSet(
+																new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+														),
+														//stranded coverage
+														new SimpleParameterSet(
+																new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
+																new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+														)
+													},  "coverage", "experimental coverage (RNA-seq)", true
+											)
+										), "coverage", "", 1 ) )
+								)
 						},
 						"RNA-seq evidence", "", true ),
 
 				new ParameterSetContainer("Extractor parameter set", "parameters for the Extrator module of GeMoMa", ex ),
 				new ParameterSetContainer("GeMoMa parameter set", "parameters for the GeMoMa", gem ),
-				new ParameterSetContainer("GAF parameter set", "parameters for the GAF module of GeMoMa", gaf )
+				new ParameterSetContainer("GAF parameter set", "parameters for the GAF module of GeMoMa", gaf ),
+				
+				new SimpleParameter( DataType.BOOLEAN, "debug", "If *false* removes all temporary files even if the jobs exits unexpected", true, true )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();
@@ -214,28 +242,37 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 	}
 	
-	void setGeMoMaParams( boolean coverage ) throws IllegalValueException {
+	void setGeMoMaParams() throws IllegalValueException, CloneNotSupportedException {
 		gemomaParams.getParameterForName("target genome").setValue(target);
-		if( rnaSeq ) {
-			String fName = home + "/introns.gff";
-			if( new File(fName).exists() ) {
-				((ParameterSetContainer) ((ParameterSetContainer) gemomaParams.getParameterForName("introns")).getValue().getParameterAt(0)).getValue().getParameterAt(0).setValue(fName);
-			}
 
-			if( coverage ) {
-				/*Expandable*/ParameterSet e = ((ParameterSetContainer) gemomaParams.getParameterForName("coverage")).getValue();
-				SelectionParameter sel = (SelectionParameter) ((SimpleParameterSet)(e.getParameterAt(0).getValue())).getParameterAt(0);
-				
-				fName = home + "/coverage.bedgraph";
-				if( new File(fName).exists() ) {//unstranded
-					sel.setValue("UNSTRANDED");
-					((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(fName);
-				} else {//stranded
-					sel.setValue("STRANDED");
-					((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(home + "/coverage_forward.bedgraph");
-					((SimpleParameterSet) sel.getValue()).getParameterAt(1).setValue(home + "/coverage_reverse.bedgraph");
-				}
+		//introns
+		ExpandableParameterSet exp = (ExpandableParameterSet) ((ParameterSetContainer) gemomaParams.getParameterForName("introns")).getValue();
+		for( int i = 0; i < rnaSeqData.introns.size(); i++ ) {
+			if( exp.getNumberOfParameters() <= i ) {
+				exp.addParameterToSet();
 			}
+			((ParameterSetContainer) exp.getParameterAt(i)).getValue().getParameterAt(0).setValue(rnaSeqData.introns.get(i));
+		}
+
+		//coverage
+		exp = (ExpandableParameterSet) ((ParameterSetContainer) gemomaParams.getParameterForName("coverage")).getValue();
+		int i = 0;
+		for( int j = 0; j < rnaSeqData.coverageUn.size(); j++, i++ ) {
+			if( exp.getNumberOfParameters() <= i ) {
+				exp.addParameterToSet();
+			}
+			SelectionParameter sel = (SelectionParameter) ((SimpleParameterSet)(exp.getParameterAt(i).getValue())).getParameterAt(0);
+			sel.setValue("UNSTRANDED");
+			((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(rnaSeqData.coverageUn.get(j));
+		}
+		for( int j = 0; j < rnaSeqData.coverageFwd.size(); j++, i++ ) {
+			if( exp.getNumberOfParameters() <= i ) {
+				exp.addParameterToSet();
+			}
+			SelectionParameter sel = (SelectionParameter) ((SimpleParameterSet)(exp.getParameterAt(i).getValue())).getParameterAt(0);
+			sel.setValue("STRANDED");
+			((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(rnaSeqData.coverageFwd.get(j));
+			((SimpleParameterSet) sel.getValue()).getParameterAt(2).setValue(rnaSeqData.coverageRC.get(j));
 		}
 	}
 
@@ -256,6 +293,13 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	private class Species {
 		String cds, assignment, protein = null;
+	}
+	
+	private class RNASeq {
+		ArrayList<String> introns = new ArrayList<String>();
+		ArrayList<String> coverageUn =  new ArrayList<String>();
+		ArrayList<String> coverageFwd =  new ArrayList<String>();
+		ArrayList<String> coverageRC =  new ArrayList<String>();
 	}
 	
 	private static void setParameters( ToolParameterSet global, String key, ToolParameterSet... local ) throws IllegalValueException {
@@ -374,9 +418,33 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 		
 		//ERE
+		rnaSeqData = new RNASeq();
 		JEREAndFill ere;
 		if( rnaSeq ) {
-			ere = new JEREAndFill((ToolParameterSet) pa);
+			Parameter p = pa.getParameterForName("introns");
+			if( p != null ) {
+				ExpandableParameterSet exp = (ExpandableParameterSet) p.getValue();
+				for( int i = 0; i < exp.getNumberOfParameters(); i++ ) {
+					rnaSeqData.introns.add( (String) ((SimpleParameterSet) exp.getParameterAt(i).getValue()).getParameterAt(0).getValue() );
+				}
+				
+				exp = (ExpandableParameterSet) pa.getParameterForName("coverage").getValue();
+				for( int i = 0; i < exp.getNumberOfParameters(); i++ ) {
+					//SelectionParameter sel 
+					SimpleParameterSet ps = (SimpleParameterSet) exp.getParameterAt(i).getValue();
+					ps = (SimpleParameterSet) ps.getParameterAt(0).getValue();
+					if( ps.getNumberOfParameters() == 1 ) {
+						rnaSeqData.coverageUn.add( (String) ps.getParameterAt(0).getValue() );
+					} else {
+						rnaSeqData.coverageFwd.add( (String) ps.getParameterAt(0).getValue() );
+						rnaSeqData.coverageRC.add( (String) ps.getParameterAt(1).getValue() );
+					}					
+				}
+				
+				ere = new JEREAndFill();
+			} else {
+				ere = new JEREAndFill((ToolParameterSet) pa);
+			}
 		} else {
 			ere = new JEREAndFill();
 		}
@@ -488,31 +556,37 @@ public class GeMoMaPipeline implements JstacsTool {
 		}		
 		
 		
-		//delete
-		// for avoiding erroneously deleting important files: 2 tricks have been implemented:
-		// a) temporary folder GeMoMa_TEMP
-		// b) RegExFilenameFilter
+		if( result != null || (boolean) parameters.getParameterForName("debug").getValue() ) {
+			//delete
+			// for avoiding erroneously deleting important files: 2 tricks have been implemented:
+			// a) temporary folder GeMoMa_TEMP
+			// b) RegExFilenameFilter
+			try {
+				Files.walkFileTree(new File( home ).toPath(), new SimpleFileVisitor<Path>() {
+					RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, ".*fasta", ".*gff", ".*txt", "blastdb.*", ".*tabular", ".*bedgraph");
+					
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						return delete( file );
+					}
 		
-		Files.walkFileTree(new File( home ).toPath(), new SimpleFileVisitor<Path>() {
-			RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, ".*fasta", ".*gff", ".*txt", "blastdb.*", ".*tabular", ".*bedgraph");
-			
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				return delete( file );
+					@Override
+					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+						return delete(dir);
+					}
+					
+					FileVisitResult delete( Path p ) throws IOException {
+						if( filter.accept( p.toFile() ) )  {
+							Files.delete(p);
+						}
+						return FileVisitResult.CONTINUE;
+					}
+				});
+			} catch( IOException io ) {
+				protocol.appendWarning("Could not delete all temporary files.");
+				protocol.appendThrowable(io);
 			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				return delete(dir);
-			}
-			
-			FileVisitResult delete( Path p ) throws IOException {
-				if( filter.accept( p.toFile() ) )  {
-					Files.delete(p);
-				}
-				return FileVisitResult.CONTINUE;
-			}
-		});/**/
+		}
 		
 		if( result == null ) {
 			pipelineProtocol.flush();
@@ -631,15 +705,28 @@ public class GeMoMaPipeline implements JstacsTool {
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting ERE\n");
 			Protocol protocol;
-			if( rnaSeq ) {
+			if( params != null ) {
 				protocol = new QuiteSysProtocol();
 				//run ERE
 				ExtractRNAseqEvidence ere = new ExtractRNAseqEvidence();
 				ToolResult res = ere.run(params, protocol, new ProgressUpdater(), 1);
 				CLI.writeToolResults(res, (SysProtocol) protocol, home+"/", ere, params);
+				
+				rnaSeqData.introns.add(home + "/introns.gff");
+				
+				boolean cov = ((Boolean) params.getParameterForName("coverage output").getValue());
+				if( cov ) {
+					String fName = home + "/coverage.bedgraph";
+					if( new File(fName).exists() ) {//unstranded
+						rnaSeqData.coverageUn.add(fName);
+					} else {//stranded
+						rnaSeqData.coverageFwd.add(home + "/coverage_forward.bedgraph");
+						rnaSeqData.coverageRC.add(home + "/coverage_reverse.bedgraph");
+					}
+				}
 			}
 			//prepare GeMoMa
-			setGeMoMaParams( rnaSeq && ((Boolean) params.getParameterForName("coverage output").getValue()) );
+			setGeMoMaParams();
 			
 			protocol = GeMoMaPipeline.this.pipelineProtocol;
 			//protocol.append(gemomaParams.getParameterForName("target genome").getValue()+"\n");
@@ -688,14 +775,16 @@ public class GeMoMaPipeline implements JstacsTool {
 			
 			//summarize errors
 			Iterator<Entry<String, int[]>> it = problems.entrySet().iterator();
-			log.append("\nproblems:\n");
-			while( it.hasNext() ) {
-				Entry<String,int[]> e = it.next();
-				int num = e.getValue()[0];
-				if( num == 1 ) {
-					log.append( "once: " + e.getKey() + "\n");
-				} else {
-					log.append( num + " times: " + e.getKey() + "\n");
+			if( it.hasNext() ) {
+				log.append("\nproblems:\n");
+				while( it.hasNext() ) {
+					Entry<String,int[]> e = it.next();
+					int num = e.getValue()[0];
+					if( num == 1 ) {
+						log.append( "once: " + e.getKey() + "\n");
+					} else {
+						log.append( num + " times: " + e.getKey() + "\n");
+					}
 				}
 			}
 			
@@ -782,7 +871,7 @@ public class GeMoMaPipeline implements JstacsTool {
 					"-outfmt", "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles",
 					"-db_gencode","1", "-matrix", "BLOSUM62", "-seg", "no", "-word_size", "3", "-comp_based_stats", "F", "-gapopen", ""+gapOpen, "-gapextend", ""+gapExt );
 			
-			if( exitCode == 0 ) {
+			if( exitCode <= 1 ) { //Warnings/error in query will be ignored: https://www.ncbi.nlm.nih.gov/books/NBK279684/table/appendices.Tc/
 				if( !queue.isShutdown() ) {
 					add(new JGeMoMa(species, split));
 				}
