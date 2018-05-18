@@ -242,7 +242,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 	}
 	
-	void setGeMoMaParams() throws IllegalValueException, CloneNotSupportedException {
+	void setGeMoMaParams( Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
 		gemomaParams.getParameterForName("target genome").setValue(target);
 
 		//introns
@@ -274,6 +274,8 @@ public class GeMoMaPipeline implements JstacsTool {
 			((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(rnaSeqData.coverageFwd.get(j));
 			((SimpleParameterSet) sel.getValue()).getParameterAt(2).setValue(rnaSeqData.coverageRC.get(j));
 		}
+		
+		//CLI.print("", null, gemomaParams, "", protocol, "");;
 	}
 
 	ResultSet filtered;
@@ -435,7 +437,7 @@ public class GeMoMaPipeline implements JstacsTool {
 					ps = (SimpleParameterSet) ps.getParameterAt(0).getValue();
 					if( ps.getNumberOfParameters() == 1 ) {
 						rnaSeqData.coverageUn.add( (String) ps.getParameterAt(0).getValue() );
-					} else {
+					} else if( ps.getNumberOfParameters() == 2 ) {
 						rnaSeqData.coverageFwd.add( (String) ps.getParameterAt(0).getValue() );
 						rnaSeqData.coverageRC.add( (String) ps.getParameterAt(1).getValue() );
 					}					
@@ -650,8 +652,8 @@ public class GeMoMaPipeline implements JstacsTool {
 				doJob();
 			} catch (InterruptedException e ) {
 				status = JobStatus.INTERRUPTED;
-			} catch ( Exception e ) {
-				e.printStackTrace();
+			} catch ( Throwable e ) {
+				pipelineProtocol.appendThrowable( e );
 				status = JobStatus.FAILED;
 			}
 			if( status == JobStatus.FAILED && !queue.isShutdown() ) {
@@ -680,6 +682,14 @@ public class GeMoMaPipeline implements JstacsTool {
 				pipelineProtocol.appendWarning(new String(b));
 			}
 			return p.exitValue();
+		}
+	}
+	
+	static String escape( String s ) {
+		if( s.indexOf(' ') < 0 ) {
+			return s;
+		} else {
+			return "\\\""+s+"\\\"";
 		}
 	}
 	
@@ -726,17 +736,17 @@ public class GeMoMaPipeline implements JstacsTool {
 				}
 			}
 			//prepare GeMoMa
-			setGeMoMaParams();
-			
 			protocol = GeMoMaPipeline.this.pipelineProtocol;
-			//protocol.append(gemomaParams.getParameterForName("target genome").getValue()+"\n");
+			
+			setGeMoMaParams(protocol);
 			GeMoMa.fill( protocol, false, maxSize, 
 					(String) gemomaParams.getParameterForName("target genome").getValue(), 
 					(String) gemomaParams.getParameterForName("selected").getValue(),
 					(Integer) gemomaParams.getParameterForName("reads").getValue(),
 					(ExpandableParameterSet)((ParameterSetContainer)gemomaParams.getParameterAt(5)).getValue(),
 					(ExpandableParameterSet)((ParameterSetContainer)gemomaParams.getParameterAt(8)).getValue()
-			);
+			);			
+			//protocol.append( "Fill okay\n" );
 		}	
 	}	
 
@@ -750,7 +760,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting makeblastdb\n");
 			//log file is necessary as otherwise Java sometimes does not finish waitFor() 
-			runProcess( "makeblastdb","-out",home+"/blastdb", "-hash_index", "-in", target, "-title", "target", "-dbtype", "nucl", "-logfile", home+"/blastdb-logfile" );
+			int exitCode = runProcess( "makeblastdb", "-out", escape(home+"/blastdb"), "-hash_index", "-in", escape(target), "-title", "target", "-dbtype", "nucl", "-logfile", home+"/blastdb-logfile" );
 			
 			//read logfile
 			BufferedReader r = new BufferedReader( new FileReader(home+"/blastdb-logfile") );
@@ -787,8 +797,10 @@ public class GeMoMaPipeline implements JstacsTool {
 					}
 				}
 			}
-			
 			pipelineProtocol.append(log.toString());
+			if( exitCode> 0 ) {
+				status=JobStatus.FAILED;
+			}
 		}	
 	}
 	
@@ -867,9 +879,9 @@ public class GeMoMaPipeline implements JstacsTool {
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting tblastn split=" + split + " for species " + species + "\n");
 			int exitCode = runProcess( "tblastn", "-query", home+species+"/split-"+split+".fasta",
-					"-db", home+ "blastdb", "-evalue",""+eValue, "-out", home+species+"/tblastn-"+split+".txt",
+					"-db", escape(home+"blastdb"), "-evalue",""+eValue, "-out", home+species+"/tblastn-"+split+".txt",
 					"-outfmt", "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles",
-					"-db_gencode","1", "-matrix", "BLOSUM62", "-seg", "no", "-word_size", "3", "-comp_based_stats", "F", "-gapopen", ""+gapOpen, "-gapextend", ""+gapExt );
+					"-db_gencode","1", "-matrix", "BLOSUM62", "-seg", "no", "-word_size", "3", "-comp_based_stats", "F", "-gapopen", ""+gapOpen, "-gapextend", ""+gapExt, "-num_threads", "1" );
 			
 			if( exitCode <= 1 ) { //Warnings/error in query will be ignored: https://www.ncbi.nlm.nih.gov/books/NBK279684/table/appendices.Tc/
 				if( !queue.isShutdown() ) {
