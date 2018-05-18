@@ -90,6 +90,8 @@ import de.jstacs.utils.IntList;
 import de.jstacs.utils.Time;
 import projects.gemoma.Tools.Ambiguity;
 
+//Please check //XXX improve splice site scoring
+
 /**
  * Parsing tblastn hits to gene models using a dynamic programming algorithm with extensions for splice sites, start and stop codon.
  * 
@@ -97,11 +99,11 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String VERSION = "1.5.1beta";
+	public static final String VERSION = "1.5.2";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 	
-	public static final String GeMoMa_TEMP = "GeMoMa_temp/";
+	public static final String GeMoMa_TEMP = "GeMoMa_temp/";//TODO
 	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
@@ -554,7 +556,7 @@ public class GeMoMa implements JstacsTool {
 	}
 	
 	private static void readCoverage( HashMap<String, ArrayList<int[]>> coverage, Parameter p, Protocol protocol, boolean verbose ) throws IOException {
-		protocol.append("read coverage file: " + p.getName() + "\n");
+		protocol.append("read coverage file: " + p.getName() + " " + new Date() + "\n");
 		BufferedReader r = new BufferedReader( new FileReader( p.getValue().toString() ) );
 		int threshold = 1;
 		String chr = null;
@@ -816,7 +818,6 @@ public class GeMoMa implements JstacsTool {
 			progress.setLast(selected.size());
 		}
 		
-		//TODO
 		if( donorSites != null ) {
 			sp = (Boolean) parameters.getParameterForName("splice").getValue();
 		}
@@ -1382,7 +1383,7 @@ public class GeMoMa implements JstacsTool {
 						//does not happen
 						throw new RuntimeException( onse.getMessage() );
 					}
-					align.computeAlignment( AlignmentType.GLOBAL, qPart, tPart ); //XXX splice site scoring
+					align.computeAlignment( AlignmentType.GLOBAL, qPart, tPart ); //XXX SEMI_GLOBAL_BEGIN
 					for( int p = 0; p < 3; p++ ) {
 						for( int i = 0; i < accCand[p].length(); i++ ) {
 							int pos = accCand[p].get(i);
@@ -1392,7 +1393,7 @@ public class GeMoMa implements JstacsTool {
 								pos = -(int)Math.ceil(-pos/3d);
 							}
 							pos = tPart.getLength() - (max - pos);
-							accCandScore[p].add( (int) -align.getCost(qPart.getLength(), pos)-score );
+							accCandScore[p].add( (int) -align.getCost(qPart.getLength(), pos)-score );//XXX improve splice site scoring
 						}
 					}
 				}
@@ -1492,7 +1493,7 @@ public class GeMoMa implements JstacsTool {
 					} else {
 						tPart = Sequence.create( alph, a.substring(0,a.length() - (int) Math.ceil(-max/3d)) );
 					}
-					align.computeAlignment( AlignmentType.GLOBAL, qPart, tPart ); //XXX  splice site scoring
+					align.computeAlignment( AlignmentType.GLOBAL, qPart, tPart ); //XXX SEMI_GLOBAL_END
 					
 					for( m = 0; m < donCand.length; m++ ) {
 						for( int p = 0; p < 3; p++ ) {
@@ -1503,7 +1504,7 @@ public class GeMoMa implements JstacsTool {
 								} else {
 									pos = a.length() - (int) Math.ceil(-pos/3d);
 								}
-								donCandScore[m][p].add( (int) -align.getCost(qPart.getLength(), pos) -score );
+								donCandScore[m][p].add( (int) -align.getCost(qPart.getLength(), pos) -score );//XXX improve splice site scoring
 							}
 						}
 					}
@@ -1830,7 +1831,12 @@ public class GeMoMa implements JstacsTool {
 			this.exonID = new int[split.length];
 			for( int i = 0; i < this.exonID.length; i++ ) {
 				this.exonID[i] = Integer.parseInt(split[i].trim());
-			}/*XXX split AA
+			}
+			
+			//TODO remove
+			phase=null;
+			splitAA=null;
+			
 			if( phase != null ) {
 				split = phase.split( "," );
 				this.phase = new int[split.length];
@@ -1838,12 +1844,12 @@ public class GeMoMa implements JstacsTool {
 					this.phase[i] = Integer.parseInt(split[i].trim());
 				}
 			}
+			this.splitAA = new String[this.exonID.length];
+			Arrays.fill(this.splitAA, "");
 			if( splitAA != null ) {
 				split = splitAA.split( "," );
-				this.splitAA = new String[this.exonID.length];
-				Arrays.fill(this.splitAA, "");
 				System.arraycopy(split, 0, this.splitAA, 0, split.length);
-			}*/
+			}
 		}
 		
 		private Info() {
@@ -1926,7 +1932,7 @@ public class GeMoMa implements JstacsTool {
 							c = new HashMap<String, Info>();
 							transcriptInfo.put(split[0], c);
 						}
-						c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "" ) );//TODO
+						c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "" ) );
 					}
 				}
 				r.close();
@@ -2390,7 +2396,7 @@ public class GeMoMa implements JstacsTool {
 								protocol.append(s1+"\n");
 							}
 							
-							//TODO additional GFF tags
+							//additional GFF tags
 							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						
@@ -2614,7 +2620,6 @@ public class GeMoMa implements JstacsTool {
 			Hit upstreamHit = lines.get(currentInfo.exonID[i]).get(j);
 			
 			int introns= Math.max(1,k-i);
-//protocol.append(splice + "\t" + i + "\t" + j + "/" + ((splice!= null && splice[i]!=null)?splice[i].length:"?") + "\t" + (k-i) +"\n");//TODO
 			if( splice != null && splice[i][j][k-i] == null ) {
 				//protocol.appendln(o.targetID + "\t" + i + "\t" + j + "\t" + (k-i) );
 				try {
@@ -3659,10 +3664,10 @@ public class GeMoMa implements JstacsTool {
 					String p=cds.get(geneName + (transcriptInfo==null?"":("_" + currentInfo.exonID[idx])) );
 					if( p != null ) {
 						m += p;
-					}/*XXX split AA
+					}
 					if( idx+1 < revParts[partEnd] ) {
 						m += currentInfo.splitAA[idx];
-					}*/
+					}
 				}
 				m += cds.get( second.queryID ).substring(0, second.queryEnd);
 			}
