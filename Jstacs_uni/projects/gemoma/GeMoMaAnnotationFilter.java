@@ -71,7 +71,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		boolean noTie = (Boolean) parameters.getParameterForName("missing intron evidence filter").getValue();
 		double tieTh = (Double) parameters.getParameterForName("intron evidence filter").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
-		double epTh = (Double) parameters.getParameterForName("evidence percentage filter").getValue();
+		int evidence = (Integer) parameters.getParameterForName("evidence filter").getValue();
 				
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(7).getValue();
 		
@@ -113,8 +113,8 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				if( t.equalsIgnoreCase( tag ) ) {
 					current = new Prediction(split, k, prefix[k]);
 					if( ids.contains( current.id ) ) {
-						System.out.println(line);
-						System.out.println(current);
+						//System.out.println(line);
+						//System.out.println(current);
 						r.close();
 						throw new IllegalArgumentException("The id (" + current.id + ") has been used before. You can try to use a prefix (cf. parameters)." );
 					} else {
@@ -209,11 +209,11 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				}
 				
 				Collections.sort( currentCluster, ScoreComparator.DEF );
-				int p=create( maxTranscripts, currentCluster, w, noTie, tieTh, cbTh, epTh );
+				int p=create( maxTranscripts, currentCluster, w, noTie, tieTh, cbTh, evidence );
 				clustered++;
 				transcripts+=p;
 				
-				transcripts += checkNestedSameStrand( maxTranscripts, pred, alt, i, w, noTie, tieTh, cbTh, epTh );
+				transcripts += checkNestedSameStrand( maxTranscripts, pred, alt, i, w, noTie, tieTh, cbTh, evidence );
 			}
 			w.close();
 		}
@@ -238,7 +238,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		return new ToolResult("", "", null, new ResultSet(new TextResult("filtered predictions", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 	
-	static int checkNestedSameStrand( int maxTranscripts, ArrayList<Prediction> list, int start, int end, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
+	static int checkNestedSameStrand( int maxTranscripts, ArrayList<Prediction> list, int start, int end, BufferedWriter w, boolean noTie, double tieTh, double cbTh, int evidence ) throws Exception {
 		IntList used = new IntList(), notUsed = new IntList();
 		int s = Integer.MAX_VALUE, e = 0;
 		for( int i = start; i < end; i++ ) {
@@ -273,7 +273,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			
 			if( cand.size() > 0 ) {
 				Collections.sort( cand, ScoreComparator.DEF );
-				return create(maxTranscripts, cand, w, noTie, tieTh, cbTh, epTh);
+				return create(maxTranscripts, cand, w, noTie, tieTh, cbTh, evidence );
 				/*
 				System.out.println( start +  " ... " + end );
 				System.out.println( s +  ", " + e );
@@ -319,7 +319,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	
 	static int gene=0, noTie=0, tie1=0, maxTie1=0;
 	
-	static int create( int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, boolean noTie, double tieTh, double cbTh, double epTh ) throws Exception {
+	static int create( int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, boolean noTie, double tieTh, double cbTh, int evidence ) throws Exception {
 		if( list.size() == 0 ) {
 			return 0;
 		}
@@ -377,7 +377,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		
 		for( i = 0; i < used.size() && pred < maxTranscripts; i++ ) {
 			n = used.get(i);
-			int cont = n.write(w, epTh);
+			int cont = n.write(w, evidence);
 			pred += cont;
 		}
 		if( pred>0 ) {
@@ -391,7 +391,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		if( count>0  ) {
-			pred += create(maxTranscripts, list, w, noTie, tieTh, cbTh, epTh);
+			pred += create(maxTranscripts, list, w, noTie, tieTh, cbTh, evidence);
 		}
 
 		return pred;
@@ -514,7 +514,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			}
 		}
 		
-		public int write( BufferedWriter w, double epTh ) throws IOException {
+		public int write( BufferedWriter w, int eviTh ) throws IOException {
 			int count=0;
 			if( evidence != null ) {
 				for( int i = 0; i < evidence.length; i++ ) {
@@ -528,12 +528,12 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 			
 			String t = hash.get("tie");
 			String tpc = hash.get("tpc");
-			if( count/(double) MAX >= epTh ) {
+			if( count >= eviTh ) {
 				//TODO || ((tie!=null && tpc!=null) && ((tie.equals("NA") && Double.parseDouble(tpc) == 1d) || Double.parseDouble(tie) == 1d)) )  {
 				if( t == null || t.equals("NA") ) {
 					noTie++;
 				} else {
-					double tie =Double.parseDouble(t);
+					double tie = Double.parseDouble(t);
 					if( tie == 1d ) {
 						tie1++;
 					}
@@ -656,7 +656,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
 							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )
 						), "gene annotations", "", 1 ) ),
-					new SimpleParameter(DataType.DOUBLE,"evidence percentage filter","Each gene annotation file is handled as independent evidence. A prediction is only returned if it is contained at least in this percentage of evidence files.", true, new NumberValidator<Double>(0d, 1d), 0.5 )
+					new SimpleParameter(DataType.INT,"evidence filter","Each gene annotation file is handled as independent evidence. A prediction is only returned if it is contained at least in so many evidence files.", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 )
 				);		
 		}catch(Exception e){
 			e.printStackTrace();
