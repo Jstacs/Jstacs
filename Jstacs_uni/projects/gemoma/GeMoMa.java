@@ -150,6 +150,7 @@ public class GeMoMa implements JstacsTool {
 		}
 		if( fName.size()>0 ) {
 			HashMap<String, int[][][]>[] res = readIntrons( reads, protocol, verbose, seqs, fName.toArray(new String[fName.size()]) );
+			check( protocol, res[0], "introns" );
 			donorSites = res[0];
 			acceptorSites = res[1];
 		} else {
@@ -181,11 +182,31 @@ public class GeMoMa implements JstacsTool {
 			coverage[0] = combine(true, initialCoverage[0], initialCoverage[2] );
 			if( anz == u ) {
 				coverage[1] = coverage[0];
+				check( protocol, coverage[0], "coverage" );
 			} else {
 				coverage[1] = combine(false, initialCoverage[1], initialCoverage[2] );
+				check( protocol, coverage[0], "forward coverage" );
+				check( protocol, coverage[1], "reverse coverage" );
 			}
 		} else {
 			coverage = null;
+		}
+	}
+	
+	//checks whether the RNA-seq data matches the reference genome
+	static void check( Protocol p, HashMap<String,?> h, String text ) {
+		Iterator<String> it = seqs.keySet().iterator();
+		int anz = 0, found = 0;
+		while( it.hasNext() ) {
+			anz++;
+			String chr = it.next();
+			if( h.containsKey(chr) ) {
+				found++;
+			}
+		}
+		double d = (double) found / (double) anz; 
+		if( d < 0.5 ) {//Warning if less than 50% of the reference sequences have been covered 
+			p.appendWarning("Check RNA-seq data ("+text+"): " +(Math.round(d*100)) + "% of the sequences in the reference genome are covered.\n" );
 		}
 	}
 	
@@ -1833,7 +1854,7 @@ public class GeMoMa implements JstacsTool {
 				this.exonID[i] = Integer.parseInt(split[i].trim());
 			}
 			
-			//TODO remove
+			//XXX remove
 			phase=null;
 			splitAA=null;
 			
