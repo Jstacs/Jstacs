@@ -71,14 +71,18 @@ GeMoMa 1.5 (13.02.2018)
 	- new parameter that allows to specify a prefix for each input gff
 	- collect and print program infos to filtered_prediction.gff3
 	- improved statistics output
-
-GeMoMa XXX (??.??.????)
+GeMoMa 1.5.2 (31.5.2018)
 - GAF:
 	- new parameter that allows to restrict the maximal number of transcript predictions per gene
+	- altered behavior of the evidence filter from percentages to absolute values
 	- bugfix: nested genes 
 	- checking for duplicates in prediction IDs
 - GeMoMa:
-	- TODO split AA?
-	- TODO improved splice site alignment?
+	- warning if RNA-seq data does not match with target genome
 - GeMoMaPipeline: new tool for running the complete GeMoMa pipeline at once allowing multi-threading
 - folder for temporary files of GeMoMa
+
+GeMoMa XXX (YYY)
+- GeMoMa
+	- TODO split AA?
+	- TODO improved splice site alignment?

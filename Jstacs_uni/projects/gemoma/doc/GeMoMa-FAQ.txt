@@ -2,9 +2,7 @@ Frequently asked questions:
 ===========================
 
 1) Why does the Extractor not return a single CDS-part, protein, ...?
-First, please check whether the names of your contigs/chromosomes in your annotation (gff) and genome file (fasta) are identical. The fasta comments should at best only contain the contig/chromosome name. (Since GeMoMa 1.4, comments, which contain the contig/chromosome name and some additional information separated by a space, are also fine.) 
-Second, please check whether you have a valid GFF/GTF file. Valid GFF files should have a valid "ID" or "Parent" entry in the attributes column. Valid GTF files should have a valid "gene_id" and "transcript_id" entry.
-Finally, please check the statistics that are given by the Extractor. It lists how many genes have been read and how many genes have been removed for different reasons. One common problem is that some annotation files do not include the stop codon in the CDS annotation.
+Please check whether the names of your contigs/chromosomes in your annotation (gff) and genome file (fasta) are identical. The fasta comments should at best only contain the contig/chromosome name. (Since GeMoMa 1.4, comments, which contain the contig/chromosome name and some additional information separated by a space, are also fine.) In addition, check the statistics that are given by the Extractor. It lists how many genes have been read and how many genes have been removed for different reasons. One common problem is that some annotation files do not include the stop codon in the CDS annotation.
 
 2) How can I force GeMoMa to make more predictions?
 There are several parameters affecting the number of predictions. The most prominent are the number of predictions (p) and the contig threshold (ct).
@@ -30,21 +28,30 @@ If the reference genes passed the Extractor, there are several possible explanat
 	* GeMoMa stopped the prediction of a reference genes since it does not return a result within the given time (cf. parameter "timeout").
 	* GeMoMa simply did not find a prediction matching the remaining quality criteria.
 
-7) For two different reference transcripts, the predictions of GeMoMa overlap or are identical. What should I do with those?
+7) What does "partial gene model" mean in the context of GeMoMa?
+We called a gene model partial if it does not contain an initial start codon and a final stop codon. However, this does not mean that the gene model is located at or close to the border of a chromosome or contig.
+
+8) For two different reference transcripts, the predictions of GeMoMa overlap or are identical. What should I do with those?
 GeMoMa makes the predictions for each reference transcript independently. Hence, it can occur that some of predictions of different reference transcripts overlap or are identical especially in gene families. Typically, you might like to filter or rank these predictions. We have implemented GAF (cf. <code>java -jar GeMoMa-<version>.jar CLI GAF</code>) to do this automatically. However, you can also do it by hand using the GFF attributes. Using RNA-seq data in GeMoMa yields additional fields in the annotation that can be used, e.g., average coverage (avgCov).
 
-8) A lot of transcripts have been filtered out by the Extractor. What can I do?
+9) A lot of transcripts have been filtered out by the Extractor. What can I do?
 There are several reasons for removing transcripts by the Extractor. At least in two cases you can try to get more transcripts by setting specific parameter values. First, if the transcript contains ambiguous nucleotides, please test the parameter "Ambiguity". Second, sometimes we received GFFs which contain wrong phases for CDS entries (e.g., 0 for all CDS entries in the phase column of the GFF). Since version 1.3.2, we provide the option "r" which stands for repair. If r=true is chosen, the Extractor tries to infer all phases for transcripts that show an error and would be filtered out.
 
-9) Is GeMoMa able to predict pseudo-genes/ncRNA?
+10) Is GeMoMa able to predict pseudo-genes/ncRNA?
 No, currently not.
 
-10) My RNA-seq data indicates there is an additional intron in a transcipt, but GeMoMa does not predict this. Or vice versa, GeMoMa predicts an intron that is not supported by RNA-seq data. What's the reason?
+11) My RNA-seq data indicates there is an additional intron in a transcipt, but GeMoMa does not predict this. Or vice versa, GeMoMa predicts an intron that is not supported by RNA-seq data. What's the reason?
 GeMoMa is mainly based on the assumptions of amino acid and intron position conservation between reference and target species. Hence, GeMoMa tries to predict a gene model with similar exon-intron-structure in the target species and does not stick too much with RNA-seq data. Although intron position conservation can be observed in most cases, sometimes new introns evolve or others vanish. For this reasons, GeMoMa also allows for the inclusion or exclusion of introns adding some additional costs (cf. GeMoMa parameter intron-loss-gain-penalty). However, the behaviour of GeMoMa depends on the parameters settings (especially intron-loss-gain-penalty, sm (substitution matrix), go (gap opening), ge (gap extension)) and the length of the missed/additional intron. Nevertheless, such cases can only occur if the additional/missed intron has a length that can be divided by 3 preserving the reading frame.
 Since the available RNA-seq data only reflects a fraction of tissues/environmental conditions/..., missing RNA-seq evidence does not necessarily mean that the predictions is wrong.
 
-11) My RNA-seq data indicates two alternative, highly overlapping introns. Interestingly, GeMoMa does not take the intron that is more abundant. Why?
+12) My RNA-seq data indicates two alternative, highly overlapping introns. Interestingly, GeMoMa does not take the intron that is more abundant. Why?
 GeMoMa reads the introns from the input file using some filter (cf. GeMoMa parameter r (reads)). All introns that pass the filter are used and treated equally. Hence, GeMoMa uses the intron that matches the expectation of intron position and amino acid conservation compared to the reference transcript.
+
+13) Does GeMoMa predict multiple transcripts per gene?
+GeMoMa in principle allows to predict multiple transcripts per gene, if corresponding transcripts are given in the reference species or if multiple reference species are used. 
+
+14) GeMoMa failed with java.lang.OutOfMemoryError. What can I do?
+Whenever you see a java.lang.OutOfMemoryError, you should rerun the program with Java virtual machine (VM) options. More specifically you should set: -Xms the initally used RAM, e.g. to 5Gb (–Xms5G), and -Xmx the maximally used RAM, e.g. to 50Gb (-Xmx50G). GeMoMa often needs more memory if you have a large genome and if you’re providing a large coverage file (extracted from RNA-seq data). If you don’t have a compute node with enough memory, you can run GeMoMa without coverage, which will return the same predictions, but does not include all statistics. Another point could be the protein alignment, if you use the optional parameter query protein. Again you can run GeMoMa without this parameter, which will return the same predictions, but less statistics. 
 
 
 For any further questions or comments please contact jens.keilwagen@julius-kuehn.de 
