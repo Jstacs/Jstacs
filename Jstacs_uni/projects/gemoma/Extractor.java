@@ -865,6 +865,11 @@ public class Extractor implements JstacsTool {
 				anz++;
 				last = index;
 			}
+			
+			if( p.length() == 0 ) {
+				return 8;
+			}
+			
 			if( fullLength && startPhase!= 0 ) {
 				if( verbose ) protocol.appendWarning(trans + "\tskip start phase not zero\n" );
 				return 1;
@@ -892,11 +897,7 @@ public class Extractor implements JstacsTool {
 						"\n\nparts:\n" + c ); //TODO > v1.3.1
 				}
 				return 6;
-			} else {
-				if( p.length() == 0 ) {
-					return 8;
-				}
-				
+			} else {				
 				info[2]++;
 				out.get(3).write( ">" + trans + "\n" + dnaSeqBuff.toString() + "\n" );
 				out.get(2).write( ">" + trans + "\n" + p + "\n" );
@@ -914,7 +915,7 @@ public class Extractor implements JstacsTool {
 					if( currentPos % 3 > 0 && pos+1 <= p.length() ) {
 						splitAA += p.substring(pos, pos+1);
 					}
-					if( j+1 < il.length() ) {
+					if( j+2 < il.length() ) {
 						splitAA += ",";
 					}
 				}

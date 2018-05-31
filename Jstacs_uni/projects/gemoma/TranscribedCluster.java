@@ -24,6 +24,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 
 /**
@@ -37,7 +38,7 @@ public class TranscribedCluster implements JstacsTool {
 	private static HashMap<String, int[][]>[] coverage;
 	private static int tc = 0;
 	
-	public ToolResult run( ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
 		//sequence
 		HashMap<String, String> seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
 				
@@ -169,9 +170,9 @@ public class TranscribedCluster implements JstacsTool {
 		}
 	}
 	
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
-			return new SimpleParameterSet(
+			return new ToolParameterSet( getShortName(),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
@@ -208,7 +209,7 @@ public class TranscribedCluster implements JstacsTool {
 	}
 	
 	public String getToolVersion() {
-		return GeMoMa.version;
+		return GeMoMa.VERSION;
 	}
 	
 	public String getShortName() {
