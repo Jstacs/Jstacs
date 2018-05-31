@@ -149,6 +149,16 @@ java -cp GeMoMa-<version>.jar projects.FastaSplitter <CDS-parts>
 This will result in several independent FastA files containing some CDS-parts. You can run steps 4 and 5 on these individual parts.
 Finally, you have to concatenate the resulting predicted annotations, protein, \ldots before starting step 6.
 
+\subsection{GeMoMaPipeline}
+If you only have a compute server and no compute cluster, the general speed-up described in the last section can directly be addressed without any manual interplay using the module GeMoMaPipeline. The module runs the complete pipeline as one job and allows to exploit the complete compute power of a server using multi-threading. 
+However, this module can \textbf{only} exploit the compute power of a single server and does not distribute the partial jobs to a compute cluster.
+
+If you like to receive more information about GeMoMaPipeline and its parameters please enter
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar GeMoMaPipeline
+\end{verbatim}
+and follow the instructions.
+
 \subsection{Genome-wide vs. specific genes}
 By default, GeMoMa tries to make predictions for all CDS of the reference organism in the target organism. Hence, we call this a genome-wide approach. Additionally, Extractor and GeMoMa have an option for filtering based on a list of some reference CDS (cf. parameter \texttt{selected}). This approach allows to further speed up the predictions especially if one is interested only in a certain part of the annotation.
 
@@ -169,10 +179,13 @@ java -jar GeMoMa-<version>.jar --create GeMoMa -Xmx40g
 to create the corresponding XML integration for GeMoMa.
 
 \section{Reference, questions and comments}
-If you use GeMoMa please cite:\\
+If you use GeMoMa please cite:\\[\medskipamount]
 \emph{Using intron position conservation for homology-based gene prediction.}\\
-J. Keilwagen, M. Wenk, J. L. Erickson, M. H. Schattat, J. Grau, and F. Hartung.
-Nucleic Acids Research, 2016. doi: \href{https://doi.org/10.1093/nar/gkw092}{10.1093/nar/gkw092}\\
+J. Keilwagen, M. Wenk, J. L. Erickson, M. H. Schattat, J. Grau, and F. Hartung.\\
+Nucleic Acids Research, 2016. doi: \href{https://doi.org/10.1093/nar/gkw092}{10.1093/nar/gkw092}\\[\medskipamount]
+\emph{Combining RNA-seq data and homology-based gene prediction for plants, animals and fungi.}\\
+J. Keilwagen, F. Hartung, M. Paulini, S. O. Twardziok, and J. Grau.\\
+BMC Bioinformatics, 2018. doi: \href{https://doi.org/10.1186/s12859-018-2203-5}{10.1186/s12859-018-2203-5}\\
 ~\\
 FAQs, complete parameter lists, release notes, \ldots can be found on the homepage: 
 \url{http://www.jstacs.de/index.php/GeMoMa}\\
