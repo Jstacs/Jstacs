@@ -524,7 +524,7 @@ if( key == null ) {
 
 
 
-	private static void print(String pathPrefix, HashMap<String, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add ){
+	public static void print(String pathPrefix, HashMap<String, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add ){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ExpandableParameterSet exp = null;
 		if( isExp ) {
@@ -541,11 +541,11 @@ if( key == null ) {
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
 				Parameter par = parameters.getParameterAt( i );
 				String parKey = pathPrefix+":"+par.getName();
+				String k = keyMap==null ? "" : keyMap.get( parKey );
 				if(par.getDatatype() != DataType.PARAMETERSET){
-					protocol.appendWarning( tabPrefix+keyMap.get( parKey )+add+" - "+par.toString()+"\n" );
+					protocol.appendWarning( tabPrefix+k+add+" - "+par.toString()+"\n" );
 				}else{
 					if(par instanceof AbstractSelectionParameter){
-						String k = keyMap.get( parKey );
 if( k == null ) {
 	throw new IllegalArgumentException("Could not find a key for parameter: " + par.getName() + "\t" + parKey);
 }
@@ -577,6 +577,21 @@ if( k == null ) {
 	
 	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, PrintStream out){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
+		if( isExp ) {
+			out.append( "<tr><td></td><td>");
+			boolean single = ((ExpandableParameterSet)parameters).getNumberOfParameters() == 1;
+			if( single ) {
+				Parameter p = parameters.getParameterAt(0);
+				single = p.getDatatype() != DataType.PARAMETERSET || ((ParameterSet) p.getValue()).getNumberOfParameters()==1;
+			}
+			System.out.println( single );
+			if( single ) {
+				out.append( "This parameter");
+			} else {
+				out.append( "These parameters");
+			}
+			out.append( " can be used multiple times:\n<table>\n");
+		}
 		for(int i=0;i<parameters.getNumberOfParameters();i++){
 			Parameter par = parameters.getParameterAt( i );
 			String parKey = prefix+":"+par.getName();
@@ -605,6 +620,9 @@ if( k == null ) {
 					out.append( "</table></td><td></td>\n</tr>\n" );
 				}
 			}
+		}
+		if( isExp ) {
+			out.append( "</table>\n</td></tr>\n");
 		}
 	}
 
