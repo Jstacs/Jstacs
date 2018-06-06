@@ -531,7 +531,7 @@ if( key == null ) {
 			exp = (ExpandableParameterSet) parameters;
 			parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
 			
-			protocol.appendWarning( tabPrefix+"This parameter can be used multiple times:\n" );//TODO
+			protocol.appendWarning( tabPrefix+"The following parameter(s) can be used multiple times:\n" );//TODO
 			int n = exp.getNumberOfParameters();
 			for(int k=0;k<n;k++){
 				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
@@ -578,19 +578,8 @@ if( k == null ) {
 	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, PrintStream out){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		if( isExp ) {
-			out.append( "<tr><td></td><td>");
-			boolean single = ((ExpandableParameterSet)parameters).getNumberOfParameters() == 1;
-			if( single ) {
-				Parameter p = parameters.getParameterAt(0);
-				single = p.getDatatype() != DataType.PARAMETERSET || ((ParameterSet) p.getValue()).getNumberOfParameters()==1;
-			}
-			System.out.println( single );
-			if( single ) {
-				out.append( "This parameter");
-			} else {
-				out.append( "These parameters");
-			}
-			out.append( " can be used multiple times:\n<table>\n");
+			out.append( "<tr><td colspan=3>The following parameter(s) can be used multiple times:</td></tr>\n"
+					+"<tr><td></td><td colspan=2><table border=0 cellpadding=0 align=\"center\" width=\"100%\">\n");
 		}
 		for(int i=0;i<parameters.getNumberOfParameters();i++){
 			Parameter par = parameters.getParameterAt( i );
@@ -602,22 +591,23 @@ if( k == null ) {
 			} else {
 				out.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">" + keyMap.get( parKey )+ "</font></td>\n" );
 				String s = par.toString();
-				out.append( "<td>"+s.substring(0,s.lastIndexOf(")\t= ")+1) );
+				out.append( "<td>"+s.substring(0,s.lastIndexOf(")\t= ")+1) + "</td>\n" );
 				if( par.getDatatype() != DataType.PARAMETERSET ) {
-					out.append( "</td>\n<td>"+par.getDatatype() + "</td>\n</tr>\n" );
+					out.append( "<td style=\"width:100px;\">"+par.getDatatype() + "</td>\n</tr>\n" );
 				} else {
-					out.append( "<table border=0 cellpadding=10 align=\"center\">\n" );
+					out.append( "<td style=\"width:100px;\"></td></tr>");
+					out.append( "<tr><td></td><td colspan=2><table border=0 cellpadding=0 align=\"center\" width=\"100%\">\n" );
 					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
 					for(int j=0;j<incoll.getNumberOfParameters();j++){
 						ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
 						if( cont.getValue().getNumberOfParameters()>0 ) {
-							out.append( "<tr><td colspan=3>Parameters for selection &quot;"+cont.getName()+"&quot;:</td></tr>\n" );
+							out.append( "<tr><td colspan=3><b>Parameters for selection &quot;"+cont.getName()+"&quot;:</b></td></tr>\n" );
 							printTable(prefix+":"+add+"-"+j, keyMap, cont.getValue(), out);
 						} else {
-							out.append( "<tr><td colspan=3>No parameters for selection &quot;"+cont.getName()+"&quot;</td></tr>\n" );
+							out.append( "<tr><td colspan=3><b>No parameters for selection &quot;"+cont.getName()+"&quot;</b></td></tr>\n" );
 						}
 					}
-					out.append( "</table></td><td></td>\n</tr>\n" );
+					out.append( "</table></td></tr>\n" );
 				}
 			}
 		}
@@ -645,11 +635,16 @@ if( k == null ) {
 			ParameterSet ps = toolParameters[toolIndex];
 			try {
 				PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
-				fos.append( "<table border=0 cellpadding=10 align=\"center\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
+				fos.append( "<table border=0 cellpadding=10 align=\"center\" width=\"100%\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
 				printTable("", keyMap[toolIndex], ps, fos);
 				fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
 				fos.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
 				fos.append( "<td>STRING</td>\n</tr>\n" );
+				if(configureThreads[toolIndex]){
+					fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">threads</font></td>\n" );
+					fos.append( "<td>The number of threads used for the tool, defaults to 1</td>\n" );
+					fos.append( "<td>INT</td>\n</tr>\n" );
+				}				
 				fos.append( "</table>" );
 				fos.close();
 			} catch( Exception ex ) {

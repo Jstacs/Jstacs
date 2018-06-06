@@ -18,6 +18,7 @@
 
 package de.jstacs.tools;
 
+import de.jstacs.DataType;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
@@ -100,8 +101,10 @@ public interface JstacsTool {
 	 */
 	public static String getSimpleParameterInfo( ParameterSet parameters ) {
 		String res = null;
+		ParameterSet inner;
 		for( int i = 0; i < parameters.getNumberOfParameters(); i++ ) {
 			Parameter p = parameters.getParameterAt(i);
+			inner = null;
 			if( (p instanceof SimpleParameter || p instanceof AbstractSelectionParameter) ){ 
 				if( res == null ) {
 					res = "";
@@ -116,9 +119,15 @@ public interface JstacsTool {
 					o = p.getValue();
 				}
 				res += p.getName() + ": " + o;
+				if ( p instanceof SelectionParameter && p.getDatatype() == DataType.PARAMETERSET ) {
+					inner = (ParameterSet) p.getValue();
+				}
 			}
 			if( p instanceof ParameterSetContainer ) {
-				String subRes = getSimpleParameterInfo( ((ParameterSetContainer)p).getValue() );
+				inner = ((ParameterSetContainer)p).getValue();
+			}
+			if( inner != null ) {
+				String subRes = getSimpleParameterInfo( inner );
 				if( subRes != null ) {
 					if( res == null ) {
 						res = "";
