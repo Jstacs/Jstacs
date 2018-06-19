@@ -1,1 +1,2 @@
-AT4G26150.TAIR10	AT4G26150.1.TAIR10	0, 1, 2
+#geneID	transcript	cds-parts	phases	chr	strand	start	end	full-length	longest intron	smallest exon	split AA
+AT4G26150.TAIR10	AT4G26150.1.TAIR10	0, 1, 2	0,0,0	Chr4	1	13253210	13254659	true	309	94	,
