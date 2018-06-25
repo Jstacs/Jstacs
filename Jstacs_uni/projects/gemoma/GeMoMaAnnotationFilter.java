@@ -110,7 +110,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				split = line.split("\t");
 				
 				t = split[2];
-				if( t.equalsIgnoreCase( tag ) ) {
+				if( t.equalsIgnoreCase( tag ) ) { //tag: prediction/mRNA/transcript
 					current = new Prediction(split, k, prefix[k]);
 					if( ids.contains( current.id ) ) {
 						//System.out.println(line);
@@ -121,7 +121,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 						ids.add(current.id);
 					}
 					pred.add( current );
-				} else {
+				} else { //CDS
 					current.addCDS( line );
 				}
 				
@@ -449,6 +449,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 					this.prefix += "_";
 				}
 				this.split[8] = this.split[8].replace("ID="+id,"ID=" + this.prefix + id);
+				id = this.prefix + id;
 				String rg = hash.get("ref-gene");
 				this.split[8] = this.split[8].replace("ref-gene="+rg,"ref-gene=" + this.prefix + rg);
 			}
@@ -645,7 +646,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		try{
 			return
 				new ToolParameterSet( getShortName(),
-					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,"prediction"),
+					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,GeMoMa.TAG),
 					new SimpleParameter(DataType.DOUBLE,"relative score filter","the initial filter on the relative score (i.e. score devided by length)", true, 0.75 ),
 					new SimpleParameter(DataType.BOOLEAN,"complete","only complete predictions (having start and stop codon) pass the initial filter", true, true ),
 					new SimpleParameter(DataType.BOOLEAN,"missing intron evidence filter","the filter for single-exon transcripts or if no RNA-seq data is used, decides for overlapping other transcripts whether they should be used (=true) or discarded (=false)", true, false ),
@@ -688,7 +689,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	public String getHelpText() {
 		return
 				"**What it does**\n\nThis tool filters (and combines) gene predictions obtained from GeMoMa. It allows to combine the predictions from multiple reference organisms, but works also using only one reference organism. This tool does not modify the predictions, but filters redundant and low-quality predictions.\n\n"
-				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
+				+ GeMoMa.REF;
 	}
 
 	@Override

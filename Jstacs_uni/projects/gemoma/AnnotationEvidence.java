@@ -237,8 +237,7 @@ public class AnnotationEvidence implements JstacsTool {
 	public String getHelpText() {
 		return 
 			"**What it does**\n\nThis tool computes for each annotated coding sequence the transcription intron evidence (tie) and the transcript percentage coverage (tpc) given mapped RNA-seq evidence. Please use *ERE* to preprocess the mapped reads.\n\n"
-			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n\n"
-				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89";
+			+ GeMoMa.REF;
 	}
 
 	private static final String defResult = "evidence";
