@@ -123,7 +123,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
 		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code");
-		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag" );
+		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage" );
 		ToolParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		
 		try{
@@ -145,14 +145,14 @@ public class GeMoMaPipeline implements JstacsTool {
 													new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false )
 												)
 									},
-									"species", "", true
+									"species", "data for reference species", true
 								)
 						), "reference", "", 1 )
 				),/**/
 				
 				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ),
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
-				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
+				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
 				
 				new SelectionParameter( DataType.PARAMETERSET, 
 						new String[]{"NO", "MAPPED","EXTRACTED"},
@@ -184,7 +184,7 @@ public class GeMoMaPipeline implements JstacsTool {
 										), "coverage", "", 1 ) )
 								)
 						},
-						"RNA-seq evidence", "", true ),
+						"RNA-seq evidence", "data for RNA-seq evidence", true ),
 
 				new ParameterSetContainer("Extractor parameter set", "parameters for the Extrator module of GeMoMa", ex ),
 				new ParameterSetContainer("GeMoMa parameter set", "parameters for the GeMoMa", gem ),
@@ -1014,7 +1014,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	@Override
 	public String getHelpText() {
 		return "**What it does**\n\nThis tool can be used to run the complete GeMoMa pipeline. The tool is multi-threaded and can utilize all compute cores on one machine, but not distributed as for instance in a compute cluster.\nIt basically runs: makeblastdb, Extract RNA-seq evidence (ERE), Extractor, FastaSplitter, tblastn, GeMoMa, cat, and GeMoMa Annotation Filter (GAF).\n\n"
-				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
+				+ GeMoMa.REF;
 	}
 
 	@Override

@@ -58,7 +58,6 @@ import de.jstacs.algorithms.alignment.Alignment;
 import de.jstacs.algorithms.alignment.Alignment.AlignmentType;
 import de.jstacs.algorithms.alignment.PairwiseStringAlignment;
 import de.jstacs.algorithms.alignment.cost.AffineCosts;
-import de.jstacs.algorithms.alignment.cost.Costs;
 import de.jstacs.algorithms.alignment.cost.MatrixCosts;
 import de.jstacs.algorithms.graphs.UnionFind;
 import de.jstacs.data.AlphabetContainer;
@@ -99,9 +98,11 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String VERSION = "1.5.2";
+	public static final String VERSION = "1.6beta";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
+	
+	public static final String TAG = "prediction";
 	
 	public static final String GeMoMa_TEMP = "GeMoMa_temp/";//TODO
 	
@@ -115,14 +116,14 @@ public class GeMoMa implements JstacsTool {
 
 	//global variables (always same for the same target species)
 	//
-	private static HashMap<String, String> seqs;
+	static HashMap<String, String> seqs;
 	private static HashMap<String,Character> code;
 	private static HashMap<String, String> selected = null; //optional
 	//splicing
-	private static HashMap<String, int[][][]> donorSites;
-	private static HashMap<String, int[][][]> acceptorSites;
+	static HashMap<String, int[][][]> donorSites;
+	static HashMap<String, int[][][]> acceptorSites;
 	//coverage
-	private static HashMap<String, int[][]>[] coverage;	
+	static HashMap<String, int[][]>[] coverage;	
 
 	//fill
 	static synchronized void fill( Protocol protocol, boolean verbose, int maxSize, String targetGenome, String selectedFile, int reads, ExpandableParameterSet introns, ExpandableParameterSet cov ) throws Exception {
@@ -243,7 +244,7 @@ public class GeMoMa implements JstacsTool {
 	private double[][] matrix;
 	private int gapOpening;
 	private int gapExtension;
-	private Costs cost;
+	private AffineCosts cost;
 	private Tools.Ambiguity ambiguity = Ambiguity.AMBIGUOUS;
 
 	//splicing
@@ -364,6 +365,7 @@ public class GeMoMa implements JstacsTool {
 				new ExtractRNAseqEvidence(),
 				new GeMoMa(maxSize, timeOut, maxTimeOut),
 				new GeMoMaAnnotationFilter(),
+				new AnnotationFinalizer(),
 				new AnnotationEvidence(),
 				new CompareTranscripts(),
 				new GeMoMaPipeline()
@@ -372,7 +374,7 @@ public class GeMoMa implements JstacsTool {
 		};
 		boolean[] configureThreads = new boolean[tools.length];
 		Arrays.fill(configureThreads,false);
-		configureThreads[6]=true;
+		configureThreads[tools.length-1]=true;
 		
 		//running the program
 		if( args.length == 0 ) {
@@ -608,7 +610,7 @@ public class GeMoMa implements JstacsTool {
 					reads = threshold;
 				}
 				if( reads >= threshold ) {
-					list.add( new int[]{Integer.parseInt(split[1])+1, Integer.parseInt(split[2]), reads} );
+					list.add( new int[]{Integer.parseInt(split[1]), Integer.parseInt(split[2])-1, reads} );
 				}
 			}
 			i++;
@@ -624,10 +626,14 @@ public class GeMoMa implements JstacsTool {
 	 * @param seqs the genome sequence
 	 * @param intronGFF the input files
 	 * 
-	 * @return  an array of {@link HashMap} where the first entry is the introns of the forward strand and the second entry is introns of the reverse strand.
-	 * 		The introns for one strand are given as {@link HashMap} with contig/chromosome names as key and <code>int[][][]</code> arrays as entries.
-	 * 		The first dimension of the <code>int[][][]</code> array is sorted according to the donor sites, the second is sorted according to the acceptor sites.
-	 * 		Each <code>int[]</code> array represents a tuple of start position, end position, and number of split reads.
+	 * @return  an array of {@link HashMap} where the first and second entry are the introns sorted according to the donor and acceptor site, respectively.
+	 * 		The three-dimensional array encodes the information:
+	 * 		<ul>
+	 * 			<li>first dimension: strand: 0=forward, 1=reverse complement</li>
+	 *			<li>second dimension: type: 0=donor, 1=acceptor, 2=#split reads</li>
+	 * 			<li>third dimension: *counter*</li>
+	 * 		</ul>
+	 * 		Hence, introns[0].get(chr)[s][1][i] contains the information for the i-th acceptor site of strand s from chromosome chr, when sorted according to the donor sites.
 	 * 
 	 * @throws IOException if at least one {@link File} cannot be read correctly 
 	 */
@@ -4451,7 +4457,7 @@ public class GeMoMa implements JstacsTool {
 		
 		private static IntList first = new IntList(), second = new IntList();
 		private GeMoMa instance;
-		public MyAlignment(Costs costs,GeMoMa instance) {
+		public MyAlignment(AffineCosts costs,GeMoMa instance) {
 			super(costs);
 			this.instance = instance;
 		}
@@ -4573,7 +4579,7 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.BOOLEAN, "align", "A flag which allows to output a tab-delimited file, which contains the results in a blast-like format (deprecated)", true, false ),
 					new SimpleParameter( DataType.BOOLEAN, "genomic", "A flag which allows to output a fasta file containing the genomic regions of the predictions", true, false ),
 					new SimpleParameter( DataType.STRING, "prefix", "A prefix to be used for naming the predictions", true, "" ),
-					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, "prediction" ),
+					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, TAG ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false ),
 					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not output a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, maxTimeOut), timeOut )
@@ -4615,9 +4621,13 @@ public class GeMoMa implements JstacsTool {
 				+ "If you change the values of *contig threshold*, *region threshold* and *hit threshold*, this will influence the predictions as well as the runtime of the algorithm. The lower the values are, the slower the algorithm is.\n\n"
 				//filter
 				+ "You can filter your predictions using **GAF**, which also allows for combining predictions from different reference organismns.\n\n"	
-			+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n\n"
-				+"If you use this tool, please cite\n\n*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016, http://nar.oxfordjournals.org/content/44/9/e89";
+			+ REF;
 	}
+	
+	public static String REF = "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n\n"
+				+"If you use this tool, please cite\n\n"
+					+ "*Using intron position conservation for homology-based gene prediction.*\n Keilwagen et al., NAR, 2016, https://doi.org/10.1093/nar/gkw092\n"
+					+ "*Combining RNA-seq data and homology-based gene prediction for plants, animals and fungi.*\n Keilwagen et al., BMC Bioinformatics, 2018, https://doi.org/10.1186/s12859-018-2203-5\n";
 	
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {

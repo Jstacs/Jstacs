@@ -1089,7 +1089,7 @@ public class Extractor implements JstacsTool {
 					+ "+---+------------------------------+\n"
 					+ "|...| ...                          |\n"
 					+ "+---+------------------------------+\n\n"
-				+ "**References**\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa or contact jens.keilwagen@julius-kuehn.de.\n";
+				+ GeMoMa.REF;
 	}
 	
 	@Override
