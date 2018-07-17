@@ -246,6 +246,11 @@ public class ToolBox {
 		}
 	}
 	
+	
+	public static double mean(double... array){
+		return mean(0,array.length,array);
+	}
+	
 	/**
 	 * This method returns the mean of the elements of an <code>array</code>
 	 * between <code>start</code> and <code>end</code>.
@@ -859,6 +864,18 @@ public class ToolBox {
 			}
 		}
 		return min;
+	}
+
+	public static double[] zscore(double[] vals) {
+		double[] temp = vals.clone();
+		double mean = mean(vals);
+		double sd = sd(0,vals.length,vals);
+		
+		for(int i=0;i<temp.length;i++){
+			temp[i] = (temp[i] - mean)/sd;
+		}
+		return temp;
+		
 	}
 	
 	
