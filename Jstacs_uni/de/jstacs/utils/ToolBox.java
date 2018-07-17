@@ -246,7 +246,13 @@ public class ToolBox {
 		}
 	}
 	
-	
+	/**
+	 * This method returns the mean of the elements of an <code>array</code>.
+	 * 
+	 * @param array
+	 *            the array of values
+	 * @return the mean
+	 */
 	public static double mean(double... array){
 		return mean(0,array.length,array);
 	}
