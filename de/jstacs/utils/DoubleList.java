@@ -216,7 +216,7 @@ public final class DoubleList implements Storable, Cloneable {
 	 * @return a <code>double</code> array containing the elements of the list
 	 */
 	public double[] toArray(int start, int end){
-		if(start < 0 || start> end || end >= size){
+		if(start < 0 || start> end || end > size){
 			throw new ArrayIndexOutOfBoundsException();
 		}
 		double[] erg = new double[end-start];
