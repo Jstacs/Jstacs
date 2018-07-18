@@ -420,7 +420,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		HashSet<String> alternative;
 		int index;
 		boolean[] evidence;
-		String prefix, id;
+		String prefix, oldId, id;
 		
 		public Prediction( String[] split, int index, String prefix ) {
 			this.index = index;
@@ -442,16 +442,19 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				hash.put( split[i].substring(0,idx), s );
 			}
 			score = Integer.parseInt(hash.get("score"));
-			id = hash.get("ID");
+			oldId = hash.get("ID");
 			if( prefix != null && prefix.length()>0 ) {
 				this.prefix = prefix;
 				if( prefix.charAt(prefix.length()-1) != '_' ) {
 					this.prefix += "_";
 				}
-				this.split[8] = this.split[8].replace("ID="+id,"ID=" + this.prefix + id);
-				id = this.prefix + id;
+				id = this.prefix + oldId;
+				
+				this.split[8] = this.split[8].replace("ID="+oldId,"ID=" + id);
 				String rg = hash.get("ref-gene");
 				this.split[8] = this.split[8].replace("ref-gene="+rg,"ref-gene=" + this.prefix + rg);
+			} else {
+				id=oldId;
 			}
 
 			cds = new ArrayList<String>();
@@ -461,7 +464,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		
 		void addCDS( String cds ) {
 			if( prefix != null && prefix.length()>0 ) {
-				cds = cds.replaceAll("="+id, "=" + prefix + id);
+				cds = cds.replaceAll("([;\t])(ID|Parent)="+oldId, "$1$2=" + id);
 			}
 			this.cds.add( cds );
 			String[] split = cds.split("\t");
