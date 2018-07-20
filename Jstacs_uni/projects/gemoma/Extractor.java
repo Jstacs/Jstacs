@@ -75,7 +75,7 @@ public class Extractor implements JstacsTool {
 		out.add(SafeOutputStream.getSafeOutputStream(b));
 	}
 
-	static String[] name = {"cds-parts", "assignment", "proteins", "cds"};
+	static String[] name = {"cds-parts", "assignment", "proteins", "cds", "genomic"};
 	static String[] type;
 	static {
 		type = new String[name.length];
@@ -124,8 +124,9 @@ public class Extractor implements JstacsTool {
 		out = new ArrayList<SafeOutputStream>();
 		getOut( name[0], file, out );
 		getOut( name[1], file, out );
-		getOut( ((Boolean)parameters.getParameterForName(name[2]).getValue()) ? name[2] : null, file, out );
-		getOut( ((Boolean)parameters.getParameterForName(name[3]).getValue()) ? name[3] : null, file, out );
+		for( int i = 2; i <= 4; i++ ) {
+			getOut( ((Boolean)parameters.getParameterForName(name[i]).getValue()) ? name[i] : null, file, out );
+		}
 	
 		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon\tsplit AA" );
 		
@@ -657,7 +658,7 @@ public class Extractor implements JstacsTool {
 					} catch( StringIndexOutOfBoundsException sioobe ) {
 						s=null;//TODO
 					}
-					part.add(new Part(s,val[3]));
+					part.add(new Part(s,val));
 				}
 				
 				Arrays.fill( used, false );
@@ -668,7 +669,7 @@ public class Extractor implements JstacsTool {
 						Part current = part.get( il.get(j) );
 						set[j] = current.aa != null;
 					}
-					int prob = transcript( stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don );
+					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don );
 					
 					//try to repair
 					if( prob>=0 && rep) {
@@ -683,7 +684,7 @@ public class Extractor implements JstacsTool {
 									current.aa = null;
 								}
 							}
-							test = transcript(stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, false, used, acc, don);
+							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, false, used, acc, don);
 						} while( test >= 0 && phase <= 2 );
 						if( test < 0 ) {
 							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
@@ -759,7 +760,7 @@ public class Extractor implements JstacsTool {
 	HashMap<String, int[]> donor, acceptor;
 	HashMap<Integer,int[]> count;
 	
-	int transcript(boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
+	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
 		int j;
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
@@ -931,6 +932,36 @@ public class Extractor implements JstacsTool {
 				}
 				c[0]++;
 				
+				//genomic region
+				if( !out.get(4).doesNothing() ) {
+					StringBuffer genomicRegion = new StringBuffer();
+					int off = 300, st;
+					
+					Part firstP = part.get(il.get(0));
+					Part lastP = part.get(il.get(il.length()-1));
+					boolean forward = gene.strand==1;
+					if( forward ) {
+						st = Math.max(firstP.start-off,1);
+						genomicRegion = new StringBuffer( seq.substring(st-1, Math.min( seq.length(), lastP.end+off)).toLowerCase() );
+					} else {
+						st = Math.min(seq.length(), firstP.end+off);
+						genomicRegion = new StringBuffer( Tools.rc(seq.substring(Math.max(lastP.start-off,1)-1, 
+								st )).toLowerCase() );
+					}
+	
+					for( j = 0; j < il.length(); j++ ) {
+						Part t = part.get(il.get(j));
+						int a = t.start-st, b = t.end-st;
+						if( forward ) {
+							genomicRegion.replace(a, b+1, genomicRegion.substring(a, b+1).toUpperCase() );
+						} else {
+							genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() ); //TODO Bug Sven
+						}
+					}
+					out.get(4).writeln(">" +trans + " " + chr + " " + (gene.strand==1?"+":"-") + " " + start + ".." + end );
+					out.get(4).writeln(genomicRegion);
+				}
+				
 				//splice sites
 				int ignoreAAForSpliceSite=30, targetStart, targetEnd;
 				last=-1;
@@ -1010,16 +1041,14 @@ public class Extractor implements JstacsTool {
 		static final int NO_PHASE = -100000;
 		
 		String dna, aa;
-		int offsetLeft, offsetRight;
+		int offsetLeft, offsetRight, start, end;
 		
-		Part( String dna ) {
-			this(dna, NO_PHASE);
-		}
-		
-		Part( String dna, int phase ) {
+		Part( String dna, int[] val ) {
 			this.dna= dna;
 			aa = null;
-			offsetLeft = phase;
+			start = val[1];
+			end = val[2];
+			offsetLeft = val[3];
 			offsetRight = NO_PHASE;
 		}
 	}
@@ -1034,6 +1063,7 @@ public class Extractor implements JstacsTool {
 					
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, "genomic", "whether the genomic regions should be returned (upper case = coding, lower case = non coding)", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the program will try to infer the phase of the CDS parts to repair the annotation", true, false ),
 				
 				/*
@@ -1053,7 +1083,7 @@ public class Extractor implements JstacsTool {
 						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),
 				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
-				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information", true, false )
+				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information", true, false )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();
