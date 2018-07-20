@@ -98,7 +98,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa implements JstacsTool {
 
-	public static final String VERSION = "1.6beta";
+	public static final String VERSION = "1.5.3";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 	
@@ -234,7 +234,7 @@ public class GeMoMa implements JstacsTool {
 	private HashMap<String,HashMap<String,Info>> transcriptInfo;
 
 	//out
-	private BufferedWriter gff, predicted, blastLike, genomic;
+	private BufferedWriter gff, blastLike;
 	private String prefix, tag;
 	
 	//alignment
@@ -259,8 +259,6 @@ public class GeMoMa implements JstacsTool {
 		numberOfTestedStrands,
 		numberOfPairwiseAlignments;
 	private int[] stats = new int[5];
-
-	private boolean writeGenomic;
 	
 	//for logging
 	private Time time;
@@ -807,13 +805,9 @@ public class GeMoMa implements JstacsTool {
 		tag = (String) parameters.getParameterForName("tag").getValue();
 		timeOut = (Long) parameters.getParameterForName( "timeout" ).getValue();
 		
-		writeGenomic = (Boolean) parameters.getParameterForName("genomic").getValue();
-			
 		//outputs
 		File gffFile = createTempFile("gff");
-		File predictedFile = createTempFile("protein");
 		File alignFile = createTempFile("align");
-		File genomicFile = createTempFile("genomic");
 		
 		gff = new BufferedWriter( new FileWriter( gffFile ) );
 		gff.append("##gff-version 3");
@@ -825,9 +819,7 @@ public class GeMoMa implements JstacsTool {
 		}
 		gff.newLine();
 		
-		predicted = new BufferedWriter( new FileWriter( predictedFile ) );
 		blastLike = new BufferedWriter( new FileWriter( alignFile ) );
-		genomic = new BufferedWriter( new FileWriter( genomicFile ) );
 		
 		Parameter p = parameters.getParameterForName("query proteins");
 		
@@ -896,20 +888,14 @@ public class GeMoMa implements JstacsTool {
 					
 			//close output;
 			gff.close();
-			predicted.close();
 			blastLike.close();
-			genomic.close();
 			
 			if( okay ) {
 				
 				res.add( new TextResult("predicted annotation", "Result", new FileParameter.FileRepresentation(gffFile.getAbsolutePath()), "gff", getToolName(), null, true) );
-				res.add( new TextResult("predicted protein", "Result", new FileParameter.FileRepresentation(predictedFile.getAbsolutePath()), "fasta", getToolName(), null, true) );
 
 				if( (Boolean) parameters.getParameterForName("align").getValue() ) {
 					res.add( new TextResult("alignment", "Result", new FileParameter.FileRepresentation(alignFile.getAbsolutePath()), "tabular", getToolName(), null, true) );
-				}
-				if( writeGenomic ) {
-					res.add( new TextResult("genomic", "Result", new FileParameter.FileRepresentation(genomicFile.getAbsolutePath()), "fasta", getToolName(), null, true) );
 				}
 			}
 			
@@ -2452,14 +2438,8 @@ public class GeMoMa implements JstacsTool {
 						
 						gff.append(gffHelp);
 						
-						predicted.write( ">" + prefix+transcriptName + "_R" + i );
-						predicted.newLine();
-						predicted.write( best.getProtein() );
-						predicted.newLine();
 						
-						genomic.flush();
 						gff.flush();
-						predicted.flush();
 						blastLike.flush();
 						protocol.flush();
 					}
@@ -4220,37 +4200,13 @@ public class GeMoMa implements JstacsTool {
 			
 			public void writeSummary( String geneName, String transcriptName, int i ) throws Exception {
 				Hit first = hits.get(0);
-				String chr = seqs.get(first.targetID);
-				gff.append( first.targetID + "\tGeMoMa\t"+tag+"\t" );
-				StringBuffer genomicRegion = new StringBuffer();
-				int off = 300, s;
-				
+				gff.append( first.targetID + "\tGeMoMa\t"+tag+"\t" );				
 				if( forward ) {
 					gff.append( first.targetStart + "\t" + hits.getLast().targetEnd );
-					s = Math.max(first.targetStart-off,1);
-					genomicRegion = new StringBuffer( chr.substring(s-1, Math.min( chr.length(), hits.getLast().targetEnd+off)).toLowerCase() );
 				} else {
 					gff.append( hits.getLast().targetStart + "\t" + first.targetEnd );
-					s = Math.min(chr.length(), first.targetEnd+off);
-					genomicRegion = new StringBuffer( Tools.rc(chr.substring(Math.max(hits.getLast().targetStart-off,1)-1, 
-							s )).toLowerCase() );
 				}
-
 				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName + ";AA="+getNumberOfAA() );
-				if( writeGenomic ) {//> v1.3.1
-					genomic.append(">" + prefix+transcriptName + "_R" + i );
-					genomic.newLine();
-					for( Hit t : hits ) {
-						int a = t.targetStart-s, b = t.targetEnd-s;
-						if( forward ) {
-							genomicRegion.replace(a, b+1, genomicRegion.substring(a, b+1).toUpperCase() );
-						} else {
-								genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() ); //TODO Bug Sven
-						}
-					}
-					genomic.append(genomicRegion);
-					genomic.newLine();
-				}
 			}
 			
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {
@@ -4577,11 +4533,10 @@ public class GeMoMa implements JstacsTool {
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
 			
 					new SimpleParameter( DataType.BOOLEAN, "align", "A flag which allows to output a tab-delimited file, which contains the results in a blast-like format (deprecated)", true, false ),
-					new SimpleParameter( DataType.BOOLEAN, "genomic", "A flag which allows to output a fasta file containing the genomic regions of the predictions", true, false ),
 					new SimpleParameter( DataType.STRING, "prefix", "A prefix to be used for naming the predictions", true, "" ),
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, TAG ),
 					
-					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output wealth of additional information per transcript", true, false ),
+					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information per transcript", true, false ),
 					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not output a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, maxTimeOut), timeOut )
 			);		
 		}catch(Exception e){
@@ -4632,8 +4587,7 @@ public class GeMoMa implements JstacsTool {
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "gff", "predicted annotation"),
-				new ResultEntry(TextResult.class, "fasta", "predicted protein")
+				new ResultEntry(TextResult.class, "gff", "predicted annotation")
 		};
 	}
 }
