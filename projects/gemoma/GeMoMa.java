@@ -363,7 +363,7 @@ public class GeMoMa implements JstacsTool {
 				new ExtractRNAseqEvidence(),
 				new GeMoMa(maxSize, timeOut, maxTimeOut),
 				new GeMoMaAnnotationFilter(),
-				new AnnotationFinalizer(),
+				//new AnnotationFinalizer(),
 				new AnnotationEvidence(),
 				new CompareTranscripts(),
 				new GeMoMaPipeline()
