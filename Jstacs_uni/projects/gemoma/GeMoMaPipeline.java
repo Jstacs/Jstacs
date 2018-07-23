@@ -122,7 +122,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
-		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code");
+		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
 		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage" );
 		ToolParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		
@@ -724,7 +724,7 @@ public class GeMoMaPipeline implements JstacsTool {
 				
 				rnaSeqData.introns.add(home + "/introns.gff");
 				
-				boolean cov = ((Boolean) params.getParameterForName("coverage output").getValue());
+				boolean cov = ((Boolean) params.getParameterForName("coverage").getValue());
 				if( cov ) {
 					String fName = home + "/coverage.bedgraph";
 					if( new File(fName).exists() ) {//unstranded
