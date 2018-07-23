@@ -1063,7 +1063,7 @@ public class Extractor implements JstacsTool {
 					
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
-				new SimpleParameter(DataType.BOOLEAN, "genomic", "whether the genomic regions should be returned (upper case = coding, lower case = non coding)", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, Extractor.name[4], "whether the genomic regions should be returned (upper case = coding, lower case = non coding)", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the program will try to infer the phase of the CDS parts to repair the annotation", true, false ),
 				
 				/*

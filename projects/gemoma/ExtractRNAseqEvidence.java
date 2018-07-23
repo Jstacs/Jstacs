@@ -223,7 +223,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 							), "mapped reads", "", 1 ) ),
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
-						new SimpleParameter(DataType.BOOLEAN,"coverage output", "allows to output the coverage", true, false)
+						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, false)
 					);
 		} catch (Exception e) {
 			e.printStackTrace();
