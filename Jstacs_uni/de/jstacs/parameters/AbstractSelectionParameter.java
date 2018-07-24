@@ -625,6 +625,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 			}else{
 				XMLParser.appendObjectWithTagsAndAttributes( buf, parameters.getParameterAt( i ).getName() , "option", "value=\""+parameters.getParameterAt( i ).getName()+"\"", false );
 			}
+			buf.append("\n");
 		}
 		String line = "";
 		if(addLine){
