@@ -93,85 +93,87 @@ public class AnnotationEvidence implements JstacsTool {
 					while( cds.hasNext() ) {
 						Entry<String,IntList> e = cds.next();
 						IntList parts = e.getValue();
-						w.append( g.id + "\t" + c + "\t" + g.start + "\t" + g.end + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
-						
-						double tie=0;
-						int last=-10;
-						int covered=0, l=0, idx;
-						int[][] donSites = sites==null? null : sites[g.strand==1?0:1];
-						for( int j = 0;j < parts.length(); j++ ) {
-							int[] part = g.exon.get(parts.get(j));
+						if( parts.length()>0 ) {
+							w.append( g.id + "\t" + c + "\t" + g.start + "\t" + g.end + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
 							
-							//tie
-							if( donSites != null ) {
-								int v = g.strand==1 ? part[1] : (part[2]+1);
+							double tie=0;
+							int last=-10;
+							int covered=0, l=0, idx;
+							int[][] donSites = sites==null? null : sites[g.strand==1?0:1];
+							for( int j = 0;j < parts.length(); j++ ) {
+								int[] part = g.exon.get(parts.get(j));
 								
-								idx = Arrays.binarySearch( donSites[0], last );
-								if( idx > 0 ) {
-									while( idx>0 &&  donSites[0][idx-1] == last ) {
-										idx--;
-									}
-								}
-								if( idx >= 0 ) {
-									while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
-										idx++;
-									}
-									if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-										tie++;
-									}
-								}
-							}
-							
-							//cov
-							int start = part[1];//t.targetStart;
-							int end = part[2];//t.targetEnd;
-							l += end-start+1;
-							if( cov != null ) {
-								idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
-								if( idx < 0 ) {
-									idx = -(idx+1);
-									idx = Math.max(0, idx-1);
-								}
-								
-								int[] inter = cov[idx];
-								//System.out.println("hier " + start + " .. " + end + "\t" + Arrays.toString(inter) );
-								int p = start;
-								outerloop: while( p <= end ) {
-									while( p > inter[1] ) {
-										idx++;
-										if( idx < cov.length ) {
-											inter = cov[idx];
-										} else {
-											break outerloop;
+								//tie
+								if( donSites != null ) {
+									int v = g.strand==1 ? part[1] : (part[2]+1);
+									
+									idx = Arrays.binarySearch( donSites[0], last );
+									if( idx > 0 ) {
+										while( idx>0 &&  donSites[0][idx-1] == last ) {
+											idx--;
 										}
 									}
-									if( inter[0]<= p && p <=inter[1] ) {
-										int h = Math.min(inter[1],end)+1;
-										int a=h-p;
-										covered+=a;
-										
-										p=h;
-									} else {//p<inter[0] && p<=inter[1]
-										p = Math.min(inter[0],end+1);
+									if( idx >= 0 ) {
+										while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
+											idx++;
+										}
+										if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
+											tie++;
+										}
 									}
-									//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
 								}
+								
+								//cov
+								int start = part[1];//t.targetStart;
+								int end = part[2];//t.targetEnd;
+								l += end-start+1;
+								if( cov != null ) {
+									idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
+									if( idx < 0 ) {
+										idx = -(idx+1);
+										idx = Math.max(0, idx-1);
+									}
+									
+									int[] inter = cov[idx];
+									//System.out.println("hier " + start + " .. " + end + "\t" + Arrays.toString(inter) );
+									int p = start;
+									outerloop: while( p <= end ) {
+										while( p > inter[1] ) {
+											idx++;
+											if( idx < cov.length ) {
+												inter = cov[idx];
+											} else {
+												break outerloop;
+											}
+										}
+										if( inter[0]<= p && p <=inter[1] ) {
+											int h = Math.min(inter[1],end)+1;
+											int a=h-p;
+											covered+=a;
+											
+											p=h;
+										} else {//p<inter[0] && p<=inter[1]
+											p = Math.min(inter[0],end+1);
+										}
+										//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
+									}
+								}
+								
+								last = g.strand==1 ? part[2]+1 : part[1];
 							}
-							
-							last = g.strand==1 ? part[2]+1 : part[1];
+							if( parts.length()==1 ) {
+								w.append( "NA" );
+							} else {
+								w.append( GeMoMa.decFormat.format( tie/(parts.length()-1d)) );
+							}
+							w.append( "\t" );
+							if( coverage ==null ) {
+								w.append( "NA" );
+							} else {
+								w.append( GeMoMa.decFormat.format(covered/(double)l) );
+							}
+							w.newLine();
 						}
-						if( parts.length()==1 ) {
-							w.append( "NA" );
-						} else {
-							w.append( GeMoMa.decFormat.format( tie/(parts.length()-1d)) );
-						}
-						w.append( "\t" );
-						if( coverage ==null ) {
-							w.append( "NA" );
-						} else {
-							w.append( GeMoMa.decFormat.format(covered/(double)l) );
-						}
-						w.newLine();
 					}
 				}
 			}

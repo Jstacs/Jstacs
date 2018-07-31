@@ -31,10 +31,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import de.jstacs.DataType;
+import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.Parameter;
+import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
@@ -55,26 +61,64 @@ public class CompareTranscripts implements JstacsTool {
 	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
-		String fName = (String) parameters.getParameterForName("assignment").getValue();
-		HashMap<String, String[]> gene = Tools.getAlias(fName, 1, 0, 2);
+		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("transcript info").getValue();
+		HashMap<String, String[]> gene = new HashMap<String, String[]>();
+		HashMap<String,int[]> stats = new HashMap<String,int[]>();
+		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
+			SimpleParameterSet ps = (SimpleParameterSet) eps.getParameterAt(i).getValue();
+			if( ps.getParameterForName("assignment").isSet() ) {
+				String fName = (String) ps.getParameterForName("assignment").getValue();
+				Parameter p = ps.getParameterForName("prefix");
+				String prefix = p.isSet() ? (String) p.getValue() : null;
+				Tools.getAlias(gene, fName, prefix, 1, 0, 2);
+			}
+		}
+		boolean output = gene.size()>0; 
+		if( !output ) {
+			gene = null;
+		} else {
+			Iterator<Entry<String,String[]>> it = gene.entrySet().iterator();
+			while( it.hasNext() ) {
+				Entry<String, String[]> e = it.next();
+				String geneName = e.getValue()[0];
+				int[] stat = stats.get(geneName);
+				if( stat == null ) {
+					stat = new int[2];
+					stats.put(geneName, stat);
+				}
+				stat[0]++;
+			}
+		}
 		
-		HashMap<String,Annotation> truth = readGFF( parameters.getParameterForName("annotation").getValue().toString(), false );
-		HashMap<String,Annotation> prediction = readGFF( parameters.getParameterForName("prediction").getValue().toString(), true );//standard
+		HashMap<String,Annotation> truth = readGFF( parameters.getParameterForName("annotation").getValue().toString(), false, true );
 		protocol.append( "truth: " + truth.size()  +"\n");
+		HashMap<String,Annotation> prediction = readGFF( parameters.getParameterForName("prediction").getValue().toString(), true, true );//standard
 		protocol.append( "prediction: " + prediction.size() +"\n" );
 		
 		File f = GeMoMa.createTempFile("CompareTranscript");
-		boolean prefix = (Boolean) parameters.getParameterForName("prefix").getValue();
-		bestHit(gene, /*TODO*/"_R", null, truth, prediction, f,protocol, prefix);
-		protocol.append("problem: " + Arrays.toString(problem));
+		int problem = bestHit(gene, /*TODO*/"_R", null, truth, prediction, f, protocol, stats);
 
-		return new ToolResult("", "", null, new ResultSet(
-				new TextResult("comparison", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true)
-			), parameters, getToolName(), new Date());
+		ArrayList<Result> res = new ArrayList<Result>();
+		res.add( new TextResult("comparison", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true) );
+		
+		if( stats.size()>0 ) {
+			f = GeMoMa.createTempFile("CompareTranscript-stats");
+			BufferedWriter w = new BufferedWriter( new FileWriter( f ) );
+			w.append("#geneID\ttranscripts in reference annotation\ttranscripts in final prediction\n");
+			Iterator<Entry<String,int[]>> it = stats.entrySet().iterator();
+			while( it.hasNext() ) {
+				Entry<String, int[]> e = it.next();
+				int[] stat = e.getValue();
+				w.append(e.getKey() + "\t" + stat[0] + "\t" + stat[1] +"\n");
+			}
+			w.close();
+			res.add( new TextResult("stats", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true) );
+		}
+		protocol.append("\nproblems: " + problem);
+		
+		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 	}
-	
-	private static int problem[] = new int[2];
-	
+
 	private static String par = "Parent=";
 	
 	private static HashMap<String, String> info = new HashMap<String, String>();
@@ -82,15 +126,14 @@ public class CompareTranscripts implements JstacsTool {
 	/**
 	 * 
 	 * @param input the input file name (GFF)
-	 * @param type the type to be searched, e.g. &quot;CDS&quot;
-	 * @param skip
-	 * @param selected
-	 * @param sep the separator for the info field in the GFF
+	 * @param information a switch allowing to save the attributes column in the field {@link CompareTranscripts#info}
+	 * @param toUpper a switch whether the ID should be parsed in upper case
+	 * 
 	 * @return a {@link HashMap} containing all relevant {@link Annotation}s from the GFF
 	 * 
 	 * @throws Exception
 	 */
-	private static HashMap<String,Annotation> readGFF( String input, boolean information ) throws Exception {
+	private static HashMap<String,Annotation> readGFF( String input, boolean information, boolean toUpper ) throws Exception {
 		String line;
 				
 		HashMap<String,Annotation> annot = new HashMap<String,Annotation>();
@@ -115,7 +158,11 @@ public class CompareTranscripts implements JstacsTool {
 					idx+=3;
 				}
 				int h = split[8].indexOf(';',idx);
-				String[] t = split[8].substring(idx, h<0?split[8].length():h).toUpperCase().split(",");
+				String x = split[8].substring(idx, h<0?split[8].length():h);
+				if( toUpper ) {
+					x=x.toUpperCase();
+				}
+				String[] t = x.split(",");
 				
 				for( String transcriptID: t ) {
 					current = annot.get(transcriptID);
@@ -131,7 +178,10 @@ public class CompareTranscripts implements JstacsTool {
 				if( h < 0 ) {
 					h = split[8].length();
 				}
-				String id = split[8].substring(idx, h).toUpperCase();
+				String id = split[8].substring(idx, h);
+				if( toUpper ) {
+					id = id.toUpperCase();
+				}
 				info.put( id, split[8] );
 			}
 		}
@@ -266,11 +316,12 @@ public class CompareTranscripts implements JstacsTool {
 	 * @param prediction the predicted annotation
 	 * @param file the output file
 	 * @param protocol for writing messages
-	 * @param deletePrefix if the string before the first underscore should be deleted
 	 * 
 	 * @throws IOException if there is any problem with the files
 	 */
-	private static void bestHit( HashMap<String,String[]> gene, String sep, HashMap<String,String[]> alias, HashMap<String,Annotation> truth, HashMap<String,Annotation> prediction, File file, Protocol protocol, boolean deletePrefix ) throws IOException {
+	private static int bestHit( HashMap<String,String[]> gene, String sep, HashMap<String,String[]> alias, HashMap<String,Annotation> truth, HashMap<String,Annotation> prediction, File file, Protocol protocol, HashMap<String,int[]> stats ) throws IOException {
+		int problem = 0;
+		
 		Annotation[] a = new Annotation[truth.size()];
 		truth.values().toArray(a);
 		int[] end = getEnds(a);
@@ -298,9 +349,6 @@ public class CompareTranscripts implements JstacsTool {
 			predictionID = array[i];
 			int index = predictionID.lastIndexOf(sep);
 			transcript = index>0 ? predictionID.substring(0,index) : predictionID;
-			if( deletePrefix ) {
-				transcript = transcript.substring(transcript.indexOf('_')+1);
-			}
 			if( alias != null ) {
 				//System.out.print(id);
 				transcript = alias.get(transcript)[0];
@@ -366,15 +414,45 @@ public class CompareTranscripts implements JstacsTool {
 				} else {
 					w.append( "\t0\tNA\tNA" );
 				}
-				w.append("\t"+info.get(predictionID));
+				String attributes = info.get(predictionID);
+				
+				w.append("\t"+attributes);
 				w.newLine();
+				
+				String s = null;
+				int idx = attributes.indexOf("ref-gene=");
+				if( idx >= 0 ) {
+					idx+=9;
+					s = attributes.substring(idx, attributes.indexOf(';', idx)).toUpperCase();
+					stats.get(s)[1]++;
+				}
+				idx = attributes.indexOf("alternative=");
+				if( idx >= 0 ) {
+					idx+=12;
+					int idx2 = attributes.indexOf(';', idx);
+					if( idx2 < 0 ) {
+						idx2 = attributes.length();
+					}
+					String h = attributes.substring(idx, idx2).toUpperCase();
+					if( h.charAt(0)=='"' && h.charAt(h.length()-1)=='"' ) {
+						h = h.substring(1, h.length()-1);
+					}
+					String[] split = h.split(",");
+					for( int j = 0; j < split.length; j++ ) {
+						if( !s.equals(split[j]) ) {
+							stats.get(split[j])[1]++;
+						}
+					}
+				}
 			} else {
-				protocol.append(transcript+"\n");
+				protocol.append("problem: " + transcript+"\n");
+				problem++;
 			}
 		}
 		w.close();
 		
 		protocol.append("\n");
+		protocol.append("transcripts from annotation that have no overlap with predictions\n");
 		int count = 0;
 		for( int i = 0; i < a.length; i++ ) {
 			if( !used.contains( a[i].id ) ) {
@@ -383,6 +461,8 @@ public class CompareTranscripts implements JstacsTool {
 			}
 		}
 		protocol.append("unused: " + count +"\n\n");
+		
+		return problem;
 	}
 	
 	private static int[] getEnds( Annotation[] a ) {
@@ -576,8 +656,12 @@ public class CompareTranscripts implements JstacsTool {
 			return new ToolParameterSet( getShortName(),
 					new FileParameter( "prediction", "The predicted annotation", "gff", true ),
 					new FileParameter( "annotation", "The true annotation", "gff", true ),
-					new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false ),
-					new SimpleParameter( DataType.BOOLEAN, "prefix", "whether the prefix should be deleted", true, false )
+					new ParameterSetContainer( "transcript info", "", new ExpandableParameterSet( 
+							new SimpleParameterSet(
+									new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
+									new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false )
+							), "transcript info", "", 1 )
+					)
 			);
 		}catch(Exception e){
 			e.printStackTrace();

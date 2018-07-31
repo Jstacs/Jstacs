@@ -453,6 +453,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 				this.split[8] = this.split[8].replace("ID="+oldId,"ID=" + id);
 				String rg = hash.get("ref-gene");
 				this.split[8] = this.split[8].replace("ref-gene="+rg,"ref-gene=" + this.prefix + rg);
+				hash.put("ref-gene",this.prefix + rg);
 			} else {
 				id=oldId;
 			}
