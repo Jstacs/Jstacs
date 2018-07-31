@@ -397,20 +397,30 @@ public class Tools {
 	}
 	
 	public static HashMap<String,String[]> getAlias( String fName, int oldNameIdx, int newNameIdx, int countIdx ) throws Exception {
-		if( fName == null || !(new File(fName).exists())) {
-			return null;
-		}
 		HashMap<String, String[]> res = new HashMap<String, String[]>();
+		getAlias(res, fName, null, oldNameIdx, newNameIdx, countIdx);
+		return res;
+	}
+	
+	public static void getAlias( HashMap<String,String[]> res, String fName, String prefix, int oldNameIdx, int newNameIdx, int countIdx ) throws Exception {
+		if( fName == null || !(new File(fName).exists())) {
+			return;
+		}
+		if( prefix == null ) {
+			prefix="";
+		} else {
+			prefix = prefix.toUpperCase() + "_";
+		}
 		BufferedReader r = new BufferedReader( new FileReader(fName) );
 		String line;
 		String[] split;
 		while( (line=r.readLine()) != null ) {
+			if( line.length()==0 || line.charAt(0)=='#' ) continue;
 			split = line.split("\t");
 			split[newNameIdx] = split[newNameIdx].toUpperCase();
-			res.put(split[oldNameIdx].toUpperCase(), countIdx < 0 ? new String[]{ split[newNameIdx] } : new String[]{ split[newNameIdx], split[countIdx].split(",").length+"" });
+			res.put(prefix+split[oldNameIdx].toUpperCase(), countIdx < 0 ? new String[]{ prefix+split[newNameIdx] } : new String[]{ prefix+split[newNameIdx], split[countIdx].split(",").length+"" });
 		}
 		r.close();
-		return res;
 	}
 	
 	public static BufferedReader openGzOrPlain( String fName ) throws IOException {
