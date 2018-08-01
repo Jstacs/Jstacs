@@ -142,17 +142,17 @@ public class MultilineSimpleParameter extends SimpleParameter {
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
 		if(validator != null && validator instanceof GalaxyConvertible){
-			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false );
+			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false, XMLParser.nextIndentation(indentation) );
 		}
 		String line = "";
 		if(addLine){
 			line = "&lt;hr /&gt;";
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"text\" area=\"true\" size=\"10x80\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"text\" area=\"true\" size=\"10x80\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"", indentation );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();

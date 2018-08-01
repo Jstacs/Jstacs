@@ -315,13 +315,13 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 	
 		if(parameters == null){
 			loadParameters();
 		}
 		StringBuffer pars = new StringBuffer();
-		((GalaxyConvertible)parameters).toGalaxy( namePrefix, configPrefix, depth, pars, configBuffer, false );
+		((GalaxyConvertible)parameters).toGalaxy( namePrefix, configPrefix, depth, pars, configBuffer, false, indentation );
 		//String color = GalaxyAdaptor.getColor( depth );
 		
 	/*	StringBuffer buf = new StringBuffer();

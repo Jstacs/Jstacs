@@ -480,10 +480,10 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	}
 
 	
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		for(int i=0;i<getNumberOfParameters();i++){
-			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, false );
-			descBuffer.append( "\n" );
+			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, false, indentation );
+			//descBuffer.append( "\n" );
 			configBuffer.append( "\n" );
 		}	
 	}

@@ -223,9 +223,9 @@ public class NumberValidator<E extends Comparable<? extends Number>> implements
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
-		descBuffer.append( "<validator type=\"in_range\" min=\""+lowerBound+"\" max=\""+upperBound+"\" message=\"Value is not in the specified range ["+lowerBound+", "+upperBound+"].\"/>" );
-		
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
+		XMLParser.addIndentation(descBuffer, indentation);
+		descBuffer.append( "<validator type=\"in_range\" min=\""+lowerBound+"\" max=\""+upperBound+"\" message=\"Value is not in the specified range ["+lowerBound+", "+upperBound+"].\"/>\n" );
 	}
 
 	@Override

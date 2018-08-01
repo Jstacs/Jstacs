@@ -284,11 +284,12 @@ public class ExpandableParameterSet extends ParameterSet {
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		namePrefix = namePrefix+"_"+nameTemplate.replaceAll( "\\s", "_" );
+		int nextIndentation = XMLParser.nextIndentation(indentation);
 		
 		for(int i=0;i<this.getNumberOfParameters()-count;i++){
-			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, false );
+			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, false, nextIndentation );
 		}
 		
 		StringBuffer buf = new StringBuffer();
@@ -298,12 +299,13 @@ public class ExpandableParameterSet extends ParameterSet {
 		buf2.append( "\n" );
 		buf2.append( "#for $"+namePrefix+"_i, $"+namePrefix+"_run in enumerate($"+configPrefix+namePrefix+")\n" );
 		
-		template.toGalaxy( namePrefix, namePrefix+"_run.", depth+1, buf, buf2, false );
+		template.toGalaxy( namePrefix, namePrefix+"_run.", depth+1, buf, buf2, false, nextIndentation );
 		
 		buf2.append( "#end for" );
 		
-		XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\" title=\""+nameTemplate+"\" min=\""+count+"\"" );//TODO min vs. default
-		
+		XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\" title=\""+nameTemplate+"\" min=\""+count+"\"", indentation );//TODO min vs. default
+		buf.insert(0, "\n");
+		buf.append("\n");
 		descBuffer.append( buf );
 		configBuffer.append( buf2 );
 	}

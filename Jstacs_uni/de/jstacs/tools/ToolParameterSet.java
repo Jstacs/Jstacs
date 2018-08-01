@@ -75,13 +75,14 @@ public class ToolParameterSet extends ParameterSet {
 		super.fromXML(representation);
 	}
 	
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		if( getParent()!=null ) {
-			descBuffer.append( "<section name=\"" + toolName + "\" title=\"" + toolName + " parameters\" expanded=\"" + !hasDefaultOrIsSet() + "\">\n");
-			super.toGalaxy(namePrefix, toolName + "." + configPrefix, depth, descBuffer, configBuffer, addLine);
-			descBuffer.append( "</section>" );
+			super.toGalaxy(namePrefix, toolName + "." + configPrefix, depth, descBuffer, configBuffer, addLine, XMLParser.nextIndentation(indentation));
+			XMLParser.addTagsAndAttributes(descBuffer, "section", "name=\"" + toolName + "\" title=\"" + toolName + " parameters\" expanded=\"" + !hasDefaultOrIsSet() + "\"", indentation );
+			descBuffer.insert(0, "\n");
+			descBuffer.append("\n");
 		} else {
-			super.toGalaxy(namePrefix, configPrefix, depth, descBuffer, configBuffer, addLine);
+			super.toGalaxy(namePrefix, configPrefix, depth, descBuffer, configBuffer, addLine, indentation);
 		}
 	}
 }

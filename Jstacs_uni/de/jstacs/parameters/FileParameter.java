@@ -399,7 +399,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	}
 	
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine  ) {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation  ) {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
 		String line = "";
@@ -407,7 +407,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			//line = "&lt;hr style=&quot;height:2px;background-color:"+GalaxyAdaptor.getColor( depth )+";color:"+GalaxyAdaptor.getColor( depth )+";border:none&quot; /&gt;";
 			line = "&lt;hr /&gt;";
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mimeToGalaxy( mime )+"\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"data\" format=\""+mimeToGalaxy( mime )+"\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"", indentation );
 		descBuffer.append( buf );
 		buf = new StringBuffer();
 		buf.append( "${"+configPrefix+namePrefix+"}" );

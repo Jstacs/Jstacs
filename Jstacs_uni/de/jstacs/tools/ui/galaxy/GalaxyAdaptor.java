@@ -267,16 +267,17 @@ public class GalaxyAdaptor {
 		StringBuffer descBuffer = new StringBuffer();
 		StringBuffer confBuffer = new StringBuffer();
 		
+		int indentation = 1;
 		if(labelName != null){
-			XMLParser.addTagsAndAttributes( descBuffer, "param", "type=\"text\" size=\"40\" name=\""+getLegalName( toolname )+"_"+labelName+"\" label=\"Job name\" value=\"\" optional=\"true\" help=\"Please enter a name for your job that should be used in the history (optional)\"" );
+			XMLParser.addTagsAndAttributes( descBuffer, "param", "type=\"text\" size=\"40\" name=\""+getLegalName( toolname )+"_"+labelName+"\" label=\"Job name\" value=\"\" optional=\"true\" help=\"Please enter a name for your job that should be used in the history (optional)\"", indentation );
 		}
 		
 		if(parameters instanceof SimpleParameterSet){
-			((SimpleParameterSet)parameters).toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, addLine );
+			((SimpleParameterSet)parameters).toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, addLine, indentation );
 		}else{
-			parameters.toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, false );
+			parameters.toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, false, indentation );
 		}
-		XMLParser.addTags( descBuffer, "inputs" );
+		XMLParser.addTagsAndAttributes( descBuffer, "inputs", null, 0 );
 		
 		confBuffer = escape( confBuffer );
 		XMLParser.addTagsAndAttributes( confBuffer, "configfile", "name=\"script_file\"");
@@ -289,7 +290,7 @@ public class GalaxyAdaptor {
 				? "#$tool.name + ' on ' + $on_string"
 				: "#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string else $"+getLegalName( toolname )+"_"+labelName; //TODO evaluate?
 		XMLParser.addTagsAndAttributes( outBuf, "data", "format=\"html\" name=\"summary\" label=\""+jobName+"#\"" );
-		outBuf.append("\n");
+		//outBuf.append("\n");
 		
 		for(int i=0;i<defaultResults.length;i++){
 			String type = defaultResults[i].getFormat();
@@ -304,7 +305,7 @@ public class GalaxyAdaptor {
 			}else{
 				XMLParser.addTagsAndAttributes( temp, "data", "format=\""+type+"\" name=\""+defaultNames[i]+"\" label=\""+label+"\"" );
 			}
-			temp.append("\n");
+			//temp.append("\n");
 			outBuf.append(temp);
 		}
 		
@@ -319,7 +320,7 @@ public class GalaxyAdaptor {
 		allBuffer.append( helpBuf );
 		
 		XMLParser.addTagsAndAttributes( allBuffer, "tool", "id=\""+getLegalName( toolname )+"\" name=\""+toolname+"\" version=\""+version+"\" force_history_refresh=\"true\"" );
-		return allBuffer.toString();
+		return allBuffer.toString().replaceAll("\n\n\n","\n\n").replaceAll("\n*(\n\t*</)", "$1");
 	}
 	
 	/**
