@@ -132,8 +132,18 @@ public final class XMLParser {
 	 * @see #parseAttributes(Map)
 	 */
 	public static void addTagsAndAttributes( StringBuffer source, String tag, String attributes ) {
-		source.insert( 0, "<" + tag + (attributes==null?"":(" " + attributes)) +  ">\n" );
-		source.insert( source.length(), "</" + tag + ">\n" );
+		addTagsAndAttributes(source, tag, attributes, -1);
+	}
+	
+	public static void addTagsAndAttributes( StringBuffer source, String tag, String attributes, int indentation ) {
+		int l = source.length(), i=indentation<0?0:indentation;
+		String s = "<" + tag + (attributes==null?"":(" " + attributes)) +  ">" + (l>0?"\n":"");
+		insertIndentation(source, indentation, 0);
+		source.insert( i, s );
+		if( l>0 ) {
+			addIndentation(source, indentation);
+		}
+		source.append( "</" + tag + ">\n" );
 	}
 
 	/**
@@ -197,29 +207,55 @@ public final class XMLParser {
 	 */
 	@SuppressWarnings( "unchecked" )
 	public static void appendObjectWithTagsAndAttributes( StringBuffer xml, Object s, String tag, String attributes, boolean writeClassInfo ) {
+		appendObjectWithTagsAndAttributes(xml, s, tag, attributes, writeClassInfo, -1);
+	}
+	
+	public static final char INDENTATION_CHAR='\t';
+	
+	public static void addIndentation( StringBuffer xml, int indentation ) {
+		insertIndentation(xml,indentation,-1);
+	}
+	
+	public static void insertIndentation( StringBuffer xml, int indentation, int pos ) {
+		for( int i = 0; i < indentation; i++ ) {
+			if( pos < 0 ) {
+				xml.append(INDENTATION_CHAR);
+			} else {
+				xml.insert(pos,INDENTATION_CHAR);
+			}
+		}
+	}
+	
+	public static int nextIndentation( int indentation ) {
+		return indentation + (indentation<0 ? 0 : 1);
+	}
+	
+	public static void appendObjectWithTagsAndAttributes( StringBuffer xml, Object s, String tag, String attributes, boolean writeClassInfo, int indentation ) {
+		addIndentation(xml,indentation);
+		int nextIndentation = nextIndentation(indentation);
 		xml.append( "<" + tag + (attributes==null?"":(" " + attributes)) + ">" );
 		if( s == null ) {
 			xml.append( NULL );
 		} else {
 			Class<? extends Object> k = s.getClass();
 			if( writeClassInfo ) {
-				appendObjectWithTagsAndAttributes( xml, k.getName(), CLASS_NAME, null, false );
+				appendObjectWithTagsAndAttributes( xml, k.getName(), CLASS_NAME, null, false, nextIndentation );
 			}
 			if( k.isArray() ){
 				int l = Array.getLength( s );
-				appendObjectWithTagsAndAttributes( xml, l, LENGTH, null, false );
+				appendObjectWithTagsAndAttributes( xml, l, LENGTH, null, false, nextIndentation );
 				Class c = k.getComponentType();
 				if( simpleParsable.contains( c ) ) {
 					writeClassInfo = false;
 				}
 				for( int i = 0; i < l; i++ ) {
-					appendObjectWithTagsAndAttributes( xml, Array.get( s, i ), ARRAY_TAG, VALUE + "=\"" + i + "\"", writeClassInfo );
+					appendObjectWithTagsAndAttributes( xml, Array.get( s, i ), ARRAY_TAG, VALUE + "=\"" + i + "\"", writeClassInfo, nextIndentation );
 				}
 			} else {
 				if( k.isEnum() ) {
-					appendObjectWithTagsAndAttributes( xml, ((Enum)s).name(), ENUM, null, false );
+					appendObjectWithTagsAndAttributes( xml, ((Enum)s).name(), ENUM, null, false, nextIndentation );
 				} else if( s instanceof Class ) {
-					appendObjectWithTagsAndAttributes( xml, ((Class)s).getName(), ENUM/*TODO*/, null, false );
+					appendObjectWithTagsAndAttributes( xml, ((Class)s).getName(), ENUM/*TODO*/, null, false, nextIndentation );
 				} else if( s instanceof Singleton ) {
 				} else if( simpleParsable.contains( k ) ) {
 					xml.append( s instanceof String ? escape((String) s) : s );
@@ -230,6 +266,7 @@ public final class XMLParser {
 				}
 			}
 		}
+		if( xml.charAt(xml.length()-1)=='\n' ) addIndentation(xml,indentation);
 		xml.append( "</" + tag + ">" );
 	}
 	

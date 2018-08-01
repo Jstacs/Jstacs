@@ -664,11 +664,12 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	}
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
+		int nextIndentation = XMLParser.nextIndentation(indentation);
 		StringBuffer buf = new StringBuffer();
 		if(validator != null && validator instanceof GalaxyConvertible){
-			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false );
+			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false, nextIndentation );
 		}
 		
 		String line = "";
@@ -676,7 +677,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 			line = "&lt;hr /&gt;";
 		}
 		
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" "+(datatype == DataType.BOOLEAN ? "checked" : "value")+"=\""+(defaultValue == null ? "" : (datatype == DataType.BOOLEAN ? (defaultValue.equals( true ) ? "True" : "False") : defaultValue) )+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" "+(datatype == DataType.BOOLEAN ? "checked" : "value")+"=\""+(defaultValue == null ? "" : (datatype == DataType.BOOLEAN ? (defaultValue.equals( true ) ? "True" : "False") : defaultValue) )+"\" optional=\""+(!isRequired())+"\"", indentation );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();

@@ -138,7 +138,7 @@ public class DataColumnParameter extends SimpleParameter {
 	}
 	
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		//String refPrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( dataRef );
 		
 		FileParameter fp = find(this.getParent(), dataRef);
@@ -150,7 +150,7 @@ public class DataColumnParameter extends SimpleParameter {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		StringBuffer buf = new StringBuffer();
 		if(validator != null && validator instanceof GalaxyConvertible){
-			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false );
+			((GalaxyConvertible)validator).toGalaxy( namePrefix+"_valid", null, depth, buf, null, false, XMLParser.nextIndentation(indentation) );
 		}
 		
 		String line = "";
@@ -158,7 +158,7 @@ public class DataColumnParameter extends SimpleParameter {
 			line = "&lt;hr /&gt;";
 		}
 		
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\" name=\""+namePrefix+"\" data_ref=\""+refPrefix+"\" force_select=\""+isRequired()+"\"  label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\" name=\""+namePrefix+"\" data_ref=\""+refPrefix+"\" force_select=\""+isRequired()+"\"  label=\""+line+getName()+"\" help=\""+getComment()+"\" value=\""+(defaultValue == null ? "" : defaultValue)+"\" optional=\""+(!isRequired())+"\"", indentation );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();

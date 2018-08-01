@@ -615,15 +615,17 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		StringBuffer buf = new StringBuffer();
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
+		int indent = isAtomic() ? indentation :  XMLParser.nextIndentation(indentation);
+		int nextIndentation = XMLParser.nextIndentation(indent);
 		
 		for(int i=0;i<parameters.getNumberOfParameters();i++){
 			if(isSelected( i )){
-				XMLParser.appendObjectWithTagsAndAttributes( buf, parameters.getParameterAt( i ).getName() , "option", "value=\""+parameters.getParameterAt( i ).getName()+"\" selected=\"true\"", false );
+				XMLParser.appendObjectWithTagsAndAttributes( buf, parameters.getParameterAt( i ).getName() , "option", "value=\""+parameters.getParameterAt( i ).getName()+"\" selected=\"true\"", false, nextIndentation );
 			}else{
-				XMLParser.appendObjectWithTagsAndAttributes( buf, parameters.getParameterAt( i ).getName() , "option", "value=\""+parameters.getParameterAt( i ).getName()+"\"", false );
+				XMLParser.appendObjectWithTagsAndAttributes( buf, parameters.getParameterAt( i ).getName() , "option", "value=\""+parameters.getParameterAt( i ).getName()+"\"", false, nextIndentation );
 			}
 			buf.append("\n");
 		}
@@ -632,7 +634,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 			//line = "&lt;hr style=&quot;height:2px;background-color:"+GalaxyAdaptor.getColor( depth+2 )+";color:"+GalaxyAdaptor.getColor( depth )+";border:none&quot; /&gt;";
 			line = "&lt;hr /&gt;";
 		}
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\"select\" format=\"text\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" optional=\""+(!isRequired())+"\" help=\""+getComment()/*+(isAtomic() ? "" : "&lt;hr /&gt;")*/+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\"select\" format=\"text\" name=\""+namePrefix+"\" label=\""+line+getName()+"\" optional=\""+(!isRequired())+"\" help=\""+getComment()/*+(isAtomic() ? "" : "&lt;hr /&gt;")*/+"\"", indent );
 	
 		StringBuffer buf3 = new StringBuffer("${"+configPrefix+(isAtomic() ? "" : namePrefix+"_cond.")+namePrefix+"}");
 		XMLParser.addTags( buf3, namePrefix );
@@ -641,19 +643,16 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 			for(int i=0;i<parameters.getNumberOfParameters();i++){
 				StringBuffer temp = new StringBuffer();
 				StringBuffer temp2 = new StringBuffer();
-				((GalaxyConvertible)parameters.getParameterAt( i )).toGalaxy( namePrefix+"_opt"+i, configPrefix+namePrefix+"_cond.", depth+1, temp, temp2, false );
-				XMLParser.addTagsAndAttributes( temp, "when", "value=\""+parameters.getParameterAt( i ).getName()+"\"" );
+				((GalaxyConvertible)parameters.getParameterAt( i )).toGalaxy( namePrefix+"_opt"+i, configPrefix+namePrefix+"_cond.", depth+1, temp, temp2, false, nextIndentation );
+				XMLParser.addTagsAndAttributes( temp, "when", "value=\""+parameters.getParameterAt( i ).getName()+"\"", indent );
 				buf.append( temp );
 				configBuffer.append( (i== 0 ? "#if " : "#elif ")+"$"+configPrefix+namePrefix+"_cond."+namePrefix+" == \""+parameters.getParameterAt( i ).getName()+"\"\n" );
 				configBuffer.append( temp2 );
 				configBuffer.append( "\n" );
 			}
 			configBuffer.append( "#end if\n" );
-		}
 		
-		
-		if(!isAtomic()){
-			XMLParser.addTagsAndAttributes( buf, "conditional", "name=\""+namePrefix+"_cond\"" );
+			XMLParser.addTagsAndAttributes( buf, "conditional", "name=\""+namePrefix+"_cond\"", indentation );
 		}
 		
 		descBuffer.append( buf );

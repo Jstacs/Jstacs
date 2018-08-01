@@ -41,12 +41,13 @@ public interface GalaxyConvertible {
 	 * @param descBuffer the buffer for the parameter description
 	 * @param configBuffer the buffer for the configuration line
 	 * @param addLine if true, a line is added before the title of a parameter
+	 * @param indentation the number of tabs that is used for indentation, if smaller than zero no indentation is used at all
 	 * @throws Exception if the conversion fails
 	 */
-	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine) throws Exception;
+	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception;
 	
 	/**
-	 * Parses the contents of <code>command</code> in the format defined by <code>configBuffer</code> of {@link GalaxyConvertible#toGalaxy(String, String, int, StringBuffer, StringBuffer, boolean)}
+	 * Parses the contents of <code>command</code> in the format defined by <code>configBuffer</code> of {@link GalaxyConvertible#toGalaxy(String, String, int, StringBuffer, StringBuffer, boolean, int)}
 	 * and sets the values of the {@link Parameter} or {@link ParameterSet} accordingly.
 	 * @param namePrefix the prefix of the variable name
 	 * @param command the command string

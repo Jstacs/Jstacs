@@ -83,11 +83,12 @@ public class SimpleParameterSet extends ParameterSet{
 	 * @param descBuffer the buffer for the parameter description
 	 * @param configBuffer the buffer for the configuration line
 	 * @param addLine if true, a line is added before the title of a parameter with the corresponding index
+	 * @param indentation the number of tabs that is used for indentation, if smaller than zero no indentation is used at all
 	 * @throws Exception if the conversion fails
 	 */
-    public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean[] addLine ) throws Exception {
+    public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean[] addLine, int indentation ) throws Exception {
 		for(int i=0;i<getNumberOfParameters();i++){
-			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, addLine == null ? false : addLine[i] );
+			((GalaxyConvertible)getParameterAt( i )).toGalaxy( namePrefix+"_ps", configPrefix, depth+1, descBuffer, configBuffer, addLine == null ? false : addLine[i], indentation );
 			descBuffer.append( "\n" );
 			configBuffer.append( "\n" );
 		}	

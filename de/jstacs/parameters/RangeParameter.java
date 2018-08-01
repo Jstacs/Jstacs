@@ -992,7 +992,10 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 
 
 	@Override
-	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine ) throws Exception {
+	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
+		int nextIndentation = XMLParser.nextIndentation(indentation);
+		int next2Indentation = XMLParser.nextIndentation(nextIndentation);
+		int next3Indentation = XMLParser.nextIndentation(next2Indentation);
 		
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		configPrefix = configPrefix+namePrefix+".";
@@ -1000,33 +1003,33 @@ public class RangeParameter extends Parameter implements RangeIterator, GalaxyCo
 		StringBuffer buf = new StringBuffer();
 		
 		EnumParameter temp = new EnumParameter( RangeType.class, "Define a single value (NO), a list of values (LIST) or a range of values (RANGE) for "+rangedParameter.getName(), true );
-		temp.toGalaxy( namePrefix, configPrefix, depth+1, buf, configBuffer, false );
+		temp.toGalaxy( namePrefix, configPrefix, depth+1, buf, configBuffer, false, nextIndentation );
 		
 		
 		StringBuffer tmp = new StringBuffer();
 		configBuffer.append( "#if $"+configPrefix+namePrefix+"_RangeType == \"NO\"\n" );
-		rangedParameter.toGalaxy( namePrefix+"_NO", configPrefix, depth+1, tmp, configBuffer, addLine );
-		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"NO\"");
+		rangedParameter.toGalaxy( namePrefix+"_NO", configPrefix, depth+1, tmp, configBuffer, addLine, next2Indentation );
+		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"NO\"", nextIndentation);
 		buf.append( tmp );
 		
 		tmp = new StringBuffer();
 		configBuffer.append( "#elif $"+configPrefix+namePrefix+"_RangeType == \"LIST\"\n" );
-		(new SimpleParameter( DataType.STRING, rangedParameter.getName(), "Please enter a comma-separated list of values. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_LIST", configPrefix, depth+1, tmp, configBuffer, addLine );
-		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"LIST\"");
+		(new SimpleParameter( DataType.STRING, rangedParameter.getName(), "Please enter a comma-separated list of values. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_LIST", configPrefix, depth+1, tmp, configBuffer, addLine, next2Indentation );
+		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"LIST\"", nextIndentation);
 		buf.append( tmp );
 		
 		tmp = new StringBuffer();
 		configBuffer.append( "#elif $"+configPrefix+namePrefix+"_RangeType == \"RANGE\"\n" );
-		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": start value", "Please enter the start value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true);
-		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": end value", "Please enter the end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true );
-		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": steps", "Please enter the number of steps between start and end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true );
+		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": start value", "Please enter the start value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true, next3Indentation);
+		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": end value", "Please enter the end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true, next3Indentation );
+		(new SimpleParameter( rangedParameter.getDatatype(), rangedParameter.getName()+": steps", "Please enter the number of steps between start and end value. "+rangedParameter.getComment(), true )).toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, true, next3Indentation );
 		temp = new EnumParameter( Scale.class, "Select a scaling between start and end value.", true );
-		temp.toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, false );
-		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"RANGE\"" );
+		temp.toGalaxy( namePrefix+"_RANGE", configPrefix, depth+1, tmp, configBuffer, false, next2Indentation );
+		XMLParser.addTagsAndAttributes( tmp, "when", "value=\"RANGE\"", nextIndentation );
 		buf.append( tmp );
 		configBuffer.append( "#end if\n" );
 		
-		XMLParser.addTagsAndAttributes( buf, "conditional", "name=\""+namePrefix+"\"" );
+		XMLParser.addTagsAndAttributes( buf, "conditional", "name=\""+namePrefix+"\"", indentation );
 		
 		descBuffer.append( buf );		
 	}
