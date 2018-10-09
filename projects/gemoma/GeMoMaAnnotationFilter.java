@@ -86,6 +86,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		BufferedReader r;
 		MAX = eps.getNumberOfParameters();
 		evidenceStat = new int[MAX];
+		combinedEvidence = new boolean[MAX];
 		String[] prefix = new String[MAX];
 		ArrayList<String> allInfos = new ArrayList<String>();
 		HashSet<String> hash = new HashSet<String>();
@@ -369,6 +370,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		
 		int pred=0;
 		maxEvidence=0;
+		Arrays.fill( combinedEvidence, false );
 		maxTie=-1;
 		complete=0;
 		st=Integer.MAX_VALUE;
@@ -382,7 +384,7 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		if( pred>0 ) {
 			//write
-			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + pred + ";complete="+complete+";maxEvidence="+maxEvidence+";maxTie=" + (maxTie<0?"NA":maxTie) );
+			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + pred + ";complete="+complete+";maxTie=" + (maxTie<0?"NA":maxTie) +(MAX>1?";maxEvidence="+maxEvidence+";combinedEvidence=" + count(combinedEvidence):"") );
 			w.newLine();
 			gene++;
 			if( maxTie == 1 ) {
@@ -398,8 +400,23 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 	}
 	
 	static int maxEvidence, st, en, complete;
+	static boolean[] combinedEvidence;
 	static double maxTie;
 	static int[] evidenceStat;
+	
+	static int count( boolean[] evidence ) {
+		int count=0;
+		if( evidence != null ) {
+			for( int i = 0; i < evidence.length; i++ ) {
+				if( evidence[i] ) {
+					count++;
+				}
+			}
+		} else {
+			count=1;
+		}
+		return count;
+	}
 	
 	static class ScoreComparator implements Comparator<Prediction> {
 		static ScoreComparator DEF = new ScoreComparator();
@@ -520,15 +537,13 @@ public class GeMoMaAnnotationFilter implements JstacsTool {
 		}
 		
 		public int write( BufferedWriter w, int eviTh ) throws IOException {
-			int count=0;
+			int count=count(evidence);
 			if( evidence != null ) {
 				for( int i = 0; i < evidence.length; i++ ) {
-					if( evidence[i] ) {
-						count++;
-					}
+					combinedEvidence[i] |= evidence[i];
 				}
 			} else {
-				count=1;
+				combinedEvidence[index]=true;
 			}
 			
 			String t = hash.get("tie");
