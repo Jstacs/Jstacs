@@ -83,7 +83,7 @@ public class CompareTranscripts implements JstacsTool {
 				String geneName = e.getValue()[0];
 				int[] stat = stats.get(geneName);
 				if( stat == null ) {
-					stat = new int[2];
+					stat = new int[3];
 					stats.put(geneName, stat);
 				}
 				stat[0]++;
@@ -104,12 +104,12 @@ public class CompareTranscripts implements JstacsTool {
 		if( stats.size()>0 ) {
 			f = GeMoMa.createTempFile("CompareTranscript-stats");
 			BufferedWriter w = new BufferedWriter( new FileWriter( f ) );
-			w.append("#geneID\ttranscripts in reference annotation\ttranscripts in final prediction\n");
+			w.append("#geneID\ttranscripts in reference annotation\ttranscripts with this ref-gene\ttranscripts with this alternative\n");
 			Iterator<Entry<String,int[]>> it = stats.entrySet().iterator();
 			while( it.hasNext() ) {
 				Entry<String, int[]> e = it.next();
 				int[] stat = e.getValue();
-				w.append(e.getKey() + "\t" + stat[0] + "\t" + stat[1] +"\n");
+				w.append(e.getKey() + "\t" + stat[0] + "\t" + stat[1] +"\t" + stat[2] +"\n");
 			}
 			w.close();
 			res.add( new TextResult("stats", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true) );
@@ -186,7 +186,7 @@ public class CompareTranscripts implements JstacsTool {
 			}
 		}
 		r.close();
-			
+
 		return annot;
 	}
 	
@@ -440,7 +440,7 @@ public class CompareTranscripts implements JstacsTool {
 					String[] split = h.split(",");
 					for( int j = 0; j < split.length; j++ ) {
 						if( !s.equals(split[j]) ) {
-							stats.get(split[j])[1]++;
+							stats.get(split[j])[2]++;
 						}
 					}
 				}
