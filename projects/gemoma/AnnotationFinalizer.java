@@ -384,7 +384,7 @@ public class AnnotationFinalizer implements JstacsTool {
 					}
 				}
 			}
-			protocol.append( tags[i] + "s: " + (all.size()-old) + "\n" );
+			protocol.append( "#" + tags[i] + "s: " + (all.size()-old) + "\n" );
 			old=all.size();
 		}
 		return res;
@@ -457,7 +457,7 @@ public class AnnotationFinalizer implements JstacsTool {
 		}
 		w.newLine();
 		
-		int num = 1;
+		int num = 1, utrBoth=0, utr=0, utr5=0, utr3=0;
 		String[] keys = new String[annotation.size()];
 		annotation.keySet().toArray(keys);
 		Arrays.sort( keys, new SequenceIDComparator() );
@@ -497,11 +497,22 @@ public class AnnotationFinalizer implements JstacsTool {
 					int[][] cov = strand == 1 ? fwdCov : revCov;
 					if( cov != null ) {
 						for( Transcript t : g.list ) {
-							boolean extend;
-							extend = extendUTR( t, -1, cov, a, 1 ); //upstream
-							extend |= extendUTR( t, 1, cov, d, 0 ); //downstream
-							
-							//if( extend ) System.exit(0);
+							boolean u5 = extendUTR( t, -1, cov, a, 1 ); //upstream
+							boolean u3 = extendUTR( t, 1, cov, d, 0 ); //downstream
+							if( u5 ) {
+								utr5++;
+							}
+							if( u3 ) {
+								utr3++;
+							}
+							if( u5 || u3 ) {
+								utr++;
+								//System.exit(0);
+							}
+							if( u5 && u3 ) {
+								utrBoth++;
+								//System.exit(0);
+							}
 						}
 					}
 					g.set();
@@ -518,9 +529,14 @@ public class AnnotationFinalizer implements JstacsTool {
 		}
 		w.close();
 		
+		protocol.append("\n#transcripts with 5'-UTR annotation: " + utr5 + "\n");
+		protocol.append("#transcripts with 3'-UTR annotation: " + utr3 + "\n");
+		protocol.append("#transcripts with some UTR annotation: " + utr + "\n");
+		protocol.append("#transcripts with 5'- and 3'-UTR annotation: " + utrBoth + "\n");
+		
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(gffFile.getAbsolutePath()), "gff3", getToolName(), null, true) );
-				
+		
 		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 
 	}
@@ -530,7 +546,7 @@ public class AnnotationFinalizer implements JstacsTool {
 		int min = t.getMin();
 		int max = t.getMax();
 		int dir = d*strand;
-		
+				
 		String utr=(d==1?"three_prime_UTR":"five_prime_UTR");
 		
 		LinkedList<String[]> utrs = new LinkedList<String[]>();
@@ -557,54 +573,60 @@ public class AnnotationFinalizer implements JstacsTool {
 					} while( idx >= 0 && idx < cov.length && cov[idx][dir==-1?1:0] == h+dir );
 				}
 			}
-			int lastBase = h+dir;
+			int lastBase = h;
 			if( dir==-1 ) {
 				int xxx = lastBase;
 				lastBase = firstBase;
 				firstBase = xxx;
 			}
+//System.out.println(firstBase + "\t" + lastBase + "\t" + dir);
+			
 			
 			//find splice site in interval [firstBase, lastBase]
 			if( splice != null && splice[sIdx]!= null) {
 				int idx = Arrays.binarySearch(splice[sIdx], firstBase );
 				if( idx < 0 ) {
 					idx = -(idx+1);
-					//we dont need this here: idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
+					//we don't need this here: idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
 				}
 				int maxSplitReads = -1, maxIdx=-1;
 				while( idx < splice[sIdx].length && splice[sIdx][idx] <= lastBase ) {
-					if( splice[2][idx] > maxSplitReads ) {
+					int i=Arrays.binarySearch(cov, new int[]{splice[sIdx][idx]+dir}, IntArrayComparator.comparator[2] );
+					int c;
+					if( i < 0 ) {				
+						i = -(i+1);
+						i = Math.max(0, idx-1);//has to be reduced since we did not find a match
+						if( cov[i][1] > splice[sIdx][idx]+dir ) {
+							c=cov[i][2];
+						} else {
+							c=0;
+						}
+					} else {
+						c=cov[i][2];
+					}
+
+//System.out.println("looking for a splice site (" + sIdx + ") " + firstBase + "\t" + idx + "\t" + splice[0][idx] + ".." + splice[1][idx] + " ("+splice[2][idx]+")\t" + c );
+					
+					if( splice[2][idx] >= c //check whether its better to use the split read (=intron) than following the coverage
+						&& splice[2][idx] > maxSplitReads //use the intron with the most split reads
+					) {
 						maxSplitReads = splice[2][idx];
 						maxIdx = idx;
 					}
 					idx++;
 				}
+				
 				if( maxIdx> 0 ) {
-					idx=Arrays.binarySearch(cov, new int[]{splice[sIdx][maxIdx]+dir}, IntArrayComparator.comparator[2] );
-					if( idx < 0 ) {
-						idx = -(idx+1);
-						idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
+					extend = true;
+					if( dir == -1 ) {
+						firstBase = splice[sIdx][maxIdx]-dir;
+					} else {
+						lastBase = splice[sIdx][maxIdx]-dir;
 					}
-					if( cov[idx][2] <= splice[2][maxIdx] ) {
-						extend=true;
-						//TODO
-						if( dir == -1 ) {
-							firstBase = splice[sIdx][maxIdx]-dir;
-						} else {
-							lastBase = splice[sIdx][maxIdx]-dir;
-						}
-						start = splice[1-sIdx][maxIdx]; 
-					}
+					start = splice[1-sIdx][maxIdx];
 				}
 			}
-			if( !extend ) {
-				if( dir == -1 ) {
-					firstBase -= dir;
-				} else {
-					lastBase -= dir;
-				}
-			}
-			
+						
 			//add utr;
 			if( firstBase <= lastBase ) {
 				String[] split = {
@@ -626,6 +648,7 @@ public class AnnotationFinalizer implements JstacsTool {
 				}
 			}
 		}
+		boolean hasUTR = utrs.size()>0;
 		
 		int u = 1;
 		while( utrs.size() > 0 ) {
@@ -635,7 +658,7 @@ public class AnnotationFinalizer implements JstacsTool {
 			t.addUTR(d==-1, split);
 		}
 		
-		return utrs.size()>0;
+		return hasUTR;
 	}
 	
 	public ToolParameterSet getToolParameters() {
