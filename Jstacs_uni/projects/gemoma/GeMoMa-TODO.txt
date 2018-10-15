@@ -1,4 +1,5 @@
 TODOs:
+- (no) splicing based on introns.gff
 - splice sites: model
 - missing exons
 - gene-wise prediction
