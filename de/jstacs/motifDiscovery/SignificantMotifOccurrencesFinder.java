@@ -617,7 +617,7 @@ public void test() throws Exception {
 	 * @param positions the array filled with the positions. First dimension must contain as many entries as <code>data</code> has sequences. May be null.
 	 * @param pvals the array filled with the p-values. First dimension must contain as many entries as <code>data</code> has sequences. May be null.
 	 * @param mean the means for the individual sequences. May be null.
-	 * @param sd array of lenght 1 filled with the determined standard deviation. May be null.
+	 * @param sd array of length 1 filled with the determined standard deviation. May be null.
 	 * @param bs the list of binding sites (filled if not <code>null</code>)
 	 * @param bsWeights the list of weights of the sequences containing the binding sites (filled if not <code>null</code>)
 	 * @param bsScores the list of binding site scores (filled if not <code>null</code>)

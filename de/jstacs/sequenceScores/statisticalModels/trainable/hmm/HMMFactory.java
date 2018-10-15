@@ -44,11 +44,13 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models.SamplingP
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.MixtureEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SamplingEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SilentEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.UniformEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.AbstractConditionalDiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.DiscreteEmission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.DiscreteMatchMismatchEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.PhyloDiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.ReferenceSequenceDiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
@@ -510,7 +512,7 @@ public class HMMFactory {
 		
 		double ess = 16;
 		
-		DifferentiableHigherOrderHMM hmm = (DifferentiableHigherOrderHMM) createProfileHMM( trainingParameterSet, HMMType.PLAN7, likelihood, 1, numLayers, con, ess, false, false, null );
+		DifferentiableHigherOrderHMM hmm = (DifferentiableHigherOrderHMM) createProfileHMM( trainingParameterSet, HMMType.PLAN7, likelihood, 1, numLayers, con, ess, MState.UNCONDITIONAL, false, null );
 		
 		//NumberFormat nf = DecimalFormat.getInstance();
 		
@@ -581,9 +583,9 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, HMMType type, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, boolean closeCircle, double[][] conditionInitProbs) throws Exception{
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, HMMType type, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState mState, boolean closeCircle, double[][] conditionInitProbs) throws Exception{
 		double[][] initFromTo = getInitFromTo(type, ess);
-		return createProfileHMM( trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, conditionalMain, closeCircle, conditionInitProbs, false );
+		return createProfileHMM( trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, mState, closeCircle, conditionInitProbs, false );
 	}
 
 	/**
@@ -605,8 +607,8 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, boolean closeCircle, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
-		return createProfileHMM(trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, conditionalMain, closeCircle?1:0, conditionInitProbs, insertUniform );
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState mState, boolean closeCircle, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+		return createProfileHMM(trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, mState, closeCircle?1:0, conditionInitProbs, insertUniform );
 	}
 	
 	/**
@@ -620,7 +622,7 @@ public class HMMFactory {
 	 * @param numLayers the number of layers of the profile HMM
 	 * @param con the alphabet of the profile HMM
 	 * @param ess the equivalent sample size, is propagated between states to obtain consistent hyper-parameters for all parameters
-	 * @param conditionalMain if <code>true</code>, the match states have {@link ReferenceSequenceDiscreteEmission}s, and {@link DiscreteEmission}s otherwise
+	 * @param mState type of the match states ({@link ReferenceSequenceDiscreteEmission}s, {@link DiscreteEmission}s)
 	 * @param joiningStates the number of states used in the joining arc, if not positive the profile HMM does not contain any joining states (i.e. the circle is not closed)
 	 * @param conditionInitProbs the hyper-parameters for initializing the match states if <code>conditionalMain</code> is <code>true</code>. May be <code>null</code> for using the hyper-parameters of the prior
 	 * @param insertUniform if <code>true</code> the insert states will use {@link UniformEmission}s
@@ -628,7 +630,11 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, boolean conditionalMain, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState mState, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+		return createProfileHMM(trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, new MState[]{mState}, joiningStates, conditionInitProbs, insertUniform);
+	}
+	
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState[] mState, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
 		PseudoTransitionElement[] coreTransitionTemplate = null;
 		AbstractList<Class<? extends DifferentiableEmission>> emList = new LinkedList<Class<? extends DifferentiableEmission>>();
 		ArrayList<PseudoTransitionElement> list = new ArrayList<PseudoTransitionElement>();
@@ -663,7 +669,7 @@ public class HMMFactory {
 		//TODO multiple cores?
 		
 		//createProfileHMMCore( numLayers, initFromTo, order, emList, nameList, list, offset, conditionalMain, coreTransitionTemplate, "" );
-		createProfileHMMCore( numLayers, lastLayer, initFromTo, order, emList, nameList, list, offset, lastStartNodeIndex, conditionalMain, coreTransitionTemplate, "", insertClass );
+		createProfileHMMCore( numLayers, lastLayer, initFromTo, order, emList, nameList, list, offset, lastStartNodeIndex, mState, coreTransitionTemplate, "", insertClass );
 		
 		//connect with end chain
 		int[] states = new int[6];
@@ -766,6 +772,12 @@ public class HMMFactory {
 
 	private static double[][] getInitFromTo( HMMType type, double ess ) {
 		double[][] initFromTo = new double[3][];
+		/*
+		 * 0 ... D
+		 * 1 ... I
+		 * 2 ... M
+		 */
+		
 		if(type == HMMType.PLAN9){
 			initFromTo[0] = new double[]{Double.NaN,ess/3.0,Double.NaN,ess/3.0,Double.NaN,ess/3.0};
 			initFromTo[1] = initFromTo[0].clone();
@@ -792,23 +804,40 @@ public class HMMFactory {
 		Iterator<String> n = nameList.iterator();
 		int i=0;
 		int refIdx = 0;
+		DiscreteMatchMismatchEmission ref = null;
 		while( it.hasNext() ) {
 			Class<? extends DifferentiableEmission> cl = it.next();
 			String name = n.next(), shape;
 			if(cl == SilentEmission.class){
 				em[i] = new SilentEmission();
 			}else if( AbstractConditionalDiscreteEmission.class.isAssignableFrom( cl ) ) {
-				if(cl == ReferenceSequenceDiscreteEmission.class){
-					if(conditionInitAPrioriProbs != null){
-						double[][] conditionInitHyperpars = ArrayHandler.clone( conditionInitAPrioriProbs );
-						for(int j=0;j<conditionInitHyperpars.length;j++){
-							for(int k=0;k<conditionInitHyperpars[j].length;k++){
-								conditionInitHyperpars[j][k] *= ess[i];
+				if( ReferenceSequenceDiscreteEmission.class.isAssignableFrom(cl) ){
+					if(cl == ReferenceSequenceDiscreteEmission.class){
+						if(conditionInitAPrioriProbs != null){
+							double[][] conditionInitHyperpars = ArrayHandler.clone( conditionInitAPrioriProbs );
+							for(int j=0;j<conditionInitHyperpars.length;j++){
+								for(int k=0;k<conditionInitHyperpars[j].length;k++){
+									conditionInitHyperpars[j][k] *= ess[i];
+								}
 							}
+							em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i], conditionInitHyperpars );
+						}else{
+							em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i] );
 						}
-						em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i], conditionInitHyperpars );
-					}else{
-						em[i] = new ReferenceSequenceDiscreteEmission( con, con, refIdx, ess[i] );
+					} else if( cl == DiscreteMatchMismatchEmission.class ){
+						//TODO
+						DifferentiableEmission e = new DiscreteEmission(con, ess[i]);
+						DifferentiableEmission[] emi = 
+							//{null, null};
+							{e, e};
+						if( refIdx == 0  ) {
+							ref = new DiscreteMatchMismatchEmission( con, refIdx, ess[i], emi );
+							em[i] = ref;
+						} else {
+							em[i] = new DiscreteMatchMismatchEmission( con, refIdx, ess[i], ref );
+						}
+					} else {
+						em[i] = cl.getConstructor( AlphabetContainer.class, int.class, double.class ).newInstance( con, refIdx, ess[i] );
 					}
 					refIdx++;
 				} else {
@@ -853,7 +882,7 @@ public class HMMFactory {
 		System.arraycopy( context, s, context, 0, context.length-s );
 	}
 
-	private static void createProfileHMMCore(int numLayers, ArrayList<int[]> lastLayer, double[][] initFromTo, int order, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, AbstractList<PseudoTransitionElement> list, int totalOffset, int lastStartNodeIndex, boolean conditionalMain, PseudoTransitionElement[] coreTransitionTemplate, String suffix, Class<? extends DifferentiableEmission> insertClass ){
+	private static void createProfileHMMCore(int numLayers, ArrayList<int[]> lastLayer, double[][] initFromTo, int order, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, AbstractList<PseudoTransitionElement> list, int totalOffset, int lastStartNodeIndex, MState[] mState, PseudoTransitionElement[] coreTransitionTemplate, String suffix, Class<? extends DifferentiableEmission> insertClass ){
 		if( order < 1 ) {
 			throw new IllegalArgumentException("The order of a profile HMM has to be at least 1.");
 		}
@@ -900,7 +929,7 @@ public class HMMFactory {
 				}
 			}
 			int last = emList.size();
-			createEmissions( createStates, emList, nameList, i+1, conditionalMain, suffix, insertClass );
+			createEmissions( createStates, emList, nameList, i+1, mState[mState.length==1 ? 0 : i], suffix, insertClass );
 			shiftContext( states, 3 );
 			for( int j = 3; j < states.length; j++ ) {
 				states[j] = createStates[j-3] ? last++ : -1;
@@ -1017,8 +1046,15 @@ public class HMMFactory {
 		elements.clear();
 		elements.addAll( tes );
 	}/**/
+	
+	public static enum MState {
+		UNIFORM,
+		UNCONDITIONAL,
+		REFERENCE,
+		MISMATCH
+	}
 
-	private static int createEmissions( boolean[] createState, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, int offset, boolean conditionalMain, String suffix, Class<? extends DifferentiableEmission> insertClass){
+	private static int createEmissions( boolean[] createState, AbstractList<Class<? extends DifferentiableEmission>> emList, AbstractList<String> nameList, int offset, MState mState, String suffix, Class<? extends DifferentiableEmission> insertClass){
 		int i=0, a = 0;
 		if( createState[i] ) {
 			emList.add( SilentEmission.class );
@@ -1035,11 +1071,13 @@ public class HMMFactory {
 		i++;
 
 		if( createState[i] ) {
-			Class<? extends AbstractConditionalDiscreteEmission> de;
-			if(!conditionalMain){
-				de = DiscreteEmission.class;
-			}else{
-				de = ReferenceSequenceDiscreteEmission.class;
+			Class<? extends DifferentiableEmission> de;
+			switch (mState) {
+				case UNIFORM: de = UniformEmission.class; break;
+				case UNCONDITIONAL: de = DiscreteEmission.class; break;
+				case REFERENCE: de = ReferenceSequenceDiscreteEmission.class; break;
+				case MISMATCH: de = DiscreteMatchMismatchEmission.class; break;
+				default: throw new IllegalArgumentException("unknown MState: " + mState );
 			}
 			emList.add( de );
 			nameList.add( "M"+(offset) + suffix );

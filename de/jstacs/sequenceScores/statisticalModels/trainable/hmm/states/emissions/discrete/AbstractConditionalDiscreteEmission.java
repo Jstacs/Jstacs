@@ -562,7 +562,7 @@ public abstract class AbstractConditionalDiscreteEmission  implements SamplingEm
 		}
 		
 		while( s <= e ) {
-			int condIdx = getConditionIndex( forward, s, seq);
+			int condIdx = getConditionIndex( forward, s, seq); //TODO error? seq vs. current
 			statistic[condIdx][getIndex(s++, current)] += weight;
 		}
 	}
