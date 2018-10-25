@@ -79,12 +79,15 @@ public class AffineCosts implements Costs {
 		xml = XMLParser.extractForTag( xml, "AffineCosts" );
 		c = (Costs)XMLParser.extractObjectForTags( xml, "c" );
 		try{
-		elongInsert = (Double)XMLParser.extractObjectForTags( xml, "elongInsert" );
-		startInsert = (Double)XMLParser.extractObjectForTags( xml, "startInsert" );
-		elongDelete = (Double)XMLParser.extractObjectForTags( xml, "elongDelete" );
-		startDelete = (Double)XMLParser.extractObjectForTags( xml, "startDelete" );
+			elongInsert = (Double)XMLParser.extractObjectForTags( xml, "elongInsert" );
+			elongDelete = (Double)XMLParser.extractObjectForTags( xml, "elongDelete" );
 		}catch(NonParsableException ex){
 			elongInsert = elongDelete = (Double)XMLParser.extractObjectForTags( xml, "elong" );
+		}
+		try{
+			startInsert = (Double)XMLParser.extractObjectForTags( xml, "startInsert" );
+			startDelete = (Double)XMLParser.extractObjectForTags( xml, "startDelete" );
+		}catch(NonParsableException ex){
 			startInsert = startDelete = (Double)XMLParser.extractObjectForTags( xml, "start" );
 		}
 	}
@@ -92,10 +95,18 @@ public class AffineCosts implements Costs {
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags( xml, c, "c" );
-		XMLParser.appendObjectWithTags( xml, elongInsert, "elongInsert" );
-		XMLParser.appendObjectWithTags( xml, startInsert, "startInsert" );
-		XMLParser.appendObjectWithTags( xml, elongDelete, "elongDelete" );
-		XMLParser.appendObjectWithTags( xml, startDelete, "startDelete" );
+		if(elongDelete == elongInsert){
+			XMLParser.appendObjectWithTags(xml, elongDelete, "elong");
+		}else{
+			XMLParser.appendObjectWithTags( xml, elongInsert, "elongInsert" );
+			XMLParser.appendObjectWithTags( xml, elongDelete, "elongDelete" );
+		}
+		if(startInsert == startDelete){
+			XMLParser.appendObjectWithTags( xml, startDelete, "start" );
+		}else{
+			XMLParser.appendObjectWithTags( xml, startInsert, "startInsert" );
+			XMLParser.appendObjectWithTags( xml, startDelete, "startDelete" );
+		}
 		XMLParser.addTags( xml, "AffineCosts" );
 		return xml;
 	}
