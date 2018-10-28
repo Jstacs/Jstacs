@@ -55,6 +55,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.PFMWrapperTrainSM;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ui.galaxy.Galaxy;
@@ -213,7 +214,7 @@ public class FindPWMsAndClusters implements JstacsTool{
 	}
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		try{
 		MultilineSimpleParameter pwms = new MultilineSimpleParameter("PWMs/PFMs", "PWMs/PFMs in Jaspar format. PWMs contain nucleotide probabilities and PFMs contain nucleotide frequencies.", true);
 		
@@ -232,7 +233,7 @@ public class FindPWMsAndClusters implements JstacsTool{
 		
 		SimpleParameter t = new SimpleParameter(DataType.DOUBLE, "Similarity threshold", "The threshold on the correlation of score profiles, between 0.5 and 1.0.", true, new NumberValidator<Double>(0.5, 1.0), 0.9);
 		
-		return new SimpleParameterSet(sp,t);
+		return new ToolParameterSet(getShortName(),sp,t);
 		
 		}catch(Exception e){
 			e.printStackTrace();
@@ -241,7 +242,7 @@ public class FindPWMsAndClusters implements JstacsTool{
 	}
 
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol,
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol,
 			ProgressUpdater progress, int threads) throws Exception {
 		
 		LinkedList<double[][]> motifs = new LinkedList<double[][]>();
