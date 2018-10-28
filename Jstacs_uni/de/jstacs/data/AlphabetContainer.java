@@ -644,7 +644,7 @@ public class AlphabetContainer implements Storable, InstantiableFromParameterSet
 		} else {
 			double candidat = Double.parseDouble( sym );
 			if( !( (ContinuousAlphabet)getAlphabetAt( pos ) ).isEncodedSymbol( candidat ) ) {
-				throw new WrongAlphabetException();
+				throw new WrongAlphabetException("The data of the selected file does not match the entered alphabet: "+candidat);
 			}
 			return candidat;
 		}
