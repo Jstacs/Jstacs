@@ -50,6 +50,7 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.utils.PFMComparator;
@@ -65,7 +66,7 @@ public class DimontPredictorTool implements JstacsTool {
 	}
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		
 		LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 		
@@ -84,12 +85,12 @@ public class DimontPredictorTool implements JstacsTool {
 			throw new RuntimeException();
 		}
 		
-		return new SimpleParameterSet(parameters.toArray(new Parameter[0]));
+		return new ToolParameterSet(getShortName(),parameters.toArray(new Parameter[0]));
 		
 	}
 
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		
 		
 		DataSet data = SparseSequence.getDataSet( DNAAlphabetContainer.SINGLETON, new SparseStringExtractor( 

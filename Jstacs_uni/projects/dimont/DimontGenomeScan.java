@@ -31,6 +31,7 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandD
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.utils.IntList;
@@ -52,7 +53,7 @@ public class DimontGenomeScan implements JstacsTool {
 	}
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		
 		LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 		
@@ -67,12 +68,12 @@ public class DimontGenomeScan implements JstacsTool {
 			e.printStackTrace();
 		}	
 		
-		return new SimpleParameterSet(parameters.toArray(new Parameter[0]));
+		return new ToolParameterSet(getShortName(),parameters.toArray(new Parameter[0]));
 		
 	}
 
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
 			throws Exception {
 		
 		GenDisMixClassifier cl = new GenDisMixClassifier( new StringBuffer(((FileParameter)parameters.getParameterAt(0)).getFileContents().getContent()) );
