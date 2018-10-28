@@ -42,6 +42,7 @@ import de.jstacs.tools.DataColumnParameter;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import projects.motifComp.FindPWMsAndClusters;
 
@@ -79,7 +80,7 @@ public class ExtractSequencesTool implements JstacsTool {
 	}
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		
 		LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 		
@@ -110,12 +111,12 @@ public class ExtractSequencesTool implements JstacsTool {
 			
 		}catch(Exception doesnothappen){throw new RuntimeException();}
 		
-		return new SimpleParameterSet(parameters.toArray(new Parameter[0]));
+		return new ToolParameterSet(getShortName(),parameters.toArray(new Parameter[0]));
 		
 	}
 
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		
 		progress.setLast(1.0);
 		progress.setCurrent(0.0);
