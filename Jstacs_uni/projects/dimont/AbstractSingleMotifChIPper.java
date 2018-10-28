@@ -25,6 +25,7 @@ import java.util.Iterator;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -34,8 +35,11 @@ import de.jstacs.motifDiscovery.MutableMotifDiscoverer;
 import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.NormalizedDiffSM;
+import de.jstacs.sequenceScores.statisticalModels.differentiable.VariableLengthDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.AbstractMixtureDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.mixture.StrandDiffSM;
+import de.jstacs.utils.DoubleList;
+import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.ToolBox;
 
@@ -59,7 +63,7 @@ import de.jstacs.utils.ToolBox;
  *   
  * @author Jens Keilwagen
  */
-public abstract class AbstractSingleMotifChIPper extends AbstractMixtureDiffSM implements MutableMotifDiscoverer {
+public abstract class AbstractSingleMotifChIPper extends AbstractMixtureDiffSM implements MutableMotifDiscoverer, VariableLengthDiffSM {
 	
 	protected double logP;
 	protected HashMap<Sequence,float[]> positionHash;
@@ -122,6 +126,39 @@ public abstract class AbstractSingleMotifChIPper extends AbstractMixtureDiffSM i
 		return res;
 	}
 	
+	
+	
+	
+	
+	@Override
+	public double getLogNormalizationConstant(int length) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getLogPartialNormalizationConstant(int parameterIndex, int length) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setStatisticForHyperparameters(int[] length, double[] weight) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double getLogScoreFor(Sequence seq, int startpos, int endpos){
+		return getLogScoreFor( seq.getSubSequence( startpos, endpos-startpos+1 ), 0 );
+	}
+
+	@Override
+	public double getLogScoreAndPartialDerivation(Sequence seq, int startpos, int endpos, IntList indices,
+			DoubleList partialDer) {
+		return getLogScoreAndPartialDerivation(seq.getSubSequence( startpos, endpos-startpos+1 ), 0, indices, partialDer);
+	}
+
 	@Override
 	public double getHyperparameterForHiddenParameter( int index ) {
 		//XXX
@@ -185,7 +222,7 @@ public abstract class AbstractSingleMotifChIPper extends AbstractMixtureDiffSM i
 		h = d * function[0].getESS();
 		
 		this.freeParams = freeParams;
-		initializeMotif(index, new DataSet( "", seq ), new double[]{h} );
+		initializeMotif(index, new DataSet( "", seq ), new double[]{h} );//motifIndex is equal to index. Does not make sense. TODO FIXME
 	}
 	
 	@Override
