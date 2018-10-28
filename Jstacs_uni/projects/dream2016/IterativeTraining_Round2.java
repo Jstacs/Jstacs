@@ -57,7 +57,7 @@ import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.Time;
 import de.jstacs.utils.ToolBox;
-import projects.dream2016.Aggregation_multi2.Aggregate;
+import projects.dream2016.Aggregation_multi.Aggregate;
 import projects.dream2016.mix.NewMixtureClassifier;
 import projects.dream2016.mix.NewMixtureClassifier.OptimizableMSPClassifier;
 import projects.dream2016.mix.NewMixtureClassifier.Training;
