@@ -21,6 +21,8 @@ import java.util.StringTokenizer;
 
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
+import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 
@@ -108,6 +110,24 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 		}
 	}
 	
+	
+	
+	
+	@Override
+	protected void parseFromXML(StringBuffer xml) throws NonParsableException {
+		super.parseFromXML(xml);
+		comp = (int[]) XMLParser.extractObjectForTags(xml, "comp");
+	}
+
+	@Override
+	protected void addToXML(StringBuffer xml) {
+		super.addToXML(xml);
+		XMLParser.appendObjectWithTags(xml, comp, "comp");
+	}
+
+
+
+
 	/**
 	 * This class is used as container for the parameters of a {@link GenericComplementableDiscreteAlphabet}.
 	 * 
@@ -118,7 +138,7 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 		/**
 		 * This constructor creates an empty parameter set the has to be filled before it can be used to create a {@link GenericComplementableDiscreteAlphabet}.
 		 */
-		public GenericComplementableDiscreteAlphabetParameterSet() {
+		public GenericComplementableDiscreteAlphabetParameterSet() throws ParameterException {
 			super( GenericComplementableDiscreteAlphabet.class );
 			try{
 			parameters.add( new SimpleParameter( DataType.STRING,

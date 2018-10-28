@@ -80,6 +80,7 @@ public class DiscreteAlphabet extends Alphabet {
 		StringBuffer xml = XMLParser.extractForTag( representation, XML_TAG );
 		try {
 			init( XMLParser.extractObjectForTags( xml, "symbols", String[].class ), XMLParser.extractObjectForTags( xml, "caseInsensitive", boolean.class ) );
+			parseFromXML(xml);
 		} catch ( Exception e ) {
 			NonParsableException n = new NonParsableException( e.getMessage() );
 			n.setStackTrace( e.getStackTrace() );
@@ -118,6 +119,10 @@ public class DiscreteAlphabet extends Alphabet {
 		} catch ( CloneNotSupportedException e ) {
 			throw new IllegalArgumentException( e.getCause().getMessage() );
 		}
+	}
+	
+	protected void parseFromXML(StringBuffer xml) throws NonParsableException{
+		
 	}
 
 	/* (non-Javadoc)
@@ -211,8 +216,13 @@ public class DiscreteAlphabet extends Alphabet {
 		StringBuffer xml = new StringBuffer( 200 );
 		XMLParser.appendObjectWithTags( xml, alphabet, "symbols" );
 		XMLParser.appendObjectWithTags( xml, caseInsensitive, "caseInsensitive" );
+		addToXML(xml);
 		XMLParser.addTags( xml, XML_TAG );
 		return xml;
+	}
+	
+	protected void addToXML(StringBuffer xml){
+		
 	}
 
 	/* (non-Javadoc)
@@ -381,18 +391,8 @@ public class DiscreteAlphabet extends Alphabet {
 		 * 
 		 * @param clazz the class the should be created with this parameter set
 		 */
-		protected DiscreteAlphabetParameterSet( Class<? extends DiscreteAlphabet> clazz ) {
+		protected DiscreteAlphabetParameterSet( Class<? extends DiscreteAlphabet> clazz ) throws ParameterException {
 			super( clazz );
-		}
-		
-		/**
-		 * Creates a new {@link DiscreteAlphabetParameterSet} with empty values.
-		 * @throws ParameterException if the parameters could not be created
-		 * 
-		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
-		 */
-		public DiscreteAlphabetParameterSet() throws ParameterException {
-			this( DiscreteAlphabet.class );
 			parameters.add( new SimpleParameter( DataType.STRING,
 					"Values of the alphabet",
 					"The possible values of the discrete alphabet." + "If the alphabet consists of single characters, e.g. A, C, G, and T,"
@@ -406,6 +406,17 @@ public class DiscreteAlphabet extends Alphabet {
 					"Case insensitive",
 					"Use the alphabet case insensitive",
 					true ) );
+		}
+		
+		/**
+		 * Creates a new {@link DiscreteAlphabetParameterSet} with empty values.
+		 * @throws ParameterException if the parameters could not be created
+		 * 
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
+		 */
+		public DiscreteAlphabetParameterSet() throws ParameterException {
+			this( DiscreteAlphabet.class );
+			
 		}
 
 		/**
