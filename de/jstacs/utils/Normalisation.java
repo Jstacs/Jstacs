@@ -77,7 +77,11 @@ public class Normalisation {
 		double offset = Double.NEGATIVE_INFINITY, sum = 0;
 		int i;
 		for( i = start; i < end; i++ ) {
-			offset = Math.max( offset, lnVal[i] );
+			double lnv = lnVal[i];
+			if(lnv > offset){
+				offset = lnv;
+			}
+			//offset = Math.max( offset, lnVal[i] );
 
 		}
 		if( Double.isInfinite( offset ) ) {
