@@ -179,7 +179,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 			Arrays.fill( this.forward, true );
 		} else {
 			if( n != forward.length ) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Not the same number of forward-specifications as states defined.");
 			}
 			this.forward = forward.clone();
 		}
