@@ -30,6 +30,7 @@ import de.jstacs.sequenceScores.QuickScanningSequenceScore;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.utils.DoubleList;
@@ -54,7 +55,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	}
 
 	@Override
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		FileParameter model = new FileParameter("Dimont model", "The model returned by Dimont (in XML format)", "xml", true);
 		
 		FileParameter genome = new FileParameter("Sequences","The sequences (e.g., a genome) to scan for binding sites","fa,fas,fasta",true);
@@ -81,7 +82,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			}, "Threshold specification", "The way of defining the prediction threshold. Either by explicitly defining a significance level or by specifying the number of expected sites", true);
 			
 			
-			return new SimpleParameterSet(model,genome,bg,tsel);
+			return new ToolParameterSet(getShortName(),model,genome,bg,tsel);
 			
 		} catch (ParameterException e) {
 			throw new RuntimeEOFException(e);
@@ -91,7 +92,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	}
 
 	@Override
-	public ToolResult run(ParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
 			throws Exception {
 		
 		progress.setLast(1.0);
