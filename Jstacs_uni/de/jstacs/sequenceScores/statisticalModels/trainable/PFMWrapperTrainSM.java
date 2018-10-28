@@ -20,15 +20,20 @@ package de.jstacs.sequenceScores.statisticalModels.trainable;
 
 import java.text.NumberFormat;
 
+import javax.naming.OperationNotSupportedException;
+
 import de.jstacs.clustering.hierachical.PWMSupplier;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.DiscreteSequenceEnumerator;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.NumericalResultSet;
+import de.jstacs.sequenceScores.QuickScanningSequenceScore;
 import de.jstacs.utils.Normalisation;
+import de.jstacs.utils.ToolBox;
 
 /**
  * A wrapper class for representing position weight matrices or position frequency matrices
@@ -37,7 +42,7 @@ import de.jstacs.utils.Normalisation;
  * @author Jan Grau
  *
  */
-public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel implements PWMSupplier {
+public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel implements PWMSupplier, QuickScanningSequenceScore {
 
 	private double[][] logPWM;
 	private double[][] pfm;
@@ -189,6 +194,51 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 			}
 		}
 		return pwm;
+	}
+
+	@Override
+	public void fillInfixScore(int[] seq, int start, int length, double[] scores) {
+		
+		for(int i=start;i<start+length;i++){
+			scores[i] = logPWM[i][seq[i]];
+		}
+		
+	}
+
+	@Override
+	public boolean[][] getInfixFilter(int kmer, double thresh, int... start) {
+		
+		double[] maxs = new double[logPWM.length];
+		for(int i=0;i<maxs.length;i++){
+			maxs[i] = ToolBox.max(logPWM[i]);
+		}
+		
+		boolean[][] use = new boolean[start.length][(int) Math.pow(getAlphabetContainer().getAlphabetLengthAt(0), kmer)];
+		
+		for(int i=0;i<start.length;i++){
+			
+			double cumPref = ToolBox.sum(0, start[i], maxs);
+			double cumSuf = ToolBox.sum(start[i]+kmer,maxs.length, maxs);
+			//System.out.println("cumPref: "+cumPref+", cumSuf: "+cumSuf+" <-> "+thresh+", max: "+ToolBox.sum(maxs)+" "+ToolBox.sum(start[i],start[i]+kmer,maxs));
+			
+			DiscreteSequenceEnumerator en = new DiscreteSequenceEnumerator(getAlphabetContainer().getSubContainer(start[i], kmer), kmer, false);
+			int k=0;
+			while(en.hasMoreElements()){
+				
+				Sequence temp = en.nextElement();
+				double score = 0;
+				for(int j=0;j<kmer;j++){
+					score += logPWM[start[i]+j][temp.discreteVal(temp.getLength()-j-1)];
+				}
+				
+				use[i][k] = cumPref+score+cumSuf > thresh;
+				k++;
+				
+			}
+			
+		}
+		return use;
+		
 	}
 
 }
