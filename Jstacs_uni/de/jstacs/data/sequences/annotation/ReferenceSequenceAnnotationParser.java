@@ -18,6 +18,7 @@
 package de.jstacs.data.sequences.annotation;
 
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.Sequence;
 
 
@@ -63,11 +64,15 @@ public class ReferenceSequenceAnnotationParser extends SplitSequenceAnnotationPa
 	public ReferenceSequenceAnnotationParser( String key, AlphabetContainer alphabet, String keyValueDelimiter, String annotationDelimiter ) throws IllegalArgumentException {
 		this( key, alphabet, keyValueDelimiter, annotationDelimiter, alphabet.getDelim() );
 	}
+	
+	protected ReferenceSequenceAnnotation getSequenceAnnotation(String seqString) throws IllegalArgumentException, WrongAlphabetException{
+		return new ReferenceSequenceAnnotation( key, Sequence.create( alphabet, seqString, delim ) );
+	}
 
 	protected void add( String type, String identifier ) {
 		if( type.equalsIgnoreCase( this.key ) ) {
 			try{
-				annot.add( new ReferenceSequenceAnnotation( key, Sequence.create( alphabet, identifier, delim ) ) );
+				annot.add( getSequenceAnnotation(identifier) );
 			}catch(Exception e){
 				RuntimeException re = new RuntimeException( e.getMessage() );
 				re.setStackTrace( e.getStackTrace() );
