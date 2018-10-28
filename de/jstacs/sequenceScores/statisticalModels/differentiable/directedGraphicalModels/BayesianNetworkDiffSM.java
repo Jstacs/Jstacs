@@ -1139,7 +1139,7 @@ public class BayesianNetworkDiffSM extends
 	@Override
 	public void fillInfixScore(int[] seq, int start, int length, double[] scores) {
 		for( int l = start; l < start+length; l++ ) {
-			scores[l] = trees[l].getParameterFor(seq, start).getValue();
+			scores[l] = trees[l].getParameterFor(seq, 0).getValue();
 		}
 		
 	}
