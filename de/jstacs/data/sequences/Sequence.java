@@ -891,6 +891,21 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		return hashCode==null ? computeHashCode() : hashCode;
 	}
 	
+	/**
+	 * Computes the hash code for a sub-sequence starting at <code>start</code> of length <code>length</code>.
+	 * 
+	 * @param start the start position
+	 * @param length the length
+	 * @return the hash code
+	 */
+	public int hashCode(int start, int length){
+		int hashCode = 0;
+		for( int i = 0; i < length; i++ ) {
+			hashCode = 31 * hashCode + hashCodeForPos( start+i );
+		}
+		return hashCode;
+	}
+	
 	private int computeHashCode() {
 		int len = getLength(), hashCode = 0;
 		for( int i = 0; i < len; i++ ) {
