@@ -1,0 +1,16 @@
+A detailed description of all tools is available in the AnnoTALE User Guide_.
+
+**TALE Class Assignment** assigns a set of given TALEs to existing TALE classes. If some of the TALEs do not fit into one of the existing classes, these are assigned to additional, new class(es).
+
+The definition of TALE classes must be provided as a *Class builder* file as obtained from the *Load and View TALE Classes* or *TALE Class Builder* tools.
+
+*TALE DNA sequences* may be obtained from the *TALE Prediction* tool or loaded from a local FastA file.
+
+If the name of a *Xanthomonas* strain is provided, this name is used for the proposed systematic TALE names.
+
+The output of *TALE Class Assignment* is a report for the assignment of each input TALE, a report and graphical representation of each modified or new class, a tabular file of original and proposed systematic TALE names, and a *Class builder* that is augmented by the provided TALEs and corresponding classes.
+
+If you experience problems using *TALE Class Assignment*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
+.. _AnnoTALE User Guide: http://www.jstacs.de/downloads/AnnoTALE-UserGuide-1.0.pdf

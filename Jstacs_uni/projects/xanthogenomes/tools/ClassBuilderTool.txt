@@ -1,0 +1,14 @@
+A detailed description of all tools is available in the AnnoTALE User Guide_.
+
+**TALE Class Builder** Clusters a set of input TALEs into a number of classes.
+
+For clustering, TALEs are aligned by the RVD sequences, where mismatches at position 12 of a TALE are penalized with a value of ``0.2`` and mismatches at position 13 are penalized with a value of ´´0.8´´. The alignment distance of two TALEs is then the sum of the penalties in the alignment between these two TALEs. Clustering is performed with agglomerative hierarchical clustering using average linkage.
+
+The input of *TALE Class Builder* are a set of TALE DNA sequences (as obtained from the *TALE Prediction* tool), the *Cutoff* that defines the maximum distance of TALEs in a class (i.e., the larger this value, the larger the classes will be), and the *Significance level* for the p-values of alignments of TALE sequences.
+
+The output of *TALE Class Builder* is a report and a graphical representation for each of the classes, a tree representing similarity of TALE classes, and a ``Class builder`` definition that may serve as input of the *TALE Class Assignment* tool.
+
+If you experience problems using *TALE Class Builder*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
+.. _AnnoTALE User Guide: http://www.jstacs.de/downloads/AnnoTALE-UserGuide-1.0.pdf

@@ -1,0 +1,21 @@
+A detailed description of all tools is available in the AnnoTALE User Guide_.
+
+**TALE Prediction** predicts transcription activator-like effector (TALE) genes in an input sequence, typically a *Xanthomonas* genome.
+
+*TALE Prediction* is based in HMMer nucleotide HMM models that describe N-terminus, repeat region, and C-terminus of TALEs.
+
+The input *Genome* may be provided in FastA or Genbank format. 
+Optionally, you may provide a strain name that will be used in the temporary TALE names and names of output files.
+
+Regardless of the input format, *TALE Prediction* generates output in Genbank format containing the annotations of TALE genes. If the original input has already been a Genbank file, TALE annotations are added to the existing ones.
+In addition, *TALE Prediction* generates annotations in GFF format, and also outputs the DNA and AS sequences of the predicted TALEs in FastA format.
+
+*TALE Prediction* tries hard to make the CDS annotation a proper gene model, starting from a start codon and ending with a ``Stop``. If either start or stop codon are located within the originally predicted region that is homologous to TALE genes, this original hit region is still reported as ``mRNA``.
+Putative pseudo genes, e.g., with premature stop codons, are marked accordingly.
+
+The ``TALE DNA sequences`` output of *TALE Prediction* may serve as input of the *TALE Analysis*, *TALE Class Builder*, and *TALE Class Assignment* tools.
+
+If you experience problems using *TALE Prediction*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
+.. _AnnoTALE User Guide: http://www.jstacs.de/downloads/AnnoTALE-UserGuide-1.0.pdf

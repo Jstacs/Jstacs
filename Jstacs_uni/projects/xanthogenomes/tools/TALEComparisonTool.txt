@@ -1,0 +1,10 @@
+**TALE Repeat Differences** takes as input a FastA file with complete DNA or AA sequence of TALEs, analyzes their structure (in analogy to *TALE Analysis*). and computes pairwise differences (Levenshtein distance of DNA or AA sequence, respectively) of TALE repeats. Given two TALEs, all repeats of the first TALE are compared to all repeats of the second TALE.
+
+Similarity of TALE repeats is represented as a heat map, where *white* represents perfectly identical repeats, *yellow*ish colours indicate high similarity, whereas *red*ish colours represent larger differences. The last, half repeats are compared only to their counterpart in the other TALE but not to other, shorter repeats, since otherwise the colour scale would be skewed due to the large differences observed in such cases.
+
+For all TALE sequences provided as input, all pairs of TALEs are considered, including the comparison of each TALE to itself.
+ 
+
+If you experience problems using *TALE Repeat Differences*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de

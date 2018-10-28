@@ -1,0 +1,8 @@
+A detailed description of all tools is available in the AnnoTALE User Guide_.
+
+The main purpose of **Load and View TALE Classes** is to download the current definition of TALE classes, but it can also be used to view the classes defined in a ``Class builder`` definition obtained from the *TALE Class Builder*.
+
+If you experience problems using *Load and View TALE Classes*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
+.. _AnnoTALE User Guide: http://www.jstacs.de/downloads/AnnoTALE-UserGuide-1.0.pdf

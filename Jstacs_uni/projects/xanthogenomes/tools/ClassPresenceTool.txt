@@ -1,0 +1,11 @@
+**TALE Class Presence** plots a graphical representation of the AnnoTALE classes present in different *Xanthomonas* strains according to a provided class builder. Such a class builder may be created from a custom collection of TALE using the *TALE Class Builder* tool or the current official class builder may be loaded using the *Load and View TALE Classes* tool.
+
+In the plot, TALE classes are arranged in rows and *Xanthomonas* strains in columns. Rows may be sorted alphabetically by class name or by the topology of the class tree. In the latter case, partial class sub-tree may be plotted to the left of the TALE names up to the height defined by parameter *Cut height*.
+For studying only a subset of the strains present in a class builder, strains may be excluded from the plot by specifying a list of strains in a plain text file (strain names as stored in the class builder, one strain per line).
+
+The resulting plot basically depicts a matrix of TALE classes *x* strains, where blue boxes represent presence and empty (white) boxes represent absence of a TALE class.
+
+
+If you experience problems using *TALE Class Presence*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
