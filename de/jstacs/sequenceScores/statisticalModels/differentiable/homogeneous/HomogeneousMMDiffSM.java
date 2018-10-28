@@ -201,7 +201,7 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 						sumOfHyperParams[i] += hyperParams[i][j];
 					}
 					if (i > 0 && i < order
-							&& sumOfHyperParams[i] > sumOfHyperParams[i - 1]) {//TODO Double precision!!!
+							&& sumOfHyperParams[i] > sumOfHyperParams[i - 1]+1E-10) {//TODO Double precision!!!
 						throw new IllegalArgumentException(
 								"The ess for start probabilities of order "
 								+ i
@@ -283,7 +283,11 @@ public class HomogeneousMMDiffSM extends HomogeneousDiffSM {
 		clone.counter = counter.clone();
 		clone.distCounter = distCounter.clone();
 		clone.offset = offset.clone();
-		clone.hyperParams = ArrayHandler.clone(hyperParams);
+		//clone.hyperParams = ArrayHandler.clone(hyperParams);
+		clone.hyperParams = new double[hyperParams.length][];
+		for(int i=0;i<hyperParams.length;i++){
+			clone.hyperParams[i] = hyperParams[i].clone();
+		}
 		return clone;
 	}
 
