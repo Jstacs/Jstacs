@@ -1,0 +1,10 @@
+A detailed description of all tools is available in the AnnoTALE User Guide_.
+
+**TALE Analysis** analyzes TALE DNA input sequences for TALE structure, i.e., it extracts N-terminus, tandem repeats, and C-terminus sequences as DNA and AS sequences, and also provides RVD sequences representing the RVDs of the TALE tandem repeats.
+
+The input of *TALE Analysis* is a FastA file containing the complete DNA sequences of TALE CDSs. These may be provided from a file or from the output of the *TALE Prediction* tool.
+
+If you experience problems using *TALE Analysis*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
+.. _AnnoTALE User Guide: http://www.jstacs.de/downloads/AnnoTALE-UserGuide-1.0.pdf
