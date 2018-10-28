@@ -4,15 +4,12 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Random;
 
-import de.jstacs.algorithms.optimization.DimensionException;
-import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.alphabets.ContinuousAlphabet;
 import de.jstacs.data.sequences.Sequence;
-
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
-
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.continuous.gamma.GammaPriorFunction;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.continuous.gamma.NumericalIntegration;
@@ -36,8 +33,8 @@ public class ExpGammaDiffSM extends AbstractDifferentiableStatisticalModel {
 	private double priorNorm;
 	private double[] alphaNorms;
 	
-	public ExpGammaDiffSM(AlphabetContainer alphabet, int length, double ess, double[] mua, double[] mug, boolean plugin){
-		super(alphabet,length);
+	public ExpGammaDiffSM(int length, double ess, double[] mua, double[] mug, boolean plugin){
+		super(new AlphabetContainer(new ContinuousAlphabet()),length);
 		alphas = new double[length];
 		betas = new double[length];
 		this.alphaNorms = new double[length];
