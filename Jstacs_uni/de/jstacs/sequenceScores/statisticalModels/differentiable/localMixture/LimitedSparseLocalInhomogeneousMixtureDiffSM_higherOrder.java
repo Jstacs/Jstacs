@@ -82,6 +82,9 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 	private double[] e;
 	private double[][] logGamma;
 	private PriorType type;
+	private int[] seq;
+	
+	private double[][] scoreHash;
 	
 	/**
 	 * The type of the prior used by the Slim model
@@ -153,6 +156,8 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 				context*=a;
 			}
 		}
+
+		initHash();
 		init();
 	}
 
@@ -163,6 +168,7 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 	 */
 	public LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder(StringBuffer xml) throws NonParsableException {
 		super(xml);
+		initHash();
 		init();
 	}
 	
@@ -183,6 +189,9 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 	}
 		
 	private void init() {
+
+		this.seq = new int[length];
+		
 		localMixtureScore = new double[order+1];
 		ancestorScore = new double[order+1][length-1];
 		e = new double[order+1];
@@ -218,6 +227,7 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 			//does not happen
 			throw new RuntimeException(e);
 		}
+		
 		precompute();
 		
 		numParameter = 0;
@@ -239,6 +249,29 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 		}
 	}
 	
+	private void initHash() {
+		if(distance<8){
+			scoreHash = new double[length][];
+			for(int i=0;i<scoreHash.length;i++){
+				int l = Math.min(distance+1, i+1);
+				int dim = (int)Math.pow((int)alphabets.getAlphabetLengthAt(i),l);
+				scoreHash[i] = new double[dim];
+				Arrays.fill(scoreHash[i], Double.NaN);
+			}
+		}else{
+			scoreHash = null;
+		}
+	}
+	
+	private void clearHash(){
+		//System.out.println(this.hashCode()+" "+scoreHash);
+		if(scoreHash != null){
+			for(int i=0;i<scoreHash.length;i++){
+				Arrays.fill(scoreHash[i], 1.0);
+			}
+		}
+	}
+
 	private void precompute() {
 		for( int l = 0; l < length; l++ ) {
 			componentMixtureLogNorm[l] = Normalisation.logSumNormalisation( componentMixtureParameters[l], 0, componentMixtureParameters[l].length, componentMixturePotential[l], 0 );
@@ -248,11 +281,14 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 					dependencyLogNorm[l][c][b] = Normalisation.logSumNormalisation( dependencyParameters[l][c][b], 0, dependencyParameters[l][c][b].length, dependencyPotential[l][c][b], 0 );
 				}
 			}
-		}		
+		}
+		clearHash();
 	}
 
 	public LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder clone() throws CloneNotSupportedException {
 		LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder clone = (LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder) super.clone();
+		clone.seq = seq.clone();
+
 		
 		clone.componentMixtureParameters = ArrayHandler.clone( componentMixtureParameters );
 		clone.ancestorMixtureParameters = ArrayHandler.clone( ancestorMixtureParameters );
@@ -276,6 +312,11 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 		clone.e = e.clone();
 		clone.logGamma = ArrayHandler.clone( logGamma );
 
+		if(scoreHash != null){
+			//clone.scoreHash = ArrayHandler.clone(scoreHash);
+		}
+		
+		clone.clearHash();
 		return clone;
 	}
 	
@@ -801,22 +842,54 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 	}	
 	
 	@Override
-	public double getLogScoreFor(Sequence seq, int start) {
-		double score = 0;
-		for( int l = 0; l < length; l++ ) {
-			int current = seq.discreteVal(start+l);
-			localMixtureScore[0] = componentMixtureParameters[l][0] - componentMixtureLogNorm[l] + dependencyParameters[l][0][0][current] - dependencyLogNorm[l][0][0];
-			for( int c = 1; c < componentMixtureParameters[l].length; c++ ) {
-				int k=ancestorMixtureParameters[l][c].length;
-				int an=getOffset(seq, start+l, c, dependencyParameters[0][0][0].length);
-				for( int m = 0; m < k; m++ ) {
-					an = next(an, seq, start, l, c, m );
-					ancestorScore[c][m] = ancestorMixtureParameters[l][c][m] - ancestorMixtureLogNorm[l][c] + dependencyParameters[l][c][an][current] - dependencyLogNorm[l][c][an]; 
-				}
-				localMixtureScore[c] = componentMixtureParameters[l][c] - componentMixtureLogNorm[l] + Normalisation.getLogSum(0, k, ancestorScore[c]);
-			}
-			score += Normalisation.getLogSum(0, componentMixtureParameters[l].length, localMixtureScore );
+	public double getLogScoreFor(Sequence seq2, int start) {
+		for(int i=0;i<this.seq.length;i++){
+			this.seq[i] = seq2.discreteVal(start+i);
 		}
+		int al = (int)alphabets.getAlphabetLengthAt(0);
+		int pw = (int)Math.pow(al, distance);
+		double score = 0;
+		int idx = 0;
+		for( int l = 0; l < length; l++ ) {
+			if(l>distance){
+				idx %= pw;
+			}
+			idx = idx*al + seq[l];
+			
+			double hscore = 1;
+			if(scoreHash != null){
+				hscore = scoreHash[l][idx];
+			}
+			/*if(hscore > 0 && hscore != 1.0){
+				System.out.println(hscore);
+			}*/
+			if(hscore > 0){
+				int current = seq[l];
+				localMixtureScore[0] = componentMixtureParameters[l][0] - componentMixtureLogNorm[l] + dependencyParameters[l][0][0][current] - dependencyLogNorm[l][0][0];
+				for( int c = 1; c < componentMixtureParameters[l].length; c++ ) {
+					int k=ancestorMixtureParameters[l][c].length;
+					int an=getOffset(seq, l, c, dependencyParameters[0][0][0].length);
+
+					int l1 = dependencyParameters[l][c][0].length;
+					int l2 = dependencyParameters[l][c].length;
+
+					for( int m = 0; m < k; m++ ) {
+						//an = next(an, seq, start, l, c, m );
+						an = (an*l1 + seq[l-c-m])%l2;
+						ancestorScore[c][m] = ancestorMixtureParameters[l][c][m] - ancestorMixtureLogNorm[l][c] + dependencyParameters[l][c][an][current] - dependencyLogNorm[l][c][an]; 
+					}
+					localMixtureScore[c] = componentMixtureParameters[l][c] - componentMixtureLogNorm[l] + Normalisation.getLogSum(0, k, ancestorScore[c]);
+				}
+				hscore = Normalisation.getLogSum(0, componentMixtureParameters[l].length, localMixtureScore );
+				if(scoreHash != null){
+					scoreHash[l][idx] = hscore;
+				}
+				
+			}
+			score += hscore;
+			
+		}
+
 		return score;
 	}
 
@@ -1185,7 +1258,8 @@ System.out.println("revCum "+ Arrays.toString(revCum) );
 						}
 						//fill with last
 						for( int i = n; i < m; i++ ) {
-							newDependencyParameters[l][i] = new double[newDependencyParameters[l][i-1].length*4][a];
+							//newDependencyParameters[l][i] = new double[newDependencyParameters[l][i-1].length*4][a];//TODO has been 4
+							newDependencyParameters[l][i] = new double[newDependencyParameters[l][i-1].length*a][a];
 							for( int b = 0, j = 0; j < newDependencyParameters[l][i-1].length; j++ ) {
 								for( int c = 0; c < a; c++, b++ ) {
 									System.arraycopy(newDependencyParameters[l][i-1][j], 0, newDependencyParameters[l][i][b], 0, newDependencyParameters[l][i-1][j].length);
