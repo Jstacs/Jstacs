@@ -44,7 +44,6 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models.SamplingP
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.MixtureEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SamplingEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.SilentEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.UniformEmission;
