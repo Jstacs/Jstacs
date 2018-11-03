@@ -109,10 +109,6 @@ public class SlowMotifProfileTool {
 	
 	
 	
-	private int[] pow1;
-	private int[] pow2;
-	
-	
 	public void run(QuickScanningSequenceScore lslim, String genome, int numThreads, BufferedOutputStream out) throws Exception {
 		
 		
@@ -238,46 +234,6 @@ public class SlowMotifProfileTool {
 	}
 
 	
-	
-	/*private static int getIndex2(IntList intList, int idx2, double maxValue){
-		return intList.interpolationSearch(idx2, 0, intList.length());
-	}
-
-
-
-	private static int getIndex(IntList intList, int idx2, double maxValue) {
-		
-		int idx = (int) ( (idx2/maxValue) * intList.length() );
-		
-		int ill = intList.length();
-		
-		int start = 0;
-		int end = ill;
-		
-		if(intList.get(idx) <= idx2){
-			start = idx;
-			if( intList.get((start+ill)/2)>idx2 ){
-				end = (start+ill)/2;
-			}
-		}else{
-			end = idx;
-			if(intList.get(end/2)<=idx2){
-				start = end/2;
-			}
-			
-		}
-		//System.out.println(start+" "+end);
-		return intList.binarySearch(idx2, start, end);
-
-	}
-*/
-
-
-
-	private boolean check(LinkedList<ScoreRegion> scoreList, int numThreads) {
-		System.out.println("check");
-		return scoreList.size() > numThreads*2;
-	}
 
 	private int print(LinkedList<ScoreRegion> scoreList, int lastPrinted, Lock lock, BufferedOutputStream out) throws IOException {
 		int start = lastPrinted;
@@ -343,97 +299,6 @@ public class SlowMotifProfileTool {
 		}
 		scoreList.add(i, sr);
 	}
-
-	private static IntList condense(IntList list) {
-		
-		int i=0, n=0;
-		while(i<list.length()){
-			while(i+1<list.length() && list.get(i)==list.get(i+1)){
-				i++;
-			}
-			n++;
-			i++;
-		}
-		
-		IntList li = new IntList(n+1);
-		i=0;
-		while(i<list.length()){
-			while(i+1<list.length() && list.get(i)==list.get(i+1)){
-				i++;
-			}
-			li.add(list.get(i));
-			i++;
-		}
-		return li;
-	}
-
-
-
-
-	private void computeScores(QuickScanningSequenceScore lslim, IntList list, int prefix, int prefixLength, float[] scoreAr) throws WrongAlphabetException, WrongSequenceTypeException {
-		//System.out.println("prefix: "+prefix);
-		int[] seq = new int[lslim.getLength()];
-		
-		DiscreteAlphabet al = (DiscreteAlphabet) lslim.getAlphabetContainer().getAlphabetAt(0);
-		
-		String[] syms = new String[(int) al.length()];
-		for(int i=0;i<syms.length;i++){
-			syms[i] = al.getSymbolAt(i);
-		}
-		
-		double[] scores = new double[seq.length];
-		
-		fill(seq, prefix, prefixLength);
-		
-		int[] prevSeq = seq.clone();
-		Arrays.fill(prevSeq, prefixLength,prevSeq.length,-1);
-		
-		lslim.fillInfixScore(seq,0,prefixLength, scores);
-		
-		
-		int i=0;
-		while(i<list.length()){
-			
-			int curr = list.get(i);
-			
-			//update(seq,curr,prefixLength);
-			
-			for(int k=prefixLength;k<seq.length;k++){
-				seq[k] = curr/pow2[k-prefixLength];
-				curr %= pow2[k-prefixLength];
-			}
-			
-			//int offset = offset(prevSeq,seq,prefixLength);
-			int offset=prefixLength;
-			while(offset<seq.length && prevSeq[offset]==seq[offset]){
-				offset++;
-			}
-			offset -= prefixLength;
-			
-			lslim.fillInfixScore(seq,prefixLength+offset,seq.length-prefixLength-offset, scores);
-			
-			double fullScore = ToolBox.sum(scores);
-			
-			scoreAr[i] = (float) fullScore;
-			
-			System.arraycopy(seq, prefixLength+offset, prevSeq, prefixLength+offset, seq.length-prefixLength-offset);
-			
-			i++;
-		}
-		
-	}
-
-
-
-
-	private void fill(int[] seq, int prefix, int len) {
-		for(int i=0;i<len;i++){
-			seq[i] = prefix/pow1[i];
-			prefix %= pow1[i];
-		}
-	}
-
-
 
 	
 }
