@@ -4,41 +4,35 @@
     <!--ANT 1.7 is required                                        -->
     <!--define folder properties-->
     <property name="dir.buildfile" value="../../.."/>
-    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <!-- <property name="dir.workspace" value="${dir.buildfile}/.."/> -->
     <property name="dir.jarfile" value="/Users/dev/Downloads"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/Catchitt2.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/Catchitt.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="projects.encodedream.tools.Catchitt"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${dir.buildfile}/bin">
-        	  <include name="projects/encodedream/**" />
-        	</fileset>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/colt.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/ssj.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/numericalMethods.jar"/>
-            <fileset dir="${dir.workspace}/Jstacs_uni/bin">
             	<exclude name="**/.svn/**" />
             	<exclude name="**/clusters.xml" />
             	<exclude name="lib/**/*.jar" />
             	<exclude name="projects/gemoma/**" />
             	<exclude name="projects/motifComp/**" />
-        	    <exclude name="projects/dream2016/**" />
-        	    	<exclude name="projects/schweden/**" />
-        	<exclude name="projects/quickscan/**" />
-        	     <exclude name="*.class" />
-        	     	<exclude name="*.xml" />
-        	     	<exclude name="supplementary/**" />
-             </fileset>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/RClient-0.6.7.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/bytecode-1.9.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/core-1.9.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/Jama-1.0.3.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/BigWig.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/junit-4.5.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/Jstacs_uni/lib/log4j-1.2.15.jar"/>            
+            	<exclude name="projects/dream2016/**" />
+            	<exclude name="projects/quickscan/**" />
+            	<exclude name="*.xml" />
+        	</fileset>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/colt.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/ssj.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/numericalMethods.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/RClient-0.6.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/bytecode-1.9.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/core-1.9.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/Jama-1.0.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/BigWig.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/junit-4.5.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/log4j-1.2.15.jar"/>            
         </jar>
     </target>
 </project>
