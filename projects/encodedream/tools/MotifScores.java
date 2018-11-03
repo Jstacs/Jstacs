@@ -83,7 +83,7 @@ public class MotifScores implements JstacsTool {
 		pars.add(new FileParameter("FAI of genome", "FastA index file of the genome", "fai", true));
 		try {
 			pars.add(new SimpleParameter(DataType.INT, "Bin width", "The width of the genomic bins considered", true));
-			pars.add(new SimpleParameter(DataType.BOOLEAN, "Low-memory mode", "Use slower mode with a smaller memory footprint", true, false));
+			pars.add(new SimpleParameter(DataType.BOOLEAN, "Low-memory mode", "Use slower mode with a smaller memory footprint", true, true));
 		} catch (DatatypeNotValidException | IllegalValueException e) {
 			e.printStackTrace();
 		}
