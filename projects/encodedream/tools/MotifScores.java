@@ -56,6 +56,7 @@ import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.PFMComparator;
 import projects.dimont.ThresholdedStrandChIPper;
 import projects.encodedream.AggregateMotifProfiles;
+import projects.encodedream.LowMemProfileTool;
 import projects.encodedream.QuickMotifProfileTool;
 import projects.encodedream.SlowMotifProfileTool;
 
@@ -143,36 +144,44 @@ public class MotifScores implements JstacsTool {
 		int bin = (int) parameters.getParameterAt(3).getValue();
 		boolean lowmem = (boolean) parameters.getParameterAt(4).getValue();
 		
-		
-		
-		PipedInputStream in = new PipedInputStream();
-		PipedOutputStream out = new PipedOutputStream(in);
-		
-		new Thread(()->{
-			try {
-				if(lowmem){
-					SlowMotifProfileTool mot = new SlowMotifProfileTool();
-					mot.run(model2, genome, threads, new BufferedOutputStream(out));
-					out.close();
-				}else{
-					QuickMotifProfileTool mot = new QuickMotifProfileTool();
-					mot.run(model2, genome, threads, new BufferedOutputStream(out));
-					out.close();
-				}
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}).start();
-		
 		File outfile = File.createTempFile("motif", ".temp.gz", new File("."));
 		outfile.deleteOnExit();
 		
 		PrintStream out2 = new PrintStream(new GZIPOutputStream(new FileOutputStream(outfile)));
 		
-		AggregateMotifProfiles.run(new BufferedReader(new InputStreamReader(in)), out2, bin,faiFile);
+		if(lowmem){
 		
-		in.close();
-		out2.close();
+			
+			
+			LowMemProfileTool lmpt = new LowMemProfileTool();
+			lmpt.run(model2, genome, out2, bin, faiFile);
+			
+			out2.close();
+		
+		}else{
+			PipedInputStream in = new PipedInputStream();
+			PipedOutputStream out = new PipedOutputStream(in);
+			
+			new Thread(()->{
+				try {
+					QuickMotifProfileTool mot = new QuickMotifProfileTool();
+					mot.run(model2, genome, threads, new BufferedOutputStream(out));
+					out.close();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}).start();
+			
+			
+			
+			
+			
+			AggregateMotifProfiles.run(new BufferedReader(new InputStreamReader(in)), out2, bin,faiFile);
+			
+			in.close();
+			out2.close();
+		
+		}
 		
 		TextResult tr = new TextResult("Motif scores", "Features computed from the profile of motif scores", new FileParameter.FileRepresentation(outfile.getAbsolutePath()), "tsv.gz", getToolName(), null, true);
 		
