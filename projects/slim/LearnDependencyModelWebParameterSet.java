@@ -34,18 +34,24 @@ import de.jstacs.data.sequences.SparseSequence;
 import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.SparseStringExtractor;
+import de.jstacs.parameters.AbstractSelectionParameter.InconsistentCollectionException;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.Parameter;
+import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.tools.DataColumnParameter;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.Pair;
 
 
-public class LearnDependencyModelWebParameterSet extends ParameterSet {
+public class LearnDependencyModelWebParameterSet extends ToolParameterSet {
 
 	public enum ModelType{
 		IMM("Inhomogeneous Markov model"),
@@ -67,9 +73,9 @@ public class LearnDependencyModelWebParameterSet extends ParameterSet {
 	}
 	
 	
-	public LearnDependencyModelWebParameterSet() throws Exception {
-		
-		this.parameters.add( new SelectionParameter( DataType.PARAMETERSET, new String[]{"Annotated FastA","Tabular"}, new Object[]{
+	private static LinkedList<Parameter> getParameters() throws ParameterException {
+		LinkedList<Parameter> parameters = new LinkedList<>();
+		parameters.add( new SelectionParameter( DataType.PARAMETERSET, new String[]{"Annotated FastA","Tabular"}, new Object[]{
 		           new SimpleParameterSet( new FileParameter( "Input sequences", "The input sequences for learning the dependency model (can be uploaded using &quot;GetData&quot; -&gt; &quot;Upload File&quot;), annotated FastA format. The required format is described in the help section.", "fasta", true ) ),
 		           new SimpleParameterSet( new FileParameter( "Input sequences", "The input sequences for learning the dependency model (can be uploaded using &quot;GetData&quot; -&gt; &quot;Upload File&quot;), tabular format.", "tabular", true ),
 		        		   new DataColumnParameter("Input sequences","Sequence column","The column containing the sequence data",true,1),
@@ -78,7 +84,7 @@ public class LearnDependencyModelWebParameterSet extends ParameterSet {
 		}, "Input data", "Select the input data format and set input parameters", true ) );
 		
 		
-		this.parameters.add( new SelectionParameter( DataType.PARAMETERSET, new String[]{ModelType.IMM.getPrintname(),ModelType.BT_EAR.getPrintname(),ModelType.BT_MI.getPrintname(),ModelType.SLIM.getPrintname(),ModelType.LSLIM.getPrintname()}, 
+		parameters.add( new SelectionParameter( DataType.PARAMETERSET, new String[]{ModelType.IMM.getPrintname(),ModelType.BT_EAR.getPrintname(),ModelType.BT_MI.getPrintname(),ModelType.SLIM.getPrintname(),ModelType.LSLIM.getPrintname()}, 
 				new Object[]{
 				             new SimpleParameterSet( new SimpleParameter(DataType.INT, "Order", "The order of the Markov model", true, new NumberValidator<Integer>(0,2), 1 ) ),
 				             new SimpleParameterSet(  ),
@@ -88,11 +94,16 @@ public class LearnDependencyModelWebParameterSet extends ParameterSet {
 				}, "Model type", "Define the type of the dependency model and (if required) additional parameters", true ) );
 		
 		
-		this.parameters.add( new SimpleParameter(DataType.INT, "Background order", "The order of the background model, -1 for uniform distribution", true, new NumberValidator<Integer>(-1,4), -1 ) );
+		parameters.add( new SimpleParameter(DataType.INT, "Background order", "The order of the background model, -1 for uniform distribution", true, new NumberValidator<Integer>(-1,4), -1 ) );
 		
-		this.parameters.add( new SimpleParameter( DataType.DOUBLE, "Equivalent sample size", "Reflects the strength of the prior on the model parameters.", true, new NumberValidator<Double>( 0.0, Double.MAX_VALUE ), 4.0 ) );
+		parameters.add( new SimpleParameter( DataType.DOUBLE, "Equivalent sample size", "Reflects the strength of the prior on the model parameters.", true, new NumberValidator<Double>( 0.0, Double.MAX_VALUE ), 4.0 ) );
 		
+		return parameters;
 		
+	}
+	
+	public LearnDependencyModelWebParameterSet() throws Exception {
+		super("learn",getParameters().toArray(new Parameter[0]));
 	}
 	
 	
