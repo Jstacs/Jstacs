@@ -159,41 +159,5 @@ public class MultilineSimpleParameter extends SimpleParameter {
 		buf.append( "${"+configPrefix+namePrefix+"}" );
 		XMLParser.addTags( buf, namePrefix );
 		configBuffer.append( buf );		
-	}
-
-	@Override
-	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
-		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
-		String val = XMLParser.extractForTag( command, namePrefix ).toString();
-		
-		val = unescape( val );
-		this.setValue( val );
-	}
-
-	
-	private static String[][] table = {
-	                                   { "&", "__amp__" },
-	                                   { "\"", "__quot__" },
-	                                   { "'", "__apos__" },
-	                                   { ">", "__gt__" },
-	                                   { "<", "__lt__" },
-	                                   { "\n", "(__cn__|__cr__)+"},
-	                                   { "[", "__ob__" },
-	                                   { "]", "__cb__" }
-	};
-
-
-
-	private static String unescape( String original ) {
-		//System.out.println("before: "+original);
-		if( original != null ) {
-			for( int i = 0; i < table.length; i++ ) {
-				original = original.replaceAll( table[i][1], table[i][0] );
-			}
-		}
-		//System.out.println("after: "+original);
-		return original;
-	}
-
-	
+	}	
 }

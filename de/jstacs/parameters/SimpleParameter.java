@@ -677,7 +677,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 			line = "&lt;hr /&gt;";
 		}
 		
-		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+getComment()+"\" "+(datatype == DataType.BOOLEAN ? "checked" : "value")+"=\""+(defaultValue == null ? "" : (datatype == DataType.BOOLEAN ? (defaultValue.equals( true ) ? "True" : "False") : defaultValue) )+"\" optional=\""+(!isRequired())+"\"", indentation );
+		XMLParser.addTagsAndAttributes( buf, "param", "type=\""+dataTypeToGalaxy()+"\""+(datatype == DataType.STRING ? " size=\"40\"" : "")+" name=\""+namePrefix+"\" label=\""+line+getName()+"\" help=\""+XMLParser.escape(getComment())+"\" "+(datatype == DataType.BOOLEAN ? "checked" : "value")+"=\""+(defaultValue == null ? "" : (datatype == DataType.BOOLEAN ? (defaultValue.equals( true ) ? "True" : "False") : defaultValue) )+"\" optional=\""+(!isRequired())+"\"", indentation );
 		descBuffer.append( buf );
 		
 		buf = new StringBuffer();
@@ -719,10 +719,33 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		try{
 			String val = XMLParser.extractForTag( command, namePrefix ).toString();
+			
+			val = unescape( val );
 			this.setValue( val );
 		}catch(NullPointerException e){
 			throw new NullPointerException( getName()+" "+command+" "+namePrefix );
 		}
 	}
+	
+	private static String[][] table = {
+	                                   { "&", "__amp__" },
+	                                   { "\"", "__quot__" },
+	                                   { "'", "__apos__" },
+	                                   { ">", "__gt__" },
+	                                   { "<", "__lt__" },
+	                                   { "\n", "(__cn__|__cr__)+"},
+	                                   { "[", "__ob__" },
+	                                   { "]", "__cb__" }
+	};
 
+	private static String unescape( String original ) {
+		//System.out.println("before: "+original);
+		if( original != null ) {
+			for( int i = 0; i < table.length; i++ ) {
+				original = original.replaceAll( table[i][1], table[i][0] );
+			}
+		}
+		//System.out.println("after: "+original);
+		return original;
+	}
 }
