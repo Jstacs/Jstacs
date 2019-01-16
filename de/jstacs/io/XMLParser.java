@@ -894,7 +894,16 @@ public final class XMLParser {
 	        { "<", "&lt;" },
 	};
 	
-	private static String escape( String original ) {
+	/**
+	 * Escape special characters from a String allowing to wrap the String by e.g. XML tags.
+	 * 
+	 * @param original the original String
+	 * 
+	 * @return the escaped String
+	 * 
+	 * @see #unescape(String)
+	 */
+	public static String escape( String original ) {
 		if( original != null ) {
 			for( int i = 0; i < table.length; i++ ) {
 				original = original.replaceAll( table[i][0], table[i][1] );
@@ -903,12 +912,21 @@ public final class XMLParser {
 		return original;
 	}
 	
-	private static String unescape( String original ) {
-		if( original != null ) {
+	/**
+	 * Unescapes a String
+	 * 
+	 * @param escaped the escaped String. Opposite of the method {@link #escape(String)}.
+	 * 
+	 * @return the original String 
+	 * 
+	 * @see #escape(String)
+	 */
+	public static String unescape( String escaped ) {
+		if( escaped != null ) {
 			for( int i = 0; i < table.length; i++ ) {
-				original = original.replaceAll( table[i][1], table[i][0] );
+				escaped = escaped.replaceAll( table[i][1], table[i][0] );
 			}
 		}
-		return original;
+		return escaped;
 	}
 }
