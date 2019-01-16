@@ -1,6 +1,8 @@
 package projects.xanthogenomes;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ui.cli.CLI;
+import projects.tals.prediction.QuickTBSPredictionTool;
+import projects.tals.rnaseq.DerTALE;
 import projects.xanthogenomes.tools.ClassAssignmentTool;
 import projects.xanthogenomes.tools.ClassBuilderTool;
 import projects.xanthogenomes.tools.ClassPresenceTool;
@@ -26,7 +28,9 @@ public class AnnoTALEcli {
 				new RenameTool(), 
 				new PredictAndIntersectTargetsTool(),
                 new ClassPresenceTool(),
-                new TALEComparisonTool()};
+                new TALEComparisonTool(),
+                new QuickTBSPredictionTool(),
+                new DerTALE()};
 
 		CLI cli = new CLI( tools );
 		

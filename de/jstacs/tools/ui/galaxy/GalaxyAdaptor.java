@@ -553,7 +553,7 @@ public class GalaxyAdaptor {
 	 * Returns the default extension (Galaxy format) for a given result class.
 	 * If the format cannot be determined from the class, this method returns <code>null</code>.
 	 * @param resClass the result class
-	 * @return the formta
+	 * @return the format
 	 */
 	public static String getDefaultExtension(Class<? extends Result> resClass){
 		if(SimpleResult.class.isAssignableFrom(resClass)){

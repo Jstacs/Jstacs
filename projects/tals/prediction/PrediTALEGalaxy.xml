@@ -5,9 +5,9 @@
     <!--define folder properties-->
     <property name="dir.jarfile" value="/Users/dev/Downloads/jfx"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/AnnoTALEcli-1.4.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/PrediTALEGalaxy.jar" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="projects.xanthogenomes.AnnoTALEcli"/>
+                <attribute name="Main-Class" value="projects.tals.prediction.PrediTALEGalaxy"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="/Users/dev/git/Jstacs/bin">

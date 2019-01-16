@@ -1,0 +1,11 @@
+**PrediTALE** predicts TALE target boxes using a novel model learned from quantitative data based on the RVD sequence of a TALE.
+
+As input, PrediTALE requires a set of sequences that are scanned for putative TALE target boxes. These sequences could be promoters of genes but also complete genomic sequences (FastA format). For computing p-values, PrediTALE additional needs a background set of sequences, which is by default generated as a sub-sample of the original input data.
+The prediction threshold may be defined either by means of a p-values or an approximate number of expected sites. The latter will also be converted to a p-value, internally, and the defined number of expected sites in not met exactly, in general.
+TALEs are specified by a FastA file containing their RVD sequences, where individual RVDs are separated by dashes (-). This is the same format also output by the *TALE Analysis* tool of AnnoTALE.
+Finally, it can be specified if both strands or only one of the strands are scanned where, in the former case, a penalty may be assigned to predictions on the reverse strand. While this penalty may be reasonable when scanning promoters, it should usually be set to ``0`` in case of genome-wide predictions.
+
+
+If you experience problems using *PrediTALE*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
