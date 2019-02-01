@@ -167,7 +167,7 @@ public class Coverage {
 		{
 			double[] sum = new double[]{0.0,0.0};
 			double[] n = new double[]{0.0,0.0};
-			int[] l = new int[]{5000,10000};
+			int[] l = new int[]{Math.min(5000,orig.length),Math.min(10000,orig.length)};
 
 			for(int j=0;j<sum.length;j++){
 				for(int i=0;i<l[j];i++){
