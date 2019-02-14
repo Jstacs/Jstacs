@@ -232,7 +232,7 @@ public class Coverage {
 		int broad = 1000;
 
 		double[][] res = new double[orig.length/bin][];
-		for(int i=0;i+bin<orig.length;i+=bin){
+		for(int i=0;i+bin<=orig.length;i+=bin){
 			double min = ToolBox.min(i, i+bin, orig);
 			double median = ToolBox.median(i,i+bin,orig);
 
