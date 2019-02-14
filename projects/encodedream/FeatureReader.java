@@ -132,7 +132,7 @@ public class FeatureReader {
 			temp[2+i] = motifReaders[i].readLine();
 		}
 		if(!check(temp)){//TODO efficiency
-			System.err.println("Chromosomes doe not match between input files.");
+			System.err.println("Chromosomes do not match between input files.");
 			System.err.println(Arrays.toString(temp));
 			System.exit(1);
 		}
