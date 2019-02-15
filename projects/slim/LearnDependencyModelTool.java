@@ -125,7 +125,7 @@ public class LearnDependencyModelTool implements JstacsTool {
 	 */
 	public static void main( String[] args ) throws Exception {
 		
-		CLI cli = new CLI(new LearnDependencyModelTool());
+		CLI cli = new CLI(new boolean[]{true,false},new LearnDependencyModelTool(), new MotifScanningTool());
 		
 		cli.run(args);
 
@@ -157,7 +157,10 @@ public class LearnDependencyModelTool implements JstacsTool {
 		
 		double ess = params.getESS();
 		ModelType modelType = params.getModelType();
-		int order = params.getOrder();
+		int order = 0;
+		if(modelType != ModelType.BT_EAR && modelType != ModelType.BT_MI && modelType != ModelType.SLIM){
+			order = params.getOrder();
+		}
 		int bgO = params.getBgOrder();
 		
 		
