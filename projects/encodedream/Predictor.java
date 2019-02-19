@@ -190,7 +190,7 @@ wr.close();*/
 					sum = 0.0;
 				}
 				all += 1.0 - Math.exp(sum);
-				System.out.println(binsBefore+" "+binsAfter+" "+start+" "+end+" "+j+" "+i+" "+(1.0 - Math.exp(sum))+" "+all);
+				//System.out.println(binsBefore+" "+binsAfter+" "+start+" "+end+" "+j+" "+i+" "+(1.0 - Math.exp(sum))+" "+all);
 			}
 			all /= cls.length;
 			preds[j] = all;
