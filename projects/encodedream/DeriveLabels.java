@@ -93,7 +93,7 @@ public class DeriveLabels {
 			
 			ArrayList<Peak> li_relaxed = relaxed.get(chr);
 			ArrayList<Peak> li_conservative = conservative.get(chr);
-			for(int i=0;i+bin<len;i+=bin){
+			for(int i=0;i+bin<=len;i+=bin){
 				int start = i;
 				int end = i+bin;
 				int endRegion = i+region;
