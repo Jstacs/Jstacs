@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
 
 import org.broad.igv.bbfile.BBFileHeader;
 import org.broad.igv.bbfile.BBFileReader;
@@ -30,6 +31,7 @@ import org.broad.igv.bbfile.WigItem;
 
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.ValidationStringency;
@@ -122,6 +124,8 @@ public class Coverage {
 		SamReader sr = srf.open(new File(bam));
 		SAMSequenceDictionary dict = sr.getFileHeader().getSequenceDictionary();
 		
+		//List<SAMSequenceRecord> sequences = dict.getSequences();
+		
 		double[] orig = null;
 		
 		String lastChr = "";
@@ -137,6 +141,15 @@ public class Coverage {
 					double[][] temp = process(orig,lambdaBG, bin);
 					print(lastChr,temp, out, bin);
 				}
+				
+				if(lastChr.length() > 0 && dict.getSequenceIndex(chr) != dict.getSequenceIndex(lastChr)+1){
+					for(int k=dict.getSequenceIndex(lastChr)+1;k<dict.getSequenceIndex(chr);k++){
+						orig = new double[dict.getSequence(k).getSequenceLength()];
+						double[][] temp = process(orig,lambdaBG,bin);
+						print(dict.getSequence(k).getSequenceName(),temp,out,bin);
+					}
+				}
+				
 				orig = new double[dict.getSequence(chr).getSequenceLength()];
 				//System.out.println(chr);
 			}
