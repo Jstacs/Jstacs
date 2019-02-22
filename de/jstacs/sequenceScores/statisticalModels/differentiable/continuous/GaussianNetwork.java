@@ -171,7 +171,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 		for(int i=0;i<mu.length;i++){
 			mu[i] /= n;
 			lambda[i] /= n;
-			System.out.println(i+" "+mu[i]+" "+lambda[i]+" "+n);
+			//System.out.println(i+" "+mu[i]+" "+lambda[i]+" "+n);
 			
 			lambda[i] = lambda[i] - mu[i]*mu[i];
 			lambda[i] = -Math.log(lambda[i]);
