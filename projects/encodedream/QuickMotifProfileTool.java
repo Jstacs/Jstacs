@@ -159,7 +159,7 @@ public class QuickMotifProfileTool {
 				Sequence seq = it.next();
 				
 				String id = seq.getSequenceAnnotationByType("id", 0).getIdentifier().trim();
-				System.err.println(id);
+				//System.err.println(id);
 				
 				itIdx++;
 				//System.out.println(id);
@@ -210,7 +210,7 @@ public class QuickMotifProfileTool {
 			final int l = i;
 			new Thread(() -> {
 				
-				System.err.println("thread: "+l);
+				//System.err.println("thread: "+l);
 				for(int m=0;m<assign[l].length();m++){
 					int k = assign[l].get(m);
 					lists[k].sort();
@@ -233,14 +233,14 @@ public class QuickMotifProfileTool {
 		}
 		
 		while(!lock3.finished()){
-			System.err.println("waiting");
+			//System.err.println("waiting");
 			synchronized(lock3){
 				lock3.wait();
 			}
 		}
 		
 		
-		System.err.println("prepare index: "+(System.currentTimeMillis()-time)/1000);
+		//System.err.println("prepare index: "+(System.currentTimeMillis()-time)/1000);
 		
 		
 		time = System.currentTimeMillis();
@@ -264,7 +264,7 @@ public class QuickMotifProfileTool {
 		for(int i=0;i<numThreads;i++){//TODO XXX Deadlocks! Threads have finished between l280 and l282
 			final int j = i;
 			new Thread(() -> {
-				System.err.println("thread: "+j);
+				//System.err.println("thread: "+j);
 				for(int l=0;l<assign[j].length();l++){
 					int k = assign[j].get(l);
 					if((k)%(1000) == 0){
@@ -287,7 +287,7 @@ public class QuickMotifProfileTool {
 		
 
 		while(!lock.finished()){
-			System.err.println("waiting");
+			//System.err.println("waiting");
 			synchronized(lock){
 				lock.wait();
 			}
@@ -324,7 +324,7 @@ public class QuickMotifProfileTool {
 			}
 		}*/
 		
-		System.err.println("scores: "+(System.currentTimeMillis()-time)/1000);
+		//System.err.println("scores: "+(System.currentTimeMillis()-time)/1000);
 		
 		
 		
@@ -365,7 +365,7 @@ public class QuickMotifProfileTool {
 					totalSequenceIndex++;
 					String id = seq2.getSequenceAnnotationByType("id", 0).getIdentifier().trim();
 					int off = starts.get(itIdx);
-					System.err.println(id);
+					//System.err.println(id);
 					
 					itIdx++;
 
@@ -520,7 +520,7 @@ public class QuickMotifProfileTool {
 			Iterator<ScoreRegion> it = scoreList.iterator();
 			while(it.hasNext()){
 				ScoreRegion next = it.next();
-				System.err.println(next.index+" <-> "+(lastPrinted+1));
+				//System.err.println(next.index+" <-> "+(lastPrinted+1));
 				if(next.index == lastPrinted+1){
 					regs2.add(next);
 					lastPrinted++;

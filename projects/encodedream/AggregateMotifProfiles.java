@@ -58,10 +58,10 @@ public class AggregateMotifProfiles {
 				
 				if(!chr.equals(lastChr)){
 					last = start - start%bin;
-					if(lastChr.length()>0 && last+bin<sizes.get(lastChr)){
+					if(lastChr.length()>0 && last+bin<=sizes.get(lastChr)){
 						print(lastChr,last,scores, out);
 					}
-					if(lastChr.length()>0 && last+bin<sizes.get(lastChr)){
+					if(lastChr.length()>0 && last+bin<=sizes.get(lastChr)){
 						print(lastChr,last+bin,sizes.get(lastChr)-bin,bin,out);
 					}
 					scores.clear();
@@ -92,10 +92,10 @@ public class AggregateMotifProfiles {
 		}
 		
 		last = start - (start%bin==0 ? bin : start%bin);
-		if(last+bin<sizes.get(lastChr)){
+		if(last+bin<=sizes.get(lastChr)){
 			print(lastChr,last,scores, out);
 		}
-		if(last+bin<sizes.get(lastChr)){
+		if(last+bin<=sizes.get(lastChr)){
 			print(lastChr,last+bin,sizes.get(lastChr)-bin,bin,out);
 		}
 		//read.close();
