@@ -133,7 +133,7 @@ public class IterativeTraining {
 			double th2 = ToolBox.percentile(scNeg.toArray(), perc2);
 			
 			th = Math.max(th, th2);
-			System.out.println("threshold: "+th);
+			//System.out.println("threshold: "+th);
 			
 			/*HashSet<Integer> li = new HashSet<>(); 
 
