@@ -100,8 +100,19 @@ public interface JstacsTool {
 	 * @return a short {@link String} representation of simple parameters
 	 */
 	public static String getSimpleParameterInfo( ParameterSet parameters ) {
+		return getSimpleParameterInfo(parameters, null);
+	}
+	
+	static String getSimpleParameterInfo( ParameterSet parameters, String pref ) {
 		String res = null;
 		ParameterSet inner;
+		if( pref != null ) {
+			if( parameters instanceof ToolParameterSet ) {
+				pref += ((ToolParameterSet)parameters).getToolName() + ".";
+			}
+		} else {
+			pref = "";
+		}
 		for( int i = 0; i < parameters.getNumberOfParameters(); i++ ) {
 			Parameter p = parameters.getParameterAt(i);
 			inner = null;
@@ -118,7 +129,7 @@ public interface JstacsTool {
 				} else {
 					o = p.getValue();
 				}
-				res += p.getName() + ": " + o;
+				res += pref + p.getName() + ": " + o;
 				if ( p instanceof SelectionParameter && p.getDatatype() == DataType.PARAMETERSET ) {
 					inner = (ParameterSet) p.getValue();
 				}
@@ -127,7 +138,7 @@ public interface JstacsTool {
 				inner = ((ParameterSetContainer)p).getValue();
 			}
 			if( inner != null ) {
-				String subRes = getSimpleParameterInfo( inner );
+				String subRes = getSimpleParameterInfo( inner, pref );
 				if( subRes != null ) {
 					if( res == null ) {
 						res = "";
