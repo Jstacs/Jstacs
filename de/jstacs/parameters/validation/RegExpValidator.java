@@ -79,7 +79,7 @@ public class RegExpValidator implements ParameterValidator, GalaxyConvertible {
 	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer,
 			StringBuffer configBuffer, boolean addLine, int indentation) throws Exception {
 		XMLParser.addIndentation(descBuffer, indentation);
-		descBuffer.append( "<validator type=\"regex\" message=\"Value does not match "+regExp+".\">^"+regExp+"$</validator>\n" );
+		descBuffer.append( "<validator type=\"regex\" message=\"Value does not match "+XMLParser.escape(regExp)+".\">^"+XMLParser.escape(regExp)+"$</validator>\n" );
 	}
 
 	@Override
