@@ -165,6 +165,10 @@ public class FeatureReader {
 			sequenceLength = num*numBins;
 			motifsLength = numMotifs*numBins;
 			dnaseLength = numDnase*numBins;
+		}else{
+			if(sequenceLength != num*numBins){
+				throw new NumberFormatException("Problem on input line "+Arrays.toString(lines));
+			}
 		}
 		return feats;
 	}
@@ -218,6 +222,10 @@ public class FeatureReader {
 			if(lab == 'S'){
 				values.add(getDNaseMedian(temp));
 			}
+		}
+		
+		if(values.length()==0){
+			throw new RuntimeException("Not a single bin with label 'S'. Please check input.");
 		}
 		
 		double min = values.min(0, values.length());
