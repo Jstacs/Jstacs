@@ -69,7 +69,7 @@ public class Extractor implements JstacsTool {
 	}
 	
 	private static void getOut( String prefix, List<File> file, List<SafeOutputStream> out ) throws IOException {
-		File f = prefix == null ? null : GeMoMa.createTempFile("Extractor-" + prefix);
+		File f = prefix == null ? null : Tools.createTempFile("Extractor-" + prefix);
 		BufferedOutputStream b = (f == null) ? null : new BufferedOutputStream( new FileOutputStream( f ) );
 		file.add(f);
 		out.add(SafeOutputStream.getSafeOutputStream(b));
@@ -105,13 +105,7 @@ public class Extractor implements JstacsTool {
 		
 		HashMap<String, HashMap<String,Gene>> annot = read( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
 		
-		InputStream in;// = parameters.getParameterForName("genetic code").getValue().toString();
-		p = parameters.getParameterForName("genetic code");
-		if( p.isSet() ) {
-			in = new FileInputStream( p.getValue().toString() );
-		} else {
-			in = Extractor.class.getClassLoader().getResourceAsStream("projects/gemoma/test_data/genetic_code.txt" );
-		}
+		InputStream in = Tools.getInputStream( parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" );
 		HashMap<String,Character> code = Tools.getCode( in );
 		
 		Ambiguity ambi = (Ambiguity) parameters.getParameterForName("Ambiguity").getValue();
@@ -233,7 +227,7 @@ public class Extractor implements JstacsTool {
 	private static String gID = "gene_id \"";
 	private static String tID = "transcript_id \"";
 	
-	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String c, String strand, String geneID, String transcriptID ) {
+	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String evidence, String c, String strand, String geneID, String transcriptID ) {
 		HashMap<String,Gene> chr = annot.get(c);
 		if( chr == null ) {
 			chr = new HashMap<String,Gene>();
@@ -242,7 +236,7 @@ public class Extractor implements JstacsTool {
 		
 		Gene gene = chr.get(geneID);			
 		if( gene == null ) {
-			gene = new Gene(geneID,strand);
+			gene = new Gene(evidence,geneID,strand);
 			chr.put(geneID, gene);
 			
 		}
@@ -343,7 +337,7 @@ public class Extractor implements JstacsTool {
 						if( geneID.length() == 0 ) {
 							geneID = transcriptID+".gene";
 						}
-						add(trans, annot, split[0], split[6], geneID, transcriptID);
+						add(trans, annot, split[1], split[0], split[6], geneID, transcriptID);
 						cds.add(split);
 					}
 					break;
@@ -363,7 +357,7 @@ public class Extractor implements JstacsTool {
 								protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
 							}
 							
-							add(trans, annot, split[0], split[6], geneID, transcriptID);
+							add(trans, annot, split[1], split[0], split[6], geneID, transcriptID);
 						}
 					}
 					break;
@@ -386,7 +380,7 @@ public class Extractor implements JstacsTool {
 				gene = trans.get(parent[j]);
 				if( selected==null || selected.containsKey(parent[j]) ) {
 					if( gene == null  ) {
-						add(trans, annot, split[0], split[6], parent[j]+".gene", parent[j]);
+						add(trans, annot, split[1], split[0], split[6], parent[j]+".gene", parent[j]);
 						gene = trans.get(parent[j]);
 					}
 					usedG.add(gene.id);
@@ -425,13 +419,14 @@ public class Extractor implements JstacsTool {
 		 * The strand of the gene
 		 */
 		int strand;
-		String id;
+		String id, evidence;
 		
 		public String toString() {
 			return id + ": " + transcript.size() + " transcripts";
 		}
 		
-		Gene(String id, String strand) {
+		Gene(String evidence, String id, String strand) {
+			this.evidence=evidence;
 			transcript = new HashMap<String, IntList>();
 			exon = new ArrayList<int[]>();
 			this.id = id;
@@ -669,7 +664,7 @@ public class Extractor implements JstacsTool {
 						Part current = part.get( il.get(j) );
 						set[j] = current.aa != null;
 					}
-					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, out, verbose, used, acc, don );
+					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, verbose, used, acc, don );
 					
 					//try to repair
 					if( prob>=0 && rep) {
@@ -684,7 +679,7 @@ public class Extractor implements JstacsTool {
 									current.aa = null;
 								}
 							}
-							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, out, false, used, acc, don);
+							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, false, used, acc, don);
 						} while( test >= 0 && phase <= 2 );
 						if( test < 0 ) {
 							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
@@ -760,7 +755,7 @@ public class Extractor implements JstacsTool {
 	HashMap<String, int[]> donor, acceptor;
 	HashMap<Integer,int[]> count;
 	
-	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol, ArrayList<SafeOutputStream> out, boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
+	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol,boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
 		int j;
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
