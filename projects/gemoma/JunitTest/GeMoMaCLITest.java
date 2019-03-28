@@ -77,7 +77,7 @@ public class GeMoMaCLITest {
 		end++;
 	}
 	
-	//@Test
+	@Test
 	public void testExtractor() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Extractor");
@@ -97,7 +97,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	//@Test
+	@Test
 	public void testERE() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("ERE");
@@ -113,7 +113,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	//@Test
+	@Test
 	public void testGeMoMa() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMa");
@@ -170,7 +170,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	//@Test
+	@Test
 	public void testGeMoMaPipelineThreads() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMaPipeline");
