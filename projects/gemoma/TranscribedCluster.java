@@ -58,7 +58,7 @@ public class TranscribedCluster implements JstacsTool {
 		}
 
 		//coverage
-		coverage = GeMoMa.readCoverage( (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(3)).getValue(), protocol );
+		coverage = GeMoMa.readCoverage( (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(3)).getValue(), protocol, false );
 	
 		int minGap = (Integer) parameters.getParameterForName("minimal gap").getValue();
 
@@ -66,7 +66,7 @@ public class TranscribedCluster implements JstacsTool {
 		String[] chr = seqs.keySet().toArray(new String[seqs.size()]);
 		Arrays.sort(chr);
 
-		File file = GeMoMa.createTempFile("TranscribedCluster");
+		File file = Tools.createTempFile("TranscribedCluster");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
 		w.append("##gff-version 3");
 		w.newLine();
