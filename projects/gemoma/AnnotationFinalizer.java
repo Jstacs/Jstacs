@@ -41,11 +41,6 @@ public class AnnotationFinalizer implements JstacsTool {
 	
 	static boolean rename;
 	
-	/*public static void main( String[] args ) throws Exception {
-		CLI cli = new CLI(new AnnotationFinalizer());
-		cli.run(args);
-	}*/
-	
 	static interface Feature {
 		Feature addFeature( String[] split );
 	}
@@ -335,9 +330,11 @@ public class AnnotationFinalizer implements JstacsTool {
 		//parse annotation
 		HashMap<String,HashMap<String,Gene>> res = new HashMap<String, HashMap<String,Gene>>();
 		HashMap<String, Feature> all = new HashMap<String,Feature>();
-		int old=0;
+		//int old=0;
+		int[] w = new int[2];
 		for( int i = 0; i < list.length; i++ ) {
-			for( int j =0; j < list[i].size(); j++ ) {
+			int anz = 0;
+			for( int j=0; j < list[i].size(); j++ ) {
 				split = list[i].get(j);
 				
 				if( i == 0 ) {
@@ -359,6 +356,7 @@ public class AnnotationFinalizer implements JstacsTool {
 						all.put(id, g );
 					} else {
 						System.out.println("WARNING1: " + Arrays.toString(split) );
+						w[0]++;
 					}
 				} else {
 					String[] attr = split[8].split(";");
@@ -370,22 +368,29 @@ public class AnnotationFinalizer implements JstacsTool {
 					while( l < attr.length && !attr[l].startsWith("ID=") ) {
 						l++;
 					}
-					if( k < attr.length && l < attr.length ) {
+					if( k < attr.length ) {
 						String parent = attr[k].substring(7);
 						Feature f = all.get(parent);
 						Feature n = f.addFeature(split);
-						String id = attr[l].substring(3);
-						
-						//System.out.println(id + "\t" + parent );
-						
-						all.put( id, n );
-					} else {
+						anz++;
+						if( l < attr.length ) {
+							String id = attr[l].substring(3);
+							
+							//System.out.println(id + "\t" + parent );
+							
+							all.put( id, n );
+						}
+					} 
+					
+					if( k==attr.length || (i+1!=list.length && l==attr.length) ) {
 						System.out.println("WARNING2: " + Arrays.toString(split) );
+						w[1]++;
 					}
 				}
 			}
-			protocol.append( "#" + tags[i] + "s: " + (all.size()-old) + "\n" );
-			old=all.size();
+			protocol.append( "#" + tags[i] + "s: " + anz + "\n" );
+			protocol.append( "#warnings: " + Arrays.toString(w) + "\n" );
+			//old=all.size();
 		}
 		return res;
 	}
@@ -407,13 +412,25 @@ public class AnnotationFinalizer implements JstacsTool {
 	}
 	
 	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+		return run(parameters, protocol, progress, threads, null, null);
+	}
+	
+	ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, ToolParameterSet description, String version ) throws Exception {
 		progress.setIndeterminate();
 		
 		if( GeMoMa.seqs == null ) {
-			GeMoMa.fill(protocol, false, 0, parameters.getParameterForName("genome").getValue().toString(), null, 
-					(Integer) parameters.getParameterForName("reads").getValue(), 
-					(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(3)).getValue(),
-					(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(5)).getValue() );
+			SimpleParameterSet help = (SimpleParameterSet) parameters.getParameterForName("UTR").getValue();
+			int reads;
+			ExpandableParameterSet introns, coverage;
+			if( help.getNumberOfParameters()>0 ) {
+				reads = (Integer) help.getParameterForName("reads").getValue();
+				introns = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(0)).getValue();
+				coverage = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(2)).getValue();
+			} else {
+				reads = 1;
+				introns = coverage = null;
+			}
+			GeMoMa.fill(protocol, false, 0, parameters.getParameterForName("genome").getValue().toString(), null, reads, introns, coverage );
 		}
 				
 		SimpleParameterSet renamePS = (SimpleParameterSet) parameters.getParameterForName("rename").getValue();
@@ -447,11 +464,19 @@ public class AnnotationFinalizer implements JstacsTool {
 
 		
 		//iterate over all chromosomes/contigs
-		File gffFile = GeMoMa.createTempFile(getShortName()+"-");
+		File gffFile = Tools.createTempFile(getShortName()+"-");
 		BufferedWriter w = new BufferedWriter(new FileWriter(gffFile));
-		w.append(begin);
-		w.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
-		String info = JstacsTool.getSimpleParameterInfo(parameters);
+		String info;
+		if( description == null ) {
+			w.append(begin);
+			w.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+			info = JstacsTool.getSimpleParameterInfo(parameters);
+		} else {
+			w.append("##gff-version 3");
+			w.newLine();
+			w.append(GeMoMa.INFO + description.getToolName() + " " + version + "; ");
+			info = JstacsTool.getSimpleParameterInfo(description);
+		}
 		if( info != null ) {
 			w.append("SIMPLE PARAMETERS: " + info );
 		}
@@ -476,15 +501,25 @@ public class AnnotationFinalizer implements JstacsTool {
 				}
 			}
 			
-			int[][] fwdCov = GeMoMa.coverage[0].get(c);
-			int[][] revCov = GeMoMa.coverage[1].get(c);
-			
 			Collection<Gene> gg = annotation.get(c).values();
 			ArrayList<Gene> genes = new ArrayList<>(gg);
 			Collections.sort(genes);
+					
+			int[][] fwdCov, revCov;
+			if( GeMoMa.coverage !=  null ) { 
+				fwdCov = GeMoMa.coverage[0].get(c);
+				revCov = GeMoMa.coverage[1].get(c);
+			} else {
+				fwdCov=revCov=null;
+			}
 			
-			int[][][] acc = GeMoMa.acceptorSites.get(c);
-			int[][][] don = GeMoMa.donorSites.get(c);
+			int[][][] acc, don;
+			if( GeMoMa.acceptorSites!= null ) {
+				acc = GeMoMa.acceptorSites.get(c);
+				don = GeMoMa.donorSites.get(c);
+			} else {
+				acc=don=null;
+			}
 			
 			//System.out.println(c + "\t" + newC + "\t" + fwdCov + "\t" + revCov + "\t" + acc + "\t" + don );
 			
@@ -497,8 +532,10 @@ public class AnnotationFinalizer implements JstacsTool {
 					int[][] cov = strand == 1 ? fwdCov : revCov;
 					if( cov != null ) {
 						for( Transcript t : g.list ) {
+//if( c.equals("1") ) System.out.println(t);
 							boolean u5 = extendUTR( t, -1, cov, a, 1 ); //upstream
 							boolean u3 = extendUTR( t, 1, cov, d, 0 ); //downstream
+//if( c.equals("1") ) System.exit(1);
 							if( u5 ) {
 								utr5++;
 							}
@@ -541,14 +578,13 @@ public class AnnotationFinalizer implements JstacsTool {
 
 	}
 	
-	private static boolean extendUTR( Transcript t, int d, int[][] cov, int[][] splice, int sIdx ) { //XXX include introns?
+	private static boolean extendUTR( Transcript t, int d, int[][] cov, int[][] splice, int sIdx ) {
 		int strand = t.strand();
 		int min = t.getMin();
 		int max = t.getMax();
 		int dir = d*strand;
 				
 		String utr=(d==1?"three_prime_UTR":"five_prime_UTR");
-		
 		LinkedList<String[]> utrs = new LinkedList<String[]>();
 		
 		int start = dir==-1 ? min : max;
@@ -558,20 +594,20 @@ public class AnnotationFinalizer implements JstacsTool {
 			extend=false;
 			
 			//find stretch that is has some positive coverage
-			int h=start;
-			if( cov != null ) {
-				int idx = Arrays.binarySearch(cov, new int[]{firstBase}, IntArrayComparator.comparator[2] );
-				if( idx < 0 ) {
-					idx = -(idx+1);
-					idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
-				}
-				if( cov[idx][0] <= firstBase && firstBase <= cov[idx][1] ) {
-					//System.out.println(dir);
-					do {
-						h = cov[idx][dir==-1?0:1];
-						idx+=dir;
-					} while( idx >= 0 && idx < cov.length && cov[idx][dir==-1?1:0] == h+dir );
-				}
+			int h=firstBase;
+			int idx = Arrays.binarySearch(cov, new int[]{firstBase}, IntArrayComparator.comparator[2] );
+			if( idx < 0 ) {
+				idx = -(idx+1);
+				idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
+			}
+			if( cov[idx][0] <= firstBase && firstBase <= cov[idx][1] ) {
+				//System.out.println(dir);
+				do {
+					h = cov[idx][dir==-1?0:1];
+					idx+=dir;
+				} while( idx >= 0 && idx < cov.length && cov[idx][dir==-1?1:0] == h+dir );
+			} else {
+				break;
 			}
 			int lastBase = h;
 			if( dir==-1 ) {
@@ -584,7 +620,7 @@ public class AnnotationFinalizer implements JstacsTool {
 			
 			//find splice site in interval [firstBase, lastBase]
 			if( splice != null && splice[sIdx]!= null) {
-				int idx = Arrays.binarySearch(splice[sIdx], firstBase );
+				idx = Arrays.binarySearch(splice[sIdx], firstBase );
 				if( idx < 0 ) {
 					idx = -(idx+1);
 					//we don't need this here: idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
@@ -619,8 +655,10 @@ public class AnnotationFinalizer implements JstacsTool {
 				if( maxIdx> 0 ) {
 					extend = true;
 					if( dir == -1 ) {
+						//set new start base
 						firstBase = splice[sIdx][maxIdx]-dir;
 					} else {
+						//set new last base
 						lastBase = splice[sIdx][maxIdx]-dir;
 					}
 					start = splice[1-sIdx][maxIdx];
@@ -650,7 +688,7 @@ public class AnnotationFinalizer implements JstacsTool {
 		}
 		boolean hasUTR = utrs.size()>0;
 		
-		int u = 1;
+		//int u = 1;
 		while( utrs.size() > 0 ) {
 			String[] split;
 			split = utrs.removeFirst();
@@ -668,28 +706,45 @@ public class AnnotationFinalizer implements JstacsTool {
 					new FileParameter( "annotation", "The predicted genome annotation file (GFF)", "gff", true ),
 					
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),					
-					
-					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
-						), "introns", "", 1 ) ),
-					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 
-					new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
-						new SelectionParameter( DataType.PARAMETERSET, 
-								new String[]{"UNSTRANDED", "STRANDED"},
-								new Object[]{
-									//unstranded coverage
-									new SimpleParameterSet(
-											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
-									),
-									//stranded coverage
-									new SimpleParameterSet(
-											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
-									)
-								},  "coverage file", "experimental coverage (RNA-seq)", true
-						)
-					), "coverage", "", 1 ) ),
+					new SelectionParameter( DataType.PARAMETERSET, 
+							new String[]{"NO", "YES"},
+							new Object[]{
+								//no UTRs
+								new SimpleParameterSet(),
+								//UTR prediction
+								new SimpleParameterSet(
+									new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
+											new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+										), "introns", "", 1 ) ),
+									new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
+				
+									new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
+										new SelectionParameter( DataType.PARAMETERSET, 
+												new String[]{"NO", "UNSTRANDED", "STRANDED"},
+												new Object[]{
+													//no coverage
+													new SimpleParameterSet(),
+													//unstranded coverage
+													new SimpleParameterSet(
+															new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+													),
+													//stranded coverage
+													new SimpleParameterSet(
+															new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
+															new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+													)
+												},  "coverage file", "experimental coverage (RNA-seq)", true
+										)
+									), "coverage", "", 1 ) )
+								),
+							},
+							new String[] {
+								"no UTR prediction",
+								"UTR prediction"
+							},
+							"UTR", "allows to predict UTRs using RNA-seq data", true
+					),
 					
 					new SelectionParameter( DataType.PARAMETERSET, 
 							new String[]{"COMPOSED", "SIMPLE", "NO"},
@@ -715,7 +770,7 @@ public class AnnotationFinalizer implements JstacsTool {
 								"simple renaming: <prefix><number>; recommended for gene family annotations",
 								"no renaming"
 							},
-							"rename", "allows to generate gernic gene and transcripts names (cf. attribute &quot;Name&quot;)", true
+							"rename", "allows to generate generic gene and transcripts names (cf. attribute &quot;Name&quot;)", true
 					)
 			);		
 		}catch(Exception e){
@@ -744,13 +799,14 @@ public class AnnotationFinalizer implements JstacsTool {
 
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tool finalizes an annotation. It predicts for UTRs for annotated coding sequences and allows to generate generic gene and transcript names. Stranded RNA-seq libraries are recommended for UTR prediction to avoid too long predictions for genes in close proximity. Please use *ERE* to preprocess the mapped reads.\n\n"
+			"**What it does**\n\nThis tool finalizes an annotation."
+			+ "It allows to predict for UTRs for annotated coding sequences and to generate generic gene and transcript names. UTR prediction might be negatively influenced (i.e. too long predictions) by genomic contamination of RNA-seq libraries, overlapping genes or genes in close proximity as well as unstranded RNA-seq libraries."
+			+ "Please use *ERE* to preprocess the mapped reads.\n\n"
 			+ GeMoMa.REF;
 	}
 
-	private static final String defResult = "final_annotation";
+	static final String defResult = "final_annotation";
 	
-	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "gff3", defResult),
