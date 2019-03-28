@@ -263,10 +263,10 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		SafeOutputStream sosFwd, sosRev;
 		File outFwd = null, outRev = null;
 		if( coverage ) {
-			outFwd = GeMoMa.createTempFile("ERE-coveragefwd_bedgraph");
+			outFwd = Tools.createTempFile("ERE-coveragefwd_bedgraph");
 			sosFwd = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outFwd));
 			
-			outRev = GeMoMa.createTempFile("ERE-coveragerev_bedgraph");
+			outRev = Tools.createTempFile("ERE-coveragerev_bedgraph");
 			sosRev = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outRev));
 		} else {
 			sosFwd = SafeOutputStream.getSafeOutputStream(null);
@@ -276,7 +276,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		sosFwd.writeln("track type=bedgraph");
 		sosRev.writeln("track type=bedgraph");
 		
-		File outInt = GeMoMa.createTempFile("ERE-intron");
+		File outInt = Tools.createTempFile("ERE-intron");
 		SafeOutputStream sosInt = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outInt));	
 		sosInt.writeln("##gff-version 3");
 		sosInt.write(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
