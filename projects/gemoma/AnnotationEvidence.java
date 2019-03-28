@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import de.jstacs.DataType;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
-import de.jstacs.parameters.Parameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
@@ -30,6 +28,7 @@ import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import projects.gemoma.Extractor.Gene;
 import projects.gemoma.GeMoMa.IntArrayComparator;
+import projects.gemoma.Tools.Ambiguity;
 
 /**
  * This class computes the (RNA-seq) evidence for a given set of annotations.
@@ -38,58 +37,52 @@ import projects.gemoma.GeMoMa.IntArrayComparator;
  */
 public class AnnotationEvidence implements JstacsTool {
 	
-	private HashMap<String, int[][][]> donorSites;
-	private static HashMap<String, int[][]>[] coverage;
-	private HashMap<String, String> seqs;
-	
-	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
-		//sequence
-		seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
-		//System.out.println( Arrays.toString(seqs.keySet().toArray()) );
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {		
+		GeMoMa.fill(protocol, false, -1, 
+				parameters.getParameterForName("genome").getValue().toString(),
+				null, 
+				(Integer) parameters.getParameterForName("reads").getValue(), (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(2)).getValue(), 
+				(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue()
+		);
 		
+		HashMap<String,Character> code = Tools.getCode(Tools.getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ));
+		code.put("NNN", 'X');//add for splitting at NNN (in align method)
+				
 		//annotation
 		HashMap<String, HashMap<String,Gene>> annotation = Extractor.read( parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
 
-		//introns
-		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(2)).getValue();
-		ArrayList<String> fName = new ArrayList<String>();
-		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
-			Parameter y = ((ParameterSet)eps.getParameterAt(i).getValue()).getParameterAt(0);
-			if( y.isSet() ) {
-				fName.add(y.getValue().toString());
-			}
-		}
-		if( fName.size()>0 ) {
-			HashMap<String, int[][][]>[] res = GeMoMa.readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, false, seqs, fName.toArray(new String[fName.size()]) );
-			donorSites = res[0];
-		} else {
-			donorSites = null;
-		}
-
-		//coverage
-		coverage = GeMoMa.readCoverage( (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue(), protocol );
-		
 		//compute
-		String[] chr = seqs.keySet().toArray(new String[seqs.size()]);
+		String[] chr = GeMoMa.seqs.keySet().toArray(new String[GeMoMa.seqs.size()]);
 		Arrays.sort(chr);
 		
-		File file = GeMoMa.createTempFile("AnnotationEvidence");
+		File file = Tools.createTempFile("AnnotationEvidence");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
 		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc" );
 		w.newLine();
+		File aFile = Tools.createTempFile("AnnotationEvidence");
+		BufferedWriter annot = new BufferedWriter( new FileWriter(aFile) );
+		annot.append("##gff-version 3");
+		annot.newLine();
+		StringBuffer nuc = new StringBuffer();
 		for( String c: chr ) {
+			String seq = GeMoMa.seqs.get(c);
 			HashMap<String,Gene> current = annotation.get(c);
-			int[][][] sites = donorSites.get(c);
+			int[][][] sites = GeMoMa.donorSites.get(c);
 			if( current!= null && current.size() > 0 ) {
-				Iterator<Gene> it = current.values().iterator();
-				while( it.hasNext() ) {
-					Gene g = it.next();
+				Gene[] array = current.values().toArray(new Gene[0]);
+				Arrays.sort(array);
+				for( int a = 0; a < array.length; a++ ) {
+					Gene g = array[a];
 					g.sortExons();
 					g.precompute();
 		
-					int[][] cov = (coverage != null && coverage[g.strand==1?0:1]!= null) ? coverage[g.strand==1?0:1].get(c) : null;
+					int[][] cov = (GeMoMa.coverage != null && GeMoMa.coverage[g.strand==1?0:1]!= null) ? GeMoMa.coverage[g.strand==1?0:1].get(c) : null;
 					
 					Iterator<Entry<String,IntList>> cds = g.transcript.entrySet().iterator();
+					
+					annot.append( c + "\t" + g.evidence + "\tgene\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + g.id );
+					annot.newLine();
+					
 					while( cds.hasNext() ) {
 						Entry<String,IntList> e = cds.next();
 						IntList parts = e.getValue();
@@ -100,8 +93,16 @@ public class AnnotationEvidence implements JstacsTool {
 							int last=-10;
 							int covered=0, l=0, idx;
 							int[][] donSites = sites==null? null : sites[g.strand==1?0:1];
+							nuc.delete( 0, nuc.length() );
 							for( int j = 0;j < parts.length(); j++ ) {
 								int[] part = g.exon.get(parts.get(j));
+								
+								if( g.strand> 0 ) {
+									nuc.append( seq.substring( part[1]-1, part[2] ) );
+								} else {
+									nuc.insert(0, seq.substring( part[1]-1, part[2] ) );
+								}
+								
 								
 								//tie
 								if( donSites != null ) {
@@ -148,8 +149,8 @@ public class AnnotationEvidence implements JstacsTool {
 										}
 										if( inter[0]<= p && p <=inter[1] ) {
 											int h = Math.min(inter[1],end)+1;
-											int a=h-p;
-											covered+=a;
+											int z=h-p;
+											covered+=z;
 											
 											p=h;
 										} else {//p<inter[0] && p<=inter[1]
@@ -161,28 +162,44 @@ public class AnnotationEvidence implements JstacsTool {
 								
 								last = g.strand==1 ? part[2]+1 : part[1];
 							}
-							if( parts.length()==1 ) {
-								w.append( "NA" );
+							
+							//check
+							String cod;
+							if( g.strand < 0 ) {
+								cod = Tools.rc(nuc.toString());
 							} else {
-								w.append( GeMoMa.decFormat.format( tie/(parts.length()-1d)) );
+								cod = nuc.toString();
 							}
-							w.append( "\t" );
-							if( coverage ==null ) {
-								w.append( "NA" );
-							} else {
-								w.append( GeMoMa.decFormat.format(covered/(double)l) );
-							}
+							String aa = Tools.translate(0, cod, code, false, Ambiguity.AMBIGUOUS);
+							
+							String tieString = ( parts.length() == 1 ) ? "NA" : GeMoMa.decFormat.format( tie/(parts.length()-1d));
+							String tpcString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(covered/(double)l);
+							
+							w.append( tieString + "\t" + tpcString );
 							w.newLine();
+							
+							//TODO annotation
+							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id +";tie=" + tieString + ";tpc="+ tpcString + ";AA=" + (l/3) + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
+							annot.newLine();
+							for( int j = 0;j < parts.length(); j++ ) {
+								int[] part = g.exon.get(parts.get(j));
+								annot.append( c + "\t" + g.evidence + "\tCDS\t" + part[1] + "\t" + part[2] + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tParent=" + e.getKey() );
+								annot.newLine();
+							}
 						}
 					}
 				}
 			}
 		}
 		w.close();
-				
-		TextResult t = new TextResult(defResult, "Result", new FileParameter.FileRepresentation(file.getAbsolutePath()), "tabular", getToolName(), null, true);
+		annot.close();
 		
-		return new ToolResult("", "", null, new ResultSet(t), parameters, getToolName(), new Date());
+		ArrayList<TextResult> res = new ArrayList<TextResult>();
+		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(file.getAbsolutePath()), "tabular", getToolName(), null, true) );
+		if( ((Boolean) parameters.getParameterForName("annotation output").getValue()) ) {
+			res.add( new TextResult("annotation with attributes", "Result", new FileParameter.FileRepresentation(aFile.getAbsolutePath()), "gff", getToolName(), null, true) );
+		}
+		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 	}
 	
 	public ToolParameterSet getToolParameters() {
@@ -212,7 +229,10 @@ public class AnnotationEvidence implements JstacsTool {
 									)
 								},  "coverage file", "experimental coverage (RNA-seq)", true
 						)
-					), "coverage", "", 1 ) )
+					), "coverage", "", 1 ) ),
+					
+					new SimpleParameter( DataType.BOOLEAN, "annotation output", "if the annotation should be returned with attributes tie, tpc, and AA", true, false ),
+					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false )
 			);		
 		}catch(Exception e){
 			e.printStackTrace();
@@ -238,7 +258,10 @@ public class AnnotationEvidence implements JstacsTool {
 
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tool computes for each annotated coding sequence the transcription intron evidence (tie) and the transcript percentage coverage (tpc) given mapped RNA-seq evidence. Please use *ERE* to preprocess the mapped reads.\n\n"
+			"**What it does**\n\nThis tool computes for each annotated coding sequence the transcription intron evidence (tie) and the transcript percentage coverage (tpc) given mapped RNA-seq evidence. "
+			+ "All predictions of the annotation are used. The predictions are not filtested for internal stop codons, missing start or stop codons, frame-shifts, ...\n\n"
+			+ "In addition, it allows to add attributes to the annotation, e.g. tie, tpc, AA, start, stop, that can be used if the annotation should be used in *GAF*.\n\n"
+			+ "Please use *ERE* to preprocess the mapped reads.\n\n"
 			+ GeMoMa.REF;
 	}
 
@@ -247,7 +270,7 @@ public class AnnotationEvidence implements JstacsTool {
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "tabular", defResult),
+				new ResultEntry(TextResult.class, "tabular", defResult)
 		};
 	}
 }
