@@ -95,14 +95,14 @@ public class CompareTranscripts implements JstacsTool {
 		HashMap<String,Annotation> prediction = readGFF( parameters.getParameterForName("prediction").getValue().toString(), true, true );//standard
 		protocol.append( "prediction: " + prediction.size() +"\n" );
 		
-		File f = GeMoMa.createTempFile("CompareTranscript");
+		File f = Tools.createTempFile("CompareTranscript");
 		int problem = bestHit(gene, /*TODO*/"_R", null, truth, prediction, f, protocol, stats);
 
 		ArrayList<Result> res = new ArrayList<Result>();
 		res.add( new TextResult("comparison", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true) );
 		
 		if( stats.size()>0 ) {
-			f = GeMoMa.createTempFile("CompareTranscript-stats");
+			f = Tools.createTempFile("CompareTranscript-stats");
 			BufferedWriter w = new BufferedWriter( new FileWriter( f ) );
 			w.append("#geneID\ttranscripts in reference annotation\ttranscripts with this ref-gene\ttranscripts with this alternative\n");
 			Iterator<Entry<String,int[]>> it = stats.entrySet().iterator();
