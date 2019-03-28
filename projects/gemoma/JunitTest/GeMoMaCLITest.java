@@ -13,8 +13,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import projects.gemoma.ExtractRNAseqEvidence.Stranded;
-import projects.gemoma.GeMoMa;
 import projects.gemoma.Tools.Ambiguity;
+import projects.gemoma.GeMoMa;
 
 /**
  * 
@@ -77,7 +77,7 @@ public class GeMoMaCLITest {
 		end++;
 	}
 	
-	@Test
+	//@Test
 	public void testExtractor() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Extractor");
@@ -97,7 +97,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testERE() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("ERE");
@@ -113,7 +113,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testGeMoMa() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMa");
@@ -122,8 +122,12 @@ public class GeMoMaCLITest {
 		//only first part
 		//list.add("selected=" + in + "selected-first.txt" );
 		
-		list.add("t=" + in + "tblastn.tabular");
-		list.add("tg=" + in + "TAIR10_chr_all.fas");
+		list.add("s=" + in + "tblastn.tabular");
+		//list.add("s=" + in + "sorted_MMseqs2_result.tabular");
+		
+		//list.add("sm=" + in + "blosum62.out" );
+		
+		list.add("t=" + in + "TAIR10_chr_all.fas");
 		list.add("a=" + in + "assignment.tabular");
 		list.add("c=" + in + "cds-parts.fasta");
 		list.add("q=" + in + "proteins.fasta");
@@ -144,8 +148,7 @@ public class GeMoMaCLITest {
 		}
 		
 		String[] given = {
-				"predicted_annotation.gff",
-				"predicted_protein.fasta"
+				"predicted_annotation.gff"
 		};
 		
 		cliCheck(list, given, given);
@@ -156,10 +159,47 @@ public class GeMoMaCLITest {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GAF");
 		
+		//list.add("p=1");
 		list.add("g=" +in+ "predicted_annotation.gff");
-		
+		/*
+		list.add("p=2");
+		list.add("g=" +in+ "predicted_annotation.gff");
+		/**/
+		//list.add("f=(evidence>1 || pAA>=0.7)");
 		String[] given = {"filtered_predictions.gff"};
-		
 		cliCheck(list, given, given);
+	}
+	
+	//@Test
+	public void testGeMoMaPipelineThreads() throws Exception {
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("GeMoMaPipeline");
+		
+		list.add("t=" + in + "TAIR10_chr_all.fas");
+		
+		list.add("s=pre-extracted");
+		list.add("a=" + in + "assignment.tabular");
+		list.add("c=" + in + "cds-parts.fasta");
+		list.add("q=" + in + "proteins.fasta");
+		
+		list.add("r=EXTRACTED");
+		list.add("introns=" + in + "introns.gff");
+		list.add("coverage=UNSTRANDED");
+		list.add("coverage_unstranded=" + in + "coverage.bedgraph");
+		
+		int anz=10;
+		list.add("selected=" + in + "selected-"+anz+".txt");
+		list.add("AnnotationFinalizer.rename=NO");
+		list.add("threads="+8);
+		
+		String[] given = {
+				"final_annotation-"+anz+".gff3"
+		};
+		
+		String[] computed = {
+				"final_annotation.gff3"
+		};
+		
+		cliCheck(list, given, computed);
 	}
 }
