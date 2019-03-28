@@ -115,39 +115,41 @@ public interface JstacsTool {
 		}
 		for( int i = 0; i < parameters.getNumberOfParameters(); i++ ) {
 			Parameter p = parameters.getParameterAt(i);
-			inner = null;
-			if( (p instanceof SimpleParameter || p instanceof AbstractSelectionParameter) ){ 
-				if( res == null ) {
-					res = "";
-				} else {
-					res +="; ";
-				}
-				Object o;
-				if ( p instanceof SelectionParameter ) {
-					SelectionParameter a = (SelectionParameter) p;
-					o = a.getParametersInCollection().getParameterAt(a.getSelected()).getName();
-				} else {
-					o = p.getValue();
-				}
-				res += pref + p.getName() + ": " + o;
-				if ( p instanceof SelectionParameter && p.getDatatype() == DataType.PARAMETERSET ) {
-					inner = (ParameterSet) p.getValue();
-				}
-			}
-			if( p instanceof ParameterSetContainer ) {
-				inner = ((ParameterSetContainer)p).getValue();
-			}
-			if( inner != null ) {
-				String subRes = getSimpleParameterInfo( inner, pref );
-				if( subRes != null ) {
+			if( p.hasDefaultOrIsSet() ) {
+				inner = null;
+				if( (p instanceof SimpleParameter || p instanceof AbstractSelectionParameter) ){ 
 					if( res == null ) {
 						res = "";
 					} else {
 						res +="; ";
 					}
-					res += subRes;
-				}				
-			} 
+					Object o;
+					if ( p instanceof SelectionParameter ) {
+						SelectionParameter a = (SelectionParameter) p;
+						o = a.getParametersInCollection().getParameterAt(a.getSelected()).getName();
+					} else {
+						o = p.getValue();
+					}
+					res += pref + p.getName() + ": " + o;
+					if ( p instanceof SelectionParameter && p.getDatatype() == DataType.PARAMETERSET ) {
+						inner = (ParameterSet) p.getValue();
+					}
+				}
+				if( p instanceof ParameterSetContainer ) {
+					inner = ((ParameterSetContainer)p).getValue();
+				}
+				if( inner != null ) {
+					String subRes = getSimpleParameterInfo( inner, pref );
+					if( subRes != null ) {
+						if( res == null ) {
+							res = "";
+						} else {
+							res +="; ";
+						}
+						res += subRes;
+					}				
+				}
+			}
 		}
 		return res;
 	}
