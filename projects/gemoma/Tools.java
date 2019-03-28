@@ -19,19 +19,26 @@
 package projects.gemoma;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipException;
-import java.util.Random;
 
+import de.jstacs.parameters.Parameter;
 import de.jstacs.tools.Protocol;
 
 /**
@@ -40,6 +47,144 @@ import de.jstacs.tools.Protocol;
  * @author Jens Keilwagen
  */
 public class Tools {
+	
+	public static final String GeMoMa_TEMP = "GeMoMa_temp/";//TODO
+	
+	/**
+	 * 
+	 * @param parameter the parameter that defines the file for the {@link InputStream}
+	 * @param alternative the alternative that is used if the parameter is not set
+	 * 
+	 * @return an {@link InputStream}
+	 * 
+	 * @throws FileNotFoundException the {@link File} cannot be found
+	 * 
+	 * @see {@link Parameter#isSet()}
+	 */
+	public static InputStream getInputStream( Parameter parameter, String alternative ) throws FileNotFoundException {
+		InputStream in;
+		if( parameter.isSet() ) {
+			in = new FileInputStream( parameter.getValue().toString() );
+		} else {
+			in = Tools.class.getClassLoader().getResourceAsStream( alternative );
+		}
+		return in;
+	}
+	
+	/**
+	 * Create a temporary file with prefix &quot;GeMoMa&quot; and user-specified infix.
+	 * The method {@link File#deleteOnExit()} is invoked.  
+	 * 
+	 * @param infix an infix for the file
+	 * 
+	 * @return a temporary file
+	 * 
+	 * @throws IOException
+	 * 
+	 * @see {@link #GeMoMa_TEMP}
+	 * @see {@link File#deleteOnExit()}
+	 */
+	public static File createTempFile( String infix ) throws IOException {
+		File f = File.createTempFile("GeMoMa-"+infix + "-", ".temp", new File(GeMoMa_TEMP));
+		f.deleteOnExit();
+		return f;
+	}
+	
+	public static File[] externalSort( String input, int size, int files, Protocol protocol ) throws Exception {
+		protocol.append("sorting the search results\n");
+		BufferedReader r = new BufferedReader( new FileReader(input) );
+		ArrayList<File> f = new ArrayList<File>();
+		String[] line = new String[size];
+		int anz = 0, a = 0, shortCut = 0;
+		//read and sort parts;
+		do {
+			a=0;
+			while( a < size && (line[a]=r.readLine()) != null ) {
+				a++;
+			}
+			Arrays.sort(line,0,a);
+			f.add( createTempFile("sort-"+anz) );
+			BufferedWriter w = new BufferedWriter( new FileWriter(f.get(anz)) );
+			for( int i = 0; i < a; i++ ) {
+				w.append(line[i]);
+				w.newLine();
+			}
+			w.close();
+			anz++;
+		} while( a == size );
+		r.close();
+		protocol.append("files:\t" + anz + "\n" );
+		//System.out.println("read\t" + t.getElapsedTime() );
+		
+		line = new String[anz];
+		BufferedReader[] parts = new BufferedReader[anz];
+		for( int i = 0; i < anz; i++ ) {
+			parts[i]  = new BufferedReader( new FileReader(f.get(i)) );
+			line[i] = parts[i].readLine();
+		}
+		File[] sorted = new File[files];
+		BufferedWriter[] w = new BufferedWriter[files];
+		for( int s = 0; s < files; s++ ) {
+			sorted[s] = createTempFile("sorted");
+			w[s] = new BufferedWriter( new FileWriter( sorted[s] ) );
+		}
+		int s = -1;
+		String old = null;
+		int flip = 0;
+		while( true ) {
+			int best = -1;
+			for( int i = 0; i < anz; i++ ) {
+				if( line[i] != null ) {
+					if( best == -1 ) {
+						best=i;
+					} else {
+						if( line[i].compareTo(line[best]) < 0 ) {
+							best = i;
+						}
+					}
+				}
+			}
+			if( best >= 0 ) {
+				/*
+				w.append(line[best]);
+				w.newLine();
+				line[best] = parts[best].readLine();
+				/**/
+				
+				String start = line[best].substring(0, line[best].indexOf('\t')+1);
+				if( old == null || !start.startsWith(old) ) {
+					old = start.substring(0,start.lastIndexOf('_')+1);
+					s++;
+					if( s == sorted.length ) {
+						flip++;
+						s=0;
+					}
+				}
+				int b = 0;
+				do {
+					w[s].append(line[best]);
+					w[s].newLine();
+					b++;
+				} while( (line[best] = parts[best].readLine()) != null && line[best].startsWith(start) );
+				shortCut += (b-1);/**/ 
+			} else {
+				break;
+			}
+		}
+		for( int i = 0; i < anz; i++ ) {
+			parts[i].close();
+		}
+		for( int i = 0; i < files; i++ ) {
+			w[i].close();
+		}
+		if( flip<1 ) {
+			File[] small = new File[s+1];
+			System.arraycopy(sorted, 0, small, 0, small.length);
+			sorted=small;
+		}
+		protocol.append( "shortCuts:\t" + shortCut + "\n" );
+		return sorted;
+	}
 	
 	/**
 	 * This method determines the maximal extension of a hit until the amino acids <code>c1</code> or <code>c2</code> occur (typically START (M), STOP (*))
@@ -428,7 +573,7 @@ public class Tools {
 		try {
 			GZIPInputStream gz = new GZIPInputStream(ins);
 			ins = gz;
-		} catch( ZipException ze ) {
+		} catch( EOFException | ZipException ze ) {
 			ins.close();
 			ins = new FileInputStream(fName);
 		}
