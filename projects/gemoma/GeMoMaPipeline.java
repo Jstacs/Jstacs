@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -15,11 +15,14 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
@@ -53,8 +56,8 @@ import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
-import de.jstacs.utils.IntList;
 import de.jstacs.utils.SafeOutputStream;
+import de.jstacs.utils.Time;
 import projects.FastaSplitter;
 
 /**
@@ -93,13 +96,12 @@ public class GeMoMaPipeline implements JstacsTool {
 	double eValue;
 	boolean rnaSeq, stop;
 	
-	ToolParameterSet extractorParams, gemomaParams, gafParams;
+	ToolParameterSet params, extractorParams, gemomaParams, gafParams, afParams;
 	ExecutorService queue;
 	ExecutorCompletionService ecs;
 	
 	ArrayList<Species> species;
 	int speciesCounter = 0;
-	IntList splitsPerSpecies;
 	
 	RNASeq rnaSeqData;
 	
@@ -108,7 +110,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	HashMap<String,String> selected;
 	
-	public ToolParameterSet getRelevantParameters( ToolParameterSet params, String... remove ) {
+	public ParameterSet getRelevantParameters( ParameterSet params, String... remove ) {
 		HashSet<String> removeNames = new HashSet<String>();
 		for( String r : remove ) {
 			removeNames.add(r);
@@ -117,10 +119,51 @@ public class GeMoMaPipeline implements JstacsTool {
 		for( int i = 0; i < params.getNumberOfParameters(); i++ ) {
 			Parameter p = params.getParameterAt(i);
 			if( !removeNames.contains(p.getName()) ) {
+				if( p instanceof SelectionParameter ) {
+					SelectionParameter sel = (SelectionParameter) p;
+					int selected = sel.getSelected();
+					ParameterSet ps = sel.getParametersInCollection();
+					try {
+						for( int j = 0; j < ps.getNumberOfParameters(); j++ ) {
+							Parameter q = ps.getParameterAt(j);
+							if( q instanceof ParameterSetContainer ) {
+								ParameterSetContainer psc = (ParameterSetContainer) q;
+								psc.setValue( getRelevantParameters( psc.getValue(), remove ) );
+								sel.setValue(q);
+							}							
+						}
+						sel.setValue(ps.getParameterAt(selected).getName());
+					} catch (IllegalValueException e) {
+						System.out.println(p.getName());
+						e.printStackTrace();
+						System.exit(1);
+					}
+
+/*					ParameterSet old = (ParameterSet) p.getValue();
+					ParameterSet ps = getRelevantParameters(old, remove);
+					try {
+						p.setValue( ps );
+					} catch (IllegalValueException e) {
+						System.out.println(p.getName());
+						
+						System.out.println(ParameterSet.getName(old));
+						System.out.println(ParameterSet.getName(ps));
+						
+						System.out.println(old.getNumberOfParameters());
+						System.out.println(ps.getNumberOfParameters());
+						e.printStackTrace();
+						System.exit(1);
+					}*/
+				}
 				list.add(p);
 			}			
 		}
-		return new ToolParameterSet( params.getToolName(), list.toArray(new Parameter[0])  );
+		if( params instanceof ToolParameterSet ) {
+			ToolParameterSet tps = (ToolParameterSet) params;
+			return new ToolParameterSet( tps.getToolName(), list.toArray(new Parameter[0])  );
+		} else {
+			return new SimpleParameterSet( list.toArray(new Parameter[0]) );
+		}
 	}
 	
 	private static String buscoPath= "BUSCO-references/";
@@ -128,9 +171,10 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
-		ToolParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
-		ToolParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "tblastn results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage" );
-		ToolParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
+		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
+		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort" );
+		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
+		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
 		
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.add("own");
@@ -150,6 +194,7 @@ public class GeMoMaPipeline implements JstacsTool {
 							new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false )
 			) );
 			
+			/*TODO
 			File busco = new File( buscoPath );
 			if( busco.exists() && busco.isDirectory() ) {
 				File[] d = busco.listFiles(dirFilter);
@@ -160,7 +205,7 @@ public class GeMoMaPipeline implements JstacsTool {
 				}
 				keys.add("busco");
 				values.add( new SimpleParameterSet( new SelectionParameter(DataType.STRING, k, k, "BUSCO clades", "the clade to be used", true) ) );
-			}
+			}/**/
 			
 			return new ToolParameterSet( getShortName(),
 				new FileParameter( "target genome", "Target genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
@@ -208,10 +253,12 @@ public class GeMoMaPipeline implements JstacsTool {
 								)
 						},
 						"RNA-seq evidence", "data for RNA-seq evidence", true ),
+				new SimpleParameter(DataType.BOOLEAN, "tblastn", "if *true* tblastn is used as search algorithm, otherwise mmseqs is used. Tblastn and mmseqs need to be installed to use the corresponding option", true, true),
 
 				new ParameterSetContainer("Extractor parameter set", "parameters for the Extrator module of GeMoMa", ex ),
 				new ParameterSetContainer("GeMoMa parameter set", "parameters for the GeMoMa", gem ),
 				new ParameterSetContainer("GAF parameter set", "parameters for the GAF module of GeMoMa", gaf ),
+				new ParameterSetContainer("AnnotationFinalizer parameter set", "parameters for the AnnotationFinalizer module of GeMoMa", af ),
 				
 				new SimpleParameter( DataType.BOOLEAN, "predicted proteins", "If *true*, returns the predicted proteins of the target organism as fastA file", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "predicted CDSs", "If *true*, returns the predicted CDSs of the target organism as fastA file", true, false ),
@@ -261,7 +308,12 @@ public class GeMoMaPipeline implements JstacsTool {
 				AbstractSelectionParameter a = (AbstractSelectionParameter) p;
 				ParameterSet ps = (ParameterSet) a.getValue();
 				AbstractSelectionParameter b = (AbstractSelectionParameter) q;
-				//b.setValue(ps.getName());
+				
+				if( b instanceof SelectionParameter ) {
+					int idx = ((SelectionParameter)a).getSelected();
+					b.setValue( a.getParametersInCollection().getParameterAt(idx) );
+				}
+				
 				setParameters( ps, (ParameterSet) b.getValue() );
 			} else {
 				q.setValue( p.getValue() );
@@ -271,18 +323,27 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	void setGeMoMaParams( Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
 		gemomaParams.getParameterForName("target genome").setValue(target);
-
+		setRNASeqParams( gemomaParams, protocol );
+	}
+	
+	void setRNASeqParams( ToolParameterSet p, Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
+		ParameterSet ps = (ParameterSet) params.getParameterForName("GeMoMa parameter set").getValue();
+		p.getParameterForName("reads").setValue( ps.getParameterForName("reads").getValue() );
+		
 		//introns
-		ExpandableParameterSet exp = (ExpandableParameterSet) ((ParameterSetContainer) gemomaParams.getParameterForName("introns")).getValue();
+		ExpandableParameterSet exp = (ExpandableParameterSet) ((ParameterSetContainer) p.getParameterForName("introns")).getValue();
 		for( int i = 0; i < rnaSeqData.introns.size(); i++ ) {
 			if( exp.getNumberOfParameters() <= i ) {
 				exp.addParameterToSet();
 			}
-			((ParameterSetContainer) exp.getParameterAt(i)).getValue().getParameterAt(0).setValue(rnaSeqData.introns.get(i));
+			String current = rnaSeqData.introns.get(i);
+			if( current != null ) {
+				((ParameterSetContainer) exp.getParameterAt(i)).getValue().getParameterAt(0).setValue(current);
+			}
 		}
 
 		//coverage
-		exp = (ExpandableParameterSet) ((ParameterSetContainer) gemomaParams.getParameterForName("coverage")).getValue();
+		exp = (ExpandableParameterSet) ((ParameterSetContainer) p.getParameterForName("coverage")).getValue();
 		int i = 0;
 		for( int j = 0; j < rnaSeqData.coverageUn.size(); j++, i++ ) {
 			if( exp.getNumberOfParameters() <= i ) {
@@ -301,8 +362,6 @@ public class GeMoMaPipeline implements JstacsTool {
 			((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(rnaSeqData.coverageFwd.get(j));
 			((SimpleParameterSet) sel.getValue()).getParameterAt(2).setValue(rnaSeqData.coverageRC.get(j));
 		}
-		
-		//CLI.print("", null, gemomaParams, "", protocol, "");;
 	}
 
 	ArrayList<Result> res;
@@ -322,6 +381,9 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	private class Species {
 		String id, cds, assignment, protein = null;
+		String[] cds_parts;
+		String[] searchResults;
+		boolean hasCDS;
 		
 		Species( String id ) {
 			this.id = id;
@@ -345,44 +407,86 @@ public class GeMoMaPipeline implements JstacsTool {
 	}
 	
 	Thread killer;
+
+	static String mmseqs;
 	
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+		Thread.sleep(1000);
+		Time t = Time.getTimeInstance(null);
+
+		params=parameters;
 		stop=false;
 		pipelineProtocol = 
 				//new SysProtocol(); //XXX for debugging the Galaxy integration
 				protocol;
 		this.threads=threads;
 		
+		String os = System.getProperty("os.name");
+		if( os.startsWith("Windows") ) {
+			mmseqs = "mmseqs.bat";
+		} else {
+			mmseqs = "mmseqs";
+		}
+		
 		pipelineProtocol.append("Running the GeMoMaPipeline with " + threads + " threads\n\n" );
 		
 		//create temp dir
-		File basic = new File(GeMoMa.GeMoMa_TEMP);
+		File basic = new File(Tools.GeMoMa_TEMP);
 		File dir = Files.createTempDirectory(basic.toPath(), "GeMoMaPipeline-").toFile();
 		dir.mkdirs();
 		home = dir.toString() + "/";
-		pipelineProtocol.append("temporary directory: " + home);
+		pipelineProtocol.append("temporary directory: " + home + "\n\n");
+		
+		//checking whether the search algorithm software is installed
+		boolean blast=(Boolean) parameters.getParameterForName("tblastn").getValue();
+		String[] cmd;
+		if( blast ) {
+			cmd=new String[] {"tblastn","-version"};
+		} else {
+			cmd=new String[] {mmseqs,"version"};
+		}
+		ProcessBuilder pb = new ProcessBuilder(cmd);
+		pb.redirectErrorStream(true);
+		
+		Process pr = pb.start();
+        BufferedReader br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+        String line = null;
+        pipelineProtocol.append("search algorithm:\n");
+        while ( (line = br.readLine()) != null) {
+        	pipelineProtocol.appendWarning( "[" + cmd[0] + "]: " + line+"\n");
+		}
+        br.close();
+		pr.waitFor();
+		
+		if( pr.exitValue() != 0 ) {
+			System.out.println("Search algorithm not available!");
+			System.exit(1);
+		}
+
 		
 		Extractor extractor = new Extractor(maxSize);
 		GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
-		GeMoMaAnnotationFilter gaf = new GeMoMaAnnotationFilter();
 
 		ParameterSet pa = (ParameterSet) parameters.getParameterForName("RNA-seq evidence").getValue();
 		rnaSeq=pa.getNumberOfParameters()>0;
-		
+
 		extractorParams = extractor.getToolParameters();
 		setParameters(((ParameterSetContainer) parameters.getParameterForName("Extractor parameter set")).getValue(), extractorParams);
 		
 		gemomaParams = gemoma.getToolParameters();
 		setParameters(((ParameterSetContainer) parameters.getParameterForName("GeMoMa parameter set")).getValue(), gemomaParams);
 		
-		gafParams = gaf.getToolParameters();
+		gafParams = new GeMoMaAnnotationFilter().getToolParameters();
 		setParameters(((ParameterSetContainer) parameters.getParameterForName("GAF parameter set")).getValue(), gafParams);
 
+		afParams = new AnnotationFinalizer().getToolParameters();
+		setParameters(((ParameterSetContainer) parameters.getParameterForName("AnnotationFinalizer parameter set")).getValue(), afParams);
+		
 		String[] key = {"selected", "genetic code"};
 		for( int i = 0; i < key.length; i++ ) {
 			setParameters(parameters, key[i], extractorParams, gemomaParams);
 		}		
-		setParameters(parameters, "tag", gemomaParams, gafParams );
+		setParameters(parameters, "tag", gemomaParams, gafParams, afParams );
 		
 		selected = Tools.getSelection( (String) parameters.getParameterForName(key[0]).getValue(), maxSize, protocol );
 		
@@ -424,9 +528,13 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		//first part: preparation
 		addNewPhase();
-		
-		//makeblastdb
-		add(new JmakeBlastDB());
+	
+		//create target db
+		if( blast ) {
+			add(new JMakeBlastDB());
+		} else {
+			add( new JMmseqsCreateDB() );
+		}
 		
 		//extract gene models from reference
 		ExpandableParameterSet ref = (ExpandableParameterSet) ((ParameterSetContainer) parameters.getParameterForName("reference species")).getValue();
@@ -445,7 +553,8 @@ public class GeMoMaPipeline implements JstacsTool {
 								speciesDirs[i],
 								path + speciesDirs[i] + "/" + Extractor.name[0] + "." + Extractor.type[0], 
 								path + speciesDirs[i] + "/" + Extractor.name[1] + "." + Extractor.type[1],
-								null
+								null,
+								blast
 						));
 					}
 					break;
@@ -453,7 +562,8 @@ public class GeMoMaPipeline implements JstacsTool {
 					add(new JExtractorAndSplit(
 							(String) currentRef.getParameterForName("ID").getValue(),
 							currentRef.getParameterForName("annotation").getValue().toString(), 
-							currentRef.getParameterForName("genome").getValue().toString()
+							currentRef.getParameterForName("genome").getValue().toString(),
+							blast
 					));
 					break;
 				case 4: //pre-extracted
@@ -461,15 +571,16 @@ public class GeMoMaPipeline implements JstacsTool {
 							(String) currentRef.getParameterForName("ID").getValue(),
 							currentRef.getParameterForName("cds parts").getValue().toString(), 
 							(String) currentRef.getParameterForName("assignment").getValue(),
-							(String) currentRef.getParameterForName("query proteins").getValue()
+							(String) currentRef.getParameterForName("query proteins").getValue(),
+							blast
 					));
 					break;
 				default: throw new UnsupportedOperationException();
 			}
 		}
-		pipelineProtocol.append("Running GeMoMa for "+ species.size() + " reference species.\n");
+		//pipelineProtocol.append("Running GeMoMa for "+ species.size() + " reference species.\n");
 		
-		boolean nothing = false;
+		int usedSpec = 0;
 		res = new ArrayList<Result>();
 		if( species.size() > 0 ) {
 			//ERE
@@ -506,62 +617,73 @@ public class GeMoMaPipeline implements JstacsTool {
 			add(ere);
 			
 			//wait until first phase has been finished
-			wait(list.size());
+			waitPhase();
 	
-			
-			//second phase = tblastn + GeMoMa
-			if( !queue.isShutdown() ) {
-				addNewPhase();
-			
-				//tblastn
-				splitsPerSpecies = new IntList();
-				RegExFilenameFilter filter = new RegExFilenameFilter("splits", Directory.FORBIDDEN, true, "split-.*fasta" );
-				int anz=0;
-				for( int s = 0; s < speciesCounter; s++ ) {
-					File d = new File( home + s );
-					String[] f = d.list(filter);
-					splitsPerSpecies.add(f.length);
-					pipelineProtocol.append("species " + s + ": " + f.length + " splits\n");
-					for( int p = 0; p < f.length; p++ ) {
-						add( new JTblastn(s, p) );
-						anz++;
+			for( int s = 0; s < speciesCounter; s++ ) {
+				Species current  = species.get(s);
+				if( current.hasCDS ) {
+					usedSpec++;
+				}
+			}
+			if( usedSpec>0 ) {
+				//second phase = tblastn + GeMoMa
+				if( !queue.isShutdown() ) {
+					addNewPhase();
+					for( int s = 0; s < speciesCounter; s++ ) {
+						Species current  = species.get(s);
+						if( current.hasCDS ) {
+							if( blast ) { //tblastn
+								pipelineProtocol.append("species " + s + ": " + current.cds_parts.length + " splits\n");
+								for( int p = 0; p < current.cds_parts.length; p++ ) {
+									add( new JTblastn(s, p) );
+								}
+							} else { //mmseqs
+								addMmseqsAndDummies(s);
+							}
+						}
 					}
+					//wait until second part has been finished
+					waitPhase();
 				}
 				
-				//wait until second part has been finished
-				wait(2*anz);
-			}
-			
-			//third part = cat
-			if( !queue.isShutdown() ) {
-				addNewPhase();
-				for( int s = 0; s < speciesCounter; s++ ) {
-					add( new JCat(s) );
+				//third part = cat
+				if( !queue.isShutdown() ) {
+					addNewPhase();
+					for( int s = 0; s < speciesCounter; s++ ) {
+						Species current  = species.get(s);
+						if( current.hasCDS ) {
+							add( new JCat(s) );
+						}
+					}
+					
+					//wait until third part has been finished
+					waitPhase();/**/
 				}
 				
-				//wait until third part has been finished
-				wait(species.size());/**/
+				//filtered prediction
+				if( !queue.isShutdown() ) {
+					addNewPhase();
+					add(new JGAF());
+					waitPhase();
+				}
+				
+				//UTR prediction
+				if( !queue.isShutdown() ) {
+					addNewPhase();
+					add(new JAnnotationFinalizer());
+					waitPhase();
+				}
+				
+				//extract predictions
+				boolean cds = (Boolean) parameters.getParameterForName("predicted CDSs").getValue();
+				boolean protein = (Boolean) parameters.getParameterForName("predicted proteins").getValue();
+				boolean genomic = (Boolean) parameters.getParameterForName("predicted genomic regions").getValue();
+				if( !queue.isShutdown() & (cds | protein | genomic) ) {
+					addNewPhase();
+					add(new JExtractor(cds, protein, genomic));
+					waitPhase();
+				}
 			}
-			
-			//final prediction
-			if( !queue.isShutdown() ) {
-				addNewPhase();
-				add(new JGAF());
-				wait(1);
-			}
-			
-			//TODO AnnotationFinalizer
-			
-			//extract predictions
-			boolean cds = (Boolean) parameters.getParameterForName("predicted CDSs").getValue();
-			boolean protein = (Boolean) parameters.getParameterForName("predicted proteins").getValue();
-			boolean genomic = (Boolean) parameters.getParameterForName("predicted genomic regions").getValue();
-			if( !queue.isShutdown() & (cds | protein | genomic) ) {
-				addNewPhase();
-				add(new JExtractor(cds, protein, genomic));
-				wait(1);
-			}
-			
 			//needs to be done
 			if( !queue.isShutdown() ) {
 				queue.shutdown();
@@ -569,19 +691,22 @@ public class GeMoMaPipeline implements JstacsTool {
 			}
 		} else {
 			wait(1);
-			nothing=true;
 		}
 		
 		//statistics
 		HashMap<String,int[]> stat = new HashMap<String, int[]>();
+		int anz = 0;
 		for( int i = 0; i < list.size(); i++ ) {
 			FlaggedRunnable f = list.get(i);
-			int[] val = stat.get(f.getClass().getName());
-			if( val  == null ) {
-				val = new int[JobStatus.values().length];
-				stat.put(f.getClass().getName(), val);
+			if( !(f instanceof JSleep) ) {
+				int[] val = stat.get(f.getClass().getName());
+				if( val  == null ) {
+					val = new int[JobStatus.values().length];
+					stat.put(f.getClass().getName(), val);
+				}
+				val[f.status.ordinal()]++;
+				anz++;
 			}
-			val[f.status.ordinal()]++;
 		}
 		
 		pipelineProtocol.append("\nStatistics:\n");
@@ -591,79 +716,148 @@ public class GeMoMaPipeline implements JstacsTool {
 			pipelineProtocol.append("\t" + st[i] );
 		}
 		pipelineProtocol.append("\n");
-		Iterator<Entry<String,int[]>> it = stat.entrySet().iterator();
+		pipelineProtocol.append("---------------------------------------------------------\n");
+		String[] keys = stat.keySet().toArray(new String[0]);
+				
+		Arrays.sort(keys, JobComparator.DEFAULT);
 		int success = 0;
-		while( it.hasNext() ) {
-			Entry<String,int[]> e = it.next();
-			int[] val = e.getValue();
-			String name = e.getKey();
+		for( int j = 0; j < keys.length; j++ ) {
+			String name = keys[j];
+			int[] val = stat.get(name);
 			int idx = name.lastIndexOf("$");
-			pipelineProtocol.append( (idx>0 ? name.substring(idx+2) : name) );
+			name = idx>0 ? name.substring(idx+2) : name;
+			pipelineProtocol.append( /*JobComparator.getOrdinal(name) + "\t" +*/ name );
 			for( int i = 0; i < val.length; i++ ) {
 				pipelineProtocol.append( "\t" + val[i] );
 			}
 			pipelineProtocol.append( "\n");
 			success+=val[4];
+			
+			if( j==1 || j==6 ) {
+				pipelineProtocol.append( "\n");
+			}
 		}
 		pipelineProtocol.append("\n");
 		
-		ToolResult result;
-		if( !nothing && success==list.size() ) {
+		ToolResult result = null;
+		if( usedSpec>0 && success==anz ) {
 			pipelineProtocol.append("No errors detected.\n");
 			for( int i = 0; i < speciesCounter; i++ ) {
-				String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
-				//pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
-				FileRepresentation fr = new FileRepresentation(unfiltered);
-				fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
-				res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
+				Species current = species.get(i);
+				if( current.hasCDS ) {
+					String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
+					//pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
+					FileRepresentation fr = new FileRepresentation(unfiltered);
+					fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
+					res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
+				}
 			}
-			
 			result = new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 		} else {
-			pipelineProtocol.append( (list.size()-success) + " jobs did not finish as expected. Please check the output carefully.\n");
-			result = null;
+			pipelineProtocol.append( (anz-success) + " jobs did not finish as expected. Please check the output carefully.\n");
 		}		
 		
 		
-		if( result != null || (boolean) parameters.getParameterForName("debug").getValue() ) {
+		boolean debug = (boolean) parameters.getParameterForName("debug").getValue();
+		if( result != null || !debug ) {
 			//delete
 			// for avoiding erroneously deleting important files: 2 tricks have been implemented:
 			// a) temporary folder GeMoMa_TEMP
 			// b) RegExFilenameFilter
-			try {
-				Files.walkFileTree(new File( home ).toPath(), new SimpleFileVisitor<Path>() {
-					RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, ".*fasta", ".*gff", ".*txt", "blastdb.*", ".*tabular", ".*bedgraph");
-					
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-						return delete( file );
-					}
-		
-					@Override
-					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-						return delete(dir);
-					}
-					
-					FileVisitResult delete( Path p ) throws IOException {
-						if( filter.accept( p.toFile() ) )  {
+			ArrayList<IOException> io = new ArrayList<IOException>();
+			Files.walkFileTree(new File( home ).toPath(), new SimpleFileVisitor<Path>() {
+				RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, 
+						".*fasta", ".*gff", ".*txt", ".*tabular", ".*bedgraph", ".*gff3", 
+						"blastdb.*",
+						"mmseqsdb.*", "t_orfs.*", "pref_.*", "aln.*", "translated_search\\.sh", "blastp\\.sh", "latest"
+				);
+				
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					return delete( file );
+				}
+	
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					return delete(dir);
+				}
+				
+				FileVisitResult delete( Path p ) throws IOException {
+					if( filter.accept( p.toFile() ) )  {
+						try {
 							Files.delete(p);
+						} catch( IOException e ) {
+							io.add(e);
 						}
-						return FileVisitResult.CONTINUE;
 					}
-				});
-			} catch( IOException io ) {
-				protocol.appendWarning("Could not delete all temporary files.");
-				protocol.appendThrowable(io);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+			if( io.size()>0 ) {
+				protocol.appendWarning("Could not delete all temporary files.\n\n");
+				for( int i = 0; i < io.size(); i++ ) {
+					protocol.appendWarning(io.get(i).getMessage() + "\n");
+				}
 			}
+		} else {
+			protocol.appendWarning("Did not delete temporary files allowing to debug.\n\n");
 		}
+		
+		long ti = Math.round(t.getElapsedTime());
+		protocol.append("Elapsed time: " + ti + " in seconds\n");
+		int s = (int) (ti % 60);
+		ti /= 60;
+		int m = (int) (ti % 60);
+		ti /= 60;
+		protocol.append("Elapsed time: " + ti + "h " + m + "m " + s + "s\n");
 		
 		if( result == null ) {
 			pipelineProtocol.flush();
 			//Thread.sleep(1000);
-			throw new RuntimeException("Did not finish as intended");
+			throw new RuntimeException("Did not finish as intended." + (usedSpec==0?" No gene model was extracted from the references.":""));
 		} else {
 			return result;
 		}
+	}
+	
+	static class JobComparator implements Comparator<String> {
+
+		static JobComparator DEFAULT = new JobComparator();
+		
+		static HashMap<String,Integer> ordinal; 
+		
+		private JobComparator() {
+			ordinal = new HashMap<String, Integer>();
+			
+			ordinal.put( "MakeBlastDB", 0);
+			ordinal.put( "MmseqsCreateDB", 0 );
+			ordinal.put( "EREAndFill", 1);
+			
+			ordinal.put( "ExtractorAndSplit", 2);
+			ordinal.put( "Tblastn", 3);
+			ordinal.put( "Mmseqs", 3);
+			ordinal.put( "GeMoMa", 4);
+			ordinal.put( "Cat", 5);
+			ordinal.put( "GAF", 6);
+			
+			ordinal.put( "AnnotationFinalizer", 7);
+			ordinal.put( "Extractor", 8);
+		}
+		
+		static int getOrdinal( String s ) {
+			int idx = s.lastIndexOf("$");
+			s = idx>0 ? s.substring(idx+2) : s;
+			Integer i = ordinal.get(s);
+			return i==null? Integer.MAX_VALUE : i;
+		}
+		
+		@Override
+		public int compare(String o1, String o2) {
+			return Integer.compare( getOrdinal(o1), getOrdinal(o2) );
+		}
+		
+		
+		
 	}
 	
 	void add( FlaggedRunnable f ) {
@@ -673,10 +867,14 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 	}
 	
-	void wait( int num ) throws InterruptedException, ExecutionException {
-		for (int i = 0; i < num; i++) {
+	int finished = 0;
+	
+	void waitPhase() throws InterruptedException, ExecutionException {
+		while( finished < list.size() ) {
+//System.out.println("wait " + finished + " vs. " + list.size());
 			  ecs.take();
 			  if( stop ) break;
+			  finished++;
 		}
 	}
 	
@@ -736,18 +934,24 @@ public class GeMoMaPipeline implements JstacsTool {
 		public abstract void doJob() throws Exception;
 		
 		int runProcess( String... cmd ) throws Exception {
+			/*for( int i = 0; i < cmd.length; i++ ) {
+				System.out.print( cmd[i] + " " );
+			}
+			System.out.println();*/
+			
 			ProcessBuilder pb = new ProcessBuilder(cmd);
 			pb.redirectErrorStream(true);//TODO ?
+			
 			Process p = pb.start();
-			InputStream in = p.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = null;
+            while ( (line = br.readLine()) != null) {
+            	pipelineProtocol.appendWarning( "[" + cmd[0] + "]: " + line+"\n");
+			}
+            br.close();
+			
 			process.add(p);
 			p.waitFor();
-						
-			if( in.available() > 0 ) {
-				byte[] b = new byte[in.available()];
-				in.read(b);
-				pipelineProtocol.appendWarning(new String(b));
-			}
 			return p.exitValue();
 		}
 	}
@@ -822,7 +1026,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	class JmakeBlastDB extends FlaggedRunnable {
+	class JMakeBlastDB extends FlaggedRunnable {
 		@Override
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting makeblastdb\n");
@@ -872,6 +1076,27 @@ public class GeMoMaPipeline implements JstacsTool {
 	}
 	
 	/**
+	 * Job for running the mmseqs index on the target genome
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	class JMmseqsCreateDB extends FlaggedRunnable {
+
+		@Override
+		public void doJob() throws Exception {
+			pipelineProtocol.append("starting mmseqs createDB\n");
+			int exitCode = runProcess( mmseqs, "createdb", escape(target), escape(home+"/mmseqsdb"), "--dont-split-seq-by-len", /*"--dont-shuffle", "--dbtype", "2",*/ "-v", "2" );
+			
+			if( exitCode> 0 ) {
+				status=JobStatus.FAILED;
+			}
+			
+			//pipelineProtocol.append( "Mmseqs createDB okay\n" );
+		}
+		
+	}
+	
+	/**
 	 * Job for running the Extractor and the FastaSplitter on one species.
 	 * 
 	 * @author Jens Keilwagen
@@ -882,26 +1107,28 @@ public class GeMoMaPipeline implements JstacsTool {
 	class JExtractorAndSplit extends FlaggedRunnable {
 		int speciesIndex;
 		ToolParameterSet params;
+		boolean split;
 		
-		private JExtractorAndSplit( String specName ) {
+		private JExtractorAndSplit( String specName, boolean split ) {
 			species.add( new Species(specName) );
 			speciesIndex = speciesCounter++;
 			params=null;
+			this.split=split;
 		}
 		
-		JExtractorAndSplit( String specName, String annotation, String genome ) throws IllegalValueException, CloneNotSupportedException {
-			this(specName);
+		JExtractorAndSplit( String specName, String annotation, String genome, boolean split ) throws IllegalValueException, CloneNotSupportedException {
+			this(specName, split);
 			params = extractorParams.clone();
 			params.getParameterForName("annotation").setValue(annotation);
 			params.getParameterForName("genome").setValue(genome);			
 		}
 		
-		JExtractorAndSplit( String specName, String cds_parts, String assignment, String protein ) {
-			this(specName);
+		JExtractorAndSplit( String specName, String cds_parts, String assignment, String protein, boolean split ) {
+			this(specName, split);
 			Species sp = species.get(speciesIndex);
 			sp.cds=cds_parts;
 			sp.assignment=assignment;
-			sp.protein = protein;
+			sp.protein=protein;
 		}
 		
 		@Override
@@ -962,34 +1189,147 @@ public class GeMoMaPipeline implements JstacsTool {
 				r.close();
 				w.close();
 			}
-			FastaSplitter.main(new String[]{sp.cds,""+threads,"_",outDir});
+			File f = new File( sp.cds );
+			sp.hasCDS = f.exists() && f.length()>0;
+			if( sp.hasCDS ) {
+				if( split && sp.hasCDS ) {
+					FastaSplitter.main(new String[]{sp.cds,""+threads,"_",outDir});
+					
+					//Set files
+					FilenameFilter filter = new RegExFilenameFilter("splits", Directory.FORBIDDEN, true, "split-.*fasta" );
+					File d = new File( outDir );
+					File[] h = d.listFiles(filter);
+					sp.cds_parts = new String[h.length];
+					for( int i = 0; i < h.length; i++ ) {
+						sp.cds_parts[i] = h[i].getAbsolutePath();
+					}
+	
+					sp.searchResults = new String[sp.cds_parts.length];
+				}
+			} else {
+				pipelineProtocol.append("Did not extract any gene model from species " + speciesIndex + "\n");
+			}
+			//pipelineProtocol.append("Extract end\n");
 		}	
 	}
 	
 	/**
-	 * Job for running a tblastn.
+	 * Job for running tblastn.
 	 * 
 	 * @author Jens Keilwagen
 	 */
 	class JTblastn extends FlaggedRunnable {
-		int species, split;
+		int speciesIndex, split;
 		
 		JTblastn( int species, int split ) throws IllegalValueException, CloneNotSupportedException {
-			this.species=species;
+			this.speciesIndex=species;
 			this.split = split;
 		}
 		
 		@Override
 		public void doJob() throws Exception {
-			pipelineProtocol.append("starting tblastn split=" + split + " for species " + species + "\n");
-			int exitCode = runProcess( "tblastn", "-query", home+species+"/split-"+split+".fasta",
-					"-db", escape(home+"blastdb"), "-evalue",""+eValue, "-out", home+species+"/tblastn-"+split+".txt",
+			pipelineProtocol.append("starting tblastn split=" + split + " for species " + speciesIndex + "\n");
+			Species current = species.get(speciesIndex);
+			int exitCode = runProcess( "tblastn", "-query", current.cds_parts[split],
+					"-db", escape(home+"blastdb"), "-evalue",""+eValue, "-out", home+speciesIndex+"/tblastn-"+split+".txt",
 					"-outfmt", "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles",
 					"-db_gencode","1", "-matrix", "BLOSUM62", "-seg", "no", "-word_size", "3", "-comp_based_stats", "F", "-gapopen", ""+gapOpen, "-gapextend", ""+gapExt, "-num_threads", "1" );
-			
+			current.searchResults[split] = home+speciesIndex+"/tblastn-"+split+".txt";
+						
 			if( exitCode <= 1 ) { //Warnings/error in query will be ignored: https://www.ncbi.nlm.nih.gov/books/NBK279684/table/appendices.Tc/
 				if( !queue.isShutdown() ) {
-					add(new JGeMoMa(species, split));
+					add(new JGeMoMa(speciesIndex, split));
+				}
+			} else {
+				status = JobStatus.FAILED;
+			}
+		}
+	}
+	
+	void addMmseqsAndDummies( int species ) throws IllegalValueException, CloneNotSupportedException {
+		JMmseqs mmseqs = new JMmseqs(species);
+		add( mmseqs );
+		for( int i = 1; i < threads; i++ ) {
+			add( new JSleep(mmseqs) );
+		}
+	}
+	
+	class JSleep extends FlaggedRunnable {
+		JMmseqs mmseqs;
+		
+		JSleep( JMmseqs mmseqs ) {
+			this.mmseqs=mmseqs;
+		}
+		
+		@Override
+		public void doJob() throws Exception {
+			mmseqs.latch.await();
+		}
+		
+	}
+	
+	/**
+	 * Job for running mmseqs.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	class JMmseqs extends FlaggedRunnable {
+		int speciesIndex;
+		CountDownLatch latch;
+		
+		JMmseqs( int species ) throws IllegalValueException, CloneNotSupportedException {
+			this.speciesIndex=species;
+			latch = new CountDownLatch(1);
+		}
+		
+		@Override
+		public void doJob() throws Exception {
+			pipelineProtocol.append("starting mmseqs for species " + speciesIndex + "\n");
+			Species sp = species.get(speciesIndex);
+
+			int exitCode=0;
+			//createDB for query
+			exitCode = runProcess( mmseqs, "createdb", escape(sp.cds), escape(home+speciesIndex+"/mmseqsdb"), /*"--dont-split-seq-by-len", "--dont-shuffle", "--dbtype", "1",*/ "-v", "2" );
+
+			String tmp = home+speciesIndex+"/mmseqsdb_tmp";
+			File t = new File( tmp );
+			t.mkdirs();
+
+			//search
+			if( exitCode==0 ) {
+				exitCode = runProcess( mmseqs, "search",
+					escape(home+speciesIndex+"/mmseqsdb"),
+					escape(home+"/mmseqsdb"),
+					escape(home+speciesIndex+"/mmseqsdb_align.out"),
+					escape(tmp),
+					"-e", "100.0", "--threads", ""+threads, "-s", "8.5", "-a", "--comp-bias-corr", "0", "--max-seqs", "500", "--mask", "0", "--orf-start-mode", "1", "-v", "2" ); 
+			}
+
+			//convertalis
+			if( exitCode == 0 ) {
+				exitCode = runProcess( mmseqs, "convertalis",
+						escape(home+speciesIndex+"/mmseqsdb"),
+						escape(home+"/mmseqsdb"),
+						escape(home+speciesIndex+"/mmseqsdb_align.out"),
+						escape(home+speciesIndex+"/mmseqs.tabular"),
+						"--threads", ""+threads, "--format-output", "query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits,empty,raw,nident,empty,empty,empty,qframe,tframe,qaln,taln,qlen,tlen", "-v", "2");
+			}
+			latch.countDown();
+			
+			//ExternalSort (and split)
+			if( exitCode == 0 ) {
+				File[] parts = Tools.externalSort(home+speciesIndex+"/mmseqs.tabular", 500000, threads, pipelineProtocol);
+				sp.searchResults = new String[parts.length];
+				for( int i = 0; i < sp.searchResults.length; i++ ) {
+					sp.searchResults[i] = parts[i].getAbsolutePath();
+				}
+			}
+			
+			if( exitCode == 0 ) {
+				for( int i = 0; i < sp.searchResults.length; i++ ) {
+					if( !queue.isShutdown() ) {
+						add(new JGeMoMa(speciesIndex, i));
+					}
 				}
 			} else {
 				status = JobStatus.FAILED;
@@ -1005,20 +1345,20 @@ public class GeMoMaPipeline implements JstacsTool {
 	 * @see GeMoMa
 	 */
 	class JGeMoMa extends FlaggedRunnable {
-		int species, split;
+		int speciesIndex, split;
 		
 		JGeMoMa( int species, int split ) {
-			this.species = species;
+			this.speciesIndex = species;
 			this.split = split;
 		}
 		
 		@Override
 		public void doJob() throws Exception {
-			pipelineProtocol.append("starting GeMoMa split=" + split + " for species " + species + "\n");
+			pipelineProtocol.append("starting GeMoMa split=" + split + " for species " + speciesIndex + "\n");
 			
-			Species sp = GeMoMaPipeline.this.species.get(species);
+			Species sp = species.get(speciesIndex);
 			ToolParameterSet params = gemomaParams.clone();
-			params.getParameterForName("tblastn results").setValue(home + "/" + species + "/tblastn-"+split+".txt");
+			params.getParameterForName("search results").setValue(sp.searchResults[split]);
 			params.getParameterForName("cds parts").setValue(sp.cds);
 			params.getParameterForName("assignment").setValue(sp.assignment);
 			if( sp.protein != null ) {
@@ -1028,7 +1368,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			SysProtocol protocol = new QuiteSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			ToolResult res = gemoma.run(params, protocol, new ProgressUpdater(), 1);
-			String outDir = home + "/" + species + "/"+split +"/";
+			String outDir = home + "/" + speciesIndex + "/"+split +"/";
 			CLI.writeToolResults(res, protocol, outDir, gemoma, params);
 		}
 	}
@@ -1049,7 +1389,7 @@ public class GeMoMaPipeline implements JstacsTool {
 		public void doJob () throws Exception {
 			pipelineProtocol.append("starting cat for species " + speciesIndex + "\n");
 			BufferedWriter w= new BufferedWriter( new FileWriter(home+"/" + speciesIndex + "/unfiltered-predictions.gff") );
-			for( int sp = 0; sp <splitsPerSpecies.get(speciesIndex); sp++ ) {
+			for( int sp = 0; sp <species.get(speciesIndex).searchResults.length; sp++ ) {
 				BufferedReader r = new BufferedReader( new FileReader(home+"/" + speciesIndex + "/" + sp + "/predicted_annotation.gff") );
 				String line;
 				while( (line=r.readLine()) != null ) {
@@ -1082,21 +1422,52 @@ public class GeMoMaPipeline implements JstacsTool {
 			ExpandableParameterSet eps = (ExpandableParameterSet) gafParams.getParameterForName("predicted annotation").getValue();
 			int i = 0;
 			for( int s = 0; s < speciesCounter; s++ ) {
-				if( s>0 ) {
-					eps.addParameterToSet();
+				Species current  = species.get(s);
+				if( current.hasCDS ) {
+					if( i>0 ) {
+						eps.addParameterToSet();
+					}
+					ParameterSet ps = ((ParameterSetContainer) eps.getParameterAt(i++)).getValue();
+					String id = current.id;
+					if( id != null ) {
+						ps.getParameterForName("prefix").setValue(id);
+					}
+					ps.getParameterForName("gene annotation file").setValue(home+"/" + s + "/unfiltered-predictions.gff");
 				}
-				ParameterSet ps = ((ParameterSetContainer) eps.getParameterAt(i++)).getValue();
-				String id = species.get(s).id;
-				if( id != null ) {
-					ps.getParameterForName("prefix").setValue(id);
-				}
-				ps.getParameterForName("gene annotation file").setValue(home+"/" + s + "/unfiltered-predictions.gff");
 			}
 			
 			ToolResult tr = gaf.run(gafParams, protocol, new ProgressUpdater(), 1);
-			res.add( tr.getRawResult()[0].getResultAt(0) );
+			//res.add( tr.getRawResult()[0].getResultAt(0) );
 			CLI.writeToolResults(tr, protocol, home, gaf, gafParams);
 		}	
+	}
+	
+	/**
+	 * Job for running AnnotationFinalizer predicting UTRs and allowing to rename the predictions.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	class JAnnotationFinalizer extends FlaggedRunnable {
+
+		@Override
+		public void doJob() throws Exception {
+			pipelineProtocol.append("starting AnnotationFinalizer\n");
+			SysProtocol protocol = new QuiteSysProtocol();
+			
+			AnnotationFinalizer af = new AnnotationFinalizer();
+			
+			afParams.getParameterForName("annotation").setValue(home+"/filtered_predictions.gff");
+
+			if( rnaSeq && "YES".equals( afParams.getParameterForName("UTR").getValue() ) ) {
+System.out.println("set values");
+				setRNASeqParams(afParams, pipelineProtocol);
+			}
+			
+			ToolResult tr = af.run(afParams, protocol, new ProgressUpdater(), 1, params, getToolVersion() );
+			res.add( tr.getRawResult()[0].getResultAt(0) );
+			CLI.writeToolResults(tr, protocol, home, af, gafParams);
+		}
+		
 	}
 	
 	/**
@@ -1165,7 +1536,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "gff", "filtered predictions"),
+				new ResultEntry(TextResult.class, "gff3", AnnotationFinalizer.defResult ),
 		};
 	}
 }
