@@ -607,6 +607,7 @@ public class GeMoMa implements JstacsTool {
 		String acceptor = null;
 		String line;
 		BufferedReader r;
+		//HashMap<String,int[]> diNucl = new HashMap<String,int[]>();
 		for( String file : intronGFF ) {
 			//System.out.println(file);
 			r = new BufferedReader( new FileReader( file ) );
@@ -649,8 +650,8 @@ public class GeMoMa implements JstacsTool {
 							r.close();
 							throw new IllegalArgumentException("Did not find sequence " + split[0] + ", which should contain an intron");
 						}
-						String x = s.substring(a-1,a+1);
-						String y = s.substring(b-3,b-1);
+						String x = s.substring(a-1,a+1).toUpperCase();
+						String y = s.substring(b-3,b-1).toUpperCase();
 						boolean fwd =  (x.equals(DONOR[0]) || x.equals(DONOR[1])) && y.equals(ACCEPTOR);
 						boolean bwd =  (y.equals(donor[0]) || y.equals(donor[1])) && x.equals(acceptor);
 						if( fwd && !bwd ) {
@@ -658,6 +659,16 @@ public class GeMoMa implements JstacsTool {
 						} else if( bwd && !fwd ) {
 							c='-';
 						}
+						
+						/*if( reads>= threshold ) {
+							int[] v = diNucl.get(x+"-"+y);
+							if( v == null ) {
+								v = new int[2];
+								diNucl.put(x+"-"+y, v);
+							}
+							v[0]++;
+							v[1]+=reads;
+						}*/
 						//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
 					}
 
@@ -712,6 +723,15 @@ public class GeMoMa implements JstacsTool {
 		protocol.append("+: " + count[0] + "\n");
 		protocol.append("-: " + count[1] + "\n");
 		protocol.append(".: " + count[2] + "\n");
+		
+		/*
+		String[] keys = diNucl.keySet().toArray(new String[0]);
+		Arrays.sort( keys );
+		for( int i = 0; i < keys.length; i++ ) {
+			int[] v = diNucl.get( keys[i] );
+			System.out.println( keys[i] + "\t" + v[0] + "\t" + v[1] );
+		}*/
+		
 		return new HashMap[]{donorSites, acceptorSites};
 	}
 	
