@@ -81,8 +81,39 @@ GeMoMa 1.5.2 (31.5.2018)
 	- warning if RNA-seq data does not match with target genome
 - GeMoMaPipeline: new tool for running the complete GeMoMa pipeline at once allowing multi-threading
 - folder for temporary files of GeMoMa
-
-GeMoMa XXX (YYY)
+GeMoMa 1.5.3 (23.07.2018)
+- improved parameter description and presentation
+- GeMoMaPipeline:
+	- removed unnecessary parameters 
+- GeMoMa:
+	- bugfix: reading coverage file
+	- removed parameter genomic (cf. Extractor)
+	- removed protein output (cf. Extractor) 
+- GAF:
+	- bugfix: prefix 
+- Extractor:
+	- new parameter genomic 
+	
+GeMoMa 1.6 (YYY)
+- allow to use mmseqs as alternative to tblastn
+- AnnotationEvidence:
+	- allows to add attributes to the input gff: tie, tpc, AA, start, stop
+	- new parameter for gff output
+- AnnotationFinalizer: new tool for predicting UTRs and renaming predictions
+- GAF:
+	- relative score filter and evidence filter are replaced by a flexible filter that allows to filter by relative score, evidence or other GFF attributes as well as combinations thereof
+	- sorting criteria of the predictions within clusters can now be user-specified
+	- new attribute for genes: combinedEvidence
+	- new attribute for predictions: sumWeight
+	- allows to use gene predictions from all sources, including for instance ab-initio gene predictors, purely RNA-seq based gene prediction and manually curation
+	- bugfix for predictions from multiple reference organisms
+	- improved statistic output
 - GeMoMa
+	- renamed the parameter tblastn results to search results
+	- new parameter for sorting the results of the similarity search (tblastn or mmseqs), if you use mmseqs for the similarity search you have use sort 
+	- new parameter for score of the search results: three options: Trust (as is), ReScore (use aligned sequence, but recompute score), and ReAlign (use detected sequence for realignment and rescore)
+	- bugfix: threshold for introns from multiple files
+		
+- GeMoMa	
 	- TODO split AA?
 	- TODO improved splice site alignment?
