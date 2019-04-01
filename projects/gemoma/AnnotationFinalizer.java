@@ -589,6 +589,7 @@ public class AnnotationFinalizer implements JstacsTool {
 		
 		int start = dir==-1 ? min : max;
 		boolean extend = true;
+//System.out.println(t.id);
 		while( extend ) {
 			int firstBase = start+dir;
 			extend=false;
@@ -615,18 +616,26 @@ public class AnnotationFinalizer implements JstacsTool {
 				lastBase = firstBase;
 				firstBase = xxx;
 			}
-//System.out.println(firstBase + "\t" + lastBase + "\t" + dir);
+//System.out.println(utr + "\t" + firstBase + "\t" + lastBase + "\t" + dir);
 			
 			
-			//find splice site in interval [firstBase, lastBase]
+			//find splice site in interval [firstBase-1, lastBase+1]
 			if( splice != null && splice[sIdx]!= null) {
-				idx = Arrays.binarySearch(splice[sIdx], firstBase );
+				int st = firstBase+dir;
+				idx = Arrays.binarySearch(splice[sIdx], st);
+				if( idx > 0 ) {
+					while( idx>0 &&  splice[sIdx][idx-1] == st ) {
+						idx--;
+					}
+				}
 				if( idx < 0 ) {
 					idx = -(idx+1);
 					//we don't need this here: idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
 				}
 				int maxSplitReads = -1, maxIdx=-1;
-				while( idx < splice[sIdx].length && splice[sIdx][idx] <= lastBase ) {
+				int end = lastBase + dir;
+//if( idx >= 0 && idx < splice[sIdx][0] ) System.out.println("splice: ["+st+","+end+"]\t"+splice[sIdx][idx] + " <= " + end);
+				while( idx < splice[sIdx].length && splice[sIdx][idx] <= end ) {
 					int i=Arrays.binarySearch(cov, new int[]{splice[sIdx][idx]+dir}, IntArrayComparator.comparator[2] );
 					int c;
 					if( i < 0 ) {				
@@ -641,7 +650,7 @@ public class AnnotationFinalizer implements JstacsTool {
 						c=cov[i][2];
 					}
 
-//System.out.println("looking for a splice site (" + sIdx + ") " + firstBase + "\t" + idx + "\t" + splice[0][idx] + ".." + splice[1][idx] + " ("+splice[2][idx]+")\t" + c );
+//System.out.println("looking for a splice site (" + sIdx + ") " + firstBase + "\t" + idx + "\t" + splice[0][idx] + ".." + splice[1][idx] + " ("+splice[2][idx]+")\t" + c + "\t" + (splice[2][idx] >= c) + "\t" + (splice[2][idx] > maxSplitReads) );
 					
 					if( splice[2][idx] >= c //check whether its better to use the split read (=intron) than following the coverage
 						&& splice[2][idx] > maxSplitReads //use the intron with the most split reads
@@ -652,16 +661,17 @@ public class AnnotationFinalizer implements JstacsTool {
 					idx++;
 				}
 				
-				if( maxIdx> 0 ) {
+				if( maxIdx>= 0 ) {
 					extend = true;
+					int add = (dir==1) ? -1 : 0;//(strand==1?0:-1);
 					if( dir == -1 ) {
 						//set new start base
-						firstBase = splice[sIdx][maxIdx]-dir;
+						firstBase = splice[sIdx][maxIdx]+add;
 					} else {
 						//set new last base
-						lastBase = splice[sIdx][maxIdx]-dir;
+						lastBase = splice[sIdx][maxIdx]+add;
 					}
-					start = splice[1-sIdx][maxIdx];
+					start = splice[1-sIdx][maxIdx]+add;
 				}
 			}
 						
