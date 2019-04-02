@@ -365,6 +365,8 @@ public class CLI {
 			if(!toolParameters[toolIndex].hasDefaultOrIsSet()){
 				printToolParameters(toolIndex,protocol,outdir,threads);
 				System.err.println("\nAt least one parameter has not been set (correctly).");
+				String msg = toolParameters[toolIndex].getErrorMessage();
+				if( msg != null ) System.err.println(msg);
 				return;
 			}else{
 				printToolParameters(toolIndex,protocol,outdir,threads);

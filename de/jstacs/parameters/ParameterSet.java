@@ -279,7 +279,7 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 		for (int i = 0; i < parameters.size(); i++) {
 			if (parameters.get(i).isRequired()
 					&& (!parameters.get(i).hasDefaultOrIsSet())) {
-				errorMessage = "At least parameter "+parameters.get( i ).getName()+" has not been set to a valid value.";
+				errorMessage = "At least parameter \""+parameters.get( i ).getName()+"\" has not been set to a valid value.";
 				return false;
 			}
 		}
