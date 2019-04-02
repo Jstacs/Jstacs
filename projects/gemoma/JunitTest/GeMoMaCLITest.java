@@ -189,7 +189,9 @@ public class GeMoMaCLITest {
 		
 		int anz=10;
 		list.add("selected=" + in + "selected-"+anz+".txt");
-		list.add("AnnotationFinalizer.rename=NO");
+		//list.add("GeMoMa.r=100");
+		list.add("AnnotationFinalizer.r=NO");
+		//list.add("AnnotationFinalizer.u=YES");
 		list.add("threads="+8);
 		
 		String[] given = {

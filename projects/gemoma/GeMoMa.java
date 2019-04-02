@@ -365,7 +365,7 @@ public class GeMoMa implements JstacsTool {
 					cli.run(part);
 				} else {
 					System.out.println("Creating tables for the Jstacs wiki as separate files.");
-					cli.wiki();
+					cli.wiki("wiki");
 				}
 			} else {
 				Galaxy galaxy = new Galaxy("", configureThreads, tools );
