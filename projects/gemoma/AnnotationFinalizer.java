@@ -572,7 +572,7 @@ public class AnnotationFinalizer implements JstacsTool {
 		protocol.append("#transcripts with 5'- and 3'-UTR annotation: " + utrBoth + "\n");
 		
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
-		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(gffFile.getAbsolutePath()), "gff3", getToolName(), null, true) );
+		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(gffFile.getAbsolutePath()), "gff", getToolName(), null, true) );
 		
 		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 
@@ -819,7 +819,7 @@ public class AnnotationFinalizer implements JstacsTool {
 	
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "gff3", defResult),
+				new ResultEntry(TextResult.class, "gff", defResult),
 		};
 	}
 }
