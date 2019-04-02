@@ -7,7 +7,7 @@
     <property name="dir.workspace" value="${dir.buildfile}/.."/>
     <property name="dir.jarfile" value="${dir.buildfile}/projects/gemoma/"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/GeMoMa-1.5.1beta.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/GeMoMa-1.6.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="projects.gemoma.GeMoMa"/>
                 <attribute name="Class-Path" value="."/>
@@ -20,7 +20,9 @@
         		<exclude name="projects/dream2016/**"/>
         		<exclude name="projects/dream2016_jk/**"/>
         		<exclude name="projects/dream2016_last/**"/>
+        		<exclude name="projects/encodedream/**"/>
         		<exclude name="projects/gemoma/old/**"/>
+        		<exclude name="projects/gemoma/doc/**"/>
         		<exclude name="projects/gemoma/quatsch/**"/>
         		<exclude name="projects/gemoma/JunitTest/**"/>
         		<exclude name="projects/motifComp/**"/>
@@ -41,6 +43,7 @@
         		<exclude name="**/*.bedgraph"/>
         		<exclude name="**/*.tabular"/>
         		<exclude name="**/*.zip"/>
+        		<exclude name="**/*.hprof"/>
         	</fileset>
         	
             <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
