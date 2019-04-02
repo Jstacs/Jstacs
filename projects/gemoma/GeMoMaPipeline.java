@@ -804,12 +804,12 @@ public class GeMoMaPipeline implements JstacsTool {
 		}
 		
 		long ti = Math.round(t.getElapsedTime());
-		protocol.append("Elapsed time: " + ti + " in seconds\n");
+		protocol.append("Elapsed time: " + ti + " seconds");
 		int s = (int) (ti % 60);
 		ti /= 60;
 		int m = (int) (ti % 60);
 		ti /= 60;
-		protocol.append("Elapsed time: " + ti + "h " + m + "m " + s + "s\n");
+		protocol.append("\t(" + ti + "h " + m + "m " + s + "s)\n");
 		
 		if( result == null ) {
 			pipelineProtocol.flush();
@@ -1536,7 +1536,7 @@ System.out.println("set values");
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "gff3", AnnotationFinalizer.defResult ),
+				new ResultEntry(TextResult.class, "gff", AnnotationFinalizer.defResult ),
 		};
 	}
 }
