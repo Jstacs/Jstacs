@@ -632,11 +632,23 @@ if( k == null ) {
 	/**
 	 * Creates the HTML code for wiki entries for the supplied tools.
 	 */
-	public void wiki() {
+	public void wiki() throws IOException {
+		wiki("");
+	}
+	
+
+	/**
+	 * Creates the HTML code for wiki entries for the supplied tools.
+	 * 
+	 * @param home the home directory of the files
+	 */
+	public void wiki( String home ) {
+		File h = new File( home+"/" );
+		h.mkdirs();
 		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
 			ParameterSet ps = toolParameters[toolIndex];
 			try {
-				PrintStream fos = new PrintStream( new FileOutputStream( tools[toolIndex].getShortName()+".txt") );
+				PrintStream fos = new PrintStream( new FileOutputStream( home+"/"+tools[toolIndex].getShortName()+".txt") );
 				fos.append( "<table border=0 cellpadding=10 align=\"center\" width=\"100%\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
 				printTable("", keyMap[toolIndex], ps, fos);
 				fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
