@@ -225,7 +225,7 @@ public class Pileup {
 		while(samIt.hasNext()){
 			SAMRecord rec = samIt.next();
 			if(!rec.getReadUnmappedFlag()&&rec.getMappingQuality()>0){
-				int refStart = rec.getAlignmentStart();
+				int refStart = rec.getUnclippedStart();
 				String chr = rec.getReferenceName();
 				if( (oldChr != null && !chr.equals(oldChr))){
 					collect((ObjectStream<CovPile>)piles,counts,totalCount,oldChr,refOff,maxEnd,maxEnd,insertions);
@@ -292,10 +292,10 @@ public class Pileup {
 				}
 				
 				if(coverage && !rec.getReadNegativeStrandFlag()){//count only 5' end
-					int idx = rec.getReferencePositionAtReadPosition(1)-refOff;
+					int idx = rec.getUnclippedStart()-refOff;
 					totalCount[idx]++;
 				}else if(coverage && rec.getReadNegativeStrandFlag()){
-					int idx = rec.getReferencePositionAtReadPosition(len)-refOff;
+					int idx = rec.getUnclippedEnd()-refOff;
 					totalCount[idx]++;
 				}
 				
