@@ -273,7 +273,7 @@ public class ExtractSequencesTool implements JstacsTool {
 	@Override
 	public String getHelpText() {
 		try {
-			return FileManager.readInputStream( FindPWMsAndClusters.class.getClassLoader().getResourceAsStream( "projects/dimont/helpExtractor.txt" ) ).toString();
+			return FileManager.readInputStream( ExtractSequencesTool.class.getClassLoader().getResourceAsStream( "projects/dimont/helpExtractor.txt" ) ).toString();
 		} catch ( Exception e ) {
 			e.printStackTrace();
 			return "";
