@@ -225,8 +225,8 @@ public class QuickTBSPredictionTool implements JstacsTool {
 				double max = 0;
 				double min = 0;
 				for(int i=0;i<pwm.length;i++){
-					max += ToolBox.max(pwm[i]);
-					min += ToolBox.min(pwm[i]);
+					max += ToolBox.max(0,4,pwm[i]);
+					min += ToolBox.min(0,4,pwm[i]);
 				}
 				
 				//protocol.append("min: "+min+", max: "+max+", diff: "+(max-min)+"\n");
@@ -412,7 +412,7 @@ public class QuickTBSPredictionTool implements JstacsTool {
 
 				double sPen = 0.0;
 				
-				for(int d=startStrand;d<endStrand;d++){
+				for(int d=startStrand;d<endStrand;d++){//TODO revcom if startStrand==1
 
 					if(d == 1){
 						sPen = strandPenalty;
