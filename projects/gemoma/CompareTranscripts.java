@@ -66,12 +66,10 @@ public class CompareTranscripts implements JstacsTool {
 		HashMap<String,int[]> stats = new HashMap<String,int[]>();
 		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
 			SimpleParameterSet ps = (SimpleParameterSet) eps.getParameterAt(i).getValue();
-			if( ps.getParameterForName("assignment").isSet() ) {
-				String fName = (String) ps.getParameterForName("assignment").getValue();
-				Parameter p = ps.getParameterForName("prefix");
-				String prefix = p.isSet() ? (String) p.getValue() : null;
-				Tools.getAlias(gene, fName, prefix, 1, 0, 2);
-			}
+			String fName = (String) ps.getParameterForName("assignment").getValue();
+			Parameter p = ps.getParameterForName("prefix");
+			String prefix = p.isSet() ? (String) p.getValue() : null;
+			Tools.getAlias(gene, fName, prefix, 1, 0, 2);
 		}
 		boolean output = gene.size()>0; 
 		if( !output ) {
@@ -424,7 +422,16 @@ public class CompareTranscripts implements JstacsTool {
 				if( idx >= 0 ) {
 					idx+=9;
 					s = attributes.substring(idx, attributes.indexOf(';', idx)).toUpperCase();
-					stats.get(s)[1]++;
+					if( gene != null ) {
+						String[] help = gene.get(s);
+						if( help != null ) {
+							s=help[1];
+						}
+					}
+					int[] xx = stats.get(s);
+					if( xx != null ) {
+						xx[1]++;
+					}
 				}
 				idx = attributes.indexOf("alternative=");
 				if( idx >= 0 ) {
@@ -440,7 +447,10 @@ public class CompareTranscripts implements JstacsTool {
 					String[] split = h.split(",");
 					for( int j = 0; j < split.length; j++ ) {
 						if( !s.equals(split[j]) ) {
-							stats.get(split[j])[2]++;
+							int[] xx = stats.get(split[j]);
+							if( xx != null ) {
+								xx[2]++;
+							}
 						}
 					}
 				}
@@ -659,8 +669,8 @@ public class CompareTranscripts implements JstacsTool {
 					new ParameterSetContainer( "transcript info", "", new ExpandableParameterSet( 
 							new SimpleParameterSet(
 									new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
-									new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", false )
-							), "transcript info", "", 1 )
+									new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", true )
+							), "transcript info", "", 0 )
 					)
 			);
 		}catch(Exception e){
