@@ -350,7 +350,7 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	private class Worker extends Thread
+	protected class Worker extends Thread
 	{		
 		private WorkerTask task;
 		private int index, startClass, startSeq, endClass, endSeq;
@@ -374,7 +374,11 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 			setIndices(startClass, startSeq, endClass, endSeq);
 		}
 		
-		private void setIndices( int startClass, int startSeq, int endClass, int endSeq ) {
+		public int[] getIndices(){
+			return new int[]{startClass,startSeq,endClass,endSeq};
+		}
+		
+		public void setIndices( int startClass, int startSeq, int endClass, int endSeq ) {
 			this.startClass = startClass;
 			this.startSeq = startSeq;
 			this.endClass = endClass;

@@ -92,8 +92,9 @@ public class ChromatinAccessibility implements JstacsTool {
 				try {
 					Pileup.pileup(inputBAM, ps2,false,true);
 					ps2.close();
-				} catch (IOException e) {
+				} catch (IOException | ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
+					System.exit(1);
 				}
 			}).start();
 
@@ -107,6 +108,7 @@ public class ChromatinAccessibility implements JstacsTool {
 					ps.close();
 				} catch (IOException e) {
 					e.printStackTrace();
+					System.exit(1);
 				}
 			}).start();
 

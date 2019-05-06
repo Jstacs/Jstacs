@@ -14,8 +14,6 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.differentiable.AbstractDifferentiableSequenceScore;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
-import de.jstacs.utils.Normalisation;
-import de.jstacs.utils.ToolBox;
 import projects.tals.RVDSequence;
 
 public class LF0Conditional extends AbstractDifferentiableSequenceScore {
