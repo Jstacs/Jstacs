@@ -730,7 +730,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	private static String[][] table = {
 	                                   { "&", "__amp__" },
 	                                   { "\"", "__quot__" },
-	                                   { "'", "__apos__" },
+	                                   { "'", "__sq__"}, //"__apos__" },
 	                                   { ">", "__gt__" },
 	                                   { "<", "__lt__" },
 	                                   { "\n", "(__cn__|__cr__)+"},

@@ -397,17 +397,26 @@ public class AnnotationFinalizer implements JstacsTool {
 	
 	static class SequenceIDComparator implements Comparator<String> {
 	    public int compare(String o1, String o2) {
-	        int diff = extractInt(o1) - extractInt(o2);
+	        int diff = Long.compare(extractLong(o1),extractLong(o2));
 	        if( diff == 0 ) {
 	        	diff = o1.compareTo(o2);
 	        }
 	        return diff;
 	    }
 
-	    int extractInt(String s) {
+	    long extractLong(String s) {
 	        String num = s.replaceAll("\\D", "");
 	        // return 0 if no digits found
-	        return num.isEmpty() ? 0 : Integer.parseInt(num);
+	        if( num.isEmpty() ) {
+	        	return 0;
+	        } else {
+	        	try {
+	        		long l = Long.parseLong(num);
+	        		return l;
+	        	} catch (NumberFormatException nfe) {
+	        		return 0;
+	        	}
+	        }
 	    }
 	}
 	

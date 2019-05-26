@@ -408,6 +408,9 @@ public class Tools {
 				case 'h': case 'H': out[in.length()-1-i]='G'; break;
 				case 'd': case 'D': out[in.length()-1-i]='C'; break;
 				case 'b': case 'B': out[in.length()-1-i]='A'; break;
+
+				case '-': out[in.length()-1-i]='-'; break;
+
 				
 				default: throw new IllegalArgumentException("unknown character: '"+in.charAt(i)+"'");
 			}
