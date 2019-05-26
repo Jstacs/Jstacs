@@ -20,8 +20,16 @@ import de.jstacs.utils.IntList;
  */
 public class ConstantDiffSM extends AbstractDifferentiableStatisticalModel {
 
-	public ConstantDiffSM( AlphabetContainer con, int length ) throws IllegalArgumentException {
+	private double ess;
+	
+	public ConstantDiffSM( AlphabetContainer con, int length, double ess ) throws IllegalArgumentException {
 		super(con, length);
+		this.ess = ess;
+	}
+	
+	
+	public ConstantDiffSM( AlphabetContainer con, int length ) throws IllegalArgumentException {
+		this(con, length, 0.0);
 	}
 	
 	public ConstantDiffSM( AlphabetContainer con ) throws IllegalArgumentException {
@@ -62,7 +70,7 @@ public class ConstantDiffSM extends AbstractDifferentiableStatisticalModel {
 
 	@Override
 	public double getESS() {
-		return 0;
+		return ess;
 	}
 
 	@Override
@@ -114,6 +122,7 @@ public class ConstantDiffSM extends AbstractDifferentiableStatisticalModel {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags(xml, alphabets, "abc");
 		XMLParser.appendObjectWithTags(xml, length, "length");
+		XMLParser.appendObjectWithTags(xml, ess, "ess");
 		XMLParser.addTags(xml, "ConstantDiffSM");
 		return xml;
 	}
@@ -123,5 +132,10 @@ public class ConstantDiffSM extends AbstractDifferentiableStatisticalModel {
 		xml = XMLParser.extractForTag(xml, "ConstantDiffSM");
 		alphabets = (AlphabetContainer) XMLParser.extractObjectForTags(xml, "abc");
 		length = (Integer) XMLParser.extractObjectForTags(xml, "length");
+		try{
+			ess = (double) XMLParser.extractObjectForTags(xml, "ess");
+		}catch(NonParsableException e){
+			ess = 0.0;
+		}
 	}
 }
