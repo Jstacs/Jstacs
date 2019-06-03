@@ -22,6 +22,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -223,7 +224,8 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 							), "mapped reads", "", 1 ) ),
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
-						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, false)
+						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, false),
+						new SimpleParameter(DataType.INT,"minimal mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 254), 40)
 					);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -239,6 +241,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		ValidationStringency stringency = (ValidationStringency) parameters.getParameterAt(2).getValue();
 		boolean sa = (Boolean) parameters.getParameterAt(3).getValue();
 		boolean coverage = (Boolean) parameters.getParameterAt(4).getValue();
+		int minQual = (Integer) parameters.getParameterForName("minimal mapping quality").getValue();
 		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( stringency );//important for unmapped reads
@@ -325,48 +328,50 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 			if(wm > -1){
 			
 				SAMRecord rec = curr[wm];
-				if( sa || !rec.isSecondaryOrSupplementary() ) {
-					if( coverage ) {
-						boolean isNeg = rec.getReadNegativeStrandFlag();
-						boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
-						boolean countAsFwd = true;
-						if(stranded == Stranded.FR_SECOND_STRAND){
-							countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
-						}else if(stranded == Stranded.FR_FIRST_STRAND){
-							countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
-						}
-						
-						int recStart = rec.getStart();
-						while(currPos < recStart){
-							if(mapFwd.containsKey(currPos)){
-								previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
-								mapFwd.remove(currPos);
+				if( rec.getMappingQuality() >= minQual ) {
+					if( sa || !rec.isSecondaryOrSupplementary() ) {
+						if( coverage ) {
+							boolean isNeg = rec.getReadNegativeStrandFlag();
+							boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
+							boolean countAsFwd = true;
+							if(stranded == Stranded.FR_SECOND_STRAND){
+								countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
+							}else if(stranded == Stranded.FR_FIRST_STRAND){
+								countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 							}
-							if(mapRev.containsKey(currPos)){
-								previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
-								mapRev.remove(currPos);
-							}
-							currPos++;
-						}
-						
-						HashMap<Integer, int[]> map = countAsFwd ? mapFwd : mapRev;
-						List<AlignmentBlock> blocks = rec.getAlignmentBlocks();
-						Iterator<AlignmentBlock> blockIt = blocks.iterator();
-						while(blockIt.hasNext()){
-							AlignmentBlock block = blockIt.next();
-							int start = block.getReferenceStart();
-							int len = block.getLength();
-							for(int k=0;k<len;k++){
-								if(!map.containsKey(start+k)){
-									map.put(start+k, new int[1]);
+							
+							int recStart = rec.getStart();
+							while(currPos < recStart){
+								if(mapFwd.containsKey(currPos)){
+									previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
+									mapFwd.remove(currPos);
 								}
-								map.get(start+k)[0]++;
+								if(mapRev.containsKey(currPos)){
+									previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
+									mapRev.remove(currPos);
+								}
+								currPos++;
+							}
+							
+							HashMap<Integer, int[]> map = countAsFwd ? mapFwd : mapRev;
+							List<AlignmentBlock> blocks = rec.getAlignmentBlocks();
+							Iterator<AlignmentBlock> blockIt = blocks.iterator();
+							while(blockIt.hasNext()){
+								AlignmentBlock block = blockIt.next();
+								int start = block.getReferenceStart();
+								int len = block.getLength();
+								for(int k=0;k<len;k++){
+									if(!map.containsKey(start+k)){
+										map.put(start+k, new int[1]);
+									}
+									map.get(start+k)[0]++;
+								}
 							}
 						}
-					}
-					if( Intron.addIntrons(rec, stranded, introns) ) {
-						splits++;
-						split[wm]++;
+						if( Intron.addIntrons(rec, stranded, introns) ) {
+							splits++;
+							split[wm]++;
+						}
 					}
 				}
 				if(its[wm].hasNext()){
