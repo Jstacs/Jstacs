@@ -12,6 +12,7 @@ java -jar GeMoMa-$1.jar --create GeMoMaPipeline -Xms5G -Xmx40G
 
 cp Extractor.xml Extractor.xml-default
 cp ERE.xml ERE.xml-default
+cp GeMoMaPipeline.xml GeMoMaPipeline.xml-default
 
 function change {
 	sed -i "s/<\/command>/\n\t\t#if \$$3_ps_$2:\n\t\t\t\$$2\n\t\t\#end if\n<\/command>/g" $1
@@ -28,7 +29,7 @@ done
 array=("predicted_proteins" "predicted_CDSs" "predicted_genomic_regions")
 for a in "${array[@]}"
 do
-	change GeMoMaPipeline.xml $a GeMoMaPipeline fasta
+	change GeMoMaPipeline.xml $a GeMoMa_pipeline fasta
 done
 
 change ERE.xml coverage Extract_RNA_seq_Evidence bedgraph
