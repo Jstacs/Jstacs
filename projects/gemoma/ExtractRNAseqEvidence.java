@@ -321,6 +321,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		boolean[] corrupt = new boolean[its.length];
 		Arrays.fill(corrupt, false);
 		long i = 0;
+		long[] qual = new long[260];
 		while(true){
 			
 			int wm = whichMin(curr,chr);
@@ -328,7 +329,9 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 			if(wm > -1){
 			
 				SAMRecord rec = curr[wm];
-				if( rec.getMappingQuality() >= minQual ) {
+				int q = rec.getMappingQuality();
+				qual[q]++;
+				if( q >= minQual ) {
 					if( sa || !rec.isSecondaryOrSupplementary() ) {
 						if( coverage ) {
 							boolean isNeg = rec.getReadNegativeStrandFlag();
@@ -465,6 +468,12 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 			int[] stat = intronL.get(il[j]);
 			all += stat[0];
 			protocol.append(il[j] + "\t" + stat[0] + "\t" + (all/anz) + "\n");
+		}
+		protocol.append("\nmapping qualities:\n");
+		for( int j = 0; j < qual.length; j++ ) {
+			if( qual[j] > 0 ) {
+				protocol.append( j + "\t" + qual[j] + " reads\n" );
+			}
 		}
 		
 		Result[] res = new Result[coverage?(stranded==Stranded.FR_UNSTRANDED?2:3):1];
