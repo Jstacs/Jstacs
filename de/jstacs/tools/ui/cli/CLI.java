@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +46,6 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -380,18 +380,28 @@ public class CLI {
 	}
 	
 	public static void writeToolResults( ToolResult results, SysProtocol protocol, String outdir, JstacsTool tool, ParameterSet toolParameters ) throws IOException {
-		ResultSet[] rs = results.getRawResult();
-		Result[] r = new Result[rs[0].getNumberOfResults()+1];
-		for( int i = 0; i+1 < r.length; i ++ ) {
-			r[i] = rs[0].getResultAt(i);
+		Result[] r;
+		if( results != null ) {
+			ResultSet[] rs = results.getRawResult();
+			r = new Result[rs[0].getNumberOfResults()+1];
+			for( int i = 0; i+1 < r.length; i ++ ) {
+				r[i] = rs[0].getResultAt(i);
+			}
+		} else {
+			r = new Result[1];
 		}
 		String n = File.createTempFile("CLI-protocol-", ".txt").getAbsolutePath();
 		FileManager.writeFile(n, protocol.getLog());
 		r[r.length-1] = new TextResult( "protocol " + tool.getShortName(), "Result", new FileRepresentation(n), "txt", tool.getToolName(), null, true );
 		
-		results = new ToolResult(results.getName(), results.getComment(), results.getAnnotation(), 
-			new ResultSet( r ),
-			toolParameters, results.getToolName(), results.getFinishedDate() );
+		results = new ToolResult(
+				results==null?"":results.getName(),
+				results==null?"":results.getComment(),
+				results==null?null:results.getAnnotation(), 
+				new ResultSet( r ),
+				toolParameters,
+				results==null?"":results.getToolName(),
+				results==null?new Date():results.getFinishedDate() );
 		
 		ResultSaver saver = ResultSaverLibrary.getSaver( results.getClass() );	
 		saver.writeOutput( results, new File(outdir) );
