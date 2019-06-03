@@ -148,7 +148,7 @@ public class GeMoMa implements JstacsTool {
 				}
 			}
 			if( fName.size()>0 ) {
-				HashMap<String, int[][][]>[] res = readIntrons( reads, protocol, verbose, seqs, fName.toArray(new String[fName.size()]) );
+				HashMap<String, int[][][]>[] res = readIntrons( reads, protocol, verbose, seqs, null, fName.toArray(new String[fName.size()]) );
 				check( protocol, res[0], "introns" );
 				donorSites = res[0];
 				acceptorSites = res[1];
@@ -336,6 +336,7 @@ public class GeMoMa implements JstacsTool {
 		JstacsTool[] tools = {
 				new Extractor(maxSize),
 				new ExtractRNAseqEvidence(),
+				new CheckIntrons(),
 				new GeMoMa(maxSize, timeOut, maxTimeOut),
 				new GeMoMaAnnotationFilter(),
 				new AnnotationFinalizer(),
@@ -599,7 +600,7 @@ public class GeMoMa implements JstacsTool {
 	 * 
 	 * @throws IOException if at least one {@link File} cannot be read correctly 
 	 */
-	public static HashMap<String, int[][][]>[] readIntrons( int threshold, Protocol protocol, boolean verbose, HashMap<String, String> seqs, String... intronGFF ) throws IOException {
+	public static HashMap<String, int[][][]>[] readIntrons( int threshold, Protocol protocol, boolean verbose, HashMap<String, String> seqs, HashMap<String,int[]> diNucl, String... intronGFF ) throws IOException {
 		HashMap<String, ArrayList<int[]>[]> spliceHash = new HashMap<String, ArrayList<int[]>[]>();
 		ArrayList<int[]>[] h;
 		
@@ -607,7 +608,6 @@ public class GeMoMa implements JstacsTool {
 		String acceptor = null;
 		String line;
 		BufferedReader r;
-		//HashMap<String,int[]> diNucl = new HashMap<String,int[]>();
 		for( String file : intronGFF ) {
 			//System.out.println(file);
 			r = new BufferedReader( new FileReader( file ) );
@@ -660,23 +660,33 @@ public class GeMoMa implements JstacsTool {
 							c='-';
 						}
 						
-						/*if( reads>= threshold ) {
-							int[] v = diNucl.get(x+"-"+y);
-							if( v == null ) {
-								v = new int[2];
-								diNucl.put(x+"-"+y, v);
+						if( diNucl != null ) {
+							if( reads>= threshold ) {
+								if( c=='-' ) {
+									String hh=Tools.rc(x);
+									x=Tools.rc(y);
+									y=hh;
+								}
+								
+								int[] v = diNucl.get(x+"-"+y);
+								if( v == null ) {
+									v = new int[2];
+									diNucl.put(x+"-"+y, v);
+								}
+								v[0]++;
+								v[1]+=reads;
 							}
-							v[0]++;
-							v[1]+=reads;
-						}*/
+						}
 						//System.out.println(fwd + "\t" + bwd + "\t"+x + " .. " + y);
 					}
 
-					if( c =='+' || c=='.' ) {
-						h[0].add( new int[]{a, b, reads} );
-					}
-					if( c =='-' || c=='.' ) {
-						h[1].add( new int[]{b, a, reads} );
+					if( diNucl == null ) {
+						if( c =='+' || c=='.' ) {
+							h[0].add( new int[]{a, b, reads} );
+						}
+						if( c =='-' || c=='.' ) {
+							h[1].add( new int[]{b, a, reads} );
+						}
 					}
 
 					//stats
@@ -723,14 +733,6 @@ public class GeMoMa implements JstacsTool {
 		protocol.append("+: " + count[0] + "\n");
 		protocol.append("-: " + count[1] + "\n");
 		protocol.append(".: " + count[2] + "\n");
-		
-		/*
-		String[] keys = diNucl.keySet().toArray(new String[0]);
-		Arrays.sort( keys );
-		for( int i = 0; i < keys.length; i++ ) {
-			int[] v = diNucl.get( keys[i] );
-			System.out.println( keys[i] + "\t" + v[0] + "\t" + v[1] );
-		}*/
 		
 		return new HashMap[]{donorSites, acceptorSites};
 	}
