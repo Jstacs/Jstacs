@@ -126,7 +126,8 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 			int start = record.getAlignmentStart();
 			
 			String cigar = record.getCigarString();
-			if(!cigar.contains("N")){
+			int idx=cigar.indexOf('N');
+			if(idx<0){
 				return false;
 			}
 			
@@ -183,7 +184,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 
 		private static Pattern p = Pattern.compile( "[0-9]+(M|D|N)" );
 		
-		private static void getOffset(String cigar, IntList startOffs, IntList lens){
+		private static void getOffset(String cigar, IntList startOffs, IntList lens ){
 			Matcher m = p.matcher(cigar);
 			
 			int off = 0;
@@ -225,7 +226,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
 						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, false),
-						new SimpleParameter(DataType.INT,"minimal mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 254), 40)
+						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 254), 40)
 					);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -241,8 +242,8 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		ValidationStringency stringency = (ValidationStringency) parameters.getParameterAt(2).getValue();
 		boolean sa = (Boolean) parameters.getParameterAt(3).getValue();
 		boolean coverage = (Boolean) parameters.getParameterAt(4).getValue();
-		int minQual = (Integer) parameters.getParameterForName("minimal mapping quality").getValue();
-		
+		int minQual = (Integer) parameters.getParameterForName("minimum mapping quality").getValue();
+				
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( stringency );//important for unmapped reads
 		
@@ -321,7 +322,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		boolean[] corrupt = new boolean[its.length];
 		Arrays.fill(corrupt, false);
 		long i = 0;
-		long[] qual = new long[260];
+		long[][] qual = new long[3][260];
 		while(true){
 			
 			int wm = whichMin(curr,chr);
@@ -330,9 +331,10 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 			
 				SAMRecord rec = curr[wm];
 				int q = rec.getMappingQuality();
-				qual[q]++;
+				qual[0][q]++;
 				if( q >= minQual ) {
 					if( sa || !rec.isSecondaryOrSupplementary() ) {
+						qual[1][q]++;
 						if( coverage ) {
 							boolean isNeg = rec.getReadNegativeStrandFlag();
 							boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
@@ -372,6 +374,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 							}
 						}
 						if( Intron.addIntrons(rec, stranded, introns) ) {
+							qual[2][q]++;
 							splits++;
 							split[wm]++;
 						}
@@ -470,9 +473,9 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 			protocol.append(il[j] + "\t" + stat[0] + "\t" + (all/anz) + "\n");
 		}
 		protocol.append("\nmapping qualities:\n");
-		for( int j = 0; j < qual.length; j++ ) {
-			if( qual[j] > 0 ) {
-				protocol.append( j + "\t" + qual[j] + " reads\n" );
+		for( int j = 0; j < qual[0].length; j++ ) {
+			if( qual[0][j] > 0 ) {
+				protocol.append( j + "\t" + qual[0][j] + " reads\t" + qual[1][j] + " used reads\t" + qual[2][j] + " split reads\n" );
 			}
 		}
 		
