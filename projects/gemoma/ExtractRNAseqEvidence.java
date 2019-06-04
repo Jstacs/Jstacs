@@ -226,7 +226,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
 						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, false),
-						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 254), 40)
+						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40)
 					);
 		} catch (Exception e) {
 			e.printStackTrace();

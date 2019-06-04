@@ -110,7 +110,7 @@ It is possible to run step 3 to 5 with multiple reference organisms.
 \setcounter{enumi}{2}
 \item Extract CDS-parts (and proteins) of the reference organism running:
 	\begin{verbatim}
-	java -jar GeMoMa-<version>.jar CLI Extractor...
+	java -jar GeMoMa-<version>.jar CLI Extractor ...
 	\end{verbatim}
 \item Find homologous parts in the target organism running: 
 	\begin{verbatim}
@@ -150,6 +150,12 @@ If you like to receive more information about the available tools and parameters
 java -jar GeMoMa-<version>.jar CLI
 \end{verbatim}
 and follow the instructions.
+
+\subsection{Check extracted introns}
+If you like to check whether the extracted introns (cf. ERE) show the expected distribution of conserved di-nucleotides (cf. canonical splice sites), we have implemented the module CheckIntrons that can be used as follows:
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar CLI CheckIntrons
+\end{verbatim}
 
 \subsection{General speed-up}
 If you
