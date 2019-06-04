@@ -1,11 +1,14 @@
 GeMoMa-1.1.1 (01.02.2016)
 - initial release for paper
+
 GeMoMa-1.1.2. (05.02.2016)
 - GeMoMa bugfix (upstream, downstream sequence for splice site detection)
 - Extractor: new parameter s for selecting transcripts
 - improved Galaxy integration
+
 GeMoMa 1.1.3 (06.06.2016)
 - minor modifications to the Extractor tool 
+
 GeMoMa 1.3 (06.12.2016)
 - ERE: new tool for extracting RNA-seq evidence
 - Extractor: offers options for 
@@ -24,11 +27,14 @@ GeMoMa 1.3 (06.12.2016)
 	- simplified the command line parameters
 	- IMPORTANT: parameter names changed for some parameters
 - GAF: new tool for filtering and combining different predictions (especially of different reference organisms)
+
 GeMoMa 1.3.1 (09.12.2016)
 - GeMoMa bugfix (finding start/stop codon for very small exons) 
+
 GeMoMa 1.3.2 (18.01.2017)
 - Extractor: new parameter repair for broken transcript annotations
 - GeMoMa: bugfixes (splice site computation)
+
 GeMoMa 1.4 (03.05.2017)
 - AnnotationEvidence: new tool computing tie and tpc for given annotation (gff)
 - CompareTranscripts: new tool comparing predicted and given annotation (gff)
@@ -46,16 +52,19 @@ GeMoMa 1.4 (03.05.2017)
 - GAF:
 	- nested genes on the same strand
 	- bugfix (if nothing passes the filter)
+
 GeMoMa 1.4.1 (30.05.2017)
 - CompareTranscripts: bugfix (NullPointerException)
 - Extractor: reference genome can be .*fa.gz and .*fasta.gz
 - GeMoMa: bugfix (shutdown problem after timeout)
 - modified additional scripts and documentation
+
 GeMoMa 1.4.2 (21.07.2017)
 - automatic searching for available updates
 - AnnotationEvidence: bugfix (tie computation: Arrays.binarysearch does not find first match)
 - Extractor: bugfix (files that are not zipped)
 - GeMoMa: bugfix (tie computation: Arrays.binarysearch does not find first match)
+
 GeMoMa 1.5 (13.02.2018)
 - AnnotationEvidence: add chromosome to output
 - CompareTranscripts: new parameter that allows to remove prefixes introduces by GAF
@@ -71,6 +80,7 @@ GeMoMa 1.5 (13.02.2018)
 	- new parameter that allows to specify a prefix for each input gff
 	- collect and print program infos to filtered_prediction.gff3
 	- improved statistics output
+
 GeMoMa 1.5.2 (31.5.2018)
 - GAF:
 	- new parameter that allows to restrict the maximal number of transcript predictions per gene
@@ -81,6 +91,7 @@ GeMoMa 1.5.2 (31.5.2018)
 	- warning if RNA-seq data does not match with target genome
 - GeMoMaPipeline: new tool for running the complete GeMoMa pipeline at once allowing multi-threading
 - folder for temporary files of GeMoMa
+
 GeMoMa 1.5.3 (23.07.2018)
 - improved parameter description and presentation
 - GeMoMaPipeline:
@@ -94,7 +105,7 @@ GeMoMa 1.5.3 (23.07.2018)
 - Extractor:
 	- new parameter genomic 
 	
-GeMoMa 1.6 (YYY)
+GeMoMa 1.6 (02.04.2019)
 - allow to use mmseqs as alternative to tblastn
 - AnnotationEvidence:
 	- allows to add attributes to the input gff: tie, tpc, AA, start, stop
@@ -113,7 +124,17 @@ GeMoMa 1.6 (YYY)
 	- new parameter for sorting the results of the similarity search (tblastn or mmseqs), if you use mmseqs for the similarity search you have use sort 
 	- new parameter for score of the search results: three options: Trust (as is), ReScore (use aligned sequence, but recompute score), and ReAlign (use detected sequence for realignment and rescore)
 	- bugfix: threshold for introns from multiple files
-		
-- GeMoMa	
-	- TODO split AA?
-	- TODO improved splice site alignment?
+
+GeMoMa 1.6.1 (04.06.2019)
+- createGalaxyIntegration.sh: bugfix for GeMoMaPipeline
+- new module CheckIntrons: allowing to create statistics for introns (extracted by ERE)
+- AnnotationFinalizer: bugfix for sequence IDs with large numbers
+- CompareTranscripts: 
+	- bugfix for prefix of ref-gene
+	- allow no transcript info, but making assignment non-optional if a transcript info is set  
+- GAF: bugfix for Galaxy integration
+- GeMoMaPipeline:
+	- improved output in case of Exceptions
+	- new parameter "output individual predictions" allows to in- or exclude individual predictions from each reference organism in the final result
+	- new parameter "weight" allows weights for reference species (cf. GAF)
+- ERE: new parameter "minimal mapping quality"
