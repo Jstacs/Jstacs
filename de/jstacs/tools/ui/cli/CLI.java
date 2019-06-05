@@ -587,7 +587,7 @@ if( k == null ) {
 		}
 	}
 	
-	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, PrintStream out){
+	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, StringBuffer out){
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		if( isExp ) {
 			out.append( "<tr><td colspan=3>The following parameter(s) can be used multiple times:</td></tr>\n"
@@ -658,19 +658,27 @@ if( k == null ) {
 		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
 			ParameterSet ps = toolParameters[toolIndex];
 			try {
-				PrintStream fos = new PrintStream( new FileOutputStream( home+"/"+tools[toolIndex].getShortName()+".txt") );
-				fos.append( "<table border=0 cellpadding=10 align=\"center\" width=\"100%\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
-				printTable("", keyMap[toolIndex], ps, fos);
-				fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
-				fos.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
-				fos.append( "<td>STRING</td>\n</tr>\n" );
+				StringBuffer old = null;
+				File f = new File(home+"/"+tools[toolIndex].getShortName()+".txt");
+				if( f.exists() ) {
+					old = FileManager.readFile(f);
+				}
+				StringBuffer current = new StringBuffer();
+				current.append( "<table border=0 cellpadding=10 align=\"center\" width=\"100%\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
+				printTable("", keyMap[toolIndex], ps, current);
+				current.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
+				current.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
+				current.append( "<td>STRING</td>\n</tr>\n" );
 				if(configureThreads[toolIndex]){
-					fos.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">threads</font></td>\n" );
-					fos.append( "<td>The number of threads used for the tool, defaults to 1</td>\n" );
-					fos.append( "<td>INT</td>\n</tr>\n" );
+					current.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">threads</font></td>\n" );
+					current.append( "<td>The number of threads used for the tool, defaults to 1</td>\n" );
+					current.append( "<td>INT</td>\n</tr>\n" );
 				}				
-				fos.append( "</table>" );
-				fos.close();
+				current.append( "</table>" );
+				if( old == null || !current.toString().equals(old.toString()) ) {
+					FileManager.writeFile(f, current);
+					if( old != null ) FileManager.writeFile(home+"/"+tools[toolIndex].getShortName()+".bak", old);
+				}
 			} catch( Exception ex ) {
 				//nothing
 			}
