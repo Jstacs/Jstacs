@@ -241,8 +241,10 @@ public class FileManager {
 		BufferedReader r = new BufferedReader( reader, 100000 );
 		StringBuffer res = new StringBuffer( 1000000 );
 		String help;
+		String c="";
 		while( ( help = r.readLine() ) != null ) {
-			res.append( help + "\n" );
+			res.append( c + help );
+			c="\n";
 		}
 		r.close();
 		return res;
