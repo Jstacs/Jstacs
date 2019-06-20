@@ -49,7 +49,7 @@ public class ClassAssignmentTool implements JstacsTool {
 
 	private static LinkedList<String> alreadyGiven = new LinkedList<String>();
 	
-	private class SchemaFamilyIdGenerator implements FamilyIdGenerator{
+	public static class SchemaFamilyIdGenerator implements FamilyIdGenerator{
 
 		private String orgSuff;
 		private String accession;
@@ -64,7 +64,7 @@ public class ClassAssignmentTool implements JstacsTool {
 			this.lastNameMap = new String[0][2];
 		}
 		
-		private String[] getFamIDs(){
+		public static String[] getFamIDs(){
 			String[] temp = new String[26*26];
 			for(int i=65,k=0;i<91;i++){
 				for(int j=65;j<91;j++,k++){
@@ -554,7 +554,7 @@ public class ClassAssignmentTool implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.4.1";
 	}
 
 	@Override

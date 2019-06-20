@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import javax.naming.OperationNotSupportedException;
 
+import de.jstacs.Singleton;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.alignment.Alignment.AlignmentType;
 import de.jstacs.algorithms.alignment.PairwiseStringAlignment;
@@ -246,24 +247,7 @@ public class TALE implements Storable {
 		
 	}
 	
-	public static final AlphabetContainer RVDAlphabet = getRVDAlphabet();
 	
-	private static AlphabetContainer getRVDAlphabet(){
-		AlphabetContainer prot = Translator.DEFAULT.getProteinAlphabet();
-		String[] rvds = new String[(int)(prot.getAlphabetLengthAt( 0 )*prot.getAlphabetLengthAt( 0 ))];
-		int k=0;
-		for(int i=0;i<prot.getAlphabetLengthAt( 0 );i++){
-			for(int j=0;j<prot.getAlphabetLengthAt( 0 );j++,k++){
-				rvds[k] = prot.getSymbol( 0, i )+prot.getSymbol( 0, j );
-			}
-		}
-		try {
-			AlphabetContainer RVDAlphabet = new AlphabetContainer(new DiscreteAlphabet( true, rvds ));
-			return RVDAlphabet;
-		} catch ( Exception e ) { 
-			return null;
-		}
-	}
 	
 	private String strain;
 	private String accession;
@@ -334,7 +318,7 @@ public class TALE implements Storable {
 			buf.append(" ("+accession+")");
 		}*/
 		if(startPos != null && endPos != null){
-			buf.append("["+startPos+"-"+endPos+":"+(strand != null ? (strand ? "+1" : "-1") : "")+"]");
+			buf.append("["+(accession != null ? accession+": " : "")+startPos+"-"+endPos+":"+(strand != null ? (strand ? "+1" : "-1") : "")+"]");
 		}
 		return buf.toString();
 	}
@@ -379,7 +363,7 @@ public class TALE implements Storable {
 		this.id = parseId ? parse(id) : id;
 		this.start = this.end = null;
 		this.isNew = isNew;
-		if(!RVDAlphabet.checkConsistency(rvds.getAlphabetContainer())){
+		if(!RVDAlphabetContainer.SINGLETON.checkConsistency(rvds.getAlphabetContainer())){
 			throw new WrongAlphabetException();
 		}
 		this.rvdSequence = rvds;
@@ -387,7 +371,7 @@ public class TALE implements Storable {
 		for(int i=0;i<rvdSequence.getLength();i++){
 			this.repeats[i] = new Repeat((Sequence)null);
 			this.repeats[i].rvdPosition = -1;
-			this.repeats[i].rvd = RVDAlphabet.getSymbol(i,rvdSequence.discreteVal(i) );
+			this.repeats[i].rvd = RVDAlphabetContainer.SINGLETON.getSymbol(i,rvdSequence.discreteVal(i) );
 		}
 		
 	}
@@ -430,7 +414,7 @@ public class TALE implements Storable {
 				}
 
 			}
-			this.rvdSequence = Sequence.create( RVDAlphabet, sb.toString(),"-" );
+			this.rvdSequence = Sequence.create( RVDAlphabetContainer.SINGLETON, sb.toString(),"-" );
 		}
 	}
 	
@@ -463,6 +447,11 @@ public class TALE implements Storable {
 		try{
 			end = XMLParser.extractSequencesWithTags( xml, "end" )[0];
 			rvdSequence = XMLParser.extractSequencesWithTags( xml, "rvdSequence" )[0];
+			if(rvdSequence != null){
+				if(! Singleton.class.isAssignableFrom( rvdSequence.getAlphabetContainer().getClass() ) ){
+					this.rvdSequence = Sequence.create( RVDAlphabetContainer.SINGLETON, rvdSequence.toString("-", 0, rvdSequence.getLength()),"-" );
+				}
+			}
 			start = XMLParser.extractSequencesWithTags( xml, "start" )[0];
 		}catch(WrongAlphabetException e){
 			NonParsableException ex = new NonParsableException();
@@ -485,7 +474,6 @@ public class TALE implements Storable {
 		}catch(NonParsableException e){
 
 		}
-		
 	}
 	
 	public StringBuffer toXML(){
@@ -561,7 +549,7 @@ public class TALE implements Storable {
 			}
 		}
 		
-		return Sequence.create( RVDAlphabet, reps.toString(),"-" );
+		return Sequence.create( RVDAlphabetContainer.SINGLETON, reps.toString(),"-" );
 		
 	}
 	

@@ -84,7 +84,7 @@ public class LoadAndViewClassesTool implements JstacsTool {
 		//	Scanner scan = new Scanner(new URL("http://www.jstacs.de/downloads/class_definitions_current.xml.gz").openStream(),"UTF-8");//TODO URL
 		//	String text = scan.useDelimiter( "\\A" ).next();
 		//	scan.close();
-			InputStream is = new URL("http://www.jstacs.de/downloads/class_definitions_current.xml.gz").openStream();
+			InputStream is = new URL("http://www.jstacs.de/downloads/class_definitions_current2.xml.gz").openStream();
 			GZIPInputStream gzis = new GZIPInputStream(is);
 			Scanner scan = new Scanner(gzis);
 			String text = scan.useDelimiter( "\\A" ).next();
@@ -182,8 +182,8 @@ public class LoadAndViewClassesTool implements JstacsTool {
 				if(acc == null){
 					acc = "";
 				}
-				if(strainMap.containsKey(strain)){
-					String[] cont = strainMap.get(strain);
+				if(strainMap.containsKey(acc)){
+					String[] cont = strainMap.get(acc);
 					if(!cont[1].equals(acc)){
 						strainRes.add(new ResultSet(new Result[]{new CategoricalResult("Strain", "", strain),
 								new CategoricalResult("Accession", "", acc)}));
@@ -191,7 +191,7 @@ public class LoadAndViewClassesTool implements JstacsTool {
 				}else{
 					strainRes.add(new ResultSet(new Result[]{new CategoricalResult("Strain", "", strain),
 							new CategoricalResult("Accession", "", acc)}));
-					strainMap.put(strain, new String[]{strain,acc});
+					strainMap.put(acc, new String[]{strain,acc});
 				}
 			}else{
 				woStrain++;
@@ -277,7 +277,7 @@ public class LoadAndViewClassesTool implements JstacsTool {
 	
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.4.1";
 	}
 
 	@Override
