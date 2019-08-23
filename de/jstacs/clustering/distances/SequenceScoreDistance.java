@@ -116,11 +116,12 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 	 */
 	public double getDistance(double[][] profiles1, double[][] profiles1Rc, StatisticalModel o2, int motif1Length) throws Exception{
 		
-		//int maxShift = Math.max( motif1Length - (int)Math.floor(o2.getLength()/3), o2.getLength() - (int)Math.floor( motif1Length/3 ) );
-		int maxShift = (int)Math.ceil(Math.min(o2.getLength(), motif1Length)*2.0/3.0);
+		int maxShift = Math.max( motif1Length - (int)Math.floor(o2.getLength()/3), o2.getLength() - (int)Math.floor( motif1Length/3 ) );
+		//int maxShift = (int)Math.ceil(Math.min(o2.getLength(), motif1Length)*2.0/3.0);
 		double[][] profiles2 = getProfile( o2, false );
 		//System.out.println(profiles1[0].length+" "+profiles2[0].length);
-		return getDistance( profiles1, profiles1Rc, profiles2, maxShift );
+		double d1 = getDistance( profiles1, profiles1Rc, profiles2, maxShift );
+		return d1;
 	}
 	
 	@Override
