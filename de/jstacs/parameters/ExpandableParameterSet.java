@@ -32,7 +32,7 @@ import de.jstacs.io.XMLParser;
  * {@link ExpandableParameterSet}. Already added {@link Parameter}s can also be
  * removed from the set using {@link #removeParameterFromSet()}.
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  */
 public class ExpandableParameterSet extends ParameterSet {
 
@@ -51,7 +51,7 @@ public class ExpandableParameterSet extends ParameterSet {
 
 	private int count;
 
-	private int initCount;
+	private int initCount, minCount, maxCount;
 
 	/**
 	 * Creates a new {@link ExpandableParameterSet} from a {@link Class} that
@@ -92,6 +92,32 @@ public class ExpandableParameterSet extends ParameterSet {
 	 */
 	public ExpandableParameterSet(ParameterSet template, String nameTemplate,
 			String commentTemplate, int initCount) throws CloneNotSupportedException {
+		this(template, nameTemplate, commentTemplate,initCount,initCount,Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * Creates a new {@link ExpandableParameterSet} from a {@link Class} that
+	 * can be instantiated using this {@link ExpandableParameterSet} and
+	 * templates for the {@link ParameterSet} in each element of the array, the
+	 * name and the comment that are displayed for the
+	 * {@link ParameterSetContainer}s enclosing the {@link ParameterSet}s.
+	 * 
+	 * @param template
+	 *            the template of the {@link ParameterSet}
+	 * @param nameTemplate
+	 *            the name-template
+	 * @param commentTemplate
+	 *            the comment-template
+	 * @param initCount
+	 *            the number of initial copies of the template
+	 * @param minCount
+	 *            the minimal number of copies of the template
+	 * @param maxCount
+	 *            the maximal number of copies of the template
+	 * @throws CloneNotSupportedException if the template could not be cloned
+	 */
+	public ExpandableParameterSet(ParameterSet template, String nameTemplate,
+			String commentTemplate, int initCount, int minCount, int maxCount ) throws CloneNotSupportedException {
 		super();
 		this.template = template;
 		this.nameTemplate = nameTemplate;
@@ -263,6 +289,8 @@ public class ExpandableParameterSet extends ParameterSet {
 		XMLParser.appendObjectWithTags(buf, nameTemplate, "nameTemplate");
 		XMLParser.appendObjectWithTags(buf, commentTemplate, "commentTemplate");
 		XMLParser.appendObjectWithTags(buf, initCount, "initCount");
+		XMLParser.appendObjectWithTags(buf, minCount, "minCount");
+		XMLParser.appendObjectWithTags(buf, maxCount, "maxCount");
 		XMLParser.addTags(buf, "expandableParameterSet");
 		return buf;
 	}
@@ -281,6 +309,13 @@ public class ExpandableParameterSet extends ParameterSet {
 		nameTemplate = XMLParser.extractObjectForTags( representation, "nameTemplate", String.class );
 		commentTemplate = XMLParser.extractObjectForTags( representation, "commentTemplate", String.class );
 		initCount = XMLParser.extractObjectForTags( representation, "initCount", int.class );
+		try {
+			minCount = XMLParser.extractObjectForTags( representation, "minCount", int.class );
+			maxCount = XMLParser.extractObjectForTags( representation, "maxCount", int.class );
+		} catch( NonParsableException e ) {
+			minCount=0;
+			maxCount=Integer.MAX_VALUE;
+		}
 	}
 
 	@Override
@@ -303,7 +338,7 @@ public class ExpandableParameterSet extends ParameterSet {
 		
 		buf2.append( "#end for" );
 		
-		XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\" title=\""+nameTemplate+"\" min=\""+count+"\"", indentation );//TODO min vs. default
+		XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\" title=\""+nameTemplate+"\" default=\""+initCount+"\" min=\""+minCount+"\" max=\""+maxCount+"\"", indentation );
 		buf.insert(0, "\n");
 		buf.append("\n");
 		descBuffer.append( buf );
