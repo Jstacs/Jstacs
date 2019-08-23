@@ -43,7 +43,7 @@ import de.jstacs.results.ResultSetResult;
  */
 public class ToolResult extends ResultSetResult {
 
-	private ParameterSet toolParameters;
+	private ToolParameterSet toolParameters;
 	private String toolName;
 	private Date finished;
 	
@@ -67,7 +67,7 @@ public class ToolResult extends ResultSetResult {
 	 * @param toolName the name of the tool
 	 * @param finished the date/time the tool's run finished and results were created
 	 */
-	public ToolResult( String name, String comment, ResultSet annotation, ResultSet result, ParameterSet toolParameters, String toolName, Date finished ) {
+	public ToolResult( String name, String comment, ResultSet annotation, ResultSet result, ToolParameterSet toolParameters, String toolName, Date finished ) {
 		super( name, comment, annotation, result );
 		this.toolParameters = toolParameters;
 
@@ -110,7 +110,7 @@ public class ToolResult extends ResultSetResult {
 	@Override
 	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		super.extractFurtherInfos( representation );
-		toolParameters = (ParameterSet)XMLParser.extractObjectForTags( representation, "toolParameters" );
+		toolParameters = (ToolParameterSet)XMLParser.extractObjectForTags( representation, "toolParameters" );
 		toolName = (String)XMLParser.extractObjectForTags( representation, "toolName" );
 		long date = (Long)XMLParser.extractObjectForTags( representation, "date" );
 		finished = new Date( date );
@@ -181,10 +181,7 @@ public class ToolResult extends ResultSetResult {
 	 * @return the parameters
 	 * @see JstacsTool#getToolParameters()
 	 */
-	public ParameterSet getToolParameters() {
+	public ToolParameterSet getToolParameters() {
 		return toolParameters;
 	}
-	
-	
-
 }

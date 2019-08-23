@@ -41,7 +41,6 @@ import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
-import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ui.cli.CLI;
@@ -65,9 +64,7 @@ import de.jstacs.utils.graphics.RasterizedAdaptor;
 public class Galaxy {
 
 	private JstacsTool[] tools;
-	private ToolParameterSet[] toolParameters;
-	private ResultEntry[][] defaultResults;
-	private boolean[][] addLine;
+	
 	private String vmargs;
 	private boolean[] configThreads;
 	
@@ -97,17 +94,8 @@ public class Galaxy {
 			this.configThreads = configThreads.clone();
 		} else {
 			throw new IllegalArgumentException("Check the length of the configureThreads array.");
-		}
-		
-		this.configThreads = configThreads;
-		toolParameters = new ToolParameterSet[tools.length];
-		this.addLine = new boolean[tools.length][];
-		this.defaultResults = new ResultEntry[tools.length][];
-		for(int i=0;i<tools.length;i++){
-			toolParameters[i] = tools[i].getToolParameters();
-			this.defaultResults[i] = tools[i].getDefaultResultInfos();
-			addLine[i] = new boolean[toolParameters[i].getNumberOfParameters()];
-		}
+		}	
+		//TODO remove this.configThreads = configThreads;
 	}
 	
 	private int getToolIndex(String shortName){
@@ -122,9 +110,13 @@ public class Galaxy {
 	private GalaxyAdaptor getGalaxyAdaptor( int i, String jar, String vmargs, String[] args ) throws Exception {
 		String name = tools[i].getShortName();
 		
-		String command = "java"+vmargs+" -jar "+jar+" "+name;
+		File jarFile = new File(jar);
+		String command =
+				//TODO fuer Jan ;)
+				"ln -s " + jarFile.getParentFile().getAbsolutePath() + "/tests/"+ " tests;"
+				+ "java"+vmargs+" -jar "+jar+" "+name;
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor(toolParameters[i], defaultResults[i], addLine[i], tools[i].getToolName(), tools[i].getDescription(), tools[i].getToolVersion(), command, "jobname");
+		GalaxyAdaptor ga = new GalaxyAdaptor( tools[i], command, "jobname");
 		
 		ga.setHelp( tools[i].getHelpText() );
 		
@@ -146,7 +138,7 @@ public class Galaxy {
 		
 		if("--create".equals( args[0]) ){
 			
-			//System.out.println("Creating");
+			//System.out.println("Creating " + tools.length);
 			if( args.length == 1 ) 
 			{
 				for(int i=0;i<tools.length;i++){
@@ -188,7 +180,7 @@ public class Galaxy {
 			System.out.println( "The number of threads used for the tool, defaults to 1\t= "+ga.getThreads() );
 			/**/
 			
-			ResultSet ress = tools[idx].run( toolParameters[idx], protocol, progress, ga.getThreads() ).getRawResult()[0];			
+			ResultSet ress = tools[idx].run( ga.parameters, protocol, progress, ga.getThreads() ).getRawResult()[0];			
 			
 			Pair<Result,boolean[]>[] temp = flatten(ress);
 			

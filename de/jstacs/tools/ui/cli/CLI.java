@@ -19,7 +19,6 @@
 package de.jstacs.tools.ui.cli;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -57,6 +56,7 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.Pair;
+import de.jstacs.utils.SafeOutputStream;
 
 /**
  * Class that allows for building generic command line interface (CLI) applications based on the {@link JstacsTool} interface.
@@ -138,6 +138,17 @@ public class CLI {
 		}
 	}
 	
+	/**
+	 * A dummy class that writes no protocol.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	public static class QuiteSysProtocol extends SysProtocol {
+		public QuiteSysProtocol() {
+			out = new PrintStream( SafeOutputStream.getSafeOutputStream(null) );
+		}
+	}
+	
 	private String opt;
 	private JstacsTool[] tools;
 	private boolean[] configureThreads;
@@ -149,8 +160,9 @@ public class CLI {
 	/**
 	 * Creates a new command line interface for the tools provided.
 	 * @param tools the tools
+	 * @throws CloneNotSupportedException 
 	 */
-	public CLI(JstacsTool... tools) {
+	public CLI(JstacsTool... tools) throws CloneNotSupportedException {
 		this(null,tools);
 	}
 	
@@ -158,8 +170,9 @@ public class CLI {
 	 * Creates a new command line interface from a set of Jstacs tools.
 	 * @param configureThreads if the tool at the corresponding index should be configured to use multiple threads, which also means that a parameter <code>threads</code> is displayed for this tool
 	 * @param tools (an array of) tool(s) that can be run via the command line interface
+	 * @throws CloneNotSupportedException 
 	 */
-	public CLI(boolean[] configureThreads, JstacsTool... tools) {
+	public CLI(boolean[] configureThreads, JstacsTool... tools) throws CloneNotSupportedException {
 		this("",configureThreads,tools);
 	}
 	
@@ -170,8 +183,9 @@ public class CLI {
 	 * @param opt the additional arguments, may be an empty {@link String}
 	 * @param configureThreads for each tool, if multi-threading option should be added to the list of parameters
 	 * @param tools the tools
+	 * @throws CloneNotSupportedException 
 	 */
-	public CLI( String opt, boolean[] configureThreads, JstacsTool... tools) {
+	public CLI( String opt, boolean[] configureThreads, JstacsTool... tools) throws CloneNotSupportedException {
 		this(null, opt, configureThreads, tools);
 	}
 	
@@ -183,8 +197,9 @@ public class CLI {
 	 * @param opt the additional arguments, may be an empty {@link String}
 	 * @param configureThreads for each tool, if multi-threading option should be added to the list of parameters
 	 * @param tools the tools
+	 * @throws CloneNotSupportedException 
 	 */
-	public CLI( String description, String opt, boolean[] configureThreads, JstacsTool... tools) {
+	public CLI( String description, String opt, boolean[] configureThreads, JstacsTool... tools) throws CloneNotSupportedException {
 		if(configureThreads == null){
 			this.configureThreads = new boolean[tools.length];
 		}else{
@@ -211,10 +226,27 @@ public class CLI {
 	
 	
 	
-	private static void addToKeyMap( String pathPrefix, String keyPrefix, HashMap<String, String> hashMap, ParameterSet parameterSet ) {
+	private static void addToKeyMap( String pathPrefix, String keyPrefix, HashMap<String, String> hashMap, ParameterSet parameterSet ) throws CloneNotSupportedException {
 		boolean isExp = parameterSet instanceof ExpandableParameterSet;
-		for(int i=0;i<parameterSet.getNumberOfParameters();i++){
-			Parameter par = parameterSet.getParameterAt( i );
+		for(int i=0;i<(isExp?1:parameterSet.getNumberOfParameters());i++){
+			Parameter par;
+			if( isExp ) {
+				ExpandableParameterSet e = (ExpandableParameterSet) parameterSet;
+				boolean intermediate = parameterSet.getNumberOfParameters()==0;
+				if( intermediate ) {
+System.out.println("before extension " + e.getNumberOfParameters());
+					e.addParameterToSet();
+System.out.println("after extension " + e.getNumberOfParameters());
+				}
+				par = parameterSet.getParameterAt( 0 );
+				if( intermediate ) {
+					e.removeParameterFromSet();
+System.out.println("after deletion " + e.getNumberOfParameters());
+				}
+				
+			} else {
+				par = parameterSet.getParameterAt( i );
+			}
 			
 			String parKey = pathPrefix+":"+par.getName();
 			String add = isExp ? "?" : i + "";
@@ -340,10 +372,29 @@ public class CLI {
 			System.err.println();
 			System.err.println("Syntax: java -jar "+jar+opt+" <toolname> [<parameter=value> ...]\n");
 			System.err.println("Further info about the tools is given with\n\tjava -jar "+jar+opt+" <toolname> info\n");
+			System.err.println("For tests of individual tools:\n\tjava -jar "+jar+opt+" <toolname> test [<verbose>]\n");
 			System.err.println("Tool parameters are listed with\n\tjava -jar "+jar+opt+" <toolname>\n");
 		} else if( (args.length > 1 && args[1].equals( "info" ) ) || (tools.length == 1 && args.length>0 && args[0].equals("info"))) {
 			//show info
 			System.err.println("\n"+parse(tools[toolIndex].getHelpText()));
+			String[] ref = tools[toolIndex].getReferences();
+			int n = ref==null?0:ref.length;
+			if( n>0 ) {
+				System.err.println("If you use this tool, please cite");
+				for( int i = 0; i<n; i++  ) {
+					System.err.print("\n"+parse(ref[i]));
+				}
+			}
+		} else if( (args.length > 1 && args[1].equals( "test" ) ) || (tools.length == 1 && args.length>0 && args[0].equals("test"))) {
+			//run tests
+			System.err.println("\nRun tests for "+tools[toolIndex].getShortName() + ":");
+			boolean verbose = false;
+			int i = (args.length > 1 && args[1].equals( "test" )) ? 2 : 3;
+			if( args.length >= i+1 ) {
+				verbose = Boolean.parseBoolean(args[i]);
+			}
+			double val = JstacsTool.test(tools[toolIndex],verbose);
+			System.err.println("\nSummary: " + val + "\n" );
 		} else {
 			//run tool
 			Pair<String,Integer> pair = null;
@@ -367,6 +418,7 @@ public class CLI {
 				System.err.println("\nAt least one parameter has not been set (correctly).");
 				String msg = toolParameters[toolIndex].getErrorMessage();
 				if( msg != null ) System.err.println(msg);
+				
 				return;
 			}else{
 				printToolParameters(toolIndex,protocol,outdir,threads);
@@ -379,7 +431,7 @@ public class CLI {
 		}		
 	}
 	
-	public static void writeToolResults( ToolResult results, SysProtocol protocol, String outdir, JstacsTool tool, ParameterSet toolParameters ) throws IOException {
+	public static void writeToolResults( ToolResult results, SysProtocol protocol, String outdir, JstacsTool tool, ToolParameterSet toolParameters ) throws IOException {
 		Result[] r;
 		if( results != null ) {
 			ResultSet[] rs = results.getRawResult();
@@ -390,9 +442,7 @@ public class CLI {
 		} else {
 			r = new Result[1];
 		}
-		String n = File.createTempFile("CLI-protocol-", ".txt").getAbsolutePath();
-		FileManager.writeFile(n, protocol.getLog());
-		r[r.length-1] = new TextResult( "protocol " + tool.getShortName(), "Result", new FileRepresentation(n), "txt", tool.getToolName(), null, true );
+		r[r.length-1] = new TextResult( "protocol " + tool.getShortName(), "Result", new FileRepresentation("CLI-protocol.txt",protocol.getLog().toString()), "txt", tool.getToolName(), null, true );
 		
 		results = new ToolResult(
 				results==null?"":results.getName(),
@@ -420,7 +470,7 @@ public class CLI {
 	}
 
 
-	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<String, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException {
+	private Pair<String,Integer> setToolParameters( boolean configureThreads, int off, ParameterSet parameterSet, HashMap<String, String> hashMap, String[] args, Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
 		HashMap<String, LinkedList<String>> valueMap = new HashMap<String, LinkedList<String>>();
 		String outdir = ".";
 		int threads = 1;
@@ -431,7 +481,7 @@ public class CLI {
 				throw new IllegalValueException("Parameter mis-specified in: "+args[i]);
 			}
 			String[] temp = new String[]{args[i].substring(0, idx),args[i].substring(idx+1)};
-			
+
 			if("outdir".equals( temp[0] ) ){
 				outdir = temp[1];
 			}else if(configureThreads && "threads".equals( temp[0] ) ){
@@ -452,7 +502,6 @@ public class CLI {
 		if( newLine ) {
 			protocol.append("\n");
 		}
-		//System.out.println(hashMap);
 		set("",parameterSet,hashMap,valueMap,protocol,0);
 		if( valueMap.size() > 0 ) {
 			Iterator<String> it = valueMap.keySet().iterator();
@@ -470,13 +519,17 @@ public class CLI {
 		return new Pair<String, Integer>(outdir, threads);
 	}
 
-
-
-
-	private void set( String pathPrefix, ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException {
+	private void set( String pathPrefix, ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ParameterSet template = null;
+		boolean intermediate = false;
+		ExpandableParameterSet eps = null;
 		if( isExp ) {
+			eps = (ExpandableParameterSet) parameters;
+			intermediate=eps.getNumberOfParameters() == 0;
+			if( intermediate ) {
+				eps.addParameterToSet();
+			}
 			template=(ParameterSet) parameters.getParameterAt(0).getValue();
 			exp++;
 			if( exp > 1 ) {
@@ -502,7 +555,7 @@ if( key == null ) {
 						for(int k=0;value.size()>0;k++){
 							if(k >= parameters.getNumberOfParameters()){
 								try {
-									((ExpandableParameterSet)parameters).addParameterToSet();
+									eps.addParameterToSet();
 								} catch (CloneNotSupportedException doesnothappen) {
 									doesnothappen.printStackTrace();
 								}
@@ -531,19 +584,25 @@ if( key == null ) {
 				set(pathPrefix+":"+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
 			}
 		}
+		if( intermediate ) {
+			eps.removeParameterFromSet();
+		}
 	}
 
 
 
 
-	public static void print(String pathPrefix, HashMap<String, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add ){
+	public static void print(String pathPrefix, HashMap<String, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add ) throws CloneNotSupportedException{
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ExpandableParameterSet exp = null;
+		boolean intermediate = false;
 		if( isExp ) {
 			exp = (ExpandableParameterSet) parameters;
+			intermediate = exp.getNumberOfParameters()==0;
+			if( intermediate ) exp.addParameterToSet();
 			parameters=(ParameterSet) parameters.getParameterAt(0).getValue();
 			
-			protocol.appendWarning( tabPrefix+"The following parameter(s) can be used multiple times:\n" );//TODO
+			protocol.appendWarning( tabPrefix+"The following parameter(s) can be used " + (intermediate?"zero or ":"") + "multiple times:\n" );//TODO
 			int n = exp.getNumberOfParameters();
 			for(int k=0;k<n;k++){
 				ParameterSet ps2 = (ParameterSet) exp.getParameterAt(k).getValue();
@@ -585,12 +644,20 @@ if( k == null ) {
 				}
 			}
 		}
+		if( intermediate ) {
+			exp.removeParameterFromSet();
+		}
 	}
 	
-	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, StringBuffer out){
+	private static void printTable(String prefix,HashMap<String, String> keyMap, ParameterSet parameters, StringBuffer out) throws CloneNotSupportedException{
 		boolean isExp = parameters instanceof ExpandableParameterSet;
+		boolean intermediate = false;
+		ExpandableParameterSet e = null;
 		if( isExp ) {
-			out.append( "<tr><td colspan=3>The following parameter(s) can be used multiple times:</td></tr>\n"
+			e = (ExpandableParameterSet) parameters;
+			intermediate = e.getNumberOfParameters()==0;
+			if( intermediate ) e.addParameterToSet();
+			out.append( "<tr><td colspan=3>The following parameter(s) can be used " + (intermediate?"zero or ":"") + "multiple times:</td></tr>\n"
 					+"<tr><td></td><td colspan=2><table border=0 cellpadding=0 align=\"center\" width=\"100%\">\n");
 		}
 		for(int i=0;i<parameters.getNumberOfParameters();i++){
@@ -625,10 +692,11 @@ if( k == null ) {
 		}
 		if( isExp ) {
 			out.append( "</table>\n</td></tr>\n");
+			if( intermediate ) e.removeParameterFromSet();
 		}
 	}
 
-	private void printToolParameters( int toolIndex, Protocol protocol, String outdir, int threads ) {
+	private void printToolParameters( int toolIndex, Protocol protocol, String outdir, int threads ) throws CloneNotSupportedException {
 		ParameterSet ps = toolParameters[toolIndex];
 		protocol.appendWarning( "Parameters of tool \""+tools[toolIndex].getToolName()+"\" ("+tools[toolIndex].getShortName()+", version: " + tools[toolIndex].getToolVersion() + "):\n" );
 		print( "",keyMap[toolIndex], ps, "", protocol, "" );

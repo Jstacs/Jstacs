@@ -26,7 +26,11 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.results.Result;
+import de.jstacs.results.ResultSet;
+import de.jstacs.results.TextResult;
 import de.jstacs.tools.ui.cli.CLI;
+import de.jstacs.tools.ui.cli.CLI.QuiteSysProtocol;
+import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
@@ -223,4 +227,88 @@ public interface JstacsTool {
 	 */
 	public ResultEntry[] getDefaultResultInfos();
 	
+	/**
+	 * Returns an array of test cases.
+	 * 
+	 * @return an array of {@link ToolResult}; each {@link ToolResult} contains that parameters that have been used to create the result
+	 * 
+	 * @see ToolResult
+	 * @see ToolResult#getToolParameters()
+	 */
+	public ToolResult[] getTestCases();
+
+	/**
+	 * Clears all internal values allowing to run a test case.
+	 * 
+	 * @see #getTestCases()
+	 * @see #test(JstacsTool, boolean)
+	 */
+	public void clear();
+	
+	/**
+	 * Returns an array of references that might be cited or <code>null</code> if no reference is available.
+	 * Each reference is either a BibTeX entry or a DOI.
+	 * 
+	 * @return an array of references that might be cited or <code>null</code> if no reference is available
+	 */
+	public String[] getReferences();
+	
+	/**
+	 * This method allows to test a given tool.
+	 * 
+	 * @param t a tool to be tested
+	 * @param verbose a switch allowing to see the output of the test
+	 * 
+	 * @return the percentage of successful tests or {@link Double#NaN} if no test was defined 
+	 * 
+	 * @see #getTestCases()
+	 * @see ToolResult#getToolParameters()
+	 * @see #run(ToolParameterSet, Protocol, ProgressUpdater, int)
+	 */
+	public static double test( JstacsTool t, boolean verbose ) {
+		ToolResult[] tests = t.getTestCases();
+		if( tests == null || tests.length==0 ) {
+			return Double.NaN;
+		}
+		double success = 0;
+		SysProtocol protocol = verbose ? new SysProtocol() : new QuiteSysProtocol();
+		ProgressUpdater progress = new ProgressUpdater();
+		for( int i = 0; i < tests.length; i++ ) {
+			for( int j = 0; j < 100; j++ ) protocol.append("=");
+			protocol.append("\ntest case: " + i + "\n\n");
+			ToolResult given = tests[i];
+			try {
+				t.clear();
+				ToolResult generated = t.run(given.getToolParameters(), protocol, progress, 1);
+				boolean eq = given.equals(generated);
+				protocol.append("\nresults identical: " + eq + "\n");
+				if( eq ) {
+					success++;
+				} else {
+					ResultSet r1 = given.getRawResult()[0];
+					ResultSet r2 = generated.getRawResult()[0];
+					if( r1.getNumberOfResults() == r2.getNumberOfResults() ) {
+						for( int j = 0; j < r1.getNumberOfResults(); j++ ) {
+							Result a = r1.getResultAt(j);
+							Result b = r2.getResultAt(j);
+							if( a instanceof TextResult ) {
+								TextResult yyy = (TextResult) a;
+								yyy.getValue().getContent();
+							}
+							if( b instanceof TextResult ) {
+								TextResult yyy = (TextResult) b;
+								yyy.getValue().getContent();
+							}
+							protocol.append(j + "\t" + a.getName() + "\t" + b.getName() + "\t" + a.equals(b) + "\n");
+						}
+					} else {
+						protocol.append("Number of results differ.\n");
+					}
+				}
+			} catch( Exception e ) {
+				protocol.appendThrowable(e);
+			}
+		}
+		return success / tests.length;
+	}
 }

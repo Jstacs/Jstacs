@@ -77,12 +77,27 @@ public class ToolParameterSet extends ParameterSet {
 	
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
 		if( getParent()!=null ) {
-			super.toGalaxy(namePrefix, toolName + "." + configPrefix, depth, descBuffer, configBuffer, addLine, XMLParser.nextIndentation(indentation));
+			super.toGalaxy(namePrefix, configPrefix + toolName +".", depth, descBuffer, configBuffer, addLine, XMLParser.nextIndentation(indentation));
 			XMLParser.addTagsAndAttributes(descBuffer, "section", "name=\"" + toolName + "\" title=\"" + toolName + " parameters\" expanded=\"" + !hasDefaultOrIsSet() + "\"", indentation );
 			descBuffer.insert(0, "\n");
 			descBuffer.append("\n");
 		} else {
 			super.toGalaxy(namePrefix, configPrefix, depth, descBuffer, configBuffer, addLine, indentation);
+		}
+	}
+	
+	public void toGalaxyTest( String namePrefix, int depth, StringBuffer testBuffer, int indentation ) throws Exception {
+		if( getParent()!=null ) {
+			StringBuffer help = new StringBuffer();
+			super.toGalaxyTest(namePrefix, depth, help, XMLParser.nextIndentation(indentation));
+			if( help.length()>0 ) {
+				XMLParser.addTagsAndAttributes(help, "section", "name=\"" + toolName + "\"", indentation );
+				help.insert(0, "\n");
+				help.append("\n");
+				testBuffer.append(help);
+			}
+		} else {
+			super.toGalaxyTest(namePrefix, depth, testBuffer, indentation);
 		}
 	}
 }

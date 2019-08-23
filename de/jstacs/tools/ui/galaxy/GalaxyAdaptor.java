@@ -40,6 +40,7 @@ import de.jstacs.data.sequences.annotation.SplitSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.CategoricalResult;
@@ -56,6 +57,8 @@ import de.jstacs.results.savers.ResultSaver;
 import de.jstacs.results.savers.ResultSaverLibrary;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
+import de.jstacs.tools.ToolParameterSet;
+import de.jstacs.tools.ToolResult;
 
 /**
  * Adaptor class between the parameter representation of Jstacs in {@link de.jstacs.parameters.Parameter}s and {@link ParameterSet}s and the parameter representation
@@ -79,16 +82,18 @@ import de.jstacs.tools.JstacsTool.ResultEntry;
  */
 public class GalaxyAdaptor {
 
-	private ParameterSet parameters;
+	ToolParameterSet parameters;
 	private ResultEntry[] defaultResults;
 	private String[] defaultResultPaths;
 	private LinkedList<String> path;
-	private boolean[] addLine;
+	//private boolean[] addLine;
 	private String toolname;
 	private String description;
 	private String help;
+	private String[] citation;
 	private String command;
 	private String version;
+	private ToolResult[] tests;
 	
 	private NumberFormat format;
 	private NumberFormat expFormat;
@@ -160,12 +165,13 @@ public class GalaxyAdaptor {
 	 * @param addLine indicates for each parameter in <code>parameters</code> if a line is displayed before its name, ignored if <code>parameters</code> is not a {@link SimpleParameterSet}. May be <code>null</code>.
 	 * @param toolname the name of the program
 	 * @param description a description of the program, may be supplemented by additional help provided by {@link GalaxyAdaptor#setHelp(File)} or {@link GalaxyAdaptor#setHelp(String)}
+	 * @param citation an array of references that might be cited
 	 * @param version the version of the program
 	 * @param command the command to run the program
 	 * @param labelName if <code>null</code>, the default names of Galaxy are used, otherwise a field &quot;Job name&quot; 
 	 *     is added as first parameter of the tool with internal name <code>labelName</code>. The internal name must not collide with the name of any other parameter.
 	 */
-	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String version, String command, String labelName){
+	public GalaxyAdaptor(ToolParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String[] citation, String version, String command, String labelName){
 		this.parameters = parameters;
 		if(defaultResults == null){
 			this.defaultResults = new ResultEntry[0];
@@ -175,11 +181,12 @@ public class GalaxyAdaptor {
 			this.defaultResultPaths = new String[defaultResults.length];
 		}
 		path = new LinkedList<String>();
-		this.addLine = addLine == null ? null : addLine.clone();
+		//this.addLine = addLine == null ? null : addLine.clone();
 		this.toolname = toolname;
 		this.description = description;
 		this.version = version;
 		this.help = description;
+		this.citation = citation;
 		this.command = command;
 		this.labelName = labelName;
 		this.format = NumberFormat.getNumberInstance();
@@ -187,6 +194,21 @@ public class GalaxyAdaptor {
 		this.format.setMinimumFractionDigits( 3 );
 		this.expFormat = new DecimalFormat("0.00E0");
 		this.threads = 1;
+		this.tests=null;
+	}
+	
+	public GalaxyAdaptor(JstacsTool j, String command, String labelName ){
+		this( j.getToolParameters(), 
+			j.getDefaultResultInfos(),
+			new boolean[j.getToolParameters().getNumberOfParameters()],
+			j.getToolName(),
+			j.getDescription(),
+			j.getReferences(),
+			j.getToolVersion(),
+			command,
+			labelName
+		);
+		this.tests = j.getTestCases();
 	}
 
 	/**
@@ -236,11 +258,13 @@ public class GalaxyAdaptor {
 	 * @throws Exception if any of the parameters could not be converted
 	 */
 	public String toGalaxyConfig(boolean configureThreads) throws Exception{
-		
 		StringBuffer allBuffer = new StringBuffer();
+		
+		//description
 		XMLParser.appendObjectWithTagsAndAttributes( allBuffer, description, "description", null, false );
 		allBuffer.append( "\n" );
 		
+		//input section
 		StringBuffer defaultOuts = new StringBuffer();
 		String[] defaultNames = new String[defaultResults.length];
 		HashSet<String> hash = new HashSet<String>();
@@ -272,11 +296,11 @@ public class GalaxyAdaptor {
 			XMLParser.addTagsAndAttributes( descBuffer, "param", "type=\"text\" size=\"40\" name=\""+getLegalName( toolname )+"_"+labelName+"\" label=\"Job name\" value=\"\" optional=\"true\" help=\"Please enter a name for your job that should be used in the history (optional)\"", indentation );
 		}
 		
-		if(parameters instanceof SimpleParameterSet){
+		/*if(parameters instanceof SimpleParameterSet){
 			((SimpleParameterSet)parameters).toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, addLine, indentation );
-		}else{
+		}else{/**/
 			parameters.toGalaxy( getLegalName( toolname ) , "", 0, descBuffer, confBuffer, false, indentation );
-		}
+		//}
 		XMLParser.addTagsAndAttributes( descBuffer, "inputs", null, 0 );
 		
 		confBuffer = escape( confBuffer );
@@ -285,6 +309,7 @@ public class GalaxyAdaptor {
 		allBuffer.append( descBuffer );
 		allBuffer.append( confBuffer );
 		
+		//output section
 		StringBuffer outBuf = new StringBuffer();
 		String jobName =  labelName == null
 				? "#$tool.name + ' on ' + $on_string"
@@ -310,14 +335,56 @@ public class GalaxyAdaptor {
 		}
 		
 		XMLParser.addTags( outBuf, "outputs" );
-		
 		allBuffer.append( outBuf );
 		
+		//help section
 		StringBuffer helpBuf = new StringBuffer();
 		helpBuf.append( help );
 		XMLParser.addTags( helpBuf, "help" );
-		
 		allBuffer.append( helpBuf );
+		
+		//citation section
+		int n = citation==null?0:citation.length;
+		if( n>0 ) {
+			StringBuffer cit = new StringBuffer();
+			for( int i = 0; i<n; i++  ) {
+				cit.append("<citation  type=\"" +(citation[i].charAt(0)=='@'?"bibtex":"doi")+ "\">\n" + citation[i] + "</citation>\n");
+			}
+			XMLParser.addTags( cit, "citations" );
+			allBuffer.append( cit );
+		}
+		
+		//test section
+		if( tests != null && tests.length>0 ) {
+			StringBuffer testsBuf = new StringBuffer();
+			StringBuffer testBuf = new StringBuffer();
+			for( int i = 0; i< tests.length; i++ ) {
+				//clear;
+				testBuf.delete(0, testBuf.length() );
+				
+				//inputs
+				ToolParameterSet tps = tests[i].getToolParameters();
+				String namePrefix = getLegalName( toolname );
+				tps.toGalaxyTest(namePrefix, 0, testBuf, 2);
+				
+				testBuf.append("\n");
+				
+				//results
+				//protocol ?
+				ResultSet rs = tests[i].getRawResult()[0];
+				for(int j=0;j<defaultResults.length;j++){
+					XMLParser.addIndentation(testBuf, 2);
+					
+					TextResult tr = (TextResult) rs.getResultAt(j);
+					FileRepresentation fr = tr.getValue();
+					testBuf.append("<output name=\"" + defaultNames[j] + "\" file=\"" + fr.getFilename() + "\" ftype=\"" + fr.getExtension() + "\" />\n");
+				}
+				XMLParser.addTagsAndAttributes( testBuf, "test", null, 1 );
+				testsBuf.append( testBuf );
+			}
+			XMLParser.addTags( testsBuf, "tests" );
+			allBuffer.append( testsBuf );
+		}
 		
 		XMLParser.addTagsAndAttributes( allBuffer, "tool", "id=\""+getLegalName( toolname )+"\" name=\""+toolname+"\" version=\""+version+"\" force_history_refresh=\"true\"" );
 		return allBuffer.toString().replaceAll("\n\n\n","\n\n").replaceAll("\n*(\n\t*</)", "$1");
@@ -592,7 +659,11 @@ public class GalaxyAdaptor {
 	 */
 	public String export(String filename, Result res, String exportExtension) throws IOException{
 		String ee = exportExtension;
-		
+
+		File dir = new File( filename ).getParentFile();
+		if( !dir.exists() ) {
+			dir.mkdirs();
+		}
 		if(res instanceof SimpleResult){
 			if(ee == null){
 				ee = getDefaultExtension(res.getClass());
@@ -839,15 +910,14 @@ public class GalaxyAdaptor {
 			return false;
 		}else if("--run".equals( args[0] )){
 			fromGalaxyConfig( args[1] );
-			outfile = args[2];
+			outfile = args[2]; //this is the protocol filename
 			outfileId = args[3];
-			newFilePath = args[4];
+			newFilePath = "additional_results"; //TODO args[4]; //https://github.com/galaxyproject/galaxy/pull/7144
 			htmlFilesPath = args[5];
 			int i=6;
 			//System.out.println("args.length="+args.length);
 			if(configureThreads){
-				threads = Integer.parseInt( args[6] );
-				i=7;
+				threads = Integer.parseInt( args[i++] );
 				//System.out.println("Number of threads: "+threads);
 			}
 			
@@ -870,7 +940,7 @@ public class GalaxyAdaptor {
 	 * @param includeInSummary if <code>true</code> the result is shown on the summary page
 	 */
 	public void addResult(Result res, boolean export, boolean includeInSummary){
-		list.add( new OutputElement( res, export, includeInSummary, null ) );
+		addResult(res, export, includeInSummary, null);
 	}
 	
 	/**
