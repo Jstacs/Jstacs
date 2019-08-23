@@ -21,6 +21,7 @@ package de.jstacs.results;
 
 import java.util.Collection;
 
+import de.jstacs.AnnotatedEntity;
 import de.jstacs.AnnotatedEntityList;
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
@@ -210,5 +211,22 @@ public class ResultSet implements Storable {
 			}
 		}
 		return -1;
+	}
+	
+	public boolean equals(Object o) {
+		if( o instanceof ResultSet ) {
+			ResultSet rs = (ResultSet) o;
+			if( results.size() != rs.results.size() ) {
+				return false;
+			} else {
+				int i = 0;
+				while( i < results.size() && results.get(i).equals(rs.results.get(i)) ) {
+					i++;				
+				}
+				return i == results.size();
+			}
+		} else {
+			return false;
+		}
 	}
 }
