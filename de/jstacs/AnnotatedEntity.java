@@ -159,4 +159,31 @@ public abstract class AnnotatedEntity implements Storable {
 	public final String getComment() {
 		return comment;
 	}
+	
+	public boolean equals(Object o) {
+		if( o instanceof AnnotatedEntity ) {
+			AnnotatedEntity a = (AnnotatedEntity) o;
+			return datatype.equals(a.datatype)
+					&& name.equals(a.name)
+					&& comment.equals(a.comment)
+					&& equalValues(a);
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * This method compares the values of two {@link AnnotatedEntity} objects.
+	 * It is called by {@link AnnotatedEntity#equals(Object)} and provides the possibility to easily modify the behaviour of {@link AnnotatedEntity#equals(Object)}.
+	 *  
+	 * @param a the {@link AnnotatedEntity} whose value is used 
+	 * 
+	 * @return <code>true</code> if both values are equal
+	 * 
+	 * @see #getValue()
+	 * @see #equals(Object)
+	 */
+	public boolean equalValues(AnnotatedEntity a) {
+		return getValue().equals( a.getValue() );
+	}
 }
