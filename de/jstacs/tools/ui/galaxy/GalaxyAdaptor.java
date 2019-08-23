@@ -155,6 +155,10 @@ public class GalaxyAdaptor {
 		return htmlId++;
 	}
 	
+	public GalaxyAdaptor(ToolParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String version, String command, String labelName) {
+		this(parameters, defaultResults, addLine, toolname, description, null, version, command, labelName);
+	}
+	
 	/**
 	 * Creates a new {@link GalaxyAdaptor} from a given {@link ParameterSet} containing all parameters
 	 * that are necessary for a program is shall be included in a Galaxy installation. Besides the
