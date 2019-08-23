@@ -277,7 +277,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 * @see de.jstacs.parameters.Parameter#getValue()
 	 */
 	@Override
-	public Object getValue() {
+	public String getValue() {
 		if (value == null) {
 			return null;
 		} else {
@@ -654,9 +654,9 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			representation = XMLParser.extractForTag(representation,
 					"fileRepresentation");
 			filename = XMLParser.extractObjectForTags(representation, "filename", String.class );
-			if( filename == null || !new File( filename ).exists() ) {
+			try{ 
 				content = XMLParser.extractObjectForTags(representation, "content", String.class );
-			} else {
+			} catch( NonParsableException e ) {
 				content = null;
 			}			
 			compressed = XMLParser.extractObjectForTags( representation, "compressed", Boolean.class );

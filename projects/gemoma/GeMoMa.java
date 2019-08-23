@@ -4642,9 +4642,9 @@ public class GeMoMa extends GeMoMaModule {
 	}
 	
 	@Override
-	public ToolResult[] getTestCases() {
+	public ToolResult[] getTestCases( String path ) {
 		try {
-			return new ToolResult[]{new ToolResult(FileManager.readFile("tests/gemoma/xml/gemoma-test.xml"))};
+			return new ToolResult[]{new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemoma-test.xml"))};
 		} catch( Exception e ) {
 			e.printStackTrace();
 			return null;

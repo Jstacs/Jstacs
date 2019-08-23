@@ -288,7 +288,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 	}
 
 	@Override
-	public ToolResult[] getTestCases() {
+	public ToolResult[] getTestCases( String path ) {
 		// TODO missing test cases
 		return null;
 	}

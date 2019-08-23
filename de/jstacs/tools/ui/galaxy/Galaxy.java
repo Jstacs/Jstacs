@@ -42,7 +42,6 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
-import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
@@ -110,16 +109,8 @@ public class Galaxy {
 	private GalaxyAdaptor getGalaxyAdaptor( int i, String jar, String vmargs, String[] args ) throws Exception {
 		String name = tools[i].getShortName();
 		
-		File jarFile = new File(jar);
-		String command =
-				//TODO fuer Jan ;)
-				"ln -s " + jarFile.getParentFile().getAbsolutePath() + "/tests/"+ " tests;"
-				+ "java"+vmargs+" -jar "+jar+" "+name;
-		
-		GalaxyAdaptor ga = new GalaxyAdaptor( tools[i], command, "jobname");
-		
+		GalaxyAdaptor ga = new GalaxyAdaptor( tools[i], "java"+vmargs+" -jar "+jar+" "+name, "jobname", new File(jar).getParentFile().getAbsolutePath() );
 		ga.setHelp( tools[i].getHelpText() );
-		
 		ga.parse( args, configThreads[i] );
 		return ga;
 	}

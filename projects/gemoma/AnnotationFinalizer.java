@@ -848,11 +848,11 @@ public class AnnotationFinalizer extends GeMoMaModule {
 	}
 	
 	@Override
-	public ToolResult[] getTestCases() {
+	public ToolResult[] getTestCases( String path ) {
 		try {
 			return new ToolResult[]{
-				new ToolResult(FileManager.readFile("tests/gemoma/xml/af-test-nothing.xml")),
-				new ToolResult(FileManager.readFile("tests/gemoma/xml/af-test-utr.xml"))
+				new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/af-test-nothing.xml")),
+				new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/af-test-utr.xml"))
 			};
 		} catch( Exception e ) {
 			e.printStackTrace();

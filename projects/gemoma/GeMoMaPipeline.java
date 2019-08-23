@@ -1619,9 +1619,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	}
 	
 	@Override
-	public ToolResult[] getTestCases() {
+	public ToolResult[] getTestCases( String path ) {
 		try {
-			return new ToolResult[]{new ToolResult(FileManager.readFile("tests/gemoma/xml/gemomapipeline-test.xml"))};
+			return new ToolResult[]{new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test.xml"))};
 		} catch( Exception e ) {
 			e.printStackTrace();
 			return null;

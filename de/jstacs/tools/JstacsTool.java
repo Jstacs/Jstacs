@@ -18,13 +18,18 @@
 
 package de.jstacs.tools;
 
+import java.io.File;
+
 import de.jstacs.DataType;
 import de.jstacs.parameters.AbstractSelectionParameter;
+import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -230,12 +235,14 @@ public interface JstacsTool {
 	/**
 	 * Returns an array of test cases.
 	 * 
+	 * @param path a path where the files for the test can be located
+	 * 
 	 * @return an array of {@link ToolResult}; each {@link ToolResult} contains that parameters that have been used to create the result
 	 * 
 	 * @see ToolResult
 	 * @see ToolResult#getToolParameters()
 	 */
-	public ToolResult[] getTestCases();
+	public ToolResult[] getTestCases( String path );
 
 	/**
 	 * Clears all internal values allowing to run a test case.
@@ -257,6 +264,7 @@ public interface JstacsTool {
 	 * This method allows to test a given tool.
 	 * 
 	 * @param t a tool to be tested
+	 * @param path a path where the files for the test can be located
 	 * @param verbose a switch allowing to see the output of the test
 	 * 
 	 * @return the percentage of successful tests or {@link Double#NaN} if no test was defined 
@@ -265,8 +273,8 @@ public interface JstacsTool {
 	 * @see ToolResult#getToolParameters()
 	 * @see #run(ToolParameterSet, Protocol, ProgressUpdater, int)
 	 */
-	public static double test( JstacsTool t, boolean verbose ) {
-		ToolResult[] tests = t.getTestCases();
+	public static double test( JstacsTool t, String path, boolean verbose ) {
+		ToolResult[] tests = t.getTestCases( path );
 		if( tests == null || tests.length==0 ) {
 			return Double.NaN;
 		}
@@ -279,7 +287,9 @@ public interface JstacsTool {
 			ToolResult given = tests[i];
 			try {
 				t.clear();
-				ToolResult generated = t.run(given.getToolParameters(), protocol, progress, 1);
+				setPathOfFiles(path, given);
+				ToolParameterSet g = given.getToolParameters();
+				ToolResult generated = t.run(g, protocol, progress, 1);
 				boolean eq = given.equals(generated);
 				protocol.append("\nresults identical: " + eq + "\n");
 				if( eq ) {
@@ -310,5 +320,49 @@ public interface JstacsTool {
 			}
 		}
 		return success / tests.length;
+	}
+	
+	public static void setPathOfFiles(String path, ToolResult given ) throws IllegalValueException {
+		ResultSet[] r = given.getRawResult();
+		for( int j = 0; j < r.length; j++ ) {
+			setPathOfFiles(path, r[j]);
+		}
+		setPathOfFiles(path, given.getToolParameters());
+	}
+	
+	static void setPathOfFiles(String path, ResultSet r ) throws IllegalValueException {
+		for( int i = 0; i < r.getNumberOfResults(); i++ ) {
+			Result re = r.getResultAt(i);
+			switch( re.getDatatype() ) {
+				case FILE: //set value
+					TextResult t = (TextResult) re;
+					FileRepresentation f = t.getValue();
+					String v = f.getFilename();
+					if( v != null ) {
+						f.setFilename( path + File.separator + v );
+					}
+					break;
+				default: //do nothing
+			}
+		}
+	}
+	
+	static void setPathOfFiles(String path, ParameterSet p ) throws IllegalValueException {
+		for( int i = 0; i < p.getNumberOfParameters(); i++ ) {
+			Parameter pa = p.getParameterAt(i);
+			switch( pa.getDatatype() ) {
+				case PARAMETERSET: //recursive
+					setPathOfFiles(path, (ParameterSet) pa.getValue());
+					break;
+				case FILE: //set value
+					FileParameter f = (FileParameter) pa;
+					String v = f.getValue();
+					if( v != null ) {
+						f.setValue( path + File.separator + v );
+					}
+					break;
+				default: //do nothing
+			}
+		}
 	}
 }

@@ -123,6 +123,14 @@ public class ExpandableParameterSet extends ParameterSet {
 		this.nameTemplate = nameTemplate;
 		this.commentTemplate = commentTemplate;
 		this.count = 0;
+		if( minCount >= maxCount ) {
+			throw new IllegalArgumentException("minCount < maxCount");
+		}
+		this.minCount = minCount;
+		this.maxCount = maxCount;
+		if( initCount < minCount || maxCount < initCount ) {
+			throw new IllegalArgumentException("minCount <= initCount &&  initCount <= maxCount");
+		}
 		this.initCount = initCount;
 		for (int i = 0; i < initCount; i++) {
 			addParameterToSet();

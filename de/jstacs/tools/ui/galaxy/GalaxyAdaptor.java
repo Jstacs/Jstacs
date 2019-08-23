@@ -94,6 +94,7 @@ public class GalaxyAdaptor {
 	private String command;
 	private String version;
 	private ToolResult[] tests;
+	private String testPath;
 	
 	private NumberFormat format;
 	private NumberFormat expFormat;
@@ -195,9 +196,10 @@ public class GalaxyAdaptor {
 		this.expFormat = new DecimalFormat("0.00E0");
 		this.threads = 1;
 		this.tests=null;
+		testPath = null;
 	}
 	
-	public GalaxyAdaptor(JstacsTool j, String command, String labelName ){
+	public GalaxyAdaptor(JstacsTool j, String command, String labelName, String path ){
 		this( j.getToolParameters(), 
 			j.getDefaultResultInfos(),
 			new boolean[j.getToolParameters().getNumberOfParameters()],
@@ -208,7 +210,8 @@ public class GalaxyAdaptor {
 			command,
 			labelName
 		);
-		this.tests = j.getTestCases();
+		this.tests = j.getTestCases( path );
+		testPath=path;
 	}
 
 	/**
@@ -363,6 +366,7 @@ public class GalaxyAdaptor {
 				testBuf.delete(0, testBuf.length() );
 				
 				//inputs
+				JstacsTool.setPathOfFiles(testPath, tests[i]);
 				ToolParameterSet tps = tests[i].getToolParameters();
 				String namePrefix = getLegalName( toolname );
 				tps.toGalaxyTest(namePrefix, 0, testBuf, 2);
