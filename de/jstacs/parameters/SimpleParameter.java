@@ -32,7 +32,7 @@ import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau
  */
-public class SimpleParameter extends Parameter implements Rangeable, GalaxyConvertible {
+public class SimpleParameter extends Parameter implements GalaxyConvertible {
 
 	/**
 	 * Determines if the parameter is required
@@ -63,11 +63,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	 * The error message or <code>null</code> if no error occurred
 	 */
 	private String errorMessage;
-
-	/**
-	 * Indicates if this {@link SimpleParameter} shall be rangeable
-	 */
-	private boolean isRangeable;
 
 	/**
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
@@ -116,8 +111,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		this.required = required;
 		this.validator = null;
 		this.isSet = false;
-		this.isRangeable = datatype != DataType.STRING
-				&& datatype != DataType.CHAR;
 	}
 
 	/**
@@ -249,40 +242,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 	@Override
 	public boolean isSet() {
 		return isSet;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Rangeable#isRangeable()
-	 */
-	public boolean isRangeable() {
-		return isRangeable;
-	}
-
-	/**
-	 * Sets the value returned by {@link #isRangeable()} to
-	 * <code>rangeable</code>.
-	 * 
-	 * @param rangeable
-	 *            the new value that determines if this {@link SimpleParameter}
-	 *            is rangeable
-	 */
-	public void setRangeable(boolean rangeable) {
-		this.isRangeable = rangeable;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Rangeable#getRangedInstance()
-	 */
-	public Parameter getRangedInstance() throws Exception {
-		if (isRangeable()) {
-			return new RangeParameter(this);
-		} else {
-			throw new Exception("Parameter " + name + " is not rangeable!");
-		}
 	}
 
 	/*
@@ -509,7 +468,6 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, isSet, "isSet");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
-		XMLParser.appendObjectWithTags(buf, isRangeable, "isRangeable");
 		XMLParser.appendObjectWithTags(buf, validator, "validator");
 		XMLParser.appendObjectWithTags(buf, defaultValue, "defaultValue");
 		XMLParser.appendObjectWithTags(buf, value, "value");
@@ -524,14 +482,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		super.extractFurtherInfos( representation );
 		
 		required = XMLParser.extractObjectForTags(representation, "required", boolean.class );
-		isSet = XMLParser.extractObjectForTags(representation, "isSet", boolean.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
-		StringBuffer help = XMLParser.extractForTag(representation,"isRangeable");
-		if (help == null) {
-			isRangeable = false;
-		} else {
-			isRangeable = Boolean.parseBoolean(help.toString());
-		}
 		validator = XMLParser.extractObjectForTags( representation, "validator", ParameterValidator.class );
 		if( !XMLParser.hasTag(representation, "defaultValue", null, null) ) {
 			defaultValue = null;
@@ -556,6 +507,7 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 				throw new NonParsableException(e.getMessage());
 			}
 		}
+		isSet = XMLParser.extractObjectForTags(representation, "isSet", boolean.class );
 	}
 
 	/*
@@ -747,5 +699,13 @@ public class SimpleParameter extends Parameter implements Rangeable, GalaxyConve
 		}
 		//System.out.println("after: "+original);
 		return original;
+	}
+
+	@Override
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation) throws Exception {
+		if( isSet ) {
+			XMLParser.insertIndentation(testBuffer, indentation, testBuffer.length());
+			testBuffer.append("<param name=\"" + namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() ) + "\" value=\"" + getValue().toString() + "\" />\n");
+		}
 	}
 }

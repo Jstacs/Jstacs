@@ -37,7 +37,7 @@ import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public abstract class AbstractSelectionParameter extends Parameter implements Rangeable, GalaxyConvertible {
+public abstract class AbstractSelectionParameter extends Parameter implements GalaxyConvertible {
 
 	/**
 	 * The internal {@link ParameterSet} that holds the possible values
@@ -60,17 +60,11 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	 */
 	protected String errorMessage;
 
-	/**
-	 * Indicates if this {@link AbstractSelectionParameter} shall be rangeable
-	 */
-	private boolean rangeable;
-
 	// default constructor
 	private AbstractSelectionParameter( DataType datatype, String name, String comment, boolean required ) {
 		super( name, comment, datatype );
 		this.required = required;
 		this.userSelected = false;
-		this.rangeable = true;
 	}
 
 	/**
@@ -359,18 +353,6 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 	public ParameterSet getParametersInCollection() {
 		return parameters;
 	}
-
-	/**
-	 * Sets the value returned by {@link #isRangeable()} to
-	 * <code>rangeable</code>.
-	 * 
-	 * @param rangeable
-	 *            the new value
-	 */
-	public void setRangeable(boolean rangeable) {
-		this.rangeable = rangeable;
-	}
-
 	
 	public boolean isComparable( Parameter p ) {
 		boolean res = getClass().equals(p.getClass()) && getDatatype() == p.getDatatype() && getName().equals(p.getName()) && getComment().equals( p.getComment() );
@@ -384,16 +366,6 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 			}
 		}
 		return res;
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Rangeable#isRangeable()
-	 */
-	public boolean isRangeable() {
-		return rangeable;
 	}
 	
 	/**
@@ -468,7 +440,6 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, userSelected, "userSelected");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
-		XMLParser.appendObjectWithTags(buf, rangeable, "rangeable");
 		XMLParser.appendObjectWithTags(buf, parameters, "collection");
 	}
 
@@ -483,12 +454,6 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		required = XMLParser.extractObjectForTags(representation, "required", boolean.class );
 		userSelected = XMLParser.extractObjectForTags(representation, "userSelected", boolean.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
-		StringBuffer help = XMLParser.extractForTag(representation, "rangeable");
-		if (help == null) {
-			rangeable = false;
-		} else {
-			rangeable = Boolean.parseBoolean(help.toString());
-		}
 		parameters = new SimpleParameterSet(XMLParser.extractForTag(representation,"collection"));
 	}
 
@@ -592,27 +557,7 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 			super(message);
 		}
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.Rangeable#getRangedInstance()
-	 */
-	@Override
-	public MultiSelectionParameter getRangedInstance() throws Exception {
-		//boolean[] selected = new boolean[parameters.getNumberOfParameters()];
-		//selected[0] = true;
-		Parameter[] p = new Parameter[parameters.getNumberOfParameters()];
-		for( int i = 0; i < p.length; i++ ) {
-			p[i] = parameters.getParameterAt(i);
-		}
-		MultiSelectionParameter par = 
-			new MultiSelectionParameter( datatype, null, p, null, getName(), getComment(), required );
-		// new MultiSelectionParameter( this.parameters.clone(), selected, new boolean[parameters.getNumberOfParameters()], false, getName(), getComment(), required, datatype, errorMessage, 0 );
-		return par;
-	}
-	
+	}	
 
 	@Override
 	public void toGalaxy( String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception {
@@ -657,4 +602,28 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ra
 		
 		descBuffer.append( buf );
 	}
+	
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation ) throws Exception {
+		StringBuffer buf = new StringBuffer();
+		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
+		int nextIndentation = XMLParser.nextIndentation(indentation);
+		
+		for(int i=0;i<parameters.getNumberOfParameters();i++){
+			if(isSelected( i )){
+				if( !isDefaultSelection(i) ) {
+					XMLParser.addIndentation(buf, isAtomic() ? indentation : nextIndentation);
+					buf.append("<param name=\"" + namePrefix + "\" value=\""+parameters.getParameterAt( i ).getName()+"\" />\n");
+				}
+				if( !isAtomic() ) {
+					((GalaxyConvertible)parameters.getParameterAt( i )).toGalaxyTest(namePrefix+"_opt"+i, depth+1, buf, nextIndentation );
+				}
+			}
+		}
+		if( !isAtomic() && buf.length()>0 ) {
+			XMLParser.addTagsAndAttributes( buf, "conditional", "name=\""+namePrefix+"_cond\"", indentation );
+		}
+		testBuffer.append( buf );
+	}/**/
+	
+	protected abstract boolean isDefaultSelection( int i );
 }

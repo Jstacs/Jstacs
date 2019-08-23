@@ -38,7 +38,7 @@ import de.jstacs.utils.IntList;
  * 
  * @see AbstractSelectionParameter
  */
-public class MultiSelectionParameter extends AbstractSelectionParameter implements RangeIterator {
+public class MultiSelectionParameter extends AbstractSelectionParameter {
 
 	private boolean[] selected;
 	private boolean[] defaultSelected;
@@ -492,54 +492,6 @@ public class MultiSelectionParameter extends AbstractSelectionParameter implemen
 		current = XMLParser.extractObjectForTags(representation, "current", int.class );
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.parameters.RangeIterator#next()
-	 */
-	public boolean next() throws ParameterException {
-		int next = -1;
-		for (int i = current + 1; i < selected.length; i++) {
-			if (selected[i]) {
-				next = i;
-				break;
-			}
-		}
-		if (next != -1) {
-			current = next;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.parameters.RangeIterator#resetToFirst()
-	 */
-	public void resetToFirst() {
-		for (int i = 0; i < selected.length; i++) {
-			if (selected[i]) {
-				current = i;
-				break;
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#getNumberOfValues()
-	 */
-	public int getNumberOfValues() {
-		int count = 0;
-		for (int i = 0; i < selected.length; i++) {
-			if (selected[i]) {
-				count++;
-			}
-		}
-		return count;
-	}
-
 	/**
 	 * Returns the number of calls of
 	 * {@link MultiSelectionParameter#next()} that can be called
@@ -559,31 +511,6 @@ public class MultiSelectionParameter extends AbstractSelectionParameter implemen
 			}
 		}
 		return count;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#valuesToString()
-	 */
-	public String valuesToString() {
-		StringBuffer tmp = new StringBuffer();
-		for (int i = 0; i < selected.length; i++) {
-			if (selected[i]) {
-				tmp.append(parameters.getParameterAt(i).getName() + ", ");
-			}
-		}
-		tmp.delete(tmp.length() - 2, tmp.length());
-		return "[" + tmp.toString() + "]";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.jstacs.parameters.RangeIterator#isRanged()
-	 */
-	public boolean isRanged() {
-		return getNumberOfValues() > 1;
 	}
 
 	/*
@@ -609,5 +536,10 @@ public class MultiSelectionParameter extends AbstractSelectionParameter implemen
 			//TODO change as soon as Galaxy supports multiple selections in ifs
 			((GalaxyConvertible)this.getValue()).fromGalaxy( namePrefix+"_opt"+getSelected()[0], command );
 		}
+	}
+
+	@Override
+	protected boolean isDefaultSelection(int i) {
+		return defaultSelected[i];
 	}
 }

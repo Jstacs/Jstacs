@@ -36,7 +36,7 @@ import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
  * 
  * @author Jan Grau
  */
-public class SelectionParameter extends AbstractSelectionParameter implements Rangeable, GalaxyConvertible {
+public class SelectionParameter extends AbstractSelectionParameter {
 
 	/**
 	 * The number of the currently selected value in <code>parameters</code>
@@ -381,5 +381,10 @@ public class SelectionParameter extends AbstractSelectionParameter implements Ra
 		if(this.getValue() instanceof GalaxyConvertible){
 			((GalaxyConvertible)this.getValue()).fromGalaxy( namePrefix+"_opt"+getSelected(), command );
 		}
+	}
+	
+	@Override
+	protected boolean isDefaultSelection(int i) {
+		return i == defaultSelected;
 	}
 }

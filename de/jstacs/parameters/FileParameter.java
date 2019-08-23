@@ -23,12 +23,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 
 import de.jstacs.DataType;
 import de.jstacs.Storable;
+import de.jstacs.io.FileManager;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
@@ -446,10 +448,18 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		this.isSet = true;
 	}
 	
+	@Override
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation) throws Exception {
+		if( isSet ) {
+			XMLParser.insertIndentation(testBuffer, indentation, testBuffer.length());
+			testBuffer.append("<param name=\"" + namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() ) + "\" file=\"" + (String)getValue() + "\" />\n");
+		}
+	}
+	
 	/**
 	 * Class that represents a file.
 	 * 
-	 * @author Jan Grau
+	 * @author Jan Grau, Jens Keilwagen
 	 */
 	public static class FileRepresentation implements Storable, Cloneable {
 
@@ -574,15 +584,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			if(content == null){
 				if(filename != null){
 					try{
-						BufferedReader reader = new BufferedReader( new FileReader( filename ) );
-						StringBuffer sb = new StringBuffer();
-						String str = "";
-						while( (str = reader.readLine()) != null ){
-							sb.append( str );
-							sb.append( "\n" );
-						}
-						reader.close();
-						String temp = sb.toString();
+						String temp = FileManager.readFile(filename).toString();
 						if(temp.length() < 100000){
 							this.content = temp;
 						}else{
@@ -633,8 +635,14 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		public StringBuffer toXML() {
 			StringBuffer buf = new StringBuffer();
+			if( filename == null || !new File( filename ).exists() ) {
+				if( content == null ) {
+					System.err.println("WARNING: empty TextResult"); //TODO
+				}
+				filename=null;
+				XMLParser.appendObjectWithTags(buf, content, "content");
+			}
 			XMLParser.appendObjectWithTags(buf, filename, "filename");
-			XMLParser.appendObjectWithTags(buf, content, "content");
 			XMLParser.appendObjectWithTags( buf, compressed, "compressed" );
 			XMLParser.addTags(buf, "fileRepresentation");
 
@@ -646,14 +654,52 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			representation = XMLParser.extractForTag(representation,
 					"fileRepresentation");
 			filename = XMLParser.extractObjectForTags(representation, "filename", String.class );
-			content = XMLParser.extractObjectForTags(representation, "content", String.class );
+			if( filename == null || !new File( filename ).exists() ) {
+				content = XMLParser.extractObjectForTags(representation, "content", String.class );
+			} else {
+				content = null;
+			}			
 			compressed = XMLParser.extractObjectForTags( representation, "compressed", Boolean.class );
 			int idx = filename.lastIndexOf( '.' );
 			if(idx >= 0){
 				this.ext = filename.substring( idx+1 );
 			}
 		}
+		
+		public boolean equals( Object o ) {
+			if( o instanceof FileRepresentation ) {
+				FileRepresentation fr = (FileRepresentation)o;
+				String line1, line2;
+				Character ignore;
+				switch( ext ) {
+					case "gff": case "gff3": ignore='#';
+					default: ignore = null;
+				}
+				int i = 0;
+				try {
+					BufferedReader r1 = new BufferedReader(content == null ? new FileReader(filename) : new StringReader(compressed ? Compression.unzip(content) : content) );
+					BufferedReader r2 = new BufferedReader(fr.content == null ? new FileReader(fr.filename) : new StringReader(fr.compressed ? Compression.unzip(fr.content) : fr.content) );
+					do {
+						while( (line1=r1.readLine()) != null && line1.length()>0 && !((Character)line1.charAt(0)).equals(ignore) );
+						while( (line2=r2.readLine()) != null && line2.length()>0 && !((Character)line2.charAt(0)).equals(ignore) );
+						i++;
+					} while( line1!= null && line2 != null && line1.equals(line2) );	
+					r1.close();
+					r2.close();
+				} catch( IOException e ) {
+					e.printStackTrace();
+					return false;
+				}
+				if( line1!= null || line2!= null ) {
+					System.err.println("Files differ at line " + i );
+					System.err.println(filename + "\t" + line1);
+					System.err.println(fr.filename + "\t" + line2);
+				}
+				return line1==null && line2==null;
+			} else {
+				return false;
+			}
+		}
 
 	}
-
 }

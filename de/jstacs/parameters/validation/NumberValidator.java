@@ -232,4 +232,7 @@ public class NumberValidator<E extends Comparable<? extends Number>> implements
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 				
 	}
+
+	@Override
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation) throws Exception {}
 }

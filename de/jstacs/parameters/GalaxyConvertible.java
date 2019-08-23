@@ -46,6 +46,9 @@ public interface GalaxyConvertible {
 	 */
 	public void toGalaxy(String namePrefix, String configPrefix, int depth, StringBuffer descBuffer, StringBuffer configBuffer, boolean addLine, int indentation ) throws Exception;
 	
+	//TODO
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation ) throws Exception;
+	
 	/**
 	 * Parses the contents of <code>command</code> in the format defined by <code>configBuffer</code> of {@link GalaxyConvertible#toGalaxy(String, String, int, StringBuffer, StringBuffer, boolean, int)}
 	 * and sets the values of the {@link Parameter} or {@link ParameterSet} accordingly.

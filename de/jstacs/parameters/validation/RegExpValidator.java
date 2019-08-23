@@ -87,4 +87,7 @@ public class RegExpValidator implements ParameterValidator, GalaxyConvertible {
 		
 	}
 
+	@Override
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation) throws Exception {}
+
 }

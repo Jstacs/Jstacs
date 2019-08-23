@@ -348,7 +348,6 @@ public class AlphabetContainerParameterSet extends AbstractAlphabetContainerPara
 				"Alphabet",
 				"Set the alphabet", 0 );
 			SimpleParameter length = new SimpleParameter( DataType.INT, "Length", "The length of the array.", true );
-			length.setRangeable( false );
 			this.parameters.add( 0, length );
 			this.type = type;
 		}

@@ -87,7 +87,6 @@ public class ArrayParameterSet extends ExpandableParameterSet {
 		}
 		length.setDefault(allowedLengths.getLowerBound());
 		length.setValue(allowedLengths.getLowerBound());
-		length.setRangeable(false);
 		this.parameters.add(0,length);
 		//this.addParameterToSet();//TODO
 		for(int i=1;i<(Integer)length.getValue();i++){

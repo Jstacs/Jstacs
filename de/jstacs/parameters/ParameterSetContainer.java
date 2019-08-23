@@ -23,7 +23,6 @@ import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 
 /**
  * Class for a {@link ParameterSetContainer} that contains a
@@ -172,7 +171,6 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 			this.parameters = (ParameterSet) value;
 			this.parameters.setParent(this);
 		} else {
-			System.out.println( value.getClass().getSimpleName() );
 			throw new IllegalValueException(
 					"Only parameter sets allowed for ParameterSetContainer!");
 		}
@@ -341,7 +339,15 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 		}
 		((GalaxyConvertible)parameters).fromGalaxy( namePrefix, command );	
 	}
-	
-	
 
+	@Override
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation) throws Exception {
+		if(parameters == null){
+			loadParameters();
+		}
+		StringBuffer pars = new StringBuffer();
+		((GalaxyConvertible)parameters).toGalaxyTest( namePrefix, depth, pars, indentation );
+
+		testBuffer.append( pars );
+	}
 }

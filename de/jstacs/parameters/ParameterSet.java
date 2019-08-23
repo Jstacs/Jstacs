@@ -487,6 +487,13 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 			configBuffer.append( "\n" );
 		}	
 	}
+	
+	@Override
+	public void toGalaxyTest(String namePrefix, int depth, StringBuffer testBuffer, int indentation) throws Exception {
+		for(int i=0;i<getNumberOfParameters();i++){
+			((GalaxyConvertible)getParameterAt( i )).toGalaxyTest( namePrefix+"_ps", depth+1, testBuffer, indentation );
+		}
+	}
 
 	@Override
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {

@@ -145,7 +145,9 @@ public class EnumParameter extends SelectionParameter {
 			if (hasDefault()) {
 				setDefault(XMLParser.extractObjectForTags(buf, "defaultSelectedEnum", String.class ));
 			}
+			boolean u = userSelected;
 			setValue(XMLParser.extractObjectForTags(buf, "selectedEnum", String.class ));
+			userSelected = u;
 		} catch (Exception e) {
 			NonParsableException ex = new NonParsableException(e.getMessage());
 			ex.setStackTrace( e.getStackTrace() );

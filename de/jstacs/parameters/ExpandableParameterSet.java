@@ -108,7 +108,7 @@ public class ExpandableParameterSet extends ParameterSet {
 	 * Creates a new {@link ExpandableParameterSet} from its XML representation.
 	 * 
 	 * @param representation
-	 *            the XML represenation as {@link StringBuffer}
+	 *            the XML representation as {@link StringBuffer}
 	 * 
 	 * @throws NonParsableException
 	 *             if the {@link StringBuffer} <code>representation</code> could
@@ -330,6 +330,17 @@ public class ExpandableParameterSet extends ParameterSet {
 		}
 	}
 
-	
-	
+	public void toGalaxyTest( String namePrefix, int depth, StringBuffer testBuffer, int indentation ) throws Exception {
+		namePrefix = namePrefix+"_"+nameTemplate.replaceAll( "\\s", "_" );
+		int nextIndentation = XMLParser.nextIndentation(indentation);
+		
+		for( int i = 0; i < getNumberOfParameters(); i++ ) {
+			StringBuffer buf = new StringBuffer();
+			((GalaxyConvertible)getParameterAt(i)).toGalaxyTest( namePrefix, depth+1, buf, nextIndentation );
+			if( buf.length()>0 ) {
+				XMLParser.addTagsAndAttributes( buf, "repeat", "name=\""+namePrefix+"\"", indentation );
+				testBuffer.append(buf);
+			}
+		}
+	}	
 }
