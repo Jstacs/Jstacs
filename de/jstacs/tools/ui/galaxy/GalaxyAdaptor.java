@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -246,10 +247,11 @@ public class GalaxyAdaptor {
 	 * @param exportProtocol if <code>true</code> the protocol will be exported and accessible 
 	 * 					as extra result within Galaxy
 	 * @return the protocol object
+	 * @throws FileNotFoundException 
 	 */
-	public Protocol getProtocol(boolean exportProtocol){
+	public Protocol getProtocol(boolean exportProtocol) throws FileNotFoundException{
 		this.exportProtocol = exportProtocol;
-		protocol = new Protocol();
+		protocol = new Protocol(new PrintWriter(new FileOutputStream(outfile),true));
 		return protocol;
 	}
 	
@@ -663,7 +665,7 @@ public class GalaxyAdaptor {
 	 */
 	public String export(String filename, Result res, String exportExtension) throws IOException{
 		String ee = exportExtension;
-
+		
 		File dir = new File( filename ).getParentFile();
 		if( !dir.exists() ) {
 			dir.mkdirs();
@@ -914,9 +916,9 @@ public class GalaxyAdaptor {
 			return false;
 		}else if("--run".equals( args[0] )){
 			fromGalaxyConfig( args[1] );
-			outfile = args[2]; //this is the protocol filename
+			outfile = args[2];
 			outfileId = args[3];
-			newFilePath = "additional_results"; //TODO args[4]; //https://github.com/galaxyproject/galaxy/pull/7144
+			newFilePath = args[4];//TODO //https://github.com/galaxyproject/galaxy/pull/7144
 			htmlFilesPath = args[5];
 			int i=6;
 			//System.out.println("args.length="+args.length);
@@ -1307,13 +1309,15 @@ public class GalaxyAdaptor {
 
 		private ByteArrayOutputStream baos;
 		private PrintWriter wr;
+		private PrintWriter liveOutput;
 		
 		/**
 		 * Creates a new Protocol
 		 */
-		public Protocol( ) {
+		public Protocol( PrintWriter liveOutput ) {
 			baos = new ByteArrayOutputStream();
 			wr = new PrintWriter( baos );
+			this.liveOutput = liveOutput;
 		}
 		
 		/**
@@ -1321,7 +1325,9 @@ public class GalaxyAdaptor {
 		 * @param str the string to be appended
 		 */
 		public void append(String str){
-			wr.append( str.replaceAll( "\n", "<br />\n" ) );
+			String temp = str.replaceAll( "\n", "<br />" );
+			wr.append( temp+"\n" );
+			liveOutput.println( temp );
 		}
 		
 		/**
@@ -1345,8 +1351,10 @@ public class GalaxyAdaptor {
 		 * @param str the title of the heading
 		 */
 		public void appendHeading(String str){
-			wr.append( "<strong>"+str.replaceAll( "\n", "<br />\n" )+"</strong>\n" );
+			String temp = "<strong>"+str.replaceAll( "\n", "<br />\n" )+"</strong>";
+			wr.append( temp+"\n" );
 			wr.flush();
+			liveOutput.println(temp);
 		}
 		
 		/**
@@ -1354,8 +1362,10 @@ public class GalaxyAdaptor {
 		 * @param str the warning
 		 */
 		public void appendWarning(String str){
-			wr.append( "<em>"+str.replaceAll( "\n", "<br />\n" )+"</em>\n" );
+			String temp = "<em>"+str.replaceAll( "\n", "<br />\n" )+"</em>";
+			wr.append( temp+"\n" );
 			wr.flush();
+			liveOutput.println( temp );
 		}
 		
 		/**
@@ -1364,25 +1374,31 @@ public class GalaxyAdaptor {
 		 */
 		public String toString(){
 			wr.flush();
+			liveOutput.flush();
+			liveOutput.close();
 			return baos.toString();
 		}
 
 		@Override
 		public void appendThrowable(Throwable th) {
 			String msg = th.getMessage();
-			wr.append("<em>"+(msg==null?th.getClass().getName():msg.replaceAll( "\n", "<br />\n" ))+"</em>\n");
+			String temp = "<em>"+(msg==null?th.getClass().getName():msg.replaceAll( "\n", "<br />\n" ))+"</em>";
+			wr.append( temp+"\n" );
 			wr.flush();
+			liveOutput.println( temp );
 		}
 		
 		@Override
 		public void appendVerbatim(String verbatim){
-			wr.append("<pre>"+verbatim+"</pre>\n");
+			String temp = "<pre>"+verbatim+"</pre>";
+			wr.append( temp+"\n" );
+			liveOutput.println(verbatim);
 		}
 
 		@Override
 		public void flush() throws IOException {
 			wr.flush();
-			
+			liveOutput.flush();
 		}
 		
 		
