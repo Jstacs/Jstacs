@@ -200,13 +200,15 @@ public class ExpandableParameterSet extends ParameterSet {
 	 * @throws CloneNotSupportedException
 	 *             if the template could not be cloned
 	 */
-	public void addParameterToSet() throws CloneNotSupportedException {
-		
-		ParameterSetContainer simplePar = new ParameterSetContainer(
-				nameTemplate + " no. " + (++count), commentTemplate, template
-						.clone());
-		parameters.add(simplePar);
-
+	public boolean addParameterToSet() throws CloneNotSupportedException {
+		if( count < maxCount ) {
+			ParameterSetContainer simplePar = new ParameterSetContainer(
+					nameTemplate + " no. " + (++count), commentTemplate, template
+							.clone());
+			parameters.add(simplePar);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -262,18 +264,20 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *         <code>true</code> if a {@link Parameter} can be removed from the set
 	 */
 	public boolean parameterRemovable() {
-		return count > 0;
+		return count > minCount;
 	}
 
 	/**
 	 * Removes the last {@link Parameter} from set.
 	 */
-	public void removeParameterFromSet() {
+	public boolean removeParameterFromSet() {
 
-		if (count > 0) {
+		if (count > minCount) {
 			parameters.remove(parameters.size() - 1);
 			count--;
+			return true;
 		}
+		return false;
 	}
 
 	/*
