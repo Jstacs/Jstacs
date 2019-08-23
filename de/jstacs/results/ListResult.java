@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -368,4 +369,20 @@ public class ListResult extends Result {
 		this.export = export;
 	}
 	
+	public boolean equalValues( AnnotatedEntity a ) {
+		if( a instanceof ListResult ) {
+			ListResult lr = (ListResult) a;
+			if( list.length != lr.list.length ) {
+				return false;
+			} else {
+				int i = 0;
+				while( i < list.length && list[i].equals(lr.list[i]) ) {
+					i++;				
+				}
+				return i == list.length;
+			}
+		} else {
+			return false;
+		}
+	}
 }
