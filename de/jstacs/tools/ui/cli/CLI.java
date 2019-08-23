@@ -393,7 +393,7 @@ System.out.println("after deletion " + e.getNumberOfParameters());
 			if( args.length >= i+1 ) {
 				verbose = Boolean.parseBoolean(args[i]);
 			}
-			double val = JstacsTool.test(tools[toolIndex],verbose);
+			double val = JstacsTool.test(tools[toolIndex],".",verbose);//TODO FIXME directory
 			System.err.println("\nSummary: " + val + "\n" );
 		} else {
 			//run tool
