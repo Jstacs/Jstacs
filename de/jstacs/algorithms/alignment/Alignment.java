@@ -226,7 +226,7 @@ public class Alignment {
 	 * @param endS1 the end position (exclusive) in the first sequence
 	 * @param s2 the second sequence
 	 * @param startS2 the start position in the second sequence
-	 * @param endS2 the end position (exclusive) in the second seuqence
+	 * @param endS2 the end position (exclusive) in the second sequence
 	 * @return if the alignment could be computed
 	 */
 	public boolean computeAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
@@ -244,6 +244,7 @@ public class Alignment {
 		
 		//initialize
 		if( d == null || d[0].length < l1+1 || d[0][0].length < l2+1 ) {
+			d=null;//garbage collector
 			d = new double[aCosts == null ? 1 : 3][l1+1][l2+1];
 		}
 		
