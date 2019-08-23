@@ -51,6 +51,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 	private double[][] bij;
 	private int[][] structure;
 	private int[] boff;
+	private double ess;
 	
 	/**
 	 * Create a new Gaussian network with the given <code>structure</code>.
@@ -86,6 +87,21 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 			bij[i] = new double[structure[i].length];
 			off += bij[i].length;
 		}
+	}
+	
+	/**
+	 * Create a new Gaussian network with the given <code>structure</code> and an explicitly defined {@link AlphabetContainer}.
+	 * @param con the alphabet
+	 * @param structure the parents per position, provided as a two-dimensional array, 
+	 * where the first dimension indexes the nodes while the second dimension holds the indexes of the parent variables, e.g.,
+	 * <code>structure[1]</code> holds the parents of node 1, and <code>structure[1] = {2,3}</code> denotes that node has has parents 2 and 3.
+	 * May also be empty, i.e., <code>structure[1]</code>, which results in only unconditional probabilities at this position.
+	 * @param ess the equivalent sample size, currently not used in a parameter prior
+	 * @throws CloneNotSupportedException if the structure array could not be cloned
+	 */
+	public GaussianNetwork(AlphabetContainer con, int[][] structure,double ess) throws CloneNotSupportedException {
+		this(con,structure);
+		this.ess=ess;
 	}
 	
 	
@@ -314,6 +330,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 		XMLParser.appendObjectWithTags(xml, lambda, "lambda");
 		XMLParser.appendObjectWithTags(xml, mu, "mu");
 		XMLParser.appendObjectWithTags(xml, structure, "structure");
+		XMLParser.appendObjectWithTags(xml, ess, "ess");
 		XMLParser.addTags(xml, "GaussNet");
 		return xml;
 	}
@@ -326,6 +343,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 		lambda = (double[]) XMLParser.extractObjectForTags(xml, "lambda");
 		mu = (double[]) XMLParser.extractObjectForTags(xml, "mu");
 		structure = (int[][]) XMLParser.extractObjectForTags(xml, "structure");
+		ess=(Double) XMLParser.extractObjectForTags(xml, "ess") ;
 		alphabets = new AlphabetContainer(new ContinuousAlphabet());
 		length = mu.length;
 	}

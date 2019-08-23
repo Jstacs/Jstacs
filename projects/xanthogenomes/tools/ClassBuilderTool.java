@@ -38,6 +38,7 @@ import projects.tals.ScanForTBSCLI;
 import projects.tals.TALgetterDiffSM;
 import projects.xanthogenomes.BuildFamilies;
 import projects.xanthogenomes.FamilyGroupPlotter;
+import projects.xanthogenomes.RVDAlphabetContainer;
 import projects.xanthogenomes.SplitTALEs;
 import projects.xanthogenomes.TALE;
 import projects.xanthogenomes.TALEFamilyBuilder;
@@ -130,7 +131,7 @@ public class ClassBuilderTool implements JstacsTool {
 				return ttales;
 			}catch(Exception ex){
 				BufferedReader br = new BufferedReader( new StringReader( content ) );
-				DataSet ds = new DataSet( TALE.RVDAlphabet, new SparseStringExtractor( br, '>', "", new SimpleSequenceAnnotationParser() ), "-" );
+				DataSet ds = new DataSet( RVDAlphabetContainer.SINGLETON, new SparseStringExtractor( br, '>', "", new SimpleSequenceAnnotationParser() ), "-" );
 				TALE[] tales = new TALE[ds.getNumberOfElements()];
 				for(int i=0;i<ds.getNumberOfElements();i++){
 					String id = ds.getElementAt( i ).getSequenceAnnotationByType( "unparsed comment line", 0 ).getResultAt( 0 ).getValue().toString();
@@ -238,7 +239,7 @@ public class ClassBuilderTool implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.4.1";
 	}
 
 	@Override

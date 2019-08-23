@@ -46,6 +46,7 @@ import projects.talen.MatchFinder.Match;
 import projects.tals.ScanForTBSCLI;
 import projects.tals.TALgetterDiffSM;
 import projects.tals.TBSScanner;
+import projects.xanthogenomes.RVDAlphabetContainer;
 import projects.xanthogenomes.TALE;
 import projects.xanthogenomes.TALEFamilyBuilder;
 import projects.xanthogenomes.TALEFamilyBuilder.TALEFamily;
@@ -172,7 +173,7 @@ public class PredictAndIntersectTargetsTool implements JstacsTool {
 		
 		for(int t=0;t<sbs.length;t++){
 
-			DataSet tals = new DataSet(TALE.RVDAlphabet,new SparseStringExtractor( new StringReader( sbs[t].toString() ), '>', "", new SimpleSequenceAnnotationParser() ),"-");
+			DataSet tals = new DataSet(RVDAlphabetContainer.SINGLETON,new SparseStringExtractor( new StringReader( sbs[t].toString() ), '>', "", new SimpleSequenceAnnotationParser() ),"-");
 			for(int i=0;i<tals.getNumberOfElements();i++){
 				totNum++;
 				Sequence rvds = tals.getElementAt( i );
@@ -579,7 +580,7 @@ public class PredictAndIntersectTargetsTool implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.4.1";
 	}
 
 	@Override

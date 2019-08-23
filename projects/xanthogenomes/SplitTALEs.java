@@ -165,7 +165,11 @@ public class SplitTALEs {
 				protocol.appendWarning("Translated version of TALE "+id+" could not be created. Reason\n"+e.getMessage()+"\n");
 			}
 		}else{
-			transl = new TALE( id, foundStart, foundRepeats, foundEnd, true );
+			try{
+				transl = new TALE( id, foundStart, foundRepeats, foundEnd, true );
+			}catch(Exception e){
+				protocol.appendWarning("Translated version of TALE "+id+" could not be created. Reason\n"+e.getMessage()+"\n");
+			}
 		}
 		return new TALE[]{dnaTALE, transl };
 	}

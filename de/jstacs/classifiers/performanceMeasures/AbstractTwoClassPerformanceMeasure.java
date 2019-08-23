@@ -17,6 +17,7 @@
  */
 package de.jstacs.classifiers.performanceMeasures;
 
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.ToolBox;
@@ -50,6 +51,13 @@ public abstract class AbstractTwoClassPerformanceMeasure extends AbstractPerform
 
 	@Override
 	public ResultSet compute( double[][][] classSpecificScores, double[][] weights ) {
+		if(weights != null){
+			try {
+				weights = ArrayHandler.clone(weights);
+			} catch (CloneNotSupportedException doesnothappen) {
+				throw new RuntimeException(doesnothappen);
+			}
+		}
 		if(classSpecificScores.length != 2){
 			throw new RuntimeException( "Only two classes possible for "+ getName() );
 		}

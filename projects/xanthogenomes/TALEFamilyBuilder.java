@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import projects.tals.TALgetterDiffSM;
 import projects.xanthogenomes.alignmentCosts.RVDCosts;
+import projects.xanthogenomes.tools.ClassAssignmentTool;
 import de.jstacs.Storable;
 import de.jstacs.algorithms.alignment.Alignment.AlignmentType;
 import de.jstacs.algorithms.alignment.StringAlignment;
@@ -29,6 +30,7 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
+import de.jstacs.utils.ComparableElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
@@ -413,6 +415,9 @@ public class TALEFamilyBuilder implements Storable {
 				//ClusterTree<TALE> newTree = cluster(newTales,linkage,costs,at, extraGapOpening, extraGapExtension).getSecondElement();
 				
 				newTree.leafOrder(dmat);
+				
+				TALEFamilyBuilder.renameTALEs(newTree, this.getFamilyId());
+				
 				TALEFamily fam = new TALEFamily( this.getFamilyId(), newTree, builder );
 				
 				return fam;
@@ -865,7 +870,12 @@ public class TALEFamilyBuilder implements Storable {
 		at = (AlignmentType)XMLParser.extractObjectForTags( xml, "at" );
 		costs = (Costs)XMLParser.extractObjectForTags( xml, "costs" );
 		cut = (Double)XMLParser.extractObjectForTags( xml, "cut" );
-		dmat = (double[][])XMLParser.extractObjectForTags( xml, "dmat" );
+		StringBuffer sb = XMLParser.extractForTag(xml, "dmatStore" );
+		if(sb != null){
+			dmat = parseDmat(sb);
+		}else{
+			dmat = (double[][])XMLParser.extractObjectForTags( xml, "dmat" );
+		}
 		extraGapOpening = (Double)XMLParser.extractObjectForTags( xml, "extraGapOpening" );
 		extraGapExtension = (Double)XMLParser.extractObjectForTags( xml, "extraGapExtension" );
 		StringBuffer tempXML = new StringBuffer(xml);
@@ -901,7 +911,10 @@ public class TALEFamilyBuilder implements Storable {
 		XMLParser.appendObjectWithTags( xml, at, "at" );
 		XMLParser.appendObjectWithTags( xml, costs, "costs" );
 		XMLParser.appendObjectWithTags( xml, cut, "cut" );
-		XMLParser.appendObjectWithTags( xml, dmat, "dmat" );
+		//XMLParser.appendObjectWithTags( xml, dmat, "dmat" );
+		StringBuffer dmat2 = storeDmat(dmat);
+		XMLParser.addTags(dmat2, "dmatStore");
+		xml.append(dmat2);
 		XMLParser.appendObjectWithTags( xml, extraGapOpening, "extraGapOpening" );
 		XMLParser.appendObjectWithTags( xml, extraGapExtension, "extraGapExtension" );
 		/*String[] temp = new String[families.length];
@@ -914,6 +927,48 @@ public class TALEFamilyBuilder implements Storable {
 		XMLParser.appendObjectWithTags( xml, pval, "pval" );
 		return xml;
 	}
+	
+	private static StringBuffer storeDmat(double[][] dmat){
+		StringBuffer sb = new StringBuffer();
+		DecimalFormat df = new DecimalFormat("#.######");
+		for(int i=0;i<dmat.length;i++){
+			for(int j=0;j<dmat[i].length;j++){
+				if(j>0){
+					sb.append(";");
+				}
+				sb.append(df.format(dmat[i][j]));
+			}
+			sb.append("$");
+		}
+		return sb;
+	}
+	
+	
+	private static double[][] parseDmat(StringBuffer sb){
+		int off = 0;
+		int n = 0;
+		while( ( off = sb.indexOf("$",off)+1 ) > 0){
+			n++;
+		}
+		double[][] dmat = new double[n][];
+		
+		off = 0;
+		int off2 = 0;
+		n=0;
+		while( (off2 = sb.indexOf("$", off)) >= 0 ){
+			
+			String[] parts = sb.substring(off, off2).split(";");
+			dmat[n] = new double[parts.length];
+			for(int j=0;j<parts.length;j++){
+				dmat[n][j] = Double.parseDouble(parts[j]);
+			}
+			n++;
+			off = off2+1;
+		}
+		return dmat;
+	}
+	
+	
 	
 /*	public ClusterTree<TALE> getFamilyTree(){
 		return familyTree;
@@ -1152,6 +1207,76 @@ public class TALEFamilyBuilder implements Storable {
 	}
 	
 	
+	public void splitClass(String className){
+		LinkedList<TALEFamily> famList = new LinkedList<TALEFamilyBuilder.TALEFamily>();
+
+		String[] allFamIDs = ClassAssignmentTool.SchemaFamilyIdGenerator.getFamIDs();
+		LinkedList<String> free = new LinkedList<>();
+		for(int i=0;i<allFamIDs.length;i++){
+			boolean found = false;
+			for(int j=0;j<families.length;j++){
+				if(allFamIDs[i].equals(families[j].getFamilyId())){
+					found = true;
+					break;
+				}
+			}
+			if(!found){
+				free.add(allFamIDs[i]);
+			}
+		}
+		
+		
+		for(int i=0;i<families.length;i++){
+			if(className.equals(families[i].getFamilyId())){
+				double dist = families[i].getTree().getDistance();
+				ClusterTree<TALE>[] trees = Hclust.cutTree(dist-1E-6,families[i].getTree());
+				trees[0].leafOrder(dmat);
+				families[i] = new TALEFamily(families[i].getFamilyId(), trees[0], this);
+				renameTALEs(trees[0],families[i].getFamilyId());
+				famList.add(families[i]);
+				for(int j=1;j<trees.length;j++){
+					trees[j].leafOrder(dmat);
+					String newName = free.removeFirst();
+					renameTALEs(trees[j],newName);
+					famList.add(new TALEFamily(newName, trees[j], this));
+				}
+			}else{
+				famList.add(families[i]);
+			}
+		}
+		
+		this.families = famList.toArray(new TALEFamily[0]);
+		
+		LinkedList<TALE> allTALEs = new LinkedList<>();
+		for(TALEFamily fam : famList){
+			TALE[] tales = fam.getFamilyMembers();
+			for(int i=0;i<tales.length;i++){
+				allTALEs.add(tales[i]);
+			}
+		}
+		
+		dmat = computeDistMatrix(allTALEs.toArray(new TALE[0]), costs, at, extraGapOpening, extraGapExtension);
+		
+	}
+	
+	
+	private static void renameTALEs(ClusterTree<TALE> clusterTree, String newName) {
+		TALE[] tales = clusterTree.getClusterElements();
+		ComparableElement<TALE, Integer>[] els = new ComparableElement[tales.length];
+		for(int i=0;i<tales.length;i++){
+			String id = tales[i].getId();
+			id = id.replaceAll(" .*", "");
+			id = id.replaceAll("^Tal[A-Z]{2}", "");
+			int num = Integer.parseInt(id);
+			els[i] = new ComparableElement<TALE, Integer>(tales[i], num);
+		}
+		Arrays.sort(els);
+		for(int i=1;i<=els.length;i++){
+			TALE curr = els[i-1].getElement();
+			curr.setId( curr.getId().replaceAll("^Tal[A-Z]{2}[0-9]+", newName+i) );
+		}
+	}
+
 	public void removeTALEsFromFamilies(LinkedList<TALE> toRemove) {
 		LinkedList<ClusterTree<TALE>> remainingTALEs = new LinkedList<ClusterTree<TALE>>();
 		LinkedList<ClusterTree<TALE>>[] lists = new LinkedList[families.length];
