@@ -23,6 +23,7 @@ import java.io.File;
 import de.jstacs.results.PlotGeneratorResult;
 import de.jstacs.utils.graphics.GraphicsAdaptor;
 import de.jstacs.utils.graphics.PDFAdaptor;
+import de.jstacs.utils.graphics.RasterizedAdaptor;
 
 /**
  * {@link ResultSaver} for {@link PlotGeneratorResult}s.
@@ -35,6 +36,12 @@ import de.jstacs.utils.graphics.PDFAdaptor;
  */
 public class PlotGeneratorResultSaver implements ResultSaver<PlotGeneratorResult> {
 
+	
+	public enum Format{
+		PDF,
+		PNG
+	}
+	
 	/**
 	 * Registers this {@link ResultSaver} in the {@link ResultSaverLibrary}
 	 */
@@ -52,14 +59,25 @@ public class PlotGeneratorResultSaver implements ResultSaver<PlotGeneratorResult
 
 	@Override
 	public String[] getFileExtensions( PlotGeneratorResult result ) {
-		return new String[]{"pdf"};
+		if (result.getFormat() == PlotGeneratorResultSaver.Format.PDF) {
+            return new String[] { "pdf" };
+        }else{
+        	return new String[] { "png" };
+        }
 	}
 
 	@Override
 	public boolean writeOutput( PlotGeneratorResult result, File path ) {
 
+		GraphicsAdaptor ga = null;
+        if (result.getFormat() == PlotGeneratorResultSaver.Format.PDF) {
+            ga = (GraphicsAdaptor)new PDFAdaptor();
+        }
+        else {
+            ga = (GraphicsAdaptor)new RasterizedAdaptor("png");
+        }
+        
 		try{
-			GraphicsAdaptor ga = new PDFAdaptor();
 
 			result.getValue().generatePlot( ga );
 
