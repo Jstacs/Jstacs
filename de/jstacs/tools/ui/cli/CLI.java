@@ -143,8 +143,8 @@ public class CLI {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	public static class QuiteSysProtocol extends SysProtocol {
-		public QuiteSysProtocol() {
+	public static class QuietSysProtocol extends SysProtocol {
+		public QuietSysProtocol() {
 			out = new PrintStream( SafeOutputStream.getSafeOutputStream(null) );
 		}
 	}

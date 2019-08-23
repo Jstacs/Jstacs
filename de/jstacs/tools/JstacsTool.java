@@ -29,7 +29,7 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.ui.cli.CLI;
-import de.jstacs.tools.ui.cli.CLI.QuiteSysProtocol;
+import de.jstacs.tools.ui.cli.CLI.QuietSysProtocol;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
@@ -271,7 +271,7 @@ public interface JstacsTool {
 			return Double.NaN;
 		}
 		double success = 0;
-		SysProtocol protocol = verbose ? new SysProtocol() : new QuiteSysProtocol();
+		SysProtocol protocol = verbose ? new SysProtocol() : new QuietSysProtocol();
 		ProgressUpdater progress = new ProgressUpdater();
 		for( int i = 0; i < tests.length; i++ ) {
 			for( int j = 0; j < 100; j++ ) protocol.append("=");

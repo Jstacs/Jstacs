@@ -71,7 +71,7 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
-import de.jstacs.tools.ui.cli.CLI.QuiteSysProtocol;
+import de.jstacs.tools.ui.cli.CLI.QuietSysProtocol;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.utils.Time;
@@ -1053,7 +1053,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		
 		@Override
 		public void doJob() throws Exception {
-			Protocol protocol = new QuiteSysProtocol();
+			Protocol protocol = new QuietSysProtocol();
 			if( params != null ) {
 				//run ERE
 				ExtractRNAseqEvidence ere = new ExtractRNAseqEvidence();
@@ -1220,7 +1220,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			File home = new File( outDir );
 			home.mkdirs();
 			if( params != null ) {
-				SysProtocol protocol = new QuiteSysProtocol();
+				SysProtocol protocol = new QuietSysProtocol();
 				Extractor extractor = new Extractor(maxSize);
 				ToolResult res = extractor.run(params, protocol, new ProgressUpdater(), 1);
 				CLI.writeToolResults(res, protocol, outDir, extractor, params);
@@ -1446,7 +1446,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				params.getParameterForName("query proteins").setValue(sp.protein);
 			}
 			
-			SysProtocol protocol = new QuiteSysProtocol();
+			SysProtocol protocol = new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			ToolResult res = gemoma.run(params, protocol, new ProgressUpdater(), 1);
 			String outDir = home + "/" + speciesIndex + "/"+split +"/";
@@ -1496,7 +1496,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		@Override
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting GAF\n");
-			SysProtocol protocol = new QuiteSysProtocol();
+			SysProtocol protocol = new QuietSysProtocol();
 			
 			GeMoMaAnnotationFilter gaf = new GeMoMaAnnotationFilter();
 			
@@ -1535,7 +1535,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		@Override
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting AnnotationFinalizer\n");
-			SysProtocol protocol = new QuiteSysProtocol();
+			SysProtocol protocol = new QuietSysProtocol();
 			
 			AnnotationFinalizer af = new AnnotationFinalizer();
 			
@@ -1579,7 +1579,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		@Override
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting extractor for final prediction\n");
-			SysProtocol protocol = new QuiteSysProtocol();
+			SysProtocol protocol = new QuietSysProtocol();
 			ToolResult tr = extractor.run(params, protocol, new ProgressUpdater(), 1);
 			ResultSet raw = tr.getRawResult()[0];
 			for( int i = 2; i < raw.getNumberOfResults(); i++ ) {
