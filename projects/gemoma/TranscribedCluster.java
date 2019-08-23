@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
 package projects.gemoma;
 
 import java.io.BufferedWriter;
@@ -21,7 +39,6 @@ import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
-import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -32,7 +49,7 @@ import de.jstacs.tools.ToolResult;
  * 
  * @author Jens Keilwagen
  */
-public class TranscribedCluster implements JstacsTool {
+public class TranscribedCluster extends GeMoMaModule {
 	
 	private static HashMap<String, int[][][]>[] spliceSites;
 	private static HashMap<String, int[][]>[] coverage;
@@ -52,13 +69,13 @@ public class TranscribedCluster implements JstacsTool {
 			}
 		}
 		if( fName.size()>0 ) {
-			spliceSites = GeMoMa.readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, false, seqs, fName.toArray(new String[fName.size()]) );
+			spliceSites = GeMoMa.readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, false, seqs, null, fName.toArray(new String[fName.size()]) );
 		} else {
 			spliceSites = null;
 		}
 
 		//coverage
-		coverage = GeMoMa.readCoverage( (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(3)).getValue(), protocol, false );
+		coverage = GeMoMa.readCoverage( (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(3)).getValue(), protocol, false, true );
 	
 		int minGap = (Integer) parameters.getParameterForName("minimal gap").getValue();
 
@@ -208,10 +225,6 @@ public class TranscribedCluster implements JstacsTool {
 		return "Transcribed Cluster";
 	}
 	
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
-	}
-	
 	public String getShortName() {
 		return "TranscribedCluster";
 	}
@@ -223,7 +236,7 @@ public class TranscribedCluster implements JstacsTool {
 	public String getHelpText() {
 		return 
 			"**What it does**\n\nThis tool computes ... .\n\n" //TODO
-			+ GeMoMa.REF;
+			+ MORE;
 	}
 
 	private static final String defResult = "transcribedCluster";
@@ -233,5 +246,11 @@ public class TranscribedCluster implements JstacsTool {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "gff", defResult),
 		};
+	}
+	
+	@Override
+	public ToolResult[] getTestCases() {
+		// TODO missing test cases
+		return null;
 	}
 }

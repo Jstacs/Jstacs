@@ -22,7 +22,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,13 +37,13 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import de.jstacs.DataType;
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
-import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -60,7 +59,7 @@ import projects.gemoma.Tools.Ambiguity;
  * 
  * @see GeMoMa
  */
-public class Extractor implements JstacsTool {
+public class Extractor extends GeMoMaModule {
 	
 	private int maxSize;
 	
@@ -92,7 +91,7 @@ public class Extractor implements JstacsTool {
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		progress.setIndeterminate();
-		intron = null;//new BufferedWriter(new FileWriter("intron.gff"));//TODO
+		intron = null;//new BufferedWriter(new FileWriter("intron.gff"));//TODO allows to write an intron file based on the annotation, might be interesting for test cases
 		
 		HashMap<String, String> selected = null;
 		BufferedReader r;
@@ -220,8 +219,24 @@ public class Extractor implements JstacsTool {
 		if( intron != null ) {
 			intron.close();
 		}
+		
+		if( intronL != null && intronL.size() > 0 ) {
+			protocol.append("\nintron length\t#\tcumulative\n");
+			Integer[] il = new Integer[intronL.size()];
+			intronL.keySet().toArray(il);
+			Arrays.sort(il);
+			double all = 0;
+			for( int j = 0; j < il.length; j++ ) {
+				int[] stat = intronL.get(il[j]);
+				all += stat[0];
+				protocol.append(il[j] + "\t" + stat[0] + "\t" + (all/anz) + "\n");
+			}
+		}
 		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 	}
+	
+	private HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
+	private long anz = 0;
 
 	private static String par = "Parent=";
 	private static String gID = "gene_id \"";
@@ -255,16 +270,15 @@ public class Extractor implements JstacsTool {
 	 * @return a {@link HashMap} with contigs/chromosome IDs as keys and another {@link HashMap} as values.
 	 * 		The values {@link HashMap} used gene ID as keys and {@link Gene} as values.
 	 * 
-	 * @throws Exception
+	 * @throws IOException if the input can not be read
 	 */
-	public static HashMap<String, HashMap<String,Gene>> read( String input, HashMap<String,String> selected, Protocol protocol ) throws Exception {
+	public static HashMap<String, HashMap<String,Gene>> read( String input, HashMap<String,String> selected, Protocol protocol ) throws IOException {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
-		HashMap<String,Gene> chr;
 		Gene gene = null;
 		BufferedReader r;
-		String line, t;
+		String line;
 		String[] split;
-		int idx, h, end;
+		int idx, h;
 		
 		//read transcripts
 		r = new BufferedReader( new FileReader(input) );
@@ -593,7 +607,6 @@ public class Extractor implements JstacsTool {
 		boolean[] accS = new boolean[max];
 		String[] don = new String[max];
 		String[] acc = new String[max];
-		StringBuffer spliceSeq = new StringBuffer();
 		
 		for( Gene gene: genes ) {
 			if( gene.transcript.size()>0 ) {
@@ -701,6 +714,23 @@ public class Extractor implements JstacsTool {
 					
 					if( prob >= 0 ) {
 						problem[prob]++;
+					} else {
+						//intron length
+						int last=-1;
+						for( j = 0; j < il.length(); j++ ) {
+							Part current = part.get( il.get(j) );
+							if( last != -1 ) {
+								int inLe = forward ? current.start-last : last - current.end;
+								int[] num = intronL.get(inLe);
+								if( num == null ) {
+									num=new int[1];
+									intronL.put(inLe, num);
+								}
+								num[0]++;
+								anz++;
+							}
+							last=forward ? current.end : current.start;
+						}
 					}
 				}
 				
@@ -806,7 +836,7 @@ public class Extractor implements JstacsTool {
 				}
 			}
 			
-			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length() && !stopCodonEx?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//TODO > v1.3.1
+			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length() && !stopCodonEx?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//since > v1.3.1
 				message.add(pa);
 			}
 			if( current.aa!= null && current.aa.length()<minExon ) {
@@ -890,7 +920,7 @@ public class Extractor implements JstacsTool {
 					protocol.appendWarning( trans + "\tskip wrong phase for coding part(s) = "+message+"\n" +
 						"\nCDS: " + dnaSeqBuff.toString() +
 						"\nprotein: " + p +
-						"\n\nparts:\n" + c ); //TODO > v1.3.1
+						"\n\nparts:\n" + c ); //since > v1.3.1
 				}
 				return 6;
 			} else {				
@@ -950,7 +980,7 @@ public class Extractor implements JstacsTool {
 						if( forward ) {
 							genomicRegion.replace(a, b+1, genomicRegion.substring(a, b+1).toUpperCase() );
 						} else {
-							genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() ); //TODO Bug Sven
+							genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() );
 						}
 					}
 					out.get(4).writeln(">" +trans + " " + chr + " " + (gene.strand==1?"+":"-") + " " + start + ".." + end );
@@ -1052,7 +1082,7 @@ public class Extractor implements JstacsTool {
 		try{
 			return new ToolParameterSet( getShortName(),
 				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
-				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
+				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fa.gz,fasta.gz",  true ),
 
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					
@@ -1114,7 +1144,7 @@ public class Extractor implements JstacsTool {
 					+ "+---+------------------------------+\n"
 					+ "|...| ...                          |\n"
 					+ "+---+------------------------------+\n\n"
-				+ GeMoMa.REF;
+				+ MORE;
 	}
 	
 	@Override
@@ -1125,9 +1155,14 @@ public class Extractor implements JstacsTool {
 		}
 		return re;
 	}
-
+	
 	@Override
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
+	public ToolResult[] getTestCases() {
+		try {
+			return new ToolResult[]{new ToolResult(FileManager.readFile("tests/gemoma/xml/extractor-test.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

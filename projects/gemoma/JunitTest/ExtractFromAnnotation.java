@@ -122,8 +122,17 @@ public class ExtractFromAnnotation {
 	
 static int in = 0;
 	
-	static boolean stranded=false;//TODO
+	static boolean stranded=true;//TODO
 	
+	/**
+	 * @param args
+	 * 0 .. annotation
+	 * 1 .. type
+	 * 2 .. introns out
+	 * 3 .. coverage out
+	 * 
+	 * @throws IOException if we have IO problems
+	 */
 	public static void main(String[] args) throws IOException {
 		HashMap<String,HashMap<String,int[]>> combinedIntrons = new HashMap<String,HashMap<String,int[]>>();
 		HashMap<String,HashMap<Integer,int[]>> combinedCov = new HashMap<String,HashMap<Integer,int[]>>();

@@ -584,9 +584,8 @@ public class Tools {
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize, char c ) throws Exception {
-		HashMap<String,String> seqs = null;
+		HashMap<String,String> seqs = new HashMap<String, String>(initSize);
 		if( fName!=null ) {
-			seqs = new HashMap<String, String>(initSize);
 			BufferedReader r = Tools.openGzOrPlain( fName );//new BufferedReader( new FileReader( fName ) );
 			StringBuffer seq = new StringBuffer();
 			String comment=null, line;

@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
 package projects.gemoma;
 
 import java.util.ArrayList;
@@ -12,7 +30,6 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
-import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -23,7 +40,7 @@ import de.jstacs.tools.ToolResult;
  *  
  * @author Jens Keilwagen
  */
-public class CheckIntrons implements JstacsTool {
+public class CheckIntrons extends GeMoMaModule {
 
 	@Override
 	public ToolParameterSet getToolParameters() {
@@ -77,11 +94,6 @@ public class CheckIntrons implements JstacsTool {
 	}
 
 	@Override
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
-	}
-
-	@Override
 	public String getShortName() {
 		return getToolName();
 	}
@@ -98,6 +110,12 @@ public class CheckIntrons implements JstacsTool {
 
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
+		return null;
+	}
+	
+	@Override
+	public ToolResult[] getTestCases() {
+		// TODO missing test cases
 		return null;
 	}
 }

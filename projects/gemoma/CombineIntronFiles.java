@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
 package projects.gemoma;
 
 import java.io.BufferedReader;
@@ -10,6 +28,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ui.cli.CLI.SysProtocol;
+
 /**
  * A simple tool for combining intron gff files that might be created in parallel using a compute cluster.
  * 
@@ -18,7 +39,13 @@ import java.util.Map.Entry;
 public class CombineIntronFiles {
 
 	public static void main(String[] args) throws IOException {
-		BufferedWriter w = new BufferedWriter( new FileWriter(args[0]) );
+		String[] in  = new String[args.length-1];
+		System.arraycopy(args, 1, in, 0, in.length);
+		combine(new SysProtocol(), args[0], in);
+	}
+	
+	public static void combine( Protocol protocol, String out, String... in ) throws IOException {
+		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 		
 		//read files
 		BufferedReader r;
@@ -26,9 +53,9 @@ public class CombineIntronFiles {
 		HashMap<String,int[]> current;
 		
 		String line;
-		for( int i = 1; i < args.length; i++ ) {
-			System.out.println((i-1) + "\t" + args[i]);
-			r = new BufferedReader( new FileReader( args[i] ) );
+		for( int i = 0; i < in.length; i++ ) {
+			protocol.append(i + "\t" + in[i]+"\n");
+			r = new BufferedReader( new FileReader( in[i] ) );
 			//skip header
 			while( (line=r.readLine()) != null && line.charAt(0)=='#' ) {
 				if( i==1 ) {
@@ -93,7 +120,7 @@ public class CombineIntronFiles {
 		for( int j = 0; j < il.length; j++ ) {
 			int[] stat = intronL.get(il[j]);
 			all += stat[0];
-			System.out.println(il[j] + "\t" + stat[0] + "\t" + (all/anz) );
+			protocol.append(il[j] + "\t" + stat[0] + "\t" + (all/anz) +"\n");
 		}
 		
 	}

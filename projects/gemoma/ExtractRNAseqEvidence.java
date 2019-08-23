@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
 package projects.gemoma;
 
 import java.io.File;
@@ -15,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.jstacs.DataType;
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
@@ -46,7 +65,7 @@ import htsjdk.samtools.ValidationStringency;
  * 
  * @author Jan Grau, Jens Keilwagen
  */
-public class ExtractRNAseqEvidence implements JstacsTool {
+public class ExtractRNAseqEvidence extends GeMoMaModule {
 
 	public static class BedgraphEntry{
 		
@@ -220,7 +239,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 								+ "In case of FR_FIRST_STRAND, the first read of a read pair or the only read in case of single-end data is assumed to be located on forward strand of the cDNA, i.e., reverse to the mRNA orientation. "
 								+ "If you are using Illumina TruSeq you should use FR_FIRST_STRAND."
 								, true ),
-						new ParameterSetContainer( new ExpandableParameterSet( new SimpleParameterSet(		
+						new ParameterSetContainer( "mapped reads", "", new ExpandableParameterSet( new SimpleParameterSet(		
 								new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam",  true )
 							), "mapped reads", "", 1 ) ),
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
@@ -283,7 +302,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		File outInt = Tools.createTempFile("ERE-intron");
 		SafeOutputStream sosInt = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outInt));	
 		sosInt.writeln("##gff-version 3");
-		sosInt.write(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+		sosInt.write(INFO + getShortName() + " " + getToolVersion() + "; ");
 		String info = JstacsTool.getSimpleParameterInfo(parameters);
 		if( info != null ) {
 			sosInt.write("SIMPLE PARAMETERS: " + info );
@@ -581,11 +600,6 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 	}
 
 	@Override
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
-	}
-
-	@Override
 	public String getShortName() {
 		return "ERE";
 	}
@@ -598,7 +612,7 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 	@Override
 	public String getHelpText() {
 		return "**What it does**\n\nThis tools extracts introns and coverage from mapped RNA-seq reads. The results can be used in **GeMoMa**.\n\n"
-				+ GeMoMa.REF;
+				+ MORE;
 	}
 
 	@Override
@@ -606,5 +620,15 @@ public class ExtractRNAseqEvidence implements JstacsTool {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "gff", "introns")
 		};
+	}
+	
+	@Override
+	public ToolResult[] getTestCases() {
+		try {
+			return new ToolResult[]{new ToolResult(FileManager.readFile("tests/gemoma/xml/ere-test.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

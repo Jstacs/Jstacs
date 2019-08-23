@@ -77,7 +77,7 @@ public class GeMoMaCLITest {
 		end++;
 	}
 	
-	@Test
+	//@Test
 	public void testExtractor() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Extractor");
@@ -97,7 +97,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testERE() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("ERE");
@@ -131,6 +131,7 @@ public class GeMoMaCLITest {
 		list.add("a=" + in + "assignment.tabular");
 		list.add("c=" + in + "cds-parts.fasta");
 		list.add("q=" + in + "proteins.fasta");
+		/*
 		if( simple ) {
 			list.add("i=" + in + "introns.gff");
 		} else {
@@ -145,7 +146,7 @@ public class GeMoMaCLITest {
 			list.add("coverage_unstranded=" + in + "coverage.bedgraph-0.txt");
 			list.add("coverage=UNSTRANDED");
 			list.add("coverage_unstranded=" + in + "coverage.bedgraph-1.txt");
-		}
+		}*/
 		
 		String[] given = {
 				"predicted_annotation.gff"
@@ -154,7 +155,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testGAF() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GAF");
@@ -165,43 +166,8 @@ public class GeMoMaCLITest {
 		list.add("p=2");
 		list.add("g=" +in+ "predicted_annotation.gff");
 		/**/
-		//list.add("f=(evidence>1 || pAA>=0.7)");
+		list.add("f=(evidence>1 || pAA>=0.7)");
 		String[] given = {"filtered_predictions.gff"};
 		cliCheck(list, given, given);
-	}
-	
-	@Test
-	public void testGeMoMaPipelineThreads() throws Exception {
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("GeMoMaPipeline");
-		
-		list.add("t=" + in + "TAIR10_chr_all.fas");
-		
-		list.add("s=pre-extracted");
-		list.add("a=" + in + "assignment.tabular");
-		list.add("c=" + in + "cds-parts.fasta");
-		list.add("q=" + in + "proteins.fasta");
-		
-		list.add("r=EXTRACTED");
-		list.add("introns=" + in + "introns.gff");
-		list.add("coverage=UNSTRANDED");
-		list.add("coverage_unstranded=" + in + "coverage.bedgraph");
-		
-		int anz=10;
-		list.add("selected=" + in + "selected-"+anz+".txt");
-		//list.add("GeMoMa.r=100");
-		list.add("AnnotationFinalizer.r=NO");
-		//list.add("AnnotationFinalizer.u=YES");
-		list.add("threads="+8);
-		
-		String[] given = {
-				"final_annotation-"+anz+".gff3"
-		};
-		
-		String[] computed = {
-				"final_annotation.gff3"
-		};
-		
-		cliCheck(list, given, computed);
 	}
 }

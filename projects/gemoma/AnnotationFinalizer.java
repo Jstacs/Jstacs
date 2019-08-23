@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
 package projects.gemoma;
 
 import java.io.BufferedReader;
@@ -16,6 +34,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import de.jstacs.DataType;
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSetContainer;
@@ -37,7 +56,7 @@ import projects.gemoma.GeMoMa.IntArrayComparator;
  * 
  * @author Jens Keilwagen
  */
-public class AnnotationFinalizer implements JstacsTool {
+public class AnnotationFinalizer extends GeMoMaModule {
 	
 	static boolean rename;
 	
@@ -296,7 +315,7 @@ public class AnnotationFinalizer implements JstacsTool {
 		}
 		
 		String line;
-		boolean gff=true;//TODO
+		boolean gff=true;//TODO currently only for gff
 		String[] split;
 		boolean start = true;
 		while( (line=r.readLine()) != null ) {
@@ -427,21 +446,22 @@ public class AnnotationFinalizer implements JstacsTool {
 	ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, ToolParameterSet description, String version ) throws Exception {
 		progress.setIndeterminate();
 		
-		if( GeMoMa.seqs == null ) {
+		if( GeMoMa.seqs == null  ) {
 			SimpleParameterSet help = (SimpleParameterSet) parameters.getParameterForName("UTR").getValue();
 			int reads;
 			ExpandableParameterSet introns, coverage;
+			String genome;
 			if( help.getNumberOfParameters()>0 ) {
+				genome = (String) help.getParameterForName("genome").getValue();
 				reads = (Integer) help.getParameterForName("reads").getValue();
-				introns = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(0)).getValue();
-				coverage = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(2)).getValue();
-			} else {
-				reads = 1;
-				introns = coverage = null;
-			}
-			GeMoMa.fill(protocol, false, 0, parameters.getParameterForName("genome").getValue().toString(), null, reads, introns, coverage );
+				introns = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(1)).getValue();
+				coverage = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(3)).getValue();
+			
+				GeMoMa.fill(protocol, false, 0, genome, null, reads, introns, coverage );				
+				protocol.append("\n");
+			}			
 		}
-				
+
 		SimpleParameterSet renamePS = (SimpleParameterSet) parameters.getParameterForName("rename").getValue();
 		int n = renamePS.getNumberOfParameters();
 		int digits=-100;
@@ -463,8 +483,6 @@ public class AnnotationFinalizer implements JstacsTool {
 			prefix=null;
 		}
 		
-		protocol.append("\n");
-		
 		//annotation
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		HashMap<String, HashMap<String,Gene>> annotation = 
@@ -473,17 +491,17 @@ public class AnnotationFinalizer implements JstacsTool {
 
 		
 		//iterate over all chromosomes/contigs
-		File gffFile = Tools.createTempFile(getShortName()+"-");
+		File gffFile = Tools.createTempFile(getShortName());
 		BufferedWriter w = new BufferedWriter(new FileWriter(gffFile));
 		String info;
 		if( description == null ) {
 			w.append(begin);
-			w.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+			w.append(INFO + getShortName() + " " + getToolVersion() + "; ");
 			info = JstacsTool.getSimpleParameterInfo(parameters);
 		} else {
 			w.append("##gff-version 3");
 			w.newLine();
-			w.append(GeMoMa.INFO + description.getToolName() + " " + version + "; ");
+			w.append(INFO + description.getToolName() + " " + version + "; ");
 			info = JstacsTool.getSimpleParameterInfo(description);
 		}
 		if( info != null ) {
@@ -533,7 +551,7 @@ public class AnnotationFinalizer implements JstacsTool {
 			//System.out.println(c + "\t" + newC + "\t" + fwdCov + "\t" + revCov + "\t" + acc + "\t" + don );
 			
 			if( fwdCov!= null || revCov != null ) {
-				for( Gene g : genes ) {					
+				for( Gene g : genes ) {
 					//get coverage for current strand
 					int strand = g.strand();
 					int[][] a = acc==null?null:acc[strand==1?0:1];
@@ -721,7 +739,6 @@ public class AnnotationFinalizer implements JstacsTool {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
 					new FileParameter( "annotation", "The predicted genome annotation file (GFF)", "gff", true ),
 					
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),					
@@ -733,8 +750,10 @@ public class AnnotationFinalizer implements JstacsTool {
 								new SimpleParameterSet(),
 								//UTR prediction
 								new SimpleParameterSet(
+									new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa,fasta.gz,fa.gz", true ),
+									
 									new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-											new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+											new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
 										), "introns", "", 1 ) ),
 									new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 				
@@ -803,11 +822,7 @@ public class AnnotationFinalizer implements JstacsTool {
 	public String getToolName() {
 		return toolName;
 	}
-	
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
-	}
-	
+		
 	public String getShortName() {
 		return toolName;
 	}
@@ -821,7 +836,7 @@ public class AnnotationFinalizer implements JstacsTool {
 			"**What it does**\n\nThis tool finalizes an annotation."
 			+ "It allows to predict for UTRs for annotated coding sequences and to generate generic gene and transcript names. UTR prediction might be negatively influenced (i.e. too long predictions) by genomic contamination of RNA-seq libraries, overlapping genes or genes in close proximity as well as unstranded RNA-seq libraries."
 			+ "Please use *ERE* to preprocess the mapped reads.\n\n"
-			+ GeMoMa.REF;
+			+ MORE;
 	}
 
 	static final String defResult = "final_annotation";
@@ -830,5 +845,18 @@ public class AnnotationFinalizer implements JstacsTool {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "gff", defResult),
 		};
+	}
+	
+	@Override
+	public ToolResult[] getTestCases() {
+		try {
+			return new ToolResult[]{
+				new ToolResult(FileManager.readFile("tests/gemoma/xml/af-test-nothing.xml")),
+				new ToolResult(FileManager.readFile("tests/gemoma/xml/af-test-utr.xml"))
+			};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

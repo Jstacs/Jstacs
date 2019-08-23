@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jstacs.
+ * 
+ * Jstacs is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * Jstacs is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * Jstacs. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * For more information on Jstacs, visit http://www.jstacs.de
+ */
+
 package projects.gemoma;
 
 import java.io.BufferedReader;
@@ -8,7 +26,6 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,20 +61,19 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
-import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
-import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
+import de.jstacs.tools.ui.cli.CLI.QuiteSysProtocol;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
-import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.Time;
 import projects.FastaSplitter;
 
@@ -67,11 +83,13 @@ import projects.FastaSplitter;
  * @author Jens Keilwagen
  * 
  * @see ExtractRNAseqEvidence
+ * @see Denoise
  * @see Extractor
  * @see GeMoMa
  * @see GAF
+ * @see AnnotationFinalizer
  */
-public class GeMoMaPipeline implements JstacsTool {
+public class GeMoMaPipeline extends GeMoMaModule {
 
 	//XXX improve runtime? https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CountDownLatch.html
 
@@ -88,6 +106,9 @@ public class GeMoMaPipeline implements JstacsTool {
 			maxTimeOut = XMLParser.extractObjectForTags(xml, "maxTimeOut", Long.class);
 		} catch (Exception e) {
 			e.printStackTrace();
+			maxSize = -1;
+			timeOut = 3600;
+			maxTimeOut = 60*60*24*7;
 		}
 	}
 
@@ -97,7 +118,7 @@ public class GeMoMaPipeline implements JstacsTool {
 	double eValue;
 	boolean rnaSeq, stop, all;
 	
-	ToolParameterSet params, extractorParams, gemomaParams, gafParams, afParams;
+	ToolParameterSet params, denoiseParams, extractorParams, gemomaParams, gafParams, afParams;
 	ExecutorService queue;
 	ExecutorCompletionService ecs;
 	
@@ -172,11 +193,12 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
+		ParameterSet denoise = getRelevantParameters(new Denoise().getToolParameters(), "introns", "coverage", "maximum intron length" );
 		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
-		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort" );
+		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort", "maximum intron length" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
-		
+		//XXX ex.getParameterForName("proteins").setDefault(true);
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.add("own");
 		keys.add("pre-extracted");
@@ -186,7 +208,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			values.add( new SimpleParameterSet(
 							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
 							new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
-							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
+							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz,fa.gz",  true ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d)
 			) );
 			values.add( new SimpleParameterSet(
@@ -197,7 +219,7 @@ public class GeMoMaPipeline implements JstacsTool {
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d)
 			) );
 			
-			/*TODO
+			/*TODO BUSCO
 			File busco = new File( buscoPath );
 			if( busco.exists() && busco.isDirectory() ) {
 				File[] d = busco.listFiles(dirFilter);
@@ -211,7 +233,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			}/**/
 			
 			return new ToolParameterSet( getShortName(),
-				new FileParameter( "target genome", "Target genome file (FASTA)", "fasta,fa.gz,fasta.gz",  true ),
+				new FileParameter( "target genome", "Target genome file (FASTA)", "fasta,fa.gz,fasta.gz,fa.gz",  true ),
 
 				new ParameterSetContainer( "reference species", "", 
 						new ExpandableParameterSet( new SimpleParameterSet(	
@@ -223,6 +245,8 @@ public class GeMoMaPipeline implements JstacsTool {
 				
 				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ),
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
+				new SimpleParameter( DataType.INT, "maximum intron length", "The maximum length of an intron", true, 15000 ),
+				new SimpleParameter( DataType.BOOLEAN, "tblastn", "if *true* tblastn is used as search algorithm, otherwise mmseqs is used. Tblastn and mmseqs need to be installed to use the corresponding option", true, true),
 				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
 				
 				new SelectionParameter( DataType.PARAMETERSET, 
@@ -232,7 +256,7 @@ public class GeMoMaPipeline implements JstacsTool {
 								ere,
 								new SimpleParameterSet(
 										new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-												new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+												new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
 											), "introns", "", 1 ) ),
 	
 										new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
@@ -256,8 +280,14 @@ public class GeMoMaPipeline implements JstacsTool {
 								)
 						},
 						"RNA-seq evidence", "data for RNA-seq evidence", true ),
-				new SimpleParameter(DataType.BOOLEAN, "tblastn", "if *true* tblastn is used as search algorithm, otherwise mmseqs is used. Tblastn and mmseqs need to be installed to use the corresponding option", true, true),
-
+				new SelectionParameter( DataType.PARAMETERSET, 
+						new String[]{"DENOISE", "RAW"},
+						new Object[]{
+								denoise,
+								new SimpleParameterSet()
+						},
+						"denoise", "removing questionable introns that have been extracted by ERE", true ),
+				
 				new ParameterSetContainer("Extractor parameter set", "parameters for the Extrator module of GeMoMa", ex ),
 				new ParameterSetContainer("GeMoMa parameter set", "parameters for the GeMoMa", gem ),
 				new ParameterSetContainer("GAF parameter set", "parameters for the GAF module of GeMoMa", gaf ),
@@ -328,13 +358,12 @@ public class GeMoMaPipeline implements JstacsTool {
 	
 	void setGeMoMaParams( Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
 		gemomaParams.getParameterForName("target genome").setValue(target);
+		ParameterSet ps = (ParameterSet) params.getParameterForName("GeMoMa parameter set").getValue();
+		gemomaParams.getParameterForName("reads").setValue( ps.getParameterForName("reads").getValue() );
 		setRNASeqParams( gemomaParams, protocol );
 	}
 	
 	void setRNASeqParams( ToolParameterSet p, Protocol protocol ) throws IllegalValueException, CloneNotSupportedException {
-		ParameterSet ps = (ParameterSet) params.getParameterForName("GeMoMa parameter set").getValue();
-		p.getParameterForName("reads").setValue( ps.getParameterForName("reads").getValue() );
-		
 		//introns
 		ExpandableParameterSet exp = (ExpandableParameterSet) ((ParameterSetContainer) p.getParameterForName("introns")).getValue();
 		for( int i = 0; i < rnaSeqData.introns.size(); i++ ) {
@@ -407,7 +436,9 @@ public class GeMoMaPipeline implements JstacsTool {
 		Object o = global.getParameterForName(key).getValue();
 		if( o != null ) {
 			for( int i = 0; i < local.length; i++ ) {
-				local[i].getParameterForName(key).setValue(o);
+				if( local[i] != null ) {
+					local[i].getParameterForName(key).setValue(o);
+				}
 			}
 		}
 	}
@@ -471,13 +502,21 @@ public class GeMoMaPipeline implements JstacsTool {
 			System.exit(1);
 		}
 
-		
+		Denoise denoise = new Denoise();		
 		Extractor extractor = new Extractor(maxSize);
 		GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 
 		ParameterSet pa = (ParameterSet) parameters.getParameterForName("RNA-seq evidence").getValue();
 		rnaSeq=pa.getNumberOfParameters()>0;
 
+		ParameterSet dps = (ParameterSet) parameters.getParameterForName("denoise").getValue();
+		if( rnaSeq && dps.getNumberOfParameters()>0 ) {
+			denoiseParams = denoise.getToolParameters();
+			setParameters(dps, denoiseParams);
+		} else {
+			denoiseParams = null;
+		}
+		
 		extractorParams = extractor.getToolParameters();
 		setParameters(((ParameterSetContainer) parameters.getParameterForName("Extractor parameter set")).getValue(), extractorParams);
 		
@@ -495,6 +534,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			setParameters(parameters, key[i], extractorParams, gemomaParams);
 		}		
 		setParameters(parameters, "tag", gemomaParams, gafParams, afParams );
+		setParameters(parameters, "maximum intron length", gemomaParams, denoiseParams );
 		
 		selected = Tools.getSelection( (String) parameters.getParameterForName(key[0]).getValue(), maxSize, protocol );
 		
@@ -753,14 +793,18 @@ public class GeMoMaPipeline implements JstacsTool {
 		ToolResult result = null;
 		if( usedSpec>0 && success==anz ) {
 			pipelineProtocol.append("No errors detected.\n");
-			if( all ) for( int i = 0; i < speciesCounter; i++ ) {
-				Species current = species.get(i);
-				if( current.hasCDS ) {
-					String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
-					//pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
-					FileRepresentation fr = new FileRepresentation(unfiltered);
-					fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
-					res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
+			if( all ) {
+				for( int i = 0; i < speciesCounter; i++ ) {
+					Species current = species.get(i);
+					if( current.hasCDS ) {
+						String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
+						pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
+						
+						FileRepresentation fr = new FileRepresentation(unfiltered);
+						//fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
+						//fr.setFilename(null);
+						res.add( new TextResult("unfiltered predictions from species "+i, "Result", fr, "gff", gemoma.getToolName(), null, true) );
+					}
 				}
 			}
 			result = new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
@@ -768,6 +812,16 @@ public class GeMoMaPipeline implements JstacsTool {
 			pipelineProtocol.appendWarning( (anz-success) + " jobs did not finish as expected. Please check the output carefully.\n");
 		}		
 		
+		
+		for( int i = 0; i < res.size(); i++ ) {
+			Result r = res.get(i);
+			if( r instanceof TextResult ) {
+				TextResult tr = (TextResult) r;
+				FileRepresentation fr = tr.getValue();
+				fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
+				fr.setFilename(null);
+			}
+		}
 		
 		boolean debug = (boolean) parameters.getParameterForName("debug").getValue();
 		if( result != null || !debug ) {
@@ -829,7 +883,7 @@ public class GeMoMaPipeline implements JstacsTool {
 			if( tr == null ) {
 				 r = new RuntimeException("Did not finish as intended." + (usedSpec==0?" No gene model was extracted from the references.":""));
 			} else {
-				r = new RuntimeException("Did not finish as intended. " + tr.getMessage() );
+				r = new RuntimeException("Did not finish as intended. " + tr.getClass().getName() + ": " + tr.getMessage() );
 				r.setStackTrace( tr.getStackTrace() );
 			}
 			throw r;
@@ -893,12 +947,6 @@ public class GeMoMaPipeline implements JstacsTool {
 			  ecs.take();
 			  if( stop ) break;
 			  finished++;
-		}
-	}
-	
-	static class QuiteSysProtocol extends SysProtocol {
-		public QuiteSysProtocol() {
-			out = new PrintStream( SafeOutputStream.getSafeOutputStream(null) );
 		}
 	}
 	
@@ -1005,12 +1053,11 @@ public class GeMoMaPipeline implements JstacsTool {
 		
 		@Override
 		public void doJob() throws Exception {
-			pipelineProtocol.append("starting ERE\n");
-			Protocol protocol;
+			Protocol protocol = new QuiteSysProtocol();
 			if( params != null ) {
-				protocol = new QuiteSysProtocol();
 				//run ERE
 				ExtractRNAseqEvidence ere = new ExtractRNAseqEvidence();
+				pipelineProtocol.append("starting ERE\n");
 				ToolResult res = ere.run(params, protocol, new ProgressUpdater(), 1);
 				CLI.writeToolResults(res, (SysProtocol) protocol, home+"/", ere, params);
 				
@@ -1027,6 +1074,18 @@ public class GeMoMaPipeline implements JstacsTool {
 					}
 				}
 			}
+			
+			if( denoiseParams != null ) {
+				setRNASeqParams( denoiseParams, protocol );
+				Denoise denoise = new Denoise();
+				pipelineProtocol.append("starting Denoise\n");
+				ToolResult res = denoise.run(denoiseParams, protocol, new ProgressUpdater(), 1);
+				CLI.writeToolResults(res, (SysProtocol) protocol, home+"/", denoise, denoiseParams);
+				
+				rnaSeqData.introns.clear();
+				rnaSeqData.introns.add(home + "/denoised_introns.gff");
+			}
+			
 			//prepare GeMoMa
 			protocol = GeMoMaPipeline.this.pipelineProtocol;
 			
@@ -1524,7 +1583,8 @@ public class GeMoMaPipeline implements JstacsTool {
 			ToolResult tr = extractor.run(params, protocol, new ProgressUpdater(), 1);
 			ResultSet raw = tr.getRawResult()[0];
 			for( int i = 2; i < raw.getNumberOfResults(); i++ ) {
-				res.add( raw.getResultAt(i) );
+				TextResult sub = (TextResult) raw.getResultAt(i);
+				res.add( new TextResult( "predicted " + sub.getName(), sub.getComment(), sub.getValue(), sub.getMime(), (String) sub.getProducer(), sub.getExtendedType(), sub.getExport() ) );
 			}
 			CLI.writeToolResults(tr, protocol, home, extractor, params);
 		}	
@@ -1536,24 +1596,19 @@ public class GeMoMaPipeline implements JstacsTool {
 	}
 
 	@Override
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
-	}
-
-	@Override
 	public String getShortName() {
 		return "GeMoMaPipeline";
 	}
 
 	@Override
 	public String getDescription() {
-		return "runs the complete GeMoMa pipeline for one target species and multiple refernece species";
+		return "runs the complete GeMoMa pipeline for one target species and multiple reference species";
 	}
 
 	@Override
 	public String getHelpText() {
 		return "**What it does**\n\nThis tool can be used to run the complete GeMoMa pipeline. The tool is multi-threaded and can utilize all compute cores on one machine, but not distributed as for instance in a compute cluster.\nIt basically runs: makeblastdb, Extract RNA-seq evidence (ERE), Extractor, FastaSplitter, tblastn, GeMoMa, cat, and GeMoMa Annotation Filter (GAF).\n\n"
-				+ GeMoMa.REF;
+				+ MORE;
 	}
 
 	@Override
@@ -1561,5 +1616,15 @@ public class GeMoMaPipeline implements JstacsTool {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "gff", AnnotationFinalizer.defResult ),
 		};
+	}
+	
+	@Override
+	public ToolResult[] getTestCases() {
+		try {
+			return new ToolResult[]{new ToolResult(FileManager.readFile("tests/gemoma/xml/gemomapipeline-test.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

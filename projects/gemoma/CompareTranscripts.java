@@ -43,7 +43,6 @@ import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
-import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -57,7 +56,7 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen
  */
-public class CompareTranscripts implements JstacsTool {
+public class CompareTranscripts extends GeMoMaModule {
 	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
@@ -685,11 +684,6 @@ public class CompareTranscripts implements JstacsTool {
 	}
 
 	@Override
-	public String getToolVersion() {
-		return GeMoMa.VERSION;
-	}
-
-	@Override
 	public String getShortName() {
 		return "CompareTranscripts";
 	}
@@ -709,5 +703,11 @@ public class CompareTranscripts implements JstacsTool {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "tabular", "comparison")
 		};
+	}
+	
+	@Override
+	public ToolResult[] getTestCases() {
+		// TODO missing test cases
+		return null;
 	}
 }
