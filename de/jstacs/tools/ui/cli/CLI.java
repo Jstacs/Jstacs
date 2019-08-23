@@ -234,14 +234,11 @@ public class CLI {
 				ExpandableParameterSet e = (ExpandableParameterSet) parameterSet;
 				boolean intermediate = parameterSet.getNumberOfParameters()==0;
 				if( intermediate ) {
-System.out.println("before extension " + e.getNumberOfParameters());
 					e.addParameterToSet();
-System.out.println("after extension " + e.getNumberOfParameters());
 				}
 				par = parameterSet.getParameterAt( 0 );
 				if( intermediate ) {
 					e.removeParameterFromSet();
-System.out.println("after deletion " + e.getNumberOfParameters());
 				}
 				
 			} else {
@@ -393,7 +390,8 @@ System.out.println("after deletion " + e.getNumberOfParameters());
 			if( args.length >= i+1 ) {
 				verbose = Boolean.parseBoolean(args[i]);
 			}
-			double val = JstacsTool.test(tools[toolIndex],verbose);
+			File jarfile = new File(CLI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			double val = JstacsTool.test(tools[toolIndex],jarfile.getParentFile().getAbsolutePath(),verbose);
 			System.err.println("\nSummary: " + val + "\n" );
 		} else {
 			//run tool
