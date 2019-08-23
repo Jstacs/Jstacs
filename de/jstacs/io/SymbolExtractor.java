@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.WrongAlphabetException;
@@ -52,7 +53,8 @@ public class SymbolExtractor implements Enumeration<String> {
 	private boolean simple;
 
 	private int index;
-
+	HashMap<Character, String> hash = null;
+	
 	// private StringTokenizer st;
 
 	/**
@@ -83,6 +85,7 @@ public class SymbolExtractor implements Enumeration<String> {
 		this.delim = delim;
 		simple = delim == null | delim.length() == 0;
 		setStringToBeParsed( string );
+		hash = simple ? new HashMap<Character, String>() : null;
 	}
 
 	/**
@@ -154,12 +157,20 @@ public class SymbolExtractor implements Enumeration<String> {
 		}
 	}
 
+	
+	
 	/* (non-Javadoc)
 	 * @see java.util.Enumeration#nextElement()
 	 */
 	public String nextElement() {
 		if( simple ) {
-			return String.valueOf( string.charAt( index++ ) );
+			char c = string.charAt( index++ );
+			String s = hash.get(c);
+			if( s == null ) {
+				s = String.valueOf( c );
+				hash.put(c, s);
+			}
+			return s;
 		} else {
 			int current = index, prev;
 			do {
