@@ -21,6 +21,8 @@ package de.jstacs.results.savers;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
@@ -32,7 +34,7 @@ import de.jstacs.results.TextResult;
  * If the file defined by the contained {@link FileRepresentation} already exists, it is simply copied to the new location.
  * 
  * 
- * @author Jan Grau
+ * @author Jan Grau, Jens Keilwagen
  *
  */
 public class TextResultSaver implements ResultSaver<TextResult> {
@@ -59,17 +61,30 @@ public class TextResultSaver implements ResultSaver<TextResult> {
 	public boolean writeOutput( TextResult result, File path ) {
 		try{
 			FileRepresentation rep = result.getValue();
+			String relPath = getRelative( path.getAbsolutePath() );
 			if(rep.getFilename() != null && (new File(rep.getFilename())).exists()){
-				FileManager.copy(rep.getFilename(), path.getAbsolutePath());
+				FileManager.copy(rep.getFilename(), relPath );
+				new File( rep.getFilename() ).delete();////TODO move (Jan likes to move files);
 			}else{
 				PrintWriter wr = new PrintWriter( path );
 				wr.println( rep.getContent() );
 				wr.close();
 			}
+			rep.setFilename( relPath );
 			return true;
 		}catch(IOException e){
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	private String getRelative( String path ) {
+		Path home = Paths.get(new File("").getAbsolutePath());
+		Path absolute = Paths.get(path);
+		try {
+			return home.relativize(absolute).toString();
+		} catch( IllegalArgumentException e ) {
+			return path;
 		}
 	}
 
