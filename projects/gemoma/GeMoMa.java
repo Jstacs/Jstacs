@@ -25,7 +25,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -4550,10 +4549,8 @@ public class GeMoMa extends GeMoMaModule {
 					
 					new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
 						new SelectionParameter( DataType.PARAMETERSET, 
-								new String[]{"NO", "UNSTRANDED", "STRANDED"},
+								new String[]{"UNSTRANDED", "STRANDED"},
 								new Object[]{
-									//no coverage
-									new SimpleParameterSet(),
 									//unstranded coverage
 									new SimpleParameterSet(
 											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
@@ -4565,7 +4562,7 @@ public class GeMoMa extends GeMoMaModule {
 									)
 								},  "coverage", "experimental coverage (RNA-seq)", true
 						)
-					), "coverage", "", 1 ) ),
+					), "coverage", "", 0 ) ),
 					
 					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false ),
