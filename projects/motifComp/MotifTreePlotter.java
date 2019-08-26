@@ -22,6 +22,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 
@@ -47,17 +48,33 @@ public class MotifTreePlotter {
 
 		private ClusterTree<StatisticalModel> tree;
 		private int lineHeight;
-		private int n;
+		private String repID;
+		private Pair<double[][],int[][]> pair;
+		private boolean labelInnerNodes;
+		private Double cutHeight;
 		
-		public MotifTreePlotGenerator(ClusterTree<StatisticalModel> tree, int lineHeight, int n) {
+		public MotifTreePlotGenerator(ClusterTree<StatisticalModel> tree, int lineHeight, int n) throws Exception {
+			this(tree,lineHeight,n,null, false, null);
+		}
+		
+		public MotifTreePlotGenerator(ClusterTree<StatisticalModel> tree, int lineHeight, int n, String repID, boolean labelInnerNodes, Double cutHeight) throws Exception {
 			this.tree = tree;
 			this.lineHeight = lineHeight;
-			this.n = n;
+			this.repID = repID;
+			this.pair = DeBruijnMotifComparison.getClusterRepresentative(tree, n);
+			this.labelInnerNodes = labelInnerNodes;
+			this.cutHeight = cutHeight;
 		}
 		
 		public MotifTreePlotGenerator(StringBuffer xml) throws NonParsableException{
 			tree = (ClusterTree<StatisticalModel>) XMLParser.extractObjectForTags(xml, "tree");
 			lineHeight = (Integer) XMLParser.extractObjectForTags(xml, "lineHeight");
+			cutHeight = (Double) XMLParser.extractObjectForTags(xml, "cutHeight");
+			labelInnerNodes = (boolean) XMLParser.extractObjectForTags(xml, "labelInnerNodes");
+			double[][] rep = (double[][]) XMLParser.extractObjectForTags(xml, "rep");
+			int[][] offs = (int[][]) XMLParser.extractObjectForTags(xml, "offs");
+			this.pair = new Pair<double[][], int[][]>(rep, offs);
+			repID = (String) XMLParser.extractObjectForTags(xml, "repID");
 		}
 		
 		@Override
@@ -65,14 +82,22 @@ public class MotifTreePlotter {
 			StringBuffer buf = new StringBuffer();
 			XMLParser.appendObjectWithTags(buf, tree, "tree");
 			XMLParser.appendObjectWithTags(buf, lineHeight, "lineHeight");
+			XMLParser.appendObjectWithTags(buf, cutHeight, "cutHeight");
+			XMLParser.appendObjectWithTags(buf, labelInnerNodes, "labelInnerNodes");
+			XMLParser.appendObjectWithTags(buf, pair.getFirstElement(),"rep");
+			XMLParser.appendObjectWithTags(buf, pair.getSecondElement(), "offs");
+			XMLParser.appendObjectWithTags(buf, repID, "repID");
 			return buf;
 		}
 
+		public double[][] getRepresentative(){
+			return pair.getFirstElement();
+		}
+		
 		@Override
 		public void generatePlot(GraphicsAdaptor ga) throws Exception {
 			MotifTreePlotter plotter = new MotifTreePlotter(lineHeight);
 			
-			Pair<double[][],int[][]> pair = DeBruijnMotifComparison.getClusterRepresentative(tree, n); 
 			double[][] rep = pair.getFirstElement();
 			int[][] offs = pair.getSecondElement();
 			
@@ -86,12 +111,12 @@ public class MotifTreePlotter {
 				dim[1] *= fac;
 			}*/
 			
-			plotter.plot(ga.getGraphics(dim[0], dim[1]), tree, rep, offs);
+			plotter.plot(ga.getGraphics(dim[0], dim[1]), tree, rep, offs, repID, labelInnerNodes, cutHeight);
 		}
 		
 	}
 	
-	private static double[][] cutDown(double[][] rep) {
+	public static double[][] cutDown(double[][] rep) {
 		int i=0;
 		while( SeqLogoPlotter.getICScale(rep[i]) < 0.125 ){
 			i++;
@@ -112,6 +137,7 @@ public class MotifTreePlotter {
 	}
 	
 	protected static DecimalFormat format = new DecimalFormat();
+	protected static DecimalFormat labFormat = new DecimalFormat("#.###");
 	protected int lineHeight;
 	
 	public MotifTreePlotter(int lineHeight){
@@ -124,7 +150,7 @@ public class MotifTreePlotter {
 	}
 	
 	
-	protected int plotTree(Graphics2D graphics, int treeDim, ClusterTree<StatisticalModel> tree, int xoff, int yoff){
+	protected int plotTree(Graphics2D graphics, int treeDim, ClusterTree<StatisticalModel> tree, int xoff, int yoff, boolean labelInnerNodes, Double cutHeight){
 		xoff += lineHeight/2;
 		graphics = (Graphics2D)graphics.create();
 		
@@ -140,7 +166,17 @@ public class MotifTreePlotter {
 		
 	//	System.out.println("max: "+maxDist+" min: "+minDist+" rat: "+rat+" dim: "+treeDim);
 		
-		int loc = plotEdges(graphics,tree,xoff,0,lineHeight/4, 0,treeDim, maxDist, rat);
+		if(cutHeight != null){
+			int x = lineHeight+(int)Math.round((maxDist - cutHeight)*rat) + xoff;
+			
+			Color back = graphics.getColor();
+			graphics.setColor(Color.RED);
+			graphics.drawLine(x, treeDim+lineHeight, x, 0);
+			graphics.setColor(back);
+		}
+		
+		
+		int loc = plotEdges(graphics,tree,xoff,0,lineHeight/4, 0,treeDim, maxDist, rat, labelInnerNodes);
 		
 		//graphics.drawLine( 0, loc, lineHeight, loc );
 		
@@ -200,7 +236,7 @@ public class MotifTreePlotter {
 		
 	}
 	
-	private int plotEdges(Graphics2D graphics, ClusterTree tree, int xoff, int reloff, int yoff, int numAtop, int treeWidth, double maxDist, double rat){
+	private int plotEdges(Graphics2D graphics, ClusterTree tree, int xoff, int reloff, int yoff, int numAtop, int treeWidth, double maxDist, double rat, boolean labelInnerNodes){
 		//System.out.println(tree.getDistance());
 		if(tree.getNumberOfElements() == 1){
 			graphics.drawLine( xoff+reloff, yoff+((numAtop)*lineHeight*3)/2 + lineHeight, xoff+(int)(lineHeight*1.5)+(int)Math.round(maxDist*rat), yoff+((numAtop)*lineHeight*3)/2 + lineHeight );
@@ -214,7 +250,7 @@ public class MotifTreePlotter {
 			int maxPrev = 0;
 			int newXoff = lineHeight+(int)Math.round((maxDist - tree.getDistance())*rat);
 			for(int i=0;i<subs.length;i++){
-				int prev = plotEdges( graphics, subs[i], xoff, newXoff, yoff, numAtop, treeWidth, maxDist, rat );
+				int prev = plotEdges( graphics, subs[i], xoff, newXoff, yoff, numAtop, treeWidth, maxDist, rat, labelInnerNodes );
 				if(prev < minPrev){
 					minPrev = prev;
 				}
@@ -227,31 +263,58 @@ public class MotifTreePlotter {
 
 			graphics.drawLine( xoff+newXoff, minPrev, xoff+newXoff, maxPrev );
 			
+			if(labelInnerNodes){
+				
+				Font f = graphics.getFont();
+				int size = (int)Math.ceil(lineHeight/10.0);
+				graphics.setFont(new Font(graphics.getFont().getName(),graphics.getFont().getStyle(), size));
+				String lab = " "+labFormat.format(tree.getDistance());
+				graphics.drawString(lab, xoff+newXoff,minPrev+(maxPrev-minPrev)/2 );
+				
+				graphics.setFont(f);
+			}
+			
 			return minPrev+(maxPrev-minPrev)/2;
 			
 		}
 	}
 	
-	private void plotLeaves(Graphics2D graphics, StatisticalModel[] members, int[][] offs, int xoff, int yoff){
+	private void plotLeaves(Graphics2D graphics, StatisticalModel[] members, int[][] offs, int xoff, int yoff, String repID){
 		graphics = (Graphics2D) graphics.create();
 		yoff +=2*lineHeight;
 		
 		for(int i=0;i<members.length;i++){
 			if(members[i] instanceof PWMSupplier){
 				String name = "";
+				boolean isRep = false;
 				if(members[i] instanceof PFMWrapperTrainSM){
 					name = ((PFMWrapperTrainSM)members[i]).getName();
+					if(name != null && name.equals(repID)){
+						isRep = true;
+					}
 				}
+				
 				double[][] pwm = ((PWMSupplier)members[i]).getPWM();
 				if(offs[i][1] < 0){
 					pwm = PFMComparator.getReverseComplement(DNAAlphabet.SINGLETON, pwm);
 					name += " (RC)";
 				}
 				
-				int w = SeqLogoPlotter.getColumnWidth( lineHeight );
+				double w = SeqLogoPlotter.getColumnWidth( lineHeight, pwm.length );
+				
 				int width = SeqLogoPlotter.getWidth(lineHeight, pwm);
 				
-				SeqLogoPlotter.plotLogo(graphics, xoff+offs[i][0]*w, yoff, width, lineHeight, pwm, null, "Position", "bits");
+				SeqLogoPlotter.plotLogo(graphics, (int)(xoff+offs[i][0]*w), yoff, width, lineHeight, pwm, null, "Position", "bits");
+				
+				if(isRep){
+					Stroke stroke = graphics.getStroke();
+					graphics.setStroke(new BasicStroke(lineHeight/40f));
+					graphics.setColor(Color.RED);
+					//graphics.drawLine((int)(xoff+(offs[i][0]-0.5)*w), (int)(yoff), (int)(xoff+(offs[i][0]-0.5)*w), (int)(yoff-lineHeight));
+					graphics.drawRect((int)(xoff+(offs[i][0]-0.5)*w), (int)(yoff-lineHeight*1.4), width+(int)w, (int)(lineHeight*1.4));
+					graphics.setColor(Color.BLACK);
+					graphics.setStroke(stroke);
+				}
 				
 				if(name != null){
 					int textWidth = (int)Math.round( graphics.getFontMetrics().getStringBounds( name, graphics ).getWidth() );
@@ -266,7 +329,12 @@ public class MotifTreePlotter {
 										
 					int textCenter = (int)Math.round( graphics.getFontMetrics().getStringBounds( name, graphics ).getCenterX() );
 					
-					graphics.drawString(name, xoff+offs[i][0]*w-textCenter+width/2, yoff-(int)Math.floor(lineHeight*1.1));
+					
+					
+					graphics.drawString(name, (int)(xoff+offs[i][0]*w-textCenter+width/2), yoff-(int)Math.floor(lineHeight*1.1));
+					
+					
+					
 				}
 				
 				
@@ -280,15 +348,21 @@ public class MotifTreePlotter {
 	
 	
 	public int[] getDimension(ClusterTree<StatisticalModel> tree, double[][] rep, int[][] offs){
-		
-		
+				
 		int height = getHeight( tree.getNumberOfElements() );
 		int treeWidth = height;
+		
+		int minOff = offs[0][0];
+		for(int i=1;i<offs.length;i++){
+			if(offs[i][0]<minOff){
+				minOff = offs[i][0];
+			}
+		}
 		
 		int maxWidth = 0;
 		StatisticalModel[] models = tree.getClusterElements();
 		for(int i=0;i<models.length;i++){
-			int temp = models[i].getLength()+offs[i][0];
+			int temp = models[i].getLength()+(offs[i][0]-minOff);
 			if(temp > maxWidth){
 				maxWidth = temp;
 			}
@@ -301,7 +375,7 @@ public class MotifTreePlotter {
 		return new int[]{treeWidth/4 + repWidth + maxWidth +lineHeight*2, height+2*lineHeight };
 	}
 	
-	public void plot(Graphics2D graphics, ClusterTree<StatisticalModel> tree, double[][] rep, int[][] offs){
+	public void plot(Graphics2D graphics, ClusterTree<StatisticalModel> tree, double[][] rep, int[][] offs, String repID, boolean labelInnerNodes, Double cutHeight){
 		graphics = (Graphics2D) graphics.create();
 		int[] dim = getDimension(tree, rep, offs);
 		graphics.setColor(Color.WHITE);
@@ -332,7 +406,7 @@ public class MotifTreePlotter {
 		
 		int repWidth = SeqLogoPlotter.getWidth(lineHeight, rep.length);
 		
-		int loc = plotTree(graphics, treeHeight, tree, repWidth, 0);
+		int loc = plotTree(graphics, treeHeight, tree, repWidth, 0, labelInnerNodes, cutHeight);
 		
 		if(rep != null){
 			
@@ -354,7 +428,7 @@ public class MotifTreePlotter {
 			SeqLogoPlotter.plotLogo(graphics, lineHeight/4, loc+lineHeight/2, repWidth, lineHeight, rep, null, "Position", "bits");
 		}
 		
-		plotLeaves(graphics, members, offs, repWidth+treeHeight/4+(int)(lineHeight*1.5), 0);
+		plotLeaves(graphics, members, offs, repWidth+treeHeight/4+(int)(lineHeight*1.5), 0, repID);
 
 		
 	}

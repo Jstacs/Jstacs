@@ -22,7 +22,7 @@ public class Catchitt {
 
 	public static void main(String[] args) throws Exception {
 		
-		CLI cli = new CLI(new boolean[]{false,true,false,true,false}, new ChromatinAccessibility(), new MotifScores(), new DeriveLabelTool(), new IterativeTrainingTool(), new PredictionTool());
+		CLI cli = new CLI(new boolean[]{false,false,true,false,true,false}, new ChromatinAccessibility(), new MethylationLevels(), new MotifScores(), new DeriveLabelTool(), new IterativeTrainingTool(), new PredictionTool());
 		//cli.wiki();
 		cli.run(args);
 		
