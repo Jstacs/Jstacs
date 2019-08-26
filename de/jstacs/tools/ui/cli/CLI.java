@@ -479,7 +479,6 @@ public class CLI {
 				throw new IllegalValueException("Parameter mis-specified in: "+args[i]);
 			}
 			String[] temp = new String[]{args[i].substring(0, idx),args[i].substring(idx+1)};
-
 			if("outdir".equals( temp[0] ) ){
 				outdir = temp[1];
 			}else if(configureThreads && "threads".equals( temp[0] ) ){
@@ -517,10 +516,10 @@ public class CLI {
 		return new Pair<String, Integer>(outdir, threads);
 	}
 
-	private void set( String pathPrefix, ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
+	private boolean set( String pathPrefix, ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ParameterSet template = null;
-		boolean intermediate = false;
+		boolean intermediate = false, set=false;
 		ExpandableParameterSet eps = null;
 		if( isExp ) {
 			eps = (ExpandableParameterSet) parameters;
@@ -562,29 +561,31 @@ if( key == null ) {
 							par2.setValue(value.removeFirst());
 							
 							if( par2.getDatatype() == DataType.PARAMETERSET ) {
-								set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
+								set |= set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
 							}
 						}						
 					} else {
 						par.setValue( value.removeFirst() );
+						set=true;
 						if( par.getDatatype() == DataType.PARAMETERSET ) {
-							set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+							set |= set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 						}
 					}
 				} else if( par.getDatatype() == DataType.PARAMETERSET ) {
-					set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+					set |= set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 				}
 				
 				if( value != null && value.size() == 0 ) {
 					valueMap.remove(key);
 				}
 			} else {
-				set(pathPrefix+":"+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
+				set |= set(pathPrefix+":"+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
 			}
 		}
-		if( intermediate ) {
+		if( intermediate && !set ) {
 			eps.removeParameterFromSet();
 		}
+		return set;
 	}
 
 
