@@ -24,6 +24,7 @@ import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.results.savers.PlotGeneratorResultSaver;
 import de.jstacs.utils.graphics.GraphicsAdaptor;
 
 /**
@@ -54,6 +55,7 @@ public class PlotGeneratorResult extends Result {
 	
 	private PlotGenerator gen;
 	private boolean isStatic;
+	private PlotGeneratorResultSaver.Format outputFormat;
 	
 	/**
 	 * Creates a new {@link PlotGeneratorResult} with the given name, comment, {@link PlotGenerator}.
@@ -63,9 +65,23 @@ public class PlotGeneratorResult extends Result {
 	 * @param isStatic if <code>true</code>, the plot is considered static and may be cached.
 	 */
 	public PlotGeneratorResult( String name, String comment, PlotGenerator gen, boolean isStatic ) {
+		this(name, comment, gen, isStatic, PlotGeneratorResultSaver.Format.PDF);
+	}
+	
+	
+	/**
+	 * Creates a new {@link PlotGeneratorResult} with the given name, comment, {@link PlotGenerator}.
+	 * @param name the name of the result
+	 * @param comment a comment on the result
+	 * @param gen the object that may generate the plot
+	 * @param isStatic if <code>true</code>, the plot is considered static and may be cached.
+	 * @param outputFormat the output format
+	 */
+	public PlotGeneratorResult( String name, String comment, PlotGenerator gen, boolean isStatic, PlotGeneratorResultSaver.Format outputFormat ) {
 		super( name, comment, DataType.IMAGE );
 		this.gen = gen;
 		this.isStatic = isStatic;
+		this.outputFormat = outputFormat;
 	}
 
 	/**
@@ -86,12 +102,20 @@ public class PlotGeneratorResult extends Result {
 	protected void appendFurtherInfos( StringBuffer buf ) {
 		XMLParser.appendObjectWithTags( buf, gen, "generator" );
 		XMLParser.appendObjectWithTags( buf, isStatic, "isStatic" );
+		XMLParser.appendObjectWithTags(buf, this.outputFormat.toString(), "outputFormat");
 	}
 
 	@Override
 	protected void extractFurtherInfos( StringBuffer buf ) throws NonParsableException {
 		gen = (PlotGenerator)XMLParser.extractObjectForTags( buf, "generator" );
 		isStatic = (Boolean)XMLParser.extractObjectForTags( buf, "isStatic" );
+		try {
+            String outform = (String)XMLParser.extractObjectForTags(buf, "outputFormat");
+            this.outputFormat = PlotGeneratorResultSaver.Format.valueOf(outform);
+        }
+        catch (NonParsableException ex) {
+            this.outputFormat = PlotGeneratorResultSaver.Format.PDF;
+        }
 	}
 
 	@Override
@@ -106,5 +130,9 @@ public class PlotGeneratorResult extends Result {
 	public boolean isStatic() {
 		return isStatic;
 	}
+	
+	public PlotGeneratorResultSaver.Format getFormat() {
+        return this.outputFormat;
+    }
 
 }

@@ -1440,8 +1440,11 @@ public class SeqLogoPlotter {
 	 * @param height the height
 	 * @return the width of one column
 	 */
-	public static int getColumnWidth(int height){
-		return (int)(height/6.0);
+	public static int getColumnWidth(int height, int numCol){
+		 int w = (int)(height / 6.0 * numCol + height * 0.4);
+	     double wl = height * 0.4;
+	     double w2 = (w - wl) / numCol;
+	     return (int)w2;
 	}
 	
 	/**
