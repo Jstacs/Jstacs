@@ -255,7 +255,7 @@ public class GalaxyAdaptor {
 	 */
 	public Protocol getProtocol(boolean exportProtocol) throws FileNotFoundException{
 		this.exportProtocol = exportProtocol;
-		protocol = new Protocol(new PrintWriter(new FileOutputStream(outfile),true));
+		protocol = new Protocol(outfile);
 		return protocol;
 	}
 	
@@ -1317,11 +1317,15 @@ public class GalaxyAdaptor {
 		
 		/**
 		 * Creates a new Protocol
+		 * 
+		 * @throws FileNotFoundException 
 		 */
-		public Protocol( PrintWriter liveOutput ) {
+		public Protocol( String outFile ) throws FileNotFoundException {
 			baos = new ByteArrayOutputStream();
 			wr = new PrintWriter( baos );
-			this.liveOutput = liveOutput;
+			
+			//autoFlush does not help, as it only works for println, printf, and format
+			this.liveOutput = new PrintWriter(new FileOutputStream(outFile));
 		}
 		
 		/**
@@ -1332,6 +1336,7 @@ public class GalaxyAdaptor {
 			String temp = str.replaceAll( "\n", "<br />\n" );
 			wr.append( temp );
 			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 		
 		/**
@@ -1359,6 +1364,7 @@ public class GalaxyAdaptor {
 			wr.append( temp );
 			wr.flush();
 			liveOutput.print(temp);
+			liveOutput.flush();
 		}
 		
 		/**
@@ -1370,6 +1376,7 @@ public class GalaxyAdaptor {
 			wr.append( temp );
 			wr.flush();
 			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 		
 		/**
@@ -1390,6 +1397,7 @@ public class GalaxyAdaptor {
 			wr.append( temp );
 			wr.flush();
 			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 		
 		@Override
@@ -1397,16 +1405,14 @@ public class GalaxyAdaptor {
 			String temp = "<pre>"+verbatim+"</pre>\n";
 			wr.append( temp );
 			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 
 		@Override
 		public void flush() throws IOException {
 			wr.flush();
 			liveOutput.flush();
-		}
-		
-		
-		
+		}		
 	}
 	
 	private static class OutputElement{
