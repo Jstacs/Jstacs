@@ -4498,15 +4498,15 @@ public class GeMoMa extends GeMoMaModule {
 				&& this.startS2 == startS2 && this.l2 == endS2-startS2
 			) {
 					int i = startS1;
-					while( i < l1 && this.s1.continuousVal(i)==s1.continuousVal(i) ) {
+					while( i < endS1 && this.s1.continuousVal(i)==s1.continuousVal(i) ) {
 						i++;						
 					}
-					if( i == l1 ) {
+					if( i == endS1 ) {
 						i = startS2;
-						while( i < l2 && this.s2.continuousVal(i)==s2.continuousVal(i) ) {
+						while( i < endS2 && this.s2.continuousVal(i)==s2.continuousVal(i) ) {
 							i++;						
 						}
-						if( i == l2 ) {
+						if( i == endS2 ) {
 							//same as last computed alignment
 							return false;
 						}
