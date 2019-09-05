@@ -198,7 +198,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort", "maximum intron length" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
-		//XXX ex.getParameterForName("proteins").setDefault(true);
+		try {
+			ex.getParameterForName("proteins").setDefault(true);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.add("own");
 		keys.add("pre-extracted");
@@ -1453,6 +1457,12 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			SysProtocol protocol = new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			ToolResult res = gemoma.run(params, protocol, new ProgressUpdater(), 1);
+			ResultSet[] r = res.getRawResult();
+			for( int j = 0; j < r.length; j++) {
+				for( int i = 0; i < r[j].getNumberOfResults(); i++) {
+					System.out.println(r[j].getResultAt(i).getName());
+				}
+			}
 			String outDir = home + "/" + speciesIndex + "/"+split +"/";
 			CLI.writeToolResults(res, protocol, outDir, gemoma, params);
 		}
