@@ -274,17 +274,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			//System.out.println( pred.size() + "\t" + k + "\t" +current.index);
 		}
 		protocol.append( "all: " + pred.size() + "\n" );
-/*		
-		//initial filter: start, stop
-		if( complete ) {
-			for( int i = pred.size()-1; i >= 0; i-- ){
-				Prediction p = pred.get(i);
-				if( !(p.hash.get("start").charAt(0)=='M' && p.hash.get("stop").charAt(0)=='*') ) {
-					pred.remove(i);
-				}
-			}
-		}
-*/	
+
 		//combine redundant
 		Collections.sort(pred);
 		Prediction last = pred.get(pred.size()-1);
@@ -568,6 +558,16 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					b.put(key, val.equals("NA")?""+Double.NaN:val);
 				}
 			}
+			
+			//avoid Exceptions with filter conditions that access attributes that are not defined
+			//if no RNA-seq data was used for the annotation
+			if( !toBeChecked.hash.containsKey("tie") ) b.put("tie", Double.NaN);
+			if( !toBeChecked.hash.containsKey("tde") ) b.put("tde", Double.NaN);
+			if( !toBeChecked.hash.containsKey("tae") ) b.put("tae", Double.NaN);
+			//if query proteins were not used in GeMoMa
+			if( !toBeChecked.hash.containsKey("iAA") ) b.put("iAA", Double.NaN);
+			if( !toBeChecked.hash.containsKey("pAA") ) b.put("pAA", Double.NaN);
+			
 			String s = engine.eval(filter, b).toString();
 			Boolean bool = Boolean.parseBoolean( s );
 //System.out.println(toBeChecked.id + "\t" + f + "\t" + s + "\t" + bool);
