@@ -105,6 +105,8 @@ public class GeMoMa extends GeMoMaModule {
 	 * The index of the score in the blast output.
 	 */
 	private static final int scoreIndex = 13;
+
+	public static final String timeoutMsg = "Invocation did not return before timeout";
 	
 
 	//global variables (always same for the same target species)
@@ -1156,18 +1158,14 @@ public class GeMoMa extends GeMoMaModule {
 			//h.addSplitHits(lines);
 			noL++;
 		} catch( ArrayIndexOutOfBoundsException aiobe ) {
-			StringBuffer s = new StringBuffer();
-			StackTraceElement[] trace = aiobe.getStackTrace();
-			for (StackTraceElement traceElement : trace)
-				s.append("\tat " + traceElement+"\n");
 			ArrayIndexOutOfBoundsException moreDetails = new ArrayIndexOutOfBoundsException(
 					"Please check the search algorithm input. It seems to have less columns than expected."
 					+ "\nline: " + line
 					+ "\nsplit: " + Arrays.toString(split)
-					+ "\noriginal message: " + aiobe.getMessage()
-					+ "\noriginal stacktrace:\n" + s.toString()						
+					+ "\noriginal message: " + aiobe.getMessage()				
 					+ "\n"
 			);
+			moreDetails.setStackTrace(aiobe.getStackTrace());
 			throw moreDetails;
 		}
 	}
@@ -2272,6 +2270,8 @@ public class GeMoMa extends GeMoMaModule {
 			return clone;
 		}
 		
+		int[] res = null;
+		
 		/**
 		 * This method predicts gene model of a given transcript.
 		 * 
@@ -2357,74 +2357,123 @@ public class GeMoMa extends GeMoMaModule {
 			final String CHROM = chrom;
 			final HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> HASH = hash;
 			final Collection<String> COLLECTION = collection;
-			int[] res = null;
+			res=null;
+			Future f = null;
+			Thread t = null;
 			try {
-				Future<int[]> f = executorService.submit(new Callable<int[]>(){
-	                public int[] call() throws Exception {
-						splice=null;
-						used=null;
-	                	HashMap<Integer,ArrayList<Hit>>[] lines;
-	                	Iterator<String> it;
-	        			int m = 0, k = 0, bestSumScore = Integer.MIN_VALUE, sumScore;
-	        			if( STRAND == -1 ) {
-	        				//forward DP: compute initial score for each chromosome/contig and strand
-	        				it = COLLECTION.iterator();
-	        				IntList score = new IntList();
-	        				while( it.hasNext() ) {
-	        					String c = it.next();
-	        					lines = HASH.get( c );
-	        	
-	        					//check both strands
-	        					for( int j = 0; j < lines.length; j++ ) {
-	        						if( lines[j].size() > 0 ) {
-	        							numberOfTestedStrands++;       							
-	        							sumScore = forwardDP( j==0, lines[j], false );
-	        							if( sumScore > bestSumScore ) {
-	        								bestSumScore = sumScore;
-	        							}
-	        							score.add(sumScore);
-	        							//verbose.writeln( c + "\t" + (j==0) + "\t" + sumScore + "\t" + new Date() );
-	        						}
-	        					}
-	        				}
-	        				
-	        				//backward DP: compute final score and gene structure (b) on candidate chromosomes/contigs and strands
-	        				it = COLLECTION.iterator();
-	        				//Solution best = new Solution(), b = new Solution(), z = new Solution(), h;
-	        				
-	        				double threshold = bestSumScore*GeMoMa.this.contigThreshold;
-	        				//verbose.writeln( threshold + "\t" + new Date() );
-	        				while( it.hasNext() ) {
-	        					String c = it.next();
-	        					lines = HASH.get( c );
-	        					
-	        					//check both strands
-	        					for( int j = 0; j < lines.length; j++ ) {
-	        						if( lines[j].size() > 0 ) {
-	        							if( score.get(m) >= threshold ) {
-	        								k++;
-	        								detailedAnalyse( c, j==0, lines[j] );
-	        							}
-	        							m++;
-	        						}
-	        					}
-	        				}
-	        			} else {
-	        				lines = HASH.get( CHROM );
-	        				if( lines != null && lines[STRAND].size()>0 ) {
-	        					numberOfTestedStrands++;
-	        					bestSumScore = forwardDP( STRAND==0, lines[STRAND], false );
-	        					detailedAnalyse( CHROM, STRAND==0, lines[STRAND] );
-	        					k=1;
-	        				}
-	        			}
-	        			return new int[]{ bestSumScore, k };
-	                }
-	            });
-				res = f.get(timeOut,TimeUnit.SECONDS);
+				t = new Thread() {
+					 public void run() {
+						 try {
+							splice=null;
+							used=null;
+		                	HashMap<Integer,ArrayList<Hit>>[] lines;
+		                	Iterator<String> it;
+		        			int m = 0, k = 0, bestSumScore = Integer.MIN_VALUE, sumScore;
+		        			if( STRAND == -1 ) {
+		        				//forward DP: compute initial score for each chromosome/contig and strand
+		        				it = COLLECTION.iterator();
+		        				IntList score = new IntList();
+		        				while( it.hasNext() ) {
+		        					String c = it.next();
+		        					lines = HASH.get( c );
+		        	
+		        					//check both strands
+		        					for( int j = 0; j < lines.length; j++ ) {
+		        						if( lines[j].size() > 0 ) {
+		        							numberOfTestedStrands++;       							
+		        							sumScore = forwardDP( j==0, lines[j], false );
+		        							if( sumScore > bestSumScore ) {
+		        								bestSumScore = sumScore;
+		        							}
+		        							score.add(sumScore);
+		        							//verbose.writeln( c + "\t" + (j==0) + "\t" + sumScore + "\t" + new Date() );
+		        						}
+		        					}
+		        				}
+		        				
+		        				//backward DP: compute final score and gene structure (b) on candidate chromosomes/contigs and strands
+		        				it = COLLECTION.iterator();
+		        				//Solution best = new Solution(), b = new Solution(), z = new Solution(), h;
+		        				
+		        				double threshold = bestSumScore*GeMoMa.this.contigThreshold;
+		        				//verbose.writeln( threshold + "\t" + new Date() );
+		        				while( it.hasNext() ) {
+		        					String c = it.next();
+		        					lines = HASH.get( c );
+		        					
+		        					//check both strands
+		        					for( int j = 0; j < lines.length; j++ ) {
+		        						if( lines[j].size() > 0 ) {
+		        							if( score.get(m) >= threshold ) {
+		        								k++;
+		        								detailedAnalyse( c, j==0, lines[j] );
+		        							}
+		        							m++;
+		        						}
+		        					}
+		        				}
+		        			} else {
+		        				lines = HASH.get( CHROM );
+		        				if( lines != null && lines[STRAND].size()>0 ) {
+		        					numberOfTestedStrands++;
+		        					bestSumScore = forwardDP( STRAND==0, lines[STRAND], false );
+		        					detailedAnalyse( CHROM, STRAND==0, lines[STRAND] );
+		        					k=1;
+		        				}
+		        			}
+		        			res = new int[]{ bestSumScore, k };
+						 } catch( Exception e ) {
+							 RuntimeException re = new RuntimeException(e.getMessage());
+							 re.setStackTrace(e.getStackTrace());
+							 throw re;
+						 } finally {
+							 synchronized ( protocol ) {
+								protocol.notify();
+							}
+						 }
+					 }
+				};
+				
+				f = executorService.submit(t);
+				f.get(timeOut,TimeUnit.SECONDS);
 	        } catch (TimeoutException e) {
-	        	protocol.append( "\tInvocation did not return before timeout of " + timeOut + " seconds\n");
+	        	protocol.append( "\t" +timeoutMsg + " of " + timeOut + " seconds\n");
+	        	protocol.append(new Date() + "\t" + System.currentTimeMillis() +"\n");
 	        	out=false;
+	        	
+	        	//stop thread
+	        	t.interrupt(); //will probably not help
+	        	
+	        	synchronized( protocol ) {
+	        		//set variable to force an Exception 
+		        	align1.clear();
+		        	align2.clear();
+		        	align.clear();
+		        	MyAlignment a=align, b=align1, c=align2;
+		        	align=align1=align2=null;
+		        	
+		        	int[][] s = sums; 
+		        	sums=null;
+		        	
+		        	HashMap<String, String> se = seqs;
+		        	seqs=null;
+
+		        	//wait for an Exception
+		        	protocol.wait();
+		        	
+		        	//replace
+		        	align=a;
+		        	align1=b;
+		        	align2=c;
+		        	align1.clear();
+		        	align2.clear();
+		        	align.clear();
+		        	
+		        	sums = s;
+		        	
+		        	seqs=se;
+	        	}
+	        	protocol.append(new Date() + "\t" + System.currentTimeMillis() +"\n" );
 	        } finally {
 	        	splice=null;
 	        	used=null;
@@ -4434,7 +4483,7 @@ public class GeMoMa extends GeMoMaModule {
 		}
 	}
 	
-	static class MyAlignment extends Alignment {
+	static class MyAlignment extends Alignment { //TODO static?
 		
 		private IntList first = new IntList(), second = new IntList();
 		private TranscriptPredictor instance;
@@ -4498,12 +4547,12 @@ public class GeMoMa extends GeMoMaModule {
 				&& this.startS2 == startS2 && this.l2 == endS2-startS2
 			) {
 					int i = startS1;
-					while( i < endS1 && this.s1.continuousVal(i)==s1.continuousVal(i) ) {
+					while( i < endS1 && this.s1.discreteVal(i)==s1.discreteVal(i) ) {
 						i++;						
 					}
 					if( i == endS1 ) {
 						i = startS2;
-						while( i < endS2 && this.s2.continuousVal(i)==s2.continuousVal(i) ) {
+						while( i < endS2 && this.s2.discreteVal(i)==s2.discreteVal(i) ) {
 							i++;						
 						}
 						if( i == endS2 ) {
@@ -4513,8 +4562,44 @@ public class GeMoMa extends GeMoMaModule {
 					}
 			}
 			instance.numberOfPairwiseAlignments++;
-			return super.computeAlignment(type, s1, startS1, endS1, s2, startS2, endS2);
-		}		
+			
+			/*
+			Sequence oldS1=this.s1;
+			Sequence oldS2=this.s2;
+			int oldStartS1=this.startS1;
+			int oldStartS2=this.startS2;
+			int oldL1=this.l1;
+			int oldL2=this.l2;
+			try {*/
+				return super.computeAlignment(type, s1, startS1, endS1, s2, startS2, endS2);
+			/*} catch( Exception e ) {
+				System.out.println("old:");
+				System.out.println(oldS1);
+				System.out.println(oldS2);
+				System.out.println(oldStartS1);
+				System.out.println(oldStartS2);
+				System.out.println(oldL1);
+				System.out.println(oldL2);
+				System.out.println();
+				System.out.println("new:");
+				System.out.println(s1);
+				System.out.println(s2);
+				System.out.println(startS1);
+				System.out.println(startS2);
+				System.out.println(l1);
+				System.out.println(l2);
+				System.out.println();
+				
+				printMatrix(s1,s2);
+				
+				throw e;
+			}*/
+		}
+		
+		void clear() {
+			s1=s2=null;
+			startS1=startS2=l1=l2=-1;
+		}
 	}
 	
 	public static enum Score {
