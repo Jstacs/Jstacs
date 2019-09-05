@@ -61,15 +61,13 @@ public class Denoise extends GeMoMaModule {
 		try{
 			return new ToolParameterSet( getShortName(), 
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
 						), "introns", "", 1 ) ),
 					
 					new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
 						new SelectionParameter( DataType.PARAMETERSET, 
-								new String[]{"NO", "UNSTRANDED", "STRANDED"},
+								new String[]{"UNSTRANDED", "STRANDED"},
 								new Object[]{
-									//no coverage
-									new SimpleParameterSet(),
 									//unstranded coverage
 									new SimpleParameterSet(
 											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
