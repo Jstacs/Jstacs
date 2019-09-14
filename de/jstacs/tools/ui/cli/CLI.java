@@ -234,14 +234,11 @@ public class CLI {
 				ExpandableParameterSet e = (ExpandableParameterSet) parameterSet;
 				boolean intermediate = parameterSet.getNumberOfParameters()==0;
 				if( intermediate ) {
-System.out.println("before extension " + e.getNumberOfParameters());
 					e.addParameterToSet();
-System.out.println("after extension " + e.getNumberOfParameters());
 				}
 				par = parameterSet.getParameterAt( 0 );
 				if( intermediate ) {
 					e.removeParameterFromSet();
-System.out.println("after deletion " + e.getNumberOfParameters());
 				}
 				
 			} else {
@@ -393,7 +390,8 @@ System.out.println("after deletion " + e.getNumberOfParameters());
 			if( args.length >= i+1 ) {
 				verbose = Boolean.parseBoolean(args[i]);
 			}
-			double val = JstacsTool.test(tools[toolIndex],".",verbose);//TODO FIXME directory
+			File jarfile = new File(CLI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			double val = JstacsTool.test(tools[toolIndex],jarfile.getParentFile().getAbsolutePath(),verbose);
 			System.err.println("\nSummary: " + val + "\n" );
 		} else {
 			//run tool
@@ -481,7 +479,6 @@ System.out.println("after deletion " + e.getNumberOfParameters());
 				throw new IllegalValueException("Parameter mis-specified in: "+args[i]);
 			}
 			String[] temp = new String[]{args[i].substring(0, idx),args[i].substring(idx+1)};
-
 			if("outdir".equals( temp[0] ) ){
 				outdir = temp[1];
 			}else if(configureThreads && "threads".equals( temp[0] ) ){
@@ -519,10 +516,10 @@ System.out.println("after deletion " + e.getNumberOfParameters());
 		return new Pair<String, Integer>(outdir, threads);
 	}
 
-	private void set( String pathPrefix, ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
+	private boolean set( String pathPrefix, ParameterSet parameters, HashMap<String, String> hashMap, HashMap<String, LinkedList<String>> valueMap, Protocol protocol, int exp ) throws IllegalValueException, CloneNotSupportedException {
 		boolean isExp = parameters instanceof ExpandableParameterSet;
 		ParameterSet template = null;
-		boolean intermediate = false;
+		boolean intermediate = false, set=false;
 		ExpandableParameterSet eps = null;
 		if( isExp ) {
 			eps = (ExpandableParameterSet) parameters;
@@ -564,29 +561,31 @@ if( key == null ) {
 							par2.setValue(value.removeFirst());
 							
 							if( par2.getDatatype() == DataType.PARAMETERSET ) {
-								set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
+								set |= set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
 							}
 						}						
 					} else {
 						par.setValue( value.removeFirst() );
+						set=true;
 						if( par.getDatatype() == DataType.PARAMETERSET ) {
-							set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+							set |= set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 						}
 					}
 				} else if( par.getDatatype() == DataType.PARAMETERSET ) {
-					set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
+					set |= set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
 				}
 				
 				if( value != null && value.size() == 0 ) {
 					valueMap.remove(key);
 				}
 			} else {
-				set(pathPrefix+":"+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
+				set |= set(pathPrefix+":"+i,(ParameterSet) par.getValue(), hashMap, valueMap, protocol, exp );
 			}
 		}
-		if( intermediate ) {
+		if( intermediate && !set ) {
 			eps.removeParameterFromSet();
 		}
+		return set;
 	}
 
 

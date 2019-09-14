@@ -284,19 +284,5 @@ public class ExtractSequencesTool implements JstacsTool {
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[]{new ResultEntry(TextResult.class, "fasta", "Extracted sequences")};
 	}
-	
-	@Override
-	public ToolResult[] getTestCases(String path) {
-		return null;
-	}
-
-	@Override
-	public void clear() {		
-	}
-
-	@Override
-	public String[] getReferences() {
-		return null;
-	}
 
 }

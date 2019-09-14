@@ -226,19 +226,5 @@ public class DimontPredictorTool implements JstacsTool {
 				new ResultEntry(ListResult.class, null, "Predictions for motif 1")
 		};
 	}
-	
-	@Override
-	public ToolResult[] getTestCases(String path) {
-		return null;
-	}
-
-	@Override
-	public void clear() {		
-	}
-
-	@Override
-	public String[] getReferences() {
-		return null;
-	}
 
 }

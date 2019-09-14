@@ -83,7 +83,7 @@ import de.jstacs.tools.ToolResult;
  */
 public class GalaxyAdaptor {
 
-	ToolParameterSet parameters;
+	ParameterSet parameters;
 	private ResultEntry[] defaultResults;
 	private String[] defaultResultPaths;
 	private LinkedList<String> path;
@@ -156,6 +156,10 @@ public class GalaxyAdaptor {
 		return htmlId++;
 	}
 	
+	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String version, String command, String labelName) {
+		this(parameters, defaultResults, addLine, toolname, description, null, version, command, labelName);
+	}
+	
 	/**
 	 * Creates a new {@link GalaxyAdaptor} from a given {@link ParameterSet} containing all parameters
 	 * that are necessary for a program is shall be included in a Galaxy installation. Besides the
@@ -173,7 +177,7 @@ public class GalaxyAdaptor {
 	 * @param labelName if <code>null</code>, the default names of Galaxy are used, otherwise a field &quot;Job name&quot; 
 	 *     is added as first parameter of the tool with internal name <code>labelName</code>. The internal name must not collide with the name of any other parameter.
 	 */
-	public GalaxyAdaptor(ToolParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String[] citation, String version, String command, String labelName){
+	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String[] citation, String version, String command, String labelName){
 		this.parameters = parameters;
 		if(defaultResults == null){
 			this.defaultResults = new ResultEntry[0];
@@ -251,7 +255,7 @@ public class GalaxyAdaptor {
 	 */
 	public Protocol getProtocol(boolean exportProtocol) throws FileNotFoundException{
 		this.exportProtocol = exportProtocol;
-		protocol = new Protocol(new PrintWriter(new FileOutputStream(outfile),true));
+		protocol = new Protocol(outfile);
 		return protocol;
 	}
 	
@@ -1313,11 +1317,15 @@ public class GalaxyAdaptor {
 		
 		/**
 		 * Creates a new Protocol
+		 * 
+		 * @throws FileNotFoundException 
 		 */
-		public Protocol( PrintWriter liveOutput ) {
+		public Protocol( String outFile ) throws FileNotFoundException {
 			baos = new ByteArrayOutputStream();
 			wr = new PrintWriter( baos );
-			this.liveOutput = liveOutput;
+			
+			//autoFlush does not help, as it only works for println, printf, and format
+			this.liveOutput = new PrintWriter(new FileOutputStream(outFile));
 		}
 		
 		/**
@@ -1325,9 +1333,10 @@ public class GalaxyAdaptor {
 		 * @param str the string to be appended
 		 */
 		public void append(String str){
-			String temp = str.replaceAll( "\n", "<br />" );
-			wr.append( temp+"\n" );
-			liveOutput.println( temp );
+			String temp = str.replaceAll( "\n", "<br />\n" );
+			wr.append( temp );
+			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 		
 		/**
@@ -1351,10 +1360,11 @@ public class GalaxyAdaptor {
 		 * @param str the title of the heading
 		 */
 		public void appendHeading(String str){
-			String temp = "<strong>"+str.replaceAll( "\n", "<br />\n" )+"</strong>";
-			wr.append( temp+"\n" );
+			String temp = "<strong>"+str.replaceAll( "\n", "<br />\n" )+"</strong>\n";
+			wr.append( temp );
 			wr.flush();
-			liveOutput.println(temp);
+			liveOutput.print(temp);
+			liveOutput.flush();
 		}
 		
 		/**
@@ -1362,10 +1372,11 @@ public class GalaxyAdaptor {
 		 * @param str the warning
 		 */
 		public void appendWarning(String str){
-			String temp = "<em>"+str.replaceAll( "\n", "<br />\n" )+"</em>";
-			wr.append( temp+"\n" );
+			String temp = "<em>"+str.replaceAll( "\n", "<br />\n" )+"</em>\n";
+			wr.append( temp );
 			wr.flush();
-			liveOutput.println( temp );
+			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 		
 		/**
@@ -1382,27 +1393,26 @@ public class GalaxyAdaptor {
 		@Override
 		public void appendThrowable(Throwable th) {
 			String msg = th.getMessage();
-			String temp = "<em>"+(msg==null?th.getClass().getName():msg.replaceAll( "\n", "<br />\n" ))+"</em>";
-			wr.append( temp+"\n" );
+			String temp = "<em>"+(msg==null?th.getClass().getName():msg.replaceAll( "\n", "<br />\n" ))+"</em>\n";
+			wr.append( temp );
 			wr.flush();
-			liveOutput.println( temp );
+			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 		
 		@Override
 		public void appendVerbatim(String verbatim){
-			String temp = "<pre>"+verbatim+"</pre>";
-			wr.append( temp+"\n" );
-			liveOutput.println(verbatim);
+			String temp = "<pre>"+verbatim+"</pre>\n";
+			wr.append( temp );
+			liveOutput.print( temp );
+			liveOutput.flush();
 		}
 
 		@Override
 		public void flush() throws IOException {
 			wr.flush();
 			liveOutput.flush();
-		}
-		
-		
-		
+		}		
 	}
 	
 	private static class OutputElement{

@@ -360,14 +360,9 @@ public class ExpandableParameterSet extends ParameterSet {
 	@Override
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 		namePrefix = namePrefix+"_"+nameTemplate.replaceAll( "\\s", "_" );
-		while(count > 0){
-			removeParameterFromSet();
-		}
+		while( removeParameterFromSet() );
 		int num = XMLParser.extractObjectForTags(  command, namePrefix+"_len", int.class );
-		while(num > 0){
-			addParameterToSet();
-			num--;
-		}
+		while( getNumberOfParameters() < num && addParameterToSet() );
 		int i=0;
 		for(;i<getNumberOfParameters()-count;i++){
 			((GalaxyConvertible)getParameterAt( i )).fromGalaxy( namePrefix+"_ps", command );

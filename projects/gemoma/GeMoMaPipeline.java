@@ -198,7 +198,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort", "maximum intron length" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
-		//XXX ex.getParameterForName("proteins").setDefault(true);
+		try {
+			ex.getParameterForName("proteins").setDefault(true);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.add("own");
 		keys.add("pre-extracted");
@@ -261,10 +265,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	
 										new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
 											new SelectionParameter( DataType.PARAMETERSET, 
-													new String[]{"NO", "UNSTRANDED", "STRANDED"},
+													new String[]{"UNSTRANDED", "STRANDED"},
 													new Object[]{
-														//no coverage
-														new SimpleParameterSet(),
 														//unstranded coverage
 														new SimpleParameterSet(
 																new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
@@ -276,7 +278,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 														)
 													},  "coverage", "experimental coverage (RNA-seq)", true
 											)
-										), "coverage", "", 1 ) )
+										), "coverage", "", 0 ) )
 								)
 						},
 						"RNA-seq evidence", "data for RNA-seq evidence", true ),
@@ -650,11 +652,14 @@ public class GeMoMaPipeline extends GeMoMaModule {
 						//SelectionParameter sel 
 						SimpleParameterSet ps = (SimpleParameterSet) exp.getParameterAt(i).getValue();
 						ps = (SimpleParameterSet) ps.getParameterAt(0).getValue();
-						if( ps.getNumberOfParameters() == 1 ) {
-							rnaSeqData.coverageUn.add( (String) ps.getParameterAt(0).getValue() );
-						} else if( ps.getNumberOfParameters() == 2 ) {
-							rnaSeqData.coverageFwd.add( (String) ps.getParameterAt(0).getValue() );
-							rnaSeqData.coverageRC.add( (String) ps.getParameterAt(1).getValue() );
+						switch( ps.getNumberOfParameters() ) {
+							case 1:
+								rnaSeqData.coverageUn.add( (String) ps.getParameterAt(0).getValue() );
+								break;
+							case 2:
+								rnaSeqData.coverageFwd.add( (String) ps.getParameterAt(0).getValue() );
+								rnaSeqData.coverageRC.add( (String) ps.getParameterAt(1).getValue() );
+								break;
 						}					
 					}
 					
@@ -1075,7 +1080,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				}
 			}
 			
-			if( denoiseParams != null ) {
+			if( denoiseParams != null 
+					&& rnaSeqData.introns.size()>0
+					&& (rnaSeqData.coverageUn.size()>0 || rnaSeqData.coverageFwd.size()>0 || rnaSeqData.coverageRC.size()>0)
+			) {
 				setRNASeqParams( denoiseParams, protocol );
 				Denoise denoise = new Denoise();
 				pipelineProtocol.append("starting Denoise\n");
@@ -1449,6 +1457,12 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			SysProtocol protocol = new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			ToolResult res = gemoma.run(params, protocol, new ProgressUpdater(), 1);
+			ResultSet[] r = res.getRawResult();
+			for( int j = 0; j < r.length; j++) {
+				for( int i = 0; i < r[j].getNumberOfResults(); i++) {
+					System.out.println(r[j].getResultAt(i).getName());
+				}
+			}
 			String outDir = home + "/" + speciesIndex + "/"+split +"/";
 			CLI.writeToolResults(res, protocol, outDir, gemoma, params);
 		}

@@ -42,6 +42,7 @@ import de.jstacs.results.StorableResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
+import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
@@ -108,7 +109,6 @@ public class Galaxy {
 	
 	private GalaxyAdaptor getGalaxyAdaptor( int i, String jar, String vmargs, String[] args ) throws Exception {
 		String name = tools[i].getShortName();
-		
 		GalaxyAdaptor ga = new GalaxyAdaptor( tools[i], "java"+vmargs+" -jar "+jar+" "+name, "jobname", new File(jar).getParentFile().getAbsolutePath() );
 		ga.setHelp( tools[i].getHelpText() );
 		ga.parse( args, configThreads[i] );
@@ -123,12 +123,10 @@ public class Galaxy {
 	 * @throws Exception if the configuration could not be created or the tool threw an exception
 	 */
 	public void run(String[] args) throws Exception{
-		
 		File jarfile = new File(Galaxy.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 		String jar = jarfile.getAbsolutePath();
 		
 		if("--create".equals( args[0]) ){
-			
 			//System.out.println("Creating " + tools.length);
 			if( args.length == 1 ) 
 			{
@@ -151,15 +149,12 @@ public class Galaxy {
 				getGalaxyAdaptor(getToolIndex(args[1]), jar, myVMArgs, new String[]{"--create",args[1]+".xml"} );
 			}
 		}else{
-			
 			String toolname = args[0];
 			int idx = getToolIndex( toolname );
 			
 			String[] args2 = new String[args.length-1];
 			System.arraycopy( args, 1, args2, 0, args2.length );
-			
 			GalaxyAdaptor ga = getGalaxyAdaptor(idx, jar, "", args2);//do not use vmargs here
-			
 			Protocol protocol = ga.getProtocol( false );
 			
 			ProgressUpdater progress = new ProgressUpdater();
@@ -170,8 +165,7 @@ public class Galaxy {
 			print( ps, "" );
 			System.out.println( "The number of threads used for the tool, defaults to 1\t= "+ga.getThreads() );
 			/**/
-			
-			ResultSet ress = tools[idx].run( ga.parameters, protocol, progress, ga.getThreads() ).getRawResult()[0];			
+			ResultSet ress = tools[idx].run( (ToolParameterSet) ga.parameters, protocol, progress, ga.getThreads() ).getRawResult()[0];			
 			
 			Pair<Result,boolean[]>[] temp = flatten(ress);
 			

@@ -177,15 +177,12 @@ public class FeatureReader {
 		if(lines[0] == null){
 			return true;
 		}
-		if (lines[1] == null) {
-            return false;
-        }
 		String[] parts = lines[1].split("\t");
 		String ref = parts[0]+"\t"+parts[1]+"\t";
 		boolean check = true;
 		int i = (lines[0].length()>0 ? 0 : 1);
 		while(check && i < lines.length){
-			check &= lines[i] != null && lines[i].startsWith(ref);
+			check &= lines[i].startsWith(ref);
 			i++;
 		}
 		return check;
