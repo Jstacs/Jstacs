@@ -284,5 +284,21 @@ public class LoadAndViewClassesTool implements JstacsTool {
 	public ResultEntry[] getDefaultResultInfos() {
 		return null;
 	}
+	
+	@Override
+	public ToolResult[] getTestCases(String path) {
+		return null;
+	}
+
+	@Override
+	public void clear() {
+		
+	}
+
+	@Override
+	public String[] getReferences() {
+		return null;
+	}
+
 
 }

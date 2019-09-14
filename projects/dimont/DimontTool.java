@@ -1041,5 +1041,21 @@ public class DimontTool implements JstacsTool {
 		return min;
 	}
 	
+	@Override
+	public ToolResult[] getTestCases(String path) {
+		return null;
+	}
+
+	@Override
+	public void clear() {
+		
+	}
+
+	@Override
+	public String[] getReferences() {
+		return null;
+	}
+
+	
 	
 }
