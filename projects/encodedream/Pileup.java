@@ -189,6 +189,10 @@ public class Pileup {
 	
 	
 	public static void pileup(String bam, ObjectStream<? extends CovPile> piles, boolean variants, boolean coverage) throws IOException {
+		pileup(bam, piles, variants, coverage, true);
+	}
+	
+	public static void pileup(String bam, ObjectStream<? extends CovPile> piles, boolean variants, boolean coverage, boolean useClipping) throws IOException {
 		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( ValidationStringency.SILENT );
@@ -225,8 +229,12 @@ public class Pileup {
 		while(samIt.hasNext()){
 			SAMRecord rec = samIt.next();
 			if(!rec.getReadUnmappedFlag()&&rec.getMappingQuality()>0){
-				int refStart = rec.getUnclippedStart();
+				int refStart = useClipping ? rec.getStart() : rec.getUnclippedStart();
 				String chr = rec.getReferenceName();
+				if (refStart < refOff && oldChr != null && chr.equals(oldChr)) {
+                    System.err.println("WARNING not sorted according to " + (useClipping ? "clipped" : "unclipped") + " coordinates: " + refStart + " <-> " + refOff);
+                    System.err.println(rec.getReadName());
+                }
 				if( (oldChr != null && !chr.equals(oldChr))){
 					collect((ObjectStream<CovPile>)piles,counts,totalCount,oldChr,refOff,maxEnd,maxEnd,insertions);
 					refOff = 0;
@@ -292,10 +300,10 @@ public class Pileup {
 				}
 				
 				if(coverage && !rec.getReadNegativeStrandFlag()){//count only 5' end
-					int idx = rec.getUnclippedStart()-refOff;
+					int idx = (useClipping ? rec.getStart() : rec.getUnclippedStart()) - refOff;
 					totalCount[idx]++;
 				}else if(coverage && rec.getReadNegativeStrandFlag()){
-					int idx = rec.getUnclippedEnd()-refOff;
+					int idx = (useClipping ? rec.getEnd() : rec.getUnclippedEnd()) - refOff;
 					totalCount[idx]++;
 				}
 				
