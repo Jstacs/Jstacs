@@ -18,17 +18,22 @@ package projects.encodedream;
  */
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.broad.igv.bbfile.BBFileHeader;
 import org.broad.igv.bbfile.BBFileReader;
 import org.broad.igv.bbfile.BigWigIterator;
 import org.broad.igv.bbfile.WigItem;
 
+import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMSequenceRecord;
@@ -118,6 +123,21 @@ public class Coverage {
 		
 	}
 	
+	public static void coverageMeth(String faiFile, String bedFileGz, PrintStream out, int bin) throws NumberFormatException, FileNotFoundException, IOException {
+        SortedBedAccessor sba = new SortedBedAccessor(bedFileGz);
+        BufferedReader read = new BufferedReader(new FileReader(faiFile));
+        String str = null;
+        while ((str = read.readLine()) != null) {
+            String[] parts = str.split("\t");
+            String chr = parts[0];
+            int len = Integer.parseInt(parts[1]);
+            double[] orig = sba.getProfileForChromosome(chr, len);
+            double[][] temp = aggregateMeth(orig, bin);
+            print(chr, temp, out, bin);
+        }
+        read.close();
+    }
+	
 	public static void coverage(ObjectStream<CovPile> ps, double lambdaBG, String bam, PrintStream out, int bin){
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( ValidationStringency.SILENT );
@@ -159,6 +179,11 @@ public class Coverage {
 		}
 		double[][] temp = process(orig,lambdaBG, bin);
 		print(lastChr, temp, out, bin);
+		for(int i = dict.getSequenceIndex(lastChr) + 1; i < dict.size(); ++i) {
+            orig = new double[dict.getSequence(i).getSequenceLength()];
+            temp = process(orig, lambdaBG, bin);
+            print(dict.getSequence(i).getSequenceName(), temp, out, bin);
+        }
 	}
 
 	private static void print(String chr, double[][] temp, PrintStream out, int bin) {
@@ -237,6 +262,54 @@ public class Coverage {
 		
 		return aggregate(orig, bin);
 	}
+	
+	private static double[][] aggregateMeth(double[] orig, int bin) {
+		
+        int broad = 1000;
+        
+        DoubleList temp = new DoubleList(bin + 1);
+        double[][] res = new double[orig.length / bin][];
+        for(int i = 0; i + bin <= orig.length; i += bin) {
+            temp.clear();
+            for (int j = i; j < i + bin; ++j) {
+                if (!Double.isNaN(orig[j])) {
+                    temp.add(orig[j]);
+                }
+            }
+            double min = 0.0;
+            double average = 0.0;
+            double max = 0.0;
+            if (temp.length() > 0) {
+                min = temp.min(0, temp.length());
+                average = temp.mean(0, temp.length());
+                max = temp.max(0, temp.length());
+            }
+            (res[i / bin] = new double[8])[0] = min;
+            res[i / bin][1] = average;
+            res[i / bin][2] = max;
+        }
+        for(int i = 0; i < orig.length; ++i) {
+            if (Double.isNaN(orig[i])) {
+                orig[i] = 0.0;
+            }
+        }
+        for(int i = 0; i + bin <= orig.length; i += bin) {
+            double mean = ToolBox.mean(i, i + bin, orig);
+            int broadStart = Math.max(0, i - broad);
+            int broadEnd = Math.min(orig.length, i + broad);
+            double bMeanAfter = ToolBox.mean(i, broadEnd, orig);
+            double bMeanBefore = ToolBox.mean(broadStart, i + 1, orig);
+            double bMaxAfter = ToolBox.max(i, broadEnd, orig);
+            double bMaxBefore = ToolBox.max(broadStart, i + 1, orig);
+            res[i / bin][3] = mean;
+            res[i / bin][4] = bMeanAfter;
+            res[i / bin][5] = bMeanBefore;
+            res[i / bin][6] = bMaxAfter;
+            res[i / bin][7] = bMaxBefore;
+        }
+        return res;
+    }
+	
 	
 	
 	private static double[][] aggregate(double[] orig, int bin) {
@@ -334,5 +407,39 @@ public class Coverage {
 			}		
 		}	
 	}
+	
+	
+	private static class SortedBedAccessor{
+	    private String bedFileGz;
+	    
+	    public SortedBedAccessor(final String bedFileGz) {
+	        this.bedFileGz = bedFileGz;
+	    }
+	    
+	    public double[] getProfileForChromosome(String chr, int len) throws FileNotFoundException, IOException {
+	        final double[] res = new double[len];
+	        Arrays.fill(res, Double.NaN);
+	        BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(this.bedFileGz))));
+	        String chr2 = chr + "\t";
+	        String str = null;
+	        while ((str = read.readLine()) != null) {
+	            if (str.startsWith(chr2)) {
+	                String[] parts = str.split("\t");
+	                if (!chr.equals(parts[0])) {
+	                	read.close();
+	                    throw new RuntimeException();
+	                }
+	                int pos = Integer.parseInt(parts[1]);
+	                double perc = Double.parseDouble(parts[10]) / 100.0;
+	                double n = Double.parseDouble(parts[9]);
+	                double methN = n * perc;
+	                res[pos] = methN / (n + 1.0) * 100.0;
+	            }
+	        }
+	        read.close();
+	        return res;
+	    }
+	}
+
 	
 }
