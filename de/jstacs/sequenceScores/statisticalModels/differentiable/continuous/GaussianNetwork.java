@@ -99,7 +99,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 	 * @param ess the equivalent sample size, currently not used in a parameter prior
 	 * @throws CloneNotSupportedException if the structure array could not be cloned
 	 */
-	public GaussianNetwork(AlphabetContainer con, int[][] structure,double ess) throws CloneNotSupportedException {
+	public GaussianNetwork(AlphabetContainer con, int[][] structure, double ess) throws CloneNotSupportedException {
 		this(con,structure);
 		this.ess=ess;
 	}
@@ -157,7 +157,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 
 	@Override
 	public double getESS() {
-		return 0;//TODO?
+		return ess;
 	}
 
 	@Override
@@ -299,7 +299,7 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 			double temp = (seq.continuousVal(start+i) - mymu);
 			val += 0.5*lambda[i] - 0.5*Math.log(2.0*Math.PI) - Math.exp(lambda[i])/2.0*temp*temp;
 		}
-		
+
 		return val;
 	}
 

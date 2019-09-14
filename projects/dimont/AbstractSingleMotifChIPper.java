@@ -100,7 +100,7 @@ public abstract class AbstractSingleMotifChIPper extends AbstractMixtureDiffSM i
 	}
 	
 	protected Sequence getReference( Sequence seq ) {
-		SequenceAnnotation seqAn = seq.getSequenceAnnotationByType( "reference", 0 );
+		SequenceAnnotation seqAn = seq.getSequenceAnnotationByTypeAndIdentifier("reference", "reads");
 		return seqAn == null ? null : ((ReferenceSequenceAnnotation) seqAn).getReferenceSequence();
 	}
 	
