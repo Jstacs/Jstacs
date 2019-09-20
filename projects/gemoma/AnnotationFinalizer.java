@@ -371,6 +371,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 					if( k < attr.length ) {
 						String id = attr[k].substring(3);
 						Gene g = new Gene(split);
+						anz++;
 						h.put(id, g );
 						all.put(id, g );
 					} else {
@@ -593,11 +594,12 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		}
 		w.close();
 		
-		protocol.append("\n#transcripts with 5'-UTR annotation: " + utr5 + "\n");
-		protocol.append("#transcripts with 3'-UTR annotation: " + utr3 + "\n");
-		protocol.append("#transcripts with some UTR annotation: " + utr + "\n");
-		protocol.append("#transcripts with 5'- and 3'-UTR annotation: " + utrBoth + "\n");
-		
+		if( GeMoMa.seqs != null ) {
+			protocol.append("\n#transcripts with 5'-UTR annotation: " + utr5 + "\n");
+			protocol.append("#transcripts with 3'-UTR annotation: " + utr3 + "\n");
+			protocol.append("#transcripts with some UTR annotation: " + utr + "\n");
+			protocol.append("#transcripts with 5'- and 3'-UTR annotation: " + utrBoth + "\n");
+		}
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(gffFile.getAbsolutePath()), "gff", getToolName(), null, true) );
 		
