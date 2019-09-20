@@ -146,6 +146,7 @@ public class CLI {
 	public static class QuietSysProtocol extends SysProtocol {
 		public QuietSysProtocol() {
 			out = new PrintStream( SafeOutputStream.getSafeOutputStream(null) );
+			err = new PrintStream( SafeOutputStream.getSafeOutputStream(null) );
 		}
 	}
 	
