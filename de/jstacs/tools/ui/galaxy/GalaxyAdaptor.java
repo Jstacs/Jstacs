@@ -112,6 +112,7 @@ public class GalaxyAdaptor {
 	private String htmlFilesPath;
 	
 	private int threads;
+	private boolean useDiscoverDatasets;
 	
 	/**
 	 * Returns the number of threads given by the Galaxy configuration
@@ -156,8 +157,8 @@ public class GalaxyAdaptor {
 		return htmlId++;
 	}
 	
-	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String version, String command, String labelName) {
-		this(parameters, defaultResults, addLine, toolname, description, null, version, command, labelName);
+	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String version, String command, String labelName, boolean useDiscoverDatasets) {
+		this(parameters, defaultResults, addLine, toolname, description, null, version, command, labelName, useDiscoverDatasets);
 	}
 	
 	/**
@@ -177,7 +178,7 @@ public class GalaxyAdaptor {
 	 * @param labelName if <code>null</code>, the default names of Galaxy are used, otherwise a field &quot;Job name&quot; 
 	 *     is added as first parameter of the tool with internal name <code>labelName</code>. The internal name must not collide with the name of any other parameter.
 	 */
-	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String[] citation, String version, String command, String labelName){
+	public GalaxyAdaptor(ParameterSet parameters, ResultEntry[] defaultResults, boolean[] addLine, String toolname, String description, String[] citation, String version, String command, String labelName, boolean useDiscoverDatasets){
 		this.parameters = parameters;
 		if(defaultResults == null){
 			this.defaultResults = new ResultEntry[0];
@@ -201,10 +202,11 @@ public class GalaxyAdaptor {
 		this.expFormat = new DecimalFormat("0.00E0");
 		this.threads = 1;
 		this.tests=null;
+		this.useDiscoverDatasets = useDiscoverDatasets;
 		testPath = null;
 	}
 	
-	public GalaxyAdaptor(JstacsTool j, String command, String labelName, String path ){
+	public GalaxyAdaptor(JstacsTool j, String command, String labelName, String path, boolean useDiscoverDatasets ){
 		this( j.getToolParameters(), 
 			j.getDefaultResultInfos(),
 			new boolean[j.getToolParameters().getNumberOfParameters()],
@@ -213,7 +215,8 @@ public class GalaxyAdaptor {
 			j.getReferences(),
 			j.getToolVersion(),
 			command,
-			labelName
+			labelName,
+			useDiscoverDatasets
 		);
 		this.tests = j.getTestCases( path );
 		testPath=path;
@@ -290,10 +293,15 @@ public class GalaxyAdaptor {
 			defaultOuts.append(" $"+defaultNames[i]);
 		}
 		
+		String nfp = "$__new_file_path__";
+		if(useDiscoverDatasets){
+			nfp = "./extra";
+		}
+		
 		if(configureThreads){
-			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path \\${GALAXY_SLOTS:-1}"+defaultOuts.toString(), "command", null, false );
+			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id "+nfp+" $summary.extra_files_path \\${GALAXY_SLOTS:-1}"+defaultOuts.toString(), "command", null, false );
 		}else{
-			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id $__new_file_path__ $summary.extra_files_path"+defaultOuts.toString(), "command", null, false );
+			XMLParser.appendObjectWithTagsAndAttributes( allBuffer, command+" --run $script_file $summary $summary.id "+nfp+" $summary.extra_files_path"+defaultOuts.toString(), "command", null, false );
 		}
 		allBuffer.append( "\n" );
 		
@@ -320,6 +328,12 @@ public class GalaxyAdaptor {
 		
 		//output section
 		StringBuffer outBuf = new StringBuffer();
+		
+		if(useDiscoverDatasets){
+			outBuf.append("<discover_datasets pattern=\"primary_[0-9]+_[0-9]+: (?P&lt;designation&gt;.+)_visible_(?P&lt;ext&gt;.+)\" directory=\"extra\" visible=\"true\" />");
+		}
+		
+		
 		String jobName =  labelName == null
 				? "#$tool.name + ' on ' + $on_string"
 				: "#if str($"+getLegalName( toolname )+"_"+labelName+") == '' then $tool.name + ' on ' + $on_string else $"+getLegalName( toolname )+"_"+labelName; //TODO evaluate?

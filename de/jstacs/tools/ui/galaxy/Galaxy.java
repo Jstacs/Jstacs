@@ -67,9 +67,10 @@ public class Galaxy {
 	
 	private String vmargs;
 	private boolean[] configThreads;
+	private boolean useDiscoverDatasets;
 	
-	public Galaxy(String vmargs, boolean configThreads, JstacsTool... tools){
-		this( vmargs, new boolean[]{configThreads}, tools );
+	public Galaxy(String vmargs, boolean configThreads, boolean useDiscoverDatasets, JstacsTool... tools){
+		this( vmargs, new boolean[]{configThreads}, useDiscoverDatasets, tools );
 	}
 	
 	/**
@@ -79,7 +80,7 @@ public class Galaxy {
 	 * @param tools the tools that should be displayed
 	 * @see GalaxyAdaptor#parse(String[], boolean)
 	 */
-	public Galaxy(String vmargs, boolean[] configThreads, JstacsTool... tools){
+	public Galaxy(String vmargs, boolean[] configThreads, boolean useDiscoverDatasets, JstacsTool... tools){
 		this.tools = tools;
 		this.vmargs = vmargs;
 		if(this.vmargs == null){
@@ -94,7 +95,8 @@ public class Galaxy {
 			this.configThreads = configThreads.clone();
 		} else {
 			throw new IllegalArgumentException("Check the length of the configureThreads array.");
-		}	
+		}
+		this.useDiscoverDatasets = useDiscoverDatasets;
 		//TODO remove this.configThreads = configThreads;
 	}
 	
@@ -109,7 +111,7 @@ public class Galaxy {
 	
 	private GalaxyAdaptor getGalaxyAdaptor( int i, String jar, String vmargs, String[] args ) throws Exception {
 		String name = tools[i].getShortName();
-		GalaxyAdaptor ga = new GalaxyAdaptor( tools[i], "java"+vmargs+" -jar "+jar+" "+name, "jobname", new File(jar).getParentFile().getAbsolutePath() );
+		GalaxyAdaptor ga = new GalaxyAdaptor( tools[i], "java"+vmargs+" -jar "+jar+" "+name, "jobname", new File(jar).getParentFile().getAbsolutePath(), useDiscoverDatasets );
 		ga.setHelp( tools[i].getHelpText() );
 		ga.parse( args, configThreads[i] );
 		return ga;
