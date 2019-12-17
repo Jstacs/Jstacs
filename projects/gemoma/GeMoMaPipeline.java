@@ -216,14 +216,16 @@ public class GeMoMaPipeline extends GeMoMaModule {
 							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
 							new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
 							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz,fa.gz",  true ),
-							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d)
+							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
 			) );
 			values.add( new SimpleParameterSet(
 							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
 							new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
 							new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
 							new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
-							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d)
+							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
 			) );
 			
 			/*TODO BUSCO
@@ -419,7 +421,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	}
 	
 	private class Species {
-		String id, cds, assignment, protein = null, name;
+		String id, cds, assignment, protein = null, name, annotationInfo;
 		Double weight;
 		String[] cds_parts;
 		String[] searchResults;
@@ -612,26 +614,29 @@ public class GeMoMaPipeline extends GeMoMaModule {
 								path + speciesDirs[i] + "/" + Extractor.name[0] + "." + Extractor.type[0], 
 								path + speciesDirs[i] + "/" + Extractor.name[1] + "." + Extractor.type[1],
 								null,
+								null,
 								blast
 						));
 					}
 					break;
-				case 4: //from reference genome & annotation
+				case 5: //from reference genome & annotation
 					add(new JExtractorAndSplit(
 							(String) currentRef.getParameterForName("ID").getValue(),
 							(Double) currentRef.getParameterForName("weight").getValue(),
 							currentRef.getParameterForName("annotation").getValue().toString(), 
 							currentRef.getParameterForName("genome").getValue().toString(),
+							(String) currentRef.getParameterForName("annotation info").getValue(),
 							blast
 					));
 					break;
-				case 5: //pre-extracted
+				case 6: //pre-extracted
 					add(new JExtractorAndSplit(
 							(String) currentRef.getParameterForName("ID").getValue(),
 							(Double) currentRef.getParameterForName("weight").getValue(),
 							(String) currentRef.getParameterForName("cds parts").getValue().toString(), 
 							(String) currentRef.getParameterForName("assignment").getValue(),
 							(String) currentRef.getParameterForName("query proteins").getValue(),
+							(String) currentRef.getParameterForName("annotation info").getValue(),
 							blast
 					));
 					break;
@@ -1212,19 +1217,45 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			this.split=split;
 		}
 		
-		JExtractorAndSplit( String specName, Double w, String annotation, String genome, boolean split ) throws IllegalValueException, CloneNotSupportedException {
+		/**
+		 * Constructor using reference genome and annotation.
+		 * 
+		 * @param specName the reference species name
+		 * @param w the weight
+		 * @param annotation the reference annotation
+		 * @param genome the reference genome
+		 * @param annotationInfo the annotation info of the reference
+		 * @param split whether to split the cds parts or not
+		 * 
+		 * @throws IllegalValueException
+		 * @throws CloneNotSupportedException
+		 */
+		JExtractorAndSplit( String specName, Double w, String annotation, String genome, String annotationInfo, boolean split ) throws IllegalValueException, CloneNotSupportedException {
 			this(specName, w, split);
 			params = extractorParams.clone();
 			params.getParameterForName("annotation").setValue(annotation);
-			params.getParameterForName("genome").setValue(genome);			
+			params.getParameterForName("genome").setValue(genome);
+			species.get(speciesIndex).annotationInfo = annotationInfo;
 		}
 		
-		JExtractorAndSplit( String specName, Double w, String cds_parts, String assignment, String protein, boolean split ) {
+		/**
+		 * Constructor using pre-extracted data.
+		 * 
+		 * @param specName the reference species name
+		 * @param w the weight
+		 * @param cds_parts the cds parts of the reference species
+		 * @param assignment the assignment of the reference species
+		 * @param protein the protein of the reference species
+		 * @param annotationInfo the annotation info of the reference
+		 * @param split whether to split the cds parts or not
+		 */
+		JExtractorAndSplit( String specName, Double w, String cds_parts, String assignment, String protein, String annotationInfo, boolean split ) {
 			this(specName, w, split);
 			Species sp = species.get(speciesIndex);
 			sp.cds=cds_parts;
 			sp.assignment=assignment;
 			sp.protein=protein;
+			sp.annotationInfo = annotationInfo;
 		}
 		
 		@Override
@@ -1537,6 +1568,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					ps.getParameterForName("gene annotation file").setValue(home+"/" + s + "/unfiltered-predictions.gff");
 					if( current.weight != null ) {
 						ps.getParameterForName("weight").setValue(current.weight);
+					}
+					if( current.annotationInfo != null ) {
+						ps.getParameterForName("annotation info").setValue(current.annotationInfo);
 					}
 				}
 			}

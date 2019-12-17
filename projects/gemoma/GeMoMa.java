@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -372,7 +371,7 @@ public class GeMoMa extends GeMoMaModule {
 					cli.wiki("wiki");
 				}
 			} else {
-				Galaxy galaxy = new Galaxy("", configureThreads, tools );
+				Galaxy galaxy = new Galaxy("", configureThreads, true, tools );
 				galaxy.run(args);
 			}
 		}

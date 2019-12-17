@@ -72,7 +72,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	private static int[] stat = new int[4];
 	private static String[] att = {";Parent=", ";alternative=", ";evidence=", ";sumWeight="};
 	
-	private static String modifyAttributes( String attributes ) {
+	private static String deleteAttributes( String attributes ) {
 		int idx, idx2;
 		for( int i = 0; i < att.length; i++ ) {
 			idx = attributes.indexOf(att[i]);
@@ -205,6 +205,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		ArrayList<String> allInfos = new ArrayList<String>();
 		HashSet<String> hash = new HashSet<String>();
 		HashSet<String> ids = new HashSet<String>();
+		HashMap<String,String[]> annotInfo = new HashMap<String,String[]>();
 		int[] oldStat = new int[stat.length];
 		boolean rnaSeq=false;
 		for( int k = 0; k < MAX; k++ ) {
@@ -214,9 +215,36 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			String h = (String) sps.getParameterAt(0).getValue();
 			prefix[k] = h==null?"":h;
 			weight[k] = (Double) sps.getParameterAt(1).getValue();
+			
+			annotInfo.clear();
+			int transcript = -1, go = -1, defline=-1;
+			if( sps.getParameterAt(3).isSet() ) {
+				//read annotation information
+				r = new BufferedReader(new FileReader(sps.getParameterAt(3).getValue().toString()));
+				String[] header = r.readLine().split("\t");
+				for( int i = 0; i < header.length; i++ ) {
+					switch( header[i] ) {
+						case "transcriptName": transcript=i; break;
+						case "GO": go=i; break;
+						default: 
+							if( header[i].endsWith("-defline") ) {
+								defline=i;
+							}
+					}
+				}
+				if( transcript<0 || go<0 || defline<0 ) {
+					r.close();
+					throw new IllegalArgumentException("annotation info ("+ k+ ") must be a tab-delimited file with at least the following columns: transcriptName, GO, and .*defline");
+				}
+				while( (line = r.readLine()) != null ) {
+					split = line.split("\t");
+					annotInfo.put(split[transcript].toUpperCase(), split);
+				}
+				r.close();
+			}
+			
 			String fName = sps.getParameterAt(2).getValue().toString();
 			//System.out.println(fName);
-
 			hash.clear();
 			r = new BufferedReader(new FileReader(fName));
 			while( (line=r.readLine()) != null ) {
@@ -232,8 +260,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				
 				t = split[2];
 				if( t.equalsIgnoreCase( tag ) ) { //tag: prediction/mRNA/transcript
-					split[8] = modifyAttributes(split[8]);
-					current = new Prediction(split, k, prefix[k]);
+					split[8] = deleteAttributes(split[8]);
+					current = new Prediction(split, k, prefix[k], annotInfo, go, defline);
 					if( ids.contains( current.id ) ) {
 						//System.out.println(line);
 						//System.out.println(current);
@@ -600,8 +628,9 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		int index;
 		boolean[] evidence;
 		String prefix, oldId, id;
+		HashSet<String> gos, defl;
 		
-		public Prediction( String[] split, int index, String prefix ) {
+		public Prediction( String[] split, int index, String prefix, HashMap<String,String[]> annotInfo, int go, int defline ) {
 			this.index = index;
 			
 			this.split = split;
@@ -640,6 +669,30 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				hash.put("ref-gene",this.prefix + rg);
 			} else {
 				id=oldId;
+			}
+			
+			if( annotInfo.size()>0 ) {
+				gos = new HashSet<String>();
+				defl = new HashSet<String>();
+
+				int i = -1;
+				String[] tab = null;
+				while( (i=oldId.indexOf(".",i+1))>=0 && (tab=annotInfo.get(oldId.substring(0, i)))==null );
+				if( tab!= null ) {
+					String goValue = tab.length>go ? tab[go] : null;
+					if( goValue != null ) {
+						for( String e: goValue.split(",") ) {
+							if( e.length()> 0 ) {
+								gos.add(e);
+							}
+						}
+					}
+					if( tab.length>defline ) {
+						defl.add( tab[12] );
+					}
+				}  else {
+					System.out.println(oldId); //TODO
+				}
 			}
 			
 			if( !hash.containsKey("ref-gene") ) {
@@ -708,26 +761,38 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			String rg = n.hash.get("ref-gene");
 			if( !rg.equals( hash.get("ref-gene") ) ) {
 				alternative.add(rg);
-				if( evidence == null ) {
-					evidence = new boolean[MAX];
-					Arrays.fill(evidence, false);
-					if( n.evidence == null ) {
-						evidence[n.index]=true;
-					} else {
-						System.arraycopy(n.evidence, 0, evidence, 0, evidence.length );
-					}
-					evidence[index]=true;
+			}
+			if( evidence == null ) {
+				evidence = new boolean[MAX];
+				Arrays.fill(evidence, false);
+				if( n.evidence == null ) {
+					evidence[n.index]=true;
 				} else {
-					if( n.evidence == null ) {
-						evidence[n.index]=true;
-					} else {
-						for( int i = 0; i < evidence.length; i++ ) {
-							evidence[i] |= n.evidence[i];
-						}
+					System.arraycopy(n.evidence, 0, evidence, 0, evidence.length );
+				}
+				evidence[index]=true;
+			} else {
+				if( n.evidence == null ) {
+					evidence[n.index]=true;
+				} else {
+					for( int i = 0; i < evidence.length; i++ ) {
+						evidence[i] |= n.evidence[i];
 					}
 				}
-				
-				alternative.addAll( n.alternative );
+			}
+			
+			alternative.addAll( n.alternative );
+			
+			if( gos != null ) {
+				if( n.gos!=null ) {
+					gos.addAll(n.gos);
+					defl.addAll(n.defl);
+				}
+			} else {
+				if( n.gos!=null ) {
+					gos=n.gos;
+					defl=n.defl;
+				}
 			}
 		}
 		
@@ -788,7 +853,21 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				for( int i = 1; i < it.length; i++ ) {
 					w.write("," + it[i] );
 				}
-				w.write( "\"" );
+				w.write( "\";" );
+			}
+			if( gos!= null ) {
+				String[] goTerms = gos==null ? new String[0] : gos.toArray(new String[0]);
+				if( goTerms != null && goTerms.length > 0 )
+				{
+					h = Arrays.toString(goTerms).replace("[","\"").replace("]", "\"");
+					w.write("potential_GO=" + h+ ";");
+				}
+				String[] defTerms = defl==null ? new String[0] : defl.toArray(new String[0]);
+				if( defTerms != null && defTerms.length > 0 )
+				{
+					h = Arrays.toString(defTerms).replace("[","\"").replace("]", "\"");
+					w.write("potential_defline=" + h);
+				}
 			}
 			w.newLine();
 			for( int i = 0; i < cds.size(); i++ ) {
@@ -875,7 +954,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					new ParameterSetContainer( "predicted annotation", "", new ExpandableParameterSet( new SimpleParameterSet(		
 							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
-							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true )
+							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true ),
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
 						), "gene annotations", "", 1 ) ),
 					new SimpleParameter(DataType.STRING,"filter","A filter can be applied to transcript predictions to receive only reasonable predictions. The filter is applied to the GFF attributes. "
 							+ "The deault filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/AA>=0.75) whether a prediction is used or not. Different criteria can be combined using 'and ' and 'or'. "
@@ -916,6 +996,9 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				+ "First, redundant predictions are identified (and additional attributes (evidence, sumWeight) are introduced).\n"
 				+ "Second, the predictions are filtered using the user-specified criterium based on the attributes from the annotation.\n"
 				+ "Third, clusters of overlapping predictions are determined, the predictions are sorted within the cluster and relevant predictions are extracted.\n\n"
+				
+				+ "Optionally, annotation info can be added for each reference organism enabling a functional prediction for predicted transcripts based on the function of the reference transcript.\n"
+				+ "Phytozome provides annotation info tables for plants, but annotation info can be used from any source as long as they are tab-delimited files with at least the following columns: transcriptName, GO and .*defline.\n\n"
 				
 				+ "Initially, GAF was build to combine gene predictions obtained from GeMoMa. It allows to combine the predictions from multiple reference organisms, but works also using only one reference organism. "
 				+ "However, GAF also allows to integrate predictions from ab-initio or purely RNA-seq-based gene predictors as well as manually curated annotation. "
