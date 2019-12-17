@@ -30,7 +30,7 @@ import de.jstacs.tools.JstacsTool;
  */
 public abstract class GeMoMaModule implements JstacsTool {
 
-	public static final String VERSION = "1.6.2beta";
+	public static final String VERSION = "1.6.2";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 
