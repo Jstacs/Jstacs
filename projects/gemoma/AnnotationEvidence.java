@@ -81,10 +81,14 @@ public class AnnotationEvidence extends GeMoMaModule {
 		annot.append("##gff-version 3");
 		annot.newLine();
 		StringBuffer nuc = new StringBuffer();
+		
+		boolean coverage = GeMoMa.coverage!=null;
+		boolean introns = GeMoMa.donorSites!=null;
+		
 		for( String c: chr ) {
 			String seq = GeMoMa.seqs.get(c);
 			HashMap<String,Gene> current = annotation.get(c);
-			int[][][] sites = GeMoMa.donorSites.get(c);
+			int[][][] sites = introns ? GeMoMa.donorSites.get(c) : null;
 			if( current!= null && current.size() > 0 ) {
 				Gene[] array = current.values().toArray(new Gene[0]);
 				Arrays.sort(array);
@@ -93,7 +97,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 					g.sortExons();
 					g.precompute();
 		
-					int[][] cov = (GeMoMa.coverage != null && GeMoMa.coverage[g.strand==1?0:1]!= null) ? GeMoMa.coverage[g.strand==1?0:1].get(c) : null;
+					int[][] cov = (coverage && GeMoMa.coverage[g.strand==1?0:1]!= null) ? GeMoMa.coverage[g.strand==1?0:1].get(c) : null;
 					
 					Iterator<Entry<String,IntList>> cds = g.transcript.entrySet().iterator();
 					
@@ -196,7 +200,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 							w.newLine();
 							
 							//TODO annotation
-							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id +";tie=" + tieString + ";tpc="+ tpcString + ";AA=" + (l/3) + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
+							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id +(introns?";tie=" + tieString:"") + (coverage?";tpc="+ tpcString:"") + ";AA=" + (l/3) + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
 							annot.newLine();
 							for( int j = 0;j < parts.length(); j++ ) {
 								int[] part = g.exon.get(parts.get(j));
