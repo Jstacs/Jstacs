@@ -929,7 +929,7 @@ public class Extractor extends GeMoMaModule {
 				out.get(2).write( ">" + trans + "\n" + p + "\n" );
 				String x = il.toString();
 				SafeOutputStream sos = out.get(1);
-				sos.write( gene.id + "\t" + trans + "\t" + x.substring(1,x.length()-1) );
+				sos.write( gene.id + "\t" + trans + "\t" + x.substring(1,x.length()-1).replaceAll(" ", "") );
 				String splitAA = "";
 				int currentPos = 0;
 				for( j = 0; j < il.length(); j++ ) {
