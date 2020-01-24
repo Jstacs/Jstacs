@@ -48,39 +48,42 @@ Keep in mind that homology-based gene prediction only allows us to infer genes w
 \subsection{Quick start}
 We provide three scripts:
 \begin{enumerate}
-	\item A test script checking whether GeMoMa runs on your system on some tiny toy data: \texttt{tests.sh}. Example data can be found in directory \texttt{test\_data}.
+	\item A test script checking whether GeMoMa runs on your system on some tiny toy data: \texttt{tests.sh}. Example data can be found in directory \texttt{tests/gemoma/}.
 	\item An application script allowing to start the complete GeMoMa workflow with minimal parameter input using the individual modules: \texttt{run.sh}. If you like to run the workflow with standard parameters and without any tricks for speed up you can just use this script.
 \begin{itemize}
 	\item Without RNA-seq data:
 \begin{verbatim}
-./run.sh <ref-anno> <ref-genome> <target-genome> <out-dir>
+./run.sh <search> <target-genome> <ref-anno> <ref-genome>
+         <out-dir>
 \end{verbatim}	
 	\item With RNA-seq data:
 \begin{verbatim}
-./run.sh <ref-anno> <ref-genome> <target-genome> <out-dir>
-         <lib-type> <mapped-reads>
+./run.sh <search> <target-genome> <ref-anno> <ref-genome>
+         <out-dir> <lib-type> <mapped-reads>
 \end{verbatim}
 \end{itemize}
 	\item An application script allowing to start the complete GeMoMa workflow with minimal parameter input using the GeMoMaPipeline module: \texttt{pipeline.sh}. If you like to run the workflow with standard parameters and without any tricks for speed up you can just use this script.
 \begin{itemize}
 	\item Without RNA-seq data:
 \begin{verbatim}
-./pipeline.sh <threads> <target-genome> <ref-anno>
-							<ref-genome> <out-dir>
+./pipeline.sh <search> <target-genome> <ref-anno>
+              <ref-genome> <threads> <out-dir>
 \end{verbatim}	
 	\item With RNA-seq data:
 \begin{verbatim}
-./pipeline.sh <threads> <target-genome> <ref-anno>
-							<ref-genome> <out-dir>
-							<lib-type> <mapped-reads>
+./pipeline.sh <search> <target-genome> <ref-anno>
+              <ref-genome> <threads> <out-dir>
+              <lib-type> <mapped-reads>
 \end{verbatim}
 \end{itemize}
 \end{enumerate}
 where
 \begin{enumerate}
+	\item \texttt{search} is a switch for the search algorithm to be used, either \texttt{tblastn} or \texttt{mmseqs}
+	\item \texttt{target-genome} is the genome of the target organism (FastA)
 	\item \texttt{ref-anno} is the annotation of the reference organism (GFF/GTF)
 	\item \texttt{ref-genome} is the genome of the reference organism (FastA)
-	\item \texttt{target-genome} is the genome of the target organism (FastA)
+	\item \texttt{threads} the number of threads to be used
 	\item \texttt{out-dir} is the output directory
 	\item \texttt{lib-type} is the RNA-seq library type\\
 		(\verb"{FR_UNSTRANDED, FR_FIRST_STRAND, FR_SECOND_STRAND}")
@@ -98,6 +101,10 @@ This allows for inferring experimental verified introns and coverage. In the fol
 \item	Extract introns (and coverage) running: 
 \begin{verbatim}
 java -jar GeMoMa-<version>.jar CLI ERE ...
+\end{verbatim}
+\item	Optionally denoise the extracted introns running: 
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar CLI Denoise ...
 \end{verbatim}
 \end{enumerate}
 
@@ -117,7 +124,7 @@ It is possible to run step 3 to 5 with multiple reference organisms.
 	tblastn -outfmt "6 std sallseqid score nident positive gaps
 	         ppos qframe sframe qseq sseq qlen slen salltitles" ...
 	\end{verbatim}
-	The output format of tblastn is essential for GeMoMa. Since version 1.6, we also allow to use mmseqs as search algorithm. Mmseqs is typically faster than tblastn.
+	The output format of tblastn is essential for GeMoMa. Since version 1.6, we also allow to use mmseqs as search algorithm. Mmseqs is typically faster than tblastn. For more details we refer to the script \verb+run.sh+.
 \item Find homologous candidate transcripts in the target organism running:
 	\begin{verbatim}
 	java -jar GeMoMa-<version>.jar CLI GeMoMa ...
