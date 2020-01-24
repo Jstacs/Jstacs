@@ -812,6 +812,7 @@ public class GeMoMa extends GeMoMaModule {
 		}	
 		
 		MAX_INTRON_LENGTH = (Integer) parameters.getParameterForName( "maximum intron length" ).getValue();
+		boolean staticIntronLength = (Boolean) parameters.getParameterForName( "static intron length" ).getValue();
 		eValue = (Double) parameters.getParameterForName( "e-value" ).getValue();
 		contigThreshold = (Double) parameters.getParameterForName( "contig threshold" ).getValue();
 		regionThreshold = (Double) parameters.getParameterForName( "region threshold" ).getValue();
@@ -846,7 +847,7 @@ public class GeMoMa extends GeMoMaModule {
 						c = new HashMap<String, Info>();
 						transcriptInfo.put(split[0], c);
 					}
-					c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "" ) );
+					c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "", split.length>=10 ? split[9] : null ) );
 				}
 			}
 			r.close();
@@ -936,7 +937,7 @@ public class GeMoMa extends GeMoMaModule {
 					if( old == null || !line.startsWith(old) ) {
 						if( old != null ) {
 							tp.numberOfLines=noL;
-							progress.add( tp.compute(old, hash) );
+							progress.add( tp.compute(old, hash, staticIntronLength) );
 							protocol.append( tp.protocol.toString() );
 							noL=0;
 							//clear
@@ -959,7 +960,7 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			if( old != null ) {
 				tp.numberOfLines=noL;
-				progress.add( tp.compute(old, hash) );
+				progress.add( tp.compute(old, hash, staticIntronLength) );
 				protocol.append( tp.protocol.toString() );
 			}			
 		} catch ( Throwable er ) {
@@ -1427,7 +1428,7 @@ public class GeMoMa extends GeMoMaModule {
 		 * @see Hit#up
 		 * @see Hit#down
 		 */
-		public void prepareSpliceCandidates( String chr, MyAlignment align ) throws CloneNotSupportedException, WrongAlphabetException {
+		public void prepareSpliceCandidates( String chr, MyAlignment align, int maxAllowedIntron ) throws CloneNotSupportedException, WrongAlphabetException {
 			if( !splice ) {
 				if( accCand == null )  {
 					accCand = ArrayHandler.createArrayOf(new IntList(), 3);
@@ -1452,7 +1453,7 @@ public class GeMoMa extends GeMoMaModule {
 				Sequence tPart, qPart;
 				//acceptor
 				up = new StringBuffer();
-				Tools.getMaximalExtension(chr, forward, false, forward?-1:1, forward ? targetStart+add-1 : targetEnd-add, '*','*', seqUp, up, a.substring(0,add/3), eAcc, intronic[1]-1, MAX_INTRON_LENGTH, code );
+				Tools.getMaximalExtension(chr, forward, false, forward?-1:1, forward ? targetStart+add-1 : targetEnd-add, '*','*', seqUp, up, a.substring(0,add/3), eAcc, intronic[1]-1, maxAllowedIntron, code );
 				int s = seqUp.length()-add-eAcc;
 				if( forward ) {
 					maxUpstreamStart = targetStart - s+intronic[1];
@@ -1557,7 +1558,7 @@ public class GeMoMa extends GeMoMaModule {
 				
 				//donor
 				down = new StringBuffer();
-				Tools.getMaximalExtension(chr, forward, true, forward?1:-1, forward ? targetEnd-add : (targetStart+add-1), '*','*', seqDown, down, a.substring(a.length() - add/3), eDon, intronic[0]-1, MAX_INTRON_LENGTH, code );
+				Tools.getMaximalExtension(chr, forward, true, forward?1:-1, forward ? targetEnd-add : (targetStart+add-1), '*','*', seqDown, down, a.substring(a.length() - add/3), eDon, intronic[0]-1, maxAllowedIntron, code );
 				s = add+eDon;
 				if( forward ) {
 					maxDownstreamEnd = targetEnd + seqDown.length()-s -intronic[0];
@@ -1982,9 +1983,10 @@ public class GeMoMa extends GeMoMaModule {
 		int[] exonID;
 		int[] phase;
 		String[] splitAA;
+		int maxIntron;
 		
-		Info( String exonID, String phase, String splitAA ) {
-			String[] split = exonID.split( "," );
+		Info( String exonID, String phase, String splitAA, String maxIntron ) {
+			String[] split = exonID.split( ",[ ]*" );
 			this.exonID = new int[split.length];
 			for( int i = 0; i < this.exonID.length; i++ ) {
 				this.exonID[i] = Integer.parseInt(split[i].trim());
@@ -2007,12 +2009,19 @@ public class GeMoMa extends GeMoMaModule {
 				split = splitAA.split( "," );
 				System.arraycopy(split, 0, this.splitAA, 0, split.length);
 			}
+			
+			if( maxIntron== null || maxIntron.equals("NA") ) {
+				this.maxIntron = 0;
+			} else {
+				this.maxIntron = Integer.parseInt(maxIntron);
+			}
 		}
 		
 		private Info() {
 			exonID = new int[1];
 			phase = new int[0];
 			splitAA = new String[0];
+			maxIntron=0;
 		}
 		
 		static Info DUMMY = new Info();
@@ -2041,6 +2050,7 @@ public class GeMoMa extends GeMoMaModule {
 		private int[] revParts, oldSize;
 		private int[] length, cumLength, revCumLength;
 		private int[][] start, end, qStart, qEnd, qL;
+		private int maxAllowedIntron;
 		
 		double[][] used;
 		
@@ -2132,7 +2142,7 @@ public class GeMoMa extends GeMoMaModule {
 		 * @throws Exception if something went wrong
 		 */
 		@SuppressWarnings("unchecked")
-		public int compute( String name, HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash ) throws Exception {
+		public int compute( String name, HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash, boolean staticIntronLength ) throws Exception {
 			protocol.delete(0, protocol.length());
 			
 			if( transcriptInfo != null ) {
@@ -2183,6 +2193,11 @@ public class GeMoMa extends GeMoMaModule {
 						}
 					} else {
 						currentInfo=Info.DUMMY;
+					}
+					if( staticIntronLength ) {
+						maxAllowedIntron = MAX_INTRON_LENGTH;
+					} else {
+						maxAllowedIntron = currentInfo.maxIntron+MAX_INTRON_LENGTH;
 					}
 					
 					revParts = new int[max+1];
@@ -2787,7 +2802,7 @@ public class GeMoMa extends GeMoMaModule {
 			
 			for( int m = startIdx; sums[k]!= null && m < sums[k].length; m++ ) {
 				int d = (forward?1:-1) * (start[k][m]-(end[i][j]+1)); //difference
-				if( d < introns*MAX_INTRON_LENGTH ) {
+				if( d < introns*maxAllowedIntron ) {
 					if( check(forward, i, j, k, m) ) {
 						int adScore = 0;
 						if( splice != null && splice[i][j][k-i] != null ) {
@@ -2887,7 +2902,7 @@ public class GeMoMa extends GeMoMaModule {
 				int introns= Math.max(1,k-i);
 				for( int m = startIdx; m < sums[k].length; m++ ) {			
 					int d = (forward?1:-1) * (start[k][m]-(end[i][j]+1));
-					if( d < introns*MAX_INTRON_LENGTH ) {
+					if( d < introns*maxAllowedIntron ) {
 						if( check(forward, i, j, k, m) ){
 							int adScore = 0;
 							if( splice != null ) {
@@ -3144,7 +3159,7 @@ public class GeMoMa extends GeMoMaModule {
 					ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
 					for( int k = 0; list!= null && k < list.size(); k++ ) {
 						Hit hit = list.get(k);
-						hit.prepareSpliceCandidates(chr,align);
+						hit.prepareSpliceCandidates(chr,align, maxAllowedIntron);
 					}
 				}
 			}
@@ -3169,12 +3184,12 @@ public class GeMoMa extends GeMoMaModule {
 								Hit y = previous.get(b);
 								if( forward ) {
 									d = x.targetStart - y.targetEnd;
-									if( d >= 0 && d < (j-old)*MAX_INTRON_LENGTH ) {
+									if( d >= 0 && d < (j-old)*maxAllowedIntron ) {
 										uf.union(a, offset+b);
 									}
 								} else {
 									d = y.targetStart - x.targetEnd;
-									if( d >= 0 && d < (j-old)*MAX_INTRON_LENGTH ) {
+									if( d >= 0 && d < (j-old)*maxAllowedIntron ) {
 										uf.union(a, offset+b);
 									}
 								}
@@ -3254,7 +3269,7 @@ public class GeMoMa extends GeMoMaModule {
 				for( int k = 0; list!= null && k < list.size(); k++ ) {
 					Hit hit = list.get(k);
 					if( !hit.splice ) {
-						hit.prepareSpliceCandidates(chr,align);
+						hit.prepareSpliceCandidates(chr,align,maxAllowedIntron);
 					}
 					if( ref != null && ((h==0 && ref.charAt(0)=='M') || (h+1==currentInfo.exonID.length && ref.charAt(ref.length()-1)=='*')) ) {
 						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==currentInfo.exonID.length && ref.charAt(ref.length()-1)=='*',align);//Laura Kelly: partial
@@ -3489,7 +3504,7 @@ public class GeMoMa extends GeMoMaModule {
 				dir=1;
 				end = currentInfo.exonID.length;
 			}
-			int d = MAX_INTRON_LENGTH/10, f=0;
+			int d = maxAllowedIntron/10, f=0;
 			int startIndex, a = (upstream?0:d), stop;
 			ArrayList<Hit> current;
 			int[][] array = null;
@@ -4654,6 +4669,10 @@ public class GeMoMa extends GeMoMaModule {
 					new SimpleParameter( DataType.INT, "gap opening", "The gap opening cost in the alignment", true, 11 ),
 					new SimpleParameter( DataType.INT, "gap extension", "The gap extension cost in the alignment", true, 1 ),
 					new SimpleParameter( DataType.INT, "maximum intron length", "The maximum length of an intron", true, 15000 ),
+					new SimpleParameter( DataType.BOOLEAN, "static intron length", "A flag which allows to switch between "
+							+ "static intron length, which can be specified by the user and is identical for all genes, and "
+							+ "dynamic intron length, which is based on the gene-specific maximum intron length in the reference organism plus the user given maximum intron length"
+							, true, true ),
 					new SimpleParameter( DataType.INT, "intron-loss-gain-penalty", "The penalty used for intron loss and gain", true, 25 ),
 			
 					new SimpleParameter( DataType.DOUBLE, "e-value", "The e-value for filtering blast results", true, 1E2 ),
