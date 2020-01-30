@@ -69,24 +69,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	
 	private static int MAX;
 	
-	private static int[] stat = new int[4];
-	private static String[] att = {";Parent=", ";alternative=", ";evidence=", ";sumWeight="};
-	
-	private static String deleteAttributes( String attributes ) {
-		int idx, idx2;
-		for( int i = 0; i < att.length; i++ ) {
-			idx = attributes.indexOf(att[i]);
-			if( idx>=0 ) {
-				idx2=attributes.indexOf(";", idx+1);
-				if( idx2<0 ) {
-					attributes=attributes.substring(0,idx);
-				} else {
-					attributes=attributes.substring(0,idx) + attributes.substring(idx2);
-				}
-				stat[i]++;
-			}
-		}
-		return attributes;
+	private static HashMap<String,int[]> del = new HashMap<String,int[]>();
+	static {
+		del.put("Parent",new int[1]);
+		del.put("alternative",new int[1]);
+		del.put("evidence",new int[1]);
+		del.put("sumWeight",new int[1]);
 	}
 	
 	static class UserSpecifiedComparator implements Comparator<Prediction>{
@@ -206,11 +194,10 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		HashSet<String> hash = new HashSet<String>();
 		HashSet<String> ids = new HashSet<String>();
 		HashMap<String,String[]> annotInfo = new HashMap<String,String[]>();
-		int[] oldStat = new int[stat.length];
 		boolean rnaSeq=false;
+		StringBuffer sb = new StringBuffer();
+		String[] att = del.keySet().toArray(new String[0]);
 		for( int k = 0; k < MAX; k++ ) {
-			System.arraycopy(stat, 0, oldStat, 0, stat.length);
-			
 			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
 			String h = (String) sps.getParameterAt(0).getValue();
 			prefix[k] = h==null?"":h;
@@ -260,7 +247,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				
 				t = split[2];
 				if( t.equalsIgnoreCase( tag ) ) { //tag: prediction/mRNA/transcript
-					split[8] = deleteAttributes(split[8]);
 					current = new Prediction(split, k, prefix[k], annotInfo, go, defline);
 					if( ids.contains( current.id ) ) {
 						//System.out.println(line);
@@ -286,10 +272,13 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				}
 			}
 			int delta = 0;
-			StringBuffer sb = new StringBuffer();
-			for( int i =0; i < stat.length; i++ ) {
-				delta += stat[i]-oldStat[i];
-				sb.append( (i==0?"":", ") + (stat[i]-oldStat[i]) + " \"" + att[i] + "\"" );
+			sb.delete(0,sb.length());
+			for( int i =0; i < att.length; i++ ) {
+				int[] v = del.get(att[i]);
+				delta += v[0];
+				sb.append( (i==0?"":", ") + v[0] + " \"" + att[i] + "\"" );
+				//delete values => prepare next round
+				v[0]=0;
 			}
 			if( delta>0 ) {				
 				protocol.appendWarning("Delete attributes in evidence file " + k + ": " + sb  + "\n");
@@ -327,6 +316,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		for( int i = pred.size()-1; i >= 0; i-- ){
 			Prediction p = pred.get(i);
 			if( !filter(filter, engine, p, weight) ) {
+				//System.out.println(p.hash.toString());
 				pred.remove(i);
 			} else {
 				fillEvidence(p.evidence, p.index, 0);
@@ -585,16 +575,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					String val = e.getValue();
 					b.put(key, val.equals("NA")?""+Double.NaN:val);
 				}
-			}
-			
-			//avoid Exceptions with filter conditions that access attributes that are not defined
-			//if no RNA-seq data was used for the annotation
-			if( !toBeChecked.hash.containsKey("tie") ) b.put("tie", Double.NaN);
-			if( !toBeChecked.hash.containsKey("tde") ) b.put("tde", Double.NaN);
-			if( !toBeChecked.hash.containsKey("tae") ) b.put("tae", Double.NaN);
-			//if query proteins were not used in GeMoMa
-			if( !toBeChecked.hash.containsKey("iAA") ) b.put("iAA", Double.NaN);
-			if( !toBeChecked.hash.containsKey("pAA") ) b.put("pAA", Double.NaN);
+			}			
 			
 			String s = engine.eval(filter, b).toString();
 			Boolean bool = Boolean.parseBoolean( s );
@@ -641,13 +622,26 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			String s;
 			split = split[8].split(";");
 			hash = new HashMap<String, String>();
+			String par=null;
 			for( int i = 0; i < split.length; i++ ) {
 				int idx = split[i].indexOf('=');
 				s = split[i].substring(idx+1);
-				if( s.charAt(0)=='?' ) {
-					s = "NA";
+				
+				String key = split[i].substring(0,idx);
+				int[] stat = del.get(key);
+				if( stat!= null ) {
+					stat[0]++;
+					if( key.equals("Parent") ) {
+						par=s;
+					}
+					String delete = split[i] +(i+1==split.length?"":";");
+					this.split[8]=this.split[8].replace( delete, "" );
+				} else {
+					if( s.charAt(0)=='?' ) {
+						s = "NA";
+					}
+					hash.put( key, s );
 				}
-				hash.put( split[i].substring(0,idx), s );
 			}			
 			String sc = hash.get("score");
 			if( sc == null ) {
@@ -657,7 +651,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			oldId = hash.get("ID");
 			String rg = hash.get("ref-gene");
-			if( prefix != null && prefix.length()>0 && rg != null ) {
+			if( rg == null ) {
+				rg = par!= null ? par : oldId;
+				hash.put("ref-gene", rg);
+				this.split[8] = this.split[8].replace("ID="+oldId,"ID=" + oldId + ";ref-gene=" + hash.get("ref-gene"));
+			}
+			if( prefix != null && prefix.length()>0 ) {
 				this.prefix = prefix;
 				if( prefix.charAt(prefix.length()-1) != '_' ) {
 					this.prefix += "_";
@@ -670,6 +669,19 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			} else {
 				id=oldId;
 			}
+			
+			//avoid Exceptions with filter conditions that access attributes that are not defined
+			//if no RNA-seq data was used for the annotation
+			String nan= "" + Double.NaN;
+			if( !hash.containsKey("tie") ) hash.put("tie", nan);
+			if( !hash.containsKey("tde") ) hash.put("tde", nan);
+			if( !hash.containsKey("tae") ) hash.put("tae", nan);
+			//if query proteins were not used in GeMoMa
+			if( !hash.containsKey("iAA") ) hash.put("iAA", nan);
+			if( !hash.containsKey("pAA") ) hash.put("pAA", nan);
+			//if score attribute is not defined (i.e., GeMoMa was not used for this annotation)
+			if( !hash.containsKey("score") ) hash.put("score", nan);
+
 			
 			if( annotInfo.size()>0 ) {
 				gos = new HashSet<String>();
@@ -695,14 +707,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				}
 			}
 			
-			if( !hash.containsKey("ref-gene") ) {
-				if( hash.containsKey("Parent") ) {
-					hash.put( "ref-gene", hash.get("Parent") );
-				} else {
-					hash.put( "ref-gene", id );
-				}
-			}			
-
 			cds = new ArrayList<String[]>();
 			length = 0;
 			alternative = new HashSet<String>();
@@ -958,7 +962,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
 						), "gene annotations", "", 1 ) ),
 					new SimpleParameter(DataType.STRING,"filter","A filter can be applied to transcript predictions to receive only reasonable predictions. The filter is applied to the GFF attributes. "
-							+ "The deault filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/AA>=0.75) whether a prediction is used or not. Different criteria can be combined using 'and ' and 'or'. "
+							+ "The deault filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/AA>=0.75) whether a prediction is used or not. Different criteria can be combined using 'and' and 'or'. In addition, you can check for NaN, e.g., 'isNaN(score)'. "
 							+ "A more sophisticated filter could be applied for instance using the completeness, the relative score, the evidence as well as statistics based on RNA-seq: start=='M' and stop =='*' and score/AA>=0.75 and (evidence>1 or tpc==1.0)", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "start=='M' and stop =='*' and score/AA>=0.75" ),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on evidence (evidence>1). "
