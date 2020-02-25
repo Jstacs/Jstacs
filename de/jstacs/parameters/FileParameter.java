@@ -669,6 +669,11 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		public boolean equals( Object o ) {
 			if( o instanceof FileRepresentation ) {
 				FileRepresentation fr = (FileRepresentation)o;
+				if(fr.getFilename() != null && this.getFilename() != null && 
+						fr.getFilename().contentEquals(this.getFilename()) && 
+						( fr.content == null && this.content == null ) ) {
+					return true;
+				}
 				String line1, line2;
 				Character ignore = null;
 				if( ext != null ) {
