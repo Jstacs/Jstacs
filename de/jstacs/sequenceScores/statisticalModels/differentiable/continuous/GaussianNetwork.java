@@ -46,6 +46,8 @@ import de.jstacs.utils.random.RandomNumberGenerator;
  */
 public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 
+	private static double fac = 1.0/250.0;
+	
 	private double[] mu;
 	private double[] lambda;
 	private double[][] bij;
@@ -212,6 +214,8 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 		
 		double val = 0.0;
 		
+		int derStart = partialDer.length();
+		
 		for(int i=0;i<structure.length;i++){
 			
 			double mymu = mu[i];
@@ -243,6 +247,9 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 			}
 			
 		}
+		
+		int derEnd = partialDer.length();
+		partialDer.multiply(derStart, derEnd, fac);
 		
 		return val;
 		
@@ -299,7 +306,8 @@ public class GaussianNetwork extends AbstractDifferentiableStatisticalModel {
 			double temp = (seq.continuousVal(start+i) - mymu);
 			val += 0.5*lambda[i] - 0.5*Math.log(2.0*Math.PI) - Math.exp(lambda[i])/2.0*temp*temp;
 		}
-
+		val *= fac;
+		//System.out.println("g\t"+val);
 		return val;
 	}
 

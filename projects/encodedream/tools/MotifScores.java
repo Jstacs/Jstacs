@@ -58,7 +58,6 @@ import projects.dimont.ThresholdedStrandChIPper;
 import projects.encodedream.AggregateMotifProfiles;
 import projects.encodedream.LowMemProfileTool;
 import projects.encodedream.QuickMotifProfileTool;
-import projects.encodedream.SlowMotifProfileTool;
 
 public class MotifScores implements JstacsTool {
 

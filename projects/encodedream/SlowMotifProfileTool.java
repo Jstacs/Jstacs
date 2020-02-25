@@ -129,7 +129,7 @@ public class SlowMotifProfileTool {
 		int finished = 0;
 		int totalSequenceIndex = -1;
 		int lastPrinted = -1;
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength())) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength(), lslim.getAlphabetContainer())) != null ){
 
 			
 

@@ -670,10 +670,12 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			if( o instanceof FileRepresentation ) {
 				FileRepresentation fr = (FileRepresentation)o;
 				String line1, line2;
-				Character ignore;
-				switch( ext ) {
-					case "gff": case "gff3": ignore='#';
-					default: ignore = null;
+				Character ignore = null;
+				if( ext != null ) {
+					switch( ext ) {
+						case "gff": case "gff3": ignore='#'; break;
+						default: ignore = null;
+					}
 				}
 				int i = 0;
 				try {

@@ -54,7 +54,7 @@ public class LowMemProfileTool {
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 		
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model2.getLength())) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model2.getLength(),model2.getAlphabetContainer())) != null ){
 			ArrayList<Sequence> seqs = pair.getSecondElement();
 			IntList starts = pair.getFirstElement();
 			

@@ -7,7 +7,7 @@
     <!-- <property name="dir.workspace" value="${dir.buildfile}/.."/> -->
     <property name="dir.jarfile" value="/Users/dev/Downloads"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/Catchitt.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/Catchitt5.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="projects.encodedream.tools.Catchitt"/>
                 <attribute name="Class-Path" value="."/>
