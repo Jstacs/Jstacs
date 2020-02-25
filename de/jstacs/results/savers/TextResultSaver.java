@@ -64,7 +64,9 @@ public class TextResultSaver implements ResultSaver<TextResult> {
 			String relPath = getRelative( path.getAbsolutePath() );
 			if(rep.getFilename() != null && (new File(rep.getFilename())).exists()){
 				FileManager.copy(rep.getFilename(), relPath );
-				new File( rep.getFilename() ).delete();////TODO move (Jan likes to move files);
+				if(result.isTempFile()) {
+					new File( rep.getFilename() ).delete();////TODO move (Jan likes to move files);
+				}
 			}else{
 				PrintWriter wr = new PrintWriter( path );
 				wr.println( rep.getContent() );
