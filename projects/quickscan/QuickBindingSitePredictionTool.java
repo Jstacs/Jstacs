@@ -2,9 +2,11 @@ package projects.quickscan;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +14,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 
 import de.jstacs.DataType;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
@@ -137,7 +140,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		if(backgroundSet){
 			subsamp = 1;
 		}else{
-			subsamp = 1E6/(double)(new File(backgroundPath)).length();
+			subsamp = 1E6/(double)getUncompressedSize(backgroundPath);
 		}
 		//System.out.println("subsamp: "+subsamp);
 		
@@ -235,10 +238,15 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	
 	
 	private ListResult getSites(ProgressUpdater progress, String file, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
-		BufferedReader read = new BufferedReader(new FileReader(file));
+		BufferedReader read = null;
+		if(file.toLowerCase().endsWith(".gz")) {
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+		}else {
+			read = new BufferedReader(new FileReader(file));
+		}
 		StringBuffer lastHeader = new StringBuffer();
 		
-		long approxTotal = (new File(file)).length();
+		long approxTotal = getUncompressedSize(file);
 		
 		int[] pow = new int[kmer];
 		int a = (int)model.getAlphabetContainer().getAlphabetLengthAt(0);
@@ -334,7 +342,12 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	}
 	
 	private NormalDist getThreshold(String file, QuickScanningSequenceScore model2, double p) throws Exception{
-		BufferedReader read = new BufferedReader(new FileReader(file));
+		BufferedReader read = null;
+		if(file.toLowerCase().endsWith(".gz")) {
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+		}else {
+			read = new BufferedReader(new FileReader(file));
+		}
 		StringBuffer lastHeader = new StringBuffer();
 		
 		
