@@ -24,6 +24,7 @@ import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
+import de.jstacs.results.savers.TextResultSaver;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 
 
@@ -42,9 +43,11 @@ public class TextResult extends Result {
 	private String extendedType;
 	private String producer;
 	private boolean export;
+	private boolean isTempFile;
 	
 	/**
-	 * Creates a new {@link TextResult} with given name, comment, content, mime type, and additional info.
+	 * Creates a new {@link TextResult} with given name, comment, content, mime type, and additional info, assuming
+	 * that <code>file</code> is a temporary file (if it has a filename associated and this file exists).
 	 * @param name the name of the result
 	 * @param comment a comment on the result
 	 * @param file the contents of the result, encapsulated in a {@link FileRepresentation}.
@@ -60,6 +63,28 @@ public class TextResult extends Result {
 		this.producer = producer;
 		this.extendedType = extendedType;
 		this.export = export;
+		this.isTempFile = true;
+	}
+	
+	/**
+	 * Creates a new {@link TextResult} with given name, comment, content, mime type, and additional info.
+	 * @param name the name of the result
+	 * @param comment a comment on the result
+	 * @param file the contents of the result, encapsulated in a {@link FileRepresentation}.
+	 * @param isTempFile if <code>file</code> refers to a temporary file. If <code>false</code>, the corresponding original file will not be removed by {@link TextResultSaver#writeOutput(TextResult, java.io.File)} 
+	 * @param mime the mime type of the content
+	 * @param producer the producer (may be <code>null</code>)
+	 * @param extendedType the extended type (may be <code>null</code>)
+	 * @param export if <code>true</code>, the contents are exported as a separate file when used in {@link Galaxy}
+	 */
+	public TextResult(String name, String comment, FileRepresentation file, boolean isTempFile, String mime, String producer, String extendedType, boolean export){
+		super(name, comment, DataType.FILE);
+		this.value = file;
+		this.mime = mime;
+		this.producer = producer;
+		this.extendedType = extendedType;
+		this.export = export;
+		this.isTempFile = isTempFile;
 	}
 	
 	/**
@@ -164,6 +189,10 @@ public class TextResult extends Result {
 		this.extendedType = extendedType;
 	}
 
+	public boolean isTempFile() {
+		return isTempFile;
+	}
+	
 	@Override
 	public String getXMLTag() {
 		return "TextResult";
@@ -176,6 +205,7 @@ public class TextResult extends Result {
 		XMLParser.appendObjectWithTags(buf, producer,"producer");
 		XMLParser.appendObjectWithTags(buf, export, "export");
 		XMLParser.appendObjectWithTags( buf, extendedType, "extype" );
+		XMLParser.appendObjectWithTags(buf, isTempFile, "isTempFile");
 	}
 
 	@Override
@@ -189,6 +219,11 @@ public class TextResult extends Result {
 			export = false;
 		}
 		extendedType = (String)XMLParser.extractObjectForTags( buf, "extype" );
+		try {
+			isTempFile = (Boolean) XMLParser.extractObjectForTags(buf, "isTempFile");
+		}catch(NonParsableException e) {
+			isTempFile = true;
+		}
 	}
 
 	@Override
