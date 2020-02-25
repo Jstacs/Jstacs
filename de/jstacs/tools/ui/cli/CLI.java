@@ -560,7 +560,7 @@ if( key == null ) {
 							}
 							Parameter par2 = ((ParameterSet) parameters.getParameterAt(k).getValue()).getParameterAt(i);
 							par2.setValue(value.removeFirst());
-							
+							set=true;
 							if( par2.getDatatype() == DataType.PARAMETERSET ) {
 								set |= set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
 							}

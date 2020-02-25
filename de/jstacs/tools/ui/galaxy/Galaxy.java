@@ -43,6 +43,7 @@ import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.ToolParameterSet;
+import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.FileResult;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.LinkedImageResult;
@@ -167,62 +168,63 @@ public class Galaxy {
 			print( ps, "" );
 			System.out.println( "The number of threads used for the tool, defaults to 1\t= "+ga.getThreads() );
 			/**/
-			ResultSet ress = tools[idx].run( (ToolParameterSet) ga.parameters, protocol, progress, ga.getThreads() ).getRawResult()[0];			
-			
-			Pair<Result,boolean[]>[] temp = flatten(ress);
-			
-			HashSet<String> names = new HashSet<String>();
-			
-			for(int i=0;i<temp.length;i++){
+			ToolResult tr = tools[idx].run( (ToolParameterSet) ga.parameters, protocol, progress, ga.getThreads() );
+			ResultSet[] ress = tr==null ? new ResultSet[0] : tr.getRawResult();
+			if( ress.length > 0 ) {
+				Pair<Result,boolean[]>[] temp = flatten(ress[0]);
 				
-				Result res = temp[i].getFirstElement();
-				boolean export = temp[i].getSecondElement()[0];
-				boolean includeInSummary = temp[i].getSecondElement()[1];
+				HashSet<String> names = new HashSet<String>();
 				
-				String exportExtension = null;
-				if(res instanceof TextResult){
-					String mime = ( (TextResult)res ).getMime();
-					if(mime != null){
-						String[] exts = mime.split( "\\," );
-						exportExtension = exts[0];
+				for(int i=0;i<temp.length;i++){
+					
+					Result res = temp[i].getFirstElement();
+					boolean export = temp[i].getSecondElement()[0];
+					boolean includeInSummary = temp[i].getSecondElement()[1];
+					
+					String exportExtension = null;
+					if(res instanceof TextResult){
+						String mime = ( (TextResult)res ).getMime();
+						if(mime != null){
+							String[] exts = mime.split( "\\," );
+							exportExtension = exts[0];
+						}
 					}
-				}
-				if(res instanceof PlotGeneratorResult){
-					
-					PlotGenerator pg = ((PlotGeneratorResult)res).getValue();
-					RasterizedAdaptor rast = new RasterizedAdaptor( "png" );
-					pg.generatePlot( rast );
-					BufferedImage bi = rast.getImage();
-					
-					PDFAdaptor pdf = new PDFAdaptor();
-					pg.generatePlot( pdf );
-					
-					String filename = res.getName().replaceAll( "[\\s\\:\\/]", "_" );
-					String temp2 = filename;
-					int j=1;
-					while(names.contains( temp2 )){
-						temp2 = filename+"_"+j;
-						j++;
+					if(res instanceof PlotGeneratorResult){
+						
+						PlotGenerator pg = ((PlotGeneratorResult)res).getValue();
+						RasterizedAdaptor rast = new RasterizedAdaptor( "png" );
+						pg.generatePlot( rast );
+						BufferedImage bi = rast.getImage();
+						
+						PDFAdaptor pdf = new PDFAdaptor();
+						pg.generatePlot( pdf );
+						
+						String filename = res.getName().replaceAll( "[\\s\\:\\/]", "_" );
+						String temp2 = filename;
+						int j=1;
+						while(names.contains( temp2 )){
+							temp2 = filename+"_"+j;
+							j++;
+						}
+						filename = temp2;
+						names.add(filename);
+						
+						filename = "./"+filename+".pdf";
+						
+						pdf.generateOutput( filename );
+						
+						FileResult link = new FileResult( res.getName(), "PDF", filename );
+						
+						LinkedImageResult lir = new LinkedImageResult( res.getName(), res.getComment(), bi, link );
+						
+						res = lir;
+						
 					}
-					filename = temp2;
-					names.add(filename);
 					
-					filename = "./"+filename+".pdf";
-					
-					pdf.generateOutput( filename );
-					
-					FileResult link = new FileResult( res.getName(), "PDF", filename );
-					
-					LinkedImageResult lir = new LinkedImageResult( res.getName(), res.getComment(), bi, link );
-					
-					res = lir;
+					ga.addResult( res, export, includeInSummary, exportExtension );
 					
 				}
-				
-				ga.addResult( res, export, includeInSummary, exportExtension );
-				
 			}
-			
 			ga.writeOutput();
 			
 		}

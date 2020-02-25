@@ -133,8 +133,26 @@ GeMoMa 1.6.1 (04.06.2019)
 	- bugfix for prefix of ref-gene
 	- allow no transcript info, but making assignment non-optional if a transcript info is set  
 - GAF: bugfix for Galaxy integration
+	- bugfix for filter using specific attributes if no RNA-seq or query proteins was used
 - GeMoMaPipeline:
 	- improved output in case of Exceptions
 	- new parameter "output individual predictions" allows to in- or exclude individual predictions from each reference organism in the final result
 	- new parameter "weight" allows weights for reference species (cf. GAF)
 - ERE: new parameter "minimal mapping quality"
+
+
+GeMoMa 1.6.2 (17.12.2019)
+- Jstacs changes:
+	- test methods for modules
+	- live protocol for Galaxy
+- new module NCBIReferenceRetriever: allowing to retrieve data for reference organisms easily from NCBI.
+- GAF:
+	- bugfix for filter using specific attributes if no RNA-seq or query proteins was used
+	- allow to add annotation info (as for instance provided by Phytozome) based on the reference organisms
+- GeMoMa: bugfix for timeout
+- GeMoMaPipeline:
+	- bugfix no Denoise without RNAseq data
+	- bugfix reporting predicted partial proteins
+	- improved protocol
+	- new default value for query proteins (changed from false to true)
+	- new default value for Ambiguity (changed from EXCEPTION to AMBIGUOUS)
