@@ -2463,29 +2463,14 @@ public class GeMoMa extends GeMoMaModule {
 		        	align1.clear();
 		        	align2.clear();
 		        	align.clear();
-		        	MyAlignment a=align, b=align1, c=align2;
-		        	align=align1=align2=null;
-		        	
-		        	int[][] s = sums; 
-		        	sums=null;
-		        	
-		        	HashMap<String, String> se = seqs;
-		        	seqs=null;
 
 		        	//wait for an Exception
 		        	protocol.wait();
 		        	
 		        	//replace
-		        	align=a;
-		        	align1=b;
-		        	align2=c;
-		        	align1.clear();
-		        	align2.clear();
-		        	align.clear();
-		        	
-		        	sums = s;
-		        	
-		        	seqs=se;
+		        	align.destroyed=false;
+		        	align1.destroyed=false;
+		        	align2.destroyed=false;
 	        	}
 	        	protocol.append(new Date() + "\t" + System.currentTimeMillis() +"\n" );
 	        } finally {
@@ -4499,6 +4484,7 @@ public class GeMoMa extends GeMoMaModule {
 	
 	static class MyAlignment extends Alignment { //TODO static?
 		
+		private boolean destroyed=false;
 		private IntList first = new IntList(), second = new IntList();
 		private TranscriptPredictor instance;
 		public MyAlignment(AffineCosts costs,TranscriptPredictor instance) {
@@ -4507,6 +4493,7 @@ public class GeMoMa extends GeMoMaModule {
 		}
 
 		public double getBestValue( MyAlignment a2, int end1, int end2, char aa ) throws WrongAlphabetException {
+			if( destroyed ) throw new RuntimeException();
 			if( this.type == AlignmentType.GLOBAL && a2.type == AlignmentType.GLOBAL //global alignments
 					&& this.startS1 == 0 && a2.startS2 == 0 //both from the beginning 
 			) {
@@ -4556,6 +4543,7 @@ public class GeMoMa extends GeMoMaModule {
 		}
 		
 		public boolean computeAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
+			if( destroyed ) throw new RuntimeException();
 			if( this.type == type 
 				&& this.startS1 == startS1 && this.l1 == endS1-startS1
 				&& this.startS2 == startS2 && this.l2 == endS2-startS2
@@ -4613,6 +4601,7 @@ public class GeMoMa extends GeMoMaModule {
 		void clear() {
 			s1=s2=null;
 			startS1=startS2=l1=l2=-1;
+			destroyed=true;
 		}
 	}
 	
