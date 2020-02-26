@@ -166,8 +166,15 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		int maxTranscripts = (Integer) parameters.getParameterForName("maximal number of transcripts per gene").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
-		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), protocol );
+		String[] defAttributes = parameters.getParameterForName("default attributes").getValue().toString().split(",");
+		for( int i = 0; i < defAttributes.length; i++ ) {
+			defAttributes[i] = defAttributes[i].trim();
+			if( defAttributes[i].length() == 0 ) {
+				defAttributes[i] = null;
+			}
+		}
 		String filter = prepareFilter( (String) parameters.getParameterForName("filter").getValue() );
+		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), protocol );
 		String altFilter = prepareFilter( (String) parameters.getParameterForName("alternative transcript filter").getValue() );
 				
 		ScriptEngineManager mgr = new ScriptEngineManager();
@@ -247,7 +254,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				
 				t = split[2];
 				if( t.equalsIgnoreCase( tag ) ) { //tag: prediction/mRNA/transcript
-					current = new Prediction(split, k, prefix[k], annotInfo, go, defline);
+					current = new Prediction(split, k, prefix[k], annotInfo, go, defline, defAttributes);
 					if( ids.contains( current.id ) ) {
 						//System.out.println(line);
 						//System.out.println(current);
@@ -611,7 +618,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		String prefix, oldId, id;
 		HashSet<String> gos, defl;
 		
-		public Prediction( String[] split, int index, String prefix, HashMap<String,String[]> annotInfo, int go, int defline ) {
+		public Prediction( String[] split, int index, String prefix, HashMap<String,String[]> annotInfo, int go, int defline, String[] defAttributes ) {
 			this.index = index;
 			
 			this.split = split;
@@ -671,17 +678,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			
 			//avoid Exceptions with filter conditions that access attributes that are not defined
-			//if no RNA-seq data was used for the annotation
 			String nan= "" + Double.NaN;
-			if( !hash.containsKey("tie") ) hash.put("tie", nan);
-			if( !hash.containsKey("tde") ) hash.put("tde", nan);
-			if( !hash.containsKey("tae") ) hash.put("tae", nan);
-			//if query proteins were not used in GeMoMa
-			if( !hash.containsKey("iAA") ) hash.put("iAA", nan);
-			if( !hash.containsKey("pAA") ) hash.put("pAA", nan);
-			//if score attribute is not defined (i.e., GeMoMa was not used for this annotation)
-			if( !hash.containsKey("score") ) hash.put("score", nan);
-
+			for( int i = 0; i <defAttributes.length; i++ ) {
+				if( defAttributes[i] != null ) {
+					if( !hash.containsKey(defAttributes[i]) ) hash.put(defAttributes[i], nan);
+				}
+			}
 			
 			if( annotInfo.size()>0 ) {
 				gos = new HashSet<String>();
@@ -952,7 +954,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			return
 				new ToolParameterSet( getShortName(),
 					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,GeMoMa.TAG),
-					new SimpleParameter(DataType.STRING,"sorting","comma-separated list that defines the way predictions are sorted within a cluster", true, "evidence,score"),
 					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
 					new SimpleParameter(DataType.INT,"maximal number of transcripts per gene","the maximal number of allowed transcript predictions per gene", true, new NumberValidator<Comparable<Integer>>(1, Integer.MAX_VALUE), Integer.MAX_VALUE ),
 					new ParameterSetContainer( "predicted annotation", "", new ExpandableParameterSet( new SimpleParameterSet(		
@@ -961,9 +962,13 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true ),
 							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
 						), "gene annotations", "", 1 ) ),
+					new SimpleParameter(DataType.STRING,"default attributes","Comma-separated list of attributes that is set to NaN if they are not given in the annotation file. "
+							+ "This allows to use these attributes for sorting or filter criteria. "
+							+ "It is especially meaningful if the gene annotation files were received fom different software packages (e.g., GeMoMa, Braker, ...) having different attributes.", true, "tie,tde,tae,iAA,pAA,score" ),				
 					new SimpleParameter(DataType.STRING,"filter","A filter can be applied to transcript predictions to receive only reasonable predictions. The filter is applied to the GFF attributes. "
 							+ "The deault filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/AA>=0.75) whether a prediction is used or not. Different criteria can be combined using 'and' and 'or'. In addition, you can check for NaN, e.g., 'isNaN(score)'. "
 							+ "A more sophisticated filter could be applied for instance using the completeness, the relative score, the evidence as well as statistics based on RNA-seq: start=='M' and stop =='*' and score/AA>=0.75 and (evidence>1 or tpc==1.0)", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "start=='M' and stop =='*' and score/AA>=0.75" ),
+					new SimpleParameter(DataType.STRING,"sorting","comma-separated list that defines the way predictions are sorted within a cluster", true, "evidence,score"),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on evidence (evidence>1). "
 							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or evidence>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "tie==1 or evidence>1" )
