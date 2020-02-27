@@ -106,7 +106,7 @@ public class GeMoMa extends GeMoMaModule {
 	private static final int scoreIndex = 13;
 
 	public static final String timeoutMsg = "Invocation did not return before timeout";
-	
+	StringBuffer timeOutWarning;
 
 	//global variables (always same for the same target species)
 	//
@@ -244,6 +244,7 @@ public class GeMoMa extends GeMoMaModule {
 		this.maxSize = maxSize;
 		this.timeOut = timeOut;
 		this.maxTimeOut = maxTimeOut;
+		timeOutWarning = new StringBuffer();
 	}
 	
 	/**
@@ -787,6 +788,7 @@ public class GeMoMa extends GeMoMaModule {
 	
 	@Override
 	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+		timeOutWarning.delete(0, timeOutWarning.length());
 		verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		if( seqs == null ) {
 			fill( protocol, verbose, maxSize,
@@ -975,6 +977,8 @@ public class GeMoMa extends GeMoMaModule {
 		} finally {					
 			//close output;
 			tp.gff.close();
+			
+			if( timeOutWarning.length()>0 ) protocol.append( "\ntime-out warning: " + timeOutWarning );
 			
 			if( okay ) {
 				String gff = tp.gffFile.getAbsolutePath();
@@ -2454,6 +2458,8 @@ public class GeMoMa extends GeMoMaModule {
 	        	protocol.append( "\t" +timeoutMsg + " of " + timeOut + " seconds\n");
 	        	protocol.append(new Date() + "\t" + System.currentTimeMillis() +"\n");
 	        	out=false;
+
+	        	timeOutWarning.append( (timeOutWarning.length()>0?", ":"") + transcriptName );
 	        	
 	        	//stop thread
 	        	t.interrupt(); //will probably not help
@@ -2464,6 +2470,9 @@ public class GeMoMa extends GeMoMaModule {
 		        	align2.clear();
 		        	align.clear();
 
+		        	int[][] s = sums; 
+		        	sums=null;
+		        	
 		        	//wait for an Exception
 		        	protocol.wait();
 		        	
@@ -2471,6 +2480,7 @@ public class GeMoMa extends GeMoMaModule {
 		        	align.destroyed=false;
 		        	align1.destroyed=false;
 		        	align2.destroyed=false;
+		        	sums=s;
 	        	}
 	        	protocol.append(new Date() + "\t" + System.currentTimeMillis() +"\n" );
 	        } finally {
@@ -4491,9 +4501,13 @@ public class GeMoMa extends GeMoMaModule {
 			super(costs);
 			this.instance = instance;
 		}
+		
+		private void check() {
+			if( destroyed ) throw new RuntimeException(); //TODO more informative?
+		}
 
 		public double getBestValue( MyAlignment a2, int end1, int end2, char aa ) throws WrongAlphabetException {
-			if( destroyed ) throw new RuntimeException();
+			check();
 			if( this.type == AlignmentType.GLOBAL && a2.type == AlignmentType.GLOBAL //global alignments
 					&& this.startS1 == 0 && a2.startS2 == 0 //both from the beginning 
 			) {
@@ -4543,7 +4557,7 @@ public class GeMoMa extends GeMoMaModule {
 		}
 		
 		public boolean computeAlignment( AlignmentType type, Sequence s1, int startS1, int endS1, Sequence s2, int startS2, int endS2 ) {
-			if( destroyed ) throw new RuntimeException();
+			check();
 			if( this.type == type 
 				&& this.startS1 == startS1 && this.l1 == endS1-startS1
 				&& this.startS2 == startS2 && this.l2 == endS2-startS2

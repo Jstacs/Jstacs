@@ -133,6 +133,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	ArrayList<FlaggedRunnable> list;
 	
 	HashMap<String,String> selected;
+
+	StringBuffer[] timeOutWarning;
 	
 	public ParameterSet getRelevantParameters( ParameterSet params, String... remove ) {
 		HashSet<String> removeNames = new HashSet<String>();
@@ -645,6 +647,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		}
 		//pipelineProtocol.append("Running GeMoMa for "+ species.size() + " reference species.\n");
 		
+		timeOutWarning = new StringBuffer[species.size()];
+		for( int i=0; i < species.size(); i++ ) {
+			timeOutWarning[i] = new StringBuffer();
+		}
+		
 		int usedSpec = 0;
 		res = new ArrayList<Result>();
 		if( species.size() > 0 ) {
@@ -713,6 +720,16 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					//wait until second part has been finished
 					waitPhase();
 				}
+				
+				boolean header=true;
+				for( int i=0; i < timeOutWarning.length; i++ ) {
+					if( timeOutWarning[i].length()>0 ) {
+						if( header ) protocol.append("\ntime-out warning:\n");
+						header=false;
+						protocol.append("species " + i + ": " + timeOutWarning[i] + "\n");
+					}
+				}
+				if( !header ) protocol.append("\n");
 				
 				//third part = cat
 				if( !queue.isShutdown() ) {
@@ -815,7 +832,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					Species current = species.get(i);
 					if( current.hasCDS ) {
 						String unfiltered = home+"/" + i + "/unfiltered-predictions.gff";
-						pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
+						//pipelineProtocol.append(unfiltered + "\t" + (new File(unfiltered)).exists() +"\n" );
 						
 						FileRepresentation fr = new FileRepresentation(unfiltered);
 						//fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
@@ -1495,6 +1512,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			SysProtocol protocol = new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			ToolResult res = gemoma.run(params, protocol, new ProgressUpdater(), 1);
+			
+			synchronized ( timeOutWarning[speciesIndex] ) {
+				if( gemoma.timeOutWarning.length()>0 )  timeOutWarning[speciesIndex].append( (timeOutWarning[speciesIndex].length()>0?", ":"") + gemoma.timeOutWarning );
+			}
 			ResultSet[] r = res.getRawResult();
 			/*for( int j = 0; j < r.length; j++) {
 				for( int i = 0; i < r[j].getNumberOfResults(); i++) {
