@@ -78,7 +78,7 @@ public class MotifScores implements JstacsTool {
 		}
 		
 		//pars.add(new FileParameter("Motif model", "Dimont motif model description", "xml", true));
-		pars.add(new FileParameter("Genome","Genome as FastA file","fa,fas,fasta",true));
+		pars.add(new FileParameter("Genome","Genome as FastA file","fa,fas,fasta,fa.gz,fas.gz,fasta.gz",true));
 		pars.add(new FileParameter("FAI of genome", "FastA index file of the genome", "fai", true));
 		try {
 			pars.add(new SimpleParameter(DataType.INT, "Bin width", "The width of the genomic bins considered", true));
