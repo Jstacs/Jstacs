@@ -18,13 +18,16 @@ package projects.encodedream;
  */
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -118,7 +121,13 @@ public class QuickMotifProfileTool {
 		
 		
 		
-		BufferedReader read = new BufferedReader(new FileReader(genome));
+		BufferedReader read = null;
+		if(genome.toLowerCase().endsWith(".gz")){
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(genome))));
+		}else {
+			read = new BufferedReader(new FileReader(genome));
+		}
+		
 		StringBuffer lastHeader = new StringBuffer();
 		
 
@@ -330,7 +339,12 @@ public class QuickMotifProfileTool {
 		
 		time = System.currentTimeMillis();
 		
-		read = new BufferedReader(new FileReader(genome));
+		read = null;
+		if(genome.toLowerCase().endsWith(".gz")){
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(genome))));
+		}else {
+			read = new BufferedReader(new FileReader(genome));
+		}
 		lastHeader = new StringBuffer();
 		
 		
