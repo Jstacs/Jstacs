@@ -76,7 +76,7 @@ public class LearnDependencyModelWeb {
 		//lines[0] = lines[5] = lines[6] = lines[9] = true;
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"LearnDependencyModel", "- Learn a dependency model from aligned input sequences", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"LearnDependencyModelWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"LearnDependencyModel", "- Learn a dependency model from aligned input sequences", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"LearnDependencyModelWeb.jar", "jobname", true );
 		ga.setHelp( FileManager.readInputStream( SlimDimontWeb.class.getClassLoader().getResourceAsStream( "projects/slim/helpLearn.txt" ) ).toString() );//TODO
 		
 		if(!ga.parse( args, false )){

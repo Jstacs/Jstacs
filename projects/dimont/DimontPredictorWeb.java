@@ -32,7 +32,7 @@ import de.jstacs.results.ResultSet;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 
-
+@Deprecated
 public class DimontPredictorWeb {
 
 	/**
@@ -47,7 +47,7 @@ public class DimontPredictorWeb {
 		lines[0] = lines[1] = lines[4] = true;
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"DimontPredictor", "for predicting binding sites using a Dimont model", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontPredictorWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"DimontPredictor", "for predicting binding sites using a Dimont model", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontPredictorWeb.jar", "jobname", true );
 		ga.setHelp( FileManager.readInputStream( DimontWeb.class.getClassLoader().getResourceAsStream( "projects/dimont/helpPredictor.txt" ) ).toString() );
 		
 		if(!ga.parse( args, false )){

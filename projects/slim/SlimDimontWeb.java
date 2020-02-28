@@ -53,7 +53,7 @@ public class SlimDimontWeb extends SlimDimont {
 		lines[0] = lines[5] = lines[6] = lines[9] = true;
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"SlimDimont", "- a universal tool for detecting dependencies from ChIP and PBM data.", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"SlimDimontWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"SlimDimont", "- a universal tool for detecting dependencies from ChIP and PBM data.", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"SlimDimontWeb.jar", "jobname", true );
 		ga.setHelp( FileManager.readInputStream( SlimDimontWeb.class.getClassLoader().getResourceAsStream( "projects/slim/help.txt" ) ).toString() );
 		
 		if(!ga.parse( args, true )){

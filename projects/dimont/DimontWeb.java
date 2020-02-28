@@ -35,7 +35,7 @@ import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor.Protocol;
 import de.jstacs.utils.SafeOutputStream;
 
-
+@Deprecated
 public class DimontWeb {
 
 	/**
@@ -50,7 +50,7 @@ public class DimontWeb {
 		lines[0] = lines[5] = lines[6] = lines[9] = true;
 		
 		
-		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"Dimont", "- a universal tool for de-novo motif discovery.", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontWeb.jar", "jobname" );
+		GalaxyAdaptor ga = new GalaxyAdaptor( params,null,lines,"Dimont", "- a universal tool for de-novo motif discovery.", "0.1", "java -Xms256M -Xmx2G -jar "+System.getProperty( "user.dir" )+System.getProperty( "file.separator" )+"DimontWeb.jar", "jobname", true );
 		ga.setHelp( FileManager.readInputStream( DimontWeb.class.getClassLoader().getResourceAsStream( "projects/dimont/help.txt" ) ).toString() );
 		
 		if(!ga.parse( args, true )){

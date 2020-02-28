@@ -220,7 +220,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 				+ "The tool outputs a list of predictions including, for every prediction, the ID"
 				+ "of the sequence (e.g., chromosome) containing the binding site, position and strand of the matching sub-sequence, its score according to the model, the"
 				+ " sub-sequence itself (in strand orientation according to the model), and a p-value from a normal distribution fitted to the score distribution of the provided negative examples "
-				+ "or a sub-sample of the input data (parameter \"Background sequences\")."
+				+ "or a sub-sample of the input data (parameter \"Background sample\")."
 				+ "\n\n"
 				+ "If you experience problems using Quick Prediction Tool, please contact_ us.\n"
 				+ ".. _contact: mailto:grau@informatik.uni-halle.de";
