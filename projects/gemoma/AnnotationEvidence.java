@@ -44,6 +44,7 @@ import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import projects.gemoma.Extractor.Gene;
+import projects.gemoma.Extractor.Part;
 import projects.gemoma.GeMoMa.IntArrayComparator;
 import projects.gemoma.Tools.Ambiguity;
 
@@ -202,9 +203,10 @@ public class AnnotationEvidence extends GeMoMaModule {
 							//TODO annotation
 							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id +(introns?";tie=" + tieString:"") + (coverage?";tpc="+ tpcString:"") + ";AA=" + (l/3) + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
 							annot.newLine();
+
 							for( int j = 0;j < parts.length(); j++ ) {
 								int[] part = g.exon.get(parts.get(j));
-								annot.append( c + "\t" + g.evidence + "\tCDS\t" + part[1] + "\t" + part[2] + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tParent=" + e.getKey() );
+								annot.append( c + "\t" + g.evidence + "\tCDS\t" + part[1] + "\t" + part[2] + "\t.\t" + (g.strand==1?"+":"-") + "\t"+(part[3]==Part.NO_PHASE?".":part[3])+"\tParent=" + e.getKey() );
 								annot.newLine();
 							}
 						}
