@@ -26,8 +26,8 @@ import java.io.OutputStream;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import javax.xml.bind.DatatypeConverter;
-
+//import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 
 /**
  * Class for compressing and de-compressing {@link String}s
@@ -47,7 +47,8 @@ public class Compression {
 		
 		
 		//InputStream in = new InflaterInputStream(new ByteArrayInputStream(Base64.decode(zipped)));
-		InputStream in = new InflaterInputStream(new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(zipped)));
+		//InputStream in = new InflaterInputStream(new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(zipped)));
+		InputStream in = new InflaterInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(zipped)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
             int len;
@@ -71,8 +72,8 @@ public class Compression {
         out.close();
         
 		//return Base64.encode(baos.toByteArray());
-        return DatatypeConverter.printBase64Binary(baos.toByteArray());
-		
+        //return DatatypeConverter.printBase64Binary(baos.toByteArray());
+		return Base64.getEncoder().encodeToString(baos.toByteArray());
 	}
 	
 	
