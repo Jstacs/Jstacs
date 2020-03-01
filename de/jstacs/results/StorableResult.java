@@ -19,6 +19,7 @@
 
 package de.jstacs.results;
 
+import de.jstacs.AnnotatedEntity;
 import de.jstacs.DataType;
 import de.jstacs.Storable;
 import de.jstacs.classifiers.AbstractClassifier;
@@ -169,4 +170,26 @@ public class StorableResult extends Result {
 	public String toString() {
 		return name + ":\n" + object.toXML() + "\n";
 	}
+
+	@Override
+	public boolean equalValues(AnnotatedEntity a) {
+		if(a instanceof StorableResult) {
+			StorableResult s = (StorableResult)a;
+			if(s == this) {
+				return true;
+			}else if(s.object == this.object) {
+				return true;
+			}else if(s.object != null && this.object != null && s.object.equals(this.object)) {
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			return false;
+		}
+	}
+	
+	
+	
+	
 }
