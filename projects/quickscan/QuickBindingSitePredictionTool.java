@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -26,6 +27,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
@@ -96,17 +98,22 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 	}
 	
-	private static long getUncompressedSize(String genomePath) throws FileNotFoundException, IOException	{
-		if(genomePath.endsWith(".gz")) {
-			long size = -1;
-			try (RandomAccessFile fp = new RandomAccessFile(new File(genomePath), "r")) {        
-				fp.seek(fp.length() - Integer.BYTES);
-				int n = fp.readInt();
-				size = Integer.toUnsignedLong(Integer.reverseBytes(n));
+	private static long getUncompressedSize(FileRepresentation genomeFile) throws FileNotFoundException, IOException	{
+		if((new File(genomeFile.getFilename()).exists())){
+			String genomePath = genomeFile.getFilename();
+			if(genomePath.endsWith(".gz")) {
+				long size = -1;
+				try (RandomAccessFile fp = new RandomAccessFile(new File(genomePath), "r")) {        
+					fp.seek(fp.length() - Integer.BYTES);
+					int n = fp.readInt();
+					size = Integer.toUnsignedLong(Integer.reverseBytes(n));
+				}
+				return size;
+			}else {
+				return (new File(genomePath)).length();
 			}
-			return size;
 		}else {
-			return (new File(genomePath)).length();
+			return genomeFile.getContent().length();
 		}
 	}
 
@@ -117,10 +124,10 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		progress.setLast(1.0);
 		progress.setCurrent(0.0);
 		
-		String modelPath = parameters.getParameterAt(0).getValue().toString();
+		FileRepresentation modelFile = ((FileParameter)parameters.getParameterAt(0)).getFileContents();
 		boolean backgroundSet = ((SelectionParameter)parameters.getParameterAt(2)).getSelected()==1;
-		String backgroundPath = backgroundSet ? ( (ParameterSet)parameters.getParameterAt(2).getValue()).getParameterAt(0).getValue().toString() : parameters.getParameterAt(1).getValue().toString();
-		String genomePath = parameters.getParameterAt(1).getValue().toString();
+		FileRepresentation backgroundFile = ((FileParameter)(backgroundSet ? ( (ParameterSet)parameters.getParameterAt(2).getValue()).getParameterAt(0) : parameters.getParameterAt(1))).getFileContents();
+		FileRepresentation genomeFile = ((FileParameter) parameters.getParameterAt(1)).getFileContents();
 		
 		protocol.appendHeading("Starting predictions...\n");
 		protocol.append("Using "+(backgroundSet? " background set.\n" : " sub-sample of input data.\n"));
@@ -131,7 +138,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			p_value = (Double) ((ParameterSet)parameters.getParameterAt(3).getValue()).getParameterAt(0).getValue();
 		}else{
 			int nsites = (Integer) ((ParameterSet)parameters.getParameterAt(3).getValue()).getParameterAt(0).getValue();
-			p_value = nsites/(double)getUncompressedSize(genomePath)/2.0;
+			p_value = nsites/(double)getUncompressedSize(genomeFile)/2.0;
 		}
 		protocol.append("Significance level: "+p_value+"\n");
 		protocol.appendWarning("The p-values and, hence, the significance level are only approximate values and may not fully reflect the number of predictions for a specific input file.\n");
@@ -140,18 +147,19 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		if(backgroundSet){
 			subsamp = 1;
 		}else{
-			subsamp = 1E6/(double)getUncompressedSize(backgroundPath);
+			subsamp = 1E6/(double)getUncompressedSize(backgroundFile);
 		}
 		//System.out.println("subsamp: "+subsamp);
 		
-		GenDisMixClassifier cl = new GenDisMixClassifier(FileManager.readFile(modelPath));
+		GenDisMixClassifier cl = new GenDisMixClassifier(new StringBuffer(modelFile.getContent()));
+		
 		ThresholdedStrandChIPper fg =(ThresholdedStrandChIPper) cl.getDifferentiableSequenceScore(0);
 		QuickScanningSequenceScore lslim = (QuickScanningSequenceScore) fg.getFunction(0);
 		
 		int kmer = 10;
 		int[] starts = new int[]{0,(lslim.getLength()-kmer)/2,lslim.getLength()-kmer};
 		
-		NormalDist nd = getThreshold(backgroundPath,lslim,subsamp); 
+		NormalDist nd = getThreshold(backgroundFile,lslim,subsamp); 
 		progress.setCurrent(0.3);
 		
 		double t = nd.inverseF(1.0-p_value);
@@ -186,7 +194,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		starts = temps;
 		
 		protocol.appendHeading("Predicting sites...\n");
-		ListResult lr = getSites(progress,genomePath,lslim,nd,t,kmer,use,starts);
+		ListResult lr = getSites(progress,genomeFile,lslim,nd,t,kmer,use,starts);
 		progress.setCurrent(1.0);
 		protocol.append("...finished predicting "+lr.getNumberOfResultSets()+" sites.\n");
 		
@@ -237,16 +245,21 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	
 	
 	
-	private ListResult getSites(ProgressUpdater progress, String file, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
+	private ListResult getSites(ProgressUpdater progress, FileRepresentation fileRep, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
 		BufferedReader read = null;
-		if(file.toLowerCase().endsWith(".gz")) {
-			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+		if((new File(fileRep.getFilename())).exists()) {
+			String file = fileRep.getFilename();
+			if(file.toLowerCase().endsWith(".gz")) {
+				read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+			}else {
+				read = new BufferedReader(new FileReader(file));
+			}
 		}else {
-			read = new BufferedReader(new FileReader(file));
+			read = new BufferedReader(new StringReader(fileRep.getContent()));
 		}
 		StringBuffer lastHeader = new StringBuffer();
 		
-		long approxTotal = getUncompressedSize(file);
+		long approxTotal = getUncompressedSize(fileRep);
 		
 		int[] pow = new int[kmer];
 		int a = (int)model.getAlphabetContainer().getAlphabetLengthAt(0);
@@ -341,12 +354,17 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 	}
 	
-	private NormalDist getThreshold(String file, QuickScanningSequenceScore model2, double p) throws Exception{
+	private NormalDist getThreshold(FileRepresentation fileRep, QuickScanningSequenceScore model2, double p) throws Exception{
 		BufferedReader read = null;
-		if(file.toLowerCase().endsWith(".gz")) {
-			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+		if((new File(fileRep.getFilename())).exists()) {
+			String file = fileRep.getFilename();
+			if(file.toLowerCase().endsWith(".gz")) {
+				read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+			}else {
+				read = new BufferedReader(new FileReader(file));
+			}
 		}else {
-			read = new BufferedReader(new FileReader(file));
+			read = new BufferedReader(new StringReader(fileRep.getContent()));
 		}
 		StringBuffer lastHeader = new StringBuffer();
 		
