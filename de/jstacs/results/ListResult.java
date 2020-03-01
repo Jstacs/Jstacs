@@ -372,11 +372,15 @@ public class ListResult extends Result {
 	public boolean equalValues( AnnotatedEntity a ) {
 		if( a instanceof ListResult ) {
 			ListResult lr = (ListResult) a;
-			if( list.length != lr.list.length ) {
+			if(lr == this) {
+				return true;
+			}else if(lr.annotation == this.annotation && lr.list == this.list) {
+				return true;
+			}else if( list.length != lr.list.length ) {
 				return false;
 			} else {
 				int i = 0;
-				while( i < list.length && list[i].equals(lr.list[i]) ) {
+				while( i < list.length && ( list[i] == lr.list[i] || list[i].equals(lr.list[i]) ) ) {
 					i++;				
 				}
 				return i == list.length;
