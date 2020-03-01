@@ -20,7 +20,7 @@ package de.jstacs.utils;
 // from http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
 
 /**
- * Class for creating nive tick marks on axes given a minimum and maximum value.
+ * Class for creating nice tick marks on axes given a minimum and maximum value.
  * Greatly inspired by http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
  * 
  * @author Jan Grau
