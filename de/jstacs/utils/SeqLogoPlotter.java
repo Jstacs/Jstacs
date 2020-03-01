@@ -31,9 +31,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -44,7 +42,6 @@ import cern.jet.stat.Gamma;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.EmptyDataSetException;
 import de.jstacs.data.WrongAlphabetException;
-import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
@@ -1732,6 +1729,13 @@ public class SeqLogoPlotter {
 		//y += h;
 		
 		double ic = getICScale(p);
+		if(p.length>4) {
+			double[] p2 = new double[4];
+			System.arraycopy(p, 0, p2, 0, p2.length);
+			p2[1] += p[4];
+			p2[2] += p[5];
+			ic = getICScale(p2);
+		}
 		h *= ic;
 		//System.out.println("h: "+h);
 		
@@ -1758,9 +1762,15 @@ public class SeqLogoPlotter {
 			}else if(order[i] == 2){
 				g.setColor( Color.ORANGE );
 				g.fill(getG( x, y, w, h*curr ));
-			}else{
+			}else if(order[i] == 3){
 				g.setColor( Color.RED );
 				g.fill(getT( x, y, w, h*curr ));
+			}else if(order[i] == 4) {
+				g.setColor(Color.CYAN);
+				g.fill(getM(x,y,w,h*curr));
+			}else if(order[i] == 5) {
+				g.setColor(Color.MAGENTA);
+				g.fill(getH(x,y,w,h*curr));
 			}
 			//System.out.println("y: "+y);
 			y -= h*curr;
@@ -1822,6 +1832,65 @@ public class SeqLogoPlotter {
 		
 		AffineTransform t = new AffineTransform();
 		t.scale( 1d/90d, 1d/100d );
+		t.scale( w, h );
+		a1.transform( t );
+		t = new AffineTransform();
+		t.translate( x, y );
+		a1.transform( t );
+		return a1;
+		
+	}
+	
+	private static Area getH( double x, double y, double w, double h ){
+		
+		
+		Shape s = new Polygon(new int[] {0,20,20,0},
+				              new int[] {-100,-100,0,0}, 4);
+		
+		
+		Shape s2 = new Polygon(new int[] {80,100,100,80},
+	              new int[] {-100,-100,0,0}, 4);
+		
+		Shape s3 = new Polygon(new int[] {10,90,90,10},
+	              new int[] {-40,-40,-60,-60}, 4);
+		Area a1 = new Area(s);
+		a1.add(new Area(s2));
+		a1.add(new Area(s3));
+		
+		AffineTransform t = new AffineTransform();
+		t.scale( 1d/100d, 1d/100d );
+		t.scale( w, h );
+		a1.transform( t );
+		t = new AffineTransform();
+		t.translate( x, y );
+		a1.transform( t );
+		return a1;
+		
+	}
+	
+	private static Area getM( double x, double y, double w, double h ){
+		
+		
+		Shape s = new Polygon(new int[] {0,20,20,0},
+				              new int[] {-100,-100,0,0}, 4);
+		
+		
+		Shape s2 = new Polygon(new int[] {80,100,100,80},
+	              new int[] {-100,-100,0,0}, 4);
+		
+		Shape s3 = new Polygon(new int[] {15,40,60,35},
+	              new int[] {-100,-10,-10,-100}, 4);
+		
+		Shape s4 = new Polygon(new int[] {85,60,40,65},
+	              new int[] {-100,-10,-10,-100}, 4);
+		
+		Area a1 = new Area(s);
+		a1.add(new Area(s2));
+		a1.add(new Area(s3));
+		a1.add(new Area(s4));
+		
+		AffineTransform t = new AffineTransform();
+		t.scale( 1d/100d, 1d/100d );
 		t.scale( w, h );
 		a1.transform( t );
 		t = new AffineTransform();
