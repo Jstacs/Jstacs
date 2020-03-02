@@ -87,9 +87,12 @@ public class Extractor extends GeMoMaModule {
 	private int[] problem = new int[9];
 	private int repair = 0;
 	private boolean rep;
+	StringBuffer shortInfo = new StringBuffer(), discarded = new StringBuffer(); 
 	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+		shortInfo.delete(0, shortInfo.length());
+		discarded.delete(0, discarded.length());
 		progress.setIndeterminate();
 		intron = null;//new BufferedWriter(new FileWriter("intron.gff"));//TODO allows to write an intron file based on the annotation, might be interesting for test cases
 		
@@ -154,11 +157,6 @@ public class Extractor extends GeMoMaModule {
 		unUsedChr.remove(comment);
 		r.close();
 
-		if( unUsedChr.size() > 0 ) {
-			protocol.append( "WARNING: There are gene annotations on chromosomes/contigs with missing reference sequence: " + unUsedChr );
-		}
-		protocol.append("\n");
-		
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		for( int i = 0; i < file.size(); i++ ) {
 			File current = file.get(i);
@@ -169,22 +167,32 @@ public class Extractor extends GeMoMaModule {
 			}
 		}
 		
-		protocol.append( "\ngenes\t" + info[0] +"\n");
-		protocol.append( "identical CDS of same gene\t" + info[1] +"\n");
-		protocol.append( "transcripts\t" + info[2]+"\n\n");
+		shortInfo.append( "\ngenes\t" + info[0] +"\n");
+		shortInfo.append( "identical CDS of same gene\t" + info[1] +"\n");
+		shortInfo.append( "transcripts\t" + info[2]+"\n\n");
 		
-		protocol.append( "reasons for discarding transcripts:\n");
-		protocol.append( "ambiguous nucleotide\t" + problem[0] +"\n");
-		protocol.append( "start phase not zero\t" + problem[1]+"\n");
-		protocol.append( "missing start\t" + problem[2]+"\n");
-		protocol.append( "missing stop\t" + problem[3] +"\n");
-		protocol.append( "premature stop\t" + problem[4]+"\n");
-		protocol.append( "no DNA\t" + problem[5]+"\n");
-		protocol.append( "wrong phase\t" + problem[6]+"\n");
-		protocol.append( "conflicting phase\t" + problem[7]+"\n\n");
-		protocol.append( "unexpected error\t" + problem[8]+"\n\n");
+		shortInfo.append( "reasons for discarding transcripts:\n");
+		shortInfo.append( "ambiguous nucleotide\t" + problem[0] +"\n");
+		shortInfo.append( "start phase not zero\t" + problem[1]+"\n");
+		shortInfo.append( "missing start\t" + problem[2]+"\n");
+		shortInfo.append( "missing stop\t" + problem[3] +"\n");
+		shortInfo.append( "premature stop\t" + problem[4]+"\n");
+		shortInfo.append( "no DNA\t" + problem[5]+"\n");
+		shortInfo.append( "wrong phase\t" + problem[6]+"\n");
+		shortInfo.append( "conflicting phase\t" + problem[7]+"\n\n");
+		shortInfo.append( "unexpected error\t" + problem[8]+"\n\n");
 		
-		protocol.append( "repaired\t" + repair+"\n\n");
+		shortInfo.append( "repaired\t" + repair+"\n\n");
+
+		if( discarded.length()>0 ) {
+			shortInfo.append( "discarded transcript IDs:" + discarded + "\n\n");		
+		}
+		if( unUsedChr.size() > 0 ) {
+			shortInfo.append( "WARNING: There are gene annotations on chromosomes/contigs with missing reference sequence: " + unUsedChr + "\n");
+		}
+		shortInfo.append("\n");
+		
+		protocol.append( shortInfo.toString() );
 		
 		//log
 		Integer[] array = new Integer[count.size()];
@@ -714,6 +722,7 @@ public class Extractor extends GeMoMaModule {
 					
 					if( prob >= 0 ) {
 						problem[prob]++;
+						discarded.append( (discarded.length()>0?", ":"") + id[k] );
 					} else {
 						//intron length
 						int last=-1;

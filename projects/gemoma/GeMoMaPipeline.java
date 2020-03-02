@@ -461,6 +461,19 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		Thread.sleep(1000);
 		Time t = Time.getTimeInstance(null);
 
+		if( parameters.getNumberOfParameters() == 1 ) {
+			//restart old run
+			//TODO
+		} else {
+			//create temp dir
+			File dir = Files.createTempDirectory(new File(Tools.GeMoMa_TEMP).toPath(), "GeMoMaPipeline-").toFile();
+			dir.mkdirs();
+			home = dir.toString() + "/";
+			FileManager.writeFile("parameters.xml", parameters.toXML());
+		}
+		//pipelineProtocol.append("temporary directory: " + home + "\n\n");
+				
+		
 		params=parameters;
 		all=(Boolean) params.getParameterForName("output individual predictions").getValue();
 		
@@ -478,13 +491,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		}
 		
 		pipelineProtocol.append("Running the GeMoMaPipeline with " + threads + " threads\n\n" );
-		
-		//create temp dir
-		File basic = new File(Tools.GeMoMa_TEMP);
-		File dir = Files.createTempDirectory(basic.toPath(), "GeMoMaPipeline-").toFile();
-		dir.mkdirs();
-		home = dir.toString() + "/";
-		//pipelineProtocol.append("temporary directory: " + home + "\n\n");
 		
 		//checking whether the search algorithm software is installed
 		boolean blast=(Boolean) parameters.getParameterForName("tblastn").getValue();
@@ -726,7 +732,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					if( timeOutWarning[i].length()>0 ) {
 						if( header ) protocol.append("\ntime-out warning:\n");
 						header=false;
-						protocol.append("species " + i + ": " + timeOutWarning[i] + "\n");
+						protocol.append("species " + i + " (" + species.get(i).name + "): " + timeOutWarning[i] + "\n");
 					}
 				}
 				if( !header ) protocol.append("\n");
@@ -868,7 +874,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				RegExFilenameFilter filter = new RegExFilenameFilter("only relevant files", Directory.ALLOWED, true, 
 						".*fasta", ".*gff", ".*txt", ".*tabular", ".*bedgraph", ".*gff3", 
 						"blastdb.*",
-						"mmseqsdb.*", "t_orfs.*", "pref_.*", "aln.*", "translated_search\\.sh", "blastp\\.sh", "latest"
+						"mmseqsdb.*", "t_orfs.*", "pref_.*", "aln.*", "translated_search\\.sh", "blastp\\.sh", "latest", "parameters.xml"
 				);
 				
 				@Override
@@ -1286,6 +1292,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				SysProtocol protocol = new QuietSysProtocol();
 				Extractor extractor = new Extractor(maxSize);
 				ToolResult res = extractor.run(params, protocol, new ProgressUpdater(), 1);
+				
+				synchronized (pipelineProtocol) {
+					pipelineProtocol.append( "extractor log for species " + speciesIndex + " (" + sp.name +"):\n" + extractor.shortInfo );
+				}
+				
 				CLI.writeToolResults(res, protocol, outDir, extractor, params);
 				
 				sp.cds = outDir + Extractor.name[0] + "." + Extractor.type[0];
@@ -1598,6 +1609,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			
 			ToolResult tr = gaf.run(gafParams, protocol, new ProgressUpdater(), 1);
 			pipelineProtocol.append(protocol.getLog().toString());
+			
 			//res.add( tr.getRawResult()[0].getResultAt(0) );
 			CLI.writeToolResults(tr, protocol, home, gaf, gafParams);
 		}	
