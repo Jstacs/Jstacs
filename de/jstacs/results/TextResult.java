@@ -201,6 +201,10 @@ public class TextResult extends Result {
 	@Override
 	protected void appendFurtherInfos( StringBuffer buf ) {
 		XMLParser.appendObjectWithTags(buf, mime, "mime");
+		if(isTempFile()) {
+			value.getContent();
+			value.setFilename("");
+		}
 		XMLParser.appendObjectWithTags(buf, value,"value");
 		XMLParser.appendObjectWithTags(buf, producer,"producer");
 		XMLParser.appendObjectWithTags(buf, export, "export");
