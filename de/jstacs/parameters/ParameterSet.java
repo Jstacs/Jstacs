@@ -20,6 +20,7 @@
 package de.jstacs.parameters;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import de.jstacs.AnnotatedEntityList;
@@ -312,14 +313,14 @@ public abstract class ParameterSet implements Storable, Cloneable, GalaxyConvert
 	}
 
 	/**
-	 * Constructs a {@link ParameterSet} out of an {@link ArrayList} of
+	 * Constructs a {@link ParameterSet} out of a {@link Collection} of
 	 * {@link Parameter}s. The {@link Parameter}s are not cloned, but passed by
 	 * reference.
 	 * 
 	 * @param parameters
 	 *            the {@link Parameter}s
 	 */
-	protected ParameterSet(ArrayList<Parameter> parameters) {
+	protected ParameterSet(Collection<Parameter> parameters) {
 		initParameterList( parameters.size() );
 		Iterator<Parameter> parIt = parameters.iterator();
 		while (parIt.hasNext()) {
