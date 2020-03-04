@@ -30,7 +30,7 @@ public class DimontGalaxy {
 		
 		ExtractSequencesTool est = new ExtractSequencesTool();
 		
-		Galaxy gal = new Galaxy("", true, est,tool,pred);
+		Galaxy gal = new Galaxy("", true, true, est,tool,pred);
 
 		gal.run(args);
 		

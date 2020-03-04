@@ -2,21 +2,13 @@ package projects.tals.rnaseq;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.security.KeyStore.PasswordProtection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import sun.java2d.cmm.Profile;
-import javafx.scene.shape.Box;
-import projects.xanthogenomes.tools.ClassAssignmentTool;
-
-import com.sun.prism.impl.Disposer.Target;
 
 import de.jstacs.DataType;
 import de.jstacs.io.FileManager;
@@ -29,11 +21,10 @@ import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
+import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
-import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;

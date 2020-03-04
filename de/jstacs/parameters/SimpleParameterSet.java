@@ -19,6 +19,8 @@
 
 package de.jstacs.parameters;
 
+import java.util.Collection;
+
 import de.jstacs.io.NonParsableException;
 
 /**
@@ -33,6 +35,14 @@ public class SimpleParameterSet extends ParameterSet{
 	 * @param parameters the parameters
 	 */
 	public SimpleParameterSet(Parameter... parameters){
+		super(parameters);
+	}
+	
+	/**
+	 * Creates a new <code>SimpleParameterSet</code> from a {@link Collection} of <code>Parameter</code>s.
+	 * @param parameters the parameters
+	 */
+	public SimpleParameterSet(Collection<Parameter> parameters) {
 		super(parameters);
 	}
 	

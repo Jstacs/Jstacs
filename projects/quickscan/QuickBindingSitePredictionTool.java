@@ -2,13 +2,20 @@ package projects.quickscan;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 
 import de.jstacs.DataType;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
@@ -20,6 +27,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
@@ -38,7 +46,6 @@ import de.jstacs.utils.IntList;
 import de.jstacs.utils.LargeSequenceReader;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
-import htsjdk.samtools.util.RuntimeEOFException;
 import projects.dimont.ThresholdedStrandChIPper;
 import umontreal.iro.lecuyer.probdist.NormalDist;
 
@@ -58,15 +65,15 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	public ToolParameterSet getToolParameters() {
 		FileParameter model = new FileParameter("Dimont model", "The model returned by Dimont (in XML format)", "xml", true);
 		
-		FileParameter genome = new FileParameter("Sequences","The sequences (e.g., a genome) to scan for binding sites","fa,fas,fasta",true);
+		FileParameter genome = new FileParameter("Sequences","The sequences (e.g., a genome) to scan for binding sites","fa,fas,fasta,fa.gz,fas.gz,fasta.gz",true);
 		
 		
-		FileParameter background = new FileParameter("Background sequences","The sequences (e.g., a genome) for determining the prediction threshold","fa,fas,fasta",true);
+		FileParameter background = new FileParameter("Background sequences","The sequences (e.g., a genome) for determining the prediction threshold","fa,fas,fasta,fa.gz,fas.gz,fasta.gz",true);
 		
 		
 		
 		try {
-			
+			 
 			SelectionParameter bg = new SelectionParameter(DataType.PARAMETERSET,new String[]{"sub-sample","background sequences"}, new ParameterSet[]{
 					new SimpleParameterSet(),
 					new SimpleParameterSet(background)
@@ -85,10 +92,29 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			return new ToolParameterSet(getShortName(),model,genome,bg,tsel);
 			
 		} catch (ParameterException e) {
-			throw new RuntimeEOFException(e);
+			throw new RuntimeException(e);
 		}
 		
 		
+	}
+	
+	private static long getUncompressedSize(FileRepresentation genomeFile) throws FileNotFoundException, IOException	{
+		if((new File(genomeFile.getFilename()).exists())){
+			String genomePath = genomeFile.getFilename();
+			if(genomePath.endsWith(".gz")) {
+				long size = -1;
+				try (RandomAccessFile fp = new RandomAccessFile(new File(genomePath), "r")) {        
+					fp.seek(fp.length() - Integer.BYTES);
+					int n = fp.readInt();
+					size = Integer.toUnsignedLong(Integer.reverseBytes(n));
+				}
+				return size;
+			}else {
+				return (new File(genomePath)).length();
+			}
+		}else {
+			return genomeFile.getContent().length();
+		}
 	}
 
 	@Override
@@ -98,10 +124,10 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		progress.setLast(1.0);
 		progress.setCurrent(0.0);
 		
-		String modelPath = parameters.getParameterAt(0).getValue().toString();
+		FileRepresentation modelFile = ((FileParameter)parameters.getParameterAt(0)).getFileContents();
 		boolean backgroundSet = ((SelectionParameter)parameters.getParameterAt(2)).getSelected()==1;
-		String backgroundPath = backgroundSet ? ( (ParameterSet)parameters.getParameterAt(2).getValue()).getParameterAt(0).getValue().toString() : parameters.getParameterAt(1).getValue().toString();
-		String genomePath = parameters.getParameterAt(1).getValue().toString();
+		FileRepresentation backgroundFile = ((FileParameter)(backgroundSet ? ( (ParameterSet)parameters.getParameterAt(2).getValue()).getParameterAt(0) : parameters.getParameterAt(1))).getFileContents();
+		FileRepresentation genomeFile = ((FileParameter) parameters.getParameterAt(1)).getFileContents();
 		
 		protocol.appendHeading("Starting predictions...\n");
 		protocol.append("Using "+(backgroundSet? " background set.\n" : " sub-sample of input data.\n"));
@@ -112,7 +138,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			p_value = (Double) ((ParameterSet)parameters.getParameterAt(3).getValue()).getParameterAt(0).getValue();
 		}else{
 			int nsites = (Integer) ((ParameterSet)parameters.getParameterAt(3).getValue()).getParameterAt(0).getValue();
-			p_value = nsites/(double)(new File(genomePath)).length()/2.0;
+			p_value = nsites/(double)getUncompressedSize(genomeFile)/2.0;
 		}
 		protocol.append("Significance level: "+p_value+"\n");
 		protocol.appendWarning("The p-values and, hence, the significance level are only approximate values and may not fully reflect the number of predictions for a specific input file.\n");
@@ -121,18 +147,19 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		if(backgroundSet){
 			subsamp = 1;
 		}else{
-			subsamp = 1E6/(double)(new File(backgroundPath)).length();
+			subsamp = 1E6/(double)getUncompressedSize(backgroundFile);
 		}
 		//System.out.println("subsamp: "+subsamp);
 		
-		GenDisMixClassifier cl = new GenDisMixClassifier(FileManager.readFile(modelPath));
+		GenDisMixClassifier cl = new GenDisMixClassifier(new StringBuffer(modelFile.getContent()));
+		
 		ThresholdedStrandChIPper fg =(ThresholdedStrandChIPper) cl.getDifferentiableSequenceScore(0);
 		QuickScanningSequenceScore lslim = (QuickScanningSequenceScore) fg.getFunction(0);
 		
 		int kmer = 10;
 		int[] starts = new int[]{0,(lslim.getLength()-kmer)/2,lslim.getLength()-kmer};
 		
-		NormalDist nd = getThreshold(backgroundPath,lslim,subsamp); 
+		NormalDist nd = getThreshold(backgroundFile,lslim,subsamp); 
 		progress.setCurrent(0.3);
 		
 		double t = nd.inverseF(1.0-p_value);
@@ -167,7 +194,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		starts = temps;
 		
 		protocol.appendHeading("Predicting sites...\n");
-		ListResult lr = getSites(progress,genomePath,lslim,nd,t,kmer,use,starts);
+		ListResult lr = getSites(progress,genomeFile,lslim,nd,t,kmer,use,starts);
 		progress.setCurrent(1.0);
 		protocol.append("...finished predicting "+lr.getNumberOfResultSets()+" sites.\n");
 		
@@ -196,7 +223,15 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 
 	@Override
 	public String getHelpText() {
-		return "";
+		return "**Quick Prediction Tool** predicts binding sites of a transcription factor based on a motif model and is also suited for genome-wide predictions. The motif model is provided as the XML output of (Slim) Dimont. "
+				+ "\n\n"
+				+ "The tool outputs a list of predictions including, for every prediction, the ID"
+				+ "of the sequence (e.g., chromosome) containing the binding site, position and strand of the matching sub-sequence, its score according to the model, the"
+				+ " sub-sequence itself (in strand orientation according to the model), and a p-value from a normal distribution fitted to the score distribution of the provided negative examples "
+				+ "or a sub-sample of the input data (parameter \"Background sample\")."
+				+ "\n\n"
+				+ "If you experience problems using Quick Prediction Tool, please contact_ us.\n"
+				+ ".. _contact: mailto:grau@informatik.uni-halle.de";
 	}
 
 	@Override
@@ -210,11 +245,21 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	
 	
 	
-	private ListResult getSites(ProgressUpdater progress, String file, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
-		BufferedReader read = new BufferedReader(new FileReader(file));
+	private ListResult getSites(ProgressUpdater progress, FileRepresentation fileRep, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
+		BufferedReader read = null;
+		if((new File(fileRep.getFilename())).exists()) {
+			String file = fileRep.getFilename();
+			if(file.toLowerCase().endsWith(".gz")) {
+				read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+			}else {
+				read = new BufferedReader(new FileReader(file));
+			}
+		}else {
+			read = new BufferedReader(new StringReader(fileRep.getContent()));
+		}
 		StringBuffer lastHeader = new StringBuffer();
 		
-		long approxTotal = (new File(file)).length();
+		long approxTotal = getUncompressedSize(fileRep);
 		
 		int[] pow = new int[kmer];
 		int a = (int)model.getAlphabetContainer().getAlphabetLengthAt(0);
@@ -236,7 +281,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 		double prog = 0.3;
 		
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model.getLength()) ) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model.getLength(), model.getAlphabetContainer()) ) != null ){
 			IntList starts = pair.getFirstElement();
 			ArrayList<Sequence> seqs = pair.getSecondElement();
 			Iterator<Sequence> it = seqs.iterator();
@@ -265,7 +310,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 					
 					for(int j=0;j<seq.getLength()-model.getLength()+1;j++,nTot++){
 						for(int i=0;i<idxs.length;i++){
-							idxs[i] = (idxs[i]%pow[0])*4 + seq.discreteVal(offs[i]+j+kmer-1);
+							idxs[i] = (idxs[i]%pow[0])*a + seq.discreteVal(offs[i]+j+kmer-1);
 						}
 						
 						
@@ -309,12 +354,22 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 	}
 	
-	private NormalDist getThreshold(String file, QuickScanningSequenceScore model2, double p) throws Exception{
-		BufferedReader read = new BufferedReader(new FileReader(file));
+	private NormalDist getThreshold(FileRepresentation fileRep, QuickScanningSequenceScore model2, double p) throws Exception{
+		BufferedReader read = null;
+		if((new File(fileRep.getFilename())).exists()) {
+			String file = fileRep.getFilename();
+			if(file.toLowerCase().endsWith(".gz")) {
+				read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
+			}else {
+				read = new BufferedReader(new FileReader(file));
+			}
+		}else {
+			read = new BufferedReader(new StringReader(fileRep.getContent()));
+		}
 		StringBuffer lastHeader = new StringBuffer();
 		
 		
-		Random r = new Random();
+		Random r = new Random(113);
 		
 		p /= 2.0;
 		
@@ -322,7 +377,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 		
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model2.getLength()) )!= null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model2.getLength(), model2.getAlphabetContainer()) )!= null ){
 			ArrayList<Sequence> seqs = pair.getSecondElement();
 			Iterator<Sequence> it = seqs.iterator();
 			while( it.hasNext() ) {

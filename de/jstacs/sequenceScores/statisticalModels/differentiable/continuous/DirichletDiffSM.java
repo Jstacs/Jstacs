@@ -2,22 +2,63 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable.continuous;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Random;
 import umontreal.iro.lecuyer.util.Num;
+import de.jstacs.algorithms.optimization.Optimizer;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.data.AlphabetContainer;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.EmptyDataSetException;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.alphabets.ContinuousAlphabet;
+import de.jstacs.data.sequences.ArbitrarySequence;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
+import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.ToolBox;
+import de.jstacs.utils.random.DirichletMRG;
+import de.jstacs.utils.random.DirichletMRGParams;
 
 
 public class DirichletDiffSM extends AbstractDifferentiableStatisticalModel {
 
+	public static void main(String[] args) throws Exception{
+		
+		DirichletMRGParams pars = new DirichletMRGParams( 2.0, 0.1, 4.0 );
+		
+		LinkedList<Sequence> seqs = new LinkedList<>();
+		
+		AlphabetContainer alphabetContainer = new AlphabetContainer(new ContinuousAlphabet());
+		
+		for(int i=0;i<10000;i++){
+			double[] temp = DirichletMRG.DEFAULT_INSTANCE.generate(3, pars);
+			seqs.add( (new ArbitrarySequence(alphabetContainer, temp)).getSubSequence(0, 2) );
+		}
+		
+		DataSet ds = new DataSet("", seqs);
+		
+		DirichletDiffSM dsm = new DirichletDiffSM(alphabetContainer, 2, new double[]{10,0.001,0.001}, 1.0, 10);
+		//GaussianNetwork dsm = new GaussianNetwork(new int[2][0]);
+		
+		DifferentiableStatisticalModelWrapperTrainSM tsm = new DifferentiableStatisticalModelWrapperTrainSM(dsm, 1, Optimizer.QUASI_NEWTON_BFGS, 
+				new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), 1E-6, 1E-4);
+	
+		tsm.train(ds);
+		
+		System.out.println(tsm);
+		
+	}
+	
+	
 	private static Random r = new Random();
 	
 	private double logNorm;

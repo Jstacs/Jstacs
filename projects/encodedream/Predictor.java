@@ -50,7 +50,7 @@ public class Predictor {
 			Collections.sort(chroms);
 		}
 		
-		File temp = File.createTempFile("preds", ".tsv.gz", new File("."));
+		File temp = File.createTempFile("preds", ".tsv.gz");
 		temp.deleteOnExit();
 		PrintWriter wr = new PrintWriter(new GZIPOutputStream(new FileOutputStream(temp)));
 		

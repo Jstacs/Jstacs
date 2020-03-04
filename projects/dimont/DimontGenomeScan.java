@@ -88,7 +88,7 @@ public class DimontGenomeScan implements JstacsTool {
 		StringBuffer lastHeader = new StringBuffer();
 		BufferedReader read = new BufferedReader(new FileReader(((FileParameter)parameters.getParameterAt(1)).getFileContents().getFilename()));
 		
-		File out = File.createTempFile("dimontscan", "_dgs.temp", new File("."));
+		File out = File.createTempFile("dimontscan", "_dgs.temp");
 		out.deleteOnExit(); 
 		
 		SafeOutputStream sos = SafeOutputStream.getSafeOutputStream(new FileOutputStream(out));

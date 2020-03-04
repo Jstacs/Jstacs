@@ -26,6 +26,7 @@ import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 import projects.dimont.ThresholdedStrandChIPper;
 
+@Deprecated
 public class QuickMotifProfileTool {
 
 	
@@ -143,7 +144,7 @@ public class QuickMotifProfileTool {
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength())) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength(), lslim.getAlphabetContainer())) != null ){
 			ArrayList<Sequence> seqs = pair.getSecondElement();
 			Iterator<Sequence> it = seqs.iterator();
 			int itIdx = 0;

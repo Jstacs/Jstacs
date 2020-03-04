@@ -1,5 +1,7 @@
 package de.jstacs.tools;
 
+import java.util.Collection;
+
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.Parameter;
@@ -30,6 +32,20 @@ public class ToolParameterSet extends ParameterSet {
 	 *            the {@link Parameter}s
 	 */
 	public ToolParameterSet( String toolName, Parameter... parameters) {
+		super(parameters);
+		this.toolName = toolName;
+	}
+	
+	/**
+	 * Constructs a {@link ToolParameterSet} given a tool name and some {@link Parameter}s.
+	 * The {@link Parameter}s are not cloned, but passed by reference.
+	 * 
+	 * @param toolName
+	 *            the name of the tool
+	 * @param parameters
+	 *            the {@link Parameter}s
+	 */
+	public ToolParameterSet( String toolName, Collection<Parameter> parameters) {
 		super(parameters);
 		this.toolName = toolName;
 	}

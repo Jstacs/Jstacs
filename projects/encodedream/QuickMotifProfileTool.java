@@ -18,13 +18,16 @@ package projects.encodedream;
  */
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -118,12 +121,18 @@ public class QuickMotifProfileTool {
 		
 		
 		
-		BufferedReader read = new BufferedReader(new FileReader(genome));
+		BufferedReader read = null;
+		if(genome.toLowerCase().endsWith(".gz")){
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(genome))));
+		}else {
+			read = new BufferedReader(new FileReader(genome));
+		}
+		
 		StringBuffer lastHeader = new StringBuffer();
 		
 
 		int a = (int)lslim.getAlphabetContainer().getAlphabetLengthAt(0);
-		int prefK = Math.min(10,lslim.getLength()-4);
+		int prefK = Math.min( (int)Math.round( Math.log(1E6)/Math.log(a) ) ,lslim.getLength()-4);
 		int restK = lslim.getLength()-prefK;
 		int idxK = 4;
 		
@@ -144,12 +153,12 @@ public class QuickMotifProfileTool {
 		
 		IntList[] lists = new IntList[(int) Math.pow(a, prefK)];
 		for(int i=0;i<lists.length;i++){
-			lists[i] = new IntList(256);
+			lists[i] = new IntList((int)Math.pow(a, idxK));
 		}
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength())) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength(), lslim.getAlphabetContainer())) != null ){
 			ArrayList<Sequence> seqs = pair.getSecondElement();
 			Iterator<Sequence> it = seqs.iterator();
 			int itIdx = 0;
@@ -175,8 +184,8 @@ public class QuickMotifProfileTool {
 					}
 					
 					for(int j=0;j<seq.getLength()-lslim.getLength()+1;j++){
-						idx1 = (idx1%pow1[0])*4 + seq.discreteVal(j+prefK-1);
-						idx2 = (idx2%pow2[0])*4 + seq.discreteVal(j+prefK+restK-1);
+						idx1 = (idx1%pow1[0])*a + seq.discreteVal(j+prefK-1);
+						idx2 = (idx2%pow2[0])*a + seq.discreteVal(j+prefK+restK-1);
 						
 						lists[idx1].add(idx2);
 					}
@@ -267,9 +276,9 @@ public class QuickMotifProfileTool {
 				//System.err.println("thread: "+j);
 				for(int l=0;l<assign[j].length();l++){
 					int k = assign[j].get(l);
-					if((k)%(1000) == 0){
+					/*if((k)%(1000) == 0){
 						System.err.println(k);
-					}
+					}*/
 					scores[k] = new float[lists[k].length()];
 					try {
 						computeScores(lslims[j],lists[k],k,prefK,scores[k]);
@@ -330,7 +339,12 @@ public class QuickMotifProfileTool {
 		
 		time = System.currentTimeMillis();
 		
-		read = new BufferedReader(new FileReader(genome));
+		read = null;
+		if(genome.toLowerCase().endsWith(".gz")){
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(genome))));
+		}else {
+			read = new BufferedReader(new FileReader(genome));
+		}
 		lastHeader = new StringBuffer();
 		
 		
@@ -349,7 +363,7 @@ public class QuickMotifProfileTool {
 		int finished = 0;
 		int totalSequenceIndex = -1;
 		int lastPrinted = -1;
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength())) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, lslim.getLength(), lslim.getAlphabetContainer())) != null ){
 
 			
 
@@ -391,8 +405,8 @@ public class QuickMotifProfileTool {
 
 
 							for(int j=0;j<seq.getLength()-lslim.getLength()+1;j++){
-								idx1 = (idx1%pow1[0])*4 + seq.discreteVal(j+prefK-1);
-								idx2 = (idx2%pow2[0])*4 + seq.discreteVal(j+prefK+restK-1);
+								idx1 = (idx1%pow1[0])*a + seq.discreteVal(j+prefK-1);
+								idx2 = (idx2%pow2[0])*a + seq.discreteVal(j+prefK+restK-1);
 
 								int sym = idx2/pow2[idxK-1];
 

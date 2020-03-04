@@ -58,7 +58,6 @@ import projects.dimont.ThresholdedStrandChIPper;
 import projects.encodedream.AggregateMotifProfiles;
 import projects.encodedream.LowMemProfileTool;
 import projects.encodedream.QuickMotifProfileTool;
-import projects.encodedream.SlowMotifProfileTool;
 
 public class MotifScores implements JstacsTool {
 
@@ -79,7 +78,7 @@ public class MotifScores implements JstacsTool {
 		}
 		
 		//pars.add(new FileParameter("Motif model", "Dimont motif model description", "xml", true));
-		pars.add(new FileParameter("Genome","Genome as FastA file","fa,fas,fasta",true));
+		pars.add(new FileParameter("Genome","Genome as FastA file","fa,fas,fasta,fa.gz,fas.gz,fasta.gz",true));
 		pars.add(new FileParameter("FAI of genome", "FastA index file of the genome", "fai", true));
 		try {
 			pars.add(new SimpleParameter(DataType.INT, "Bin width", "The width of the genomic bins considered", true));
@@ -144,7 +143,7 @@ public class MotifScores implements JstacsTool {
 		int bin = (int) parameters.getParameterAt(3).getValue();
 		boolean lowmem = (boolean) parameters.getParameterAt(4).getValue();
 		
-		File outfile = File.createTempFile("motif", ".temp.gz", new File("."));
+		File outfile = File.createTempFile("motif", ".temp.gz");
 		outfile.deleteOnExit();
 		
 		PrintStream out2 = new PrintStream(new GZIPOutputStream(new FileOutputStream(outfile)));

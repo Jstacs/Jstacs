@@ -72,7 +72,7 @@ public class FindPWMsAndClusters implements JstacsTool{
 	
 	public static void main(String[] args) throws Exception {
 		
-		Galaxy gal = new Galaxy(" -Xms512M -Xmx2G", false, new FindPWMsAndClusters());
+		Galaxy gal = new Galaxy(" -Xms512M -Xmx2G", false, true, new FindPWMsAndClusters());
 		
 		gal.run(args);
 		

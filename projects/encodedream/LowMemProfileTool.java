@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -50,11 +51,16 @@ public class LowMemProfileTool {
 		String lastId = null;
 		
 		StringBuffer lastHeader = new StringBuffer();
-		BufferedReader read = new BufferedReader(new FileReader(genome));
+		BufferedReader read = null;
+		if(genome.toLowerCase().endsWith(".gz")){
+			read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(genome))));
+		}else {
+			read = new BufferedReader(new FileReader(genome));
+		}
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 		
-		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model2.getLength())) != null ){
+		while( (pair = LargeSequenceReader.readNextSequences(read, lastHeader, model2.getLength(),model2.getAlphabetContainer())) != null ){
 			ArrayList<Sequence> seqs = pair.getSecondElement();
 			IntList starts = pair.getFirstElement();
 			
