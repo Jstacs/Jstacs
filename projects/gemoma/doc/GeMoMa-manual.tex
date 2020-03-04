@@ -39,7 +39,7 @@ which will provide descriptions of all available parameters.
 Keep in mind that homology-based gene prediction only allows us to infer genes with known peers in at least one reference organism. Hence, homology based gene prediction might miss genes with no known peer in the reference organism(s), even if these are expressed in the RNA-seq data. On the other hand, homology-based gene prediction allows for inferring genes that are not or rarely expressed in the RNA-seq samples.
 
 \begin{figure}[h]
-\includegraphics[width=\linewidth]{{drawing_pipeline3}.pdf}
+\includegraphics[width=\linewidth]{{drawing_pipeline4}.pdf}
 \caption{GeMoMa workflow. Blue items represent input data sets, green boxes represent GeMoMa modules, while grey boxes represent external modules. The GeMoMa Annotation Filter allows to combine predictions from different reference species. RNA-seq data is optional.}
 \end{figure}
 
@@ -104,7 +104,7 @@ java -jar GeMoMa-<version>.jar CLI ERE ...
 \end{verbatim}
 \item	Optionally denoise the extracted introns running: 
 \begin{verbatim}
-java -jar GeMoMa-<version>.jar CLI Denoise ...
+java -jar GeMoMa-<version>.jar CLI DenoiseIntrons ...
 \end{verbatim}
 \end{enumerate}
 
