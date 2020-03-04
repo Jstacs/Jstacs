@@ -84,7 +84,7 @@ import projects.gemoma.Tools.Ambiguity;
  * @author Jens Keilwagen
  * 
  * @see ExtractRNAseqEvidence
- * @see Denoise
+ * @see DenoiseIntrons
  * @see Extractor
  * @see GeMoMa
  * @see GAF
@@ -197,9 +197,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
-		ParameterSet denoise = getRelevantParameters(new Denoise().getToolParameters(), "introns", "coverage", "maximum intron length" );
+		ParameterSet denoise = getRelevantParameters(new DenoiseIntrons().getToolParameters(), "introns", "coverage" );
 		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
-		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort", "maximum intron length" );
+		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
 		try {
@@ -256,7 +256,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				
 				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ),
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
-				new SimpleParameter( DataType.INT, "maximum intron length", "The maximum length of an intron", true, 15000 ),
 				new SimpleParameter( DataType.BOOLEAN, "tblastn", "if *true* tblastn is used as search algorithm, otherwise mmseqs is used. Tblastn and mmseqs need to be installed to use the corresponding option", true, true),
 				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
 				
@@ -461,16 +460,15 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		Thread.sleep(1000);
 		Time t = Time.getTimeInstance(null);
 
-		if( parameters.getNumberOfParameters() == 1 ) {
-			//restart old run
-			//TODO
-		} else {
+		/*if( parameters.getNumberOfParameters() == 1 ) {
+			//TODO: restart old run if an exception was thrown, might be an option for further development
+		} else {*/
 			//create temp dir
 			File dir = Files.createTempDirectory(new File(Tools.GeMoMa_TEMP).toPath(), "GeMoMaPipeline-").toFile();
 			dir.mkdirs();
 			home = dir.toString() + "/";
 			FileManager.writeFile("parameters.xml", parameters.toXML());
-		}
+		//}
 		//pipelineProtocol.append("temporary directory: " + home + "\n\n");
 				
 		
@@ -518,7 +516,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			System.exit(1);
 		}
 
-		Denoise denoise = new Denoise();		
+		DenoiseIntrons denoise = new DenoiseIntrons();		
 		Extractor extractor = new Extractor(maxSize);
 		GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 
@@ -552,7 +550,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			setParameters(parameters, key[i], extractorParams, gemomaParams);
 		}		
 		setParameters(parameters, "tag", gemomaParams, gafParams, afParams );
-		setParameters(parameters, "maximum intron length", gemomaParams, denoiseParams );
 		
 		selected = Tools.getSelection( (String) parameters.getParameterForName(key[0]).getValue(), maxSize, protocol );
 		
@@ -1120,7 +1117,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					&& (rnaSeqData.coverageUn.size()>0 || rnaSeqData.coverageFwd.size()>0 || rnaSeqData.coverageRC.size()>0)
 			) {
 				setRNASeqParams( denoiseParams, protocol );
-				Denoise denoise = new Denoise();
+				DenoiseIntrons denoise = new DenoiseIntrons();
 				pipelineProtocol.append("starting Denoise\n");
 				ToolResult res = denoise.run(denoiseParams, protocol, new ProgressUpdater(), 1);
 				CLI.writeToolResults(res, (SysProtocol) protocol, home+"/", denoise, denoiseParams);

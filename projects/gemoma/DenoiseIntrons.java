@@ -54,7 +54,7 @@ import projects.gemoma.GeMoMa.IntArrayComparator;
  * @author Jens Keilwagen
  *
  */
-public class Denoise extends GeMoMaModule {
+public class DenoiseIntrons extends GeMoMaModule {
 
 	@Override
 	public ToolParameterSet getToolParameters() {

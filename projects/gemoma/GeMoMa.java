@@ -336,7 +336,7 @@ public class GeMoMa extends GeMoMaModule {
 				
 				new ExtractRNAseqEvidence(),
 				new CheckIntrons(),
-				new Denoise(),
+				new DenoiseIntrons(),
 				
 				new NCBIReferenceRetriever(),
 				
