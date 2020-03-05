@@ -193,6 +193,10 @@ public class TextResult extends Result {
 		return isTempFile;
 	}
 	
+	public void setTempFile(boolean set) {
+		this.isTempFile = set;
+	}
+	
 	@Override
 	public String getXMLTag() {
 		return "TextResult";
