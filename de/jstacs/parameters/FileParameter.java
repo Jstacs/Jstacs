@@ -660,9 +660,11 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 				content = null;
 			}			
 			compressed = XMLParser.extractObjectForTags( representation, "compressed", Boolean.class );
-			int idx = filename.lastIndexOf( '.' );
-			if(idx >= 0){
-				this.ext = filename.substring( idx+1 );
+			if(filename != null) {
+				int idx = filename.lastIndexOf( '.' );
+				if(idx >= 0){
+					this.ext = filename.substring( idx+1 );
+				}
 			}
 		}
 		
@@ -672,30 +674,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			}
 			if( o instanceof FileRepresentation ) {
 				FileRepresentation fr = (FileRepresentation)o;
-				
-				if( (fr.getFilename() != null && this.getFilename() == null) || (fr.getFilename() == null && this.getFilename() != null) ) {
-					return false;
-				}else if(fr.getFilename() != null && this.getFilename() != null) {
-					if(fr.getFilename().equals(this.getFilename())){
-						if(fr.content == null && this.content == null) {
-							return true;
-						}else if(fr.content != null && this.content != null) {
-							if(fr.content == this.content) {
-								return true;
-							}else if(fr.content.length() != this.content.length()) {
-								return false;
-							}else {
-								return fr.content.equals(this.content);
-							}
-						}
-					}else {
-						return false;
-					}
-				}
-				
-				
-				System.out.println(fr.getFilename()+" "+this.getFilename());
-				
+								
 				String line1, line2;
 				Character ignore = null;
 				if( ext != null ) {
