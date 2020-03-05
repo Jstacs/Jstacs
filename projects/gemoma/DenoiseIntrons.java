@@ -287,7 +287,7 @@ public class DenoiseIntrons extends GeMoMaModule {
 
 	@Override
 	public String getToolName() {
-		return "Denoise";
+		return "DenoiseIntrons";
 	}
 
 	@Override
