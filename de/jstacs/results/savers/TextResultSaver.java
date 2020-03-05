@@ -66,6 +66,8 @@ public class TextResultSaver implements ResultSaver<TextResult> {
 				FileManager.copy(rep.getFilename(), relPath );
 				if(result.isTempFile()) {
 					new File( rep.getFilename() ).delete();////TODO move (Jan likes to move files);
+					rep.setFilename(relPath);
+					result.setTempFile(false);
 				}
 			}else{
 				PrintWriter wr = new PrintWriter( path );
