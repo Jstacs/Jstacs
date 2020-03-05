@@ -140,19 +140,32 @@ GeMoMa 1.6.1 (04.06.2019)
 	- new parameter "weight" allows weights for reference species (cf. GAF)
 - ERE: new parameter "minimal mapping quality"
 
-
 GeMoMa 1.6.2 (17.12.2019)
 - Jstacs changes:
 	- test methods for modules
 	- live protocol for Galaxy
+- new module Denoise: allowing to clean introns extracted by ERE
 - new module NCBIReferenceRetriever: allowing to retrieve data for reference organisms easily from NCBI.
 - GAF:
 	- bugfix for filter using specific attributes if no RNA-seq or query proteins was used
 	- allow to add annotation info (as for instance provided by Phytozome) based on the reference organisms
 - GeMoMa: bugfix for timeout
 - GeMoMaPipeline:
-	- bugfix no Denoise without RNAseq data
 	- bugfix reporting predicted partial proteins
 	- improved protocol
 	- new default value for query proteins (changed from false to true)
 	- new default value for Ambiguity (changed from EXCEPTION to AMBIGUOUS)
+	
+GeMoMa 1.6.3 (05.03.2020)
+- Jstacs changes:
+	- CLI: bugfix ExpandableParameterSet
+- python wrapper (for *conda)
+- updated tests.sh, run.sh, pipeline.sh
+- rename Denoise to DenoiseIntrons
+- AnnotationEvidence: write phase (as given) to gff
+- GAF: new parameter: default attributes allows to set attributes that are not included in some gene annotation files
+- GeMoMa: new parameter: static intron length allowing to use dynamic intron length if set to false
+- GeMoMaPipeline: 
+	- bugfix: time-out
+	- improve output
+	- separate parameters for maximum intron length (DenoiseIntrons, GeMoMa)
