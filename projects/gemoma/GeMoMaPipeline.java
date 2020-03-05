@@ -467,7 +467,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			File dir = Files.createTempDirectory(new File(Tools.GeMoMa_TEMP).toPath(), "GeMoMaPipeline-").toFile();
 			dir.mkdirs();
 			home = dir.toString() + "/";
-			FileManager.writeFile("parameters.xml", parameters.toXML());
+			FileManager.writeFile(home+"/parameters.xml", parameters.toXML());
 		//}
 		//pipelineProtocol.append("temporary directory: " + home + "\n\n");
 				
