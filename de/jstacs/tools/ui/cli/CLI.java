@@ -724,25 +724,14 @@ if( k == null ) {
 		File h = new File( home+"/" );
 		h.mkdirs();
 		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
-			ParameterSet ps = toolParameters[toolIndex];
+			
 			try {
 				StringBuffer old = null;
 				File f = new File(home+"/"+tools[toolIndex].getShortName()+".txt");
 				if( f.exists() ) {
 					old = FileManager.readFile(f);
 				}
-				StringBuffer current = new StringBuffer();
-				current.append( "<table border=0 cellpadding=10 align=\"center\" width=\"100%\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
-				printTable("", keyMap[toolIndex], ps, current);
-				current.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
-				current.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
-				current.append( "<td>STRING</td>\n</tr>\n" );
-				if(configureThreads[toolIndex]){
-					current.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">threads</font></td>\n" );
-					current.append( "<td>The number of threads used for the tool, defaults to 1</td>\n" );
-					current.append( "<td>INT</td>\n</tr>\n" );
-				}				
-				current.append( "</table>" );
+				StringBuffer current = wikiTable(toolIndex);
 				if( old == null || !current.toString().equals(old.toString()) ) {
 					FileManager.writeFile(f, current);
 					if( old != null ) FileManager.writeFile(home+"/"+tools[toolIndex].getShortName()+".bak", old);
@@ -753,6 +742,141 @@ if( k == null ) {
 		}
 	}
 	
+	
+	private StringBuffer wikiTable(int toolIndex) throws CloneNotSupportedException {
+		ParameterSet ps = toolParameters[toolIndex];
+		StringBuffer current = new StringBuffer();
+		current.append( "<table border=0 cellpadding=10 align=\"center\" width=\"100%\">\n<tr>\n<td>name</td>\n<td>comment</td>\n<td>type</td>\n</tr>\n<tr><td colspan=3><hr></td></tr>\n" );
+		printTable("", keyMap[toolIndex], ps, current);
+		current.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">outdir</font></td>\n" );
+		current.append( "<td>The output directory, defaults to the current working directory (.)</td>\n" );
+		current.append( "<td>STRING</td>\n</tr>\n" );
+		if(configureThreads[toolIndex]){
+			current.append( "<tr style=\"vertical-align:top\">\n<td><font color=\"green\">threads</font></td>\n" );
+			current.append( "<td>The number of threads used for the tool, defaults to 1</td>\n" );
+			current.append( "<td>INT</td>\n</tr>\n" );
+		}				
+		current.append( "</table>" );
+		
+		return current;
+	}
+
+	/**
+	 * Creates a complete wiki page for all {@link JstacsTool} in this {@link CLI}. For each tool,
+	 * a header with the tool name is printed, followed by the help text in wiki format, the general
+	 * syntax for calling a tool (including the specified <code>jarname</code>), and the table of
+	 * tool parameters in analogy to {@link #wiki(String)}.
+	 * 
+	 * @param jarname the name of the JAR file
+	 * @return the wiki string
+	 */
+	public String wikiPage(String jarname) {
+		StringBuffer all = new StringBuffer();
+		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
+			try {
+				
+				StringBuffer current = new StringBuffer();
+				
+				current.append("=== "+tools[toolIndex].getToolName()+" ===\n\n");
+				
+				current.append(parseHelpToWiki(tools[toolIndex]));
+				current.append("\n");
+				
+				current.append("''"+tools[toolIndex].getToolName()+"'' may be called with\n\n"
+						+ " java -jar "+jarname+" "+tools[toolIndex].getShortName()+"\n\n"
+								+ "and has the following parameters\n\n");
+				
+				current.append(wikiTable(toolIndex));
+				
+				current.append("\n\n'''Example:'''\n\n java -jar "+jarname+" "+tools[toolIndex].getShortName()+"\n\n\n");
+				
+				all.append(current);
+				
+			} catch( Exception ex ) {
+				//nothing
+			}
+		}
+		
+		return all.toString();
+		
+	}
+	
+	private String parseHelpToWiki(JstacsTool tool){
+		
+		String restruct = tool.getHelpText();
+		String[] lines = restruct.split( "\n" );
+		
+		Pattern bold = Pattern.compile( "\\*\\*(.+?)\\*\\*" );
+		Pattern italics = Pattern.compile( "\\*(.+?)\\*" );
+		Pattern tt = Pattern.compile( "\\`\\`(.+?)\\`\\`" );
+		Pattern amp = Pattern.compile( "\"" );
+		
+		Pattern link = Pattern.compile( "^\\.\\.\\s+\\_(.*?)\\s*\\:\\s*(.*)$" );
+		
+		HashMap<Pattern, String> linkTargets = new HashMap<>();
+		
+		boolean inVerbose = false;
+		
+		for(int i=0;i<lines.length;i++){
+			
+			if(inVerbose && lines[i].startsWith("\t")) {
+				lines[i] = " "+lines[i].substring(1);
+				continue;
+			}else if(inVerbose) {
+				inVerbose = false;
+			}
+			
+			Matcher m = bold.matcher( lines[i] );
+			lines[i] = m.replaceAll( "'''$1'''" );
+			
+			m = italics.matcher( lines[i] );
+			lines[i] = m.replaceAll( "''$1''" );
+			
+			if(lines[i].endsWith("::")) {
+				lines[i] = lines[i].substring(0, lines[i].length()-1);
+				inVerbose = true;
+			}
+			
+			m = tt.matcher( lines[i] );
+			lines[i] = m.replaceAll( "<code>$1</code>" );
+			
+			m = amp.matcher( lines[i] );
+			lines[i] = m.replaceAll( "&quot;" );
+			
+			
+			
+			m = link.matcher( lines[i] );
+			
+			if(m.matches()){
+				String key = m.group( 1 );
+				String target = m.group( 2 );
+				linkTargets.put( Pattern.compile( "\\`?("+key+")\\`?\\_" ), target );
+				lines[i] = "";
+			}else{
+				lines[i] = lines[i];
+			}
+			
+		}
+		
+		
+		
+		for(int i=0;i<lines.length;i++){
+			Set<Pattern> pats = linkTargets.keySet();
+			Iterator<Pattern> it = pats.iterator();
+			while( it.hasNext() ){
+				Pattern pat = it.next();
+				Matcher m = pat.matcher( lines[i] );
+				lines[i] = m.replaceAll( "["+linkTargets.get( pat )+" $1]" );
+			}
+		}
+		
+		StringBuffer sb = new StringBuffer();
+		for(int i=0;i<lines.length;i++){
+			sb.append( lines[i] );
+			sb.append( "\n" );
+		}
+		return sb.toString();
+	}
 	
 	
 	private static String parse(String restruct){
