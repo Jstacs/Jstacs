@@ -20,14 +20,13 @@ import java.util.zip.GZIPInputStream;
 import de.jstacs.DataType;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.sequences.Sequence;
-import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
-import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
@@ -79,7 +78,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 					new SimpleParameterSet(background)
 			},"Background sample","The sequences for determining the prediction threshold. Either a sub-sample of the input sequences or a dedicated background data set.",true);
 			
-			SimpleParameter pvalue = new SimpleParameter(DataType.DOUBLE, "Significance level", "The significance level for determining the prediction threshold", true, new NumberValidator<Comparable<Double>>(0.0, 1E-4), 1E-6);
+			SimpleParameter pvalue = new SimpleParameter(DataType.DOUBLE, "Significance level", "The significance level for determining the prediction threshold", true, new NumberValidator<Comparable<Double>>(0.0, 1E-3), 1E-6);
 			
 			SimpleParameter num = new SimpleParameter(DataType.INT,"Number of sites", "The number of expected binding sites for determining the prediction threshold", true, new NumberValidator<Comparable<Integer>>(1, 1000000),10000);
 			
