@@ -206,11 +206,12 @@ public class SelectionParameter extends AbstractSelectionParameter {
 	 */
 	@Override
 	public boolean hasDefaultOrIsSet() {
-		if (getValue() instanceof ParameterSet) {
-			if (!((ParameterSet) getValue()).hasDefaultOrIsSet()) {
-				if (((ParameterSet) getValue()).getErrorMessage() != null) {
-					errorMessage = "Selected value has the following error: "
-							+ ((ParameterSet) getValue()).getErrorMessage();
+		Object  val = getValue();
+		if (val instanceof ParameterSet) {
+			ParameterSet ps = (ParameterSet) val;
+			if (!ps.hasDefaultOrIsSet()) {
+				if (ps.getErrorMessage() != null) {
+					errorMessage = "Selected value has the following error: " + ps.getErrorMessage();
 				}
 				return false;
 			} else {

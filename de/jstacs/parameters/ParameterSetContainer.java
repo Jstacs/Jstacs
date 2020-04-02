@@ -38,10 +38,10 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	private ParameterSet parameters;
 	private Class<? extends ParameterSet> parameterClass;
 
-	/**
+	/* *
 	 * The message of the last error or <code>null</code> if no error occurred.
 	 */
-	protected String errorMessage;
+	//protected String errorMessage;
 
 	/**
 	 * Creates an new {@link ParameterSetContainer} out of a {@link ParameterSet}.
@@ -104,7 +104,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	public ParameterSetContainer(String name, String comment, Class<? extends ParameterSet> contentClazz) {
 		super( name, comment, DataType.PARAMETERSET );
 		this.parameterClass = contentClazz;
-		this.errorMessage = null;
+		//this.errorMessage = null;
 	}
 
 	/**
@@ -286,7 +286,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	protected void appendFurtherInfos( StringBuffer buf ) {
 		super.appendFurtherInfos( buf );
 		
-		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
+		//XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
 		if(parameters == null){
 			XMLParser.appendObjectWithTags(buf, parameterClass, "parameterClass");
 		}else{
@@ -302,7 +302,7 @@ public class ParameterSetContainer extends Parameter implements GalaxyConvertibl
 	protected void extractFurtherInfos( StringBuffer representation ) throws NonParsableException {
 		super.appendFurtherInfos( representation );
 		
-		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
+		//errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(representation, "errorMessage", String.class ) );
 		if( !XMLParser.hasTag(representation, "parameters", null, null) ){
 			this.parameterClass = XMLParser.extractObjectForTags( representation, "parameterClass", Class.class );
 		}else{
