@@ -788,7 +788,9 @@ if( k == null ) {
 				
 				current.append(wikiTable(toolIndex));
 				
-				current.append("\n\n'''Example:'''\n\n java -jar "+jarname+" "+tools[toolIndex].getShortName()+"\n\n\n");
+				current.append("\n\n'''Example:'''\n\n java -jar "+jarname+" "+tools[toolIndex].getShortName());
+				addRequiredParameters(keyMap[toolIndex], "", current, tools[toolIndex].getToolParameters()); //switch on/off?
+				current.append("\n\n\n");
 				
 				all.append(current);
 				
@@ -799,6 +801,35 @@ if( k == null ) {
 		
 		return all.toString();
 		
+	}
+	
+	//add only require parameters with no default value
+	private static void addRequiredParameters( HashMap<String, String> hashMap, String prefix, StringBuffer current, ParameterSet ps ) {
+		boolean isExp = ps instanceof ExpandableParameterSet;
+		for( int i = 0; i < ps.getNumberOfParameters(); i++ ) {
+			Parameter par = ps.getParameterAt(i);
+			String add = isExp ? "?" : i + "";
+			Object o = par.getValue();
+			boolean isPS = o instanceof ParameterSet;
+			
+			if( par.isRequired() && !par.hasDefaultOrIsSet() ) {
+				String parKey = prefix+":"+par.getName();
+				if( !isPS ) {				
+					current.append(" " + hashMap.get(parKey) + "=<" + par.getName().replaceAll("\\s", "_") + ">");
+				} else if( !(par instanceof AbstractSelectionParameter) ) {
+					addRequiredParameters(hashMap,prefix+":"+add, current, (ParameterSet) o);
+				} else {
+					AbstractSelectionParameter asp = (AbstractSelectionParameter) par;
+					ParameterSet incoll = asp.getParametersInCollection();
+					for(int j=0;j<incoll.getNumberOfParameters();j++){
+						if( asp.isSelected(j) ) {
+							ParameterSetContainer cont = (ParameterSetContainer)incoll.getParameterAt( j );
+							addRequiredParameters(hashMap,prefix+":"+add + "-"+j, current, cont.getValue() );
+						}
+					} 
+				}
+			}
+		}
 	}
 	
 	private String parseHelpToWiki(JstacsTool tool){
