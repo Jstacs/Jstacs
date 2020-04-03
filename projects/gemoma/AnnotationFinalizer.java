@@ -60,17 +60,39 @@ public class AnnotationFinalizer extends GeMoMaModule {
 	
 	static boolean rename;
 	
-	static interface Feature {
-		Feature addFeature( String[] split );
+	static abstract class Feature {
+		String[] split;
+		Feature( String[] split ) {
+			this.split=split;
+		}
+		
+		public abstract Feature addFeature( String[] split );
+		
+		public void rename( String tag, String oldN, String newN ) {
+			split[8]=split[8].replace(tag+"="+oldN+";", tag+"="+newN+";");
+		}
+
+		static<T extends Feature> void rename( String tag, String oldN, String newN, ArrayList<T> l ) {
+			for( int i = 0; i < l.size(); i++ ) {
+				l.get(i).rename(tag, oldN, newN);
+			}
+		}
+		
+		public String toString() {
+			String res = "";
+			for( int i = 0; i < split.length; i++ ) {
+				res += split[i] + (i+1==split.length?"\n":"\t");
+			}
+			return res;
+		}
 	}
 	
-	static class Gene implements Feature, Comparable<Gene> {
+	static class Gene extends Feature implements Comparable<Gene> {
 		ArrayList<Transcript> list;
-		String[] split;
 		int min=-100, max=-100;
 		
 		Gene( String[] split ) {
-			this.split = split;
+			super( split );
 			list = new ArrayList<Transcript>();
 		}
 		
@@ -117,40 +139,54 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		
 		public String toString() {
 			StringBuffer all = new StringBuffer();
-			all.append(toString(split));
+			all.append(super.toString());
 			for( int i = 0; i < list.size(); i++ ) {
 				all.append(list.get(i).toString());
 			}
 			return all.toString();
 		}
-		
-		static String toString( String[] split ) {
-			String res = "";
-			for( int i = 0; i < split.length; i++ ) {
-				res += split[i] + (i+1==split.length?"\n":"\t");
-			}
-			return res;
-		}
 
-		public void genericName(String name) {
-			split[8]="Name=" + name + ";" + split[8];
-			for( int i = 0; i < list.size(); i++ ) {
-				Transcript t = list.get(i);
-				t.split[8]="Name=" + name + "." + (i+1)+";" + t.split[8];
-			}			
+		public void genericName(String name, boolean asName) {
+			if( asName ) {
+				//simple: new attribute "Name"
+				split[8]="Name=" + name + ";" + split[8];
+				for( int i = 0; i < list.size(); i++ ) {
+					Transcript t = list.get(i);
+					t.split[8]="Name=" + name + "." + (i+1)+";" + t.split[8];
+				}
+			} else {
+				//complex: ID, Parent
+				int i1 = split[8].indexOf("ID=");
+				int i2 = split[8].indexOf(";",i1);
+				String old = split[8].substring(i1+3,i2);
+				split[8]=split[8].replace("ID="+old+";", "ID="+name+";");
+				for( int i = 0; i < list.size(); i++ ) {
+					Transcript t = list.get(i);
+					t.rename("Parent",old,name);
+					
+					i1 = t.split[8].indexOf("ID=");
+					i2 = t.split[8].indexOf(";",i1);
+					String oldT = t.split[8].substring(i1+3,i2);
+					String newT = name + "." + (i+1);
+					t.rename("ID",oldT,newT);
+					
+					Feature.rename("Parent", oldT, newT, t.upUTR);
+					Feature.rename("Parent", oldT, newT, t.list);
+					Feature.rename("Parent", oldT, newT, t.downUTR);
+				}
+			}
 		}
 	}
 	
-	static class Transcript implements Feature, Comparable<Transcript> {
+	static class Transcript extends Feature implements Comparable<Transcript> {
 		ArrayList<CDS> list;
 		ArrayList<UTR> upUTR;
 		ArrayList<UTR> downUTR;
-		String[] split;
 		String id;
 		double score;
 		
 		Transcript( String[] split ) {
-			this.split = split;
+			super( split );
 			String[] attr = split[8].split(";");
 			int l = 0;
 			while( l < attr.length && !attr[l].startsWith("ID=") ) {
@@ -158,12 +194,11 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			}
 			id=attr[l].substring(3);
 			
-			if( rename ) {
-				//GeMoMa specific!
-				l = 0;
-				while( l < attr.length && !attr[l].startsWith("score=") ) {
-					l++;
-				}
+			l = 0;
+			while( l < attr.length && !attr[l].startsWith("score=") ) {
+				l++;
+			}
+			if( l<attr.length ) {
 				score = Double.parseDouble(attr[l].substring(6));
 			} else {
 				score = 0;
@@ -232,7 +267,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		
 		public String toString() {
 			StringBuffer all = new StringBuffer();
-			all.append(Gene.toString(split));
+			all.append(super.toString());
 			for( int i = 0; i < upUTR.size(); i++ ) {
 				all.append(upUTR.get(i).toString());
 			}
@@ -251,11 +286,10 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		}
 	}
 	
-	static class CDS implements Feature {
-		String[] split;
+	static class CDS extends Feature {
 		
 		CDS( String[] split ) {
-			this.split = split;
+			super( split );
 		}
 
 		@Override
@@ -270,17 +304,11 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		public int getMax() {
 			return Integer.parseInt(split[4]);
 		}
-				
-		public String toString() {
-			return Gene.toString(split);
-		}
 	}
 	
-	static class UTR implements Feature {
-		String[] split;
-		
+	static class UTR extends Feature {
 		UTR( String[] split ) {
-			this.split=split;
+			super( split );
 		}
 		
 		@Override
@@ -295,10 +323,6 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		public int getMax() {
 			return Integer.parseInt(split[4]);
 		}
-				
-		public String toString() {
-			return Gene.toString(split);
-		}		
 	}
 	
 	static StringBuffer begin = new StringBuffer();
@@ -483,6 +507,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		} else {
 			prefix=null;
 		}
+		boolean asName = (Boolean) parameters.getParameterForName("name attribute").getValue();
 		
 		//annotation
 		String tag = parameters.getParameterForName("tag").getValue().toString();
@@ -515,6 +540,9 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		annotation.keySet().toArray(keys);
 		Arrays.sort( keys, new SequenceIDComparator() );
 		for( String c : keys ) {
+			w.append("##sequence-region " + c + " 1 " + GeMoMa.seqs.get(c).length() );
+			w.newLine();
+			
 			String newC = c;
 			String pref = null;
 			if( rename ) {
@@ -587,7 +615,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			Collections.sort(genes);
 			for( Gene g : genes ) {
 				if( rename ) {
-					g.genericName( pref + String.format("%0"+digits+"d", num++) + suffix );
+					g.genericName( pref + String.format("%0"+digits+"d", num++) + suffix, asName );
 				}
 				w.append(g.toString());
 			}
@@ -731,7 +759,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		while( utrs.size() > 0 ) {
 			String[] split;
 			split = utrs.removeFirst();
-			split[8] = /*"ID=" + t.id + "." + utr + "."+ u++ +";"+*/ "Parent="+t.id;
+			split[8] = /*"ID=" + t.id + "." + utr + "."+ u++ +";"+*/ "Parent="+t.id+";";
 			t.addUTR(d==-1, split);
 		}
 		
@@ -810,8 +838,10 @@ public class AnnotationFinalizer extends GeMoMaModule {
 								"simple renaming: <prefix><number>; recommended for gene family annotations",
 								"no renaming"
 							},
-							"rename", "allows to generate generic gene and transcripts names (cf. attribute &quot;Name&quot;)", true
-					)
+							"rename", "allows to generate generic gene and transcripts names (cf. parameter &quot;name attribute&quot;)", true
+					),
+					new SimpleParameter( DataType.BOOLEAN, "name attribute", "if true the new name is added as new attribute &quot;Name&quot;, otherwise &quot;Parent&quot; and &quot;ID&quot; values are modified accordingly", true, true )
+					
 			);		
 		}catch(Exception e){
 			e.printStackTrace();

@@ -363,6 +363,9 @@ public class GeMoMa extends GeMoMaModule {
 					+ "\n\nIf you use this tool, please cite\n\n" + REF[0] + "\n" + REF[1]
 					,
 					"CLI", configureThreads, tools );
+				
+				FileManager.writeFile("gemoma-wiki.page",cli.wikiPage("GeMoMa-"+GeMoMaModule.VERSION+".jar CLI") );
+				
 				if( args[0].equalsIgnoreCase("CLI") ) {
 					String[] part = new String[args.length-1];
 					System.arraycopy(args, 1, part, 0, part.length);
@@ -4283,7 +4286,7 @@ public class GeMoMa extends GeMoMaModule {
 				} else {
 					gff.append( hits.getLast().targetStart + "\t" + first.targetEnd );
 				}
-				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName + ";AA="+getNumberOfAA() );
+				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName + ";aa="+getNumberOfAA() );
 			}
 			
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {

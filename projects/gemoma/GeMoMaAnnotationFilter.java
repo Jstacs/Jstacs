@@ -80,7 +80,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	static class UserSpecifiedComparator implements Comparator<Prediction>{
 		static HashSet<String> asDouble = new HashSet<String>();
 		static {
-			asDouble.add("AA");
+			asDouble.add("aa");
 			asDouble.add("score");
 			
 			asDouble.add("tae");
@@ -966,8 +966,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 							+ "This allows to use these attributes for sorting or filter criteria. "
 							+ "It is especially meaningful if the gene annotation files were received fom different software packages (e.g., GeMoMa, Braker, ...) having different attributes.", true, "tie,tde,tae,iAA,pAA,score" ),				
 					new SimpleParameter(DataType.STRING,"filter","A filter can be applied to transcript predictions to receive only reasonable predictions. The filter is applied to the GFF attributes. "
-							+ "The deault filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/AA>=0.75) whether a prediction is used or not. Different criteria can be combined using 'and' and 'or'. In addition, you can check for NaN, e.g., 'isNaN(score)'. "
-							+ "A more sophisticated filter could be applied for instance using the completeness, the relative score, the evidence as well as statistics based on RNA-seq: start=='M' and stop =='*' and score/AA>=0.75 and (evidence>1 or tpc==1.0)", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "start=='M' and stop =='*' and score/AA>=0.75" ),
+							+ "The deault filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/aa>=0.75) whether a prediction is used or not. Different criteria can be combined using 'and' and 'or'. In addition, you can check for NaN, e.g., 'isNaN(score)'. "
+							+ "A more sophisticated filter could be applied for instance using the completeness, the relative score, the evidence as well as statistics based on RNA-seq: start=='M' and stop =='*' and score/aa>=0.75 and (evidence>1 or tpc==1.0)", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "start=='M' and stop =='*' and score/aa>=0.75" ),
 					new SimpleParameter(DataType.STRING,"sorting","comma-separated list that defines the way predictions are sorted within a cluster", true, "evidence,score"),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on evidence (evidence>1). "
