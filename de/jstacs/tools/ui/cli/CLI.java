@@ -770,8 +770,8 @@ if( k == null ) {
 	 * @param jarname the name of the JAR file
 	 * @return the wiki string
 	 */
-	public String wikiPage(String jarname) {
-		StringBuffer all = new StringBuffer();
+	public StringBuffer wikiPage(String jarname) {
+		StringBuffer all = new StringBuffer("== Tools ==\n\n");
 		for( int toolIndex=0; toolIndex<keyMap.length; toolIndex++ ) {
 			try {
 				
@@ -799,8 +799,7 @@ if( k == null ) {
 			}
 		}
 		
-		return all.toString();
-		
+		return all;
 	}
 	
 	//add only require parameters with no default value
