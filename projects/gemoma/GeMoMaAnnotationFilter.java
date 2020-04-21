@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -56,7 +57,6 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.utils.IntList;
 
 /**
  * This class allows to filter GeMoMa annotation files (GFFs) to obtain the most relevant predictions.
@@ -114,24 +114,23 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			if( d.equals( "NA" ) ) {
 				return Double.NaN;
 			} else {
-				return Double.parseDouble(d);
+				return -Double.parseDouble(d);
 			}
 		}
 		
 		public static int compareAsDoubles( String d1, String d2 ) {
-			return -Double.compare(parse(d1), parse(d2));
+			return Double.compare(parse(d1), parse(d2));
 		}
 		
-		public int compare(Prediction o1, Prediction o2) {
-			int d=0, i = 0;
-			while( i < keys.length && d==0 ) {
-				String v1 = o1.hash.get(keys[i]);
-				String v2 = o2.hash.get(keys[i]);
-				if( v1 != null && v2 !=null ) {
+		public void prepare( Prediction p ) {
+			p.comp = new Comparable[keys.length+1];
+			for( int i = 0; i < keys.length; i++ ) {
+				String v = p.hash.get(keys[i]);
+				if( v != null ) {
 					if( asDouble.contains(keys[i]) ) {
-						d = compareAsDoubles(v1, v2);
+						p.comp[i] = parse(v);
 					} else {
-						d = v1.compareTo( v2 );
+						p.comp[i] = v;
 					}
 				} else {
 					if( !errors.contains(keys[i])) {
@@ -139,11 +138,16 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						protocol.appendWarning("Could not find key (" + keys[i] + ") that is used for sorting\n");
 					}
 				}
-				i++;
 			}
-			
-			if( d == 0 ) {
-				d = o1.id.compareTo(o2.id);
+			p.comp[keys.length]=p.id;
+		}
+
+		public int compare(Prediction o1, Prediction o2) {
+			int d=0;
+			for( int i=0; i < o1.comp.length && d==0; i++ ) {
+				if( o1.comp[i]!=null && o2.comp[i]!=null ) {
+					d = o1.comp[i].compareTo( o2.comp[i] );
+				}
 			}
 			return d;
 		}
@@ -162,7 +166,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
-		
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		int maxTranscripts = (Integer) parameters.getParameterForName("maximal number of transcripts per gene").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
@@ -185,8 +188,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		String line, t;
 		String[] split;
 				
-		ArrayList<Prediction> pred = new ArrayList<Prediction>();
-		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
+		HashMap<String,ArrayList<Prediction>> pHash = new HashMap<String,ArrayList<Prediction>>();
+		ArrayList<Prediction> pred;
 		Prediction current = null;
 
 		//read genes in GeMoMa gff format!
@@ -263,8 +266,13 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					} else {
 						ids.add(current.id);
 					}
+					pred = pHash.get( current.contigStrand );
+					if( pred == null ) {
+						pred = new ArrayList<Prediction>();
+						pHash.put(current.contigStrand,pred);
+					}
 					pred.add( current );
-					rnaSeq |= current.hash.containsKey("tie");
+					rnaSeq |= split[8].indexOf(";tie=")>0;
 				} else if( t.equals( "CDS" ) ) {
 					current.addCDS( line );
 				}
@@ -297,44 +305,17 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			
 			//System.out.println( pred.size() + "\t" + k + "\t" +current.index);
 		}
-		protocol.append( "all: " + pred.size() + "\n" );
+		
+		Set<String> s = pHash.keySet();
+		int anz = 0;
+		for( String chrSt: s ) {
+			anz += pHash.get(chrSt).size();
+		}
+		protocol.append( "all: " + anz + "\n" );
 
-		//combine redundant
-		Collections.sort(pred);
-		Prediction last = pred.get(pred.size()-1);
-		for( int i = pred.size()-2; i >= 0; i-- ){
-			Prediction cur = pred.get(i);
-			if( cur.compareTo(last) == 0 ) {
-				//identical
-				if( cur.score > last.score || (cur.score== last.score && cur.id.compareTo(last.id)<0) ) {
-					cur.combine(last);
-					pred.remove(i+1);
-					last=cur;
-				} else {
-					last.combine(cur);
-					pred.remove(i);
-				}
-			} else {
-				last=cur;
-			}
-		}
-		
-		//filter: user-specified
-		for( int i = pred.size()-1; i >= 0; i-- ){
-			Prediction p = pred.get(i);
-			if( !filter(filter, engine, p, weight) ) {
-				//System.out.println(p.hash.toString());
-				pred.remove(i);
-			} else {
-				fillEvidence(p.evidence, p.index, 0);
-			}
-		}
-		protocol.append( "filtered: " + pred.size() + "\n" );
-		
+		int filtered = 0;
 		File out = Tools.createTempFile("GAF-filtered");
-		int clustered=0, transcripts = 0;
-		if( pred.size() > 0 ) {
-			//cluster predictions			
+		if( anz>0 ) {
 			BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 			w.append("##gff-version 3");
 			w.newLine();
@@ -349,35 +330,55 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			w.newLine();
 			
-			int i = 0;
-			Prediction next = pred.get(i);
-			while( i < pred.size() ) {
-				current = next;
-				int end = current.end, alt = i;
-				i++;	
-	
-				currentCluster.clear();
-				currentCluster.add(current);
-				while( i < pred.size() && (next = pred.get(i)).contigStrand.equals(current.contigStrand)
-						//&& (end-Integer.parseInt(next.split[3])+1d)/(end-start+1d) > 0.1
-						&& end>Integer.parseInt(next.split[3])
-				) {
-					end = Math.max(end,Integer.parseInt(next.split[4]));
-					currentCluster.add(next);
-					i++;
+			//per contig/chromosome and strand combination => could be parallelized
+			for( String chrSt: s ) {
+				pred = pHash.get(chrSt);
+				
+				//combine redundant
+				Collections.sort(pred);
+				Prediction last = pred.get(pred.size()-1);
+				for( int i = pred.size()-2; i >= 0; i-- ){
+					Prediction cur = pred.get(i);
+					if( cur.compareTo(last) == 0 ) {
+						//identical
+						if( cur.score > last.score || (cur.score== last.score && cur.id.compareTo(last.id)<0) ) {
+							cur.combine(last);
+							pred.remove(i+1);
+							last=cur;
+						} else {
+							last.combine(cur);
+							pred.remove(i);
+						}
+					} else {
+						last=cur;
+					}
 				}
 				
-				Collections.sort( currentCluster, comp );
-				int p=create( rnaSeq, maxTranscripts, currentCluster, w, altFilter, engine, weight, cbTh, protocol );
-				clustered++;
-				transcripts+=p;
+				//filter: user-specified
+				for( int i = pred.size()-1; i >= 0; i-- ){
+					Prediction p = pred.get(i);
+					p.setEvidenceAndWeight( weight );
+					if( !p.filter(filter, engine) ) {
+						//System.out.println(p.hash.toString());
+						pred.remove(i);
+					} else {
+						fillEvidence(p.evidence, p.index, 0);
+						p.altCand = p.filter(altFilter, engine);
+						comp.prepare(p);
+					}
+				}
+				filtered += pred.size();
 				
-				transcripts += checkNestedSameStrand( rnaSeq, maxTranscripts, pred, alt, i, w, altFilter, engine, weight, cbTh, comp, protocol );
+				if( pred.size() > 0 ) {
+					//cluster predictions
+					split(clustered, pred, comp, rnaSeq, maxTranscripts, w, weight, cbTh, protocol);
+				}
 			}
 			w.close();
 		}
-				
-		protocol.append( "clustered: " + clustered + "\n\n" );
+	
+		protocol.append( "filtered: " + filtered + "\n" );
+		protocol.append( "clustered: " + clustered[0] + "\n\n" );
 		protocol.append( "genes: " + gene + "\n" );
 		protocol.append( "transcripts: " + transcripts + "\n\n" );
 		
@@ -396,125 +397,102 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				protocol.append( "input " + i + (prefix[i].length()>0?" ("+prefix[i]+")":"") + "\t" + evidenceStat[i][0] + "\t" + evidenceStat[i][1]  + "\t" + evidenceStat[i][2] + "\n" );
 			}
 		}
-		
-		
+			
 		return new ToolResult("", "", null, new ResultSet(new TextResult("filtered predictions", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
-	}
-	
-	static int checkNestedSameStrand( boolean rnaSeq, int maxTranscripts, ArrayList<Prediction> list, int start, int end, BufferedWriter w, String altFilter, ScriptEngine engine, double[] weight, double cbTh, Comparator<Prediction> comp, Protocol protocol ) throws Exception {
-		IntList used = new IntList(), notUsed = new IntList();
-		int s = Integer.MAX_VALUE, e = 0;
-		for( int i = start; i < end; i++ ) {
-			Prediction p = list.get(i);
-			if( p.start < s ) {
-				s = p.start;
-			}
-			if( p.end > e ) {
-				e = p.end;
-			}
-			if( p.used ) {
-				used.add(i);
-			} else {
-				notUsed.add(i);
-			}
-		}
-		
-		if( used.length() > 0 && notUsed.length()>0 ) {
-			//fill BitSet
-			for( int i = start; i < end; i++ ) {
-				list.get(i).fillNuc(s,e);
-			}
-			
-			ArrayList<Prediction> cand = new ArrayList<Prediction>();
-			for( int n = 0; n < notUsed.length(); n++ ) {
-				Prediction not = list.get(notUsed.get(n));
-				boolean overlap = false;
-				for( int u = 0; u < used.length(); u++ ) {
-					Prediction use = list.get(used.get(u));
-					overlap |= use.overlap(not);
-				}
-				if( !overlap ) {
-					not.discard=false;
-					cand.add(not);
-				}
-			}
-			
-			//delete BitSet
-			for( int i = start; i < end; i++ ) {
-				list.get(i).clear();
-			}		
-			
-			if( cand.size() > 0 ) {
-				Collections.sort( cand, comp );
-				return create(rnaSeq, maxTranscripts, cand, w, altFilter, engine, weight, cbTh, protocol );
-			}
-		}
-		return 0;
-	}
-	
+	}	
 	
 	static int h = 0;
+	int transcripts=0;
+	int[] clustered = new int[1];
 	
 	static int[][] stats;
 	static int gene=0;
 	
-	static int create( boolean rnaSeq, int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, String filter, ScriptEngine engine, double[] weight, double cbTh, Protocol protocol ) throws Exception {
-		if( list.size() == 0 ) {
-			return 0;
-		}
-		Prediction current = list.remove(0);
-		ArrayList<Prediction> used = new ArrayList<Prediction>();
-		used.add( current );
-		current.discard = true;
-		current.used=true;
+	void split( int[] clustered, ArrayList<Prediction> pred, Comparator<Prediction> comp, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double[] weight, double cbTh, Protocol protocol ) throws Exception {
+		int i = 0;
+		Prediction next = pred.get(i), current;
+		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
+		while( i < pred.size() ) {
+			current = next;
+			int end = current.end;
+			i++;	
 
-		int count = 0, i = 0;
-		while( i < list.size() ) {
-			Prediction n = list.get(i);
-			if( n.end < current.start || current.end < n.start ) {//no overlap
-				count++;
+			currentCluster.clear();
+			currentCluster.add(current);
+			while( i < pred.size() && end>(next = pred.get(i)).start ) {
+				end = Math.max(end,next.end);
+				currentCluster.add(next);
 				i++;
-			} else { //overlapping
-				double min=2d*Math.min(n.cds.size(),current.cds.size());
-				double cb = current.commonBorders(n);
-				
-				int j = 0;
-				if( cb/min>=cbTh ) {//hinreichende Überlappung
-					while( j < used.size() ) {
-						Prediction x = used.get(j); 
-						cb = x.commonBorders(n);
-//						double max=2d*Math.max(n.cds.size(),x.cds.size());								
-						j++;
-					}
-				}
-				
-				if( j == used.size() ) {
-					if( filter(filter, engine, n, weight) ) {
-						used.add(n);
-						n.used=true;
-					}
-				}
-				list.remove(i);
 			}
+			if( clustered!= null ) clustered[0]++;
+			
+			Collections.sort( currentCluster, comp );
+			create( rnaSeq, maxTranscripts, currentCluster, w, weight, cbTh, protocol, comp );
 		}
+	}
+	
+	void create( boolean rnaSeq, int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, double[] weight, double cbTh, Protocol protocol, Comparator<Prediction> comp ) throws Exception {
+		//select best prediction from notUsed
+		Prediction current = list.get(0);
+		ArrayList<Prediction> sel = new ArrayList<Prediction>();
+		sel.add( current );
+		current.used=true;
+		int start = current.start;
+		int end = current.end;
+
+		int[] startSearch = new int[list.size()];
+		
+		int count, old;
+		do {
+			old = sel.size();
+			count=0;
+			//find alternative transcripts
+			for( int i = 1; i < list.size(); i++ ) {
+				Prediction n = list.get(i);
+				if( !n.used && n.altCand ) {
+					if( n.end < start || end < n.start ) {//no overlap
+						count++;
+					} else { //overlapping
+						int j = startSearch[i];
+						for( ; j < sel.size(); j++ ) {
+							Prediction x = sel.get(j);
+							double min=2d*Math.min(x.cds.size(),n.cds.size());
+							double cb = x.commonBorders(n);
+							if( cb/min>=cbTh ) {//there are enough common borders to at least one other transcript
+								sel.add(n);
+								n.used=true;
+								start = Math.min(start, n.start);
+								end = Math.max(end, n.end);
+								break;
+							}
+						}
+						if( j==sel.size() ) {
+							//not included
+							startSearch[i]=sel.size();
+							count++;
+						}
+					}
+				}
+			}
+		} while( old < sel.size() && count>0 );
 		
 		maxEvidence=0;
 		Arrays.fill( combinedEvidence, false );
 		maxTie=-1;
 		complete=0;
-		st=Integer.MAX_VALUE;
-		en=Integer.MIN_VALUE;
 		Prediction n=null;
 		
-		for( i = 0; i < used.size() && i < maxTranscripts; i++ ) {
-			n = used.get(i);
+		int i = 0;
+		for( i = 0; i < sel.size() && i < maxTranscripts; i++ ) {
+			n = sel.get(i);
 			n.write(w, protocol);
 		}
+		transcripts+=i;
 		if( i>0 ) {
 			//write
 			fillEvidence(combinedEvidence, -999, 2);
 			
-			w.append(n.split[0] + "\tGAF\tgene\t" + st + "\t" + en  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + i + ";complete="+complete+ (rnaSeq?";maxTie=" + (maxTie<0?"NA":maxTie):"") +(MAX>1?";maxEvidence="+maxEvidence+";combinedEvidence=" + count(combinedEvidence):"") );
+			w.append(n.split[0] + "\tGAF\tgene\t" + start + "\t" + end  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + i + ";complete="+complete+ (rnaSeq?";maxTie=" + (maxTie<0?"NA":maxTie):"") +(MAX>1?";maxEvidence="+maxEvidence+";combinedEvidence=" + count(combinedEvidence):"") );
 			w.newLine();
 			
 			stats[maxEvidence-1][0]++;
@@ -525,13 +503,58 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		}
 		
 		if( count>0  ) {
-			i += create(rnaSeq, maxTranscripts, list, w, filter, engine, weight, cbTh, protocol);
+			//find predictions that could be added
+			ArrayList<Prediction> used = new ArrayList<Prediction>(), notUsed = new ArrayList<Prediction>();
+			int s = Integer.MAX_VALUE, e = 0;
+			for( i = 0; i < list.size(); i++ ) {
+				Prediction p = list.get(i);
+				if( p.start < s ) {
+					s = p.start;
+				}
+				if( p.end > e ) {
+					e = p.end;
+				}
+				if( p.used ) {
+					used.add(p);
+				} else {
+					notUsed.add(p);
+				}
+			}
+			
+			//find predictions that do not overlap with any of the "used" predictions
+			BitSet usedCov = new BitSet(e-s+1);
+			for( int u = 0; u < used.size(); u++ ) {
+				used.get(u).fillNuc(usedCov,s,e);
+			}
+			used.clear();
+			
+			ArrayList<int[]> combined = new ArrayList<int[]>();
+			int cStart = 0, cEnd=-1;
+			while( (cStart=usedCov.nextSetBit(cEnd+1)) >= 0 ) {
+				cEnd=usedCov.nextClearBit(cStart);
+				if( cEnd<0 ) {
+					cEnd=e-s;
+				} else {
+					cEnd=cEnd-1;
+				}
+				combined.add(new int[] {cStart+s,cEnd+s} );
+			}
+			for( int j = 0; j < notUsed.size(); j++ ) {
+				Prediction not = notUsed.get(j);
+				if( !not.overlap(combined) ) {
+					used.add(not);
+				}
+			}	
+				
+			notUsed=used;
+			if( notUsed.size() > 0 ) {
+				Collections.sort(notUsed);
+				split(null, notUsed, comp, rnaSeq, maxTranscripts, w, weight, cbTh, protocol);
+			}
 		}
-
-		return i;
 	}
 	
-	static int maxEvidence, st, en, complete;
+	static int maxEvidence, complete;
 	static boolean[] combinedEvidence;
 	static double maxTie;
 	static int[][] evidenceStat;
@@ -564,33 +587,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		return w;
 	}
 	
-	static boolean filter( String filter, ScriptEngine engine, Prediction toBeChecked, double[] weight ) throws ScriptException {
-		int count=count(toBeChecked.evidence);
-		toBeChecked.hash.put("evidence", ""+count);
-		double w = sum( toBeChecked.evidence, toBeChecked.index, weight );
-		toBeChecked.hash.put("sumWeight", ""+w);
-		
-		if( filter.length()== 0 ) {
-			return true;
-		} else {
-			Bindings b = engine.createBindings();
-			Iterator<Entry<String,String>> it = toBeChecked.hash.entrySet().iterator();
-			while( it.hasNext() ) {
-				Entry<String,String> e = it.next();
-				String key = e.getKey();
-				if( filter.indexOf(key)>=0 ) {
-					String val = e.getValue();
-					b.put(key, val.equals("NA")?""+Double.NaN:val);
-				}
-			}			
-			
-			String s = engine.eval(filter, b).toString();
-			Boolean bool = Boolean.parseBoolean( s );
-//System.out.println(toBeChecked.id + "\t" + f + "\t" + s + "\t" + bool);
-			return bool;
-		}
-	}
-	
 	static void fillEvidence( boolean[] evidence, int index, int idx ) {
 		if( evidence == null ) {
 			evidenceStat[index][idx]++;
@@ -606,9 +602,19 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	static class Prediction implements Comparable<Prediction>{
 		static boolean first=true;
 		
-		boolean discard = false, used=false;
+		static class CDS {
+			String[] split;
+			int start, end;
+			CDS( String[] split ) {
+				this.split=split;
+				start=Integer.parseInt(split[3]);
+				end=Integer.parseInt(split[4]);
+			}
+		}
+		
+		boolean altCand=false, used=false;
 		String[] split;
-		ArrayList<String[]> cds;
+		ArrayList<CDS> cds;
 		HashMap<String,String> hash;
 		int length, start, end, score;
 		String contigStrand;
@@ -617,6 +623,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		boolean[] evidence;
 		String prefix, oldId, id;
 		HashSet<String> gos, defl;
+		Comparable[] comp;
 		
 		public Prediction( String[] split, int index, String prefix, HashMap<String,String[]> annotInfo, int go, int defline, String[] defAttributes ) {
 			this.index = index;
@@ -702,18 +709,23 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						}
 					}
 					if( tab.length>defline ) {
-						defl.add( tab[12] );
+						defl.add( tab[12].replaceAll(";", ",") );
 					}
 				}  else {
-					System.out.println(oldId); //TODO
+					System.out.println("Could not identify annotation info for: " + oldId); //TODO
 				}
 			}
 			
-			cds = new ArrayList<String[]>();
+			cds = new ArrayList<CDS>();
 			length = 0;
 			alternative = new HashSet<String>();
 		}
 				
+		public void setEvidenceAndWeight(double[] weight) {
+			hash.put("evidence", ""+count(evidence));
+			hash.put("sumWeight", ""+sum( evidence, index, weight ));
+		}
+
 		void addCDS( String cds ) {
 			if( prefix != null && prefix.length()>0 ) {
 				//bugfix: if the id could be interpreted as regex, we had some problems
@@ -727,39 +739,39 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				cds = cds.replace("\tID="+oldId, "\tID=" + id);
 				cds = cds.replace(";ID="+oldId, ";ID=" + id);
 			}
-			String[] split = cds.split("\t");
-			this.cds.add( split );
-			length+= (Integer.parseInt(split[4])-Integer.parseInt(split[3])+1);
+			CDS current = new CDS( cds.split("\t") );
+			this.cds.add( current );
+			length+= (current.end-current.start+1);
 		}
 
 		@Override
 		public int compareTo(Prediction o) {
-			int res = contigStrand.compareTo(o.contigStrand);
-			if( res == 0 ) {
-				res = Integer.compare( start, o.start );
+			//int res = contigStrand.compareTo(o.contigStrand);
+			//if( res == 0 ) {
+				int res = Integer.compare( start, o.start );
 				if( res == 0 ) {
 					res = Integer.compare( end, o.end );
 					if( res == 0 ) {
 						res = Integer.compare( cds.size(), o.cds.size() );
 						if( res == 0 ) {
-							int i = 0;
-							String[] part1 = null, part2 = null;
-							while( i < cds.size() ) {
+							CDS part1 = null, part2 = null;
+							for( int i = 0; i < cds.size(); i++ ) {
 								part1 = cds.get(i);
 								part2 = o.cds.get(i);
-								if( part1[3].equals(part2[3]) && part1[4].equals(part2[4]) ) {
-									i++;
+								if( part1.start == part2.start ) {
+									if( part1.end != part2.end ) {
+										res = Integer.compare(part1.end,part2.end);
+										break;
+									}
 								} else {
+									res = Integer.compare(part1.start,part2.start);
 									break;
 								}
-							}
-							if( i < cds.size() ) {
-								res = (part1[3]+"\t"+part1[4]).compareTo( part2[3]+"\t"+part2[4] );
 							}
 						}
 					}
 				}
-			}
+			//}
 			return res;
 		}
 		
@@ -841,13 +853,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			w.write( "evidence=" + count + ";Parent=gene_"+gene + ";sumWeight=" + we + ";" );
 			
 			maxEvidence = Math.max(count, maxEvidence);
-			st=Math.min(st, start);
-			en=Math.max(en, end);
 			if( hash.containsKey("start") && hash.containsKey("stop") ) {
 				complete += (hash.get("start").charAt(0)=='M' && hash.get("stop").charAt(0)=='*') ? 1 : 0;
 			} else {
 				if( first ) {
-					p.appendWarning("Could not find attributes 'start' or 'stop' for at least one prediction. You can use AnnotationEvidnece to add these to the input file." );
+					p.appendWarning("Could not find attributes 'start' or 'stop' for at least one prediction. You can use AnnotationEvidence to add these to the input file." );
 					first = false;
 				}
 			}
@@ -877,7 +887,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			w.newLine();
 			for( int i = 0; i < cds.size(); i++ ) {
-				String[] split = cds.get(i);
+				String[] split = cds.get(i).split;
 				for( int j = 0; j < split.length; j++ ) {
 					w.append( (j==0?"":"\t") + split[j] );
 				}
@@ -895,55 +905,96 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			return r;
 		}
 		
-		HashSet<String> s, e;
+		HashSet<Integer> s, e;
 		
 		public double commonBorders(Prediction o) {
 			int anz = 0;
-			String[] split;
+			CDS c;
 			if( s== null ) {
-				s = new HashSet<String>();
-				e = new HashSet<String>();
+				s = new HashSet<Integer>();
+				e = new HashSet<Integer>();
 				for( int i = 0; i < cds.size(); i++ ) {
-					split = cds.get(i);
-					s.add(split[3]);
-					e.add(split[4]);
+					c = cds.get(i);
+					s.add(c.start);
+					e.add(c.end);
 				}
 			}
 			for( int i = 0; i < o.cds.size(); i++ ) {
-				split = o.cds.get(i);
+				c = o.cds.get(i);
 				
-				if( s.contains(split[3]) ) {
+				if( s.contains(c.start) ) {
 					anz++;
 				}
-				if( e.contains(split[4]) ) {
+				if( e.contains(c.end) ) {
 					anz++;
 				}
 			}
 			return anz;
 		}
+	
+		boolean filter( String filter, ScriptEngine engine ) throws ScriptException {
+			if( filter.length()== 0 ) {
+				return true;
+			} else {
+				Bindings b = engine.createBindings();
+				Iterator<Entry<String,String>> it = hash.entrySet().iterator();
+				while( it.hasNext() ) {
+					Entry<String,String> e = it.next();
+					String key = e.getKey();
+					if( filter.indexOf(key)>=0 ) {
+						String val = e.getValue();
+						b.put(key, val.equals("NA")?""+Double.NaN:val);
+					}
+				}			
+				
+				String s = engine.eval(filter, b).toString();
+				Boolean bool = Boolean.parseBoolean( s );
+	//System.out.println(toBeChecked.id + "\t" + f + "\t" + s + "\t" + bool);
+				return bool;
+			}
+		}
 		
-		BitSet nuc;
-		
-		void fillNuc(int s, int e) {
-			nuc = new BitSet(e-s+1);
+		void fillNuc( BitSet nuc, int s, int e ) {
 			for( int i = 0; i < cds.size(); i++ ) {
-				String[] split = cds.get(i);
+				CDS c = cds.get(i);
 				try {
-					nuc.set( Integer.parseInt(split[3])-s, Integer.parseInt(split[4])-s );
+					nuc.set( c.start-s, c.end-s+1 );
 				} catch( IndexOutOfBoundsException ioobe ) {
-					System.out.println(Arrays.toString(this.split));
 					System.out.println(Arrays.toString(split));
+					System.out.println(Arrays.toString(c.split));
 					throw ioobe;
 				}
 			}
 		}
-		
-		public boolean overlap(Prediction o) {
-			return nuc.intersects(o.nuc);
-		}
-		
-		public void clear() {
-			nuc=null;
+
+		boolean overlap( ArrayList<int[]> combined ) {
+			int dir = split[6].charAt(0)=='+'?+1:-1;
+			int cIndex=0, pIndex= dir == 1 ? 0 : (cds.size()-1);
+			CDS c = cds.get(pIndex);
+			int[] com = combined.get(cIndex);
+			while( true ) {
+				if( com[1] < c.start ) {
+					cIndex++;
+					if( cIndex < combined.size() ) {
+						com = combined.get(cIndex);
+					} else {
+						break;
+					}
+				} else if( c.end < com[0] ) {
+					pIndex+=dir;
+					if( 0 <= pIndex && pIndex < cds.size() ) {
+						c = cds.get(pIndex);
+					} else {
+						break;
+					}
+				} else {
+					//c.start <= c.end && com[0] <= c.end 
+					//com[0] <= com[1] && c.start <= com[1]
+					//-->> overlap
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
@@ -998,8 +1049,9 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	@Override
 	public String getHelpText() {
 		return
-				"**What it does**\n\nThis tool combines and filters gene predictions from different sources yielding a common gene prediction."
-				+ "The tool does not modify the predictions, but filters redundant and low-quality predictions and selects relevant predictions.\n\n"
+				"This tool combines and filters gene predictions from different sources yielding a common gene prediction."
+				+ " The tool does not modify the predictions, but filters redundant and low-quality predictions and selects relevant predictions."
+				+ " In addition, it adds attributes to the annotation of transcript predictions.\n\n"
 				
 				+ "The algorithm does the following:\n"
 				+ "First, redundant predictions are identified (and additional attributes (evidence, sumWeight) are introduced).\n"
@@ -1009,10 +1061,10 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				+ "Optionally, annotation info can be added for each reference organism enabling a functional prediction for predicted transcripts based on the function of the reference transcript.\n"
 				+ "Phytozome provides annotation info tables for plants, but annotation info can be used from any source as long as they are tab-delimited files with at least the following columns: transcriptName, GO and .*defline.\n\n"
 				
-				+ "Initially, GAF was build to combine gene predictions obtained from GeMoMa. It allows to combine the predictions from multiple reference organisms, but works also using only one reference organism. "
+				+ "Initially, GAF was build to combine gene predictions obtained from **GeMoMa**. It allows to combine the predictions from multiple reference organisms, but works also using only one reference organism. "
 				+ "However, GAF also allows to integrate predictions from ab-initio or purely RNA-seq-based gene predictors as well as manually curated annotation. "
-				+ "If you like to do so, we recommend to run AnnotationEvidence for each of these input files to add additional attributes that can be used for sorting and filtering within GAF. "
-				+ "The sort and filter criteria need to be carefully revised in this case.\n\n"
+				+ "If you like to do so, we recommend to run **AnnotationEvidence** for each of these input files to add additional attributes that can be used for sorting and filtering within **GAF**. "
+				+ "The sort and filter criteria need to be carefully revised in this case. Default values can be set for missing attributes."
 				
 				+ MORE;
 	}
