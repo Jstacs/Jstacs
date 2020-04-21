@@ -33,6 +33,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This class is for handling {@link File}s. The most important methods of this
@@ -251,7 +254,7 @@ public class FileManager {
 	}
 
 	/**
-	 * This method saves a {@link StringBuffer} to a given {@link File}.
+	 * This method saves a {@link CharSequence} to a given {@link File}.
 	 * 
 	 * @param outputFile
 	 *            the {@link File} into which the output should be written
@@ -269,7 +272,37 @@ public class FileManager {
 	}
 	
 	/**
-	 * This method saves a {@link StringBuffer} to a {@link File} with user-specified file name.
+	 * This method saves a {@link CharSequence} to a {@link File} with user-specified file name. If the file already exists and the content differs from that stored in <code>buffer</code>, a BAK-file will be created. 
+	 * 
+	 * @param fName
+	 *            the name of the file to be written
+	 * @param buffer
+	 *            the buffer to be written in the {@link File}
+	 *            
+	 * @throws IOException
+	 *             if something went wrong with the {@link File}
+	 * 
+	 * @see #writeFile(String, CharSequence)
+	 */
+	public static void overwriteFile( String fName, CharSequence buffer ) throws IOException {
+		StringBuffer old = null;
+		File outputFile = new File( fName );
+		if( outputFile.exists() ) {
+			old = FileManager.readFile(outputFile);
+		}
+		if( old == null || !buffer.toString().equals(old.toString()) ) {
+			if( old != null ) {
+				Path oldPath = Paths.get(outputFile.getAbsolutePath()+".bak");
+				Files.delete(oldPath);
+				Files.move(Paths.get(fName), oldPath);
+			}
+			FileManager.writeFile(outputFile, buffer);
+		}
+	}
+	
+	
+	/**
+	 * This method saves a {@link CharSequence} to a {@link File} with user-specified file name.
 	 * 
 	 * @param fName
 	 *            the name of the file to be written
@@ -287,7 +320,7 @@ public class FileManager {
 	}
 		
 	/**
-	 * This method saves a {@link StringBuffer} to a given {@link OutputStream}.
+	 * This method saves a {@link CharSequence} to a given {@link OutputStream}.
 	 * 
 	 * @param outStream
 	 *            the {@link OutputStream} into which the output should be written
@@ -306,7 +339,7 @@ public class FileManager {
 	}
 	
 	/**
-	 * This method saves a {@link StringBuffer} to a given {@link Writer}.
+	 * This method saves a {@link CharSequence} to a given {@link Writer}.
 	 * 
 	 * @param writer
 	 *            the {@link Writer} into which the output should be written
