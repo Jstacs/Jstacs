@@ -201,7 +201,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 							w.newLine();
 							
 							//TODO annotation
-							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id +(introns?";tie=" + tieString:"") + (coverage?";tpc="+ tpcString:"") + ";aa=" + (l/3) + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
+							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id + ";aa=" + (l/3) + (introns?";tie=" + tieString:"") + (coverage?";tpc="+ tpcString:"") + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
 							annot.newLine();
 
 							for( int j = 0;j < parts.length(); j++ ) {
@@ -277,10 +277,10 @@ public class AnnotationEvidence extends GeMoMaModule {
 
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tool computes for each annotated coding sequence the transcription intron evidence (tie) and the transcript percentage coverage (tpc) given mapped RNA-seq evidence. "
-			+ "All predictions of the annotation are used. The predictions are not filtested for internal stop codons, missing start or stop codons, frame-shifts, ...\n\n"
-			+ "In addition, it allows to add attributes to the annotation, e.g., tie, tpc, aa, start, stop, that can be used if the annotation should be used in *GAF*.\n\n"
-			+ "Please use *ERE* to preprocess the mapped reads.\n\n"
+			"This tool adds attributes to the annotation, e.g., tie, tpc, aa, start, stop."
+			+ " These attributes can be used, for instance, if the annotation is used in **GAF**."	
+			+ " All predictions of the annotation are used. The predictions are not filtered for internal stop codons, missing start or stop codons, frame-shifts, ... ."
+			+ " Please use **ERE** to preprocess the mapped reads."
 			+ MORE;
 	}
 

@@ -588,6 +588,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		Runtime.getRuntime().addShutdownHook(killer);
 		
 		target = parameters.getParameterForName("target genome").getValue().toString();	
+		afParams.getParameterForName("genome").setValue(target);
 		
 		//first part: preparation
 		addNewPhase();
@@ -1635,7 +1636,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			if( clear ) af.clear();
 			
 			afParams.getParameterForName("annotation").setValue(home+"/filtered_predictions.gff");
-
+			
 			if( rnaSeq && "YES".equals( afParams.getParameterForName("UTR").getValue() ) ) {
 				setRNASeqParams(afParams, pipelineProtocol);
 			}
@@ -1704,7 +1705,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "**What it does**\n\nThis tool can be used to run the complete GeMoMa pipeline. The tool is multi-threaded and can utilize all compute cores on one machine, but not distributed as for instance in a compute cluster.\nIt basically runs: makeblastdb, Extract RNA-seq evidence (ERE), Extractor, FastaSplitter, tblastn, GeMoMa, cat, and GeMoMa Annotation Filter (GAF).\n\n"
+		return "This tool can be used to run the complete GeMoMa pipeline."
+				+ " The tool is multi-threaded and can utilize all compute cores on one machine, but not distributed as for instance in a compute cluster."
+				+ " It basically runs: **Extract RNA-seq evidence (ERE)**, **DenoiseIntrons**, **Extractor**, external search (tblastn or mmseqs), **Gene Model Mapper (GeMoMa)**, **GeMoMa Annotation Filter (GAF)**, and **AnnnotationFinalizer**."
 				+ MORE;
 	}
 

@@ -105,7 +105,7 @@ public class CheckIntrons extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "The tool checks the distribution of introns on the strands and the dinucleotide distribution at splice sites.";
+		return "The tool checks the distribution of introns on the strands and the dinucleotide distribution at splice sites." + MORE;
 	}
 
 	@Override

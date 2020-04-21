@@ -214,9 +214,8 @@ protocol.append("try " + i++ + "\n");
 
 	@Override
 	public String getHelpText() {
-		return "**What it does**\n\n"
-				+"This tool can be used to download or update assembly and annotation files of reference organsims from NCBI."
-				+ " This way it allows to easily collect all data necessary to start GeMoMa.\n\n"
+		return "This tool can be used to download or update assembly and annotation files of reference organsims from NCBI."
+				+ " This way it allows to easily collect all data necessary to start **GeMoMaPipeline** or **Extractor**."
 				+ MORE;
 	}
 

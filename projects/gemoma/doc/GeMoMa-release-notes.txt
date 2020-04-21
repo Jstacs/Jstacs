@@ -161,7 +161,7 @@ GeMoMa 1.6.3 (05.03.2020)
 	- CLI: bugfix ExpandableParameterSet
 - python wrapper (for *conda)
 - updated tests.sh, run.sh, pipeline.sh
-- rename Denoise to DenoiseIntrons
+- renamed Denoise to DenoiseIntrons
 - AnnotationEvidence: write phase (as given) to gff
 - GAF: new parameter: default attributes allows to set attributes that are not included in some gene annotation files
 - GeMoMa: new parameter: static intron length allowing to use dynamic intron length if set to false
@@ -169,3 +169,12 @@ GeMoMa 1.6.3 (05.03.2020)
 	- bugfix: time-out
 	- improve output
 	- separate parameters for maximum intron length (DenoiseIntrons, GeMoMa)
+	
+GeMoMa 1.6.4 (21.04.2020)
+- improved help section
+- change gff attribute "AA" to "aa"
+- GAF:
+	- bugfix overlapping genes
+	- accelerated computation
+- GeMoMa: change GFF attribute AA to aa
+- AnnotationFinalizer: new parameter "name attribute" allowing to decide whether a name attribute or the Parent and ID attributes should be used for renaming

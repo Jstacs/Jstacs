@@ -1142,19 +1142,24 @@ public class Extractor extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "**What it does**\n\nThis tool can be used to create input files for GeMoMa, i.e., it creates at least a fasta file containing the translated parts of the CDS and a tabular file containing the assignment of transcripts to genes and parts of CDS to transcripts\n\n"
-				+ "**Data format**\n\nThe input format is fasta for the genome and gff for the annotation. The gff file should be sorted.\n\nIf you like to set a user-specific genetic code, please use a tab-delimited file with two columns. The first contains the amino acid in one letter code. The second a list of tripletts. Here is a sample example\n\n"
-					+ "+---+------------------------------+\n"
-					+ "| I | ATT, ATC, ATA                |\n"
-					+ "+---+------------------------------+\n"
-					+ "| L | CTT, CTC, CTA, CTG, TTA, TTG |\n"
-					+ "+---+------------------------------+\n"
-					+ "| V | GTT, GTC, GTA, GTG           |\n"
-					+ "+---+------------------------------+\n"
-					+ "|...| ...                          |\n"
-					+ "+---+------------------------------+\n\n"
+		return "This tool can be used to create input files for **GeMoMa**, i.e., it creates at least a fasta file containing the translated parts of the CDS and a tabular file containing the assignment of transcripts to genes and parts of CDS to transcripts."
+				+ " In addition, **Extractor** can be used to create several additional files from the final prediction, e.g. proteins, CDSs, ... ."
+				+ " Two inputs are mandatory: The genome as fasta or fasta.gz and the corresponding annotation as gff or gff.gz."
+				+ " The gff file should be sorted."
+				+ " If you like to set a user-specific genetic code, please use a tab-delimited file with two columns. The first column contains the amino acid in one letter code, the second a list of tripletts."
 				+ MORE;
 	}
+	
+	static final String EXAMPLE = " Here is an example\n\n"
+			+ "+---+------------------------------+\n"
+			+ "| I | ATT, ATC, ATA                |\n"
+			+ "+---+------------------------------+\n"
+			+ "| L | CTT, CTC, CTA, CTG, TTA, TTG |\n"
+			+ "+---+------------------------------+\n"
+			+ "| V | GTT, GTC, GTA, GTG           |\n"
+			+ "+---+------------------------------+\n"
+			+ "|...| ...                          |\n"
+			+ "+---+------------------------------+";
 	
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {

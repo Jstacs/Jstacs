@@ -695,7 +695,8 @@ public class CompareTranscripts extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "This tool compares a predicted annotation with a given annotation in terms of F1 measure. If the F1 measure is 1 both annotations are in perfect agreement for this transcript. The smaller the value is the low is the agreement. If it is NA then there is no overlapping annotation.";
+		return "This tool compares a predicted annotation with a given annotation in terms of F1 measure. If the F1 measure is 1 both annotations are in perfect agreement for this transcript. The smaller the value is the low is the agreement. If it is NA then there is no overlapping annotation."
+				+MORE;
 	}
 
 	@Override

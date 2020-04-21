@@ -472,19 +472,19 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		progress.setIndeterminate();
 		
 		if( GeMoMa.seqs == null  ) {
+			String genome = (String) parameters.getParameterForName("genome").getValue();
+
 			SimpleParameterSet help = (SimpleParameterSet) parameters.getParameterForName("UTR").getValue();
-			int reads;
-			ExpandableParameterSet introns, coverage;
-			String genome;
-			if( help.getNumberOfParameters()>0 ) {
-				genome = (String) help.getParameterForName("genome").getValue();
-				reads = (Integer) help.getParameterForName("reads").getValue();
-				introns = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(1)).getValue();
-				coverage = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(3)).getValue();
+			int reads = 1;
+			ExpandableParameterSet introns=null, coverage=null;
 			
-				GeMoMa.fill(protocol, false, 0, genome, null, reads, introns, coverage );				
-				protocol.append("\n");
-			}			
+			if( help.getNumberOfParameters()>0 ) {
+				reads = (Integer) help.getParameterForName("reads").getValue();
+				introns = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(0)).getValue();
+				coverage = (ExpandableParameterSet)((ParameterSetContainer)help.getParameterAt(2)).getValue();
+			}
+			GeMoMa.fill(protocol, false, 0, genome, null, reads, introns, coverage );				
+			protocol.append("\n");
 		}
 
 		SimpleParameterSet renamePS = (SimpleParameterSet) parameters.getParameterForName("rename").getValue();
@@ -558,7 +558,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			}
 			
 			Collection<Gene> gg = annotation.get(c).values();
-			ArrayList<Gene> genes = new ArrayList<>(gg);
+			ArrayList<Gene> genes = new ArrayList<Gene>(gg);
 			Collections.sort(genes);
 					
 			int[][] fwdCov, revCov;
@@ -769,6 +769,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
+					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa,fasta.gz,fa.gz", true ),
 					new FileParameter( "annotation", "The predicted genome annotation file (GFF)", "gff", true ),
 					
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),					
@@ -780,8 +781,6 @@ public class AnnotationFinalizer extends GeMoMaModule {
 								new SimpleParameterSet(),
 								//UTR prediction
 								new SimpleParameterSet(
-									new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa,fasta.gz,fa.gz", true ),
-									
 									new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 											new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
 										), "introns", "", 1 ) ),
@@ -865,9 +864,9 @@ public class AnnotationFinalizer extends GeMoMaModule {
 
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tool finalizes an annotation."
-			+ "It allows to predict for UTRs for annotated coding sequences and to generate generic gene and transcript names. UTR prediction might be negatively influenced (i.e. too long predictions) by genomic contamination of RNA-seq libraries, overlapping genes or genes in close proximity as well as unstranded RNA-seq libraries."
-			+ "Please use *ERE* to preprocess the mapped reads.\n\n"
+			"This tool finalizes an annotation."
+			+ " It allows to predict for UTRs for annotated coding sequences and to generate generic gene and transcript names. UTR prediction might be negatively influenced (i.e. too long predictions) by genomic contamination of RNA-seq libraries, overlapping genes or genes in close proximity as well as unstranded RNA-seq libraries."
+			+ " Please use **ERE** to preprocess the mapped reads."
 			+ MORE;
 	}
 

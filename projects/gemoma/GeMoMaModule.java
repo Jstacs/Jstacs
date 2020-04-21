@@ -30,12 +30,12 @@ import de.jstacs.tools.JstacsTool;
  */
 public abstract class GeMoMaModule implements JstacsTool {
 
-	public static final String VERSION = "1.6.3";
+	public static final String VERSION = "1.6.4";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 
 	
-	public static String MORE = "For more information please visit http://www.jstacs.de/index.php/GeMoMa\n"
+	public static String MORE = "\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa\n"
 			+ "If you have any questions, comments or bugs, please contact jens.keilwagen@julius-kuehn.de";
 
 	public static String[] REF = {

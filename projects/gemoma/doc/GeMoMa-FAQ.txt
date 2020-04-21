@@ -53,5 +53,16 @@ GeMoMa in principle allows to predict multiple transcripts per gene, if correspo
 14) GeMoMa failed with java.lang.OutOfMemoryError. What can I do?
 Whenever you see a java.lang.OutOfMemoryError, you should rerun the program with Java virtual machine (VM) options. More specifically you should set: -Xms the initally used RAM, e.g. to 5Gb (–Xms5G), and -Xmx the maximally used RAM, e.g. to 50Gb (-Xmx50G). GeMoMa often needs more memory if you have a large genome and if you’re providing a large coverage file (extracted from RNA-seq data). If you don’t have a compute node with enough memory, you can run GeMoMa without coverage, which will return the same predictions, but does not include all statistics. Another point could be the protein alignment, if you use the optional parameter query protein. Again you can run GeMoMa without this parameter, which will return the same predictions, but less statistics. 
 
+15) I need to specify the genetic code for my organisms. What is the expected format?
+The genetic code is given in a two column tab-delimited table, where the first column is the one letter code of the amino acid and the second column is a comma-separated list of triplets. As we are working on genomic DNA, GeMoMa expects the bases A, C, G, and T, and not U (as expected in mRNA). Here is the link to the default genetic code, which might be used as template:
+https://github.com/Jstacs/Jstacs/blob/master/projects/gemoma/test_data/genetic_code.txt
+Alternative genetic codes are described here using the RNA alphabet:
+https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
+The genetic code might be specified for a reference organism in the module Extractor or for a target organism in the module GeMoMa.
 
+16) I like to accelerate GeMoMa. What can I do?
+You can use several threads for the computation. If you run the GeMoMaPipeline you just have to select threads=<your_number>.
+In addition, you can change the search algorithm that is used in GeMoMa. Tblastn is used by default as search algorithm in GeMoMa (for historical reasons). However, tblastn can be replaced by mmseqs which is typically much faster. If you run the GeMoMaPipeline you just have to select tblastn=false. However, changing the search algorithm can also effect the results. We try to minimize these effect using specific parameters for the search algorithms.
+If you modify other parameters, you will probably receive results that differ to a larger extend from those received using the default parameters.   
+ 
 For any further questions or comments please contact jens.keilwagen@julius-kuehn.de 

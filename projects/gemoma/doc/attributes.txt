@@ -6,6 +6,8 @@ Using GeMoMa and GAF, you'll obtain GFFs containing some special attributes. We 
 |-
 !Attribute	!!Long name	!!Tool	!!Necessary parameter	!!Feature	!!Description
 |-
+| aa	|| amino acids	|| GeMoMa	||	|| prediction	|| the number of amino acids in the protein
+|-
 | score	|| GeMoMa score	|| GeMoMa	||	|| prediction	|| score computed by GeMoMa using the substitution matrix, gap costs and additional penalties
 |-
 | minCov	|| minimal coverage	|| GeMoMa	|| coverage, ... || prediction	|| minimal coverage of any base of the prediction given RNA-seq evidence

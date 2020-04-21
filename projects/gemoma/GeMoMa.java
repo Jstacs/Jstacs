@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -267,14 +268,17 @@ public class GeMoMa extends GeMoMaModule {
 		boolean checked = false;
 		try{
 			URL url = new URL(site);
-			BufferedReader br = new BufferedReader( new InputStreamReader(url.openStream()) );
+			URLConnection con = url.openConnection();
+			con.setConnectTimeout(5000);
+			con.setReadTimeout(5000);
+			BufferedReader br = new BufferedReader( new InputStreamReader(con.getInputStream()) );
 			String line = null;
-			int l=0;
+			//int l=0;
 			while( (line=br.readLine()) != null ) {
 				if( line.startsWith("<h") && line.contains("Version history") ) {
 					break;
 				}
-				l++;
+				//l++;
 			}
 			//System.out.println(l);
 			if( line != null ) {
@@ -302,7 +306,7 @@ public class GeMoMa extends GeMoMaModule {
 			//ex.printStackTrace();
 		}
 		if( !checked ) {
-			System.out.println("Could not connect to the GeMoMa-Homepage.");
+			System.out.println("Could not connect to the GeMoMa-Homepage. Please check manually at " + site);
 		}
 		System.out.println();
 		
@@ -364,15 +368,37 @@ public class GeMoMa extends GeMoMaModule {
 					,
 					"CLI", configureThreads, tools );
 				
-				FileManager.writeFile("gemoma-wiki.page",cli.wikiPage("GeMoMa-"+GeMoMaModule.VERSION+".jar CLI") );
-				
 				if( args[0].equalsIgnoreCase("CLI") ) {
 					String[] part = new String[args.length-1];
 					System.arraycopy(args, 1, part, 0, part.length);
 					cli.run(part);
 				} else {
-					System.out.println("Creating tables for the Jstacs wiki as separate files.");
-					cli.wiki("wiki");
+					System.out.println("Creating help for wiki");
+					StringBuffer sb = cli.wikiPage("GeMoMa-"+GeMoMaModule.VERSION+".jar CLI");
+					//TODO check "in a nutshell" if parameter key changed
+					sb.insert(0, "== In a nutshell ==\n\n"
+							+ "GeMoMa is a modular, homology-based gene prediction program with huge flexibility. However, we also provide a pipeline allowing to use GeMoMa easily. If you like to start GeMoMa for the first time, we recommend to use the GeMoMaPipeline like this\n"
+							+ " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar CLI GeMoMaPipeline threads=<threads> outdir=<outdir> tblastn=false GeMoMa.Score=ReAlign AnnotationFinalizer.r=NO o=true t=<target_genome> i=<reference_1_id> a=<reference_1_annotation> g=<reference_1_genome>\n" + 
+							"there are several parameters that need to be set indicated with '''&lt;'''foo'''&gt;'''. You can specify\n" + 
+							"* the number of threads\n" + 
+							"* the output directory\n" + 
+							"* the target genome\n" + 
+							"* and the reference ID (optional), annotation and genome. If you have several references just repeat the parameter tags <code>i</code>, <code>a</code>, <code>g</code> with the corresponding values.\n" +
+							"In addition, we recommend to set several parameters:\n" + 
+							"* <code>tblastn=false</code>: use mmseqs instead of tblastn, since mmseqs is faster\n" + 
+							"* <code>GeMoMa.Score=ReAlign</code>: states that the score from mmseqs should be recomputed as mmseqs uses an approximation\n" + 
+							"* <code>AnnotationFinalizer.r=NO</code>: do not rename genes and transcripts\n" + 
+							"* <code>o=true</code>: output individual predictions for each reference as a separate file allowing to rerun the combination step ('''GAF''') very easily and quickly\n" + 
+							"If you like to specify the maximum intron length please consider the parameters <code>GeMoMa.m</code> and <code>GeMoMa.sil</code>.\n" 
+							+ "If you have RNA-seq data either from own experiments or publicly available data sets (cf. [https://www.ncbi.nlm.nih.gov/sra NCBI SRA], [https://www.ebi.ac.uk/ena EMBL-EBI ENA]), we recommend to use them. You need to map the data against the target genome with your favorite read mapper. In addition, we recommend to check the parameters of the section '''DenoiseIntrons'''.\n"
+							+ "\n");
+					FileManager.overwriteFile( "gemoma-wiki.page",
+						sb.toString()
+						.replaceAll(MORE, "")
+						.replace(Extractor.EXAMPLE, "")
+						.replace("c=<cds_parts>", "c=<cds_parts> a=<assignment>")	
+					);
+					//cli.wiki("wiki");
 				}
 			} else {
 				Galaxy galaxy = new Galaxy("", configureThreads, true, tools );
@@ -3273,181 +3299,11 @@ public class GeMoMa extends GeMoMaModule {
 						hit.setBorderConstraints(h==0 && ref.charAt(0)=='M', h+1==currentInfo.exonID.length && ref.charAt(ref.length()-1)=='*',align);//Laura Kelly: partial
 					}
 				}
-				/*
-				if( list != null ) {
-					if( list.size() == 1 ) {
-						Hit hit = list.get(0);
-						if( hit.accMaxScore < -100 ) {
-							protocol.appendln(hit);
-							protocol.appendln(hit.accMaxScore);
-							
-							//alignPart(chromosome, forward, endLast, forward?hit.targetStart:hit.targetEnd, currentInfo.exonID[h], 0, hit.queryStart, region, list, "extra-internal");
-							
-							System.exit(1);
-						}
-					}
-				}  else {
-					protocol.appendln( "MISSING\t" + currentInfo.exonID[h]  + "\t" + Arrays.toString(currentInfo.exonID) );
-					System.exit(1);
-				}*/
 			}
 			
 			//sort hits			
 			sort(filtered, forward);
-			
-			//filter if RNA-seq data
-//TODO
-/*
-			if( currentInfo.exonID.length > 1 && acceptorSites != null && donorSites != null ) {
-				int[][][] acc = acceptorSites.get(chromosome);
-				int[][][] don = donorSites.get(chromosome);
-				int z = forward ? 0 : 1;
-				if( acc != null && acc[z][1].length > 0
-					&& don != null && don[z][0].length > 0 ) {
-					//show(filtered);
 					
-					used = new double[currentInfo.exonID.length][];			
-					for( int j=currentInfo.exonID.length-1; j>=0; j-- ) {
-						current = filtered.get(currentInfo.exonID[j]);
-						if( current != null && current.size() > 0 ) {
-							used[j] = new double[current.size()];
-						}
-					}
-					ArrayList<Hit> next;
-
-					for( int i = 0; i < currentInfo.exonID.length; i++ ) {
-						current = filtered.get(currentInfo.exonID[i]);
-						if( current!= null && current.size()>0 ) {
-							Arrays.fill(used[i], 0);
-							
-							for( int a = 0; a < current.size(); a++ ) {
-								Hit hi = current.get(a);
-								
-								//acceptor
-								if( hi.ae ) {
-									outerloop: for( int x = i; x >= Math.max(i-1,0); x-- ) {
-										next = filtered.get(currentInfo.exonID[x]);
-										if( next != null ) {
-											//outerloop: 
-											for( int j = 0; j < 3; j++ ) {
-												for( int b = 0; b < hi.accCand[j].length(); b++ ) {
-													int pos = ((forward?hi.targetStart:(hi.targetEnd+1))+(forward?-1:1)*hi.accCand[j].get(b));
-													
-													for( int c = (x==i ? a: next.size())-1; c >= 0; c-- ) {
-														Hit hi2 = next.get(c);
-														if( hi2.de && hi2.postAcceptor.contains(pos) ) {
-															used[i][a]++;
-															break outerloop;
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-								
-								//donor
-								if( hi.de ) {
-									outerloop: for( int x = i; x <= Math.min(i+1,currentInfo.exonID.length-1); x++ ) {
-										next = filtered.get(currentInfo.exonID[x]);
-										if( next != null ) {
-											//outerloop:
-											for( int j = 0; j < 3; j++ ) {
-												for( int k = 0; k < hi.donCand.length; k++ ) {
-													for( int b = 0; b < hi.donCand[k][j].length(); b++ ) {
-														int pos = ((forward?hi.targetEnd+1:hi.targetStart)-(forward?-1:1)*hi.donCand[k][j].get(b));
-														
-														for( int c = x==i ? a+1 : 0; c < next.size(); c++ ) {
-															Hit hi2 = next.get(c);
-															if( hi2.ae && hi2.preDonor.contains(pos) ) {
-																used[i][a]++;
-																break outerloop;
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-//System.out.println();		
-					for( int i = 0; i < currentInfo.exonID.length; i++ ) {
-						current = filtered.get(currentInfo.exonID[i]);
-						if( current!= null && current.size()>0 ) {
-							int t = (i==0 || i+1 == currentInfo.exonID.length) ? 1 : 2;
-							if( ToolBox.max(used[i])>=t ) {
-//System.out.println("filter " + currentInfo.exonID[i] );
-								for( int aa = 0, a = 0; a < current.size(); a++ ) {
-									if( used[i][a] >= t ) {
-											aa++;
-									} else {
-										current.remove(aa);
-									}
-								}
-							}
-						}
-					}				
-/*
-					
-					int[] u = new int[currentInfo.exonID.length];
-					evidence = new boolean[currentInfo.exonID.length][MAX_GAP+1];
-					for( int j=currentInfo.exonID.length-1; j>=0; j-- ) {
-						current = filtered.get(currentInfo.exonID[j]);
-						if( current != null && current.size() > 0 ) {
-							for( int a = current.size()-1; a >= 0; a-- ) {
-								Hit hi = current.get(a);
-								if( hi.ae ) {
-									for( int i = 0; i < 3; i++ ) {
-										for( int b = 0; b < hi.accCand[i].length(); b++ ) {
-											int pos = ((forward?hi.targetStart:(hi.targetEnd+1))+(forward?-1:1)*hi.accCand[i].get(b));
-
-											int m=Math.max(j-5,0);
-											for( int k=j; k>=m; k-- ) {
-												next = filtered.get(currentInfo.exonID[k]);
-												if( next != null ) {
-													for( int c = k==j?a-1:next.size()-1; c >= 0; c-- ) {
-														Hit hi2 = next.get(c);
-														if( hi2.de && hi2.postAcceptor.contains(pos) ) {
-															used[j][a]++;
-															used[k][c]++;
-															u[j]++;
-															u[k]++;
-															evidence[k][j-k]=true;
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-					for( int j=currentInfo.exonID.length-1; j>=0; j-- ) {
-//if(verbose) System.out.println(j + "\t" + Arrays.toString(evidence[j]));
-						if( u[j] != 0 && used[j] != null ) {
-							current = filtered.get(currentInfo.exonID[j]);
-							for( int a = current.size()-1; a >= 0; a-- ) {
-								if( used[j][a] == 0 ) {
-									current.remove(a);
-								}
-							}
-						}
-					}
-/**//*
-					used=null;				
-				}
-			}
-
-			if( verbose ) 
-			{
-				protocol.append("After discarding based on evidence\n");
-				show(filtered);
-			}
-*/			
 			//DP with splicing
 			splice = new int[currentInfo.exonID.length][][][];
 			int bestValue = forwardDP(forward, filtered, true);
@@ -3483,14 +3339,6 @@ public class GeMoMa extends GeMoMaModule {
 			splice = null;
 			best.setScore( bestValue );
 			return best;
-		}
-		
-		private void show( IntList[] il, String n ) {
-			protocol.append( n +": " );
-			for( int i = 0; i < il.length; i++ ) {
-				protocol.append( il[i] + ", " );
-			}
-			protocol.append("\n");
 		}
 		
 		private void extend( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int index, boolean upstream, String info ) throws IllegalArgumentException, WrongAlphabetException {
@@ -4500,13 +4348,14 @@ public class GeMoMa extends GeMoMaModule {
 		private boolean destroyed=false;
 		private IntList first = new IntList(), second = new IntList();
 		private TranscriptPredictor instance;
+		
 		public MyAlignment(AffineCosts costs,TranscriptPredictor instance) {
 			super(costs);
 			this.instance = instance;
 		}
 		
 		private void check() {
-			if( destroyed ) throw new RuntimeException(); //TODO more informative?
+			if( destroyed ) throw new RuntimeException("A MyAlignment instance ist destroyed probably due to a time-out.");
 		}
 
 		public double getBestValue( MyAlignment a2, int end1, int end2, char aa ) throws WrongAlphabetException {
@@ -4720,13 +4569,13 @@ public class GeMoMa extends GeMoMaModule {
 
 	public String getHelpText() {
 		return 
-			"**What it does**\n\nThis tool is the main part of GeMoMa, a homology-based gene prediction tool. GeMoMa builds gene models from search results (e.g. tblastn).\n\n"
+			"This tool is the main part of, a homology-based gene prediction tool. GeMoMa builds gene models from search results (e.g. tblastn or mmseqs).\n\n"
 				//typical usage
-				+ "As first step, you should run **Extractor** obtaining *cds parts* and *assignment*. Second, you should run a search algorithm, e.g. **tblastn** or **mmseqs**, with *cds parts* as query. Finally, these results are then used in **GeMoMa**.\n"
+				+ "As first step, you should run **Extractor** obtaining *cds parts* and *assignment*. Second, you should run a search algorithm, e.g. **tblastn** or **mmseqs**, with *cds parts* as query. Finally, these search results are then used in **GeMoMa**. Search results should be clustered according to the reference genes. The most easiest way is to sort the search results accoring to the first column. If the search results are not sorted by default (e.g. mmseqs), you should the parameter *sort*.\n"
 				//protein
 				+ "If you like to run GeMoMa ignoring intron position conservation, you should blast protein sequences and feed the results in *query cds parts* and leave *assignment* unselected.\n\n"
 				//RNA-seq
-				+ "If you like to run GeMoMa using RNA-seq evidence, you should map your RNA-seq reads to the genome and run **ERE** on thhe mapped reads. Subsequently, you can use the obtained *introns* (and *coverage*) in GeMoMa.\n\n"
+				+ "If you like to run GeMoMa using RNA-seq evidence, you should map your RNA-seq reads to the genome and run **ERE** on the mapped reads. For several reasons, spurious introns can be extracted from RNA-seq data. Hence, we recommend to run **DenoiseIntrons** to remove such spurious introns. Finally, you can use the obtained *introns* (and *coverage*) in GeMoMa.\n\n"
 				//multiple predictions
 				+ "If you like to obtain multiple predictions per gene model of the reference organism, you should set *predictions* accordingly. In addition, we suggest to decrease the value of *contig threshold* allowing GeMoMa to evaluate more candidate contigs/chromosomes.\n\n"
 				//runtime
@@ -4734,9 +4583,9 @@ public class GeMoMa extends GeMoMaModule {
 				//filter
 				+ "You can filter your predictions using **GAF**, which also allows for combining predictions from different reference organismns.\n\n"	
 				//UTR + rename
-				+ "Finally, you can predict UTRs and rename predictions using *AnnotationFinalizer*.\n\n"
+				+ "Finally, you can predict UTRs and rename predictions using **AnnotationFinalizer**.\n\n"
 				//pipeline
-				+ "If you like to run the complete GeMoMa pipeline and not only specific module, you can run the multi-threaded module *GeMoMaPipeline*.\n\n"
+				+ "If you like to run the complete GeMoMa pipeline and not only specific module, you can run the multi-threaded module **GeMoMaPipeline**."
 			+ MORE;
 	}
 	

@@ -302,8 +302,9 @@ public class DenoiseIntrons extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "This module allows to analyze introns extracted by ERE. Introns with a large intron size or a low relative expression are possibly artefacts and will be removed."
-				+ "The result of this module can be used in the module GeMoMa and AnnotationEvidence.";
+		return "This module allows to analyze introns extracted by **ERE**. Introns with a large intron size or a low relative expression are possibly artefacts and will be removed."
+				+ " The result of this module can be used in the module **GeMoMa**, **AnnotationEvidence**, and **AnnotationFinalizer**."
+				+ MORE;
 	}
 
 	@Override

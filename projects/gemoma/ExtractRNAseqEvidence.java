@@ -611,7 +611,10 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "**What it does**\n\nThis tools extracts introns and coverage from mapped RNA-seq reads. The results can be used in **GeMoMa**.\n\n"
+		return "This tools extracts introns and coverage from mapped RNA-seq reads."
+				+ " Introns might be denoised by the tool **DenoiseIntrons**."
+				+ " Introns and coverage results can be used in **GeMoMa** to improve the predictions and might help to select better gene models in **GAF**."
+				+ " In addition, introns and coverage can be used to predict UTRs by **AnnotationFinalizer**."
 				+ MORE;
 	}
 
