@@ -833,11 +833,12 @@ public class GeMoMa extends GeMoMaModule {
 		
 		BufferedReader r = null;
 		String line;
-				
+
+		String assignment = (String) parameters.getParameterForName("assignment").getValue();
 		String searchFile = (String) parameters.getParameterForName("search results").getValue();
 		File search;
 		if( (Boolean) parameters.getParameterForName("sort").getValue() ) {
-			search = Tools.externalSort(searchFile, 500000, 1, protocol)[0];
+			search = Tools.externalSort(searchFile, 500000, 1, protocol,assignment!=null)[0];
 		} else {
 			search = new File( searchFile );
 		}	
@@ -865,7 +866,6 @@ public class GeMoMa extends GeMoMaModule {
 				
 		String[] split;
 		//read assignment
-		String assignment = (String) parameters.getParameterForName("assignment").getValue();
 		if( assignment != null ) {
 			transcriptInfo = new HashMap<String,HashMap<String,Info>>();
 			HashMap<String,Info> c;
@@ -977,6 +977,8 @@ public class GeMoMa extends GeMoMaModule {
 						old = line.substring(0, line.indexOf('\t'));
 						if( transcriptInfo != null ) {
 							old = old.substring(0, old.lastIndexOf('_')+1);
+						} else {
+							old += "\t";
 						}
 						if( used.contains(old) ) {
 							throw new Exception("The search results seem to be unsorted. ID " + old + " has been seen before.");
@@ -2178,11 +2180,7 @@ public class GeMoMa extends GeMoMaModule {
 		public int compute( String name, HashMap<String,HashMap<Integer,ArrayList<Hit>>[]> hash, boolean staticIntronLength ) throws Exception {
 			protocol.delete(0, protocol.length());
 			
-			if( transcriptInfo != null ) {
-				geneName = name.substring(0,name.length()-1);
-			} else {
-				geneName = name;
-			}
+			geneName = name.substring(0,name.length()-1);
 			
 			HashMap<String,Info> transcript;
 			String[] s;
@@ -2196,7 +2194,7 @@ public class GeMoMa extends GeMoMaModule {
 				Arrays.sort(s);
 			} else {
 				transcript = null;
-				s = new String[]{ name.toUpperCase() };
+				s = new String[]{ geneName.toUpperCase() };
 			}
 			HashMap<String, HashMap<Integer, ArrayList<Hit>>[]> data = new HashMap<String, HashMap<Integer,ArrayList<Hit>>[]>();
 			HashMap<Integer,ArrayList<Hit>>[] v, w;
@@ -2249,7 +2247,7 @@ public class GeMoMa extends GeMoMaModule {
 						}
 					} else {
 						revParts[0] = 0;
-						length=new int[]{cds.get(name).length()};
+						length=new int[]{cds.get(geneName).length()};
 					}
 					
 					cumLength = new int[length.length];

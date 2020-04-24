@@ -442,16 +442,15 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 
 		int[] startSearch = new int[list.size()];
 		
-		int count, old;
+		int overlappingNotUsed, old;
 		do {
 			old = sel.size();
-			count=0;
+			overlappingNotUsed=0;
 			//find alternative transcripts
 			for( int i = 1; i < list.size(); i++ ) {
 				Prediction n = list.get(i);
 				if( !n.used && n.altCand ) {
 					if( n.end < start || end < n.start ) {//no overlap
-						count++;
 					} else { //overlapping
 						int j = startSearch[i];
 						for( ; j < sel.size(); j++ ) {
@@ -469,12 +468,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						if( j==sel.size() ) {
 							//not included
 							startSearch[i]=sel.size();
-							count++;
+							overlappingNotUsed++;
 						}
 					}
 				}
 			}
-		} while( old < sel.size() && count>0 );
+		} while( old < sel.size() && overlappingNotUsed>0 );
 		
 		maxEvidence=0;
 		Arrays.fill( combinedEvidence, false );
@@ -502,7 +501,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			gene++;
 		}
 		
-		if( count>0  ) {
+		//if( overlappingNotUsed>0  ) 
+		{
 			//find predictions that could be added
 			ArrayList<Prediction> used = new ArrayList<Prediction>(), notUsed = new ArrayList<Prediction>();
 			int s = Integer.MAX_VALUE, e = 0;

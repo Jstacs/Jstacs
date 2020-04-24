@@ -1471,7 +1471,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			
 			//ExternalSort (and split)
 			if( exitCode == 0 ) {
-				File[] parts = Tools.externalSort(home+speciesIndex+"/mmseqs.tabular", 500000, threads, new QuietSysProtocol());
+				File[] parts = Tools.externalSort(home+speciesIndex+"/mmseqs.tabular", 500000, threads, new QuietSysProtocol(), sp.assignment!=null);
 				sp.searchResults = new String[parts.length];
 				for( int i = 0; i < sp.searchResults.length; i++ ) {
 					sp.searchResults[i] = parts[i].getAbsolutePath();

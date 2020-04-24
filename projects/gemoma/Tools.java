@@ -90,13 +90,13 @@ public class Tools {
 		return f;
 	}
 	
-	public static File[] externalSort( String input, int size, int files, Protocol protocol ) throws Exception {
+	public static File[] externalSort( String input, int size, int files, Protocol protocol, boolean cdsParts ) throws Exception {
 		protocol.append("sorting the search results\n");
 		BufferedReader r = new BufferedReader( new FileReader(input) );
 		ArrayList<File> f = new ArrayList<File>();
 		String[] line = new String[size];
 		int anz = 0, a = 0, shortCut = 0;
-		//read and sort parts;
+		//read, split and sort parts;
 		do {
 			a=0;
 			while( a < size && (line[a]=r.readLine()) != null ) {
@@ -116,6 +116,7 @@ public class Tools {
 		protocol.append("files:\t" + anz + "\n" );
 		//System.out.println("read\t" + t.getElapsedTime() );
 		
+		//merge
 		line = new String[anz];
 		BufferedReader[] parts = new BufferedReader[anz];
 		for( int i = 0; i < anz; i++ ) {
@@ -153,7 +154,13 @@ public class Tools {
 				
 				String start = line[best].substring(0, line[best].indexOf('\t')+1);
 				if( old == null || !start.startsWith(old) ) {
-					old = start.substring(0,start.lastIndexOf('_')+1);
+					if( cdsParts ) {
+						int idx = start.lastIndexOf('_');
+						if( idx < 0 ) throw new IllegalArgumentException("You selected cdsParts=true, but the ID ("+start+")seems to be no CDS part.");
+						old = start.substring(0,idx+1);
+					} else {
+						old = start;
+					}
 					s++;
 					if( s == sorted.length ) {
 						flip++;
