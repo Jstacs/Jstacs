@@ -263,7 +263,7 @@ public class GeMoMa extends GeMoMaModule {
 		
 		//checking for available updates
 		System.setProperty("java.net.useSystemProxies", "true");
-		String site="http://www.jstacs.de/index.php/GeMoMa";
+		String site="https://www.jstacs.de/index.php/GeMoMa";
 		System.out.println( "Searching for the new GeMoMa updates ..." );
 		boolean checked = false;
 		try{
