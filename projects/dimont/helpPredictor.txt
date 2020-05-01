@@ -2,7 +2,7 @@
 
 This tool may be useful if you, for instance, want to predict binding sites of a previously discovered motifs in other data sets, or if you want to try different p-values for filtering predictions.
 
-Input sequences must be supplied in an annotated FastA format as a file uploaded by the "Upload File" task in section "Get Data" of Galaxy.
+Input sequences must be supplied in an annotated FastA format.
 In the annotation of each sequence, you need to provide a value that reflects the confidence that this sequence is bound by the factor of interest.
 Such confidences may be peak statistics (e.g., number of fragments under a peak) for ChIP data or signal intensities for PBM data.
 
@@ -26,8 +26,6 @@ For PBM data, containing a large number of unspecific probes, this parameter sho
 The parameter "p-value" defines a threshold on the p-values of predicted binding sites, and only binding sites with a lower p-value are reported by DimontPredictor.
 The Dimont tool uses a p-value threshold of ``1E-3``, which is also the default value of DimontPredictor.
 
-You can also install this web-application within your local Galaxy server. Instructions can be found at the Dimont_ page of Jstacs. 
-There you can also download a command line version of DimontPredictor.
 
 If you use Dimont, please cite
 

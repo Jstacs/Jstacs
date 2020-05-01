@@ -38,28 +38,21 @@ import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
-import de.jstacs.results.ImageResult;
 import de.jstacs.results.ListResult;
 import de.jstacs.results.PlotGeneratorResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
-import de.jstacs.results.StorableResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
-import de.jstacs.utils.SeqLogoPlotter;
-import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.SeqLogoPlotter.SeqLogoPlotGenerator;
-import projects.motifComp.FindPWMsAndClusters;
+import de.jstacs.utils.ToolBox;
 
 public class DimontPredictorTool implements JstacsTool {
 
@@ -214,7 +207,7 @@ public class DimontPredictorTool implements JstacsTool {
 	@Override
 	public String getHelpText() {
 		try {
-			return FileManager.readInputStream( FindPWMsAndClusters.class.getClassLoader().getResourceAsStream( "projects/dimont/helpPredictor.txt" ) ).toString();
+			return FileManager.readInputStream( DimontPredictorTool.class.getClassLoader().getResourceAsStream( "projects/dimont/helpPredictor.txt" ) ).toString();
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			return "";

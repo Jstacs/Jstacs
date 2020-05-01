@@ -73,9 +73,7 @@ import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.Parameter;
-import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.CategoricalResult;
 import de.jstacs.results.ListResult;
@@ -100,11 +98,9 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.PFMComparator;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.SafeOutputStream;
-import de.jstacs.utils.SeqLogoPlotter;
 import de.jstacs.utils.SeqLogoPlotter.SeqLogoPlotGenerator;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.ToolBox.TiedRanks;
-import projects.motifComp.FindPWMsAndClusters;
 
 public class DimontTool implements JstacsTool {
 
@@ -528,7 +524,7 @@ public class DimontTool implements JstacsTool {
 	@Override
 	public String getHelpText() {
 			try {
-				return FileManager.readInputStream( FindPWMsAndClusters.class.getClassLoader().getResourceAsStream( "projects/dimont/help.txt" ) ).toString();
+				return FileManager.readInputStream( DimontTool.class.getClassLoader().getResourceAsStream( "projects/dimont/help.txt" ) ).toString();
 			} catch ( IOException e ) {
 				e.printStackTrace();
 				return "";
@@ -543,16 +539,6 @@ public class DimontTool implements JstacsTool {
 		};
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	public static TextResult getTextResult(DataSet data, double[] weights, Pair<double[][][], int[][]> pair, int motifLength, int motifIndex) throws OperationNotSupportedException {
 		SplitSequenceAnnotationParser pars = new SplitSequenceAnnotationParser( ":", ";" );
@@ -1098,7 +1084,15 @@ public class DimontTool implements JstacsTool {
 
 	@Override
 	public String[] getReferences() {
-		return null;
+		return new String[] {
+				"@article{grau13a-general,\n" + 
+				"	Author = {Grau, Jan and Posch, Stefan and Grosse, Ivo and Keilwagen, Jens},\n" + 
+				"	Journal = {Nucleic Acids Research},\n" + 
+				"	Number = {21},\n" + 
+				"	Pages = {e197},\n" + 
+				"	Title = {A general approach for discriminative de novo motif discovery from high-throughput data},\n" + 
+				"	Volume = {41},\n" + 
+				"	Year = {2013}}"};
 	}
 
 	
