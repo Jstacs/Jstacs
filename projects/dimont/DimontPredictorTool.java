@@ -18,6 +18,7 @@
 
 package projects.dimont;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Date;
@@ -160,7 +161,7 @@ public class DimontPredictorTool implements JstacsTool {
 		
 		
 		
-		result.add(DimontTool.getListResult(data, weights[0],pair, model.getMotifLength( 0 ), 0 ));
+		result.add(DimontTool.getTextResult(data, weights[0],pair, model.getMotifLength( 0 ), 0 ));
 		
 		double[][] pwm = pair.getFirstElement()[0];
 		
@@ -229,7 +230,13 @@ public class DimontPredictorTool implements JstacsTool {
 	
 	@Override
 	public ToolResult[] getTestCases(String path) {
-		return null;
+		try {
+			return new ToolResult[]{
+					new ToolResult(FileManager.readFile(path+File.separator+"xml/predictor.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override

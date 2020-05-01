@@ -19,6 +19,7 @@
 package projects.dimont;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -92,21 +93,24 @@ public class ExtractSequencesTool implements JstacsTool {
 		
 		try{
 		
-			parameters.add(new DataColumnParameter(peaks.getName(), "Chromosome column", "The column of the peaks file containing the chromosome", true));
+			parameters.add(new DataColumnParameter(peaks.getName(), "Chromosome column", "The column of the peaks file containing the chromosome", true, 1));
 
-			parameters.add(new DataColumnParameter(peaks.getName(), "Start column", "The column of the peaks file containing the start position relative to the chromsome start", true));
+			parameters.add(new DataColumnParameter(peaks.getName(), "Start column", "The column of the peaks file containing the start position relative to the chromsome start", true, 2));
 
-			parameters.add(new SelectionParameter(DataType.PARAMETERSET,new String[]{
+			SelectionParameter sp2 = new SelectionParameter(DataType.PARAMETERSET,new String[]{
 					"Peak center",
 					"End of peak"
 			},new Object[]{
 					new SimpleParameterSet(new DataColumnParameter(peaks.getName(), "Center column", "The column of the peaks file containing the peak center relative to the start position", true)),
-					new SimpleParameterSet(new DataColumnParameter(peaks.getName(), "End column", "The column of the peaks file containing the end position relative to the chromsome start", true))
-			},"Peak position", "The kind how the peak is specified", true ));
-
+					new SimpleParameterSet(new DataColumnParameter(peaks.getName(), "End column", "The column of the peaks file containing the end position relative to the chromsome start", true,3))
+			},"Peak position", "The kind how the peak is specified", true );
+			sp2.setDefault("End of peak");
+			
+			parameters.add(sp2);
+			
 			parameters.add(new SimpleParameter(DataType.INT, "Width", "The fixed width of all extracted regions",true, new NumberValidator<Integer>(1, 10000),1000));
 			
-			parameters.add(new DataColumnParameter(peaks.getName(),"Statistics column","The column of the peaks file containing the peak statistic or a similar measure of confidence",true));
+			parameters.add(new DataColumnParameter(peaks.getName(),"Statistics column","The column of the peaks file containing the peak statistic or a similar measure of confidence",true,7));
 			
 			
 		}catch(Exception doesnothappen){throw new RuntimeException();}
@@ -287,7 +291,14 @@ public class ExtractSequencesTool implements JstacsTool {
 	
 	@Override
 	public ToolResult[] getTestCases(String path) {
-		return null;
+		try {
+			return new ToolResult[]{
+					new ToolResult(FileManager.readFile(path+File.separator+"xml/extract_500.xml")),
+					new ToolResult(FileManager.readFile(path+File.separator+"xml/extract_1000.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override

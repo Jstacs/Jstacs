@@ -18,6 +18,7 @@
 
 package projects.dimont;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+
+import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.DataType;
 import de.jstacs.Storable;
@@ -68,6 +71,7 @@ import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox;
 import de.jstacs.motifDiscovery.MutableMotifDiscovererToolbox.InitMethodForDiffSM;
 import de.jstacs.motifDiscovery.SignificantMotifOccurrencesFinder;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SimpleParameter;
@@ -81,6 +85,7 @@ import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.StorableResult;
+import de.jstacs.results.TextResult;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.directedGraphicalModels.MarkovModelDiffSM;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.homogeneous.HomogeneousMMDiffSM;
@@ -459,7 +464,8 @@ public class DimontTool implements JstacsTool {
 				
 				result.add(new StorableResult( "Dimont "+(n+1), "The Dimont classifier", storables[index[m]] ) );//TODO
 				
-				result.add(getListResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
+				//result.add(getListResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
+				result.add(getTextResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
 				
 				pwm = pairs[index[m]].getFirstElement()[0];//TODO
 				
@@ -548,7 +554,40 @@ public class DimontTool implements JstacsTool {
 	
 	
 	
-	
+	public static TextResult getTextResult(DataSet data, double[] weights, Pair<double[][][], int[][]> pair, int motifLength, int motifIndex) throws OperationNotSupportedException {
+		SplitSequenceAnnotationParser pars = new SplitSequenceAnnotationParser( ":", ";" );
+		
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("Sequence index\tPosition\tStrand\tp-value\tBinding site\tAdjusted binding site\tSequence annotation\n");
+		
+		int[][] pos = pair.getSecondElement();
+		double[][] pvals = pair.getFirstElement()[1];
+		for(int i=0;i<pos.length;i++){
+			for(int j=0;j<pos[i].length;j++){
+				int curr = pos[i][j];
+				boolean rc = false;
+				if(curr < 0){
+					curr = -curr-1;
+					rc = true;
+				}
+				Sequence sub = data.getElementAt( i ).getSubSequence( curr, motifLength );
+				Sequence sub2 = sub;
+				if(rc){
+					sub2 = sub.reverseComplement();
+				}
+				
+				sb.append((i+1)+"\t"+(curr+1)+"\t"+(rc ? "-" : "+")+"\t"+pvals[i][j]+"\t"+sub.toString()+"\t"+sub2.toString()+"\t"+pars.parseAnnotationToComment( ' ', data.getElementAt( i ).getAnnotation() ).substring( 1 )+"\n");
+				
+			}
+		}
+		
+		FileParameter.FileRepresentation file = new FileRepresentation("",sb.toString());
+		
+		TextResult tr = new TextResult("Predictions for motif "+(motifIndex+1), "", file, "tsv", "Dimont", null, true);
+		
+		return tr;
+	}
 	
 	
 	
@@ -1043,7 +1082,13 @@ public class DimontTool implements JstacsTool {
 	
 	@Override
 	public ToolResult[] getTestCases(String path) {
-		return null;
+		try {
+			return new ToolResult[]{
+					new ToolResult(FileManager.readFile(path+File.separator+"xml/dimont.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
