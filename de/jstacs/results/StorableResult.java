@@ -181,6 +181,8 @@ public class StorableResult extends Result {
 				return true;
 			}else if(s.object != null && this.object != null && s.object.equals(this.object)) {
 				return true;
+			}else if(s.object != null && this.object != null && s.object.toXML().toString().equals(this.object.toXML().toString())) {
+				return true;
 			}else {
 				return false;
 			}
