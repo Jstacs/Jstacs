@@ -36,7 +36,9 @@ import de.jstacs.parameters.InstanceParameterSet;
  * <code>loadParameters()</code>-method.
  * 
  * @author Jan Grau, Jens Keilwagen
+ * @deprecated Parameters are used for user parameters of tools now but no longer for directly instantiating objects
  */
+@Deprecated 
 public interface InstantiableFromParameterSet {
 
 	/**
