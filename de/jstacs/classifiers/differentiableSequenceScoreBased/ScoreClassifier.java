@@ -496,7 +496,7 @@ public abstract class ScoreClassifier extends AbstractScoreBasedClassifier {
 		set( (ScoreClassifierParameterSet) XMLParser.extractObjectForTags( xml, "params" ) );
 		hasBeenOptimized = XMLParser.extractObjectForTags( xml, "hasBeenOptimized", boolean.class );
 		lastScore = XMLParser.extractObjectForTags( xml, "lastScore", double.class );
-		score = XMLParser.extractObjectForTags( xml, "score", DifferentiableSequenceScore[].class );
+		score = (DifferentiableSequenceScore[])XMLParser.extractObjectForTags( xml, "score" );
 	}
 	
 	/**
