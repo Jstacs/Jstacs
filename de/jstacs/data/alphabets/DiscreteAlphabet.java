@@ -396,7 +396,7 @@ public class DiscreteAlphabet extends Alphabet {
 			parameters.add( new SimpleParameter( DataType.STRING,
 					"Values of the alphabet",
 					"The possible values of the discrete alphabet." + "If the alphabet consists of single characters, e.g. A, C, G, and T,"
-							+ " the values may be set as a single string, e.g. &quot;ACGT&quot;."
+							+ " the values may be set as a single string, e.g. \"ACGT\"."
 							+ "If the alphabet consists of multi-character symbols, e.g. Gly, Asp, Ser,"
 							+ "the symbols must be separated by spaces.",
 					true ) );
