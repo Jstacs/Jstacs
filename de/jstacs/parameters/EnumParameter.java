@@ -138,6 +138,7 @@ public class EnumParameter extends SelectionParameter {
 	@Override
 	protected void extractFurtherInfos(StringBuffer buf) throws NonParsableException {
 		super.extractFurtherInfos(buf);
+		boolean u = userSelected;
 		try {
 			enumInstance = (Class<? extends Enum>) XMLParser.extractObjectForTags(buf, "enumName" );
 			enumConstants = enumInstance.getEnumConstants();
@@ -145,7 +146,6 @@ public class EnumParameter extends SelectionParameter {
 			if (hasDefault()) {
 				setDefault(XMLParser.extractObjectForTags(buf, "defaultSelectedEnum", String.class ));
 			}
-			boolean u = userSelected;
 			setValue(XMLParser.extractObjectForTags(buf, "selectedEnum", String.class ));
 			userSelected = u;
 		} catch (Exception e) {
