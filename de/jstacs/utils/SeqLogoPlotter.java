@@ -95,6 +95,14 @@ public class SeqLogoPlotter {
 			this.height = (Integer) XMLParser.extractObjectForTags(xml, "height");
 		}
 		
+		public boolean equals(Object o2) {
+			if(o2 instanceof SeqLogoPlotGenerator) {
+				SeqLogoPlotGenerator slpg2 = (SeqLogoPlotGenerator)o2;
+				return Arrays.deepEquals(this.pwm, slpg2.pwm) && this.height == slpg2.height;
+			}
+			return false;
+		}
+		
 		@Override
 		public StringBuffer toXML() {
 			StringBuffer xml = new StringBuffer();
