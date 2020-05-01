@@ -456,6 +456,7 @@ public class SubclassFinder {
 		LinkedList<Class<? extends T>> classes = SubclassFinder.findInstantiableSubclasses( clazz, startPackage );
 		LinkedList<Class<? extends InstantiableFromParameterSet>> filteredClasses = SubclassFinder.filterBySuperclass( InstantiableFromParameterSet.class,
 				classes );
+		filteredClasses.sort(ClassNameComparator.DEFAULT);
 		LinkedList<InstanceParameterSet<? extends T>> sets = new LinkedList<InstanceParameterSet<? extends T>>();
 		Iterator<Class<? extends InstantiableFromParameterSet>> it = filteredClasses.iterator();
 		Iterator<Class<? extends InstanceParameterSet>> psIt;
