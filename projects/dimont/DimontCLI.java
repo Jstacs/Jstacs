@@ -18,19 +18,29 @@
 
 package projects.dimont;
 
+import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ui.cli.CLI;
+import projects.quickscan.QuickBindingSitePredictionTool;
+import projects.slim.SlimDimontTool;
 
 public class DimontCLI {
 
 	public static void main(String[] args) throws Exception {
-		
-		DimontTool tool = new DimontTool();
-		
-		DimontPredictorTool pred = new DimontPredictorTool();
-		
-		ExtractSequencesTool est = new ExtractSequencesTool();
-		
-		CLI cli = new CLI(new boolean[]{false,true,false},est,tool,pred);
+		JstacsTool[] tools = new JstacsTool[] {
+				new ExtractSequencesTool(),
+				new DimontTool(),
+				new SlimDimontTool(),
+				new DimontPredictorTool(),
+				new QuickBindingSitePredictionTool()
+		};
+		boolean[] threads = new boolean[] {
+				false,
+				true,
+				true,
+				false,
+				false
+		};
+		CLI cli = new CLI(threads,tools);
 		
 		cli.run(args);
 
