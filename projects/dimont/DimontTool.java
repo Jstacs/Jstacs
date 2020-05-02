@@ -458,7 +458,8 @@ public class DimontTool implements JstacsTool {
 			if(use[m]){
 				LinkedList<Result> result = new LinkedList<Result>();
 				
-				result.add(new StorableResult( "Dimont "+(n+1), "The Dimont classifier", storables[index[m]] ) );//TODO
+				//result.add(new StorableResult( "Dimont "+(n+1), "The Dimont classifier", storables[index[m]] ) );//TODO
+				result.add(new TextResult("Dimont "+(n+1), "The Dimont classifier", new FileRepresentation("", storables[index[m]].toXML().toString()), "xml", "Dimont", null, true));
 				
 				//result.add(getListResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
 				result.add(getTextResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
@@ -534,8 +535,8 @@ public class DimontTool implements JstacsTool {
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[]{
-				new ResultEntry(StorableResult.class, "xml", "Dimont 1"),
-				new ResultEntry(ListResult.class, null, "Predictions for motif 1")
+				new ResultEntry(TextResult.class, "xml", "Dimont 1"),
+				new ResultEntry(TextResult.class, "tsv", "Predictions for motif 1")
 		};
 	}
 
