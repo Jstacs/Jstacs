@@ -1,7 +1,7 @@
-**SlimDimont** is an extension of Dimont, a universal tool for de-novo motif discovery, to parse local inhomogeneous mixture (Slim) models, which can capture neighboring and non-neighboring dependencies between the positions of sequence motifs. 
+**SlimDimont** is an extension of Dimont, a universal tool for de-novo motif discovery, to parse local inhomogeneous mixture (Slim_) models, which can capture neighboring and non-neighboring dependencies between the positions of sequence motifs. 
 SlimDimont has successfully been applied to ChIP-seq and genomic context protein-binding microarray (gcPBM) data.
 
-Input sequences must be supplied in an annotated FastA format as a file uploaded by the "Upload File" task in section "Get Data" of Galaxy.
+Input sequences must be supplied in an annotated FastA format.
 In the annotation of each sequence, you need to provide a value that reflects the confidence that this sequence is bound by the factor of interest.
 Such confidences may be peak statistics (e.g., number of fragments under a peak) for ChIP data or signal intensities for PBM data. In addition, you need to provide an anchor position within the sequence. 
 In case of ChIP data, this anchor position could for instance be the peak summit.
@@ -39,8 +39,6 @@ The "Equivalent sample size" reflects the strength of the influence of the prior
 
 The parameter "Delete BSs from profile" defines if BSs of already discovered motifs should be deleted, i.e., "blanked out", from the sequence before searching for futher motifs.
 
-You can also install this web-application within your local Galaxy server. Instructions can be found at the Slim_ page of Jstacs. 
-There you can also download a command line version of Dimont.
 
 If you use Slim models for motif discovery, please cite
  \J. Keilwagen and J. Grau. Varying levels of complexity in transcription factor binding motifs. doi:10.1
