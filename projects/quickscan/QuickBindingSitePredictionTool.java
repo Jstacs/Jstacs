@@ -20,6 +20,7 @@ import java.util.zip.GZIPInputStream;
 import de.jstacs.DataType;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifier;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.ParameterException;
@@ -33,6 +34,7 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.NumericalResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.results.TextResult;
 import de.jstacs.sequenceScores.QuickScanningSequenceScore;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
@@ -156,6 +158,9 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		QuickScanningSequenceScore lslim = (QuickScanningSequenceScore) fg.getFunction(0);
 		
 		int kmer = 10;
+		if(kmer > lslim.getLength()) {
+			kmer = (lslim.getLength()+1)/2;
+		}
 		int[] starts = new int[]{0,(lslim.getLength()-kmer)/2,lslim.getLength()-kmer};
 		
 		NormalDist nd = getThreshold(backgroundFile,lslim,subsamp); 
@@ -193,11 +198,11 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		starts = temps;
 		
 		protocol.appendHeading("Predicting sites...\n");
-		ListResult lr = getSites(progress,genomeFile,lslim,nd,t,kmer,use,starts);
+		Pair<Integer,TextResult> tr = getSites(progress,genomeFile,lslim,nd,t,kmer,use,starts);
 		progress.setCurrent(1.0);
-		protocol.append("...finished predicting "+lr.getNumberOfResultSets()+" sites.\n");
+		protocol.append("...finished predicting "+tr.getFirstElement()+" sites.\n");
 		
-		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(lr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
+		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr.getSecondElement()), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 	}
 
 	@Override
@@ -244,7 +249,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	
 	
 	
-	private ListResult getSites(ProgressUpdater progress, FileRepresentation fileRep, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
+	private Pair<Integer,TextResult> getSites(ProgressUpdater progress, FileRepresentation fileRep, QuickScanningSequenceScore model, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
 		BufferedReader read = null;
 		if((new File(fileRep.getFilename())).exists()) {
 			String file = fileRep.getFilename();
@@ -274,7 +279,8 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		
 		int[] idxs = new int[offs.length];
 		
-		LinkedList<ResultSet> ll = new LinkedList<>();
+		StringBuffer sb = new StringBuffer();
+		sb.append("Seq-ID\tPosition\tStrand\tScore\tSequence\tApprox. p-value\n");
 		
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 		
@@ -322,15 +328,17 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 							
 							if(score > threshold){
 								
-								ResultSet rs = new ResultSet(new Result[]{
-										new CategoricalResult("Seq-ID", "", id),
-										new NumericalResult("Position", "",(d==0 ? off+j : off+seq.getLength()-j-model.getLength()) ),
-										new CategoricalResult("Strand","",d==0 ? "+" : "-"),
-										new NumericalResult("Score", "", score),
-										new CategoricalResult("Sequence", "", seq.toString(j, j+model.getLength())),
-										new NumericalResult("Approx. p-value", "", (1.0-nd.cdf(score)))
-								});
-								ll.add(rs);
+								sb.append(id+"\t"+(d==0 ? off+j : off+seq.getLength()-j-model.getLength())+"\t"+(d==0 ? "+" : "-")+"\t"+score+"\t"+seq.toString(j, j+model.getLength())+"\t"+(1.0-nd.cdf(score))+"\n");
+								/*
+								 * ResultSet rs = new ResultSet(new Result[]{ new CategoricalResult("Seq-ID",
+								 * "", id), new NumericalResult("Position", "",(d==0 ? off+j :
+								 * off+seq.getLength()-j-model.getLength()) ), new
+								 * CategoricalResult("Strand","",d==0 ? "+" : "-"), new NumericalResult("Score",
+								 * "", score), new CategoricalResult("Sequence", "", seq.toString(j,
+								 * j+model.getLength())), new NumericalResult("Approx. p-value", "",
+								 * (1.0-nd.cdf(score))) }); 
+								 * ll.add(rs);
+								 */
 								nCorr++;
 							}else{
 								nWro++;
@@ -349,7 +357,8 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 			
 		}
 	//	System.out.println("nTot: "+nTot);
-		return new ListResult("Predicted binding sites", "Predicted binding sites for threshold "+threshold, null,ll );
+		//return new ListResult("Predicted binding sites", "Predicted binding sites for threshold "+threshold, null,ll );
+		return new Pair<Integer,TextResult>(nCorr,new TextResult("Predicted binding sites", "Predicted binding sites for threshold "+threshold, new FileParameter.FileRepresentation("", sb.toString()),"tsv","QBSPT",null,true));
 		
 	}
 	
@@ -440,7 +449,13 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 	
 	@Override
 	public ToolResult[] getTestCases(String path) {
-		return null;
+		try {
+			return new ToolResult[]{
+					new ToolResult(FileManager.readFile(path+File.separator+"xml/qbspt.xml"))};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
