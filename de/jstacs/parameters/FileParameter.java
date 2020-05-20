@@ -83,6 +83,11 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 */
 	private ParameterValidator valid;
 
+	/**
+	 * if true the MIME type is checked in {@link CLI}
+	 */
+	private boolean checkMimeType;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -144,10 +149,42 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	 *            a validator that validates e.g. the contents of the file
 	 */
 	public FileParameter(String name, String comment, String filetype, boolean required, ParameterValidator validator) {
+		this(name, comment, filetype, required, validator, false);
+	}
+	
+	/**
+	 * Constructs a {@link FileParameter}.
+	 * 
+	 * @param name
+	 *            the name of the parameter
+	 * @param comment
+	 *            a comment on the parameter
+	 * @param filetype
+	 *            the type of allowed files, may be allowed file extensions, separated by commas
+	 * @param required
+	 *            <code>true</code> if this {@link FileParameter} is required
+	 * @param validator
+	 *            a validator that validates e.g. the contents of the file
+	 * @param checkMimeType
+	 *            allowing to switch between checking mime type or not if values are set using {@link CLI}
+	 */
+	public FileParameter(String name, String comment, String filetype, boolean required, ParameterValidator validator, boolean checkMimeType) {
 		this(name, comment, filetype, required);
 		this.valid = validator;
+		this.checkMimeType=checkMimeType;
 	}
 
+	/**
+	 * Returns <code>true</code> if the MIME type should be checked
+	 * 
+	 * @return <code>true</code> if the MIME type should be checked
+	 * 
+	 * @see CLI
+	 */
+	public boolean checkMimeType() {
+		return checkMimeType;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -324,6 +361,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		super.appendFurtherInfos( buf );
 		
 		XMLParser.appendObjectWithTags(buf, mime, "mime");
+		XMLParser.appendObjectWithTags(buf, checkMimeType, "checkMimeType");
 		XMLParser.appendObjectWithTags(buf, required, "required");
 		XMLParser.appendObjectWithTags(buf, isSet, "isSet");
 		XMLParser.appendObjectWithTags(buf, errorMessage, "errorMessage");
@@ -341,6 +379,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		super.extractFurtherInfos( buf );
 		
 		mime = XMLParser.extractObjectForTags(buf, "mime", String.class );
+		checkMimeType = XMLParser.extractObjectForTags(buf, "checkMimeType", boolean.class );
 		required = XMLParser.extractObjectForTags(buf, "required", boolean.class );
 		isSet = XMLParser.extractObjectForTags(buf, "isSet", boolean.class );
 		errorMessage = XMLParser.parseString( XMLParser.extractObjectForTags(buf, "errorMessage", String.class ) );
@@ -425,6 +464,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	public String toString(){
 		return name + " (" + comment
 				+ (defaultValue!=null?", default = " + defaultValue.getFilename():"")
+				+ (mime!=null?", mime = " + mime:"")
 				+ (required ? "" : ", OPTIONAL" )
 				+ ")\t= " + (value != null ? value.getFilename() : "null");
 	}
