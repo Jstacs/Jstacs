@@ -38,6 +38,7 @@ import de.jstacs.DataType;
 import de.jstacs.io.FileManager;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
+import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.MultiSelectionParameter;
 import de.jstacs.parameters.Parameter;
@@ -559,14 +560,14 @@ if( key == null ) {
 								}
 							}
 							Parameter par2 = ((ParameterSet) parameters.getParameterAt(k).getValue()).getParameterAt(i);
-							par2.setValue(value.removeFirst());
+							setValue( par2, value.removeFirst() );
 							set=true;
 							if( par2.getDatatype() == DataType.PARAMETERSET ) {
 								set |= set(pathPrefix+":"+i+(par2 instanceof SelectionParameter ? "-"+((SelectionParameter)par2).getSelected() : ""),(ParameterSet)par2.getValue(),hashMap,valueMap,protocol,exp);
 							}
 						}						
 					} else {
-						par.setValue( value.removeFirst() );
+						setValue( par, value.removeFirst() );
 						set=true;
 						if( par.getDatatype() == DataType.PARAMETERSET ) {
 							set |= set(pathPrefix+":"+i+(par instanceof SelectionParameter ? "-"+((SelectionParameter)par).getSelected() : ""),(ParameterSet)par.getValue(),hashMap,valueMap,protocol, exp );
@@ -589,7 +590,23 @@ if( key == null ) {
 		return set;
 	}
 
-
+	private void setValue( Parameter par, String value ) throws IllegalValueException {
+		if( par instanceof FileParameter ) {
+			FileParameter fp = (FileParameter) par;
+			String mime = fp.checkMimeType() ? fp.getAcceptedMimeType() : null;
+			if( mime!= null ) {
+				String[] mimes = mime.split(",");
+				int i = 0;
+				while( i < mimes.length && !value.endsWith("."+mimes[i]) ) {
+					i++;
+				}
+				if( i == mimes.length ) {
+					throw new IllegalValueException("Not correct mime type (" + mime + "): " + value );
+				}
+			}
+		}
+		par.setValue(value);
+	}
 
 
 	public static void print(String pathPrefix, HashMap<String, String> keyMap, ParameterSet parameters, String tabPrefix, Protocol protocol, String add ) throws CloneNotSupportedException{
