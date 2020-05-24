@@ -70,7 +70,8 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		public abstract Feature addFeature( String[] split );
 		
 		public void rename( String tag, String oldN, String newN ) {
-			split[8]=split[8].replace(tag+"="+oldN+";", tag+"="+newN+";");
+			String sep = split[8].indexOf(';')>=0 ? ";": "";
+			split[8]=split[8].replace(tag+"="+oldN+sep, tag+"="+newN+sep);
 		}
 
 		static<T extends Feature> void rename( String tag, String oldN, String newN, ArrayList<T> l ) {
@@ -163,12 +164,13 @@ public class AnnotationFinalizer extends GeMoMaModule {
 				split[8]=split[8].replace("ID="+old+";", "ID="+name+";");
 				for( int i = 0; i < list.size(); i++ ) {
 					Transcript t = list.get(i);
-					t.rename("Parent",old,name);
 					
 					i1 = t.split[8].indexOf("ID=");
 					i2 = t.split[8].indexOf(";",i1);
 					String oldT = t.split[8].substring(i1+3,i2);
 					String newT = name + "." + (i+1);
+					
+					t.rename("Parent",old,name);
 					t.rename("ID",oldT,newT);
 					
 					Feature.rename("Parent", oldT, newT, t.upUTR);
@@ -471,7 +473,6 @@ public class AnnotationFinalizer extends GeMoMaModule {
 	
 	ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, ToolParameterSet description, String version ) throws Exception {
 		progress.setIndeterminate();
-		
 		if( GeMoMa.seqs == null  ) {
 			String genome = (String) parameters.getParameterForName("genome").getValue();
 
