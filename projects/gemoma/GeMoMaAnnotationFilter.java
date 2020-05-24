@@ -48,6 +48,7 @@ import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.parameters.validation.RegExpValidator;
 import de.jstacs.results.ResultSet;
@@ -274,6 +275,10 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					pred.add( current );
 					rnaSeq |= split[8].indexOf(";tie=")>0;
 				} else if( t.equals( "CDS" ) ) {
+					if( current==null ) {
+						r.close();
+						throw new NullPointerException("There is no gene model. Please check parameter \"tag\" and the order within your annotation file ("+fName+")" );
+					}
 					current.addCDS( line );
 				}
 				
@@ -313,7 +318,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		}
 		protocol.append( "all: " + anz + "\n" );
 
-		int filtered = 0;
+		int filtered = 0, altCand=0;;
 		File out = Tools.createTempFile("GAF-filtered");
 		if( anz>0 ) {
 			BufferedWriter w = new BufferedWriter( new FileWriter(out) );
@@ -365,6 +370,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						fillEvidence(p.evidence, p.index, 0);
 						p.altCand = p.filter(altFilter, engine);
 						comp.prepare(p);
+						altCand+=p.altCand?1:0;
 					}
 				}
 				filtered += pred.size();
@@ -378,6 +384,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		}
 	
 		protocol.append( "filtered: " + filtered + "\n" );
+		protocol.append( "alternative transcript filtered: " + altCand + "\n" );
 		protocol.append( "clustered: " + clustered[0] + "\n\n" );
 		protocol.append( "genes: " + gene + "\n" );
 		protocol.append( "transcripts: " + transcripts + "\n\n" );
@@ -413,12 +420,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		Prediction next = pred.get(i), current;
 		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
 		while( i < pred.size() ) {
+			currentCluster.clear();
 			current = next;
+			currentCluster.add(current);
 			int end = current.end;
 			i++;	
 
-			currentCluster.clear();
-			currentCluster.add(current);
 			while( i < pred.size() && end>(next = pred.get(i)).start ) {
 				end = Math.max(end,next.end);
 				currentCluster.add(next);
@@ -442,10 +449,9 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 
 		int[] startSearch = new int[list.size()];
 		
-		int overlappingNotUsed, old;
+		int old;
 		do {
 			old = sel.size();
-			overlappingNotUsed=0;
 			//find alternative transcripts
 			for( int i = 1; i < list.size(); i++ ) {
 				Prediction n = list.get(i);
@@ -468,12 +474,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						if( j==sel.size() ) {
 							//not included
 							startSearch[i]=sel.size();
-							overlappingNotUsed++;
 						}
 					}
 				}
 			}
-		} while( old < sel.size() && overlappingNotUsed>0 );
+		} while( old < sel.size() );
 		
 		maxEvidence=0;
 		Arrays.fill( combinedEvidence, false );
@@ -501,56 +506,54 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			gene++;
 		}
 		
-		//if( overlappingNotUsed>0  ) 
-		{
-			//find predictions that could be added
-			ArrayList<Prediction> used = new ArrayList<Prediction>(), notUsed = new ArrayList<Prediction>();
-			int s = Integer.MAX_VALUE, e = 0;
-			for( i = 0; i < list.size(); i++ ) {
-				Prediction p = list.get(i);
-				if( p.start < s ) {
-					s = p.start;
-				}
-				if( p.end > e ) {
-					e = p.end;
-				}
-				if( p.used ) {
-					used.add(p);
-				} else {
-					notUsed.add(p);
-				}
+		//find predictions that could be added
+		ArrayList<Prediction> used = new ArrayList<Prediction>(), notUsed = new ArrayList<Prediction>();
+		int s = Integer.MAX_VALUE, e = 0;
+		for( i = 0; i < list.size(); i++ ) {
+			Prediction p = list.get(i);
+			if( p.start < s ) {
+				s = p.start;
 			}
+			if( p.end > e ) {
+				e = p.end;
+			}
+			if( p.used ) {
+				used.add(p);
+			} else {
+				notUsed.add(p);
+			}
+		}
+		
+		//find predictions that do not overlap with any of the "used" predictions
+		BitSet usedCov = new BitSet(e-s+1);
+		for( int u = 0; u < used.size(); u++ ) {
+			used.get(u).fillNuc(usedCov,s,e);
+		}
+		
+		ArrayList<int[]> combined = new ArrayList<int[]>();
+		int cStart = 0, cEnd=-1;
+		while( (cStart=usedCov.nextSetBit(cEnd+1)) >= 0 ) {
+			cEnd=usedCov.nextClearBit(cStart);
+			if( cEnd<0 ) {
+				cEnd=e-s;
+			} else {
+				cEnd=cEnd-1;
+			}
+			combined.add(new int[] {cStart+s,cEnd+s} );
+		}
+
+		used.clear();
+		for( int j = 0; j < notUsed.size(); j++ ) {
+			Prediction not = notUsed.get(j);
+			if( !not.overlap(combined) ) {
+				used.add(not);
+			}
+		}	
 			
-			//find predictions that do not overlap with any of the "used" predictions
-			BitSet usedCov = new BitSet(e-s+1);
-			for( int u = 0; u < used.size(); u++ ) {
-				used.get(u).fillNuc(usedCov,s,e);
-			}
-			used.clear();
-			
-			ArrayList<int[]> combined = new ArrayList<int[]>();
-			int cStart = 0, cEnd=-1;
-			while( (cStart=usedCov.nextSetBit(cEnd+1)) >= 0 ) {
-				cEnd=usedCov.nextClearBit(cStart);
-				if( cEnd<0 ) {
-					cEnd=e-s;
-				} else {
-					cEnd=cEnd-1;
-				}
-				combined.add(new int[] {cStart+s,cEnd+s} );
-			}
-			for( int j = 0; j < notUsed.size(); j++ ) {
-				Prediction not = notUsed.get(j);
-				if( !not.overlap(combined) ) {
-					used.add(not);
-				}
-			}	
-				
-			notUsed=used;
-			if( notUsed.size() > 0 ) {
-				Collections.sort(notUsed);
-				split(null, notUsed, comp, rnaSeq, maxTranscripts, w, weight, cbTh, protocol);
-			}
+		notUsed=used;
+		if( notUsed.size() > 0 ) {
+			Collections.sort(notUsed);
+			split(null, notUsed, comp, rnaSeq, maxTranscripts, w, weight, cbTh, protocol);
 		}
 	}
 	
@@ -1010,8 +1013,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					new ParameterSetContainer( "predicted annotation", "", new ExpandableParameterSet( new SimpleParameterSet(		
 							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
-							new FileParameter( "gene annotation file", "GFF files containing the gene annotations (predicted by GeMoMa)", "gff",  true ),
-							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
+							new FileParameter( "gene annotation file", "GFF file containing the gene annotations (predicted by GeMoMa)", "gff,gff3",  true, new FileExistsValidator(), true ),
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular", false, new FileExistsValidator() )
 						), "gene annotations", "", 1 ) ),
 					new SimpleParameter(DataType.STRING,"default attributes","Comma-separated list of attributes that is set to NaN if they are not given in the annotation file. "
 							+ "This allows to use these attributes for sorting or filter criteria. "

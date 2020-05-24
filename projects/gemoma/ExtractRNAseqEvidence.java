@@ -41,6 +41,7 @@ import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
@@ -240,11 +241,11 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 								+ "If you are using Illumina TruSeq you should use FR_FIRST_STRAND."
 								, true ),
 						new ParameterSetContainer( "mapped reads", "", new ExpandableParameterSet( new SimpleParameterSet(		
-								new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam",  true )
+								new FileParameter( "mapped reads file", "BAM/SAM files containing the mapped reads", "bam,sam", true, new FileExistsValidator(), true )
 							), "mapped reads", "", 1 ) ),
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
-						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, false),
+						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, true),
 						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40)
 					);
 		} catch (Exception e) {

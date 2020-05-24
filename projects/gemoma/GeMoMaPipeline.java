@@ -62,6 +62,7 @@ import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
@@ -76,6 +77,7 @@ import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.utils.Time;
 import projects.FastaSplitter;
+import projects.gemoma.GeMoMa.Score;
 import projects.gemoma.Tools.Ambiguity;
 
 /**
@@ -199,12 +201,12 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
 		ParameterSet denoise = getRelevantParameters(new DenoiseIntrons().getToolParameters(), "introns", "coverage" );
 		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
-		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "query proteins", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort" );
+		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
 		try {
-			ex.getParameterForName("proteins").setDefault(true);
 			ex.getParameterForName("Ambiguity").setDefault(Ambiguity.AMBIGUOUS);
+			gem.getParameterForName(Score.class.getSimpleName()).setDefault(Score.ReAlign);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -216,18 +218,17 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			ArrayList<SimpleParameterSet> values = new ArrayList<SimpleParameterSet>();
 			values.add( new SimpleParameterSet(
 							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
-							new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
-							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa.gz,fasta.gz,fa.gz",  true ),
+							new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
+							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz", true, new FileExistsValidator(), true ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
-							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
 			) );
 			values.add( new SimpleParameterSet(
 							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
-							new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
-							new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
-							new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
+							new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta,fas,fa,fna", true, new FileExistsValidator() ),
+							new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false, new FileExistsValidator() ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
-							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false )
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
 			) );
 			
 			/*TODO BUSCO
@@ -244,7 +245,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			}/**/
 			
 			return new ToolParameterSet( getShortName(),
-				new FileParameter( "target genome", "Target genome file (FASTA)", "fasta,fa.gz,fasta.gz,fa.gz",  true ),
+				new FileParameter( "target genome", "Target genome file (FASTA)", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz", true, new FileExistsValidator(), true ),
 
 				new ParameterSetContainer( "reference species", "", 
 						new ExpandableParameterSet( new SimpleParameterSet(	
@@ -254,9 +255,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 						), "reference", "", 1 )
 				),/**/
 				
-				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ),
-				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
-				new SimpleParameter( DataType.BOOLEAN, "tblastn", "if *true* tblastn is used as search algorithm, otherwise mmseqs is used. Tblastn and mmseqs need to be installed to use the corresponding option", true, true),
+				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1, new FileExistsValidator() ),
+				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false, new FileExistsValidator() ),
+				new SimpleParameter( DataType.BOOLEAN, "tblastn", "if *true* tblastn is used as search algorithm, otherwise mmseqs is used. Tblastn and mmseqs need to be installed to use the corresponding option", true, false),
 				new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
 				
 				new SelectionParameter( DataType.PARAMETERSET, 
@@ -266,7 +267,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 								ere,
 								new SimpleParameterSet(
 										new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-												new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
+												new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", true, new FileExistsValidator(), true )
 											), "introns", "", 1 ) ),
 	
 										new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
@@ -275,12 +276,12 @@ public class GeMoMaPipeline extends GeMoMaModule {
 													new Object[]{
 														//unstranded coverage
 														new SimpleParameterSet(
-																new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+																new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 														),
 														//stranded coverage
 														new SimpleParameterSet(
-																new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-																new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+																new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() ),
+																new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 														)
 													},  "coverage", "experimental coverage (RNA-seq)", true
 											)
@@ -422,7 +423,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	}
 	
 	private class Species {
-		String id, cds, assignment, protein = null, name, annotationInfo;
+		String id, cds, assignment, name, annotationInfo;
 		Double weight;
 		String[] cds_parts;
 		String[] searchResults;
@@ -619,32 +620,33 @@ public class GeMoMaPipeline extends GeMoMaModule {
 								null,
 								path + speciesDirs[i] + "/" + Extractor.name[0] + "." + Extractor.type[0], 
 								path + speciesDirs[i] + "/" + Extractor.name[1] + "." + Extractor.type[1],
-								null,
-								null,
-								blast
+								blast,
+								null
 						));
 					}
 					break;
-				case 5: //from reference genome & annotation
-					add(new JExtractorAndSplit(
-							(String) currentRef.getParameterForName("ID").getValue(),
-							(Double) currentRef.getParameterForName("weight").getValue(),
-							currentRef.getParameterForName("annotation").getValue().toString(), 
-							currentRef.getParameterForName("genome").getValue().toString(),
-							(String) currentRef.getParameterForName("annotation info").getValue(),
-							blast
-					));
-					break;
-				case 6: //pre-extracted
-					add(new JExtractorAndSplit(
-							(String) currentRef.getParameterForName("ID").getValue(),
-							(Double) currentRef.getParameterForName("weight").getValue(),
-							(String) currentRef.getParameterForName("cds parts").getValue().toString(), 
-							(String) currentRef.getParameterForName("assignment").getValue(),
-							(String) currentRef.getParameterForName("query proteins").getValue(),
-							(String) currentRef.getParameterForName("annotation info").getValue(),
-							blast
-					));
+				case 5:
+					if( currentRef.getParameterForName("annotation") != null ) {
+						//from reference genome & annotation
+						add(new JExtractorAndSplit(
+								(String) currentRef.getParameterForName("ID").getValue(),
+								(Double) currentRef.getParameterForName("weight").getValue(),
+								currentRef.getParameterForName("annotation").getValue().toString(), 
+								currentRef.getParameterForName("genome").getValue().toString(),
+								(String) currentRef.getParameterForName("annotation info").getValue(),
+								blast
+						));
+					} else {
+						//pre-extracted
+						add(new JExtractorAndSplit(
+								(String) currentRef.getParameterForName("ID").getValue(),
+								(Double) currentRef.getParameterForName("weight").getValue(),
+								(String) currentRef.getParameterForName("cds parts").getValue().toString(), 
+								(String) currentRef.getParameterForName("assignment").getValue(),
+								blast,
+								(String) currentRef.getParameterForName("annotation info").getValue()
+						));
+					}
 					break;
 				default: throw new UnsupportedOperationException();
 			}
@@ -1135,8 +1137,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					(String) gemomaParams.getParameterForName("target genome").getValue(), 
 					(String) gemomaParams.getParameterForName("selected").getValue(),
 					(Integer) gemomaParams.getParameterForName("reads").getValue(),
-					(ExpandableParameterSet)((ParameterSetContainer)gemomaParams.getParameterAt(5)).getValue(),
-					(ExpandableParameterSet)((ParameterSetContainer)gemomaParams.getParameterAt(8)).getValue()
+					(ExpandableParameterSet)((ParameterSetContainer)gemomaParams.getParameterForName("introns")).getValue(),
+					(ExpandableParameterSet)((ParameterSetContainer)gemomaParams.getParameterForName("coverage")).getValue()
 			);			
 			//protocol.append( "Fill okay\n" );
 		}	
@@ -1266,16 +1268,14 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		 * @param w the weight
 		 * @param cds_parts the cds parts of the reference species
 		 * @param assignment the assignment of the reference species
-		 * @param protein the protein of the reference species
-		 * @param annotationInfo the annotation info of the reference
 		 * @param split whether to split the cds parts or not
+		 * @param annotationInfo the annotation info of the reference
 		 */
-		JExtractorAndSplit( String specName, Double w, String cds_parts, String assignment, String protein, String annotationInfo, boolean split ) {
+		JExtractorAndSplit( String specName, Double w, String cds_parts, String assignment, boolean split, String annotationInfo ) {
 			this(specName, w, split);
 			Species sp = species.get(speciesIndex);
 			sp.cds=cds_parts;
 			sp.assignment=assignment;
-			sp.protein=protein;
 			sp.annotationInfo = annotationInfo;
 		}
 		
@@ -1299,10 +1299,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				
 				sp.cds = outDir + Extractor.name[0] + "." + Extractor.type[0];
 				sp.assignment = outDir + Extractor.name[1] + "." + Extractor.type[1];
-				String fName = outDir+Extractor.name[2] + "." + Extractor.type[2];
-				if( new File(fName).exists() ) {
-					sp.protein = fName;
-				}
 			} else if( selected != null ) {
 				//find genes
 				BufferedReader r = new BufferedReader( new FileReader( sp.assignment ) );
@@ -1514,9 +1510,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			params.getParameterForName("search results").setValue(sp.searchResults[split]);
 			params.getParameterForName("cds parts").setValue(sp.cds);
 			params.getParameterForName("assignment").setValue(sp.assignment);
-			if( sp.protein != null ) {
-				params.getParameterForName("query proteins").setValue(sp.protein);
-			}
 			
 			SysProtocol protocol = new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);

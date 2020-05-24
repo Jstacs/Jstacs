@@ -40,6 +40,7 @@ import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -663,12 +664,12 @@ public class CompareTranscripts extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "prediction", "The predicted annotation", "gff", true ),
-					new FileParameter( "annotation", "The true annotation", "gff", true ),
+					new FileParameter( "prediction", "The predicted annotation", "gff,gff3", true, new FileExistsValidator(), true ),
+					new FileParameter( "annotation", "The true annotation", "gff,gff3", true, new FileExistsValidator(), true ),
 					new ParameterSetContainer( "transcript info", "", new ExpandableParameterSet( 
 							new SimpleParameterSet(
 									new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, ""),
-									new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", true )
+									new FileParameter( "assignment", "the transcript info for the reference of the prediction", "tabular", true, new FileExistsValidator() )
 							), "transcript info", "", 0 )
 					)
 			);

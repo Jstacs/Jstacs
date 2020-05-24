@@ -38,6 +38,7 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -61,7 +62,7 @@ public class DenoiseIntrons extends GeMoMaModule {
 		try{
 			return new ToolParameterSet( getShortName(), 
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
+							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", true, new FileExistsValidator(), true )
 						), "introns", "", 1 ) ),
 					
 					new ParameterSetContainer( "coverage", "", new ExpandableParameterSet( new SimpleParameterSet(	
@@ -70,12 +71,12 @@ public class DenoiseIntrons extends GeMoMaModule {
 								new Object[]{
 									//unstranded coverage
 									new SimpleParameterSet(
-											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 									),
 									//stranded coverage
 									new SimpleParameterSet(
-											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() ),
+											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 									)
 								},  "coverage", "experimental coverage (RNA-seq)", true
 						)

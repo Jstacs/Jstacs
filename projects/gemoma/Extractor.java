@@ -42,6 +42,7 @@ import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.ProgressUpdater;
@@ -105,7 +106,7 @@ public class Extractor extends GeMoMaModule {
 			protocol.append("selected: " + selected.size() + "\t"+ selected+"\n");
 		}
 		
-		HashMap<String, HashMap<String,Gene>> annot = read( parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
+		HashMap<String, HashMap<String,Gene>> annot = read( (boolean) parameters.getParameterForName("upcase IDs").getValue(), parameters.getParameterForName("annotation").getValue().toString(), selected, protocol );
 		
 		InputStream in = Tools.getInputStream( parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" );
 		HashMap<String,Character> code = Tools.getCode( in );
@@ -271,6 +272,7 @@ public class Extractor extends GeMoMaModule {
 	/**
 	 * This method reads an annotation file and create a data structure to be used in a GeMoMa module.
 	 * 
+	 * @param upcaseIDs	whether IDs in the input should be upcased
 	 * @param input the annotation file either GFF or GTF
 	 * @param selected the user-specified selected transcript IDS, if <code>null</code> all transcripts are used  
 	 * @param protocol the protocol for reporting
@@ -280,7 +282,7 @@ public class Extractor extends GeMoMaModule {
 	 * 
 	 * @throws IOException if the input can not be read
 	 */
-	public static HashMap<String, HashMap<String,Gene>> read( String input, HashMap<String,String> selected, Protocol protocol ) throws IOException {
+	public static HashMap<String, HashMap<String,Gene>> read( boolean upcaseIDs, String input, HashMap<String,String> selected, Protocol protocol ) throws IOException {
 		HashMap<String, HashMap<String,Gene>> annot = new HashMap<String, HashMap<String,Gene>>();
 		Gene gene = null;
 		BufferedReader r;
@@ -350,7 +352,8 @@ public class Extractor extends GeMoMaModule {
 					} else {
 						idx = split[8].indexOf(tID) + tID.length();
 						String transcriptID = split[8].substring(idx, split[8].indexOf('\"',idx));
-						String tr = transcriptID.toUpperCase();
+						String tr = transcriptID;
+						if( upcaseIDs ) tr = tr.toUpperCase();
 						split[8] = split[8].replace(tID+transcriptID+"\"", par+tr);
 						transcriptID=tr;
 						
@@ -367,7 +370,8 @@ public class Extractor extends GeMoMaModule {
 					if( gff ) {
 						idx = split[8].indexOf("ID=")+3;
 						h = split[8].indexOf(';',idx);
-						String transcriptID = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase();
+						String transcriptID = split[8].substring(idx, h>0?h:split[8].length() );
+						if( upcaseIDs ) transcriptID=transcriptID.toUpperCase();
 						if( selected == null || selected.containsKey(transcriptID) ) {
 							idx = split[8].indexOf(par);
 							if( idx>=0 ) {
@@ -397,8 +401,9 @@ public class Extractor extends GeMoMaModule {
 				
 			idx = split[8].indexOf(par)+par.length();
 			h = split[8].indexOf(';',idx);
-			String[] parent = split[8].substring(idx, h>0?h:split[8].length() ).toUpperCase().split(",");
+			String[] parent = split[8].substring(idx, h>0?h:split[8].length() ).split(",");
 			for( int j = 0; j < parent.length; j++ ) {
+				if( upcaseIDs ) parent[j] = parent[j].toUpperCase();
 				gene = trans.get(parent[j]);
 				if( selected==null || selected.containsKey(parent[j]) ) {
 					if( gene == null  ) {
@@ -945,13 +950,14 @@ public class Extractor extends GeMoMaModule {
 					current = part.get(il.get(j));
 					sos.write( (j==0?"\t":",") + current.offsetLeft );
 					
+					int pos = currentPos / 3;					
+					int oldPos=currentPos;
 					currentPos += current.dna.length();
-					int pos = currentPos / 3;
-					if( currentPos % 3 > 0 && pos+1 <= p.length() ) {
-						splitAA += p.substring(pos, pos+1);
-					}
-					if( j+2 < il.length() ) {
+					if( j>1 ) {
 						splitAA += ",";
+					}
+					if( oldPos % 3 > 0 && pos < (currentPos/3) ) {
+						splitAA += p.substring(pos, pos+1);
 					}
 				}
 				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (part.size()>1?maxIntron:"NA") + "\t" + minExon + "\t" + splitAA + "\n" );
@@ -1090,14 +1096,15 @@ public class Extractor extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gtf", true ),
-				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fa.gz,fasta.gz",  true ),
+				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
+				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz",  true, new FileExistsValidator(), true ),
 
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
 					
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[4], "whether the genomic regions should be returned (upper case = coding, lower case = non coding)", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, "upcase IDs", "whether the IDs in the GFF should be upcased", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the program will try to infer the phase of the CDS parts to repair the annotation", true, false ),
 				
 				/*
@@ -1110,7 +1117,7 @@ public class Extractor extends GeMoMaModule {
 						)
 					}, "splice sites", "whether splice sites should be returned or not", true ),
 				/**/	
-				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns will be ignored.", "tabular,txt", maxSize>-1 ),
+				new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns will be ignored.", "tabular,txt", maxSize>-1, new FileExistsValidator() ),
 				new EnumParameter( Ambiguity.class, "This parameter defines how to deal with ambiguities in the DNA. There are 3 options: "
 						+ "EXCEPTION, which will remove the corresponding transcript, "
 						+ "AMBIGUOUS, which will use an X for the corresponding amino acid, and "

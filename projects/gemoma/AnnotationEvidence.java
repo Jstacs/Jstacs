@@ -35,9 +35,11 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
+import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -67,7 +69,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 		code.put("NNN", 'X');//add for splitting at NNN (in align method)
 				
 		//annotation
-		HashMap<String, HashMap<String,Gene>> annotation = Extractor.read( parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
+		HashMap<String, HashMap<String,Gene>> annotation = Extractor.read( false, parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
 
 		//compute
 		String[] chr = GeMoMa.seqs.keySet().toArray(new String[GeMoMa.seqs.size()]);
@@ -75,11 +77,17 @@ public class AnnotationEvidence extends GeMoMaModule {
 		
 		File file = Tools.createTempFile("AnnotationEvidence");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
-		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc" );
+		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc\tminCov\tavgCov" );
 		w.newLine();
 		File aFile = Tools.createTempFile("AnnotationEvidence");
 		BufferedWriter annot = new BufferedWriter( new FileWriter(aFile) );
 		annot.append("##gff-version 3");
+		annot.newLine();
+		annot.append(GeMoMa.INFO + getShortName() + " " + getToolVersion() + "; ");
+		String info = JstacsTool.getSimpleParameterInfo(parameters);
+		if( info != null ) {
+			annot.append("SIMPLE PARAMETERS: " + info );
+		}
 		annot.newLine();
 		StringBuffer nuc = new StringBuffer();
 		
@@ -109,13 +117,18 @@ public class AnnotationEvidence extends GeMoMaModule {
 						Entry<String,IntList> e = cds.next();
 						IntList parts = e.getValue();
 						if( parts.length()>0 ) {
-							w.append( g.id + "\t" + c + "\t" + g.start + "\t" + g.end + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
+							int tStart = g.strand>0 ? g.exon.get(parts.get(0))[1] : g.exon.get(parts.get(parts.length()-1))[1];
+							int tEnd = g.strand>0 ? g.exon.get(parts.get(parts.length()-1))[2] : g.exon.get(parts.get(0))[2];
+							
+							w.append( g.id + "\t" + c + "\t" + tStart + "\t" + tEnd + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
 							
 							double tie=0;
 							int last=-10;
 							int covered=0, l=0, idx;
 							int[][] donSites = sites==null? null : sites[g.strand==1?0:1];
 							nuc.delete( 0, nuc.length() );
+							double sum=0;
+							int min=Integer.MAX_VALUE;
 							for( int j = 0;j < parts.length(); j++ ) {
 								int[] part = g.exon.get(parts.get(j));
 								
@@ -166,6 +179,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 											if( idx < cov.length ) {
 												inter = cov[idx];
 											} else {
+												min=0;
 												break outerloop;
 											}
 										}
@@ -174,8 +188,12 @@ public class AnnotationEvidence extends GeMoMaModule {
 											int z=h-p;
 											covered+=z;
 											
+											sum+=inter[2] * z;
+											min = Math.min(min, inter[2]);
+											
 											p=h;
 										} else {//p<inter[0] && p<=inter[1]
+											min=0;
 											p = Math.min(inter[0],end+1);
 										}
 										//System.out.println(p + "\t" + Arrays.toString(inter) + "\t" + covered + "\t" + min);
@@ -196,12 +214,19 @@ public class AnnotationEvidence extends GeMoMaModule {
 							
 							String tieString = ( parts.length() == 1 ) ? "NA" : GeMoMa.decFormat.format( tie/(parts.length()-1d));
 							String tpcString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(covered/(double)l);
+							String avgCovString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(sum/(double)l);
+							String minCovString = ( GeMoMa.coverage == null ) ? "NA" : (""+min);
 							
-							w.append( tieString + "\t" + tpcString );
+							w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString );
 							w.newLine();
 							
 							//TODO annotation
-							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+"prediction"/*TODO*/+"\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + e.getKey() + ";Parent="+g.id + ";aa=" + (l/3) + (introns?";tie=" + tieString:"") + (coverage?";tpc="+ tpcString:"") + ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
+							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+GeMoMa.TAG+"\t" + tStart + "\t" + tEnd + "\t.\t" + (g.strand==1?"+":"-")
+									+ "\t.\tID=" + e.getKey() + ";Parent="+g.id + ";"
+										+ "aa=" + (l/3) 
+										+ (introns?";tie=" + tieString:"") 
+										+ (coverage?(";tpc="+ tpcString + ";minCov=" + min + ";avgCov=" + avgCovString):"")
+										+ ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
 							annot.newLine();
 
 							for( int j = 0;j < parts.length(); j++ ) {
@@ -228,10 +253,10 @@ public class AnnotationEvidence extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff", true ),
-					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),
+					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff", true, new FileExistsValidator(), true ),
+					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", false, new FileExistsValidator(), true )
 						), "introns", "", 1 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 
@@ -243,12 +268,12 @@ public class AnnotationEvidence extends GeMoMaModule {
 									new SimpleParameterSet(),
 									//unstranded coverage
 									new SimpleParameterSet(
-											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 									),
 									//stranded coverage
 									new SimpleParameterSet(
-											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() ),
+											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 									)
 								},  "coverage file", "experimental coverage (RNA-seq)", true
 						)

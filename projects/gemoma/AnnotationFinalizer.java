@@ -41,6 +41,7 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -769,8 +770,8 @@ public class AnnotationFinalizer extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa,fasta.gz,fa.gz", true ),
-					new FileParameter( "annotation", "The predicted genome annotation file (GFF)", "gff", true ),
+					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz", true, new FileExistsValidator(), true ),
+					new FileParameter( "annotation", "The predicted genome annotation file (GFF)", "gff,gff3", true, new FileExistsValidator(), true ),
 					
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),					
 
@@ -782,7 +783,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 								//UTR prediction
 								new SimpleParameterSet(
 									new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-											new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
+											new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", true, new FileExistsValidator(), true )
 										), "introns", "", 1 ) ),
 									new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 				
@@ -794,12 +795,12 @@ public class AnnotationFinalizer extends GeMoMaModule {
 													new SimpleParameterSet(),
 													//unstranded coverage
 													new SimpleParameterSet(
-															new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+															new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 													),
 													//stranded coverage
 													new SimpleParameterSet(
-															new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-															new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+															new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() ),
+															new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator() )
 													)
 												},  "coverage file", "experimental coverage (RNA-seq)", true
 										)

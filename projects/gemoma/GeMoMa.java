@@ -75,6 +75,7 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -97,7 +98,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class GeMoMa extends GeMoMaModule {
 	
-	public static final String TAG = "prediction";
+	public static final String TAG = "mRNA";
 	
 	public static DecimalFormat decFormat = new DecimalFormat("###.####",DecimalFormatSymbols.getInstance(Locale.US));
 
@@ -197,7 +198,8 @@ public class GeMoMa extends GeMoMaModule {
 	private static final int ignoreAAForSpliceSite = 30;// the maximal number of AA in a (blast) hit to be ignore
 		
 	//in
-	private HashMap<String, String> cds, protein;
+	private boolean proteinAlignment;
+	private HashMap<String, String> cds;
 	private HashMap<String,HashMap<String,Info>> transcriptInfo;
 
 	//out
@@ -233,7 +235,7 @@ public class GeMoMa extends GeMoMaModule {
 				+ "\t#candidate strands\t#predictions\t#alignments"
 				+ "\tbest final score"
 				+ "\tchromosome\tstrand\tstart\tend\t#predicted parts\tfirst part\tfirst aa\tlast parts\tlast aa\t#*\tintron gain\tintron loss\tbackup\tcut"
-				+ (protein != null?"\tminimal score\tcurrent score\toptimal score\t%positive\tpid\tmaxGap\tref_length\tpred_length":"")
+				+ (proteinAlignment ?"\tminimal score\tcurrent score\toptimal score\t%positive\tpid\tmaxGap\tref_length\tpred_length":"")
 				+ (acceptorSites == null ? "" :"\tacceptor evidence")
 				+ (donorSites == null ? "" : "\tdonor evidence")
 				+ (donorSites == null ? "" : "\tintron evidence")
@@ -350,6 +352,7 @@ public class GeMoMa extends GeMoMaModule {
 				new AnnotationFinalizer(),
 				new AnnotationEvidence(),
 				new CompareTranscripts(),
+				new SyntenyChecker()
 				/*,
 				new TranscribedCluster()/**/
 		};
@@ -383,7 +386,7 @@ public class GeMoMa extends GeMoMaModule {
 							"* the number of threads\n" + 
 							"* the output directory\n" + 
 							"* the target genome\n" + 
-							"* and the reference ID (optional), annotation and genome. If you have several references just repeat the parameter tags <code>i</code>, <code>a</code>, <code>g</code> with the corresponding values.\n" +
+							"* and the reference ID (optional), annotation and genome. If you have several references just repeat <code>s=own</code> and the parameter tags <code>i</code>, <code>a</code>, <code>g</code> with the corresponding values.\n" +
 							"In addition, we recommend to set several parameters:\n" + 
 							"* <code>tblastn=false</code>: use mmseqs instead of tblastn, since mmseqs is faster\n" + 
 							"* <code>GeMoMa.Score=ReAlign</code>: states that the score from mmseqs should be recomputed as mmseqs uses an approximation\n" + 
@@ -824,8 +827,8 @@ public class GeMoMa extends GeMoMaModule {
 					(String) parameters.getParameterForName("target genome").getValue(), 
 					(String) parameters.getParameterForName("selected").getValue(),
 					(Integer) parameters.getParameterForName("reads").getValue(),
-					(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(5)).getValue(),
-					(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(8)).getValue()
+					(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterForName("introns")).getValue(),
+					(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterForName("coverage")).getValue()
 			);			
 		} else {
 			protocol.append("Using pre-set values.\n");
@@ -860,7 +863,7 @@ public class GeMoMa extends GeMoMaModule {
 		tag = (String) parameters.getParameterForName("tag").getValue();
 		timeOut = (Long) parameters.getParameterForName( "timeout" ).getValue();
 		
-		Parameter p = parameters.getParameterForName("query proteins");
+		proteinAlignment = (Boolean) parameters.getParameterForName("protein alignment").getValue();
 		
 		Score score = (Score) parameters.getParameterForName("Score").getValue();
 				
@@ -878,7 +881,7 @@ public class GeMoMa extends GeMoMaModule {
 						c = new HashMap<String, Info>();
 						transcriptInfo.put(split[0], c);
 					}
-					c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "", split.length>=10 ? split[9] : null ) );
+					c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "", split[9] ) );
 				}
 			}
 			r.close();
@@ -891,10 +894,7 @@ public class GeMoMa extends GeMoMaModule {
 
 		cds = Tools.getFasta((String) parameters.getParameterForName("cds parts").getValue(),15000,'\t');
 		protocol.append("CDS: " + cds.size() + " / " + (transcriptInfo==null?cds.size():transcriptInfo.size()) + "\n" );// + "\t" + Arrays.toString(cdsInfo.keySet().toArray()) );
-					
-		//read protein
-		protein = Tools.getFasta((String) (p.isSet() ? p.getValue() : null), 15000, ' ');		
-		
+				
 		//read genetic code
 		code = Tools.getCode(Tools.getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ));
 		code.put("NNN", 'X');//add for splitting at NNN (in align method)
@@ -2019,6 +2019,7 @@ public class GeMoMa extends GeMoMaModule {
 		int[] phase;
 		String[] splitAA;
 		int maxIntron;
+		String protein;
 		
 		Info( String exonID, String phase, String splitAA, String maxIntron ) {
 			String[] split = exonID.split( ",[ ]*" );
@@ -2029,7 +2030,7 @@ public class GeMoMa extends GeMoMaModule {
 			
 			//XXX remove
 			phase=null;
-			splitAA=null;
+			//splitAA=null;
 			
 			if( phase != null ) {
 				split = phase.split( "," );
@@ -2065,6 +2066,20 @@ public class GeMoMa extends GeMoMaModule {
 			return "parts: "+ Arrays.toString(exonID)+"\n"
 					+ "phase: "+ Arrays.toString(phase)+"\n"
 					+ "splitAA: "+ Arrays.toString(splitAA)+"\n";
+		}
+		
+		public void prepareProtein( HashMap<String,String> cds, String prefix ) {
+			StringBuffer sb = new StringBuffer();
+			for( int i = 0; i<exonID.length; i++ ) {
+				String cdsPart = cds.get(prefix+exonID[i]);
+				if( cdsPart!= null ) {
+					sb.append( cdsPart );
+				}
+				if( i < splitAA.length ) {
+					sb.append(splitAA[i]);
+				}
+			}
+			protein = sb.toString();
 		}
 	}
 	
@@ -2291,7 +2306,9 @@ public class GeMoMa extends GeMoMaModule {
 							data.put(h[j], w);
 						}
 						if( hasHits ) {
+							currentInfo.prepareProtein(cds, geneName +(transcriptInfo==null? "":"_"));
 							computeTranscript( s[i], info, data );
+							currentInfo.protein=null;
 						}
 					}
 				}
@@ -2516,7 +2533,7 @@ public class GeMoMa extends GeMoMaModule {
 	        }
 			
 			if( out ) {
-				String seq = protein != null ? protein.get(transcriptName) : null;
+				String seq = proteinAlignment ? currentInfo.protein : null;
 				int counts = 0;
 				for( int i = 0; i < predictions && result.size()>0; i++ ) {
 					Solution best = result.poll();
@@ -2530,6 +2547,9 @@ public class GeMoMa extends GeMoMaModule {
 						gffHelp.delete(0, gffHelp.length());
 						int anz = best.writeGFF( transcriptName, i, gffHelp );
 						
+						if( transcriptInfo != null ) {
+							gff.append( ";ce=" + anz + ";rce=" + currentInfo.exonID.length );
+						}						
 						if( acceptorSites != null ) {
 							gff.append( ";tae=" + (best.A==0? "NA": decFormat.format(best.a/(double)best.A)) );
 						}
@@ -4052,24 +4072,12 @@ public class GeMoMa extends GeMoMaModule {
 				}
 				
 				//Laura Kelly: partial?
-				String prot = protein == null ? null : protein.get(transcriptName), ref;
-				if( prot == null ) {
-					String r = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[0]));
-					ref = cds.get(r);
-				} else {
-					ref = prot; 
-				}				
-				if( ref==null || ref.charAt(0)=='M' ) {
+				String ref = currentInfo.protein;
+				if( ref.charAt(0)=='M' ) {
 					c = res.hits.get(0);
 					c.extend( c.part == currentInfo.exonID[0], false ); //START
 				}
-				if( prot == null ) {
-					String r = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[currentInfo.exonID.length-1]));
-					ref = cds.get(r);
-				} else {
-					ref = prot; 
-				}
-				if( ref==null || ref.charAt(ref.length()-1)=='*' ) {
+				if( ref.charAt(ref.length()-1)=='*' ) {
 					c = res.hits.get(res.hits.size()-1);
 					c.extend( false, c.part == currentInfo.exonID[currentInfo.exonID.length-1]); //STOP
 				}
@@ -4487,14 +4495,13 @@ public class GeMoMa extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(), 
-					new FileParameter( "search results", "The search results, e.g., from tblastn or mmseqs", "tabular", true ),
-					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fa,fasta.gz,fa.gz", true ),
-					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta", true ),
-					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false ),
-					new FileParameter( "query proteins", "optional query protein file (FASTA) for computing the optimal alignment score against complete protein prediction", "fasta", false ),
+					new FileParameter( "search results", "The search results, e.g., from tblastn or mmseqs", "tabular", true, new FileExistsValidator() ),
+					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
+					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta,fa,fas,fna", true, new FileExistsValidator(), true ),
+					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false, new FileExistsValidator() ),
 					
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
+							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", true, new FileExistsValidator(), true )
 						), "introns", "", 0 ) ),
 					new SimpleParameter( DataType.INT, "reads", "if introns are given by a GFF, only use those which have at least this number of supporting split reads", true, new NumberValidator<Integer>(1, Integer.MAX_VALUE), 1 ),
 					new SimpleParameter( DataType.BOOLEAN, "splice", "if no intron is given by RNA-seq, compute candidate splice sites or not", true, true ),
@@ -4505,19 +4512,19 @@ public class GeMoMa extends GeMoMaModule {
 								new Object[]{
 									//unstranded coverage
 									new SimpleParameterSet(
-											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+											new FileParameter( "coverage_unstranded", "The coverage file contains the unstranded coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator(), true )
 									),
 									//stranded coverage
 									new SimpleParameterSet(
-											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true ),
-											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true )
+											new FileParameter( "coverage_forward", "The coverage file contains the forward coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator(), true ),
+											new FileParameter( "coverage_reverse", "The coverage file contains the reverse coverage of the genome per interval. Intervals with coverage 0 (zero) can be left out.", "bedgraph", true, new FileExistsValidator(), true )
 									)
 								},  "coverage", "experimental coverage (RNA-seq)", true
 						)
 					), "coverage", "", 0 ) ),
 					
-					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
-					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false ),
+					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false, new FileExistsValidator() ),
+					new FileParameter( "substitution matrix", "optional user-specified substitution matrix", "tabular", false, new FileExistsValidator() ),
 					
 					new SimpleParameter( DataType.INT, "gap opening", "The gap opening cost in the alignment", true, 11 ),
 					new SimpleParameter( DataType.INT, "gap extension", "The gap extension cost in the alignment", true, 1 ),
@@ -4534,9 +4541,10 @@ public class GeMoMa extends GeMoMaModule {
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 10 ), 
-					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1 ), 
+					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1, new FileExistsValidator() ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
+					new SimpleParameter( DataType.BOOLEAN, "protein alignment", "whether a protein alignment between the prediction and the reference transcript should be computed. If so two additional attributes (iAA, pAA) will be added to predictions in the gff output. These might be used in GAF. However, since some transcripts are very long this can increase the needed runtime and memory (RAM).", true, true ),
 			
 					new SimpleParameter( DataType.STRING, "prefix", "A prefix to be used for naming the predictions", true, "" ),
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, TAG ),
