@@ -334,9 +334,9 @@ public class MixtureDiffSM extends AbstractMixtureDiffSM implements MutableMotif
 		
 		StringBuffer erg = new StringBuffer( function.length * 1000 );
 		for( int i = 0; i < function.length; i++ ) {
+			String h=function[i].toString(nf);
 			erg.append( "p(" + i + ") = " + nf.format(isNormalized()?hiddenPotential[i]:Math.exp( partNorm[i] - norm )) + "\n"
-						+ function[i].toString(nf)
-						+ "\n" );
+						+ (h==null?"":h+"\n") );
 		}
 		return erg.toString();
 	}
