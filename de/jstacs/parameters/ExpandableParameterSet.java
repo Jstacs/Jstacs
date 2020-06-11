@@ -51,7 +51,7 @@ public class ExpandableParameterSet extends ParameterSet {
 
 	private int count;
 
-	private int initCount, minCount, maxCount;
+	/*private*/protected int initCount, minCount, maxCount;
 
 	/**
 	 * Creates a new {@link ExpandableParameterSet} from a {@link Class} that
@@ -164,17 +164,11 @@ public class ExpandableParameterSet extends ParameterSet {
 	 *            the name-template
 	 * @param commentTemplate
 	 *            the comment-template
+	 * @throws CloneNotSupportedException 
 	 */
 	public ExpandableParameterSet(ParameterSet[] templateAndContent,
-			String nameTemplate, String commentTemplate) {
-		if (templateAndContent.length == 0) {
-			throw new IllegalArgumentException(
-					"You must provide at least one ParameterSet.");
-		}
-		this.template = templateAndContent[0];
-		this.nameTemplate = nameTemplate;
-		this.commentTemplate = commentTemplate;
-
+			String nameTemplate, String commentTemplate) throws CloneNotSupportedException {
+		this(templateAndContent[0], nameTemplate, commentTemplate, 0);
 		if (notAllGivenParameterSetsAreOfTemplateType(templateAndContent)) {
 			throw new IllegalArgumentException(
 					"At least one of the given ParameterSets is not of "
@@ -182,10 +176,9 @@ public class ExpandableParameterSet extends ParameterSet {
 		}
 		for (int i = 0; i < templateAndContent.length; i++) {
 			parameters.add(new ParameterSetContainer(nameTemplate + " no. "
-					+ (i + 1), commentTemplate, templateAndContent[i]));
+					+ (count + 1), commentTemplate, templateAndContent[i]));
+			count++;
 		}
-		this.count = templateAndContent.length;
-		this.initCount = this.count;
 	}
 
 	/*
