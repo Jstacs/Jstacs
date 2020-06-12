@@ -21,6 +21,7 @@ package projects.dimont;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ui.cli.CLI;
 import projects.quickscan.QuickBindingSitePredictionTool;
+import projects.slim.MotifScanningTool;
 import projects.slim.SlimDimontTool;
 
 public class DimontCLI {
@@ -31,12 +32,14 @@ public class DimontCLI {
 				new DimontTool(),
 				new SlimDimontTool(),
 				new DimontPredictorTool(),
-				new QuickBindingSitePredictionTool()
+				new QuickBindingSitePredictionTool(),
+				new MotifScanningTool()
 		};
 		boolean[] threads = new boolean[] {
 				false,
 				true,
 				true,
+				false,
 				false,
 				false
 		};
