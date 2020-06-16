@@ -27,6 +27,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.motifDiscovery.Mutable;
 import de.jstacs.sequenceScores.differentiable.UniformDiffSS;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -37,7 +38,7 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen, Jan Grau
  */
-public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiableStatisticalModel {
+public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiableStatisticalModel, Mutable {
 	private double ess, logP;
 
 	/**
@@ -272,5 +273,15 @@ public class UniformDiffSM extends UniformDiffSS implements SamplingDifferentiab
 	@Override
 	public byte getMaximalMarkovOrder() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException( "The maximal markov order for this model in undefined.");
+	}
+
+	@Override
+	public boolean modify(int offsetLeft, int offsetRight) {
+		if( alphabets.isSimple() ) {
+			length=length-offsetLeft+offsetRight;
+			computeLogP();
+			return true;
+		}
+		return false;
 	}
 }
