@@ -32,7 +32,7 @@ import de.jstacs.io.SymbolExtractor;
  */
 public class ByteSequence extends SimpleDiscreteSequence {
 
-	private byte[] content;
+	protected byte[] content;
 
 	/**
 	 * Creates a new {@link ByteSequence} from an array of <code>byte</code>-
