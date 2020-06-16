@@ -378,11 +378,8 @@ public class ThresholdedStrandChIPper extends AbstractSingleMotifChIPper {
 			{
 				m = ((NormalizedDiffSM)m).getFunction();
 			}
-			
-			Sequence ts = sequence.getSubSequence( startpos, m.getLength() );
-			
-			double[] temp = new double[]{m.getLogScoreFor( ts ),
-			                             m.getLogScoreFor( ts.reverseComplement() )};
+			double[] temp = new double[]{m.getLogScoreFor( sequence, startpos ),
+			                             m.getLogScoreFor( sequence.reverseComplement(), sequence.getLength()-m.getLength()-startpos )};
 			
 			Normalisation.logSumNormalisation( temp );
 			return temp;
