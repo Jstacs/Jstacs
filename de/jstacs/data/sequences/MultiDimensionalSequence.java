@@ -221,6 +221,21 @@ public abstract class MultiDimensionalSequence<T> extends Sequence<T> {
 		}
 	}
 	
+	@Override
+	public MultiDimensionalSequence<T> reverse( int start, int end ) throws OperationNotSupportedException {
+		try {
+			Sequence[] revContent = new Sequence[content.length];
+			for( int s = 0; s < content.length; s++ ) {
+				revContent[s] = content[s].reverse( start, end );
+			}
+			return getInstance( null, revContent );
+		} catch( Exception e ) {
+			OperationNotSupportedException onse = new OperationNotSupportedException(e.getMessage());
+			onse.setStackTrace(e.getStackTrace());
+			throw onse;
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see de.jstacs.data.Sequence#hashCodeForPos(int)
