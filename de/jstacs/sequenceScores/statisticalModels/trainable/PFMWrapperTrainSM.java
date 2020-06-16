@@ -75,7 +75,7 @@ public class PFMWrapperTrainSM extends AbstractTrainableStatisticalModel impleme
 	}
 	
 	/**
-	 * Creates a new wrapper for a given position frequency matrix.
+	 * Creates a new wrapper for a given (additive) position specific scoring matrix.
 	 * @param alphabets the alphabet
 	 * @param name the name of the matrix
 	 * @param pssm the position specific scoring matrix

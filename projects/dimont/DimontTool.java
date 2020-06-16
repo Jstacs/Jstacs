@@ -489,8 +489,31 @@ public class DimontTool implements JstacsTool {
 					}
 				}
 				
+				if(fgOrder == 0) {
+					double[][] modelPwm = ((MarkovModelDiffSM)((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore(0)).getMotifModel()).getPWM();
+
+					StringBuffer sb = new StringBuffer();
+					sb.append(">Motif"+(n+1)+"\n");
+					for(int i=0;i<modelPwm.length;i++) {
+						for(int j=0;j<modelPwm[i].length;j++) {
+							if(j>0) {
+								sb.append("\t");
+							}
+							sb.append(modelPwm[i][j]);
+						}
+						sb.append("\n");
+					}
+
+					TextResult trPwm = new TextResult("Model PWM", "The model PWM in HOCOMOCO format", new FileParameter.FileRepresentation("", sb.toString()), "pwm", this.getToolName(), null, true);
+
+					result.add(trPwm);
+				}
+				
 				ResultSetResult rsr = new ResultSetResult("Motif "+(n+1), "The Dimont results for motif "+(n+1), null, new ResultSet(result));
 				results.add(rsr);
+				
+				
+				
 				n++;
 			}
 		}
