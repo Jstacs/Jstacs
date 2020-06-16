@@ -296,6 +296,9 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 		if( start == 0 && length == getLength() ) {
 			return this;
 		} else {
+			if( abc == null ) {
+				abc = alphabetCon.getSubContainer(start, length);
+			}
 			return new SubSequence( abc, this, start, length );
 		}
 	}
@@ -328,12 +331,8 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @see Sequence.SubSequence#Sequence.SubSequence(Sequence, int, int) SubSequence#SubSequence(Sequence, int, int)
 	 */
-	public Sequence getSubSequence( int start, int length ) {
-		if( start == 0 && length == getLength() ) {
-			return this;
-		} else {
-			return new SubSequence( this, start, length );
-		}
+	public final Sequence getSubSequence( int start, int length ) {
+		return getSubSequence(null, start, length);
 	}
 
 	/**
