@@ -47,7 +47,6 @@ import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import projects.gemoma.Extractor.Gene;
 import projects.gemoma.Extractor.Part;
-import projects.gemoma.GeMoMa.IntArrayComparator;
 import projects.gemoma.Tools.Ambiguity;
 
 /**
@@ -77,7 +76,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 		
 		File file = Tools.createTempFile("AnnotationEvidence");
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
-		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc\tminCov\tavgCov" );
+		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc\tminCov\tavgCov\tnps" );
 		w.newLine();
 		File aFile = Tools.createTempFile("AnnotationEvidence");
 		BufferedWriter annot = new BufferedWriter( new FileWriter(aFile) );
@@ -164,7 +163,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 								int end = part[2];//t.targetEnd;
 								l += end-start+1;
 								if( cov != null ) {
-									idx = Arrays.binarySearch(cov, new int[]{start}, IntArrayComparator.comparator[2] );
+									idx = Arrays.binarySearch(cov, new int[]{start}, GeMoMa.IntArrayComparator.comparator[2] );
 									if( idx < 0 ) {
 										idx = -(idx+1);
 										idx = Math.max(0, idx-1);
@@ -212,12 +211,17 @@ public class AnnotationEvidence extends GeMoMaModule {
 							}
 							String aa = Tools.translate(0, cod, code, false, Ambiguity.AMBIGUOUS);
 							
+							int preMatureStops=0;
+							for( int j=0; j < aa.length()-1; j++ ) {
+								if( aa.charAt(j)=='*') preMatureStops++;
+							}
+							
 							String tieString = ( parts.length() == 1 ) ? "NA" : GeMoMa.decFormat.format( tie/(parts.length()-1d));
 							String tpcString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(covered/(double)l);
 							String avgCovString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(sum/(double)l);
 							String minCovString = ( GeMoMa.coverage == null ) ? "NA" : (""+min);
 							
-							w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString );
+							w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString + "\t" + preMatureStops );
 							w.newLine();
 							
 							//TODO annotation
@@ -226,6 +230,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 										+ "aa=" + (l/3) 
 										+ (introns?";tie=" + tieString:"") 
 										+ (coverage?(";tpc="+ tpcString + ";minCov=" + min + ";avgCov=" + avgCovString):"")
+										+ ";nps=" + preMatureStops										
 										+ ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
 							annot.newLine();
 
@@ -253,7 +258,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff", true, new FileExistsValidator(), true ),
+					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff,gtf", true, new FileExistsValidator(), true ),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", false, new FileExistsValidator(), true )
