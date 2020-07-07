@@ -188,7 +188,7 @@ public class GeMoMa extends GeMoMaModule {
 	private int INTRON_GAIN_LOSS;
 	
 	private boolean approx;
-	private boolean avoidStop; // avoid STOP in codons in gene models?
+	private boolean avoidPrematureStop; // avoid premature STOP codons in gene models?
 	private double eValue;// the e-value for filtering search hits
 	private int predictions;//how many predictions should be made
 	
@@ -381,14 +381,13 @@ public class GeMoMa extends GeMoMaModule {
 					//TODO check "in a nutshell" if parameter key changed
 					sb.insert(0, "== In a nutshell ==\n\n"
 							+ "GeMoMa is a modular, homology-based gene prediction program with huge flexibility. However, we also provide a pipeline allowing to use GeMoMa easily. If you like to start GeMoMa for the first time, we recommend to use the GeMoMaPipeline like this\n"
-							+ " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar CLI GeMoMaPipeline threads=<threads> outdir=<outdir> tblastn=false GeMoMa.Score=ReAlign AnnotationFinalizer.r=NO o=true t=<target_genome> i=<reference_1_id> a=<reference_1_annotation> g=<reference_1_genome>\n" + 
+							+ " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar CLI GeMoMaPipeline threads=<threads> outdir=<outdir> GeMoMa.Score=ReAlign AnnotationFinalizer.r=NO o=true t=<target_genome> i=<reference_1_id> a=<reference_1_annotation> g=<reference_1_genome>\n" + 
 							"there are several parameters that need to be set indicated with '''&lt;'''foo'''&gt;'''. You can specify\n" + 
 							"* the number of threads\n" + 
 							"* the output directory\n" + 
 							"* the target genome\n" + 
 							"* and the reference ID (optional), annotation and genome. If you have several references just repeat <code>s=own</code> and the parameter tags <code>i</code>, <code>a</code>, <code>g</code> with the corresponding values.\n" +
 							"In addition, we recommend to set several parameters:\n" + 
-							"* <code>tblastn=false</code>: use mmseqs instead of tblastn, since mmseqs is faster\n" + 
 							"* <code>GeMoMa.Score=ReAlign</code>: states that the score from mmseqs should be recomputed as mmseqs uses an approximation\n" + 
 							"* <code>AnnotationFinalizer.r=NO</code>: do not rename genes and transcripts\n" + 
 							"* <code>o=true</code>: output individual predictions for each reference as a separate file allowing to rerun the combination step ('''GAF''') very easily and quickly\n" + 
@@ -857,7 +856,7 @@ public class GeMoMa extends GeMoMaModule {
 		gapOpening = (Integer) parameters.getParameterForName("gap opening").getValue();
 		gapExtension = (Integer) parameters.getParameterForName("gap extension").getValue();
 		INTRON_GAIN_LOSS = (Integer) parameters.getParameterForName("intron-loss-gain-penalty").getValue();
-		avoidStop = (Boolean) parameters.getParameterForName("avoid stop").getValue();
+		avoidPrematureStop = (Boolean) parameters.getParameterForName("avoid stop").getValue();
 		approx = (Boolean) parameters.getParameterForName("approx").getValue();		
 		prefix = (String) parameters.getParameterForName("prefix").getValue();
 		tag = (String) parameters.getParameterForName("tag").getValue();
@@ -1270,7 +1269,6 @@ public class GeMoMa extends GeMoMaModule {
 		
 		boolean border, splice;
 		boolean de, ae; //donor/acceptor evidence
-		HashSet<Integer> preDonor, postAcceptor;
 		char firstAA;
 		
 		int phase;
@@ -1322,7 +1320,6 @@ public class GeMoMa extends GeMoMaModule {
 			
 			border = splice = false;
 			de = ae = false;
-			preDonor = postAcceptor = null;
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -1336,8 +1333,6 @@ public class GeMoMa extends GeMoMaModule {
 			clone.down = down==null? null : new StringBuffer( down );
 			clone.seqUp = seqUp==null? null : new StringBuffer( seqUp );
 			clone.seqDown = seqDown==null? null : new StringBuffer( seqDown );
-			clone.preDonor = preDonor==null? null : (HashSet<Integer>) preDonor.clone();
-			clone.postAcceptor = postAcceptor==null? null : (HashSet<Integer>) postAcceptor.clone();
 			return clone;
 		}
 		
@@ -1346,18 +1341,6 @@ public class GeMoMa extends GeMoMaModule {
 					+ "\t" + queryStart + "\t" + queryEnd +"\t"+queryLength + "\t" + targetStart + "\t" + targetEnd
 					+ "\t" + score + "\t" + queryAlign + "\t" + targetAlign + "\t" + info;
 		}
-		
-/*		public boolean anyEvidence( Hit downstream ) {
-			boolean res = false;
-			int phase=-1, i=-1, pos=-1;
-			for( phase = 0; !res && phase < 3; phase++ ) {
-				for( i = 0; !res && i < downstream.accCand[phase].length(); i++ ) {
-					pos = ((forward?downstream.targetStart:(downstream.targetEnd+1))+(forward?-1:1)*downstream.accCand[phase].get(i));
-					res |= postAcceptor.contains(pos);
-				}
-			}
-			return res;
-		}/**/
 	
 		/**
 		 * This method splits the current hit at stop codons (*) and adds the (refined) parts into the given list.
@@ -1366,9 +1349,13 @@ public class GeMoMa extends GeMoMaModule {
 		 * 
 		 * @throws WrongAlphabetException if the is a problem in the score computation
 		 */
-		public void addSplitHits(ArrayList<Hit> add) throws WrongAlphabetException {
-			int idx = targetAlign.indexOf('*');
-			if( idx < 0 || queryAlign.charAt(idx)=='*' ) {
+		public void addSplitHits(ArrayList<Hit> add) throws WrongAlphabetException { //XXX split: TODO test before relase
+			int idx=-1;
+			do {
+				idx = targetAlign.indexOf('*', idx+1);
+			} while( idx >=0 && queryAlign.charAt(idx)=='*' );
+			
+			if( idx < 0 ) {
 				add.add(this);
 			} else {
 				//split at STOP codon?
@@ -1413,7 +1400,7 @@ public class GeMoMa extends GeMoMaModule {
 						off2++;
 						
 						if( off1 > off2 ) {
-							//weg damit
+							//the alignment does not contain a single match or mismatch (only gaps), hence, we don't need this part of the alignment
 							int qg = getGapLength(q);
 							int tg = getGapLength(t);
 							qStart+=q.length()-qg+b;
@@ -1441,7 +1428,9 @@ public class GeMoMa extends GeMoMaModule {
 						tStart+=factor*3*a;
 					}
 					old=idx+1;
-					idx = targetAlign.indexOf('*',old); 
+					do {
+						idx = targetAlign.indexOf('*', idx+1);
+					} while( idx >=0 && queryAlign.charAt(idx)=='*' );
 				} while( old > 0 );
 			}
 		}
@@ -1497,57 +1486,12 @@ public class GeMoMa extends GeMoMaModule {
 				}
 				up=up.delete(up.length()-(add/3), up.length());
 			
-				int anz = 0, z, start=-10, end=-10, ref=-10, f=0, idx, d, m, old;
-				int[][][] vals;
-				//known acceptors
-				if( acceptorSites != null ) {
-					vals = acceptorSites.get(this.targetID);
-					if( vals != null ) {
-						preDonor = new HashSet<Integer>();
-						
-						z = forward?0:1;
-						for( int i = 0; i < 3; i++) {
-							accCand[i].clear();
-						}
-
-						if( forward ) {
-							start = maxUpstreamStart;
-							end = this.targetStart + add;
-							ref = targetStart;
-							f = 1;
-						} else {
-							start = this.targetEnd - add;
-							end = maxUpstreamStart+1;
-							ref = targetEnd+1;
-							f = -1;
-						}
-	
-						idx = Arrays.binarySearch(vals[z][1], start);
-						if( idx < 0 ) {
-							idx = -(idx+1);
-						}
-						old=-1;
-						while( idx < vals[z][1].length && vals[z][1][idx] <= end ) {
-							if( vals[z][1][idx] != old ) {
-								d = f*(ref-vals[z][1][idx]);
-								m = d%3;
-								if( m < 0 ) {
-									m+=3;
-								}
-								accCand[m].add( d );
-								anz++;
-								old=vals[z][1][idx];
-							}
-							preDonor.add(vals[z][0][idx]);
-							idx++;
-						}
-					}
-					ae = anz > 0;
-				}
+				int anz = getExperimentalCandidates(acceptorSites, 1, accCand, add, false, maxUpstreamStart);
+				ae = anz > 0;
 
 				//fall back
 				if( acceptorSites == null || (sp && anz == 0) ) {
-					getCandidates( seqUp, accCand, ACCEPTOR, true, true, s );
+					getCanonincalCandidates( seqUp, accCand, ACCEPTOR, true, true, s );
 				}
 
 				int max = Integer.MIN_VALUE;
@@ -1602,63 +1546,20 @@ public class GeMoMa extends GeMoMaModule {
 				}
 				down = down.delete(0,add/3);
 				
+				int m=0;
 				for( m = 0; m < donCand.length; m++ ) {
 					donCand[m] = ArrayHandler.createArrayOf(new IntList(), 3);
 					donCandScore[m] = ArrayHandler.createArrayOf(new IntList(), 3);
 				}
 				
-				anz = 0;
-				//known donors
-				if( donorSites != null ) {
-					vals = donorSites.get(this.targetID);
-					if( vals != null ) {
-						postAcceptor = new HashSet<Integer>();
-						
-						z = forward?0:1;
-						for( int i = 0; i < 3; i++) {
-							donCand[0][i].clear();
-						}
+				anz = getExperimentalCandidates(donorSites, 0, donCand[0], add, true, maxDownstreamEnd);
+				de = anz > 0;
 
-						if( forward ) {
-							start = this.targetEnd - add;
-							end = maxDownstreamEnd+1;
-							ref = targetEnd+1;
-							f = -1;
-						} else {
-							start = maxDownstreamEnd;
-							end = this.targetStart + add;
-							ref = targetStart;
-							f = 1;
-						}
-	
-						idx = Arrays.binarySearch(vals[z][0], start);
-						if( idx < 0 ) {
-							idx = -(idx+1);
-						}
-						old = -1;
-						while( idx < vals[z][0].length && vals[z][0][idx] <= end ) {
-							if( vals[z][0][idx] != old ) {
-								d = f*(ref-vals[z][0][idx]);
-								m = d%3;
-								if( m < 0 ) {
-									m+=3;
-								}
-								donCand[0][m].add( d );
-								anz++;
-								old = vals[z][0][idx];
-							}
-							postAcceptor.add(vals[z][1][idx]);
-							idx++;
-						}
-					}
-					de = anz > 0;
-				}
-//for( int i = 0; i < 3; i++ ) { System.out.println(donCand[0][i]); donCand[0][i].clear(); } anz=0;
 				//fall back
 				if( donorSites == null || (sp && anz == 0) )
 				{
 					for( m = 0; m < DONOR.length; m++ ) {
-						getCandidates( seqDown, donCand[m], DONOR[m], false, false, s );
+						getCanonincalCandidates( seqDown, donCand[m], DONOR[m], false, false, s );
 					}
 					
 					//GC directly after the hit
@@ -1706,7 +1607,56 @@ public class GeMoMa extends GeMoMaModule {
 			}
 		}
 			
-		private void getCandidates( StringBuffer region, IntList[] sites, String p, boolean add, boolean reverse, int ref ) {
+		private int getExperimentalCandidates( HashMap<String, int[][][]> sites, int sIndex, IntList[] cand, int add, boolean invert, int max ) {
+			int anz = 0;
+			if( sites != null ) {
+				int[][][] vals = sites.get(this.targetID);
+				if( vals != null ) {
+					int z, start=-10, end=-10, ref=-10, f=0, idx, d, m, old;
+					
+					z = forward?0:1;
+					for( int i = 0; i < 3; i++) {
+						cand[i].clear();
+					}
+					
+					boolean b = invert ? !forward : forward;
+
+					if( b ) {
+						start = max;
+						end = this.targetStart + add;
+						ref = targetStart;
+						f = 1;
+					} else {
+						start = this.targetEnd - add;
+						end = max+1;
+						ref = targetEnd+1;
+						f = -1;
+					}
+
+					idx = Arrays.binarySearch(vals[z][sIndex], start);
+					if( idx < 0 ) {
+						idx = -(idx+1);
+					}
+					old=-1;
+					while( idx < vals[z][sIndex].length && vals[z][sIndex][idx] <= end ) {
+						if( vals[z][sIndex][idx] != old ) {
+							d = f*(ref-vals[z][sIndex][idx]);
+							m = d%3;
+							if( m < 0 ) {
+								m+=3;
+							}
+							cand[m].add( d );
+							anz++;
+							old=vals[z][sIndex][idx];
+						}
+						idx++;
+					}
+				}
+			}
+			return anz;
+		}
+		
+		private void getCanonincalCandidates( StringBuffer region, IntList[] sites, String p, boolean add, boolean reverse, int ref ) {
 			for( int i = 0; i < 3; i++) {
 				sites[i].clear();
 			}
@@ -2565,18 +2515,15 @@ public class GeMoMa extends GeMoMaModule {
 						}
 						
 						int id = 0, pos = 0, gap=-1, currentGap=0, maxGap=0;
-						String s0, s1 = null, pred=null;
+						String s0, s1 = null, pred = best.getProtein();
 						PairwiseStringAlignment psa = null;
 						if( seq != null ) {
-							pred = best.getProtein();
 							
 							psa = align.getAlignment(AlignmentType.GLOBAL, Sequence.create(alph, seq), Sequence.create(alph, pred) );
 							s0 = psa.getAlignedString(0);
 							s1 = psa.getAlignedString(1);
 							
 							for( int p = 0; p < s1.length(); p++ ) {
-								
-								
 								if( s0.charAt(p) == '-' ) {
 									if( gap != 0 ) {
 										if( currentGap > maxGap ) {
@@ -2622,6 +2569,11 @@ public class GeMoMa extends GeMoMaModule {
 							//additional GFF tags
 							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
+						int preMatureStops=0;
+						for( int j=0; j < pred.length()-1; j++ ) {
+							if( pred.charAt(j)=='*') preMatureStops++;
+						}
+						gff.append( ";nps=" + preMatureStops );
 						
 						//short info
 						protocol.append( ((i == 0 && !verbose)? "" : (geneName+"\t"+transcriptName)) + "\t" + currentInfo.exonID.length + "\t" + best.hits.size()
@@ -2989,7 +2941,7 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			//TASK 1: reduce blast hit set	
 			int max = forwardDP(forward, lines, false);
-			HashMap<Integer, ArrayList<Hit>> filtered = reduce(chromosome, forward, lines, avoidStop, false, max*hitThreshold);
+			HashMap<Integer, ArrayList<Hit>> filtered = reduce(chromosome, forward, lines, avoidPrematureStop, false, max*hitThreshold);
 			
 			if( verbose ) {
 				protocol.append( "filtered hits " + chromosome + " " + (forward?"+":"-")+"\n" );
@@ -3325,7 +3277,7 @@ public class GeMoMa extends GeMoMaModule {
 			//DP with splicing
 			splice = new int[currentInfo.exonID.length][][][];
 			int bestValue = forwardDP(forward, filtered, true);
-			filtered = reduce(chromosome, forward, filtered, avoidStop, true, bestValue);
+			filtered = reduce(chromosome, forward, filtered, avoidPrematureStop, true, bestValue);
 			if( verbose ) {			
 				for( int h = 0; h <currentInfo.exonID.length; h++ ) {
 					ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
@@ -3611,7 +3563,7 @@ public class GeMoMa extends GeMoMaModule {
 			return anz;
 		}
 		
-		String getProteinSeqFromExons( Hit first, Hit second ) {//TODO add split AA at intron-exon border
+		String getProteinSeqFromExons( Hit first, Hit second ) {
 			String m;
 			String firstCDS = cds.get( first.queryID );
 			int partStart = first.part, partEnd = second.part;
@@ -4542,7 +4494,7 @@ public class GeMoMa extends GeMoMaModule {
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 10 ), 
 					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1, new FileExistsValidator() ), 
-					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid stop codons in a transcript (except the last AS)", true, true ),
+					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid (additional) pre-mature stop codons in a transcript", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "protein alignment", "whether a protein alignment between the prediction and the reference transcript should be computed. If so two additional attributes (iAA, pAA) will be added to predictions in the gff output. These might be used in GAF. However, since some transcripts are very long this can increase the needed runtime and memory (RAM).", true, true ),
 			
