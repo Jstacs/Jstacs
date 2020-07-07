@@ -50,7 +50,6 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import projects.gemoma.GeMoMa.IntArrayComparator;
 
 /**
  * This class finalizes an annotation. It predicts UTRs for a given set of CDS annotations using RNA-seq evidence and allows to generate generic gene and transcript names.
@@ -655,7 +654,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			
 			//find stretch that is has some positive coverage
 			int h=firstBase;
-			int idx = Arrays.binarySearch(cov, new int[]{firstBase}, IntArrayComparator.comparator[2] );
+			int idx = Arrays.binarySearch(cov, new int[]{firstBase}, GeMoMa.IntArrayComparator.comparator[2] );
 			if( idx < 0 ) {
 				idx = -(idx+1);
 				idx = Math.max(0, idx-1);//has to be reduced since we did not find a match
@@ -695,7 +694,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 				int end = lastBase + dir;
 //if( idx >= 0 && idx < splice[sIdx][0] ) System.out.println("splice: ["+st+","+end+"]\t"+splice[sIdx][idx] + " <= " + end);
 				while( idx < splice[sIdx].length && splice[sIdx][idx] <= end ) {
-					int i=Arrays.binarySearch(cov, new int[]{splice[sIdx][idx]+dir}, IntArrayComparator.comparator[2] );
+					int i=Arrays.binarySearch(cov, new int[]{splice[sIdx][idx]+dir}, GeMoMa.IntArrayComparator.comparator[2] );
 					int c;
 					if( i < 0 ) {				
 						i = -(i+1);
