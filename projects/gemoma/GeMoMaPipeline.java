@@ -77,7 +77,6 @@ import de.jstacs.tools.ui.cli.CLI.SysProtocol;
 import de.jstacs.tools.ui.galaxy.Galaxy;
 import de.jstacs.utils.Time;
 import projects.FastaSplitter;
-import projects.gemoma.GeMoMa.Score;
 import projects.gemoma.Tools.Ambiguity;
 
 /**
@@ -200,13 +199,13 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
 		ParameterSet denoise = getRelevantParameters(new DenoiseIntrons().getToolParameters(), "introns", "coverage" );
-		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
+		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", Extractor.name[5], "selected", "verbose", "genetic code", Extractor.name[3], Extractor.name[4] );
 		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "selected", "verbose", "genetic code", "tag", "coverage", "introns", "sort" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
 		try {
 			ex.getParameterForName("Ambiguity").setDefault(Ambiguity.AMBIGUOUS);
-			gem.getParameterForName(Score.class.getSimpleName()).setDefault(Score.ReAlign);
+			gem.getParameterForName(GeMoMa.Score.class.getSimpleName()).setDefault(GeMoMa.Score.ReAlign);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -308,7 +307,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				
 				new SimpleParameter( DataType.BOOLEAN, "output individual predictions", "If *true*, returns the predictions for each reference species", true, false ),
 				
-				new SimpleParameter( DataType.BOOLEAN, "debug", "If *false* removes all temporary files even if the jobs exits unexpected", true, true )
+				new SimpleParameter( DataType.BOOLEAN, "debug", "If *false* removes all temporary files even if the jobs exits unexpected", true, true ),
+				new SimpleParameter( DataType.STRING, "BLAST_PATH", "allows to set a path to the blast binaries if not set in the environment", false, "" ),
+				new SimpleParameter( DataType.STRING, "MMSEQS_PATH", "allows to set a path to the blast binaries if not set in the environment", false, "" )								
 			);		
 		}catch(Exception e){
 			e.printStackTrace();
@@ -456,6 +457,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	Thread killer;
 
 	static String mmseqs;
+	static String search_path;
+	Warning[] w;
+	static final int WARNING_THRESHOLD=3; 
 	
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
 		Thread.sleep(1000);
@@ -472,6 +476,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		//}
 		//pipelineProtocol.append("temporary directory: " + home + "\n\n");
 				
+		w = new Warning[] {
+			new Warning("Warning: [tblastn] .*: Warning: Could not calculate ungapped Karlin-Altschul parameters due to an invalid query sequence or its translation. Please verify the query sequence(s) and/or filtering options ")
+		};
 		
 		params=parameters;
 		all=(Boolean) params.getParameterForName("output individual predictions").getValue();
@@ -493,30 +500,39 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		
 		//checking whether the search algorithm software is installed
 		boolean blast=(Boolean) parameters.getParameterForName("tblastn").getValue();
-		String[] cmd;
+		search_path = (String) parameters.getParameterForName(blast?"BLAST_PATH":"MMSEQS_PATH").getValue();
+		if( search_path.length()> 0 && search_path.charAt(search_path.length()-1)!='/' ) {
+			search_path += "/";
+		}
+		String[][] cmd;
 		if( blast ) {
-			cmd=new String[] {"tblastn","-version"};
+			cmd=new String[][] {
+					{search_path+"tblastn","-version"},
+					{search_path+"makeblastdb","-version"}
+				};
 		} else {
-			cmd=new String[] {mmseqs,"version"};
+			cmd=new String[][] {{search_path+mmseqs,"version"}};
 		}
-		ProcessBuilder pb = new ProcessBuilder(cmd);
-		pb.redirectErrorStream(true);
+		pipelineProtocol.append("search algorithm:\n");
+		for( int i = 0; i < cmd.length; i++ ) {
+			ProcessBuilder pb = new ProcessBuilder(cmd[i]);
+			pb.redirectErrorStream(true);
+			
+			Process pr = pb.start();
+	        BufferedReader br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+	        String line = null;
+	        while ( (line = br.readLine()) != null) {
+	        	pipelineProtocol.appendWarning( "[" + cmd[i][0] + "]: " + line.trim() +"\n");
+			}
+	        br.close();
+			pr.waitFor();
+			
+			if( pr.exitValue() != 0 ) {
+				System.out.println(cmd[i][0] + " not available!");
+				System.exit(1);
+			}
+		}
 		
-		Process pr = pb.start();
-        BufferedReader br = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-        String line = null;
-        pipelineProtocol.append("search algorithm:\n");
-        while ( (line = br.readLine()) != null) {
-        	pipelineProtocol.appendWarning( "[" + cmd[0] + "]: " + line+"\n");
-		}
-        br.close();
-		pr.waitFor();
-		
-		if( pr.exitValue() != 0 ) {
-			System.out.println("Search algorithm not available!");
-			System.exit(1);
-		}
-
 		DenoiseIntrons denoise = new DenoiseIntrons();		
 		Extractor extractor = new Extractor(maxSize);
 		GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
@@ -801,6 +817,21 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		}
 		
 		pipelineProtocol.append("\nStatistics:\n");
+		
+		int a=0;
+		for( int i = 0; i < w.length; i++ ) {
+			if( w[i].anz>0 ) {
+				if( a==0 ) {
+					pipelineProtocol.append( "occurrence\twarning\n" );	
+				}
+				pipelineProtocol.append( w[i].anz + "\t" + w[i].regex +"\n" );
+				a++;
+			}
+		}
+		if(a>0) {
+			pipelineProtocol.append("\n");	
+		}
+		
 		pipelineProtocol.append("Job");
 		JobStatus[] st = JobStatus.values();
 		for( int i = 0; i < st.length; i++ ) {
@@ -990,6 +1021,30 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		}
 	}
 	
+	static class Warning {
+		String regex;
+		int anz;
+		
+		Warning( String regex ) {
+			this.regex = regex
+					.replaceAll( "\\[", "\\\\[" )
+					.replaceAll( "\\]", "\\\\]" )
+					.replaceAll( "\\(", "\\\\(" )
+					.replaceAll( "\\)", "\\\\)" );
+			System.out.println(regex);
+			anz = 0;
+		}
+		
+		boolean matches( String w ) {
+			if( w.matches(regex) ) {
+				anz++;
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
 	/**
 	 * Enum for the status of {@link FlaggedRunnable} jobs.
 	 * 
@@ -1055,7 +1110,18 @@ public class GeMoMaPipeline extends GeMoMaModule {
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = null;
             while ( (line = br.readLine()) != null) {
-            	pipelineProtocol.appendWarning( "[" + cmd[0] + "]: " + line+"\n");
+        		boolean out=true;
+            	for( int i = 0; i < w.length; i++ ) {
+            		synchronized (w[i]) {
+						if( w[i].matches(line) ) {
+							if( w[i].anz>WARNING_THRESHOLD ) out=false;
+							break;
+						}
+					}
+				}
+				if( out ) {
+					pipelineProtocol.appendWarning( "[" + cmd[0] + "]: " + line+"\n");
+				}
 			}
             br.close();
 			
@@ -1154,7 +1220,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting makeblastdb\n");
 			//log file is necessary as otherwise Java sometimes does not finish waitFor() 
-			int exitCode = runProcess( "makeblastdb", "-out", escape(home+"/blastdb"), "-hash_index", "-in", escape(target), "-title", "target", "-dbtype", "nucl", "-logfile", home+"/blastdb-logfile" );
+			int exitCode = runProcess( search_path+"makeblastdb", "-out", escape(home+"/blastdb"), "-hash_index", "-in", escape(target), "-title", "target", "-dbtype", "nucl", "-logfile", home+"/blastdb-logfile" );
 			
 			//read logfile
 			BufferedReader r = new BufferedReader( new FileReader(home+"/blastdb-logfile") );
@@ -1208,7 +1274,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		@Override
 		public void doJob() throws Exception {
 			pipelineProtocol.append("starting mmseqs createDB\n");
-			int exitCode = runProcess( mmseqs, "createdb", escape(target), escape(home+"/mmseqsdb"), "--dont-split-seq-by-len", /*"--dont-shuffle", "--dbtype", "2",*/ "-v", "2" );
+			int exitCode = runProcess( search_path+mmseqs, "createdb", escape(target), escape(home+"/mmseqsdb"), /*"--dont-split-seq-by-len", "--dont-shuffle", "--dbtype", "2",*/ "-v", "2" );
 			
 			if( exitCode> 0 ) {
 				status=JobStatus.FAILED;
@@ -1379,7 +1445,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		public void doJob() throws Exception {
 			Species current = species.get(speciesIndex);
 			pipelineProtocol.append("starting tblastn split=" + split + " for species " + current.name + "\n");
-			int exitCode = runProcess( "tblastn", "-query", current.cds_parts[split],
+			int exitCode = runProcess( search_path+"tblastn", "-query", current.cds_parts[split],
 					"-db", escape(home+"blastdb"), "-evalue",""+eValue, "-out", home+speciesIndex+"/tblastn-"+split+".txt",
 					"-outfmt", "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles",
 					"-db_gencode","1", "-matrix", "BLOSUM62", "-seg", "no", "-word_size", "3", "-comp_based_stats", "F", "-gapopen", ""+gapOpen, "-gapextend", ""+gapExt, "-num_threads", "1" );
@@ -1438,7 +1504,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 
 			int exitCode=0;
 			//createDB for query
-			exitCode = runProcess( mmseqs, "createdb", escape(sp.cds), escape(home+speciesIndex+"/mmseqsdb"), /*"--dont-split-seq-by-len", "--dont-shuffle", "--dbtype", "1",*/ "-v", "2" );
+			exitCode = runProcess( search_path+mmseqs, "createdb", escape(sp.cds), escape(home+speciesIndex+"/mmseqsdb"), /*"--dont-split-seq-by-len", "--dont-shuffle", "--dbtype", "1",*/ "-v", "2" );
 
 			String tmp = home+speciesIndex+"/mmseqsdb_tmp";
 			File t = new File( tmp );
@@ -1446,7 +1512,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 
 			//search
 			if( exitCode==0 ) {
-				exitCode = runProcess( mmseqs, "search",
+				exitCode = runProcess( search_path+mmseqs, "search",
 					escape(home+speciesIndex+"/mmseqsdb"),
 					escape(home+"/mmseqsdb"),
 					escape(home+speciesIndex+"/mmseqsdb_align.out"),
@@ -1456,7 +1522,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 
 			//convertalis
 			if( exitCode == 0 ) {
-				exitCode = runProcess( mmseqs, "convertalis",
+				exitCode = runProcess( search_path+mmseqs, "convertalis",
 						escape(home+speciesIndex+"/mmseqsdb"),
 						escape(home+"/mmseqsdb"),
 						escape(home+speciesIndex+"/mmseqsdb_align.out"),
@@ -1661,6 +1727,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			params.getParameterForName("genome").setValue(target);
 			params.getParameterForName("Ambiguity").setValue("AMBIGUOUS");
 			params.getParameterForName("full-length").setValue("false");
+			params.getParameterForName("discard pre-mature stop").setValue("false");
 			
 			params.getParameterForName(Extractor.name[2]).setValue(protein);
 			params.getParameterForName(Extractor.name[3]).setValue(cds);
