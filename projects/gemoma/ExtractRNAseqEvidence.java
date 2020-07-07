@@ -113,6 +113,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		private int end;
 		private Strand strand;
 		private int count;
+		private int minContext;
 		
 		public int getCount() {
 			return count;
@@ -134,35 +135,44 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 			return strand;
 		}
 
-		private Intron(int start, int len, Strand strand){			
+		private Intron(int start, int len, Strand strand, int minContext){			
 			this.start = start;
 			this.end = start+len;
 			this.strand = strand;
 			this.count = 0;
+			this.minContext=minContext;
 		}
 		
-		public static boolean addIntrons(SAMRecord record, Stranded stranded, List<Intron> introns){
+		public void bestContext( Intron i ) {
+			if( i.minContext > minContext ) {
+				minContext = i.minContext;
+			}
+		}
+		
+		public static int addIntrons(SAMRecord record, Stranded stranded, List<Intron> introns){
 			
 			int start = record.getAlignmentStart();
 			
 			String cigar = record.getCigarString();
 			int idx=cigar.indexOf('N');
 			if(idx<0){
-				return false;
+				return 0;
 			}
 			
 			int bitflag = record.getFlags();
 			
 			startOffs.clear();
 			lens.clear();
-			getOffset(cigar,startOffs,lens);
+			int shortest = getOffset(cigar,startOffs,lens);
 			Strand strand = getStrand(bitflag, stranded);
-			
+//int max=0;			
 			for(int i=0;i<startOffs.length();i++){
-				Intron in = new Intron( start+startOffs.get(i), lens.get(i),strand );
+//max= Math.max(max,lens.get(i));
+				Intron in = new Intron( start+startOffs.get(i), lens.get(i), strand, shortest );
 				introns.add(in);
 			}
-			return startOffs.length()>0;
+//System.err.println(shortest + "\t" + max );// +"\t" + cigar);
+			return startOffs.length();
 		}
 	
 		private static Strand getStrand(int bitflag, Stranded stranded) {
@@ -204,18 +214,26 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 
 		private static Pattern p = Pattern.compile( "[0-9]+(M|D|N)" );
 		
-		private static void getOffset(String cigar, IntList startOffs, IntList lens ){
+		private static int getOffset(String cigar, IntList startOffs, IntList lens ){
 			Matcher m = p.matcher(cigar);
 			
-			int off = 0;
+			int off = 0, shortest = Integer.MAX_VALUE;
 			while( m.find() ){
 				int len = Integer.parseInt( cigar.substring( m.start(),m.end()-1 ) );
-				if(m.group().endsWith("N")){
-					startOffs.add(off);
-					lens.add(len);
+				String s = m.group();
+				char last = s.charAt(s.length()-1);
+				switch( last ) {
+					case 'N': //long gap => intron
+						startOffs.add(off);
+						lens.add(len);
+						break;
+					case 'M': //(mis)match region
+						shortest = Math.min(shortest, len);
+						break;
 				}
 				off += len;
 			}
+			return shortest;
 		}
 
 		@Override
@@ -246,7 +264,8 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 						new EnumParameter(ValidationStringency.class, "Defines how strict to be when reading a SAM or BAM, beyond bare minimum validation.", true, ValidationStringency.LENIENT.name() ),
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
 						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, true),
-						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40)
+						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40),
+						new SimpleParameter(DataType.INT,"minimum context", "only introns that have evidence of at least one split read with a minimal M (=(mis)match) stretch in the cigar string larger than or equal to this value will be used", true, new NumberValidator<Integer>(1, 1000000), 1)
 					);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -263,6 +282,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		boolean sa = (Boolean) parameters.getParameterAt(3).getValue();
 		boolean coverage = (Boolean) parameters.getParameterAt(4).getValue();
 		int minQual = (Integer) parameters.getParameterForName("minimum mapping quality").getValue();
+		int minContext = (Integer) parameters.getParameterForName("minimum context").getValue();
 				
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( stringency );//important for unmapped reads
@@ -355,48 +375,52 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				if( q >= minQual ) {
 					if( sa || !rec.isSecondaryOrSupplementary() ) {
 						qual[1][q]++;
-						if( coverage ) {
-							boolean isNeg = rec.getReadNegativeStrandFlag();
-							boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
-							boolean countAsFwd = true;
-							if(stranded == Stranded.FR_SECOND_STRAND){
-								countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
-							}else if(stranded == Stranded.FR_FIRST_STRAND){
-								countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
+						int numIntrons = Intron.addIntrons(rec, stranded, introns);
+						if( numIntrons>=0 ) { //well mapped
+							if( numIntrons>0 ) {//has at least one intron
+								qual[2][q]++;
+								splits++;
+								split[wm]++;
 							}
 							
-							int recStart = rec.getStart();
-							while(currPos < recStart){
-								if(mapFwd.containsKey(currPos)){
-									previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
-									mapFwd.remove(currPos);
+							if( coverage ) {
+								boolean isNeg = rec.getReadNegativeStrandFlag();
+								boolean isFirst = !rec.getReadPairedFlag() || rec.getFirstOfPairFlag();
+								boolean countAsFwd = true;
+								if(stranded == Stranded.FR_SECOND_STRAND){
+									countAsFwd = (isFirst && !isNeg)||(!isFirst && isNeg);
+								}else if(stranded == Stranded.FR_FIRST_STRAND){
+									countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 								}
-								if(mapRev.containsKey(currPos)){
-									previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
-									mapRev.remove(currPos);
-								}
-								currPos++;
-							}
-							
-							HashMap<Integer, int[]> map = countAsFwd ? mapFwd : mapRev;
-							List<AlignmentBlock> blocks = rec.getAlignmentBlocks();
-							Iterator<AlignmentBlock> blockIt = blocks.iterator();
-							while(blockIt.hasNext()){
-								AlignmentBlock block = blockIt.next();
-								int start = block.getReferenceStart();
-								int len = block.getLength();
-								for(int k=0;k<len;k++){
-									if(!map.containsKey(start+k)){
-										map.put(start+k, new int[1]);
+								
+								int recStart = rec.getStart();
+								while(currPos < recStart){
+									if(mapFwd.containsKey(currPos)){
+										previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
+										mapFwd.remove(currPos);
 									}
-									map.get(start+k)[0]++;
+									if(mapRev.containsKey(currPos)){
+										previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
+										mapRev.remove(currPos);
+									}
+									currPos++;
+								}
+								
+								HashMap<Integer, int[]> map = countAsFwd ? mapFwd : mapRev;
+								List<AlignmentBlock> blocks = rec.getAlignmentBlocks();
+								Iterator<AlignmentBlock> blockIt = blocks.iterator();
+								while(blockIt.hasNext()){
+									AlignmentBlock block = blockIt.next();
+									int start = block.getReferenceStart();
+									int len = block.getLength();
+									for(int k=0;k<len;k++){
+										if(!map.containsKey(start+k)){
+											map.put(start+k, new int[1]);
+										}
+										map.get(start+k)[0]++;
+									}
 								}
 							}
-						}
-						if( Intron.addIntrons(rec, stranded, introns) ) {
-							qual[2][q]++;
-							splits++;
-							split[wm]++;
 						}
 					}
 				}
@@ -444,7 +468,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				
 				if( firstChrs[0] == null || !chr.equals(firstChrs[0]) ) {
 					introns = count(introns);
-					intronNum += print(chr,introns,sosInt);
+					intronNum += print(chr,introns,sosInt, minContext);
 					introns.clear();
 				}
 				
@@ -515,21 +539,23 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	private static HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
 	private static long anz = 0;
 	
-	private static long print(String chrom, ArrayList<Intron> introns,SafeOutputStream sos) throws IOException{
+	private static long print(String chrom, ArrayList<Intron> introns,SafeOutputStream sos, int threshold) throws IOException{
 		Iterator<Intron> it = introns.iterator();
 		long i = 0;
 		while(it.hasNext()){
 			Intron in = it.next();
-			int l = in.getEnd()-in.getStart();
-			int[] stat = intronL.get(l);
-			if( stat == null ) {
-				stat = new int[1];
-				intronL.put(l, stat);
+			if( in.minContext >= threshold ) {
+				int l = in.getEnd()-in.getStart();
+				int[] stat = intronL.get(l);
+				if( stat == null ) {
+					stat = new int[1];
+					intronL.put(l, stat);
+				}
+				stat[0]++;
+				anz++;
+				sos.writeln(chrom+"\tRNAseq\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
+				i++;
 			}
-			stat[0]++;
-			anz++;
-			sos.writeln(chrom+"\tRNAseq\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
-			i++;
 		}
 		return i;
 	}
@@ -547,6 +573,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		for(int i=1;i<introns.size();i++){
 			Intron curr = introns.get(i);
 			if(last.compareTo(curr) == 0){
+				last.bestContext(curr);
 				n++;
 			}else{
 				last.setCount(n);
