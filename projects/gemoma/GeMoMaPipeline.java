@@ -822,9 +822,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		for( int i = 0; i < w.length; i++ ) {
 			if( w[i].anz>0 ) {
 				if( a==0 ) {
-					pipelineProtocol.append( "occurrence\twarning\n" );	
+					pipelineProtocol.append( "occurrence\twarning\n" );
+					pipelineProtocol.append( "-----------------------\n" );
 				}
-				pipelineProtocol.append( w[i].anz + "\t" + w[i].regex +"\n" );
+				pipelineProtocol.append( w[i].anz + "\t\"" + w[i].regex +"\"\n" );
 				a++;
 			}
 		}
