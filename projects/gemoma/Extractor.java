@@ -20,7 +20,6 @@ package projects.gemoma;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -75,16 +74,16 @@ public class Extractor extends GeMoMaModule {
 		out.add(SafeOutputStream.getSafeOutputStream(b));
 	}
 
-	static String[] name = {"cds-parts", "assignment", "proteins", "cds", "genomic"};
+	static String[] name = {"cds-parts", "assignment", "proteins", "cds", "genomic", "introns"};
 	static String[] type;
 	static {
 		type = new String[name.length];
 		for( int i = 0; i < name.length; i++ ) {
 			type[i] = (i!=1?"fasta":"tabular");
 		};
+		type[5]="gff";
 	}
 	
-	private BufferedWriter intron;
 	private int[] problem = new int[9];
 	private int repair = 0;
 	private boolean rep;
@@ -95,7 +94,6 @@ public class Extractor extends GeMoMaModule {
 		shortInfo.delete(0, shortInfo.length());
 		discarded.delete(0, discarded.length());
 		progress.setIndeterminate();
-		intron = null;//new BufferedWriter(new FileWriter("intron.gff"));//TODO allows to write an intron file based on the annotation, might be interesting for test cases
 		
 		HashMap<String, String> selected = null;
 		BufferedReader r;
@@ -112,6 +110,7 @@ public class Extractor extends GeMoMaModule {
 		HashMap<String,Character> code = Tools.getCode( in );
 		
 		Ambiguity ambi = (Ambiguity) parameters.getParameterForName("Ambiguity").getValue();
+		boolean discardPreMatureStop = (Boolean) parameters.getParameterForName("discard pre-mature stop").getValue();
 		boolean stopCodonEx = (Boolean) parameters.getParameterForName("stop-codon excluded from CDS").getValue();
 		boolean fullLength = (Boolean) parameters.getParameterForName("full-length").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
@@ -121,7 +120,7 @@ public class Extractor extends GeMoMaModule {
 		out = new ArrayList<SafeOutputStream>();
 		getOut( name[0], file, out );
 		getOut( name[1], file, out );
-		for( int i = 2; i <= 4; i++ ) {
+		for( int i = 2; i < name.length; i++ ) {
 			getOut( ((Boolean)parameters.getParameterForName(name[i]).getValue()) ? name[i] : null, file, out );
 		}
 	
@@ -142,7 +141,7 @@ public class Extractor extends GeMoMaModule {
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
+				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop );
 				unUsedChr.remove(comment);
 				//clear
 				int idx = line.indexOf(' ');
@@ -154,7 +153,7 @@ public class Extractor extends GeMoMaModule {
 			}
 		}
 		//do
-		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code );
+		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop );
 		unUsedChr.remove(comment);
 		r.close();
 
@@ -223,10 +222,6 @@ public class Extractor extends GeMoMaModule {
 				e = it.next();
 				protocol.append( e.getKey() + "\t" + e.getValue()[0] + "\n");
 			}
-		}
-		
-		if( intron != null ) {
-			intron.close();
 		}
 		
 		if( intronL != null && intronL.size() > 0 ) {
@@ -594,7 +589,7 @@ public class Extractor extends GeMoMaModule {
 	}	
 	
 	private void extract( boolean stopCodonEx, boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
-			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code
+			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code, boolean discardPreMatureStop
 			) throws Exception {
 		if( comment == null ) {
 			return;
@@ -690,7 +685,7 @@ public class Extractor extends GeMoMaModule {
 						Part current = part.get( il.get(j) );
 						set[j] = current.aa != null;
 					}
-					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, verbose, used, acc, don );
+					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, verbose, used, acc, don, discardPreMatureStop );
 					
 					//try to repair
 					if( prob>=0 && rep) {
@@ -705,7 +700,7 @@ public class Extractor extends GeMoMaModule {
 									current.aa = null;
 								}
 							}
-							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, false, used, acc, don);
+							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, false, used, acc, don, discardPreMatureStop );
 						} while( test >= 0 && phase <= 2 );
 						if( test < 0 ) {
 							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
@@ -762,10 +757,9 @@ public class Extractor extends GeMoMaModule {
 							out.get(5).write(">" + gene.id + "_" + j + "\n" + p.don + "\n");
 						}*/
 						
-						if( intron != null ) {
+						if( !out.get(5).doesNothing() ) {
 							for( int k = 0; k < splits.length; k++ ) {
 								if( splits[j][k] ) {
-									String intr;
 									int st, en;
 									if( forward ) {
 										st = gene.exon.get(j)[2]+1;
@@ -774,15 +768,16 @@ public class Extractor extends GeMoMaModule {
 										st = gene.exon.get(k)[2]+1;
 										en = gene.exon.get(j)[1];
 									}
-									intr = seq.substring(st-1, en-1);
+									/*
+									String intr = seq.substring(st-1, en-1);
 									if( !forward ) {
 										intr = Tools.rc(intr);
 									}
-									//System.out.println( Arrays.toString( gene.exon.get(j) ) );
-									//System.out.println( Arrays.toString( gene.exon.get(k) ) );
-									//System.out.println(forward + "\t" + intr);
-									intron.append(chr + "\tannotation\tintron\t" + st + "\t" + en + "\t.\t" + (forward?"+":"-") + "\t.\t." );
-									intron.newLine();
+									System.out.println( Arrays.toString( gene.exon.get(j) ) );
+									System.out.println( Arrays.toString( gene.exon.get(k) ) );
+									System.out.println(forward + "\t" + intr);
+									*/
+									out.get(5).writeln(chr + "\tannotation\tintron\t" + st + "\t" + en + "\t.\t" + (forward?"+":"-") + "\t.\t." );
 								}
 							}
 						}
@@ -799,7 +794,7 @@ public class Extractor extends GeMoMaModule {
 	HashMap<String, int[]> donor, acceptor;
 	HashMap<Integer,int[]> count;
 	
-	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol,boolean verbose, boolean[] used, String[] acc, String[] don ) throws IOException {
+	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol,boolean verbose, boolean[] used, String[] acc, String[] don, boolean discardPreMatureStop ) throws IOException {
 		int j;
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
@@ -850,7 +845,7 @@ public class Extractor extends GeMoMaModule {
 				}
 			}
 			
-			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z]*" +(j+1==il.length() && !stopCodonEx?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//since > v1.3.1
+			if( current.aa!= null && current.aa.length()>0 && !current.aa.matches("[A-Za-z" + (discardPreMatureStop?"":"\\*")+ "]*" +(j+1==il.length() && !stopCodonEx?("\\*"+(fullLength?"{1}":"{0,1}")):"")) ) {//since > v1.3.1
 				message.add(pa);
 			}
 			if( current.aa!= null && current.aa.length()<minExon ) {
@@ -914,13 +909,13 @@ public class Extractor extends GeMoMaModule {
 				if( verbose ) protocol.appendWarning(trans + "\tskip start phase not zero\n" );
 				return 1;
 			} else if( fullLength && p.charAt(0)!='M' ) {
-				if( verbose ) protocol.appendWarning(trans + "\tskip missing start\n" );
+				if( verbose ) writeWarning(protocol, trans, "skip missing start",p, dnaSeqBuff );
 				return 2;
 			} else if( fullLength && last != p.length()-1 ){
-				if( verbose ) protocol.appendWarning(trans + "\tskip missing stop\n" );
+				if( verbose ) writeWarning(protocol, trans, "skip missing stop",p, dnaSeqBuff );
 				return 3;
-			} else if( anz > 1 ) {
-				if( verbose ) protocol.appendWarning(trans + "\tskip premature stop, " + p + "\n" + dnaSeqBuff+"\n");
+			} else if( anz > 1 && discardPreMatureStop ) {
+				if( verbose ) writeWarning(protocol, trans, "skip premature stop",p, dnaSeqBuff );
 				return 4;
 			} else if( message.length() > 0 ) {
 				if( verbose ) {
@@ -1077,6 +1072,10 @@ public class Extractor extends GeMoMaModule {
 		}
 	}	
 	
+	void writeWarning( Protocol protocol, String trans, String reason, String p, CharSequence dna ) {
+		protocol.appendWarning(trans + "\t" + reason + "\n"+p+"\n"+dna+"\n" );
+	}
+	
 	static class Part {
 		static final int NO_PHASE = -100000;
 		
@@ -1104,6 +1103,7 @@ public class Extractor extends GeMoMaModule {
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[2], "whether the complete proteins sequences should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[4], "whether the genomic regions should be returned (upper case = coding, lower case = non coding)", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, Extractor.name[5], "whether introns should be extracted from annotation, that might be used for test cases", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "upcase IDs", "whether the IDs in the GFF should be upcased", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the program will try to infer the phase of the CDS parts to repair the annotation", true, false ),
 				
@@ -1122,6 +1122,7 @@ public class Extractor extends GeMoMaModule {
 						+ "EXCEPTION, which will remove the corresponding transcript, "
 						+ "AMBIGUOUS, which will use an X for the corresponding amino acid, and "
 						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),
+				new SimpleParameter( DataType.BOOLEAN, "discard pre-mature stop", "if *true* transcripts with premature stop codon are discarded as they often indicate misannotation", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information", true, false )
