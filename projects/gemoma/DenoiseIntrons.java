@@ -47,7 +47,6 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import projects.gemoma.GeMoMa.IntArrayComparator;
 
 /**
  * Tries to denoise the intron file by removing spurious introns.
@@ -217,7 +216,7 @@ public class DenoiseIntrons extends GeMoMaModule {
 		for( int x = 0; x < cov.length; x++ ) {
 			double c = 0;
 			int p = s;
-			int idx = Arrays.binarySearch(cov[x], new int[]{p}, IntArrayComparator.comparator[2] );
+			int idx = Arrays.binarySearch(cov[x], new int[]{p}, GeMoMa.IntArrayComparator.comparator[2] );
 			if( idx < 0 ) {
 				idx = -(idx+1);
 				idx = Math.max(0, idx-1);
