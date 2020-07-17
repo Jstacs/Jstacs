@@ -378,7 +378,7 @@ public class GeMoMa extends GeMoMaModule {
 				} else {
 					System.out.println("Creating help for wiki");
 					StringBuffer sb = cli.wikiPage("GeMoMa-"+GeMoMaModule.VERSION+".jar CLI");
-					//TODO check "in a nutshell" if parameter key changed
+					//TODO check "in a nutshell" if parameter keys changed
 					sb.insert(0, "== In a nutshell ==\n\n"
 							+ "GeMoMa is a modular, homology-based gene prediction program with huge flexibility. However, we also provide a pipeline allowing to use GeMoMa easily. If you like to start GeMoMa for the first time, we recommend to use the GeMoMaPipeline like this\n"
 							+ " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar CLI GeMoMaPipeline threads=<threads> outdir=<outdir> GeMoMa.Score=ReAlign AnnotationFinalizer.r=NO o=true t=<target_genome> i=<reference_1_id> a=<reference_1_annotation> g=<reference_1_genome>\n" + 
@@ -1349,47 +1349,59 @@ public class GeMoMa extends GeMoMaModule {
 		 * 
 		 * @throws WrongAlphabetException if the is a problem in the score computation
 		 */
-		public void addSplitHits(ArrayList<Hit> add) throws WrongAlphabetException { //XXX split: TODO test before relase
-			int idx=-1;
-			do {
-				idx = targetAlign.indexOf('*', idx+1);
-			} while( idx >=0 && queryAlign.charAt(idx)=='*' );
+		public void addSplitHits(ArrayList<Hit> add) throws WrongAlphabetException {
+			//int anz=0, start = add.size();
 			
-			if( idx < 0 ) {
-				add.add(this);
-			} else {
-				//split at STOP codon?
-				int old=0, qStart=queryStart, tStart = forward? targetStart : targetEnd, factor = forward ? 1 : -1, f, a, b;
+			int idx=-1;
+			int old=0, qStart=queryStart, tStart = forward? targetStart : targetEnd, factor = forward ? 1 : -1, f, a, b;
+			do {
 				do {
-					a=b=0;
-					if( idx < 0 ) {
-						f = targetAlign.length();
+					idx = targetAlign.indexOf('*', idx+1);
+				} while( idx >=0 && queryAlign.charAt(idx)=='*' );
+				
+				a=b=0;
+				if( idx < 0 ) {
+					//there is no (further) premature stop codon that is not in the query sequence
+					if( old == 0 ) {
+						add.add(this);
+						return;
 					} else {
-						f = idx;
-						if( queryAlign.charAt(idx)=='*' ) {
-							f++;
-						} else {
-							if( queryAlign.charAt(idx)=='-' ) {
-								a=1;
-								b=0;
-							} else {
-								a=b=1;
-							}
-						}
+						f = targetAlign.length();
 					}
-						
-					if( f-old > 0 ) {
-						String t = targetAlign.substring(old, f);
-						String q = queryAlign.substring(old, f);
-						
-						//shorten remaining alignment from both side if there are any gaps
-						int off1= 0, oq1=0, off2 = t.length()-1, oq2=0, n = 0;
-						while( off1 < t.length() && (t.charAt(off1) =='-' || q.charAt(off1)=='-') ) {
-							if( q.charAt(off1)=='-') {
-								oq1++;
-							}
-							off1++;
-						}
+				} else {
+					//there is a premature stop codon that is not in the query sequence
+					f = idx;
+					if( queryAlign.charAt(idx)=='-' ) {
+						a=1;
+						b=0;
+					} else {
+						a=b=1;
+					}
+				}
+					
+				String t = targetAlign.substring(old, f);
+				String q = queryAlign.substring(old, f);
+				
+				//shorten remaining alignment from both side if there are any gaps
+				int off1=0, oq1=0;
+				while( off1 < t.length() && (t.charAt(off1) =='-' || q.charAt(off1)=='-') ) {
+					if( q.charAt(off1)=='-') {
+						oq1++;
+					}
+					off1++;
+				}
+				
+				if( off1 == t.length() ) {
+					//the alignment does not contain a single match or mismatch (only gaps), hence, we don't need this part of the alignment
+					int qg = getGapLength(q);
+					int tg = getGapLength(t);
+					qStart+=q.length()-qg+b;
+					tStart+=factor*3*(t.length()-tg+a);
+				} else {
+					int off2=t.length()-1, oq2=0, n = 0;
+					if( off1==t.length() ) {
+						off2=0;
+					} else {
 						while( off2 >= 0 && (t.charAt(off2) =='-' || q.charAt(off2)=='-') ) {
 							if( q.charAt(off2)=='-') {
 								oq2++;
@@ -1398,41 +1410,34 @@ public class GeMoMa extends GeMoMaModule {
 							off2--;
 						}
 						off2++;
-						
-						if( off1 > off2 ) {
-							//the alignment does not contain a single match or mismatch (only gaps), hence, we don't need this part of the alignment
-							int qg = getGapLength(q);
-							int tg = getGapLength(t);
-							qStart+=q.length()-qg+b;
-							tStart+=factor*3*(t.length()-tg+a);
-						} else {							
-							q=q.substring(off1, off2);
-							t=t.substring(off1, off2);
-						
-							int sc = getScore(q, t);
-							int qg = getGapLength(q);
-							int tg = getGapLength(t);
-							
-							int tS = tStart+factor*3*oq1;
-							if( sc > 0 )  {
-								Hit h =  new Hit(queryID, targetID, qStart+(off1-oq1), qStart+(off1-oq1)+q.length()-qg-1, queryLength, tS, tS +factor*(3*(t.length()-tg)-1), sc, q, t, info + "split by '*';" );
-								add.add( h );
-							}
-							qStart+=(off1-oq1) + q.length()-qg + (n-oq2) + b;
-							tStart+=factor*3*(oq1 + t.length()-tg + oq2 + a);
-						}
-						
-						
-					} else { //multiple STOP codons in a row
-						qStart+=b;
-						tStart+=factor*3*a;
 					}
-					old=idx+1;
-					do {
-						idx = targetAlign.indexOf('*', idx+1);
-					} while( idx >=0 && queryAlign.charAt(idx)=='*' );
-				} while( old > 0 );
-			}
+					
+					q=q.substring(off1, off2);
+					t=t.substring(off1, off2);
+				
+					int sc = getScore(q, t);
+					int qg = getGapLength(q);
+					int tg = getGapLength(t);
+					
+					int tS = tStart+factor*3*oq1;
+					if( sc > 0 )  {
+						Hit h =  new Hit(queryID, targetID, qStart+(off1-oq1), qStart+(off1-oq1)+q.length()-qg-1, queryLength, tS, tS +factor*(3*(t.length()-tg)-1), sc, q, t, info + "split by '*';" );
+						add.add( h );
+						//anz++;
+					}
+					qStart+=(off1-oq1) + q.length()-qg + (n-oq2) + b;
+					tStart+=factor*3*(oq1 + t.length()-tg + oq2 + a);
+				}
+				old=f+1;
+			} while( idx>=0 );
+			/*
+			if( anz>1 ) {
+				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+				System.out.println(this);
+				while( start < add.size() ) {
+					System.out.println(add.get(start++));
+				}
+			}*/
 		}
 		
 		/**
@@ -1979,9 +1984,7 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			
 			//XXX remove
-			phase=null;
-			//splitAA=null;
-			
+			phase=null;			
 			if( phase != null ) {
 				split = phase.split( "," );
 				this.phase = new int[split.length];
@@ -1989,6 +1992,7 @@ public class GeMoMa extends GeMoMaModule {
 					this.phase[i] = Integer.parseInt(split[i].trim());
 				}
 			}
+			
 			this.splitAA = new String[this.exonID.length];
 			Arrays.fill(this.splitAA, "");
 			if( splitAA != null ) {
@@ -2569,9 +2573,10 @@ public class GeMoMa extends GeMoMaModule {
 							//additional GFF tags
 							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
-						int preMatureStops=0;
-						for( int j=0; j < pred.length()-1; j++ ) {
-							if( pred.charAt(j)=='*') preMatureStops++;
+						int preMatureStops=0, j=-1;
+						String aa =pred.substring(0, pred.length()-1);
+						while( (j=aa.indexOf('*',j+1)) >= 0 ) {
+							preMatureStops++;
 						}
 						gff.append( ";nps=" + preMatureStops );
 						
