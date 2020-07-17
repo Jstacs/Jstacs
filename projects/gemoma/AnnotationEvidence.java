@@ -47,6 +47,7 @@ import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.IntList;
 import projects.gemoma.Extractor.Gene;
 import projects.gemoma.Extractor.Part;
+import projects.gemoma.Extractor.Transcript;
 import projects.gemoma.Tools.Ambiguity;
 
 /**
@@ -57,12 +58,15 @@ import projects.gemoma.Tools.Ambiguity;
 public class AnnotationEvidence extends GeMoMaModule {
 	
 	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {		
-		GeMoMa.fill(protocol, false, -1, 
+		if( GeMoMa.seqs == null  ) {
+			GeMoMa.fill(protocol, false, -1, 
 				parameters.getParameterForName("genome").getValue().toString(),
 				null, 
 				(Integer) parameters.getParameterForName("reads").getValue(), (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(2)).getValue(), 
 				(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue()
-		);
+			);
+		}
+		String tag = parameters.getParameterForName("tag").getValue().toString();
 		
 		HashMap<String,Character> code = Tools.getCode(Tools.getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ));
 		code.put("NNN", 'X');//add for splitting at NNN (in align method)
@@ -93,6 +97,8 @@ public class AnnotationEvidence extends GeMoMaModule {
 		boolean coverage = GeMoMa.coverage!=null;
 		boolean introns = GeMoMa.donorSites!=null;
 		
+		HashMap<String, String> attr = new HashMap<String,String>();
+		StringBuffer old = new StringBuffer();
 		for( String c: chr ) {
 			String seq = GeMoMa.seqs.get(c);
 			HashMap<String,Gene> current = annotation.get(c);
@@ -107,14 +113,15 @@ public class AnnotationEvidence extends GeMoMaModule {
 		
 					int[][] cov = (coverage && GeMoMa.coverage[g.strand==1?0:1]!= null) ? GeMoMa.coverage[g.strand==1?0:1].get(c) : null;
 					
-					Iterator<Entry<String,IntList>> cds = g.transcript.entrySet().iterator();
+					Iterator<Entry<String,Transcript>> cds = g.transcript.entrySet().iterator();
 					
 					annot.append( c + "\t" + g.evidence + "\tgene\t" + g.start + "\t" + g.end + "\t.\t" + (g.strand==1?"+":"-") + "\t.\tID=" + g.id );
 					annot.newLine();
 					
 					while( cds.hasNext() ) {
-						Entry<String,IntList> e = cds.next();
-						IntList parts = e.getValue();
+						Entry<String,Transcript> e = cds.next();
+						Transcript t = e.getValue();
+						IntList parts = t.b;
 						if( parts.length()>0 ) {
 							int tStart = g.strand>0 ? g.exon.get(parts.get(0))[1] : g.exon.get(parts.get(parts.length()-1))[1];
 							int tEnd = g.strand>0 ? g.exon.get(parts.get(parts.length()-1))[2] : g.exon.get(parts.get(0))[2];
@@ -224,14 +231,69 @@ public class AnnotationEvidence extends GeMoMaModule {
 							w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString + "\t" + preMatureStops );
 							w.newLine();
 							
-							//TODO annotation
-							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+GeMoMa.TAG+"\t" + tStart + "\t" + tEnd + "\t.\t" + (g.strand==1?"+":"-")
-									+ "\t.\tID=" + e.getKey() + ";Parent="+g.id + ";"
+							//annotation
+							annot.append( c + "\t" + g.evidence + "+AnnotationEvidence\t"+tag+"\t" + tStart + "\t" + tEnd + "\t.\t" + (g.strand==1?"+":"-") + "\t.\t");
+							//attributes
+							String[] att = t.attributes==null ? EMPTY : t.attributes.split(";");
+							for( int j = 0; j < att.length; j++ ) {
+								att[j]=att[j].trim();
+							}
+							boolean gtf = att.length>0 && (att[0].startsWith("gene_id") || att[1].startsWith("transcript_id"));
+							if( gtf ) {
+								//GTF -> GFF
+								for( int j = 0; j < att.length; j++ ) {
+									att[j]=att[j].replace(" \"", "=\"");
+								}
+								if( att[0].startsWith("gene_id") ) {
+									att[0]=att[0].replace("gene_id", "Parent" );
+									att[1]=att[1].replace("transcript_id", "ID" );
+								} else {
+									att[1]=att[1].replace("gene_id", "Parent" );
+									att[0]=att[0].replace("transcript_id", "ID" );
+								}
+							}
+							attr.clear();
+							for( int j = 0; j < att.length; j++ ) {
+								int pos = att[j].indexOf('=');
+								attr.put(att[j].substring(0,pos), att[j].substring(pos+1));
+							}
+							
+							old.delete(0, old.length());
+							
+							add(old,attr,"Parent",g.id);
+							add(old,attr,"aa",""+(l/3));
+							if( introns ) add(old,attr,"tie",tieString);
+							if( coverage ) {
+								add(old,attr,"tpc",tpcString);
+								add(old,attr,"minCov",""+min);
+								add(old,attr,"avgCov",avgCovString);
+							}
+							add(old,attr,"nps",""+preMatureStops);
+							add(old,attr,"start",""+aa.charAt(0));
+							add(old,attr,"stop",""+aa.charAt(aa.length()-1));
+							
+							//write attributes in the same order as in the input file
+							for( int j = 0; j < att.length; j++ ) {
+								int pos = att[j].indexOf('=');
+								String key = att[j].substring(0,pos);
+								annot.append(key+"=" + attr.remove(key) + ";");
+							}
+							//add additional attributes
+							String[] k = attr.keySet().toArray(EMPTY);
+							Arrays.sort(k);
+							for( String key: k ) {
+								annot.append(key+"=" + attr.remove(key) + ";");
+							}
+							if( old.length()>0 ) annot.append("#old: " + old);
+							
+							/*
+							annot.append( "ID=" + e.getKey() + ";Parent="+g.id + ";"
 										+ "aa=" + (l/3) 
 										+ (introns?";tie=" + tieString:"") 
 										+ (coverage?(";tpc="+ tpcString + ";minCov=" + min + ";avgCov=" + avgCovString):"")
 										+ ";nps=" + preMatureStops										
 										+ ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
+							*/
 							annot.newLine();
 
 							for( int j = 0;j < parts.length(); j++ ) {
@@ -255,10 +317,22 @@ public class AnnotationEvidence extends GeMoMaModule {
 		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 	}
 	
+	private static final String[] EMPTY = new String[0];
+	
+	private static void add( StringBuffer old, HashMap<String,String> attr, String key, String newValue ) {
+		String oldValue = attr.get(key);
+		if( oldValue != null ) {
+			if( oldValue.equals(newValue) ) return;
+			old.append(key + "="  + oldValue+";");
+		}
+		attr.put(key, newValue);
+	}
+	
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "annotation", "The genome annotation file (GFF)", "gff,gtf", true, new FileExistsValidator(), true ),
+					new FileParameter( "annotation", "The genome annotation file (GFF,GTF)", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
+					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", false, new FileExistsValidator(), true )
