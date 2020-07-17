@@ -246,7 +246,7 @@ public class Extractor extends GeMoMaModule {
 	private static String gID = "gene_id \"";
 	private static String tID = "transcript_id \"";
 	
-	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String evidence, String c, String strand, String geneID, String transcriptID ) {
+	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String evidence, String c, String strand, String geneID, String transcriptID, String attributes ) {
 		HashMap<String,Gene> chr = annot.get(c);
 		if( chr == null ) {
 			chr = new HashMap<String,Gene>();
@@ -259,7 +259,7 @@ public class Extractor extends GeMoMaModule {
 			chr.put(geneID, gene);
 			
 		}
-		gene.add( transcriptID );
+		gene.add( transcriptID, attributes );
 		trans.put(transcriptID, gene);
 	}
 	
@@ -304,6 +304,9 @@ public class Extractor extends GeMoMaModule {
 			}
 			
 			split = line.split("\t");
+			if( split.length!=9 ) {
+				throw new IllegalArgumentException("This line does not seem to be a valid (tab-delimited) line of the annotation with 9 columns: " + line);
+			}
 			
 			if( first ) {
 				gff = split[8].indexOf('=')>0;//!( split[8].indexOf(tID)>=0 && split[8].indexOf(gID)>=0 );
@@ -357,7 +360,7 @@ public class Extractor extends GeMoMaModule {
 						if( geneID.length() == 0 ) {
 							geneID = transcriptID+".gene";
 						}
-						add(trans, annot, split[1], split[0], split[6], geneID, transcriptID);
+						add(trans, annot, split[1], split[0], split[6], geneID, transcriptID, null);
 						cds.add(split);
 					}
 					break;
@@ -378,7 +381,7 @@ public class Extractor extends GeMoMaModule {
 								protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
 							}
 							
-							add(trans, annot, split[1], split[0], split[6], geneID, transcriptID);
+							add(trans, annot, split[1], split[0], split[6], geneID, transcriptID, split[8]);
 						}
 					}
 					break;
@@ -402,7 +405,7 @@ public class Extractor extends GeMoMaModule {
 				gene = trans.get(parent[j]);
 				if( selected==null || selected.containsKey(parent[j]) ) {
 					if( gene == null  ) {
-						add(trans, annot, split[1], split[0], split[6], parent[j]+".gene", parent[j]);
+						add(trans, annot, split[1], split[0], split[6], parent[j]+".gene", parent[j], null);
 						gene = trans.get(parent[j]);
 					}
 					usedG.add(gene.id);
@@ -421,6 +424,16 @@ public class Extractor extends GeMoMaModule {
 		return annot;
 	}
 	
+	public static class Transcript {
+		IntList b;
+		String attributes;
+		
+		public Transcript( String attributes ) {
+			this.attributes = attributes;
+			b = new IntList();
+		}
+	}
+	
 	/**
 	 * This class represents a gene.
 	 * 
@@ -429,9 +442,10 @@ public class Extractor extends GeMoMaModule {
 	public static class Gene implements Comparable<Gene>{
 		/**
 		 * The {@link HashMap} contains all transcripts for this gene. 
-		 * The keys are the transcript IDs and the values are {@link IntList}. Each {@link IntList} contains  the indices of the (coding) exons this specific transcript.  
+		 * The keys are the transcript IDs and the values are {@link Transcript}. Each {@link Transcript} contains an IntList of the indices of the (coding) exons this specific transcript.  
 		 */
-		HashMap<String,IntList> transcript;
+		HashMap<String,Transcript> transcript;
+		ArrayList<String> attributes;
 		/**
 		 * The list of (coding) exons of this gene. The indices of the exon included in this list are used in {@link #transcript}.
 		 */
@@ -449,11 +463,12 @@ public class Extractor extends GeMoMaModule {
 		
 		Gene(String evidence, String id, String strand) {
 			this.evidence=evidence;
-			transcript = new HashMap<String, IntList>();
+			transcript = new HashMap<String, Transcript>();
 			exon = new ArrayList<int[]>();
 			this.id = id;
 			this.strand = strand.charAt(0)=='+' ? 1: -1;
 			start = end = -1;
+			attributes = new ArrayList<String>();
 		}
 		
 /*		Gene(String id, String start, String end, String strand) {
@@ -462,15 +477,15 @@ public class Extractor extends GeMoMaModule {
 			this.end = Integer.parseInt(end);
 		}*/
 		
-		void add( String t ) {
-			IntList i = transcript.get(t);
-			if( i == null ) {
-				transcript.put(t,new IntList());
+		void add( String t, String attributes ) {
+			Transcript tr = transcript.get(t);
+			if( tr == null ) {
+				transcript.put(t,new Transcript(attributes));
 			}
 		}
 	
 		void add( String t, int[] border ) {
-			IntList x = transcript.get(t);
+			IntList x = transcript.get(t).b;
 			int i = 0, j;
 			while( i < exon.size() ) {
 				int[] c = exon.get(i); 
@@ -499,9 +514,9 @@ public class Extractor extends GeMoMaModule {
 			boolean[] in = new boolean[s.length];
 			Arrays.fill( in, true );
 			for( int i = 0; i < s.length; i++ ) {
-				IntList il = transcript.get( s[i] );
+				IntList il = transcript.get( s[i] ).b;
 				for( int j = i+1; in[i] && j < s.length; j++ ) {
-					if( in[j] && identical(transcript.get(s[j]),il) ) {
+					if( in[j] && identical(transcript.get(s[j]).b,il) ) {
 						in[j] = false;
 						//out.append( geneName + "\t" + s[j] + "\t \n" );
 						transcript.remove(s[j]);
@@ -513,14 +528,14 @@ public class Extractor extends GeMoMaModule {
 		}
 		
 		void sortExons() {
-			Iterator<Entry<String,IntList>> it = transcript.entrySet().iterator();
-			Entry<String,IntList> e;
+			Iterator<Entry<String,Transcript>> it = transcript.entrySet().iterator();
+			Entry<String,Transcript> e;
 			IntList il;
 			int[] ids, current, compare;
 			boolean swapped = false, swap;
 			while( it.hasNext() ) {
 				e=it.next();
-				il = e.getValue();
+				il = e.getValue().b;
 				ids = il.toArray();
 				for( int i = 0; i < ids.length; i++ ) {
 					current = exon.get(ids[i]);
@@ -637,7 +652,7 @@ public class Extractor extends GeMoMaModule {
 				Arrays.fill( accS, false );
 				Arrays.fill( donS, false );
 				for( int k = 0; k < id.length; k++ ) {
-					IntList il = gene.transcript.get( id[k] );
+					IntList il = gene.transcript.get( id[k] ).b;
 					for( j = 0; j < il.length(); j++ ) {
 						i = il.get(j);
 						if( j != 0 ) {
@@ -679,7 +694,7 @@ public class Extractor extends GeMoMaModule {
 				
 				Arrays.fill( used, false );
 				for( int k = 0; k < id.length; k++ ) {
-					IntList il = gene.transcript.get( id[k] );
+					IntList il = gene.transcript.get( id[k] ).b;
 					boolean[] set = new boolean[il.length()];
 					for( j = 0; j < il.length(); j++ ) {
 						Part current = part.get( il.get(j) );
@@ -799,7 +814,7 @@ public class Extractor extends GeMoMaModule {
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
 		
-		IntList il = gene.transcript.get( trans );
+		IntList il = gene.transcript.get( trans ).b;
 		if( il.length() == 0 ) {
 			protocol.append("No coding exon(s) for: " + trans + "\n");
 			return -1;
@@ -895,15 +910,12 @@ public class Extractor extends GeMoMaModule {
 		}
 		
 		if( j == il.length() ) {
-			int anz = 0, index=-1, last = 0;
-			while( (index=p.indexOf('*',index+1))>= 0 ) {
-				anz++;
-				last = index;
-			}
-			
 			if( p.length() == 0 ) {
 				return 8;
 			}
+			
+			int idx = p.indexOf('*');
+			boolean preMature = 0<=idx && idx<p.length()-1;
 			
 			if( fullLength && startPhase!= 0 ) {
 				if( verbose ) protocol.appendWarning(trans + "\tskip start phase not zero\n" );
@@ -911,10 +923,10 @@ public class Extractor extends GeMoMaModule {
 			} else if( fullLength && p.charAt(0)!='M' ) {
 				if( verbose ) writeWarning(protocol, trans, "skip missing start",p, dnaSeqBuff );
 				return 2;
-			} else if( fullLength && last != p.length()-1 ){
+			} else if( fullLength && p.charAt(p.length()-1)!='*' ){
 				if( verbose ) writeWarning(protocol, trans, "skip missing stop",p, dnaSeqBuff );
 				return 3;
-			} else if( anz > 1 && discardPreMatureStop ) {
+			} else if( preMature && discardPreMatureStop ) {///XXX
 				if( verbose ) writeWarning(protocol, trans, "skip premature stop",p, dnaSeqBuff );
 				return 4;
 			} else if( message.length() > 0 ) {
@@ -999,7 +1011,7 @@ public class Extractor extends GeMoMaModule {
 				
 				//splice sites
 				int ignoreAAForSpliceSite=30, targetStart, targetEnd;
-				last=-1;
+				int last=-1;
 				for( j = 0; j < il.length(); j++ ) {
 					pa = il.get(j);
 					current = part.get(pa);
@@ -1122,7 +1134,7 @@ public class Extractor extends GeMoMaModule {
 						+ "EXCEPTION, which will remove the corresponding transcript, "
 						+ "AMBIGUOUS, which will use an X for the corresponding amino acid, and "
 						+ "RANDOM, which will randomly select an amnio acid from the list of possibilities.", true, Ambiguity.EXCEPTION.toString() ),
-				new SimpleParameter( DataType.BOOLEAN, "discard pre-mature stop", "if *true* transcripts with premature stop codon are discarded as they often indicate misannotation", true, true ),
+				new SimpleParameter( DataType.BOOLEAN, "discard pre-mature stop", "if *true* transcripts with pre-mature stop codon are discarded as they often indicate misannotation", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information", true, false )
