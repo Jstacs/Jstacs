@@ -92,6 +92,7 @@ import projects.gemoma.Tools.Ambiguity;
  * @see Extractor
  * @see GeMoMa
  * @see GAF
+ * @see AnnotationEvidence
  * @see AnnotationFinalizer
  */
 public class GeMoMaPipeline extends GeMoMaModule {
@@ -474,6 +475,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			this.annotationInfo=annotationInfo;
 			ext=-1;
 		}
+		
+		void setExt( int ext ) {
+			this.ext=ext;
+			name = ext + (id==null || id.length()==0 ? "": " (" + id + ")");
+		}
 	}
 	
 	private class RNASeq {
@@ -835,7 +841,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					SimpleParameterSet currentExt = (SimpleParameterSet) ((ParameterSetContainer)ext.getParameterAt(s)).getValue();
 					Species dummySpecies = new Species(speciesCounter, (String) currentExt.getParameterForName("ID").getValue(), (Double) currentExt.getParameterForName("weight").getValue(), null );
 					species.add(dummySpecies);
-					dummySpecies.ext=s;
+					dummySpecies.setExt(s);
 					dummySpecies.hasCDS = true;
 					dummySpecies.anno = (String) currentExt.getParameterForName("external annotation").getValue();
 					if( (Boolean) currentExt.getParameterForName("annotation evidence").getValue() ) {
@@ -875,6 +881,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				}
 			}
 		} catch( Exception e ) {
+			Thread.sleep(1000);
 			tr=e;
 		}
 		//needs to be done
@@ -1034,7 +1041,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		
 		if( result == null ) {
 			pipelineProtocol.flush();
-			//Thread.sleep(1000);
+			Thread.sleep(1000);
 			RuntimeException r = new RuntimeException("Did not finish as intended. " + tr.getClass().getName() + ": " + tr.getMessage() );
 			r.setStackTrace( tr.getStackTrace() );
 			throw r;
@@ -1736,8 +1743,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		@Override
 		public void doJob() throws Exception {
 			Species sp = species.get(idx);
-			int e = sp.ext;
-			pipelineProtocol.append("starting AnnotationEvidence for external annotation " + e +"\n");
+			pipelineProtocol.append("starting AnnotationEvidence for external annotation " + sp.name +"\n");
 						
 			AnnotationEvidence ae = new AnnotationEvidence();
 			ToolParameterSet pars = aePars.clone();
@@ -1748,7 +1754,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			try{
 				res = ae.run(pars, protocol, new ProgressUpdater(), 1);
 			} catch( Exception ex )  {
-				pipelineProtocol.append("AnnotationEvidence for external annotation " + e + " throws an Exception\n");
+				pipelineProtocol.append("AnnotationEvidence for external annotation " + sp.name + " throws an Exception\n");
 				throw ex;
 			}
 			String outDir = home + "/" + idx + "/";
