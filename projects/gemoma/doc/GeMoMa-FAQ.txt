@@ -51,7 +51,7 @@ GeMoMa reads the introns from the input file using some filter (cf. GeMoMa param
 GeMoMa in principle allows to predict multiple transcripts per gene, if corresponding transcripts are given in the reference species or if multiple reference species are used. 
 
 14) GeMoMa failed with java.lang.OutOfMemoryError. What can I do?
-Whenever you see a java.lang.OutOfMemoryError, you should rerun the program with Java virtual machine (VM) options. More specifically you should set: -Xms the initally used RAM, e.g. to 5Gb (–Xms5G), and -Xmx the maximally used RAM, e.g. to 50Gb (-Xmx50G). GeMoMa often needs more memory if you have a large genome and if you’re providing a large coverage file (extracted from RNA-seq data). If you don’t have a compute node with enough memory, you can run GeMoMa without coverage, which will return the same predictions, but does not include all statistics. Another point could be the protein alignment, if you use the optional parameter query protein. Again you can run GeMoMa without this parameter, which will return the same predictions, but less statistics. 
+Whenever you see a java.lang.OutOfMemoryError, you should rerun the program with Java virtual machine (VM) options. More specifically you should set: -Xms the initially used RAM, e.g. to 5Gb (–Xms5G), and -Xmx the maximally used RAM, e.g. to 50Gb (-Xmx50G). GeMoMa often needs more memory if you have a large genome and if you’re providing a large coverage file (extracted from RNA-seq data). If you don’t have a compute node with enough memory, you can run GeMoMa without coverage, which will return the same predictions, but does not include all statistics. Another point could be the protein alignment, if you use the optional parameter "query protein" (below version 1.7) or "protein alignment" (since version 1.7). Again you can run GeMoMa without protein alignment, which will return the same predictions, but less statistics. 
 
 15) I need to specify the genetic code for my organisms. What is the expected format?
 The genetic code is given in a two column tab-delimited table, where the first column is the one letter code of the amino acid and the second column is a comma-separated list of triplets. As we are working on genomic DNA, GeMoMa expects the bases A, C, G, and T, and not U (as expected in mRNA). Here is the link to the default genetic code, which might be used as template:
@@ -64,5 +64,21 @@ The genetic code might be specified for a reference organism in the module Extra
 You can use several threads for the computation. If you run the GeMoMaPipeline you just have to select threads=<your_number>.
 In addition, you can change the search algorithm that is used in GeMoMa. Tblastn is used by default as search algorithm in GeMoMa (for historical reasons). However, tblastn can be replaced by mmseqs which is typically much faster. If you run the GeMoMaPipeline you just have to select tblastn=false. However, changing the search algorithm can also effect the results. We try to minimize these effect using specific parameters for the search algorithms.
 If you modify other parameters, you will probably receive results that differ to a larger extend from those received using the default parameters.   
- 
+
+17) Is there a way to use GeMoMa to search a single CDS or protein sequence against a genome and return the predicted gene model (CDS fasta, protein fasta, GFF) similar to exonerate?
+There at least two ways to do this. If you use GeMoMaPipeline you can 
+(A)	Use the parameter “selected” to select specific gene models (=transcripts/proteins) from the annotation instead of using all or
+(B)	Use s=pre-extracted, use a fasta file with the proteins for the parameter cds-parts and leave assignment unset.
+Using one of these options you can either look for a single or few transcripts/proteins either with (A) or without (B) intron-position conservation. In addition, you can use RNA-seq data to improve the predictions, which should be not possible with exonerate.
+
+18) Can I determine synteny based on GeMoMa predictions?
+Yes, since version 1.7 we provide the module SyntenyChecker and a R script that can be used for this purpose. It exploits the fact the the reference gene and the alternative are known. Hence no alignment is need at this point and synteny can be determined quite fast. 
+
+19) How, can I add additional attributes to the annotation?
+Additional attribute, e.g., functional annotation from InterProScan, can be added to the structural gene annotation using the module AddAttribute, which has been included since version 1.7. Such additional attributes might be used in GAF for filtering and sorting and can also be displayed in genome browsers like IGV or WebApollo. 
+
+20) Can structural gene annotation provided by GeMoMa be submitted to NCBI?
+Yes, NCBI allows to submit structural gene annotation in GFF format (https://www.ncbi.nlm.nih.gov/genbank/genomes_gff/). If you run GeMoMaPipeline or AnnotationFinalizer, the GFF should be valid for conversion. 
+
+
 For any further questions or comments please contact jens.keilwagen@julius-kuehn.de 
