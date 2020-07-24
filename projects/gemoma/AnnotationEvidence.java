@@ -62,8 +62,9 @@ public class AnnotationEvidence extends GeMoMaModule {
 			GeMoMa.fill(protocol, false, -1, 
 				parameters.getParameterForName("genome").getValue().toString(),
 				null, 
-				(Integer) parameters.getParameterForName("reads").getValue(), (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(2)).getValue(), 
-				(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(4)).getValue()
+				(Integer) parameters.getParameterForName("reads").getValue(), 
+				(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(3)).getValue(), 
+				(ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(5)).getValue()
 			);
 		}
 		String tag = parameters.getParameterForName("tag").getValue().toString();
@@ -260,6 +261,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 							
 							old.delete(0, old.length());
 							
+							add(old,attr,"ID",e.getKey());
 							add(old,attr,"Parent",g.id);
 							add(old,attr,"aa",""+(l/3));
 							if( introns ) add(old,attr,"tie",tieString);
@@ -271,6 +273,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 							add(old,attr,"nps",""+preMatureStops);
 							add(old,attr,"start",""+aa.charAt(0));
 							add(old,attr,"stop",""+aa.charAt(aa.length()-1));
+							add(old,attr,"ce",""+parts.length());
 							
 							//write attributes in the same order as in the input file
 							for( int j = 0; j < att.length; j++ ) {
