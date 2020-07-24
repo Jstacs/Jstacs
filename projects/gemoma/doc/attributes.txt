@@ -10,6 +10,12 @@ Using GeMoMa and GAF, you'll obtain GFFs containing some special attributes. We 
 |-
 | score	|| GeMoMa score	|| GeMoMa	||	|| prediction	|| score computed by GeMoMa using the substitution matrix, gap costs and additional penalties
 |-
+| nps	|| number of premature stops	|| GeMoMa	||	|| prediction	|| the number of premature stop codons in the prediction
+|-
+| ce	|| coding exons	|| GeMoMa	|| assignment || prediction	|| the number of coding exons of the prediction
+|-
+| rce	|| reference coding exons	|| GeMoMa	|| assignment || prediction	|| the number of coding exons of the reference transcript
+|-
 | minCov	|| minimal coverage	|| GeMoMa	|| coverage, ... || prediction	|| minimal coverage of any base of the prediction given RNA-seq evidence
 |-
 | avgCov	|| average coverage	|| GeMoMa	|| coverage, ... || prediction	|| average coverage of all bases of the prediction given RNA-seq evidence
