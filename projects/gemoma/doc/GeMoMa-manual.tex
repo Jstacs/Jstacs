@@ -204,8 +204,63 @@ java -jar GeMoMa-<version>.jar GeMoMaPipeline
 \end{verbatim}
 and follow the instructions.
 
+
+\subsection{Runtime example}
+To give an impression on the run of GeMoMaPipeline, we have run it with different number of threads and different search algorithms.
+As example the annotation of \emph{A. thaliana} was predicted based on three reference organisms and RNA-seq data:
+\begin{verbatim}
+java -jar GeMoMa-1.7.jar GeMoMaPipeline threads=<threads> 
+     tblastn=$tblastn b=$bpath m=$mpath GeMoMa.Score=ReAlign
+     AnnotationFinalizer.r=NO o=true p=false t=TAIR10_chr_all.fas 
+     s=own i=AL g=Arabidopsis_lyrata.v.1.0.31.dna.genome.fa
+     a=Arabidopsis_lyrata.v.1.0.31.chr.gff3 
+     s=own i=BO g=Boleraceacapitata_446_v1.0.fa
+     a=Boleraceacapitata_446_v1.0.gene_exons.gff3
+     s=own i=BS g=Bstricta_278_v1.fa
+     a=Bstricta_278_v1.2.gene_exons.gff3
+     r=MAPPED ERE.m=AlignedSorted-2pass.bam
+\end{verbatim}
+Runtime was measured with the Linux command \verb+time+.
+\begin{table}[ht]\centering
+\begin{tabular}{|r||r|r|r|}
+\hline
+threads	&tblastn 2.5.0+	&tblastn 2.10.1+	&mmseqs v11%\footnote{\verb+mmseqs version+ returns \verb+e1a1c1226ef22ac3d0da8e8f71adb8fd2388a249+}}
+\\
+\hline\hline
+1	&34:54:45	&NA	&07:38:36\\\hline
+4	&09:14:19	&NA	&02:22:39\\\hline
+16	&02:41:48	&63:13:09	&00:48:32\\\hline
+64	&00:58:23	&18:53:00	&00:29:00\\\hline
+\end{tabular}
+\caption{
+Runtime comparison of the GeMoMaPipeline. The runtime is given using the format hh:mm:ss.
+%compute node specificcation
+The accuracy was identical for the different blast versions and very similar for mmseqs.
+}
+\end{table}
+The runtime issue for tblastn version 2.6.0 until 2.10.1 has been reported to NCBI (TRACKING:000412000006306). NCBI could reproduce the problem and will hopefully fix it soon.
+
+Of course, the runtime also depends on the reference organisms and the size of the target genome.
+
+
 \subsection{Genome-wide vs. specific genes}
 By default, GeMoMa tries to make predictions for all CDS of the reference organism in the target organism. Hence, we call this a genome-wide approach. Additionally, Extractor and GeMoMa have an option for filtering based on a list of some reference CDS (cf. parameter \texttt{selected}). This approach allows to further speed up the predictions especially if one is interested only in a certain part of the annotation.
+
+\subsection{Add attributes}
+Sometimes it might be beneficial to add attributes to the structural annotation, e.g., you could predict functional annotation with InterProScan and might use them in GAF or display them in genome browsers like IGV or WebApollo. Hence, GeMoMa provides an additional module called AddAttribute which allows to add attributes to a structural annotation using an additional table.
+
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar CLI AddAttribute ...
+\end{verbatim}
+
+\subsection{Synteny}
+Comparing different genome assemblies or organisms, synteny is sometimes of interest. There are specialized programs that compute synteny by comparing chromosomes or contigs of different species. These programs need to do some kind of alignment or mapping. As GeMoMa computes alignments of proteins from a reference organism to a target organism, these gene predictions can be used to infer synteny on a gene level with almost no additional runtime. Since version 1.7, GeMoMa includes a module called SyntenyChecker and an R script (see below).
+
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar CLI SyntenyChecker ...
+\end{verbatim}
+
+The result of SyntenyChecker can be visualized using the R script synplot.r. An example how to use both, SyntenyChecker and synplot.r is given at the end of run.sh. However, as the toy data is too small for synteny computation, it is only given in the comments.
 
 \subsection{Galaxy integration}
 GeMoMa provides a command line interface as well as everything to be integrated in your local Galaxy instance. For creating the XML files that are needed for integration into Galaxy, just run: 
