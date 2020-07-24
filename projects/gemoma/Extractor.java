@@ -514,13 +514,16 @@ public class Extractor extends GeMoMaModule {
 			boolean[] in = new boolean[s.length];
 			Arrays.fill( in, true );
 			for( int i = 0; i < s.length; i++ ) {
-				IntList il = transcript.get( s[i] ).b;
-				for( int j = i+1; in[i] && j < s.length; j++ ) {
-					if( in[j] && identical(transcript.get(s[j]).b,il) ) {
-						in[j] = false;
-						//out.append( geneName + "\t" + s[j] + "\t \n" );
-						transcript.remove(s[j]);
-						info[1]++;
+				Transcript t = transcript.get( s[i] );
+				if( t!= null ) {
+					IntList il = t.b;
+					for( int j = i+1; in[i] && j < s.length; j++ ) {
+						if( in[j] && identical(transcript.get(s[j]).b,il) ) {
+							in[j] = false;
+							//out.append( geneName + "\t" + s[j] + "\t \n" );
+							transcript.remove(s[j]);
+							info[1]++;
+						}
 					}
 				}
 			}
