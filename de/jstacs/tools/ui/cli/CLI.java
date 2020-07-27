@@ -410,9 +410,6 @@ public class CLI {
 				return;
 			}
 			
-			
-			
-			
 			if(!toolParameters[toolIndex].hasDefaultOrIsSet()){
 				printToolParameters(toolIndex,protocol,outdir,threads);
 				System.err.println("\nAt least one parameter has not been set (correctly).");
@@ -691,7 +688,7 @@ if( k == null ) {
 				if( par.getDatatype() != DataType.PARAMETERSET ) {
 					out.append( "<td style=\"width:100px;\">"+par.getDatatype() + "</td>\n</tr>\n" );
 				} else {
-					out.append( "<td style=\"width:100px;\"></td></tr>");
+					out.append( "<td style=\"width:100px;\">STRING</td></tr>\n");//Yvonnes commment
 					out.append( "<tr><td></td><td colspan=2><table border=0 cellpadding=0 align=\"center\" width=\"100%\">\n" );
 					ParameterSet incoll = ( (AbstractSelectionParameter)par ).getParametersInCollection();
 					for(int j=0;j<incoll.getNumberOfParameters();j++){
