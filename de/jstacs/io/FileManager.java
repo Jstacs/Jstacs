@@ -293,7 +293,7 @@ public class FileManager {
 		if( old == null || !buffer.toString().equals(old.toString()) ) {
 			if( old != null ) {
 				Path oldPath = Paths.get(outputFile.getAbsolutePath()+".bak");
-				Files.delete(oldPath);
+				if( oldPath.toFile().exists() ) Files.delete(oldPath);
 				Files.move(Paths.get(fName), oldPath);
 			}
 			FileManager.writeFile(outputFile, buffer);
