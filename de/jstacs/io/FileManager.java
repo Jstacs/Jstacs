@@ -169,7 +169,7 @@ public class FileManager {
 	}
 
 	/**
-	 * This method reads a {@link StringBuffer} from a file with the given filen name.
+	 * This method reads a {@link StringBuffer} from a file with the given file name.
 	 * 
 	 * @param fName
 	 *            the name of the file to be read
