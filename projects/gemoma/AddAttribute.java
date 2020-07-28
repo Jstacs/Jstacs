@@ -30,7 +30,7 @@ import de.jstacs.tools.ToolResult;
  * @author Jens Keilwagen
  */
 public class AddAttribute extends GeMoMaModule {
-	public File addAttribute(ToolParameterSet parameters, Protocol protocol, String tag, String annotation, String extraFileName, int idColumn, int valColumn, String attribute ) throws Exception {
+	public File addAttribute(ToolParameterSet parameters, Protocol protocol, String tag, String annotation, String extraFileName, int idColumn, int valColumn, String attribute, String tempD ) throws Exception {
 		BufferedReader r = Tools.openGzOrPlain(extraFileName);
 		HashMap<String,HashSet<String>> ids = new HashMap<String,HashSet<String>>();
 		String line;
@@ -49,7 +49,7 @@ public class AddAttribute extends GeMoMaModule {
 		}
 		r.close();
 
-		File output = Tools.createTempFile("AddAttribute");
+		File output = Tools.createTempFile("AddAttribute",tempD);
 		BufferedWriter w = new BufferedWriter( new FileWriter(output) );
 		r = Tools.openGzOrPlain(annotation);
 		int[] a = new int[2];
@@ -135,7 +135,7 @@ public class AddAttribute extends GeMoMaModule {
 	}
 
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp)
 			throws Exception {
 		SimpleParameterSet sps = (SimpleParameterSet) parameters.getParameterForName("type").getValue();
 		File output = addAttribute( parameters, protocol,
@@ -144,7 +144,8 @@ public class AddAttribute extends GeMoMaModule {
 				(String) parameters.getParameterForName("table").getValue(),
 				(Integer) parameters.getParameterForName("ID column").getValue(),
 				sps.getNumberOfParameters()==0 ? -1 : (Integer) sps.getParameterAt(0).getValue(),
-				(String) parameters.getParameterForName("attribute").getValue()
+				(String) parameters.getParameterForName("attribute").getValue(),
+				temp
 		);
 		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("extended annotation", "Result", new FileRepresentation(output.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());

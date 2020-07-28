@@ -67,8 +67,8 @@ public class Extractor extends GeMoMaModule {
 		this.maxSize = maxSize;
 	}
 	
-	private static void getOut( String prefix, List<File> file, List<SafeOutputStream> out ) throws IOException {
-		File f = prefix == null ? null : Tools.createTempFile("Extractor-" + prefix);
+	private static void getOut( String prefix, List<File> file, List<SafeOutputStream> out, String temp ) throws IOException {
+		File f = prefix == null ? null : Tools.createTempFile("Extractor-" + prefix, temp);
 		BufferedOutputStream b = (f == null) ? null : new BufferedOutputStream( new FileOutputStream( f ) );
 		file.add(f);
 		out.add(SafeOutputStream.getSafeOutputStream(b));
@@ -90,7 +90,7 @@ public class Extractor extends GeMoMaModule {
 	StringBuffer shortInfo = new StringBuffer(), discarded = new StringBuffer(); 
 	
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
 		shortInfo.delete(0, shortInfo.length());
 		discarded.delete(0, discarded.length());
 		progress.setIndeterminate();
@@ -118,10 +118,10 @@ public class Extractor extends GeMoMaModule {
 		
 		ArrayList<File> file = new ArrayList<File>();
 		out = new ArrayList<SafeOutputStream>();
-		getOut( name[0], file, out );
-		getOut( name[1], file, out );
+		getOut( name[0], file, out, temp );
+		getOut( name[1], file, out, temp );
 		for( int i = 2; i < name.length; i++ ) {
-			getOut( ((Boolean)parameters.getParameterForName(name[i]).getValue()) ? name[i] : null, file, out );
+			getOut( ((Boolean)parameters.getParameterForName(name[i]).getValue()) ? name[i] : null, file, out, temp );
 		}
 	
 		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon\tsplit AA" );
@@ -185,7 +185,7 @@ public class Extractor extends GeMoMaModule {
 		shortInfo.append( "repaired\t" + repair+"\n\n");
 
 		if( discarded.length()>0 ) {
-			shortInfo.append( "discarded transcript IDs:" + discarded + "\n\n");		
+			shortInfo.append( "discarded transcript IDs: " + discarded + "\n\n");		
 		}
 		if( unUsedChr.size() > 0 ) {
 			shortInfo.append( "WARNING: There are gene annotations on chromosomes/contigs with missing reference sequence: " + unUsedChr + "\n");

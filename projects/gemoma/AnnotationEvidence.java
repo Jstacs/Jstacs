@@ -57,7 +57,7 @@ import projects.gemoma.Tools.Ambiguity;
  */
 public class AnnotationEvidence extends GeMoMaModule {
 	
-	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {		
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception {		
 		if( GeMoMa.seqs == null  ) {
 			GeMoMa.fill(protocol, false, -1, 
 				parameters.getParameterForName("genome").getValue().toString(),
@@ -79,11 +79,11 @@ public class AnnotationEvidence extends GeMoMaModule {
 		String[] chr = GeMoMa.seqs.keySet().toArray(new String[GeMoMa.seqs.size()]);
 		Arrays.sort(chr);
 		
-		File file = Tools.createTempFile("AnnotationEvidence");
+		File file = Tools.createTempFile("AnnotationEvidence",temp);
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
 		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc\tminCov\tavgCov\tnps" );
 		w.newLine();
-		File aFile = Tools.createTempFile("AnnotationEvidence");
+		File aFile = Tools.createTempFile("AnnotationEvidence",temp);
 		BufferedWriter annot = new BufferedWriter( new FileWriter(aFile) );
 		annot.append("##gff-version 3");
 		annot.newLine();
@@ -361,7 +361,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 						)
 					), "coverage", "", 1 ) ),
 					
-					new SimpleParameter( DataType.BOOLEAN, "annotation output", "if the annotation should be returned with attributes tie, tpc, and aa", true, false ),
+					new SimpleParameter( DataType.BOOLEAN, "annotation output", "if the annotation should be returned with attributes tie, tpc, and aa", true, true ),
 					new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false )
 			);		
 		}catch(Exception e){

@@ -60,7 +60,7 @@ public class CheckIntrons extends GeMoMaModule {
 	}
 
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		String targetGenome = (String) parameters.getParameterForName("target genome").getValue(); 
 		int reads = 1;

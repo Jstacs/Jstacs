@@ -55,7 +55,7 @@ public class TranscribedCluster extends GeMoMaModule {
 	private static HashMap<String, int[][]>[] coverage;
 	private static int tc = 0;
 	
-	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception {
 		//sequence
 		HashMap<String, String> seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
 				
@@ -83,7 +83,7 @@ public class TranscribedCluster extends GeMoMaModule {
 		String[] chr = seqs.keySet().toArray(new String[seqs.size()]);
 		Arrays.sort(chr);
 
-		File file = Tools.createTempFile("TranscribedCluster");
+		File file = Tools.createTempFile("TranscribedCluster",temp);
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
 		w.append("##gff-version 3");
 		w.newLine();

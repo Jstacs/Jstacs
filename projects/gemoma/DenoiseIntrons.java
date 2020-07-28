@@ -92,7 +92,7 @@ public class DenoiseIntrons extends GeMoMaModule {
 	}
 
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp)
 			throws Exception {
 		int context = (Integer) parameters.getParameterForName("context").getValue();
 		double min = (Double) parameters.getParameterForName("minimum expression").getValue();
@@ -140,7 +140,7 @@ public class DenoiseIntrons extends GeMoMaModule {
 		
 		protocol.append("\nstart denoising\n");		
 		BufferedReader r = new BufferedReader( new FileReader(combined) );
-		File denoise = Tools.createTempFile("denoise");
+		File denoise = Tools.createTempFile("denoise", temp);
 		BufferedWriter w = new BufferedWriter( new FileWriter(denoise) );
 		String line;
 		int del=0, all=0;

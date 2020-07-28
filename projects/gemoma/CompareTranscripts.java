@@ -60,7 +60,7 @@ import de.jstacs.utils.IntList;
 public class CompareTranscripts extends GeMoMaModule {
 	
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("transcript info").getValue();
 		HashMap<String, String[]> gene = new HashMap<String, String[]>();
 		HashMap<String,int[]> stats = new HashMap<String,int[]>();
@@ -93,14 +93,14 @@ public class CompareTranscripts extends GeMoMaModule {
 		HashMap<String,Annotation> prediction = readGFF( parameters.getParameterForName("prediction").getValue().toString(), true, true );//standard
 		protocol.append( "prediction: " + prediction.size() +"\n" );
 		
-		File f = Tools.createTempFile("CompareTranscript");
+		File f = Tools.createTempFile("CompareTranscript", temp);
 		int problem = bestHit(gene, /*TODO*/"_R", null, truth, prediction, f, protocol, stats);
 
 		ArrayList<Result> res = new ArrayList<Result>();
 		res.add( new TextResult("comparison", "Result", new FileParameter.FileRepresentation(f.getAbsolutePath()), "tabular", getToolName(), null, true) );
 		
 		if( stats.size()>0 ) {
-			f = Tools.createTempFile("CompareTranscript-stats");
+			f = Tools.createTempFile("CompareTranscript-stats", temp);
 			BufferedWriter w = new BufferedWriter( new FileWriter( f ) );
 			w.append("#geneID\ttranscripts in reference annotation\ttranscripts with this ref-gene\ttranscripts with this alternative\n");
 			Iterator<Entry<String,int[]>> it = stats.entrySet().iterator();

@@ -819,7 +819,7 @@ public class GeMoMa extends GeMoMaModule {
 	}
 	
 	@Override
-	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception {
 		timeOutWarning.delete(0, timeOutWarning.length());
 		verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
 		if( seqs == null ) {
@@ -954,7 +954,7 @@ public class GeMoMa extends GeMoMaModule {
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		Exception e = null;
 		
-		TranscriptPredictor tp = new TranscriptPredictor(true, parameters);
+		TranscriptPredictor tp = new TranscriptPredictor(true, parameters, temp);
 		try {			
 			//collect blast hits per transcript, split for chromosome, strand and cds part
 			r = new BufferedReader( new FileReader( search ) );
@@ -1014,7 +1014,7 @@ public class GeMoMa extends GeMoMaModule {
 			if( okay ) {
 				String gff = tp.gffFile.getAbsolutePath();
 				
-				res.add( new TextResult("predicted annotation", "Result", new FileParameter.FileRepresentation(gff), "gff", getToolName(), null, true) );
+				res.add( new TextResult(DEF_RES, "Result", new FileParameter.FileRepresentation(gff), "gff", getToolName(), null, true) );
 			}
 			
 			if( r != null ) {
@@ -2094,9 +2094,9 @@ public class GeMoMa extends GeMoMaModule {
 		private StringBuffer protocol;
 		private MyAlignment align, align1, align2;
 						
-		public TranscriptPredictor( boolean add, ToolParameterSet parameters ) throws Exception {
+		public TranscriptPredictor( boolean add, ToolParameterSet parameters, String temp ) throws Exception {
 			protocol = new StringBuffer();
-			gffFile = Tools.createTempFile("gff");
+			gffFile = Tools.createTempFile("gff", temp);
 			
 			gff = new BufferedWriter( new FileWriter( gffFile ) );
 			if( add ) {
@@ -4553,10 +4553,12 @@ public class GeMoMa extends GeMoMaModule {
 			+ MORE;
 	}
 	
+	static final String DEF_RES = "predicted annotation";
+	
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "gff", "predicted annotation")
+				new ResultEntry(TextResult.class, "gff", DEF_RES)
 		};
 	}
 	

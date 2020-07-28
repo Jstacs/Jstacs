@@ -466,11 +466,11 @@ public class AnnotationFinalizer extends GeMoMaModule {
 	    }
 	}
 	
-	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads ) throws Exception {
-		return run(parameters, protocol, progress, threads, null, null);
+	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception {
+		return run(parameters, protocol, progress, threads, null, null, temp);
 	}
 	
-	ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, ToolParameterSet description, String version ) throws Exception {
+	ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, ToolParameterSet description, String version, String temp ) throws Exception {
 		progress.setIndeterminate();
 		if( GeMoMa.seqs == null  ) {
 			String genome = (String) parameters.getParameterForName("genome").getValue();
@@ -518,7 +518,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 
 		
 		//iterate over all chromosomes/contigs
-		File gffFile = Tools.createTempFile(getShortName());
+		File gffFile = Tools.createTempFile(getShortName(),temp);
 		BufferedWriter w = new BufferedWriter(new FileWriter(gffFile));
 		String info;
 		if( description == null ) {

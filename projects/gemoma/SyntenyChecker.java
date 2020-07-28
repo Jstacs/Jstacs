@@ -36,7 +36,7 @@ public class SyntenyChecker extends GeMoMaModule {
 
 
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
 			String tag = (String) parameters.getParameterForName("tag").getValue();
 
 			//read assignment
@@ -108,7 +108,7 @@ public class SyntenyChecker extends GeMoMaModule {
 			//output
 			String oldContig = null;
 			int j=0;
-			File output = Tools.createTempFile("synteny");
+			File output = Tools.createTempFile("synteny",temp);
 			BufferedWriter w= new BufferedWriter( new FileWriter( output ) );
 			w.append("contig\tmiddle position\tstrand\tord\tname\tref-genes");
 			for( int as = 0; as < assign.size(); as++ ) {

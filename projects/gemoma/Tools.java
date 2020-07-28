@@ -48,7 +48,7 @@ import de.jstacs.tools.Protocol;
  */
 public class Tools {
 	
-	public static final String GeMoMa_TEMP = "GeMoMa_temp/";//TODO
+	public static final String GeMoMa_TEMP = "GeMoMa_temp" + File.separator;//TODO
 	
 	/**
 	 * 
@@ -85,12 +85,24 @@ public class Tools {
 	 * @see {@link File#deleteOnExit()}
 	 */
 	public static File createTempFile( String infix ) throws IOException {
-		File f = File.createTempFile("GeMoMa-"+infix + "-", ".temp", new File(GeMoMa_TEMP));
+			return createTempFile(infix, GeMoMa_TEMP);
+	}
+	
+	public static File createTempFile( String infix, String temp ) throws IOException {
+		File d = new File(temp);
+		if( !d.exists() ) {
+			d.mkdirs();
+		}
+		File f = File.createTempFile("GeMoMa-"+infix + "-", ".temp", d);
 		f.deleteOnExit();
 		return f;
 	}
 	
 	public static File[] externalSort( String input, int size, int files, Protocol protocol, boolean cdsParts ) throws Exception {
+		return externalSort(input, size, files, protocol, cdsParts, GeMoMa_TEMP);
+	}
+	
+	public static File[] externalSort( String input, int size, int files, Protocol protocol, boolean cdsParts, String temp ) throws Exception {
 		protocol.append("sorting the search results\n");
 		BufferedReader r = new BufferedReader( new FileReader(input) );
 		ArrayList<File> f = new ArrayList<File>();
@@ -103,7 +115,7 @@ public class Tools {
 				a++;
 			}
 			Arrays.sort(line,0,a);
-			f.add( createTempFile("sort-"+anz) );
+			f.add( createTempFile("sort-"+anz, temp) );
 			BufferedWriter w = new BufferedWriter( new FileWriter(f.get(anz)) );
 			for( int i = 0; i < a; i++ ) {
 				w.append(line[i]);
@@ -126,7 +138,7 @@ public class Tools {
 		File[] sorted = new File[files];
 		BufferedWriter[] w = new BufferedWriter[files];
 		for( int s = 0; s < files; s++ ) {
-			sorted[s] = createTempFile("sorted");
+			sorted[s] = createTempFile("sorted",temp);
 			w[s] = new BufferedWriter( new FileWriter( sorted[s] ) );
 		}
 		int s = -1;

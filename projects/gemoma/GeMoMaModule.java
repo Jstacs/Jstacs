@@ -19,6 +19,10 @@
 package projects.gemoma;
 
 import de.jstacs.tools.JstacsTool;
+import de.jstacs.tools.ProgressUpdater;
+import de.jstacs.tools.Protocol;
+import de.jstacs.tools.ToolParameterSet;
+import de.jstacs.tools.ToolResult;
 
 /**
  * This is the abstract class of all {@link GeMoMa} modules that are available as {@link JstacsTool}. 
@@ -30,7 +34,7 @@ import de.jstacs.tools.JstacsTool;
  */
 public abstract class GeMoMaModule implements JstacsTool {
 
-	public static final String VERSION = "1.7beta";
+	public static final String VERSION = "1.7";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 
@@ -83,4 +87,10 @@ public abstract class GeMoMaModule implements JstacsTool {
 		GeMoMa.acceptorSites=null;
 		GeMoMa.coverage=null;
 	}
+	
+	public final ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+		return run(parameters, protocol, progress, threads, Tools.GeMoMa_TEMP);
+	}
+
+	public abstract ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception;
 }

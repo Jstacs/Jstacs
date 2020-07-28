@@ -167,7 +167,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	}
 	
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String tempD) throws Exception {
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		int maxTranscripts = (Integer) parameters.getParameterForName("maximal number of transcripts per gene").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
@@ -320,7 +320,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		protocol.append( "all: " + anz + "\n" );
 
 		int filtered = 0, altCand=0;;
-		File out = Tools.createTempFile("GAF-filtered");
+		File out = Tools.createTempFile("GAF-filtered", tempD);
 		if( anz>0 ) {
 			BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 			w.append("##gff-version 3");

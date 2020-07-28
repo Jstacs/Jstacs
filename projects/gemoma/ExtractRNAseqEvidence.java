@@ -274,7 +274,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	}
 
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String tempD )
 			throws Exception {		
 		Stranded stranded = (Stranded) parameters.getParameterAt(0).getValue();
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterAt(1).getValue();
@@ -307,10 +307,10 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		SafeOutputStream sosFwd, sosRev;
 		File outFwd = null, outRev = null;
 		if( coverage ) {
-			outFwd = Tools.createTempFile("ERE-coveragefwd_bedgraph");
+			outFwd = Tools.createTempFile("ERE-coveragefwd_bedgraph", tempD);
 			sosFwd = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outFwd));
 			
-			outRev = Tools.createTempFile("ERE-coveragerev_bedgraph");
+			outRev = Tools.createTempFile("ERE-coveragerev_bedgraph", tempD);
 			sosRev = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outRev));
 		} else {
 			sosFwd = SafeOutputStream.getSafeOutputStream(null);
@@ -320,7 +320,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		sosFwd.writeln("track type=bedgraph");
 		sosRev.writeln("track type=bedgraph");
 		
-		File outInt = Tools.createTempFile("ERE-intron");
+		File outInt = Tools.createTempFile("ERE-intron", tempD);
 		SafeOutputStream sosInt = SafeOutputStream.getSafeOutputStream(new FileOutputStream(outInt));	
 		sosInt.writeln("##gff-version 3");
 		sosInt.write(INFO + getShortName() + " " + getToolVersion() + "; ");

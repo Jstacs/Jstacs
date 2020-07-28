@@ -57,7 +57,7 @@ public class NCBIReferenceRetriever extends GeMoMaModule {
 	}
 
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp)
 			throws Exception {
 		String base = "https://www.ncbi.nlm.nih.gov/genome/?term=";
 		
