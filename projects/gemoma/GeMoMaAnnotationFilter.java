@@ -639,6 +639,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			
 			String s;
 			split = split[8].split(";");
+			boolean lastNotSemi = this.split[8].charAt(this.split[8].length()-1)!=';';
 			hash = new HashMap<String, String>();
 			String par=null;
 			for( int i = 0; i < split.length; i++ ) {
@@ -652,7 +653,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					if( key.equals("Parent") ) {
 						par=s;
 					}
-					String delete = split[i] +(i+1==split.length?"":";");
+					String delete = split[i] +((i+1==split.length && lastNotSemi)?"":";");
 					this.split[8]=this.split[8].replace( delete, "" );
 				} else {
 					if( s.charAt(0)=='?' ) {
