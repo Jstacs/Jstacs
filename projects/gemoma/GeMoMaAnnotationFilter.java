@@ -213,6 +213,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
 			String h = (String) sps.getParameterAt(0).getValue();
 			prefix[k] = h==null?"":h;
+			String sampleInfo = k + (prefix[k]==null?"":(" (" + prefix[k] + ")"));
 			weight[k] = (Double) sps.getParameterAt(1).getValue();
 			
 			annotInfo.clear();
@@ -233,7 +234,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				}
 				if( transcript<0 || go<0 || defline<0 ) {
 					r.close();
-					throw new IllegalArgumentException("annotation info ("+ k+ ") must be a tab-delimited file with at least the following columns: transcriptName, GO, and .*defline");
+					throw new IllegalArgumentException("annotation info " + sampleInfo + " must be a tab-delimited file with at least the following columns: transcriptName, GO, and .*defline");
 				}
 				while( (line = r.readLine()) != null ) {
 					split = line.split("\t");
@@ -278,7 +279,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				} else if( t.equals( "CDS" ) ) {
 					if( current==null ) {
 						r.close();
-						throw new NullPointerException("There is no gene model. Please check parameter \"tag\" and the order within your annotation file ("+fName+")" );
+						throw new NullPointerException("There is no gene model. Please check parameter \"tag\" and the order within your annotation file "+sampleInfo+": " + fName );
 					}
 					current.addCDS( line );
 				}
@@ -287,22 +288,22 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			r.close();
 			if( hash.size() != 1 ) {
 				if( hash.size() == 0  ) {
-					protocol.appendWarning("Evidence file " + k + " contains no parameter description\n" );
+					protocol.appendWarning("Evidence file " + sampleInfo + " contains no parameter description\n" );
 				} else {
-					protocol.appendWarning("Evidence file " + k + " contains a different parameter description\n" );
+					protocol.appendWarning("Evidence file " + sampleInfo + " contains a different parameter description\n" );
 				}
 			}
-			int delta = 0;
 			sb.delete(0,sb.length());
 			for( int i =0; i < att.length; i++ ) {
 				int[] v = del.get(att[i]);
-				delta += v[0];
-				sb.append( (i==0?"":", ") + v[0] + " \"" + att[i] + "\"" );
-				//delete values => prepare next round
-				v[0]=0;
+				if( v[0] > 0 ) {
+					sb.append( (sb.length()==0?"":", ") + v[0] + " \"" + att[i] + "\"" );
+					//delete values => prepare next round
+					v[0]=0;
+				}
 			}
-			if( delta>0 ) {				
-				protocol.appendWarning("Delete attributes in evidence file " + k + ": " + sb  + "\n");
+			if( sb.length()>0 ) {				
+				protocol.appendWarning("Delete attributes in evidence file " + sampleInfo + ": " + sb  + "\n");
 			}
 			Iterator<String> it = hash.iterator();
 			while( it.hasNext() ) {
