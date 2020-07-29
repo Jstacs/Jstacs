@@ -5,14 +5,18 @@
 #
 # The script has a single parameter which is the version of GeMoMa.
 
-java -jar GeMoMa-$1.jar --create
-java -jar GeMoMa-$1.jar --create GeMoMa -Xms5G -Xmx40G
-java -jar GeMoMa-$1.jar --create GeMoMaPipeline -Xms5G -Xmx40G
+jar=$(eval "ls GeMoMa-*.jar")
+
+java -jar $jar --create
+java -jar $jar --create GeMoMa -Xms5G -Xmx40G
+java -jar $jar --create GeMoMaPipeline -Xms5G -Xmx40G
+java -jar $jar --create GAF -Xms5G -Xmx40G
 
 
 cp Extractor.xml Extractor.xml-default
 cp ERE.xml ERE.xml-default
-cp GeMoMaPipeline.xml GeMoMaPipeline.xml-default
+mv GeMoMaPipeline.xml GeMoMaPipeline.xml-default
+grep -v restart GeMoMaPipeline.xml-default > GeMoMaPipeline.xml
 
 function change {
 	sed -i "s/<\/command>/\n\t\t#if \$$3_ps_$2:\n\t\t\t\$$2\n\t\t\#end if\n<\/command>/g" $1
