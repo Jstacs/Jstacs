@@ -73,7 +73,7 @@ fi
 echo "Extractor:"
 echo ""
 
-java -jar $jar CLI Extractor a=${annotation} g=${reference} p=true Ambiguity=AMBIGUOUS outdir=${out}
+java -jar $jar CLI Extractor a=${annotation} g=${reference} Ambiguity=AMBIGUOUS outdir=${out}
 
 echo ""
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -92,12 +92,12 @@ then
 	echo "tblastn:"
 	echo ""
 	
-	tblastn -query ${out}/cds-parts.fasta -db ${out}/blastdb -evalue 100.0 -out ${out}/search.txt -outfmt "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles" -db_gencode 1 -matrix BLOSUM62 -seg no -word_size 3 -comp_based_stats F -gapopen 11 -gapextend 1
+	tblastn -query ${out}/cds-parts.fasta -db ${out}/blastdb -evalue 100.0 -out ${out}/search.txt -outfmt "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles" -db_gencode 1 -matrix BLOSUM62 -seg no -word_size 3 -comp_based_stats F -gapopen 11 -gapextend 1 -num_threads $threads
 else
 	echo "create mmseqs dbs:"
 	echo ""
 	
-	mmseqs createdb ${target} ${out}/mmseqsdb --dont-split-seq-by-len -v 2
+	mmseqs createdb ${target} ${out}/mmseqsdb -v 2
 	mkdir ${out}/ref
 	mmseqs createdb ${out}/cds-parts.fasta ${out}/ref/mmseqsdb -v 2
 	
@@ -125,14 +125,14 @@ echo "GeMoMa:"
 echo ""
 
 if [ $# -eq 5 ]; then
-	java -jar $jar CLI GeMoMa s=${out}/search.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular q=${out}/proteins.fasta t=${target} sort=${sort} Score=${score} outdir=${out}
+	java -jar $jar CLI GeMoMa s=${out}/search.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular t=${target} sort=${sort} Score=${score} outdir=${out}
 else
 	if [ ${lib} == "FR_UNSTRANDED" ]; then
 echo "UNSTRANDED"
-		java -jar $jar CLI GeMoMa s=${out}/search.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular q=${out}/proteins.fasta t=${target} sort=${sort} Score=${score} outdir=${out} i=${out}/introns.gff coverage=UNSTRANDED coverage_unstranded=${out}/coverage.bedgraph
+		java -jar $jar CLI GeMoMa s=${out}/search.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular t=${target} sort=${sort} Score=${score} outdir=${out} i=${out}/introns.gff coverage=UNSTRANDED coverage_unstranded=${out}/coverage.bedgraph
 	else
 echo "STRANDED"
-		java -jar $jar CLI GeMoMa s=${out}/search.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular q=${out}/proteins.fasta t=${target} sort=${sort} Score=${score} outdir=${out} i=${out}/introns.gff coverage=STRANDED coverage_forward=${out}/coverage_forward.bedgraph coverage_reverse=${out}/coverage_reverse.bedgraph
+		java -jar $jar CLI GeMoMa s=${out}/search.txt c=${out}/cds-parts.fasta a=${out}/assignment.tabular t=${target} sort=${sort} Score=${score} outdir=${out} i=${out}/introns.gff coverage=STRANDED coverage_forward=${out}/coverage_forward.bedgraph coverage_reverse=${out}/coverage_reverse.bedgraph
 	fi
 fi
 
@@ -150,4 +150,17 @@ echo ""
 echo "AnnotationFinalizer:"
 echo ""
 
-java -jar $jar CLI AnnotationFinalizer a=${out}/filtered_predictions.gff outdir=${out} rename=NO
+java -jar $jar CLI AnnotationFinalizer g=${target} a=${out}/filtered_predictions.gff outdir=${out} rename=NO
+
+## can be used for whole genome annotations allowing to check synteny
+#echo ""
+#echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#echo ""
+#echo "SyntenyChecker:"
+#echo ""
+#
+#java -jar $jar CLI SyntenyChecker g=${out}/final_annotation.gff a=${out}/assignment.tabular outdir=${out}
+#
+## if R is installed
+#k=1 #can be adjusted (>=1)
+#Rscript synplot.r ${outdir}/reference_gene_table.tabular $k ${outdir}/prefix
