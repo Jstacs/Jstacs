@@ -80,5 +80,10 @@ Additional attribute, e.g., functional annotation from InterProScan, can be adde
 20) Can structural gene annotation provided by GeMoMa be submitted to NCBI?
 Yes, NCBI allows to submit structural gene annotation in GFF format (https://www.ncbi.nlm.nih.gov/genbank/genomes_gff/). If you run GeMoMaPipeline or AnnotationFinalizer, the GFF should be valid for conversion. 
 
+21) Running GeMoMaPipeline throws an exception. Can I restart GeMoMaPipeline using intermediate results?
+Yes, since version 1.7 we have a new parameter in GeMoMaPipeline called restart. 
+If you want to restart the last broken GeMoMaPipeline run, you have to execute GeMoMaPipeline with the same command line as before and add restart=true.
+If necessary, you can also slightly change the other parameters. However, if the parameters differ too much from those used before, GeMoMaPipeline will decide to perform a new independent run.
+A restart of GeMoMaPipeline is particularly useful if the time-consuming search (tblastn or mmseqs) was successful, since this can save runtime. 
 
 For any further questions or comments please contact jens.keilwagen@julius-kuehn.de 

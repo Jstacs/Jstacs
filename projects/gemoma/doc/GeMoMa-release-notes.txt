@@ -180,3 +180,44 @@ GeMoMa 1.6.4 (24.04.2020)
 	- bugfix: if no assignment file is used and protein ID are prefixes of other protein IDs
 	- change GFF attribute AA to aa
 - AnnotationFinalizer: new parameter "name attribute" allowing to decide whether a name attribute or the Parent and ID attributes should be used for renaming
+
+GeMoMa 1.7. (29.07.2020)
+- improved manual including new module and runtime 
+- check whether input files exist before execution
+- partially checking MIME types in CLI before execution
+- changed homepage from http to https
+- new module AddAttribute: allows to add attributes (like functional annotation from InterProScan) to gene annotation files that might be used in GAF or displayed genome browsers like IGV or WebApollo
+- new module SyntenyChecker: creates a table that can be used to create dot plots between the annotation of the target and reference organism
+- changed default value of parameter "tag" from "prediction" to "mRNA"
+- AnnotationEvidence:
+	- additional attributes: avgCov, minCov, nps, ce
+	- changed default value of "annotation output" to true
+	- bugfix: transcript start and end
+- ERE: 
+	- changed default value of coverage to "true" 
+	- new parameter "minimum context": allows to discard introns if all split reads have short aligned contexts
+- Extractor: 
+	- bugfix splitAA if coding exon is very short
+	- improved verbose mode
+	- new parameter "upcase IDs"
+	- new parameter "introns" allowing to extract introns from the reference (only for test cases)
+	- new parameter "discard pre-mature stop" allowing to discard or use transcripts with pre-mature stop
+	- improved handling of corrupt annotations
+- GAF: 
+	- bugfix missing transcripts
+	- slightly changed the default value of "filter"	
+- GeMoMa:
+	- replaced parameter "query proteins" by "protein alignment"
+	- using splitAA for scoring predictions 
+	- new gff attributes: 
+		- ce and rce for the feature prediction indicating the number of coding exons for the prediction and the reference, respectively
+		- nps for the number of premature stop codons (if avoid stop is false)
+	- slightly changed the meaning of the parameter "avoid stop"
+- GeMoMaPipeline:
+	- changed the default value of tblastn to false, hence mmseqs is used as search algorithm
+	- changed the default value of score to ReAlign
+	- remove "--dont-split-seq-by-len" from mmseqs createdb
+	- new optional parameter BLAST_PATH
+	- new optional parameter MMSEQS_PATH
+	- new option to allow for incorporation of external annotation, e.g., from ab-initio gene prediction
+	- new parameter restart allowing to restart the latest GeMoMaPipeline run, which was finished without results, with very similar parameters, e.g., after an exception was thrown (cf. parameter debug)  
