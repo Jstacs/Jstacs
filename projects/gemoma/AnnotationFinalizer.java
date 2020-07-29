@@ -327,9 +327,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		}
 	}
 	
-	static StringBuffer begin = new StringBuffer();
-	
-	static HashMap<String, HashMap<String,Gene>> read( String fName, Protocol protocol, String tag ) throws IOException {
+	static HashMap<String, HashMap<String,Gene>> read( String fName, Protocol protocol, String tag, StringBuffer begin ) throws IOException {
 		String[] tags = {"gene", tag, "CDS"};//GeMoMa specific
 		//read annotation
 		BufferedReader r = new BufferedReader( new FileReader( fName ) );
@@ -512,9 +510,10 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		
 		//annotation
 		String tag = parameters.getParameterForName("tag").getValue().toString();
+		StringBuffer begin = new StringBuffer();
 		HashMap<String, HashMap<String,Gene>> annotation = 
 				//Extractor.read( parameters.getParameterForName("annotation").getValue().toString(), null, protocol);
-				read( parameters.getParameterForName("annotation").getValue().toString(), protocol, tag );
+				read( parameters.getParameterForName("annotation").getValue().toString(), protocol, tag, begin );
 
 		
 		//iterate over all chromosomes/contigs
