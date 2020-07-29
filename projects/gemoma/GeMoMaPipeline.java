@@ -1478,17 +1478,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				pipelineProtocol.append("starting ERE\n");
 				ToolResult res = ere.run(params, protocol, new ProgressUpdater(), 1, home);
 				CLI.writeToolResults(res, (SysProtocol) protocol, home, ere, params);
-				
-				rnaSeqData.introns.add(home + "introns.gff");				
-				boolean cov = ((Boolean) params.getParameterForName("coverage").getValue());
-				if( cov ) {
-					if( ((Stranded) params.getParameterForName("Stranded").getValue()) == Stranded.FR_UNSTRANDED ) {//unstranded
-						rnaSeqData.coverageUn.add(home + "coverage.bedgraph");
-					} else {//stranded
-						rnaSeqData.coverageFwd.add(home + "coverage_forward.bedgraph");
-						rnaSeqData.coverageRC.add(home + "coverage_reverse.bedgraph");
-					}
-				}
 			}
 			
 			if( denoiseParams != null 
