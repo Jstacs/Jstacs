@@ -6,39 +6,39 @@ Using GeMoMa and GAF, you'll obtain GFFs containing some special attributes. We 
 |-
 !Attribute	!!Long name	!!Tool	!!Necessary parameter	!!Feature	!!Description
 |-
-| aa	|| amino acids	|| GeMoMa	||	|| prediction	|| the number of amino acids in the protein
+| aa	|| amino acids	|| GeMoMa	||	|| mRNA	|| the number of amino acids in the protein
 |-
-| score	|| GeMoMa score	|| GeMoMa	||	|| prediction	|| score computed by GeMoMa using the substitution matrix, gap costs and additional penalties
+| score	|| GeMoMa score	|| GeMoMa	||	|| mRNA	|| score computed by GeMoMa using the substitution matrix, gap costs and additional penalties
 |-
-| nps	|| number of premature stops	|| GeMoMa	||	|| prediction	|| the number of premature stop codons in the prediction
+| nps	|| number of premature stops	|| GeMoMa	||	|| mRNA	|| the number of premature stop codons in the prediction
 |-
-| ce	|| coding exons	|| GeMoMa	|| assignment || prediction	|| the number of coding exons of the prediction
+| ce	|| coding exons	|| GeMoMa	|| assignment || mRNA	|| the number of coding exons of the prediction
 |-
-| rce	|| reference coding exons	|| GeMoMa	|| assignment || prediction	|| the number of coding exons of the reference transcript
+| rce	|| reference coding exons	|| GeMoMa	|| assignment || mRNA	|| the number of coding exons of the reference transcript
 |-
-| minCov	|| minimal coverage	|| GeMoMa	|| coverage, ... || prediction	|| minimal coverage of any base of the prediction given RNA-seq evidence
+| minCov	|| minimal coverage	|| GeMoMa	|| coverage, ... || mRNA	|| minimal coverage of any base of the prediction given RNA-seq evidence
 |-
-| avgCov	|| average coverage	|| GeMoMa	|| coverage, ... || prediction	|| average coverage of all bases of the prediction given RNA-seq evidence
+| avgCov	|| average coverage	|| GeMoMa	|| coverage, ... || mRNA	|| average coverage of all bases of the prediction given RNA-seq evidence
 |-
-| tpc	|| transcript percentage coverage	|| GeMoMa	|| coverage, ... || prediction	|| percentage of covered bases per predicted transcript given RNA-seq evidence
+| tpc	|| transcript percentage coverage	|| GeMoMa	|| coverage, ... || mRNA	|| percentage of covered bases per predicted transcript given RNA-seq evidence
 |-
-| tae	|| transcript acceptor evidence	|| GeMoMa	|| introns	|| prediction	|| percentage of predicted acceptor sites per predicted transcript with RNA-seq evidence
+| tae	|| transcript acceptor evidence	|| GeMoMa	|| introns	|| mRNA	|| percentage of predicted acceptor sites per predicted transcript with RNA-seq evidence
 |-
-| tde	|| transcript donor evidence	|| GeMoMa	|| introns	|| prediction	|| percentage of predicted donor sites per predicted transcript  with RNA-seq evidence
+| tde	|| transcript donor evidence	|| GeMoMa	|| introns	|| mRNA	|| percentage of predicted donor sites per predicted transcript  with RNA-seq evidence
 |-
-| tie	|| transcript intron evidence	|| GeMoMa	|| introns	|| prediction	|| percentage of predicted introns per predicted transcript with RNA-seq evidence
+| tie	|| transcript intron evidence	|| GeMoMa	|| introns	|| mRNA	|| percentage of predicted introns per predicted transcript with RNA-seq evidence
 |-
-| minSplitReads	|| minimal split reads	|| GeMoMa	|| introns	|| prediction	|| minimal number of split reads for any of the predicted introns per predicted transcript
+| minSplitReads	|| minimal split reads	|| GeMoMa	|| introns	|| mRNA	|| minimal number of split reads for any of the predicted introns per predicted transcript
 |-
-| iAA	|| identical amino acid	|| GeMoMa	|| query proteins	|| prediction	|| percentage of identical amino acids between reference transcript and prediction
+| iAA	|| identical amino acid	|| GeMoMa	|| query proteins	|| mRNA	|| percentage of identical amino acids between reference transcript and prediction
 |-
-| pAA	|| positive amino acid	|| GeMoMa	|| query proteins	|| prediction	|| percentage of aligned positions between reference transcript and prediction yielding a positive score in the substitution matrix
+| pAA	|| positive amino acid	|| GeMoMa	|| query proteins	|| mRNA	|| percentage of aligned positions between reference transcript and prediction yielding a positive score in the substitution matrix
 |-
-| evidence	|| 	|| GAF	||	|| prediction	|| number of reference organisms that have a transcript yielding this prediction
+| evidence	|| 	|| GAF	||	|| mRNA	|| number of reference organisms that have a transcript yielding this prediction
 |-
-| alternative	|| 	|| GAF	||	|| prediction	|| alternative gene ID(s) leading to the same prediction
+| alternative	|| 	|| GAF	||	|| mRNA	|| alternative gene ID(s) leading to the same prediction
 |-
-| sumWeight	|| 	|| GAF	||	|| prediction	|| the sum of the weights of the references that perfectly support this prediction
+| sumWeight	|| 	|| GAF	||	|| mRNA	|| the sum of the weights of the references that perfectly support this prediction
 |-
 | maxTie	|| maximal tie	|| GAF	||	|| gene	|| maximal tie of all transcripts of this gene
 |-
