@@ -377,10 +377,17 @@ public class SelectionParameter extends AbstractSelectionParameter {
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
 		
-		String selected = XMLParser.extractForTag( command, namePrefix ).toString();
-		this.setValue( selected );
-		if(this.getValue() instanceof GalaxyConvertible){
-			((GalaxyConvertible)this.getValue()).fromGalaxy( namePrefix+"_opt"+getSelected(), command );
+		StringBuffer value = XMLParser.extractForTag( command, namePrefix );
+		if( value != null ) {
+			String selected = value.toString();
+			this.setValue( selected );
+			if(this.getValue() instanceof GalaxyConvertible){
+				((GalaxyConvertible)this.getValue()).fromGalaxy( namePrefix+"_opt"+getSelected(), command );
+			}
+		} else {
+			if( isRequired() && !hasDefaultOrIsSet() ) {
+				throw new NullPointerException( getName()+" "+command+" "+namePrefix );
+			}
 		}
 	}
 	
