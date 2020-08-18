@@ -669,13 +669,15 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 	@Override
 	public void fromGalaxy( String namePrefix, StringBuffer command ) throws Exception {
 		namePrefix = namePrefix+"_"+GalaxyAdaptor.getLegalName( getName() );
-		try{
-			String val = XMLParser.extractForTag( command, namePrefix ).toString();
-			
-			val = unescape( val );
+		StringBuffer value = XMLParser.extractForTag( command, namePrefix );
+		
+		if( value != null ) {
+			String	val = unescape( value.toString() );
 			this.setValue( val );
-		}catch(NullPointerException e){
-			throw new NullPointerException( getName()+" "+command+" "+namePrefix );
+		} else {
+			if( isRequired() && !hasDefaultOrIsSet() ) {
+				throw new NullPointerException( getName()+" "+command+" "+namePrefix );
+			}
 		}
 	}
 	
