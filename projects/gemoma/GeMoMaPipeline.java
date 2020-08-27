@@ -1908,14 +1908,14 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			ToolParameterSet params = gemomaParams.clone();
 			params.getParameterForName("search results").setValue(sp.searchResults[split]);
 			params.getParameterForName("cds parts").setValue(sp.cds);
-			params.getParameterForName("assignment").setValue(sp.assignment);
+			if( sp.assignment != null ) params.getParameterForName("assignment").setValue(sp.assignment);
 			
 			SysProtocol protocol = new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			String outDir = home + speciesIndex + "/"+split +"/";
 			ToolResult res;
 			try{
-				res = gemoma.run(params, protocol, new ProgressUpdater(), 1, outDir);
+				res = gemoma.run(params, threads==1?pipelineProtocol:protocol, new ProgressUpdater(), 1, outDir);
 			} catch( Exception e )  {
 				pipelineProtocol.append("GeMoMa for species " + sp.name + " split="+split+" throws an Exception\n");
 				throw e;
