@@ -368,7 +368,7 @@ public class Tools {
 			if( idx < 0 ) {
 				second = idx = line.length();
 			}
-			selected.put(line.substring(0,idx).toUpperCase(), line.substring(second));
+			selected.put(line.substring(0,idx), line.substring(second));
 		}
 		if( maxSize >= 0 ) {
 			protocol.appendWarning("Only used the first " + maxSize + " lines of selected gene IDs.");

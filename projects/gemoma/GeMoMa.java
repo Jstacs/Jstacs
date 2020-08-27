@@ -881,7 +881,7 @@ public class GeMoMa extends GeMoMaModule {
 						c = new HashMap<String, Info>();
 						transcriptInfo.put(split[0], c);
 					}
-					c.put(split[1].toUpperCase(), new Info( split[2], split[3], split.length>=12 ? split[11] : "", split[9] ) );
+					c.put(split[1], new Info( split[2], split[3], split.length>=12 ? split[11] : "", split[9] ) );
 				}
 			}
 			r.close();
@@ -2164,7 +2164,7 @@ public class GeMoMa extends GeMoMaModule {
 				Arrays.sort(s);
 			} else {
 				transcript = null;
-				s = new String[]{ geneName.toUpperCase() };
+				s = new String[]{ geneName }; //removed .toUpperCase()
 			}
 			HashMap<String, HashMap<Integer, ArrayList<Hit>>[]> data = new HashMap<String, HashMap<Integer,ArrayList<Hit>>[]>();
 			HashMap<Integer,ArrayList<Hit>>[] v, w;
@@ -2288,6 +2288,16 @@ public class GeMoMa extends GeMoMaModule {
 		}
 		
 		int[] res = null;
+		
+		String getRefProtein(String transcriptName) {
+			String ref;
+			if( currentInfo!=Info.DUMMY ) {
+				ref=currentInfo.protein;
+			} else {
+				ref=cds.get(transcriptName);
+			}
+			return ref;
+		}
 		
 		/**
 		 * This method predicts gene model of a given transcript.
@@ -2488,7 +2498,7 @@ public class GeMoMa extends GeMoMaModule {
 	        }
 			
 			if( out ) {
-				String seq = proteinAlignment ? currentInfo.protein : null;
+				String seq = proteinAlignment ? getRefProtein(transcriptName) : null;
 				int counts = 0;
 				for( int i = 0; i < predictions && result.size()>0; i++ ) {
 					Solution best = result.poll();
@@ -4030,7 +4040,7 @@ public class GeMoMa extends GeMoMaModule {
 				}
 				
 				//Laura Kelly: partial?
-				String ref = currentInfo.protein;
+				String ref = getRefProtein(transcriptName);
 				if( ref.charAt(0)=='M' ) {
 					c = res.hits.get(0);
 					c.extend( c.part == currentInfo.exonID[0], false ); //START
