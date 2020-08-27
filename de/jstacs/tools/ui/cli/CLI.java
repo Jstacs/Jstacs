@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import de.jstacs.DataType;
 import de.jstacs.io.FileManager;
+import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.AbstractSelectionParameter;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
@@ -802,8 +803,10 @@ if( k == null ) {
 				
 				current.append(wikiTable(toolIndex));
 				
-				current.append("\n\n'''Example:'''\n\n java -jar "+jarname+" "+tools[toolIndex].getShortName());
-				addRequiredParameters(keyMap[toolIndex], "", current, tools[toolIndex].getToolParameters()); //switch on/off?
+				current.append("\n\n'''Example:'''\n\n ");
+				StringBuffer cmd = new StringBuffer( "java -jar "+jarname+" "+tools[toolIndex].getShortName() );
+				addRequiredParameters(keyMap[toolIndex], "", cmd, tools[toolIndex].getToolParameters()); //switch on/off?
+				current.append( XMLParser.escape(cmd.toString()) );
 				current.append("\n\n\n");
 				
 				all.append(current);
@@ -816,7 +819,7 @@ if( k == null ) {
 		return all;
 	}
 	
-	//add only require parameters with no default value
+	//add only required parameters with no default value
 	private static void addRequiredParameters( HashMap<String, String> hashMap, String prefix, StringBuffer current, ParameterSet ps ) {
 		boolean isExp = ps instanceof ExpandableParameterSet;
 		for( int i = 0; i < ps.getNumberOfParameters(); i++ ) {
