@@ -8,6 +8,11 @@ import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Locale;
 
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -274,17 +279,29 @@ public class MLogoPlotter extends SeqLogoPlotter {
 		
 		double pScale = (xcurr - xoff)/(max-min);
 		
+		String tickString = ticks+"";
+		if(Math.abs(ticks)>0.0001) {
+			if(tickString.matches("[0-9]+\\\\.[0-9]*[1-9]0000+[0-9]$")) {
+				tickString = tickString.replaceFirst("0000+[0-9]$", "");
+			}
+		}
+		int signif = tickString.replaceFirst("^.*\\.","").length();
+		
+		
+		DecimalFormat dc = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
+		dc.setMaximumFractionDigits(signif);
+		dc.setMinimumFractionDigits(signif);
+		
 		for(double p = niceMin;p<=niceMax;p+=ticks) {
 			if(p>=min && p<=max) {
 				int pos = xoff + (int)( (p-min) *pScale);
 				g.drawLine(pos, yoff+hstep, pos, yoff+hstep+hstep/2);
 				
-				String lab = p+"";
-				if(Math.abs(ticks)>0.0001) {
-					if(lab.matches("[0-9]+\\.[0-9]*[1-9]0000+[0-9]$")) {
-						lab = lab.replaceFirst("0000+[0-9]$", "");
-					}
+				String lab = dc.format(p);//p+"";
+				if(lab.matches("^-0\\.?0*$")) {
+					lab = lab.substring(1);
 				}
+				
 				rect = g.getFontMetrics().getStringBounds( lab, g );
 				g.drawString(lab, (int)(pos-rect.getCenterX()), (int)(yoff+1.5*hstep+rect.getHeight()));
 			}
