@@ -34,13 +34,13 @@ import de.jstacs.tools.ToolResult;
  */
 public abstract class GeMoMaModule implements JstacsTool {
 
-	public static final String VERSION = "1.7";
+	public static final String VERSION = "1.7.1";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 
 	
 	public static String MORE = "\n\nFor more information please visit http://www.jstacs.de/index.php/GeMoMa\n"
-			+ "If you have any questions, comments or bugs, please contact jens.keilwagen@julius-kuehn.de";
+			+ "If you have any questions, comments or bugs, please check FAQs on our homepage, our github page https://github.com/Jstacs/Jstacs/labels/GeMoMa or contact jens.keilwagen@julius-kuehn.de";
 
 	public static String[] REF = {
 			"@article{Keilwagen:2016:GeMoMa,\n"

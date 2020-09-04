@@ -133,7 +133,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	
 	ArrayList<String> speciesName;
 	ArrayList<Species> species;
-	int speciesCounter = 0;
+	int speciesCounter;
 	
 	RNASeq rnaSeqData;
 	
@@ -582,6 +582,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	}
 	
 	public ToolResult run(ToolParameterSet pars, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
+		speciesCounter = 0;
+		finished = 0;
 		parameters = (GeMoMaPipelineParameterSet) pars;
 		this.threads=threads;
 		queue = Executors.newFixedThreadPool(threads);
@@ -795,7 +797,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			species = new ArrayList<Species>();
 			speciesName = new ArrayList<String>();
 			updateComputeBySubset( "Extractor parameter set" );
-			for( int s=0; s < sp; s++){			
+			for( int s=0; s < sp; s++){
 				SelectionParameter sel = (SelectionParameter) ((ParameterSetContainer)ref.getParameterAt(s)).getValue().getParameterAt(0);
 				SimpleParameterSet currentRef = (SimpleParameterSet) sel.getValue();
 				switch( currentRef.getNumberOfParameters() ) {
@@ -1231,7 +1233,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		}
 	}
 	
-	int finished = 0;
+	int finished;
 	
 	void waitPhase() throws InterruptedException, ExecutionException {
 		if( stop ) return;
@@ -1668,7 +1670,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			File home = new File( outDir );
 			home.mkdirs();
 			if( params != null ) {
-				SysProtocol protocol = new QuietSysProtocol();
+				SysProtocol protocol = threads==1 && pipelineProtocol instanceof SysProtocol ? (SysProtocol) pipelineProtocol : new QuietSysProtocol();
+				
 				Extractor extractor = new Extractor(maxSize);
 				ToolResult res;
 				try {
@@ -1677,10 +1680,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					pipelineProtocol.append("Extractor for species " + sp.name + " throws an Exception\n");
 					throw e;
 				}
-				synchronized (pipelineProtocol) {
-					pipelineProtocol.append( "Extractor log for species " + sp.name +":\n" + extractor.shortInfo );
+				if( protocol != pipelineProtocol ) {
+					synchronized (pipelineProtocol) {
+						pipelineProtocol.append( "Extractor log for species " + sp.name +":\n" + extractor.shortInfo );
+					}
 				}
-				
 				CLI.writeToolResults(res, protocol, outDir, extractor, params);
 			} else if( selected != null ) {
 				//find genes
@@ -1910,12 +1914,12 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			params.getParameterForName("cds parts").setValue(sp.cds);
 			if( sp.assignment != null ) params.getParameterForName("assignment").setValue(sp.assignment);
 			
-			SysProtocol protocol = new QuietSysProtocol();
+			SysProtocol protocol = threads==1 && pipelineProtocol instanceof SysProtocol ? (SysProtocol) pipelineProtocol : new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
 			String outDir = home + speciesIndex + "/"+split +"/";
 			ToolResult res;
 			try{
-				res = gemoma.run(params, threads==1?pipelineProtocol:protocol, new ProgressUpdater(), 1, outDir);
+				res = gemoma.run(params, protocol, new ProgressUpdater(), 1, outDir);
 			} catch( Exception e )  {
 				pipelineProtocol.append("GeMoMa for species " + sp.name + " split="+split+" throws an Exception\n");
 				throw e;
@@ -2024,7 +2028,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 
 		@Override
 		public void doJob() throws Exception {
-			SysProtocol protocol = new QuietSysProtocol();
+			SysProtocol protocol = threads==1 && pipelineProtocol instanceof SysProtocol ? (SysProtocol) pipelineProtocol : new QuietSysProtocol();
 			
 			GeMoMaAnnotationFilter gaf = new GeMoMaAnnotationFilter();
 			
@@ -2051,7 +2055,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			}
 			
 			ToolResult tr = gaf.run(gafParams, protocol, new ProgressUpdater(), 1, home);
-			pipelineProtocol.append(protocol.getLog().toString());
+			if( protocol!= pipelineProtocol ) {
+				pipelineProtocol.append(protocol.getLog().toString());
+			}
 			
 			//res.add( tr.getRawResult()[0].getResultAt(0) );
 			CLI.writeToolResults(tr, protocol, home, gaf, gafParams);
@@ -2167,7 +2173,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	@Override
 	public ToolResult[] getTestCases( String path ) {
 		try {
-			return new ToolResult[]{new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test.xml"))};
+			return new ToolResult[]{
+					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test.xml")),
+					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test2.xml"))
+			};
 		} catch( Exception e ) {
 			e.printStackTrace();
 			return null;
