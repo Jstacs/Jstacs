@@ -253,101 +253,7 @@ public class MethylSlimDimontTool implements JstacsTool {
 		double filterThreshold = 0.3;
 		double filterThresholdEnd = 0.3;
 		
-		/*
 	
-	*//**
-	 * @param args
-	 *//*
-	public static void main(String[] args) throws Exception {
-
-		//parse parameters
-		ParameterSetTagger cParams = new ParameterSetTagger( SlimDimontParameterSet.PREFIX, new SlimDimontParameterSet() );
-		cParams.fillParameters( "=", args );
-		System.out.println( "parameters:" );
-		System.out.println( cParams );
-		System.out.println("_________________________________");
-		if( !cParams.hasDefaultOrIsSet() ) {
-			System.out.println( "Some of the required parameters are not specified." );
-			System.exit( 1 );
-		}
-
-		
-		
-		String home = cParams.getValueFromTag( SlimDimontParameterSet.HOME, String.class );
-		String fgData = home +File.separator+ cParams.getValueFromTag( SlimDimontParameterSet.DATA, String.class );
-		String bg = cParams.getValueFromTag( SlimDimontParameterSet.BACKGROUND, String.class );
-		String infix = cParams.getValueFromTag( SlimDimontParameterSet.INFIX, String.class );
-		int motifLength = cParams.getValueFromTag( SlimDimontParameterSet.LENGTH, Integer.class );
-		int restarts = cParams.getValueFromTag( SlimDimontParameterSet.STARTS, Integer.class );
-		int fgOrder = cParams.getValueFromTag( SlimDimontParameterSet.MOTIF_ORDER, Integer.class );
-		int bgOrder = cParams.getValueFromTag( SlimDimontParameterSet.BG_ORDER, Integer.class );
-		String position = cParams.getValueFromTag( SlimDimontParameterSet.POSITION_TAG, String.class );
-		String value = cParams.getValueFromTag( SlimDimontParameterSet.VALUE_TAG, String.class );
-		double sd = (Double)cParams.getValueFromTag( SlimDimontParameterSet.SD, Double.class );
-		String weightingFactor = cParams.getValueFromTag( SlimDimontParameterSet.WEIGHTING_FACTOR, String.class );
-		double ess = cParams.getValueFromTag( SlimDimontParameterSet.ESS, Double.class );
-		boolean delete = cParams.getValueFromTag( SlimDimontParameterSet.DELETE, Boolean.class );
-		boolean modify = cParams.getValueFromTag( SlimDimontParameterSet.MODIFY, Boolean.class );
-		
-		int threads;
-		if( cParams.isSet(SlimDimontParameterSet.THREADS) ) {
-			threads = cParams.getValueFromTag( SlimDimontParameterSet.THREADS, Integer.class );
-		} else {
-			threads = AbstractMultiThreadedOptimizableFunction.getNumberOfAvailableProcessors();
-		}
-		
-		SequenceAnnotationParser parser = new SplitSequenceAnnotationParser(":", ";");
-		
-		DataSet data = SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, fgData, parser);
-		if( data.getNumberOfElements() < 10 ) {
-			System.out.println("WARNING: SlimDimont is not made for small data sets, i.e., a small number of sequences. Hence, it might return useless results.");
-		}
-		DataSet bgData = bg==null ? null : SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, new SparseStringExtractor(home +File.separator+ bg,'>'));
-		
-		if(fgData.matches( ".*_part_[0-9].fa" )){
-			String temp = fgData.replaceAll( "_part_[0-9].fa", ".fa" );
-			System.out.println("Reading "+temp);
-			DataSet all = SparseSequence.getDataSet(DNAAlphabetContainer.SINGLETON, temp, parser);
-			System.out.println("test: "+data.getNumberOfElements());
-			System.out.println("all: "+all.getNumberOfElements());
-			data = DataSet.diff( all, data );
-			System.out.println("diff: "+data.getNumberOfElements());
-		}
-		
-		Result[][] res = run( data, bgData, motifLength,restarts,fgOrder,bgOrder,position,value,weightingFactor,ess,delete,threads, SafeOutputStream.getSafeOutputStream( System.out ),sd,modify);
-		
-		for(int i=0;i<res.length;i++){
-			StorableResult sr = (StorableResult) res[i][0];
-			FileManager.writeFile( new File(home+File.separator+infix+"-model-"+(i+1)+".xml"), sr.getValue() );
-			
-			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++\nMotif model "+(i+1)+":");
-			System.out.println( ( (GenDisMixClassifier)sr.getResultInstance() ).getDifferentiableSequenceScore( 0 ));
-			
-			ListResult lr = (ListResult) res[i][1];
-			FileManager.writeFile( new File(home+File.separator+infix+"-predictions-"+(i+1)+".txt"), lr.toString() );
-			
-			if(res[i].length > 2){
-				ImageResult ir = (ImageResult) res[i][2];
-				ImageIO.write( ir.getValue() , "png", new File(home+File.separator+infix+"-logo-"+(i+1)+".png") );
-				ir = (ImageResult) res[i][3];
-				ImageIO.write( ir.getValue() , "png", new File(home+File.separator+infix+"-logo-rc-"+(i+1)+".png") );
-				ir = (ImageResult) res[i][4];
-				ImageIO.write( ir.getValue() , "png", new File(home+File.separator+infix+"-dependencylogo-"+(i+1)+".png") );
-			}
-			
-		}
-		
-	}
-	
-	public static Result[][] run(DataSet fgData, DataSet bgData, int motifLength, int restarts, int fgOrder, int bgOrder, String position,
-			String value, String weightingFactor, double ess, boolean delete, int threads, SafeOutputStream out, double sd,
-			boolean modify) throws Exception {*/
-	
-		//double filterThreshold = 0.3;
-		//double filterThresholdEnd = 0.3;
-		
-	//	AlphabetContainer con = DNAAlphabetContainer.SINGLETON;
-		
 		boolean free = false;
 		
 		DataSet[] data = { fgData };
@@ -380,28 +286,7 @@ public class MethylSlimDimontTool implements JstacsTool {
 			}
 		}
 		
-		//create weights
-		/*double wf;
-		if( weightingFactor.endsWith("sd") ) {
-			double h = Double.parseDouble( weightingFactor.substring(0,weightingFactor.length()-2) );
-			double meanRaw = ToolBox.sum(raw) / raw.length;
-			double sdRaw = 0;
-			for( int i = 0; i < raw.length; i++ ) {
-				sdRaw += (raw[i]-meanRaw) * (raw[i]-meanRaw);
-			}
-			sdRaw = Math.sqrt( sdRaw/raw.length );
-			h = meanRaw + h*sdRaw;
-			double anz = 0;
-			for( int i = 0; i < raw.length; i++ ) {
-				if( raw[i] >= h ) {
-					anz++;
-				}
-			}
-			anz=Math.max(50,anz);
-			wf = anz/raw.length;
-		} else {
-			wf = Double.parseDouble( weightingFactor );
-		}*/
+		
 
 		double[] w = Interpolation.getWeight( data[0], raw, wf, Interpolation.RANK_LOG );
 		if( bgData == null ) {

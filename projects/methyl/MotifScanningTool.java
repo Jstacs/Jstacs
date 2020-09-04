@@ -105,12 +105,12 @@ public class MotifScanningTool implements JstacsTool {
 			Sequence rc = seq.reverseComplement();
 			for(int j=0;j<rc.getLength()-motif.getLength()+1;j++){
 				double score = motif.getLogScoreFor(rc, j);
+				temp.add(score);
 				if(score > max){
 					max = score;
 					maxStart = j;
 					strand = "-";
 				}
-				temp.add(score);
 			}
 			
 			double sum = Normalisation.getLogSum(temp.toArray()) - Math.log(seq.getLength()*2);
