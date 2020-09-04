@@ -220,4 +220,14 @@ GeMoMa 1.7. (29.07.2020)
 	- new optional parameter BLAST_PATH
 	- new optional parameter MMSEQS_PATH
 	- new option to allow for incorporation of external annotation, e.g., from ab-initio gene prediction
-	- new parameter restart allowing to restart the latest GeMoMaPipeline run, which was finished without results, with very similar parameters, e.g., after an exception was thrown (cf. parameter debug)  
+	- new parameter restart allowing to restart the latest GeMoMaPipeline run, which was finished without results, with very similar parameters, e.g., after an exception was thrown (cf. parameter debug)
+
+GeMoMa 1.7.1 (04.09.2020)
+- GeMoMa: 
+	- bugfix if assignment == null
+	- bugfix remove toUpperCase
+- GeMoMaPipeline
+	- Galaxy integration bugfix for hidden parameter restart
+	- hide BLAST_PATH and MMSEQS_PATH from Galaxy integration
+	- improved protocol output if threads=1
+	- add addtional test to GeMoMaPipeline
