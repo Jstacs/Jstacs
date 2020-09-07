@@ -408,6 +408,7 @@ public class GeMoMa extends GeMoMaModule {
 				galaxy.run(args);
 			}
 		}
+		tools[0].clear();
 	}
 	
 	public static HashMap<String, int[][]> simplify( HashMap<String, ArrayList<int[]>> current ) {
