@@ -40,7 +40,7 @@ There are several reasons for removing transcripts by the Extractor. At least in
 10) Is GeMoMa able to predict pseudo-genes/ncRNA?
 No, currently not.
 
-11) My RNA-seq data indicates there is an additional intron in a transcipt, but GeMoMa does not predict this. Or vice versa, GeMoMa predicts an intron that is not supported by RNA-seq data. What's the reason?
+11) My RNA-seq data indicates there is an additional intron in a transcript, but GeMoMa does not predict this. Or vice versa, GeMoMa predicts an intron that is not supported by RNA-seq data. What's the reason?
 GeMoMa is mainly based on the assumptions of amino acid and intron position conservation between reference and target species. Hence, GeMoMa tries to predict a gene model with similar exon-intron-structure in the target species and does not stick too much with RNA-seq data. Although intron position conservation can be observed in most cases, sometimes new introns evolve or others vanish. For this reasons, GeMoMa also allows for the inclusion or exclusion of introns adding some additional costs (cf. GeMoMa parameter intron-loss-gain-penalty). However, the behaviour of GeMoMa depends on the parameters settings (especially intron-loss-gain-penalty, sm (substitution matrix), go (gap opening), ge (gap extension)) and the length of the missed/additional intron. Nevertheless, such cases can only occur if the additional/missed intron has a length that can be divided by 3 preserving the reading frame.
 Since the available RNA-seq data only reflects a fraction of tissues/environmental conditions/..., missing RNA-seq evidence does not necessarily mean that the predictions is wrong.
 
@@ -62,7 +62,7 @@ The genetic code might be specified for a reference organism in the module Extra
 
 16) I like to accelerate GeMoMa. What can I do?
 You can use several threads for the computation. If you run the GeMoMaPipeline you just have to select threads=<your_number>.
-In addition, you can change the search algorithm that is used in GeMoMa. Tblastn is used by default as search algorithm in GeMoMa (for historical reasons). However, tblastn can be replaced by mmseqs which is typically much faster. If you run the GeMoMaPipeline you just have to select tblastn=false. However, changing the search algorithm can also effect the results. We try to minimize these effect using specific parameters for the search algorithms.
+In addition, you can change the search algorithm that is used in GeMoMa. Tblastn is used by default as search algorithm in GeMoMa (for historical reasons, until version 1.6.4). However, tblastn can be replaced by mmseqs which is typically much faster. If you run the GeMoMaPipeline you just have to select tblastn=false, which is default since version 1.7. However, changing the search algorithm can also effect the results. We try to minimize these effect using specific parameters for the search algorithms.
 If you modify other parameters, you will probably receive results that differ to a larger extend from those received using the default parameters.   
 
 17) Is there a way to use GeMoMa to search a single CDS or protein sequence against a genome and return the predicted gene model (CDS fasta, protein fasta, GFF) similar to exonerate?

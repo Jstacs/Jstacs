@@ -16,7 +16,7 @@ java -jar $jar --create GAF -Xms5G -Xmx40G
 cp Extractor.xml Extractor.xml-default
 cp ERE.xml ERE.xml-default
 mv GeMoMaPipeline.xml GeMoMaPipeline.xml-default
-grep -v restart GeMoMaPipeline.xml-default > GeMoMaPipeline.xml
+grep -v restart GeMoMaPipeline.xml-default | grep -v "_PATH" > GeMoMaPipeline.xml
 
 function change {
 	sed -i "s/<\/command>/\n\t\t#if \$$3_ps_$2:\n\t\t\t\$$2\n\t\t\#end if\n<\/command>/g" $1
