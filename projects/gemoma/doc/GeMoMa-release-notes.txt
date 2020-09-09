@@ -222,7 +222,7 @@ GeMoMa 1.7. (29.07.2020)
 	- new option to allow for incorporation of external annotation, e.g., from ab-initio gene prediction
 	- new parameter restart allowing to restart the latest GeMoMaPipeline run, which was finished without results, with very similar parameters, e.g., after an exception was thrown (cf. parameter debug)
 
-GeMoMa 1.7.1 (04.09.2020)
+GeMoMa 1.7.1 (07.09.2020)
 - GeMoMa: 
 	- bugfix if assignment == null
 	- bugfix remove toUpperCase
