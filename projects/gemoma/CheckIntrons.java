@@ -48,7 +48,7 @@ public class CheckIntrons extends GeMoMaModule {
 			return new ToolParameterSet( getShortName(), 
 					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta", true ),					
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
-							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", false )
+							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff", true )
 						), "introns", "", 1 ) ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information per transcript", true, false )
