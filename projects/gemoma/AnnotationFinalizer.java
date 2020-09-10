@@ -201,7 +201,11 @@ public class AnnotationFinalizer extends GeMoMaModule {
 				l++;
 			}
 			if( l<attr.length ) {
-				score = Double.parseDouble(attr[l].substring(6));
+				try {
+					score = Double.parseDouble(attr[l].substring(6));
+				} catch( Exception e ) {
+					score = Double.NaN;
+				}
 			} else {
 				score = 0;
 			}
