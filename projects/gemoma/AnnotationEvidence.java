@@ -239,7 +239,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 							for( int j = 0; j < att.length; j++ ) {
 								att[j]=att[j].trim();
 							}
-							boolean gtf = att.length>0 && (att[0].startsWith("gene_id") || att[1].startsWith("transcript_id"));
+							boolean gtf = att.length>=2 && (att[0].startsWith("gene_id") || att[1].startsWith("transcript_id"));
 							if( gtf ) {
 								//GTF -> GFF
 								for( int j = 0; j < att.length; j++ ) {
