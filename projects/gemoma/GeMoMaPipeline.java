@@ -68,6 +68,7 @@ import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
+import de.jstacs.parameters.validation.RegExpValidator;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -253,14 +254,14 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		try{
 			ArrayList<SimpleParameterSet> values = new ArrayList<SimpleParameterSet>();
 			values.add( new SimpleParameterSet(
-							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
+							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w+") ),
 							new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
 							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz", true, new FileExistsValidator(), true ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
 							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
 			) );
 			values.add( new SimpleParameterSet(
-							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, ""),
+							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w+") ),
 							new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta,fas,fa,fna", true, new FileExistsValidator() ),
 							new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false, new FileExistsValidator() ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
@@ -293,7 +294,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					
 					new ParameterSetContainer( "external annotations", "", 
 							new ExpandableParameterSet( new SimpleParameterSet(
-									new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different external annotations of the target organism", false, ""),
+									new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different external annotations of the target organism", false, new RegExpValidator("\\w+") ),
 									new FileParameter( "external annotation", "External annotation file (GFF,GTF) of the target organism, which contains gene models from an external source (e.g., ab initio gene prediction) and will be integrated in the module GAF", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
 									new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files in the module GAF; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
 									new SimpleParameter(DataType.BOOLEAN,"annotation evidence","run AnnotationEvidence on this external annotation", true, true)

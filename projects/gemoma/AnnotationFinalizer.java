@@ -43,6 +43,7 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.parameters.validation.NumberValidator;
+import de.jstacs.parameters.validation.RegExpValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
@@ -498,7 +499,6 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		rename = n>0;
 		if( rename ) {
 			prefix = renamePS.getParameterForName("prefix").getValue().toString();
-			prefix = prefix.replaceAll("\\s+", "_");
 			digits = (Integer) renamePS.getParameterForName("digits").getValue();
 			if( n>2 ) {
 				infix = renamePS.getParameterForName("infix").getValue().toString();
@@ -823,7 +823,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 							new Object[]{
 								//generic renaming
 								new SimpleParameterSet(
-										new SimpleParameter( DataType.STRING, "prefix", "the prefix of the generic name", true ),
+										new SimpleParameter( DataType.STRING, "prefix", "the prefix of the generic name", true, new RegExpValidator("\\w+") ),
 										new SimpleParameter( DataType.STRING, "infix", "the infix of the generic name", true, "G" ),
 										new SimpleParameter( DataType.STRING, "suffix", "the suffix of the generic name", true, "0" ),
 										new SimpleParameter( DataType.INT, "digits", "the number of informative digits", true, new NumberValidator<Integer>(4, 10), 5 ),
@@ -831,7 +831,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 								),
 								//simple renaming
 								new SimpleParameterSet(
-										new SimpleParameter( DataType.STRING, "prefix", "the prefix of the generic name", true ),
+										new SimpleParameter( DataType.STRING, "prefix", "the prefix of the generic name", true, new RegExpValidator("\\w+") ),
 										new SimpleParameter( DataType.INT, "digits", "the number of informative digits", true, new NumberValidator<Integer>(4, 10), 5 )
 								),
 								//no renaming
