@@ -498,6 +498,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		rename = n>0;
 		if( rename ) {
 			prefix = renamePS.getParameterForName("prefix").getValue().toString();
+			prefix = prefix.replaceAll("\\s+", "_");
 			digits = (Integer) renamePS.getParameterForName("digits").getValue();
 			if( n>2 ) {
 				infix = renamePS.getParameterForName("infix").getValue().toString();
