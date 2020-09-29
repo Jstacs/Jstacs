@@ -635,8 +635,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			
 			this.split = split;
 			contigStrand = split[0]+split[6];
-			start = Integer.parseInt(split[3]);
-			end = Integer.parseInt(split[4]);
 			
 			String s;
 			split = split[8].split(";");
@@ -724,6 +722,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			
 			cds = new ArrayList<CDS>();
 			length = 0;
+			start = Integer.MAX_VALUE;//Integer.parseInt(split[3]);
+			end = Integer.MIN_VALUE; //Integer.parseInt(split[4]);
 			alternative = new HashSet<String>();
 		}
 				
@@ -748,6 +748,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			CDS current = new CDS( cds.split("\t") );
 			this.cds.add( current );
 			length+= (current.end-current.start+1);
+			start = Math.min(start, current.start);
+			end = Math.max(end, current.end);
 		}
 
 		@Override
