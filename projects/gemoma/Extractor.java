@@ -74,7 +74,7 @@ public class Extractor extends GeMoMaModule {
 		out.add(SafeOutputStream.getSafeOutputStream(b));
 	}
 
-	static String[] name = {"cds-parts", "assignment", "proteins", "cds", "genomic", "introns"};
+	static String[] name = {"cds-parts", "assignment", "proteins", "cds", "genomic", "introns","identical"};
 	static String[] type;
 	static {
 		type = new String[name.length];
@@ -82,6 +82,7 @@ public class Extractor extends GeMoMaModule {
 			type[i] = (i!=1?"fasta":"tabular");
 		};
 		type[5]="gff";
+		type[6]="tabular";
 	}
 	
 	private int[] problem = new int[9];
@@ -125,6 +126,7 @@ public class Extractor extends GeMoMaModule {
 		}
 	
 		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon\tsplit AA" );
+		out.get(6).writeln("#used transcript\tdiscarded transcript" );
 		
 		//read genome contig by contig
 		r = Tools.openGzOrPlain( parameters.getParameterForName("genome").getValue().toString() );
@@ -288,6 +290,7 @@ public class Extractor extends GeMoMaModule {
 		//read transcripts
 		r = new BufferedReader( new FileReader(input) );
 		HashMap<String, Gene> trans = new HashMap<String, Gene>();
+		HashMap<String, ArrayList<String[]>> additional = new HashMap<String, ArrayList<String[]>>();
 		ArrayList<String[]> cds = new ArrayList<String[]>();
 		boolean first = true, gff = true;
 		while( (line=r.readLine()) != null ) {
@@ -385,13 +388,29 @@ public class Extractor extends GeMoMaModule {
 						}
 					}
 					break;
+				default:
+					if( gff ) {
+						idx = split[8].indexOf(par);
+						if( idx>=0 ) {
+							idx+=par.length();
+							h = split[8].indexOf(';',idx);
+							String parentID = split[8].substring( idx, h>0?h:split[8].length() );
+							if( upcaseIDs ) parentID = parentID.toUpperCase();
+							ArrayList<String[]> l = additional.get(parentID);
+							if( l==null ) {
+								l = new ArrayList<String[]>();
+								additional.put( parentID, l );
+							}
+							l.add(split);
+						}
+					}
 			}
 		}
 		r.close();
 		
 		//read cds
 		protocol.append("number of detected CDS lines: " + cds.size() + "\n");
-		HashSet<String> usedG = new HashSet<String>();
+		HashSet<Gene> usedG = new HashSet<Gene>();
 		HashSet<String> usedT = new HashSet<String>();
 		for( int i = 0 ; i < cds.size(); i++ ) {
 			split = cds.get(i);
@@ -408,7 +427,7 @@ public class Extractor extends GeMoMaModule {
 						add(trans, annot, split[1], split[0], split[6], parent[j]+".gene", parent[j], null);
 						gene = trans.get(parent[j]);
 					}
-					usedG.add(gene.id);
+					usedG.add(gene);
 					usedT.add(parent[j]);
 					gene.add( parent[j], new int[]{
 							split[6].charAt(0)=='+'?1:-1, //strand
@@ -419,6 +438,23 @@ public class Extractor extends GeMoMaModule {
 				}
 			}			
 		}
+		
+		//add additional
+		if( additional.size()>0 ) {
+			Iterator<Gene> it = usedG.iterator();
+			while( it.hasNext() ) {
+				Gene g = it.next();
+				Iterator<String> itT = g.transcript.keySet().iterator();
+				while( itT.hasNext() ) {
+					String tid = itT.next(); 
+					ArrayList<String[]> add = additional.get(tid);
+					if( add != null ) {
+						Transcript t = g.transcript.get(tid);
+						t.add=add;
+					}
+				}
+			}
+		}
 		protocol.append("number of detected genes: " + usedG.size() + "\n");
 		protocol.append("number of detected transcripts: " + usedT.size() + "\n");
 		return annot;
@@ -427,10 +463,12 @@ public class Extractor extends GeMoMaModule {
 	public static class Transcript {
 		IntList b;
 		String attributes;
+		ArrayList<String[]> add;
 		
 		public Transcript( String attributes ) {
 			this.attributes = attributes;
 			b = new IntList();
+			add=null;
 		}
 	}
 	
@@ -506,7 +544,7 @@ public class Extractor extends GeMoMaModule {
 			x.add(i);
 		}
 		
-		void reduce( String geneName, int[] info ) throws IOException {
+		void reduce( String geneName, int[] info, SafeOutputStream out ) throws IOException {
 			info[0]++;
 			String[] s = new String[transcript.size()];
 			transcript.keySet().toArray(s);
@@ -520,7 +558,7 @@ public class Extractor extends GeMoMaModule {
 					for( int j = i+1; in[i] && j < s.length; j++ ) {
 						if( in[j] && identical(transcript.get(s[j]).b,il) ) {
 							in[j] = false;
-							//out.append( geneName + "\t" + s[j] + "\t \n" );
+							out.writeln(s[i] + "\t" + s[j] );
 							transcript.remove(s[j]);
 							info[1]++;
 						}
@@ -633,7 +671,7 @@ public class Extractor extends GeMoMaModule {
 		boolean[] accS = new boolean[max];
 		String[] don = new String[max];
 		String[] acc = new String[max];
-		
+		SafeOutputStream ident = out.get(6);
 		for( Gene gene: genes ) {
 			if( gene.transcript.size()>0 ) {
 				int[] val = null;
@@ -645,7 +683,7 @@ public class Extractor extends GeMoMaModule {
 				int strand = gene.strand;
 				boolean forward=strand==1;
 				
-				gene.reduce( gene.id, info );
+				gene.reduce( gene.id, info, ident );
 				part.clear();
 				int i, j;
 				
@@ -1119,6 +1157,7 @@ public class Extractor extends GeMoMaModule {
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[3], "whether the complete CDSs should returned as output", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[4], "whether the genomic regions should be returned (upper case = coding, lower case = non coding)", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, Extractor.name[5], "whether introns should be extracted from annotation, that might be used for test cases", true, false ),
+				new SimpleParameter(DataType.BOOLEAN, Extractor.name[6], "if CDS is identical Extractor only used one transcript. This parameter allows to return a table that lists in the first column the used transcript and in the second column the discarded transcript. If no transcript is discarded, the list is empty.", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "upcase IDs", "whether the IDs in the GFF should be upcased", true, false ),
 				new SimpleParameter(DataType.BOOLEAN, "repair", "if a transcript annotation can not be parsed, the program will try to infer the phase of the CDS parts to repair the annotation", true, false ),
 				
