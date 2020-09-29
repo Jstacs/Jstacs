@@ -298,7 +298,15 @@ public class AnnotationEvidence extends GeMoMaModule {
 										+ ";start=" + aa.charAt(0) + ";stop=" + aa.charAt(aa.length()-1) );
 							*/
 							annot.newLine();
-
+							if( t.add != null ) {
+								for( int j = 0; j < t.add.size(); j++ ) {
+									String[] split = t.add.get(j);
+									for( int m = 0; m < split.length; m++ ) {
+										annot.append( (m==0?"":"\t") + split[m] );
+									}
+									annot.newLine();
+								}
+							}
 							for( int j = 0;j < parts.length(); j++ ) {
 								int[] part = g.exon.get(parts.get(j));
 								annot.append( c + "\t" + g.evidence + "\tCDS\t" + part[1] + "\t" + part[2] + "\t.\t" + (g.strand==1?"+":"-") + "\t"+(part[3]==Part.NO_PHASE?".":part[3])+"\tParent=" + e.getKey() );
