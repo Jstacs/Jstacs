@@ -122,7 +122,8 @@ public class Extractor extends GeMoMaModule {
 		getOut( name[0], file, out, temp );
 		getOut( name[1], file, out, temp );
 		for( int i = 2; i < name.length; i++ ) {
-			getOut( ((Boolean)parameters.getParameterForName(name[i]).getValue()) ? name[i] : null, file, out, temp );
+			p = parameters.getParameterForName(name[i]);
+			getOut( (p!=null && ((Boolean)p.getValue())) ? name[i] : null, file, out, temp );
 		}
 	
 		out.get(1).writeln("#geneID\ttranscript\tcds-parts\tphases\tchr\tstrand\tstart\tend\tfull-length\tlongest intron\tsmallest exon\tsplit AA" );
