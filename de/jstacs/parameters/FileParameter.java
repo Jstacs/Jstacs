@@ -681,6 +681,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 				}
 				filename=null;
 				XMLParser.appendObjectWithTags(buf, content, "content");
+				XMLParser.appendObjectWithTags(buf, ext, "ext");
 			}
 			XMLParser.appendObjectWithTags(buf, filename, "filename");
 			XMLParser.appendObjectWithTags( buf, compressed, "compressed" );
@@ -694,16 +695,20 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			representation = XMLParser.extractForTag(representation,
 					"fileRepresentation");
 			filename = XMLParser.extractObjectForTags(representation, "filename", String.class );
-			try{ 
-				content = XMLParser.extractObjectForTags(representation, "content", String.class );
-			} catch( NonParsableException e ) {
-				content = null;
-			}			
 			compressed = XMLParser.extractObjectForTags( representation, "compressed", Boolean.class );
 			if(filename != null) {
 				int idx = filename.lastIndexOf( '.' );
 				if(idx >= 0){
 					this.ext = filename.substring( idx+1 );
+				}
+			} else {
+				try{ 
+					content = XMLParser.extractObjectForTags(representation, "content", String.class );
+				} catch( NonParsableException e ) {
+					content = null;
+				}
+				if( XMLParser.hasTag(representation, "ext", null, null) ) {
+					ext = (String) XMLParser.extractObjectForTags(representation, "ext");
 				}
 			}
 		}
@@ -728,8 +733,8 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 					BufferedReader r1 = new BufferedReader(content == null ? new FileReader(filename) : new StringReader(compressed ? Compression.unzip(content) : content) );
 					BufferedReader r2 = new BufferedReader(fr.content == null ? new FileReader(fr.filename) : new StringReader(fr.compressed ? Compression.unzip(fr.content) : fr.content) );
 					do {
-						while( (line1=r1.readLine()) != null && line1.length()>0 && !((Character)line1.charAt(0)).equals(ignore) );
-						while( (line2=r2.readLine()) != null && line2.length()>0 && !((Character)line2.charAt(0)).equals(ignore) );
+						while( (line1=r1.readLine()) != null && line1.length()>0 && ((Character)line1.charAt(0)).equals(ignore) );
+						while( (line2=r2.readLine()) != null && line2.length()>0 && ((Character)line2.charAt(0)).equals(ignore) );
 						i++;
 					} while( line1!= null && line2 != null && line1.equals(line2) );	
 					r1.close();
