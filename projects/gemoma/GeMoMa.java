@@ -4466,8 +4466,8 @@ public class GeMoMa extends GeMoMaModule {
 			return new ToolParameterSet( getShortName(), 
 					new FileParameter( "search results", "The search results, e.g., from tblastn or mmseqs", "tabular", true, new FileExistsValidator() ),
 					new FileParameter( "target genome", "The target genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
-					new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta,fa,fas,fna", true, new FileExistsValidator(), true ),
-					new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false, new FileExistsValidator() ),
+					new FileParameter( "cds parts", "The query CDS parts file (protein FASTA), i.e., the CDS parts that have been searched in the target genome using for instance BLAST or mmseqs", "fasta,fa,fas,fna", true, new FileExistsValidator(), true ),
+					new FileParameter( "assignment", "The assignment file, which combines CDS parts to proteins", "tabular", false, new FileExistsValidator() ),
 					
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", true, new FileExistsValidator(), true )

@@ -262,8 +262,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			) );
 			values.add( new SimpleParameterSet(
 							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w+") ),
-							new FileParameter( "cds parts", "The query cds parts file (FASTA), i.e., the cds parts that have been blasted", "fasta,fas,fa,fna", true, new FileExistsValidator() ),
-							new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", false, new FileExistsValidator() ),
+							new FileParameter( "cds parts", "The query CDS parts file (protein FASTA), i.e., the CDS parts that have been searched in the target genome using for instance BLAST or mmseqs", "fasta,fa,fas,fna", true, new FileExistsValidator(), true ),
+							new FileParameter( "assignment", "The assignment file, which combines CDS parts to proteins", "tabular", false, new FileExistsValidator() ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
 							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
 			) );
