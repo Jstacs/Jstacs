@@ -956,12 +956,12 @@ public class GeMoMa extends GeMoMaModule {
 		Exception e = null;
 		
 		TranscriptPredictor tp = new TranscriptPredictor(true, parameters, temp);
+		String problem=null, old=null;
 		try {			
 			//collect blast hits per transcript, split for chromosome, strand and cds part
 			r = new BufferedReader( new FileReader( search ) );
 			protocol.append(getHeading()+"\n");
 			noL=0;
-			String old=null;
 			HashMap<String, HashMap<Integer,ArrayList<Hit>>[]> hash = new HashMap<String, HashMap<Integer,ArrayList<Hit>>[]>();
 			HashSet<String> used = new HashSet<String>();
 			while( (line=r.readLine()) != null ) {
@@ -1006,6 +1006,7 @@ public class GeMoMa extends GeMoMaModule {
 				e.setStackTrace( er.getStackTrace() );
 			}
 			okay=false;
+			problem=old;
 		} finally {					
 			//close output;
 			tp.gff.close();
@@ -1026,6 +1027,7 @@ public class GeMoMa extends GeMoMaModule {
 		if( okay ) {
 			return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 		} else {
+			if( problem!=null ) System.err.println("\nProblem while gene: " + problem);
 			throw e;
 		}
 	}
