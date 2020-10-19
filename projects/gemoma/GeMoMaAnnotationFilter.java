@@ -45,6 +45,7 @@ import de.jstacs.DataType;
 import de.jstacs.io.FileManager;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
@@ -181,7 +182,9 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		String filter = prepareFilter( (String) parameters.getParameterForName("filter").getValue() );
 		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), protocol );
 		String altFilter = prepareFilter( (String) parameters.getParameterForName("alternative transcript filter").getValue() );
-				
+		Parameter pa = parameters.getParameterForName( "add alternative transcripts" );
+		boolean addAltTransIDs = pa==null ? false : (Boolean) pa.getValue();
+		
 		ScriptEngineManager mgr = new ScriptEngineManager();
 		ScriptEngine engine = mgr.getEngineByName("nashorn");
 	    
@@ -349,11 +352,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					if( cur.compareTo(last) == 0 ) {
 						//identical
 						if( cur.score > last.score || (cur.score== last.score && cur.id.compareTo(last.id)<0) ) {
-							cur.combine(last);
+							cur.combine(last, addAltTransIDs);
 							pred.remove(i+1);
 							last=cur;
 						} else {
-							last.combine(cur);
+							last.combine(cur, addAltTransIDs);
 							pred.remove(i);
 						}
 					} else {
@@ -623,7 +626,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		HashMap<String,String> hash;
 		int length, start, end, score;
 		String contigStrand;
-		HashSet<String> alternative;
+		HashSet<String> alternative, alternativeTranscript;
 		int index;
 		boolean[] evidence;
 		String prefix, oldId, id;
@@ -725,6 +728,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			start = Integer.MAX_VALUE;//Integer.parseInt(split[3]);
 			end = Integer.MIN_VALUE; //Integer.parseInt(split[4]);
 			alternative = new HashSet<String>();
+			alternativeTranscript = new HashSet<String>();
 		}
 				
 		public void setEvidenceAndWeight(double[] weight) {
@@ -783,7 +787,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			return res;
 		}
 		
-		public void combine( Prediction n ) {
+		public void combine( Prediction n, boolean addAltTransIDs ) {
 			String rg = n.hash.get("ref-gene");
 			if( !rg.equals( hash.get("ref-gene") ) ) {
 				alternative.add(rg);
@@ -807,7 +811,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				}
 			}
 			
-			alternative.addAll( n.alternative );
+			if( addAltTransIDs ) {
+				alternative.addAll( n.alternative );
+				alternativeTranscript.add( n.id );
+				alternativeTranscript.addAll( n.alternativeTranscript );
+			}
 			
 			if( gos != null ) {
 				if( n.gos!=null ) {
@@ -874,6 +882,15 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				String[] it = alternative.toArray(new String[0]);
 				Arrays.sort(it);
 				w.write( "alternative=\"" + it[0] );
+				for( int i = 1; i < it.length; i++ ) {
+					w.write("," + it[i] );
+				}
+				w.write( "\";" );
+			}
+			if( alternativeTranscript.size() > 0 ) {
+				String[] it = alternativeTranscript.toArray(new String[0]);
+				Arrays.sort(it);
+				w.write( "alternativeTranscript=\"" + it[0] );
 				for( int i = 1; i < it.length; i++ ) {
 					w.write("," + it[i] );
 				}
@@ -1031,8 +1048,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					new SimpleParameter(DataType.STRING,"sorting","comma-separated list that defines the way predictions are sorted within a cluster", true, "evidence,score"),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on evidence (evidence>1). "
-							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or evidence>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "tie==1 or evidence>1" )
-
+							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or evidence>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!-\\+\\*/]*"), "tie==1 or evidence>1" ),
+					new SimpleParameter(DataType.BOOLEAN, "add alternative transcripts", "a switch to decide whether the IDs of alternative transcripts that have the same CDS should be listed for each prediction", true, false)
 				);		
 		}catch(Exception e){
 			e.printStackTrace();
