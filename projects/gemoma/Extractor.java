@@ -115,6 +115,8 @@ public class Extractor extends GeMoMaModule {
 		boolean stopCodonEx = (Boolean) parameters.getParameterForName("stop-codon excluded from CDS").getValue();
 		boolean fullLength = (Boolean) parameters.getParameterForName("full-length").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
+		p = parameters.getParameterForName("long fasta comment");
+		boolean longComment = p==null ? false : (Boolean) p.getValue();
 		rep = (Boolean) parameters.getParameterForName("repair").getValue();
 		
 		ArrayList<File> file = new ArrayList<File>();
@@ -144,7 +146,7 @@ public class Extractor extends GeMoMaModule {
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop );
+				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment );
 				unUsedChr.remove(comment);
 				//clear
 				int idx = line.indexOf(' ');
@@ -156,7 +158,7 @@ public class Extractor extends GeMoMaModule {
 			}
 		}
 		//do
-		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop );
+		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment );
 		unUsedChr.remove(comment);
 		r.close();
 
@@ -646,7 +648,7 @@ public class Extractor extends GeMoMaModule {
 	}	
 	
 	private void extract( boolean stopCodonEx, boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
-			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code, boolean discardPreMatureStop
+			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code, boolean discardPreMatureStop, boolean longComment
 			) throws Exception {
 		if( comment == null ) {
 			return;
@@ -742,7 +744,7 @@ public class Extractor extends GeMoMaModule {
 						Part current = part.get( il.get(j) );
 						set[j] = current.aa != null;
 					}
-					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, verbose, used, acc, don, discardPreMatureStop );
+					int prob = transcript( seq, stopCodonEx, chr, gene, id[k], -1, splits, fullLength, info, ambi, code, protocol, verbose, used, acc, don, discardPreMatureStop, longComment );
 					
 					//try to repair
 					if( prob>=0 && rep) {
@@ -757,7 +759,7 @@ public class Extractor extends GeMoMaModule {
 									current.aa = null;
 								}
 							}
-							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, false, used, acc, don, discardPreMatureStop );
+							test = transcript( seq, stopCodonEx, chr, gene, id[k], phase, splits, fullLength, info, ambi, code, protocol, false, used, acc, don, discardPreMatureStop, longComment );
 						} while( test >= 0 && phase <= 2 );
 						if( test < 0 ) {
 							if( verbose ) protocol.appendWarning(id[k] + "\trepaired with start phase " + phase + "\n" );
@@ -851,7 +853,7 @@ public class Extractor extends GeMoMaModule {
 	HashMap<String, int[]> donor, acceptor;
 	HashMap<Integer,int[]> count;
 	
-	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol,boolean verbose, boolean[] used, String[] acc, String[] don, boolean discardPreMatureStop ) throws IOException {
+	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol,boolean verbose, boolean[] used, String[] acc, String[] don, boolean discardPreMatureStop, boolean longComment ) throws IOException {
 		int j;
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
@@ -988,8 +990,9 @@ public class Extractor extends GeMoMaModule {
 				return 6;
 			} else {				
 				info[2]++;
-				out.get(3).write( ">" + trans + "\n" + dnaSeqBuff.toString() + "\n" );
-				out.get(2).write( ">" + trans + "\n" + p + "\n" );
+				String comment = trans + (longComment?(" gene=" + gene.id + "chr=" + chr + " strand= " + gene.strand + "interval=" + start + ".." + end):"");
+				out.get(3).write( ">" + comment + "\n" + dnaSeqBuff.toString() + "\n" );
+				out.get(2).write( ">" + comment + "\n" + p + "\n" );
 				String x = il.toString();
 				SafeOutputStream sos = out.get(1);
 				sos.write( gene.id + "\t" + trans + "\t" + x.substring(1,x.length()-1).replaceAll(" ", "") );
@@ -1047,7 +1050,7 @@ public class Extractor extends GeMoMaModule {
 							genomicRegion.replace(-b, -a+1, genomicRegion.substring(-b, -a+1).toUpperCase() );
 						}
 					}
-					out.get(4).writeln(">" +trans + " " + chr + " " + (gene.strand==1?"+":"-") + " " + start + ".." + end );
+					out.get(4).writeln(">" + comment );
 					out.get(4).writeln(genomicRegion);
 				}
 				
@@ -1180,6 +1183,7 @@ public class Extractor extends GeMoMaModule {
 				new SimpleParameter( DataType.BOOLEAN, "discard pre-mature stop", "if *true* transcripts with pre-mature stop codon are discarded as they often indicate misannotation", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
+				new SimpleParameter( DataType.BOOLEAN, "long fasta comment", "whether a short (transcript ID) or a long (transcript ID, gene ID, chromsome, strand, interval) fasta comment should be written for proteins, CDSs, and genomic regions", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information", true, false )
 			);		
 		}catch(Exception e){
