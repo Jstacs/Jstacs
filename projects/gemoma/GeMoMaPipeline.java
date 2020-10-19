@@ -453,7 +453,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	ArrayList<Result> res;
 	Protocol pipelineProtocol;
 	
-	int phase = 0;
+	int phase;
 	
 	private void addNewPhase() {
 		String s = "starting phase " + ++phase + " (" + t.getElapsedTime() + "s)";
@@ -585,6 +585,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	public ToolResult run(ToolParameterSet pars, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
 		speciesCounter = 0;
 		finished = 0;
+		phase=0;
 		parameters = (GeMoMaPipelineParameterSet) pars;
 		this.threads=threads;
 		queue = Executors.newFixedThreadPool(threads);
