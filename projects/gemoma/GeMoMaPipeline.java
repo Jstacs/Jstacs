@@ -254,7 +254,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		try{
 			ArrayList<SimpleParameterSet> values = new ArrayList<SimpleParameterSet>();
 			values.add( new SimpleParameterSet(
-							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w+") ),
+							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w*") ),
 							new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
 							new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz", true, new FileExistsValidator(), true ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),

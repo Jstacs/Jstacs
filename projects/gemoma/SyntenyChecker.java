@@ -263,7 +263,7 @@ public class SyntenyChecker extends GeMoMaModule {
 				new ToolParameterSet( getShortName(),
 					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,GeMoMa.TAG),
 					new ParameterSetContainer( "references", "", new ExpandableParameterSet( new SimpleParameterSet(		
-							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, new RegExpValidator("\\w+")),
+							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, new RegExpValidator("\\w*")),
 							new FileParameter( "assignment", "The assignment file, which combines parts of the CDS to transcripts", "tabular", true, new FileExistsValidator() )
 					), "reference", "", 1 ) ),
 					new FileParameter( "gene annotation file", "GFF file containing the gene annotations predicted by GAF", "gff,gff3", true, new FileExistsValidator(), true )
