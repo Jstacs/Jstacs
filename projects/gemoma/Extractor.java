@@ -990,7 +990,7 @@ public class Extractor extends GeMoMaModule {
 				return 6;
 			} else {				
 				info[2]++;
-				String comment = trans + (longComment?(" gene=" + gene.id + "chr=" + chr + " strand= " + gene.strand + "interval=" + start + ".." + end):"");
+				String comment = trans + (longComment?(" gene=" + gene.id + " chr=" + chr + " strand=" + gene.strand + " interval=" + start + ".." + end):"");
 				out.get(3).write( ">" + comment + "\n" + dnaSeqBuff.toString() + "\n" );
 				out.get(2).write( ">" + comment + "\n" + p + "\n" );
 				String x = il.toString();
