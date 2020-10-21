@@ -765,7 +765,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			afParams.getParameterForName("genome").setValue(target);
 			ParameterSet ap = ((ParameterSetContainer) parameters.getParameterForName("AnnotationFinalizer parameter set")).getValue();
 			setParameters(ap, afParams);
-			boolean clear = ((SimpleParameterSet) ap.getParameterForName("UTR").getValue()).getNumberOfParameters()==0;
+			boolean clear = rnaSeq && (((SimpleParameterSet) ap.getParameterForName("UTR").getValue()).getNumberOfParameters()==0);
 			
 			
 			String[] key = {"selected", "genetic code"};
@@ -956,35 +956,37 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				}
 			}
 			
-			ExpandableParameterSet ext = parameters.getExpandablePS("external annotations");
-			sp = ext.getNumberOfParameters();
-			if( sp == 0 ) {
-				pipelineProtocol.append("No external annotation given.\n");
-			} else {
-				ae = new AnnotationEvidence();
-				aePars = ae.getToolParameters();
-				/*XXX not needed anymore
-				aePars.getParameterForName("genome").setValue(target);
-				setRNASeqParams( aePars );
-				ParameterSet ps = (ParameterSet) parameters.getParameterForName("GeMoMa parameter set").getValue();
-				aePars.getParameterForName("reads").setValue( ps.getParameterForName("reads").getValue() );
-				*/
-								
-				for( int s = 0; s < sp; s++ ) {
-					SimpleParameterSet currentExt = (SimpleParameterSet) ((ParameterSetContainer)ext.getParameterAt(s)).getValue();
-					Species dummySpecies = new Species(speciesCounter, (String) currentExt.getParameterForName("ID").getValue(), (Double) currentExt.getParameterForName("weight").getValue(), null );
-					species.add(dummySpecies);
-					dummySpecies.setExt(s);
-					dummySpecies.hasCDS = true;
-					dummySpecies.anno = (String) currentExt.getParameterForName("external annotation").getValue();
-					if( (Boolean) currentExt.getParameterForName("annotation evidence").getValue() ) {
-						add( new JAnnotationEvidence(speciesCounter));
+			if( !queue.isShutdown() ) {
+				ExpandableParameterSet ext = parameters.getExpandablePS("external annotations");
+				sp = ext.getNumberOfParameters();
+				if( sp == 0 ) {
+					pipelineProtocol.append("No external annotation given.\n");
+				} else {
+					ae = new AnnotationEvidence();
+					aePars = ae.getToolParameters();
+					/*XXX not needed anymore
+					aePars.getParameterForName("genome").setValue(target);
+					setRNASeqParams( aePars );
+					ParameterSet ps = (ParameterSet) parameters.getParameterForName("GeMoMa parameter set").getValue();
+					aePars.getParameterForName("reads").setValue( ps.getParameterForName("reads").getValue() );
+					*/
+									
+					for( int s = 0; s < sp; s++ ) {
+						SimpleParameterSet currentExt = (SimpleParameterSet) ((ParameterSetContainer)ext.getParameterAt(s)).getValue();
+						Species dummySpecies = new Species(speciesCounter, (String) currentExt.getParameterForName("ID").getValue(), (Double) currentExt.getParameterForName("weight").getValue(), null );
+						species.add(dummySpecies);
+						dummySpecies.setExt(s);
+						dummySpecies.hasCDS = true;
+						dummySpecies.anno = (String) currentExt.getParameterForName("external annotation").getValue();
+						if( (Boolean) currentExt.getParameterForName("annotation evidence").getValue() ) {
+							add( new JAnnotationEvidence(speciesCounter));
+						}
+						usedSpec++;
+						speciesCounter++;
 					}
-					usedSpec++;
-					speciesCounter++;
 				}
 			}
-				
+			
 			if( usedSpec>0 ) {
 				//wait until third part has been finished
 				waitPhase();/**/
