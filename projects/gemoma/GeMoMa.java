@@ -1002,7 +1002,7 @@ public class GeMoMa extends GeMoMaModule {
 			if( er instanceof Exception ) {
 				e = (Exception) er;
 			} else {
-				e = new Exception(er.getMessage());
+				e = new Exception( "Forwarding " + er.getClass().getName() + ": " + er.getMessage());
 				e.setStackTrace( er.getStackTrace() );
 			}
 			okay=false;
