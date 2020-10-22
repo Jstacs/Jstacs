@@ -578,6 +578,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags(xml, parameters, "PipelineParameters");
 		XMLParser.appendObjectWithTags(xml, threads, "threads");
+		XMLParser.appendObjectWithTags(xml, getToolVersion(), "version");
 		FileManager.writeFile(home+"parameters.xml", xml);
 		pipelineProtocol.append("run new GeMoMaPipeline job\n");
 	}
@@ -657,6 +658,15 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				pipelineProtocol.append("Try to re-run " + home + "\n");
 				
 				StringBuffer xml = FileManager.readFile(home+"parameters.xml");
+				String version;
+				try {
+					version = (String) XMLParser.extractObjectForTags(xml, "version");
+				} catch ( NonParsableException npe ) {
+					version = "NA";
+				} 
+				if( !version.equals(getToolVersion()) ) {
+					throw new RuntimeException("Restarting not possible. The tool versions differ ("+ version + " vs. " + getToolVersion() + ").");
+				}
 				oldParameters = (GeMoMaPipelineParameterSet) XMLParser.extractObjectForTags(xml, "PipelineParameters");
 				
 				//check basic parameters
