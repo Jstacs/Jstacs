@@ -1302,6 +1302,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	
 	Throwable tr;
 	
+	static final String OPTIONAL = "<OPTIONAL>";
+	
 	/**
 	 * Abstract class for all jobs.
 	 * 
@@ -1376,7 +1378,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			} else {
 				int i = 0;
 				while( i < results.size() ) {
-					if( !new File(results.get(i)).exists() ) return false;
+					String fName = results.get(i);
+					if( !fName.equals(OPTIONAL) && !new File(fName).exists() ) return false;
 					i++;
 				}
 				return true;
@@ -1667,7 +1670,11 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			this(specName, w, annotationInfo, split);
 			Species sp = species.get(speciesIndex);
 			sp.cds=cds_parts;
-			sp.assignment=assignment;
+			if( assignment == null ) {
+				sp.assignment=OPTIONAL;
+			} else {
+				sp.assignment=assignment;
+			}
 			addResults();
 		}
 		
@@ -1887,7 +1894,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			Species sp = species.get(speciesIndex);
 
 			//ExternalSort (and split)
-			File[] parts = Tools.externalSort(home+speciesIndex+"/mmseqs.tabular", 500000, threads, new QuietSysProtocol(), sp.assignment!=null, home+speciesIndex+"/" );
+			File[] parts = Tools.externalSort(home+speciesIndex+"/mmseqs.tabular", 500000, threads, new QuietSysProtocol(), !sp.assignment.equals(OPTIONAL), home+speciesIndex+"/" );
 			sp.searchResults = new String[parts.length];
 			for( int i = 0; i < sp.searchResults.length; i++ ) {
 				sp.searchResults[i] = parts[i].getAbsolutePath();
@@ -1926,7 +1933,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			ToolParameterSet params = gemomaParams.clone();
 			params.getParameterForName("search results").setValue(sp.searchResults[split]);
 			params.getParameterForName("cds parts").setValue(sp.cds);
-			if( sp.assignment != null ) params.getParameterForName("assignment").setValue(sp.assignment);
+			if( !sp.assignment.equals(OPTIONAL) ) params.getParameterForName("assignment").setValue(sp.assignment);
 			
 			SysProtocol protocol = threads==1 && pipelineProtocol instanceof SysProtocol ? (SysProtocol) pipelineProtocol : new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
