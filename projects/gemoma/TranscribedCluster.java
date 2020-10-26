@@ -57,7 +57,7 @@ public class TranscribedCluster extends GeMoMaModule {
 	
 	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception {
 		//sequence
-		HashMap<String, String> seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,' ');
+		HashMap<String, String> seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20);
 				
 		//introns
 		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(1)).getValue();

@@ -602,7 +602,11 @@ public class Tools {
 		return new BufferedReader( new InputStreamReader(ins) );
 	}
 	
-	public static HashMap<String,String> getFasta( String fName, int initSize, char c ) throws Exception {
+	public static HashMap<String,String> getFasta( String fName, int initSize ) throws Exception {
+		return getFasta(fName, initSize, "\\s.*", "", "[a-zA-Z\\-\\.0-9]+(_\\d+)?");
+	}
+	
+	public static HashMap<String,String> getFasta( String fName, int initSize, String regex, String replace, String seqIDRegex ) throws Exception {
 		HashMap<String,String> seqs = new HashMap<String, String>(initSize);
 		if( fName!=null ) {
 			BufferedReader r = Tools.openGzOrPlain( fName );//new BufferedReader( new FileReader( fName ) );
@@ -615,8 +619,14 @@ public class Tools {
 					}
 					//clear
 					seq.delete(0, seq.length());
-					int idx = line.indexOf(c);
-					comment = line.substring(1,idx<0?line.length():idx);				
+					
+					comment = line.substring(1);
+					if( regex != null ) {
+						comment=comment.replaceAll(regex, replace);
+					}
+					if( !comment.matches(seqIDRegex) ) {
+						throw new IllegalArgumentException("Sequence ID ("+comment+") in fasta comment line (" + line +") does not match the regular expression for sequence IDs (" + seqIDRegex +")" );
+					}
 				} else {
 					//add
 					seq.append(line.trim().toUpperCase() );
@@ -629,6 +639,16 @@ public class Tools {
 	}
 	
 	private static void add( HashMap<String, String> seqs, String comment, StringBuffer seq ) {
-		seqs.put( comment, seq.toString() );
+		String old = seqs.get(comment), newSeq = seq.toString();
+		if( old==null ) {
+			seqs.put( comment, newSeq );
+		} else {
+			if( old.equals(newSeq) ) {			
+				System.err.println("WARNING: duplicated sequence ignored: " + comment);
+			} else {
+				throw new IllegalArgumentException("At least two sequences with the same ID but different sequence: " + comment );
+			}
+		}
+		
 	}
 }

@@ -124,7 +124,7 @@ public class GeMoMa extends GeMoMaModule {
 	//fill
 	static synchronized void fill( Protocol protocol, boolean verbose, int maxSize, String targetGenome, String selectedFile, int reads, ExpandableParameterSet introns, ExpandableParameterSet cov ) throws Exception {
 		//read genome
-		seqs = Tools.getFasta(targetGenome,20,' ');
+		seqs = Tools.getFasta(targetGenome,20);
 		String x = Arrays.toString(seqs.keySet().toArray());
 		if( x.length() > 200 ) {
 			x = x.substring(0, 200) + "...";
@@ -893,7 +893,7 @@ public class GeMoMa extends GeMoMaModule {
 			transcriptInfo = null;
 		}
 
-		cds = Tools.getFasta((String) parameters.getParameterForName("cds parts").getValue(),15000,'\t');
+		cds = Tools.getFasta((String) parameters.getParameterForName("cds parts").getValue(),15000);
 		protocol.append("CDS: " + cds.size() + " / " + (transcriptInfo==null?cds.size():transcriptInfo.size()) + "\n" );// + "\t" + Arrays.toString(cdsInfo.keySet().toArray()) );
 				
 		//read genetic code
@@ -1027,7 +1027,7 @@ public class GeMoMa extends GeMoMaModule {
 		if( okay ) {
 			return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 		} else {
-			if( problem!=null ) System.err.println("\nProblem while gene: " + problem);
+			if( problem!=null && !(e instanceof InterruptedException)) System.err.println("\nProblem while gene: " + problem);
 			throw e;
 		}
 	}
