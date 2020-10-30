@@ -291,7 +291,7 @@ public class Extractor extends GeMoMaModule {
 		int idx, h;
 		
 		//read transcripts
-		r = new BufferedReader( new FileReader(input) );
+		r = Tools.openGzOrPlain(input);
 		HashMap<String, Gene> trans = new HashMap<String, Gene>();
 		HashMap<String, ArrayList<String[]>> additional = new HashMap<String, ArrayList<String[]>>();
 		ArrayList<String[]> cds = new ArrayList<String[]>();
@@ -1152,7 +1152,7 @@ public class Extractor extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
+				new FileParameter( "annotation", "Reference annotation file (GFF or GTF), which contains gene models annotated in the reference genome", "gff,gff3,gtf,gff.gz,gff3.gz,gtf.gz", true, new FileExistsValidator(), true ),
 				new FileParameter( "genome", "Reference genome file (FASTA)", "fasta,fa,fas,fna,fasta.gz,fa.gz,fas.gz,fna.gz",  true, new FileExistsValidator(), true ),
 
 				new FileParameter( "genetic code", "optional user-specified genetic code", "tabular", false ),
