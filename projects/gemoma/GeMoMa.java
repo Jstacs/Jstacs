@@ -353,7 +353,8 @@ public class GeMoMa extends GeMoMaModule {
 				new AnnotationEvidence(),
 				new CompareTranscripts(),
 				new SyntenyChecker(),
-				new AddAttribute()
+				new AddAttribute(),
+				new GAFComparison()
 				/*,
 				new TranscribedCluster()/**/
 		};
