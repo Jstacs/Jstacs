@@ -63,7 +63,7 @@ public class Tools {
 	 */
 	public static InputStream getInputStream( Parameter parameter, String alternative ) throws FileNotFoundException {
 		InputStream in;
-		if( parameter.isSet() ) {
+		if( parameter != null && parameter.isSet() ) {
 			in = new FileInputStream( parameter.getValue().toString() );
 		} else {
 			in = Tools.class.getClassLoader().getResourceAsStream( alternative );
@@ -603,7 +603,11 @@ public class Tools {
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize ) throws Exception {
-		return getFasta(fName, initSize, "\\s.*", "", "[a-zA-Z\\-\\.0-9]+(_\\d+)?");
+		return getFasta(fName, initSize, "([a-zA-Z\\-\\.0-9]+(_\\d+)?)|([a-zA-Z\\-_\\.0-9]+_\\d+)");
+	}
+	
+	public static HashMap<String,String> getFasta( String fName, int initSize, String seqIdRegex ) throws Exception {
+		return getFasta(fName, initSize, "\\s.*", "", seqIdRegex);
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize, String regex, String replace, String seqIDRegex ) throws Exception {
