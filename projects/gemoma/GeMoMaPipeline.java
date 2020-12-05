@@ -261,7 +261,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
 			) );
 			values.add( new SimpleParameterSet(
-							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w+") ),
+							new SimpleParameter(DataType.STRING,"ID","ID to distinguish the different reference species", false, new RegExpValidator("\\w*") ),
 							new FileParameter( "cds parts", "The query CDS parts file (protein FASTA), i.e., the CDS parts that have been searched in the target genome using for instance BLAST or mmseqs", "fasta,fa,fas,fna", true, new FileExistsValidator(), true ),
 							new FileParameter( "assignment", "The assignment file, which combines CDS parts to proteins", "tabular", false, new FileExistsValidator() ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
@@ -2142,6 +2142,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			params.getParameterForName("Ambiguity").setValue("AMBIGUOUS");
 			params.getParameterForName("full-length").setValue("false");
 			params.getParameterForName("discard pre-mature stop").setValue("false");
+			params.getParameterForName("long fasta comment").setValue("true");
 			
 			params.getParameterForName(Extractor.name[2]).setValue(protein);
 			params.getParameterForName(Extractor.name[3]).setValue(cds);
