@@ -304,7 +304,6 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 			protocol.append("\n");
 		}
 		
-		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( stringency );//important for unmapped reads
 		
@@ -509,7 +508,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				}
 				mapFwd.clear();
 				mapRev.clear();
-				currPos = 0;				
+				currPos = 0;
 			}
 			
 			i++;
