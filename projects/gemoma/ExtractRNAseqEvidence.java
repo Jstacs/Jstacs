@@ -18,8 +18,10 @@
 
 package projects.gemoma;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -265,7 +267,8 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 						new SimpleParameter(DataType.BOOLEAN,"use secondary alignments", "allows to filter flags in the SAM or BAM", true, true),
 						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, true),
 						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40),
-						new SimpleParameter(DataType.INT,"minimum context", "only introns that have evidence of at least one split read with a minimal M (=(mis)match) stretch in the cigar string larger than or equal to this value will be used", true, new NumberValidator<Integer>(1, 1000000), 1)
+						new SimpleParameter(DataType.INT,"minimum context", "only introns that have evidence of at least one split read with a minimal M (=(mis)match) stretch in the cigar string larger than or equal to this value will be used", true, new NumberValidator<Integer>(1, 1000000), 1),
+						new FileParameter( "repositioning", "due to limitations in BAM/SAM format huge chromosomes need to be split before mapping. This parameter allows to undo the split mapping to real chromosomes and coordinates. The repositioning file has 3 columns: split_chr_name, original_chr_name, offset_in_original_chr", "tabular", false, new FileExistsValidator() )
 					);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -283,7 +286,25 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		boolean coverage = (Boolean) parameters.getParameterAt(4).getValue();
 		int minQual = (Integer) parameters.getParameterForName("minimum mapping quality").getValue();
 		int minContext = (Integer) parameters.getParameterForName("minimum context").getValue();
-				
+		FileParameter fp = (FileParameter) parameters.getParameterForName("repositioning");
+		HashMap<String,String[]> repos = null;
+		if( fp != null && fp.isSet() ) {
+			protocol.append("add repositioning\n");
+			repos = new HashMap<String, String[]>();
+			BufferedReader r = new BufferedReader( new FileReader( fp.getValue() ) );
+			String line;
+			while( (line=r.readLine()) != null ) {
+				line=line.trim();
+				if( line.length()==0 ) continue;
+				String[] split = line.split("\t");
+				protocol.append(split[0] + " -> ("+split[1]+","+split[2]+")\n");
+				repos.put(split[0], split);
+			}
+			r.close();
+			protocol.append("\n");
+		}
+		
+		
 		SamReaderFactory srf = SamReaderFactory.makeDefault();
 		srf.validationStringency( stringency );//important for unmapped reads
 		
@@ -354,8 +375,8 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		BedgraphEntry previousFwd = null;
 		BedgraphEntry previousRev = null;
 		
-		String chr = firstChrs[0];
-		int currPos = 0;
+		String chr = firstChrs[0], chrOut = repos == null ? chr : repos.get(chr)[1];
+		int currPos = 0, offset=repos == null ? 0 : Integer.parseInt(repos.get(chr)[2]);
 		ArrayList<Intron> introns = new ArrayList<Intron>();
 		long splits = 0, intronNum = 0;
 		long[] split = new long[its.length];
@@ -396,11 +417,11 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 								int recStart = rec.getStart();
 								while(currPos < recStart){
 									if(mapFwd.containsKey(currPos)){
-										previousFwd = write(previousFwd,chr,mapFwd,currPos,sosFwd);
+										previousFwd = write(previousFwd,chrOut,offset,mapFwd,currPos,sosFwd);
 										mapFwd.remove(currPos);
 									}
 									if(mapRev.containsKey(currPos)){
-										previousRev = write(previousRev,chr,mapRev,currPos,sosRev);
+										previousRev = write(previousRev,chrOut,offset,mapRev,currPos,sosRev);
 										mapRev.remove(currPos);
 									}
 									currPos++;
@@ -443,7 +464,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 					int temp = currPos;
 					while(mapFwd.size()>0){
 						if(mapFwd.containsKey(temp)){
-							previousFwd = write(previousFwd,chr,mapFwd,temp,sosFwd);
+							previousFwd = write(previousFwd,chrOut,offset,mapFwd,temp,sosFwd);
 							mapFwd.remove(temp);
 						}
 						temp++;
@@ -451,7 +472,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 					temp = currPos;
 					while(mapRev.size()>0){
 						if(mapRev.containsKey(temp)){
-							previousRev = write(previousRev,chr,mapRev,temp,sosRev);
+							previousRev = write(previousRev,chrOut,offset,mapRev,temp,sosRev);
 							mapRev.remove(temp);
 						}
 						temp++;
@@ -468,19 +489,27 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				
 				if( firstChrs[0] == null || !chr.equals(firstChrs[0]) ) {
 					introns = count(introns);
-					intronNum += print(chr,introns,sosInt, minContext);
+					intronNum += print(chrOut,offset,introns,sosInt, minContext);
 					introns.clear();
 				}
 				
-				chr = firstChrs[0];
+				if( !chr.equals(firstChrs[0]) ) {
+					chr = firstChrs[0];
+					if( chr!= null ) {
+						protocol.append(chr+"\n");
+						if( repos != null ) {
+							chrOut = repos.get(chr)[1];
+							offset = Integer.parseInt(repos.get(chr)[2]);
+						} else {
+							chrOut = chr;
+						}
+					} else {
+						break; //?
+					}
+				}
 				mapFwd.clear();
 				mapRev.clear();
-				currPos = 0;
-				if(firstChrs[0] == null){
-					break;
-				}
-				
-				
+				currPos = 0;				
 			}
 			
 			i++;
@@ -539,7 +568,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	private static HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
 	private static long anz = 0;
 	
-	private static long print(String chrom, ArrayList<Intron> introns,SafeOutputStream sos, int threshold) throws IOException{
+	private static long print(String chrom, int offset, ArrayList<Intron> introns,SafeOutputStream sos, int threshold) throws IOException{
 		Iterator<Intron> it = introns.iterator();
 		long i = 0;
 		while(it.hasNext()){
@@ -553,7 +582,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				}
 				stat[0]++;
 				anz++;
-				sos.writeln(chrom+"\tRNAseq\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
+				sos.writeln(chrom+"\tRNAseq\tintron\t"+(offset+in.getStart())+"\t"+(offset+in.getEnd())+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
 				i++;
 			}
 		}
@@ -590,7 +619,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	}
 	
 
-	private BedgraphEntry write(BedgraphEntry previous, String chr, HashMap<Integer, int[]> map, int currPos, SafeOutputStream safeOutputStream) throws IOException {
+	private BedgraphEntry write(BedgraphEntry previous, String chr, int offset, HashMap<Integer, int[]> map, int currPos, SafeOutputStream safeOutputStream) throws IOException {
 		int[] temp = map.get(currPos);
 		
 		
@@ -600,12 +629,12 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				return previous;
 			}else{
 				if(previous != null){
-					safeOutputStream.writeln(previous.chr+"\t"+previous.start+"\t"+(previous.end)+"\t"+previous.value);
+					safeOutputStream.writeln(previous.chr+"\t"+(offset+previous.start)+"\t"+(offset+previous.end)+"\t"+previous.value);
 				}
 				return new BedgraphEntry(chr, currPos, currPos+1, temp[0]);
 			}
 		}else if(previous != null){
-			safeOutputStream.writeln(previous.chr+"\t"+previous.start+"\t"+(previous.end)+"\t"+previous.value);
+			safeOutputStream.writeln(previous.chr+"\t"+(offset+previous.start)+"\t"+(offset+previous.end)+"\t"+previous.value);
 		}
 		return null;
 	}
