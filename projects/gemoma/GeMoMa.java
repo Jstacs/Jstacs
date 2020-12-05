@@ -124,7 +124,7 @@ public class GeMoMa extends GeMoMaModule {
 	//fill
 	static synchronized void fill( Protocol protocol, boolean verbose, int maxSize, String targetGenome, String selectedFile, int reads, ExpandableParameterSet introns, ExpandableParameterSet cov ) throws Exception {
 		//read genome
-		seqs = Tools.getFasta(targetGenome,20);
+		seqs = Tools.getFasta(targetGenome,20,".*");
 		String x = Arrays.toString(seqs.keySet().toArray());
 		if( x.length() > 200 ) {
 			x = x.substring(0, 200) + "...";
@@ -868,39 +868,8 @@ public class GeMoMa extends GeMoMaModule {
 		proteinAlignment = (Boolean) parameters.getParameterForName("protein alignment").getValue();
 		
 		Score score = (Score) parameters.getParameterForName("Score").getValue();
-				
-		String[] split;
-		//read assignment
-		if( assignment != null ) {
-			transcriptInfo = new HashMap<String,HashMap<String,Info>>();
-			HashMap<String,Info> c;
-			r = new BufferedReader( new FileReader( assignment ) );
-			while( (line=r.readLine())!= null ) {
-				if( line.length()>0 && line.charAt(0) != '#' ) {
-					split = line.split("\t");
-					c = transcriptInfo.get( split[0] );
-					if( c == null ) {
-						c = new HashMap<String, Info>();
-						transcriptInfo.put(split[0], c);
-					}
-					c.put(split[1], new Info( split[2], split[3], split.length>=12 ? split[11] : "", split[9] ) );
-				}
-			}
-			r.close();
-			progress.setLast(transcriptInfo.size());
-			progress.setCurrent(0);
-		} else {
-			progress.setIndeterminate();
-			transcriptInfo = null;
-		}
-
-		cds = Tools.getFasta((String) parameters.getParameterForName("cds parts").getValue(),15000);
-		protocol.append("CDS: " + cds.size() + " / " + (transcriptInfo==null?cds.size():transcriptInfo.size()) + "\n" );// + "\t" + Arrays.toString(cdsInfo.keySet().toArray()) );
-				
-		//read genetic code
-		code = Tools.getCode(Tools.getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ));
-		code.put("NNN", 'X');//add for splitting at NNN (in align method)
 		
+		String[] split;
 		//read substitution matrix
 		r = new BufferedReader( new InputStreamReader( Tools.getInputStream(parameters.getParameterForName("substitution matrix"), "projects/gemoma/test_data/BLOSUM62.txt" ) ) );
 		while( (line=r.readLine()) != null && line.charAt(0)=='#' );
@@ -943,6 +912,37 @@ public class GeMoMa extends GeMoMaModule {
 		cost = new AffineCosts(gapOpening, new MatrixCosts(matrix, gapExtension));
 			//new MatrixCosts(matrix, 5);
 
+		//read assignment
+		if( assignment != null ) {
+			transcriptInfo = new HashMap<String,HashMap<String,Info>>();
+			HashMap<String,Info> c;
+			r = new BufferedReader( new FileReader( assignment ) );
+			while( (line=r.readLine())!= null ) {
+				if( line.length()>0 && line.charAt(0) != '#' ) {
+					split = line.split("\t");
+					c = transcriptInfo.get( split[0] );
+					if( c == null ) {
+						c = new HashMap<String, Info>();
+						transcriptInfo.put(split[0], c);
+					}
+					c.put(split[1], new Info( split[2], split[3], split.length>=12 ? split[11] : "", split[9], aaAlphabet ) );
+				}
+			}
+			r.close();
+			progress.setLast(transcriptInfo.size());
+			progress.setCurrent(0);
+		} else {
+			progress.setIndeterminate();
+			transcriptInfo = null;
+		}
+
+		cds = Tools.getFasta((String) parameters.getParameterForName("cds parts").getValue(),15000);
+		protocol.append("CDS: " + cds.size() + " / " + (transcriptInfo==null?cds.size():transcriptInfo.size()) + "\n" );// + "\t" + Arrays.toString(cdsInfo.keySet().toArray()) );
+				
+		//read genetic code
+		code = Tools.getCode(Tools.getInputStream(parameters.getParameterForName("genetic code"), "projects/gemoma/test_data/genetic_code.txt" ));
+		code.put("NNN", 'X');//add for splitting at NNN (in align method)
+		
 		if( selected != null ) {
 			progress.setLast(selected.size());
 		}
@@ -1981,7 +1981,7 @@ public class GeMoMa extends GeMoMaModule {
 		int maxIntron;
 		String protein;
 		
-		Info( String exonID, String phase, String splitAA, String maxIntron ) {
+		Info( String exonID, String phase, String splitAA, String maxIntron, DiscreteAlphabet aaAlphabet ) {
 			String[] split = exonID.split( ",[ ]*" );
 			this.exonID = new int[split.length];
 			for( int i = 0; i < this.exonID.length; i++ ) {
@@ -2002,7 +2002,15 @@ public class GeMoMa extends GeMoMaModule {
 			Arrays.fill(this.splitAA, "");
 			if( splitAA != null ) {
 				split = splitAA.split( "," );
-				System.arraycopy(split, 0, this.splitAA, 0, split.length);
+				for( int i = 0; i < split.length; i++ ) {
+					if( split[i].length()>1 ) {
+						throw new IllegalArgumentException("Expect only one additonal amino acids per exon-exon boundary.");
+					}
+					if( split[i].length()==1 && !aaAlphabet.isSymbol(split[i]) ) {
+						throw new IllegalArgumentException("Unknown character " + split[i] + " in additional amino acid column of assignment file.");						
+					}
+					this.splitAA[i] = split[i];
+				}
 			}
 			
 			if( maxIntron== null || maxIntron.equals("NA") ) {
