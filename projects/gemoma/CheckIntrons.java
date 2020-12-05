@@ -66,7 +66,7 @@ public class CheckIntrons extends GeMoMaModule {
 		int reads = 1;
 		ExpandableParameterSet introns = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(1)).getValue();
 		
-		HashMap<String,String> seqs = Tools.getFasta(targetGenome,20);
+		HashMap<String,String> seqs = Tools.getFasta(targetGenome,20,".*");
 		
 		ArrayList<String> fName = new ArrayList<String>();
 		for( int i = 0; i < introns.getNumberOfParameters(); i++ ) {
