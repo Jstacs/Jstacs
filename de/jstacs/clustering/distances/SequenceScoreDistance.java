@@ -136,6 +136,18 @@ public class SequenceScoreDistance extends DistanceMetric<StatisticalModel> {
 		
 	}
 	
+	
+	public double[] getDistanceRow(int index, StatisticalModel... objects) throws Exception {
+		double[] row = new double[objects.length];
+		double[][] prof1 = this.getProfile( objects[index], false );
+		double[][] prof1Rc = this.getProfile( objects[index], true );
+		for(int j=0;j<row.length;j++){
+			row[j] = this.getDistance( prof1, prof1Rc, objects[j], objects[index].getLength() );
+		}
+		return row;
+	}
+	
+	
 	/**
 	 * Multi-threaded computation of the pairwise distance matrix.
 	 * @param numThreads the number of threads
