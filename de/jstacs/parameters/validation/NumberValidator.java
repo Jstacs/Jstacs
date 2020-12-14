@@ -105,6 +105,15 @@ public class NumberValidator<E extends Comparable<? extends Number>> implements
 	public E getLowerBound() {
 		return lowerBound;
 	}
+	
+	/**
+	 * Returns the upper bound of the {@link NumberValidator}.
+	 * 
+	 * @return the upper bound of the {@link NumberValidator}
+	 */
+	public E getUpperBound() {
+		return upperBound;
+	}
 
 	/*
 	 * (non-Javadoc)

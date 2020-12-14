@@ -63,6 +63,15 @@ public class RegExpValidator implements ParameterValidator, GalaxyConvertible {
 			}
 		}
 	}
+	
+	/**
+	 * Returns the regular expression of this {@link ParameterValidator}.
+	 * 
+	 * @return the regular expression
+	 */
+	public String getRegExp() {
+		return regExp;
+	}
 
 	@Override
 	public String getErrorMessage() {
