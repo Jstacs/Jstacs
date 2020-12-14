@@ -76,6 +76,7 @@ public class FeatureReader {
 			sizes.put(chr,len/bin);
 		}
 		
+		faidx.close();
 		
 		return sizes;
 	}
