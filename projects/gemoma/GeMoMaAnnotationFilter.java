@@ -288,11 +288,13 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						r.close();
 						throw new NullPointerException("There is no gene model. Please check parameter \"tag\" and the order within your annotation file "+sampleInfo+": " + fName );
 					}
-					if( split[8].contains("Parent="+current.id) ) {
+					if( split[8].contains("Parent="+current.oldId) ) {
 						if( t.equals( "CDS" ) ) current.addCDS( line );
 						else if( addAdd ) current.addAdd( line );
 					} else {
 						//TODO WARNING
+						r.close();
+						throw new IllegalArgumentException("The GFF has to be clustered, i.e., all features of a transcript must be adjacent lines:\n" + line);
 					}
 				}
 			}
