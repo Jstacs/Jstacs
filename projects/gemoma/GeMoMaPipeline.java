@@ -2075,13 +2075,22 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				}
 			}
 			
-			ToolResult tr = gaf.run(gafParams, protocol, new ProgressUpdater(), 1, home);
+			Exception caught=null;
+			ToolResult tr = null;
+			try {
+				tr = gaf.run(gafParams, protocol, new ProgressUpdater(), 1, home);
+			} catch( Exception ex ) {
+				caught=ex;
+			}
 			if( protocol!= pipelineProtocol ) {
 				pipelineProtocol.append(protocol.getLog().toString());
 			}
-			
-			//res.add( tr.getRawResult()[0].getResultAt(0) );
-			CLI.writeToolResults(tr, protocol, home, gaf, gafParams);
+			if( caught == null ) {
+				//res.add( tr.getRawResult()[0].getResultAt(0) );
+				CLI.writeToolResults(tr, protocol, home, gaf, gafParams);
+			} else {
+				throw caught;
+			}
 		}	
 	}
 	
