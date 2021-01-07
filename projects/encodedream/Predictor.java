@@ -77,7 +77,10 @@ public class Predictor {
 	
 	public double[] predict(String chr, int size) throws Exception{
 		reader.reset();
-		reader.findChr(chr);
+		boolean found = reader.findChr(chr);
+		if(!found) {
+			throw new RuntimeException("Did not find chromosome "+chr+" in feature files.");
+		}
 		
 //PrintWriter wr = new PrintWriter("/Users/dev/Downloads/pred+"+chr+".tsv");
 		

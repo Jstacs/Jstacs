@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.broad.igv.bbfile.BBFileHeader;
@@ -36,7 +35,6 @@ import org.broad.igv.bbfile.WigItem;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.SAMSequenceDictionary;
-import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 import htsjdk.samtools.ValidationStringency;
