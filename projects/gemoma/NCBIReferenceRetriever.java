@@ -209,7 +209,7 @@ protocol.append("try " + i++ + "\n");
 
 	@Override
 	public String getDescription() {
-		return "dowanloads new assembly and annotation files of reference organisms";
+		return "downloads new assembly and annotation files of reference organisms";
 	}
 
 	@Override
