@@ -217,7 +217,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(k).getValue());
 			String h = (String) sps.getParameterAt(0).getValue();
 			prefix[k] = h==null?"":h;
-			String sampleInfo = k + (prefix[k]==null?"":(" (" + prefix[k] + ")"));
+			String sampleInfo = k + (prefix[k]==null||prefix[k].length()==0?"":(" (" + prefix[k] + ")"));
 			weight[k] = (Double) sps.getParameterAt(1).getValue();
 			
 			annotInfo.clear();
