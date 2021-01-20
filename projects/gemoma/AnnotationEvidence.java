@@ -100,6 +100,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 		
 		HashMap<String, String> attr = new HashMap<String,String>();
 		StringBuffer old = new StringBuffer();
+		int perfect=0;
 		for( String c: chr ) {
 			String seq = GeMoMa.seqs.get(c);
 			HashMap<String,Gene> current = annotation.get(c);
@@ -229,6 +230,10 @@ public class AnnotationEvidence extends GeMoMaModule {
 							String avgCovString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(sum/(double)l);
 							String minCovString = ( GeMoMa.coverage == null ) ? "NA" : (""+min);
 							
+							if( (tie==parts.length()-1) && covered==l ) {
+								perfect++;
+							}
+							
 							w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString + "\t" + preMatureStops );
 							w.newLine();
 							
@@ -319,6 +324,8 @@ public class AnnotationEvidence extends GeMoMaModule {
 		}
 		w.close();
 		annot.close();
+		
+		protocol.append("number of detected transcripts with very good RNA-seq evidence (tpc==1 && (tie==1 || tie==NA)): " + perfect );
 		
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(file.getAbsolutePath()), "tabular", getToolName(), null, true) );
