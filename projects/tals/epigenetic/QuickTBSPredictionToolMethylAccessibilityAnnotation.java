@@ -279,11 +279,10 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 
 				boolean[][] use = model.getInfixFilter(kmer, t, starts);
 
-				int n = 0;
 				double[] us = new double[use.length];
 
 				for(int i=0;i<use.length;i++){
-					for(int j=0;j<use[i].length;j++,n++){
+					for(int j=0;j<use[i].length;j++){
 						if(use[i][j]){
 							us[i]++;
 						}
@@ -349,7 +348,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 
 	@Override
 	public String getToolVersion() {
-		return "0.1";
+		return "0.2";
 	}
 
 	@Override
@@ -359,7 +358,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 
 	@Override
 	public String getDescription() {
-		return "predicts TALE target boxes using a novel model learned from quantitative data";
+		return "predicts TALE target boxes using a novel model learned from quantitative data and includes epigenetic features";
 	}
 
 	@Override
@@ -415,8 +414,6 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 				
 				int sl = seq.getLength();
 				int ml = model.getLength();
-				String rvdStr = rvds.toString("-", 0, rvds.getLength());
-				
 				prog += (seq.getLength()/(double)approxTotal)*0.7;
 				progress.setCurrent(last + prog*fac);
 				
@@ -603,6 +600,24 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 		NormalDist nd = new NormalDist(mean, sd);
 
 		return nd; 
+	}
+
+	@Override
+	public ToolResult[] getTestCases(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String[] getReferences() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

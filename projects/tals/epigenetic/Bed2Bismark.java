@@ -29,6 +29,10 @@ public class Bed2Bismark implements JstacsTool {
 
 	}
 	
+	public Bed2Bismark() {
+
+	}
+	
 	@Override
 	public ToolParameterSet getToolParameters() {
 		FileParameter bedMethylFile = new FileParameter("bedMethyl-file","Methylationinformation in bedMethyl format","bed.gz,bed",true);
@@ -90,6 +94,7 @@ public class Bed2Bismark implements JstacsTool {
 		return "converts bedMethyl files to bismark";
 	}
 
+
 	@Override
 	public String getHelpText() {
 		// TODO Auto-generated method stub
@@ -98,6 +103,24 @@ public class Bed2Bismark implements JstacsTool {
 
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
+		return null;
+	}
+
+	@Override
+	public ToolResult[] getTestCases(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String[] getReferences() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
