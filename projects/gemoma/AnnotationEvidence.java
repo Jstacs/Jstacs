@@ -111,8 +111,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 				for( int a = 0; a < array.length; a++ ) {
 					Gene g = array[a];
 					g.sortExons();
-					g.precompute();
-		
+					
 					int[][] cov = (coverage && GeMoMa.coverage[g.strand==1?0:1]!= null) ? GeMoMa.coverage[g.strand==1?0:1].get(c) : null;
 					
 					Iterator<Entry<String,Transcript>> cds = g.transcript.entrySet().iterator();
@@ -127,6 +126,13 @@ public class AnnotationEvidence extends GeMoMaModule {
 						if( parts.length()>0 ) {
 							int tStart = g.strand>0 ? g.exon.get(parts.get(0))[1] : g.exon.get(parts.get(parts.length()-1))[1];
 							int tEnd = g.strand>0 ? g.exon.get(parts.get(parts.length()-1))[2] : g.exon.get(parts.get(0))[2];
+							if( t.add != null ) {
+								for( int j = 0; j<t.add.size(); j++ ) {
+									String[] s = t.add.get(j);
+									tStart = Math.min(tStart, Integer.parseInt(s[3]) );
+									tEnd = Math.max(tEnd, Integer.parseInt(s[4]));
+								}
+							}
 							
 							w.append( g.id + "\t" + c + "\t" + tStart + "\t" + tEnd + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
 							
@@ -325,7 +331,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 		w.close();
 		annot.close();
 		
-		protocol.append("number of detected transcripts with very good RNA-seq evidence (tpc==1 && (tie==1 || tie==NA)): " + perfect );
+		protocol.append("number of detected transcripts with very good RNA-seq evidence (tpc==1 && (tie==1 || tie==NA)): " + perfect +"\n");
 		
 		ArrayList<TextResult> res = new ArrayList<TextResult>();
 		res.add( new TextResult(defResult, "Result", new FileParameter.FileRepresentation(file.getAbsolutePath()), "tabular", getToolName(), null, true) );
@@ -349,7 +355,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getShortName(),
-					new FileParameter( "annotation", "The genome annotation file (GFF,GTF)", "gff,gff3,gtf", true, new FileExistsValidator(), true ),
+					new FileParameter( "annotation", "The genome annotation file (GFF,GTF)", "gff,gff3,gtf,gff.gz,gff3.gz,gtf.gz", true, new FileExistsValidator(), true ),
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
 					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
