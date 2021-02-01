@@ -351,10 +351,10 @@ public class GeMoMa extends GeMoMaModule {
 				new GeMoMaAnnotationFilter(),
 				new AnnotationFinalizer(),
 				new AnnotationEvidence(),
-				new CompareTranscripts(),
 				new SyntenyChecker(),
 				new AddAttribute(),
 				new GAFComparison(),
+				new Analyzer(),
 				new BUSCORecomputer()
 				/*,
 				new TranscribedCluster()/**/
@@ -3967,6 +3967,7 @@ public class GeMoMa extends GeMoMaModule {
 			public int compareTo(Solution o) {//TODO check: do something better
 				int d = similar( o );
 				if( d == 0 ) {
+					//XXX use RNAseq data!?
 					d = getDifference() - o.getDifference();
 				}
 				return d;
