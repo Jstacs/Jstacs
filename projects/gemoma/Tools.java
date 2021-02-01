@@ -603,7 +603,7 @@ public class Tools {
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize ) throws Exception {
-		return getFasta(fName, initSize, "([a-zA-Z\\-\\.0-9]+(_\\d+)?)|([a-zA-Z\\-_\\.0-9]+_\\d+)");
+		return getFasta(fName, initSize, "([a-zA-Z\\-\\.:0-9]+(_\\d+)?)|([a-zA-Z\\-_\\.:0-9]+_\\d+)");
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize, String seqIdRegex ) throws Exception {
