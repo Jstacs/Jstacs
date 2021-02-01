@@ -268,6 +268,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 						new SimpleParameter(DataType.BOOLEAN,"coverage", "allows to output the coverage", true, true),
 						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40),
 						new SimpleParameter(DataType.INT,"minimum context", "only introns that have evidence of at least one split read with a minimal M (=(mis)match) stretch in the cigar string larger than or equal to this value will be used", true, new NumberValidator<Integer>(1, 1000000), 1),
+						new SimpleParameter(DataType.INT,"maximum coverage", "optional parameter to reduce the size of coverage output files, coverage higher than this value will be reported as this value", false, new NumberValidator<Integer>(1, 10000) ),
 						new FileParameter( "repositioning", "due to limitations in BAM/SAM format huge chromosomes need to be split before mapping. This parameter allows to undo the split mapping to real chromosomes and coordinates. The repositioning file has 3 columns: split_chr_name, original_chr_name, offset_in_original_chr", "tabular", false, new FileExistsValidator() )
 					);
 		} catch (Exception e) {
@@ -287,6 +288,10 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		int minQual = (Integer) parameters.getParameterForName("minimum mapping quality").getValue();
 		int minContext = (Integer) parameters.getParameterForName("minimum context").getValue();
 		FileParameter fp = (FileParameter) parameters.getParameterForName("repositioning");
+		SimpleParameter sp = (SimpleParameter) parameters.getParameterForName("maximum coverage");
+		int maxCov=-1;
+		if( sp!=null && sp.isSet()) maxCov = (Integer)sp.getValue();
+		
 		HashMap<String,String[]> repos = null;
 		if( fp != null && fp.isSet() ) {
 			protocol.append("add repositioning\n");
@@ -434,10 +439,12 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 									int start = block.getReferenceStart();
 									int len = block.getLength();
 									for(int k=0;k<len;k++){
-										if(!map.containsKey(start+k)){
-											map.put(start+k, new int[1]);
+										int[] current = map.get(start+k);
+										if( current==null ){
+											current= new int[1];
+											map.put(start+k, current);
 										}
-										map.get(start+k)[0]++;
+										if( maxCov < 0 || current[0]<maxCov ) current[0]++;
 									}
 								}
 							}
