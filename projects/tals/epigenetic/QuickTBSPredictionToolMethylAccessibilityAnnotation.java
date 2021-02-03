@@ -101,27 +101,27 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 			//chromosome04    892     892     14.2857142857143        1       6
 			//chromosome04    893     893     28.5714285714286        2       5
 
-			FileParameter bismark = new FileParameter("Bismark bedGraph output","The bedGraph output of bismark (file.cov.gz) containig <chromosome> <start position> <end position> <methylation percentage> <count methylated> <count unmethylated>","gz",true);
+			FileParameter bismark = new FileParameter("Bismark bedGraph output","The bedGraph output of bismark (file.cov.gz) containig <chromosome> <start position> <end position> <methylation percentage> <count methylated> <count unmethylated>","cov.gz",false);
 			
 			FileParameter fai = new FileParameter("Genome fasta index file","The fasta index file (.fai) of the genome","fai",true);
 			
 			//narrowPeakFile
-			FileParameter narrowPeak = new FileParameter("NarrowPeak File","The output of a peak caller (all.peaks.narrowPeak)","narrowPeak",true);
+			FileParameter narrowPeak = new FileParameter("NarrowPeak File","The output of a peak caller (all.peaks.narrowPeak)","narrowPeak",false);
 			
 			//normalized CoverageFile/Pileup-Output
-			FileParameter coveragePileup =new FileParameter("normalized pileup output","The normalized output of pileup with values larger than zero (file.txt) containig <chromosome> <position> <coverage>","txt",true);
+			FileParameter coveragePileup =new FileParameter("normalized pileup output","The normalized output of pileup with values larger than zero (file.txt) containig <chromosome> <position> <coverage>","txt",false);
 			
-			SimpleParameter cov_before = new SimpleParameter(DataType.INT,"Coverage before value", "Number of positions before binding site in coverage profile", true, new NumberValidator<Comparable<Integer>>(1, 500),300);
-			SimpleParameter cov_after = new SimpleParameter(DataType.INT,"Coverage after value", "Number of positions after binding site in coverage profile", true, new NumberValidator<Comparable<Integer>>(1, 500),50);
+			SimpleParameter cov_before = new SimpleParameter(DataType.INT,"Coverage before value", "Number of positions before binding site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
+			SimpleParameter cov_after = new SimpleParameter(DataType.INT,"Coverage after value", "Number of positions after binding site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),50);
 			
 			SelectionParameter calculateCoverageArea = new SelectionParameter(DataType.PARAMETERSET, new String[]{"surround target site","on complete sequence"}, new ParameterSet[]{
 					new SimpleParameterSet( cov_before,cov_after),
 					new SimpleParameterSet()
-			}, "calculate coverage area", "Calculate coverage area surround target site, or on complete sequence", true);
+			}, "calculate coverage area", "Calculate coverage area surround target site, or on complete sequence", false);
 			
 
-			SimpleParameter peak_before = new SimpleParameter(DataType.INT,"Peak before value", "Number of positions before binding site in peak profile", true, new NumberValidator<Comparable<Integer>>(1, 500),300);
-			SimpleParameter peak_after = new SimpleParameter(DataType.INT,"Peak after value", "Number of positions after binding site in peak profile", true, new NumberValidator<Comparable<Integer>>(1, 500),50);
+			SimpleParameter peak_before = new SimpleParameter(DataType.INT,"Peak before value", "Number of positions before binding site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
+			SimpleParameter peak_after = new SimpleParameter(DataType.INT,"Peak after value", "Number of positions after binding site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),50);
 			
 			 
 			return new ToolParameterSet(getShortName(),genome,bg,tsel,tals,strand,bismark,fai,narrowPeak,coveragePileup,calculateCoverageArea,peak_before,peak_after);
@@ -140,10 +140,29 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 		boolean backgroundSet = ((SelectionParameter)parameters.getParameterAt(1)).getSelected()==1;
 		String backgroundPath = backgroundSet ? ( (ParameterSet)parameters.getParameterAt(1).getValue()).getParameterAt(0).getValue().toString() : parameters.getParameterAt(0).getValue().toString();
 		String genomePath = parameters.getParameterAt(0).getValue().toString();
-		String bismarkPath = parameters.getParameterAt(5).getValue().toString();
 		String faiPath = parameters.getParameterAt(6).getValue().toString();
-		String peakPath = parameters.getParameterAt(7).getValue().toString();
-		String coveragePath = parameters.getParameterAt(8).getValue().toString();
+		String bismarkPath = null;
+		if(parameters.getParameterAt(5).getValue()!=null){
+			bismarkPath = parameters.getParameterAt(5).getValue().toString();
+		}
+		boolean useMethylationData=false;
+		MethylationprofilHashMap methylationProfiles=null;
+		if(bismarkPath==null){
+			bismarkPath="projects/tals/epigenetic/empty.cov.gz";
+			methylationProfiles=new MethylationprofilHashMap(faiPath,bismarkPath, 0.0f,0.0f);//withoutMethyl
+		}else{
+			useMethylationData=true;
+			methylationProfiles=new MethylationprofilHashMap(faiPath, bismarkPath, 1.0f,0.0f);//Methyl
+		}
+		String peakPath=null;
+		if(parameters.getParameterAt(7).getValue()!=null){
+			peakPath = parameters.getParameterAt(7).getValue().toString();//narrowPeak-File
+		}
+		
+		String coveragePath=null;
+		if(parameters.getParameterAt(8).getValue()!=null){
+			coveragePath = parameters.getParameterAt(8).getValue().toString();
+		}
 		int peak_before=(Integer) parameters.getParameterAt(10).getValue();
 		int peak_after=(Integer) parameters.getParameterAt(11).getValue();
 		
@@ -174,15 +193,18 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 		
 		double fac = 1.0/tals.length;
 		double last = 0.0;
-		MethylationprofilHashMap methylationProfiles=null;
-		
-		//methylationProfiles=new MethylationprofilHashMap(faiPath, bismarkPath, 0.0f,0.0f);//withoutMethyl
-		methylationProfiles=new MethylationprofilHashMap(faiPath, bismarkPath, 1.0f,0.0f);//Methyl
-		NarrowpeakprofilHashMap narrowPeakProfiles=new NarrowpeakprofilHashMap(faiPath,peakPath, peak_before,peak_after,"genome");
+		NarrowpeakprofilHashMap narrowPeakProfiles=null;
+		if(peakPath!=null){
+			narrowPeakProfiles=new NarrowpeakprofilHashMap(faiPath,peakPath, peak_before,peak_after,"genome");
+		}
 		
 		//System.out.println("START!");
 		//Instant start = Instant.now();
-		PileupCoverageprofilHashMap pileupCoverageProfiles=new PileupCoverageprofilHashMap(faiPath,coveragePath, cov_before,cov_after,calculateAlwaysOnCompleteSeq);
+		PileupCoverageprofilHashMap pileupCoverageProfiles=null;
+		if(coveragePath!=null){
+			pileupCoverageProfiles=new PileupCoverageprofilHashMap(faiPath,coveragePath, cov_before,cov_after,calculateAlwaysOnCompleteSeq);
+		}
+		
 		//Instant end = Instant.now();
 		//System.out.println("END: "+Duration.between(start, end));
 		
@@ -302,7 +324,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 				starts = temps;
 
 				protocol.appendHeading("Predicting sites for RVD sequence "+eff.toString("-", 0, eff.getLength())+"...\n");
-				getSites(ll, eff, talName, methylationProfiles,narrowPeakProfiles,pileupCoverageProfiles, progress,last,fac2,genomePath,model,startStrand,endStrand,strandPenalty,nd,t,kmer,use,starts);
+				getSites(ll, eff, talName, useMethylationData,methylationProfiles,narrowPeakProfiles,pileupCoverageProfiles, progress,last,fac2,genomePath,model,startStrand,endStrand,strandPenalty,nd,t,kmer,use,starts);
 				progress.setCurrent(last + 1.0*fac2);
 				last += 1.0*fac2;
 			}
@@ -376,7 +398,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 		return null;
 	}
 
-	private void getSites(LinkedList<ComparableElement<ResultSet,Double>> ll, Sequence rvds, String talName,MethylationprofilHashMap methylationProfiles,NarrowpeakprofilHashMap narrowPeakProfiles,PileupCoverageprofilHashMap pileupCoverageProfiles, ProgressUpdater progress, double last, double fac, String file, QuickScanningSequenceScore model, int startStrand, int endStrand, double strandPenalty, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
+	private void getSites(LinkedList<ComparableElement<ResultSet,Double>> ll, Sequence rvds, String talName,boolean useMethylationData,MethylationprofilHashMap methylationProfiles,NarrowpeakprofilHashMap narrowPeakProfiles,PileupCoverageprofilHashMap pileupCoverageProfiles, ProgressUpdater progress, double last, double fac, String file, QuickScanningSequenceScore model, int startStrand, int endStrand, double strandPenalty, NormalDist nd, double threshold, int kmer, boolean[][] use, int... offs) throws Exception {
 		
 		BufferedReader read = new BufferedReader(new FileReader(file));
 		StringBuffer lastHeader = new StringBuffer();
@@ -466,20 +488,30 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 							double score = model.getLogScoreFor(seq, j) + sPen;
 
 							if(score > threshold){
-
-								ResultSet rs = new ResultSet(new Result[]{
-										new CategoricalResult("Seq-ID", "", id),
-										new NumericalResult("Position", "",(d==0 ? off+j : off+sl-j-ml) ),
-										new CategoricalResult("Strand","",d==0 ? "+" : "-"),
-										new NumericalResult("Score", "", score),
-										new CategoricalResult("Sequence", "", seq.toString(j, j+model.getLength())),
-										new NumericalResult("Approx. p-value", "", (1.0-nd.cdf(score))),
-										rvdsRes,
-										talRes,
-										new CategoricalResult("MethylationProp", "", ((PFMWrapperTrainSMMethyl) model).getMethylProb(seq,j,j+rvds.getLength())),
-										new CategoricalResult("isPeakSurroundBox","",narrowPeakProfiles.getNarrowpeakprofil(id).isPeakSurroundPos((d==0 ? off+j : off+sl-j-ml), (d==0 ? true : false))),
-										new NumericalResult("countCovPos","",pileupCoverageProfiles.getPileupCoverageprofil(id).getnumberOfCoveragePositionsSurroundPos((d==0 ? off+j : off+sl-j-ml), (d==0 ? true : false)))
-								});
+								 ArrayList<Result> rl=new ArrayList<Result>();
+								 
+								rl.add(new CategoricalResult("Seq-ID", "", id));
+								rl.add(new NumericalResult("Position", "",(d==0 ? off+j : off+sl-j-ml) ));
+								rl.add(new CategoricalResult("Strand","",d==0 ? "+" : "-"));
+								rl.add(new NumericalResult("Score", "", score));
+								rl.add(new CategoricalResult("Sequence", "", seq.toString(j, j+model.getLength())));
+								rl.add(new NumericalResult("Approx. p-value", "", (1.0-nd.cdf(score))));
+								rl.add(rvdsRes);
+								rl.add(talRes);
+								if(useMethylationData){
+									rl.add(new CategoricalResult("MethylationProp", "", ((PFMWrapperTrainSMMethyl) model).getMethylProb(seq,j,j+rvds.getLength())));
+								}
+								if(narrowPeakProfiles!=null){
+									rl.add(new CategoricalResult("isPeakSurroundBox","",narrowPeakProfiles.getNarrowpeakprofil(id).isPeakSurroundPos((d==0 ? off+j : off+sl-j-ml), (d==0 ? true : false))));
+								}
+								if(pileupCoverageProfiles!=null){
+									rl.add(new NumericalResult("countCovPos","",pileupCoverageProfiles.getPileupCoverageprofil(id).getnumberOfCoveragePositionsSurroundPos((d==0 ? off+j : off+sl-j-ml), (d==0 ? true : false))));
+								}
+									
+								 Result[] ra=new Result[rl.size()];
+								 rl.toArray(ra);
+								ResultSet rs = new ResultSet(ra);
+								
 								ll.add(new ComparableElement<ResultSet, Double>(rs, -score));
 								
 								
