@@ -621,6 +621,17 @@ public class Extractor extends GeMoMaModule {
 					end = current[2];
 				}
 			}
+			Iterator<Transcript> it = transcript.values().iterator();
+			while( it.hasNext() ) {
+				Transcript t = it.next();
+				if( t.add != null ) {
+					for( int j = 0; j<t.add.size(); j++ ) {
+						String[] s = t.add.get(j);
+						start = Math.min(start, Integer.parseInt(s[3]) );
+						end = Math.max(end, Integer.parseInt(s[4]));
+					}
+				}
+			}
 		}
 		
 		@Override
