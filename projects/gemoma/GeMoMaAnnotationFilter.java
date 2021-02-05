@@ -97,6 +97,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			asDouble.add("pAA");
 			
 			asDouble.add("evidence");
+			asDouble.add("sumWeight");
 		}
 		
 		String[] keys;

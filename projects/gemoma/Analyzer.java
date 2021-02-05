@@ -78,7 +78,7 @@ public class Analyzer extends GeMoMaModule {
 		String feature = ((Boolean) parameters.getParameterForName("CDS").getValue()) ? "CDS" : "exon" ;
 		protocol.append("selected feature: " + feature + "\n\n");
 		
-		double threshold = (Double) parameters.getParameterForName("conserved attributes").getValue(); //0.5;//TODO user-specific
+		double threshold = (Double) parameters.getParameterForName("common attributes").getValue(); //0.5;//TODO user-specific
 		
 		//read and organize truth
 		protocol.append("reading true annotation and removing duplicate transcripts\n");
@@ -759,9 +759,8 @@ public class Analyzer extends GeMoMaModule {
 			return new ToolParameterSet( getToolName(),
 				new FileParameter("truth", "the true annotation", "gff,gff3", true, new FileExistsValidator()),
 				new FileParameter("prediction", "the predicted annotation", "gff,gff3", true, new FileExistsValidator()),
-				new SimpleParameter(DataType.BOOLEAN, "CDS", "if true CDS features are used otherwise exon features", true, true),
+				new SimpleParameter( DataType.BOOLEAN, "CDS", "if true CDS features are used otherwise exon features", true, true),
 				new SimpleParameter( DataType.DOUBLE, "common attributes", "Only gff attributes of mRNAs are included in the result table, that can be found in the given portion of all mRNAs. Attributes and their portion are handled independently for truth and prediction. This parameter allows to choose between a more informative table or compact table.", true, new NumberValidator<Double>(0d, 1d), 0.5 )
-				
 			);
 		} catch(Exception e){
 			e.printStackTrace();
