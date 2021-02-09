@@ -138,11 +138,7 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 	public SimpleParameter(DataType datatype, String name, String comment,
 			boolean required, Object defaultVal) throws DatatypeNotValidException, IllegalValueException {
 		this(datatype, name, comment, required);
-		if (checkValue(defaultVal)) {
-			setDefault(defaultVal);
-		} else {
-			throw new IllegalValueException("Value not valid");
-		}
+		setDefault(defaultVal);
 	}
 
 	/**
@@ -199,11 +195,7 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 			boolean required, ParameterValidator validator, Object defaultVal)
 			throws ParameterException {
 		this(datatype, name, comment, required, validator);
-		if (checkValue(defaultVal)) {
-			setDefault(defaultVal);
-		} else {
-			throw new IllegalValueException("Value not valid");
-		}
+		setDefault(defaultVal);
 	}
 
 	/*
@@ -353,7 +345,7 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 			setValue(defaultValue);
 			isSet = false;
 		} else {
-			throw new IllegalValueException("default value not valid");
+			throw new IllegalValueException(name, "Default value ("+defaultValue+") not valid");
 		}
 	}
 
@@ -418,13 +410,13 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 						break;
 					default:
 						errorMessage = "Parameter value not of the expected type!";
-						throw new IllegalValueException(errorMessage);
+						throw new IllegalValueException(name,errorMessage);
 					}
 				} catch (Exception e) {
 					this.value = null;
 					isSet = false;
 					errorMessage = "Value not valid\n" + e.getMessage();
-					throw new IllegalValueException("Value not valid\n"
+					throw new IllegalValueException(name,"Value not valid\n"
 							+ e.getMessage());
 				}
 			} else {
@@ -433,7 +425,7 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 		} else {
 			this.value = null;
 			isSet = false;
-			throw new IllegalValueException("value of "+getName()+" not valid: " + value2+"\n"+errorMessage);
+			throw new IllegalValueException(name,"value not valid: " + value2+"\n"+errorMessage);
 		}
 	}
 
@@ -577,8 +569,8 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 		 * @param reason
 		 *            the reason to give as error message
 		 */
-		public IllegalValueException(String reason) {
-			super("Parameter not permitted: " + reason);
+		public IllegalValueException(String name, String reason) {
+			super(name, "Parameter not permitted: " + reason);
 		}
 
 	}

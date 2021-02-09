@@ -282,7 +282,7 @@ public class MultiSelectionParameter extends AbstractSelectionParameter {
 			i++;
 		}
 		if( i < o.length ) {
-			throw new IllegalValueException( "Problem with the " + i +"-th value: " + errorMessage );
+			throw new IllegalValueException( name,"Problem with the " + i +"-th value: " + errorMessage );
 		} else {
 			Arrays.fill( selected, false );
 			for( i = 0; i < idx.length; i++ ) {

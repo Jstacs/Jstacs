@@ -312,7 +312,7 @@ public class SelectionParameter extends AbstractSelectionParameter {
 	public void setValue(Object value) throws IllegalValueException {
 		int i = check(value);
 		if( i < 0 ) {
-			throw new IllegalValueException( errorMessage );
+			throw new IllegalValueException( name, errorMessage );
 		} else {
 			selected = i;
 			userSelected = true;

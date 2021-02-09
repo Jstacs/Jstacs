@@ -167,11 +167,11 @@ public abstract class SimpleResult extends Result implements
 			} else if (datatype == DataType.LONG) {
 				this.result = new Long((String) result);
 			} else {
-				throw new IllegalValueException(
+				throw new IllegalValueException(name,
 						"Value not of the expected datatype!");
 			}
 		} else {
-			throw new IllegalValueException(
+			throw new IllegalValueException(name,
 					"Value not of the expected datatype!");
 		}
 	}

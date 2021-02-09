@@ -476,7 +476,7 @@ public class CLI {
 		for(int i=off;i<args.length;i++){
 			int idx = args[i].indexOf("=");
 			if(idx < 0){
-				throw new IllegalValueException("Parameter mis-specified in: "+args[i]);
+				throw new IllegalValueException(null,"Parameter mis-specified in: "+args[i]);
 			}
 			String[] temp = new String[]{args[i].substring(0, idx),args[i].substring(idx+1)};
 			if("outdir".equals( temp[0] ) ){
@@ -599,7 +599,7 @@ if( key == null ) {
 					i++;
 				}
 				if( i == mimes.length ) {
-					throw new IllegalValueException("Not correct mime type (" + mime + "): " + value );
+					throw new IllegalValueException(fp.getName(),"Not correct mime type (" + mime + "): " + value );
 				}
 			}
 		}

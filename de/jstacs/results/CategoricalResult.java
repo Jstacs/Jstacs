@@ -67,7 +67,7 @@ public class CategoricalResult extends SimpleResult {
 			Comparable result) throws IllegalValueException {
 		super(name, comment, datatype);
 		if (!(datatype == DataType.STRING || datatype == DataType.BOOLEAN)) {
-			throw new IllegalValueException("Datatype must be categorical!");
+			throw new IllegalValueException(name, "Datatype must be categorical!");
 		}
 		setResult(result);
 	}

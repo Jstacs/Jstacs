@@ -158,7 +158,7 @@ public class TextResult extends Result {
 			}
 			par.setValue( temp );
 		}else{
-			throw new IllegalValueException("Mime "+mime+" does not match required mime "+par.getAcceptedMimeType()+".");
+			throw new IllegalValueException(name,"Mime "+mime+" does not match required mime "+par.getAcceptedMimeType()+".");
 		}
 	}
 	

@@ -161,7 +161,7 @@ public class ParameterSetTagger {
 		try{
 			p = getParameterFromTag( tag );
 		}catch(NullPointerException ex){
-			throw new IllegalValueException( "No parameter with tag \""+tag+"\" in set of parameters." );
+			throw new IllegalValueException( null, "No parameter with tag \""+tag+"\" in set of parameters." );
 		}
 		if( p.getDatatype() != DataType.STRING && value instanceof String && ((String)value).length()==0 ) {
 			value = null;
@@ -169,7 +169,7 @@ public class ParameterSetTagger {
 		try {
 			p.setValue( value );
 		} catch ( IllegalValueException ive ) {
-			throw new IllegalValueException("Could not set value for parameter with tag: " + tag);
+			throw new IllegalValueException(p.getName(),"Could not set value for parameter with tag: " + tag);
 		}
 	}
 	

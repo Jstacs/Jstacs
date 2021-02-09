@@ -31,17 +31,34 @@ public class ParameterException extends Exception {
 
 	/**
 	 * Constructor for a {@link ParameterException} with the specified error
+	 * message and parameter name.
+	 * 
+	 * @param name
+	 *            the name of the parameter
+	 * @param message
+	 *            the error message
+	 */
+	public ParameterException(String name, String message) {
+		super( "Error in parameter" + (name==null?"":("("+name+")")) + (message==null?"":(": " + message)) );
+	}
+
+	/**
+	 * Constructor for a {@link ParameterException} with the specified error
 	 * message.
 	 * 
 	 * @param message
 	 *            the error message
-	 */
+	 *       
+	 * @see ParameterException#ParameterException(String,String)
+	 */	
 	public ParameterException(String message) {
-		super("Error in parameter: " + message);
+		this(null,message);
 	}
-
+	
 	/**
 	 * Constructor for a {@link ParameterException} without a specific message.
+	 * 
+	 * @see ParameterException#ParameterException(String)
 	 */
 	public ParameterException() {
 		this("");

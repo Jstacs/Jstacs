@@ -174,7 +174,7 @@ public class EnumParameter extends SelectionParameter {
 	public void setValue(Object value) throws IllegalValueException {
 		if (value != null && value instanceof Enum) {
 			if (!enumInstance.isInstance(value)) {
-				throw new IllegalValueException("Wrong Enum type.");
+				throw new IllegalValueException(name,"Wrong Enum type.");
 			} else {
 				value = ((Enum) value).name();
 			}
@@ -192,7 +192,7 @@ public class EnumParameter extends SelectionParameter {
 	public void setDefault(Object defaultValue) throws IllegalValueException {
 		if (defaultValue != null && defaultValue instanceof Enum) {
 			if (!enumInstance.isInstance(defaultValue)) {
-				throw new IllegalValueException("Wrong Enum type.");
+				throw new IllegalValueException(name,"Wrong Enum type.");
 			} else {
 				defaultValue = ((Enum) defaultValue).name();
 			}

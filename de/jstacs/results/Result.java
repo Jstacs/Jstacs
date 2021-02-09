@@ -214,7 +214,7 @@ public abstract class Result extends AnnotatedEntity {
 		case HTML:
 		case LIST:
 		default:
-			throw new IllegalValueException("wrong datatype");
+			throw new IllegalValueException(name,"wrong datatype");
 		}
 	}
 	

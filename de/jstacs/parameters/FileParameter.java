@@ -285,7 +285,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 			setValue(defaultValue);
 			isSet = false;
 		} else {
-			throw new IllegalValueException(errorMessage);
+			throw new IllegalValueException(name,errorMessage);
 		}
 	}
 
@@ -302,7 +302,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		if (!checkValue(value)) {
 			value = null;
 			isSet = false;
-			throw new IllegalValueException(errorMessage);
+			throw new IllegalValueException(name,errorMessage);
 		}
 		this.value = (FileRepresentation) value;
 		this.isSet = true;
