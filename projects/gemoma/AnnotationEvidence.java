@@ -107,7 +107,11 @@ public class AnnotationEvidence extends GeMoMaModule {
 			int[][][] sites = introns ? GeMoMa.donorSites.get(c) : null;
 			if( current!= null && current.size() > 0 ) {
 				Gene[] array = current.values().toArray(new Gene[0]);
-				Arrays.sort(array);
+				if( array.length==1 ) {
+					array[0].precompute();
+				} else {
+					Arrays.sort(array);
+				}
 				for( int a = 0; a < array.length; a++ ) {
 					Gene g = array[a];
 					g.sortExons();
