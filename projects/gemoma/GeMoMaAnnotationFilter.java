@@ -952,7 +952,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			w.newLine();
 			if( add!= null ) {
 				for( int i = 0; i < add.size(); i++ ) {
-					w.append( add.get(i) );
+					String line = add.get(i);
+					//adjust Parent
+					if( oldId!=id ) {
+						line = line.replace("Parent="+oldId,"Parent=" + id);
+					}
+					w.append( line );
 					w.newLine();
 				}
 			}
