@@ -107,7 +107,6 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			add.add(new AddFeature(split));
 		}
 		
-		
 		public void rename( String tag, String oldN, String newN ) {
 			String sep = split[8].indexOf(';')>=0 ? ";": "";
 			split[8]=split[8].replace(tag+"="+oldN+sep, tag+"="+newN+sep);
@@ -139,6 +138,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 
 	}
 	
+	//additional feature
 	static class AddFeature extends Feature {
 
 		AddFeature(String[] split) {
@@ -526,21 +526,39 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		if( add ) {
 			for( int j=0; j < list[tags.length].size(); j++ ) {
 				split = list[tags.length].get(j);
-				String[] attr = split[8].split(";");
-				int k = 0;
-				while( k < attr.length && !attr[k].startsWith("Parent=") ) {
-					k++;
-				}
-				if( k < attr.length ) {
+				String parent = get(PARENT,split);
+				if( parent!=null ) {
 					//has Parent feature
-					String parent = attr[k].substring(7);
 					Feature f = all.get(parent);
-					f.add(split);
+					if( f==null ) {
+						throw new NullPointerException("Could not find Parent: " + Arrays.toString(split) );
+					} else {
+						f.add(split);
+					}
+				} else {
+					throw new NullPointerException("Could not find Parent attribute: " + Arrays.toString(split) );
 				}
 			}
 		}
 		
 		return res;
+	}
+	
+	
+	static final String PARENT = "Parent=";
+	
+	static String get( String tag, String[] split ) {
+		String[] attr = split[8].split(";");
+		int k = 0;
+		while( k < attr.length && !attr[k].startsWith(tag) ) {
+			k++;
+		}
+		if( k < attr.length ) {
+			//has tag
+			return attr[k].substring(tag.length());
+		} else {
+			return null;
+		}
 	}
 	
 	static class SequenceIDComparator implements Comparator<String> {
