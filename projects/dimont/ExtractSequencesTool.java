@@ -20,12 +20,15 @@ package projects.dimont;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.zip.GZIPOutputStream;
 
 import de.jstacs.DataType;
 import de.jstacs.io.FileManager;
@@ -160,9 +163,9 @@ public class ExtractSequencesTool implements JstacsTool {
 		while( (str = read.readLine()) != null ){
 			String[] parts = str.split("\t");
 			String chrom = parts[chromcol-1];
-			int start = Integer.parseInt(parts[startcol-1]);
-			int sec = Integer.parseInt(parts[seccol-1]);
-			double stat = Double.parseDouble(parts[statcol-1]);
+			int start = Integer.parseInt(parts[startcol-1].trim());
+			int sec = Integer.parseInt(parts[seccol-1].trim());
+			double stat = Double.parseDouble(parts[statcol-1].trim());
 			
 			int center;
 			if(isCenter){
@@ -190,7 +193,13 @@ public class ExtractSequencesTool implements JstacsTool {
 		
 		StringBuffer currChrom = new StringBuffer();
 		
-		StringBuffer res = new StringBuffer();
+		//StringBuffer res = new StringBuffer();
+		
+		File outfile = File.createTempFile("extract", ".temp.fasta");
+		outfile.deleteOnExit();
+		
+		PrintStream out2 = new PrintStream(new FileOutputStream(outfile));
+		
 		int i=1;
 		int num = map.keySet().size();
 		while( true ){
@@ -209,8 +218,8 @@ public class ExtractSequencesTool implements JstacsTool {
 							if(start>=0 && end <= currChrom.length()){
 								String sub = currChrom.substring(start, end);
 								if(sub.matches("^[ACGTacgt]+$")){
-									res.append(">chrom: "+chrom+"; center: "+peak.getCenter()+"; peak: "+(width+1)+"; signal: "+peak.getStat()+"\n");
-									res.append(sub+"\n");
+									out2.println(">chrom: "+chrom+"; center: "+peak.getCenter()+"; peak: "+(width+1)+"; signal: "+peak.getStat());
+									out2.println(sub);
 								}else{
 									protocol.appendWarning("Peak at "+chrom+":"+start+"-"+end+" skipped because of ambiguous nucleotides.\n");
 								}
@@ -245,7 +254,9 @@ public class ExtractSequencesTool implements JstacsTool {
 			protocol.appendWarning("No sequence for "+missed.next()+".\n");
 		}
 		
-		TextResult extracted = new TextResult("Extracted sequences", "The sequences under the peaks", new FileParameter.FileRepresentation("", res.toString()), "fasta", "ExtractSequences", null, true);
+		out2.close();
+		
+		TextResult extracted = new TextResult("Extracted sequences", "The sequences under the peaks", new FileParameter.FileRepresentation(outfile.getAbsolutePath()), "fasta", "ExtractSequences", null, true);
 		
 		protocol.append("Extraction finished\n");
 		
