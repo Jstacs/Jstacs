@@ -394,15 +394,22 @@ public abstract class AbstractSelectionParameter extends Parameter implements Ga
 			val2 = ((Parameter)value).getName();
 		}
 		
+		String preDef=null;
 		if ( val2 instanceof String ) {
 			for (int i = 0; i < parameters.getNumberOfParameters(); i++) {
-				if (parameters.getParameterAt(i).getName().equals(val2)) {
+				String current = parameters.getParameterAt(i).getName();
+				if (current.equals(val2)) {
 					errorMessage = null;
 					return i;
 				}
+				if( preDef==null ) {
+					preDef = current;
+				} else {
+					preDef += ", " + current;
+				}
 			}
 		}
-		errorMessage = "The value is not in the set of defined values: " + value + ".";
+		errorMessage = "The value ("+value+") is not in the set of defined values" + (preDef==null?"":(" ("+preDef+")")) + ".";
 		return -1;
 	}
 
