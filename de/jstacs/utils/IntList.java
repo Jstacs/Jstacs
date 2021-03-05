@@ -199,6 +199,9 @@ public final class IntList implements Cloneable {
 	}
 
 	
+	/**
+	 * Sorts the elements of the list and removes duplicate entries.
+	 */
 	public void sortAndMakeUnique() {
 		sort();
 		int i=0,j=0;
