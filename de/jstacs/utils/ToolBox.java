@@ -871,6 +871,35 @@ public class ToolBox {
 		}
 		return min;
 	}
+	
+	
+	/**
+	 * Returns the index with minimum value in a <code>int</code> array.
+	 * 
+	 * @param w
+	 *            the given <code>int</code> array
+	 * @param start
+	 *            start position (inclusive)
+	 * @param end
+	 *            end position (exclusive)
+	 * 
+	 * @return the index
+	 */
+	public static int getMinIndex(int start, int end, int[] w) {
+		if(start>=end){
+			return -1;
+		}
+		int min = start, i = start+1;
+		for( ; i < end; i++ ) {
+			if( w[i] < w[min] ) {
+				min = i;
+			}
+		}
+		return min;
+	}
+	
+	
+	
 
 	public static double[] zscore(double[] vals) {
 		double[] temp = vals.clone();
