@@ -28,7 +28,7 @@ public class NHMMer {
 	public static void main(String[] args) throws Exception {
 		DNADataSet ds = new DNADataSet( args[3] );
 		
-		int[][] res = run(new FileReader(args[0]), new FileReader( args[1]), new FileReader( args[2] ), ds, new ProgressUpdater());
+		int[][] res = run(new FileReader(args[0]), new FileReader( args[1]), new FileReader( args[2] ), ds, new ProgressUpdater(), false);
 		
 		for(int i=0;i<res.length;i++){
 			System.out.println(Arrays.toString( res[i] ));
@@ -38,7 +38,7 @@ public class NHMMer {
 	}
 	
 	
-	public static int[][] run(Reader repeatHMMer, Reader startHMMer, Reader endHMMer, DataSet ds, ProgressUpdater progress) throws Exception {
+	public static int[][] run(Reader repeatHMMer, Reader startHMMer, Reader endHMMer, DataSet ds, ProgressUpdater progress, boolean sensitive) throws Exception {
 		StringBuffer repeatConsensus = new StringBuffer();
 		Pair<AbstractHMM, HomogeneousMMDiffSM> repeats = HMMFactory.parseProfileHMMFromHMMer( repeatHMMer, repeatConsensus, null, null );
 		
@@ -54,8 +54,8 @@ public class NHMMer {
 		
 		progress.setLast( 4.0 );
 		
-		LinkedList<int[]> fwd = findRepeats( ds, repeats.getFirstElement(), repeats.getSecondElement(), repeatConsensus.toString(), progress, 0.0 );
-		LinkedList<int[]> rev = findRepeats( ds.getReverseComplementaryDataSet(), repeats.getFirstElement(), repeats.getSecondElement(), repeatConsensus.toString(), progress, 1.0 );
+		LinkedList<int[]> fwd = findRepeats( ds, repeats.getFirstElement(), repeats.getSecondElement(), repeatConsensus.toString(), progress, 0.0, sensitive );
+		LinkedList<int[]> rev = findRepeats( ds.getReverseComplementaryDataSet(), repeats.getFirstElement(), repeats.getSecondElement(), repeatConsensus.toString(), progress, 1.0, sensitive );
 		
 		int totalNum = fwd.size()+rev.size();
 		
@@ -307,7 +307,7 @@ public class NHMMer {
 		
 	}
 	
-	public static LinkedList<int[]> findRepeats(DataSet ds, AbstractHMM hmm, HomogeneousMMDiffSM hom, String consensus, ProgressUpdater progress, double progressOffset) throws Exception {
+	public static LinkedList<int[]> findRepeats(DataSet ds, AbstractHMM hmm, HomogeneousMMDiffSM hom, String consensus, ProgressUpdater progress, double progressOffset, boolean sensitive) throws Exception {
 		
 		int totalLength = 0;
 		for(int i=0;i<ds.getNumberOfElements();i++){
@@ -320,6 +320,9 @@ public class NHMMer {
 		int w = numLay;
 		
 		int frag = 10;
+		if(sensitive) {
+			frag = 5;
+		}
 		HashSet<String> parts = new HashSet<String>();
 		for(int i=0;i<consensus.length()/frag;i++){
 			parts.add( consensus.substring( i*frag, (i+1 )*frag).toUpperCase() );
@@ -360,7 +363,6 @@ public class NHMMer {
 						}
 					}
 				}
-				
 				
 				if(num > parts.size()/2){
 					double fg = hmm.getLogProbFor( sub );
