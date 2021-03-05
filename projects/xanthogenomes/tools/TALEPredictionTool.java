@@ -66,10 +66,12 @@ public class TALEPredictionTool implements JstacsTool {
 	@Override
 	public ToolParameterSet getToolParameters() {
 		try{
-			FileParameter input = new FileParameter( "Genome", "The input Xanthomonas genome in FastA or Genbank format", "fasta,fa,fas,gb,gbk,genbank", true );
+			FileParameter input = new FileParameter( "Genome", "The input Xanthomonas genome in FastA or Genbank format", "fasta,fa,fas,fna,gb,gbk,genbank", true );
 
 			SimpleParameter strain = new SimpleParameter(DataType.STRING, "Strain", "The name of the strain, will be used for annotated TALEs", false);
-			ToolParameterSet ps  = new ToolParameterSet( getShortName(),  input, strain );
+			
+			SimpleParameter sens = new SimpleParameter(DataType.BOOLEAN, "Sensitive", "Sensitive scan", true,false);
+			ToolParameterSet ps  = new ToolParameterSet( getShortName(),  input, strain,sens );
 			return ps;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -96,6 +98,8 @@ public class TALEPredictionTool implements JstacsTool {
 		
 		FileParameter fp = (FileParameter)parameters.getParameterAt( 0 );
 		FileRepresentation fr = fp.getFileContents();
+		
+		boolean sensitive = (boolean) parameters.getParameterAt(2).getValue();
 
 		DataSet ds = null;
 
@@ -159,7 +163,7 @@ public class TALEPredictionTool implements JstacsTool {
 		protocol.append( "Scanning genome for TALEs...\n" );
 		int[][] regions = NHMMer.run( new InputStreamReader( TALEPredictionTool.class.getClassLoader().getResourceAsStream( "projects/xanthogenomes/data/repeats.hmm" ) ) , 
 				new InputStreamReader( TALEPredictionTool.class.getClassLoader().getResourceAsStream("projects/xanthogenomes/data/starts.hmm")), 
-				new InputStreamReader( TALEPredictionTool.class.getClassLoader().getResourceAsStream("projects/xanthogenomes/data/ends.hmm")), ds, progress );
+				new InputStreamReader( TALEPredictionTool.class.getClassLoader().getResourceAsStream("projects/xanthogenomes/data/ends.hmm")), ds, progress, sensitive );
 		protocol.append( "...finished.\n\n" );
 		
 		for(int i=0;i<regions.length;i++){
@@ -345,7 +349,7 @@ public class TALEPredictionTool implements JstacsTool {
 	
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.4.2";
 	}
 
 	@Override

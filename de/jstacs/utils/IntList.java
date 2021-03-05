@@ -198,6 +198,25 @@ public final class IntList implements Cloneable {
 		Arrays.sort( array, 0, size );
 	}
 
+	
+	/**
+	 * Sorts the elements of the list and removes duplicate entries.
+	 */
+	public void sortAndMakeUnique() {
+		sort();
+		int i=0,j=0;
+		while(i < size) {
+			while(i < size-1 && array[i] == array[i+1]) {
+				i++;
+			}
+			array[j] = array[i];
+			j++;
+			i++;
+		}
+		size = j;
+	}
+	
+	
 	public boolean equals(Object o) {
 		if( this == o ) {
 		    return true;

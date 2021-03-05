@@ -45,7 +45,7 @@ public class TALEAnalysisTool implements JstacsTool {
 
 		try{
 			SimpleParameter name = new SimpleParameter(DataType.STRING, "Name", "A name for this run of "+getToolName(), false);
-			FileParameter fp = new FileParameter("TALE DNA sequences","The DNA sequences of the TALEs","fasta,fa,fas",true);
+			FileParameter fp = new FileParameter("TALE DNA sequences","The DNA sequences of the TALEs","fasta,fa,fas,fna",true);
 			fp.setExtendedType( "fasta/dna" );
 
 			return new ToolParameterSet( getShortName(),  name, fp );
@@ -243,7 +243,7 @@ public class TALEAnalysisTool implements JstacsTool {
 	
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.4.1";
 	}
 
 	@Override

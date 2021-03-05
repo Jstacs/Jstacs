@@ -960,6 +960,7 @@ public class TALEFamilyBuilder implements Storable {
 			String[] parts = sb.substring(off, off2).split(";");
 			dmat[n] = new double[parts.length];
 			for(int j=0;j<parts.length;j++){
+				parts[j] = parts[j].replaceAll(",", ".");
 				dmat[n][j] = Double.parseDouble(parts[j]);
 			}
 			n++;
@@ -1158,6 +1159,7 @@ public class TALEFamilyBuilder implements Storable {
 		
 	}*/
 	
+	
 	private static double[][] computeDistMatrix(TALE[] tales, Costs costs, AlignmentType at, double extraGapOpening, double extraGapExtension){
 		double[][] dmat = new double[tales.length][tales.length];
 		
@@ -1170,6 +1172,45 @@ public class TALEFamilyBuilder implements Storable {
 		}
 		return dmat;
 	}
+	
+	private static double[][] computeDistMatrix2(TALE[] tales, Costs costs, AlignmentType at, double extraGapOpening, double extraGapExtension){
+		double[][] dmat = new double[tales.length][tales.length];
+		
+		for(int j=0;j<tales.length;j++){
+			for(int k=j;k<tales.length;k++){
+				double sc = TALEAligner.align( tales[j], tales[k], costs, at, extraGapOpening, extraGapExtension ).getCost();
+				dmat[j][k] = sc;
+				dmat[k][j] = sc;
+			}
+			//System.out.println(tales[j].getId()+" "+Arrays.toString( dmat[j] ));
+		}
+		return dmat;
+	}
+	
+	
+	
+	private double[][] computeDistMatrix3(TALE[] tales, int firstNew, Costs costs, AlignmentType at, double extraGapOpening, double extraGapExtension){
+		double[][] dmat = new double[tales.length][tales.length];
+		
+		for(int j=0;j<tales.length;j++){
+			for(int k=0;k<tales.length;k++){
+				if(j<firstNew && k < firstNew) {
+					dmat[j][k] = this.dmat[j][k];
+					//dmat[k][j] = this.dmat[k][j];
+				}else {
+					double sc = TALEAligner.align( tales[j], tales[k], costs, at, extraGapOpening, extraGapExtension ).getCost();
+					dmat[j][k] = sc;
+					//dmat[k][j] = sc;
+				}
+			}
+			//System.out.println(tales[j].getId()+" "+Arrays.toString( dmat[j] ));
+		}
+		return dmat;
+	}
+	
+	
+	
+	
 	
 	private static Pair<double[][],ClusterTree<TALE>> cluster(TALE[] tales, Linkage linkage, Costs costs, AlignmentType at, double extraGapOpening, double extraGapExtension){
 		Hclust<TALE> hclust = new Hclust<TALE>( null, linkage );
@@ -1402,7 +1443,17 @@ public class TALEFamilyBuilder implements Storable {
 			allTALEs[k] = unassigned[i];
 		}
 		
-		double[][] newDmat = computeDistMatrix( allTALEs, costs, at, extraGapOpening, extraGapExtension );//TODO efficiency
+		//double[][] newDmat2 = computeDistMatrix( allTALEs, costs, at, extraGapOpening, extraGapExtension );//TODO efficiency
+		double[][] newDmat = computeDistMatrix3( allTALEs, maxIndex+1, costs, at, extraGapOpening, extraGapExtension );//TODO efficiency
+		
+		/*
+		 * for(int i=0;i<newDmat.length;i++) { for(int j=0;j<newDmat[i].length;j++) {
+		 * if(Math.abs(newDmat[i][j] - newDmat2[i][j])>1E-10) {
+		 * System.out.print(i+","+j+": "+newDmat[i][j]+" <-> "+newDmat2[i][j]);
+		 * if(i<this.dmat.length && j<this.dmat[i].length) {
+		 * System.out.print(" <- "+this.dmat[i][j]); } System.out.println(
+		 * " "+allTALEs[i].getId()+" "+ allTALEs[j].getId()); } } }
+		 */
 		
 		TALEFamily[] newFams = new TALEFamily[families.length];
 		System.arraycopy( families, 0, newFams, 0, families.length );

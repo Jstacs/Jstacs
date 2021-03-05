@@ -6,6 +6,7 @@ A detailed description of all tools is available in the AnnoTALE User Guide_.
 
 The input *Genome* may be provided in FastA or Genbank format. 
 Optionally, you may provide a strain name that will be used in the temporary TALE names and names of output files.
+The *sensitive* mode may predict TALE genes in *Xanthomonas* genomes of strains more distantly related to *Xanthomonas oryzae*. 
 
 Regardless of the input format, *TALE Prediction* generates output in Genbank format containing the annotations of TALE genes. If the original input has already been a Genbank file, TALE annotations are added to the existing ones.
 In addition, *TALE Prediction* generates annotations in GFF format, and also outputs the DNA and AS sequences of the predicted TALEs in FastA format.
