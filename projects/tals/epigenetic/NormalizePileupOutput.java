@@ -25,15 +25,15 @@ import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 
-public class NormalizePielupOutput implements JstacsTool{
+public class NormalizePileupOutput implements JstacsTool{
 	
 	public static void main(String[] args) throws Exception {
-		CLI cli = new CLI(new NormalizePielupOutput());
+		CLI cli = new CLI(new NormalizePileupOutput());
 		
 		cli.run(args);
 	}
 	
-	public NormalizePielupOutput() {
+	public NormalizePileupOutput() {
 
 	}
 

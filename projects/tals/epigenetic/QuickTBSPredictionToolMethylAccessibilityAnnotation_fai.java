@@ -48,16 +48,17 @@ import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.util.RuntimeEOFException;
 import projects.tals.RVDSequence;
+import projects.tals.prediction.QuickTBSPredictionTool;
 import umontreal.iro.lecuyer.probdist.NormalDist;
 
-public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements JstacsTool {
+public class QuickTBSPredictionToolMethylAccessibilityAnnotation_fai implements JstacsTool {
 
 	public static void main(String[] args) throws Exception{
-		CLI cli = new CLI(new QuickTBSPredictionToolMethylAccessibilityAnnotation());
+		CLI cli = new CLI(new QuickTBSPredictionToolMethylAccessibilityAnnotation_fai());
 		cli.run(args);
 	}
 
-	public QuickTBSPredictionToolMethylAccessibilityAnnotation() {
+	public QuickTBSPredictionToolMethylAccessibilityAnnotation_fai() {
 
 	}
 
@@ -123,7 +124,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 			SimpleParameter peak_before = new SimpleParameter(DataType.INT,"Peak before value", "Number of positions before binding site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
 			SimpleParameter peak_after = new SimpleParameter(DataType.INT,"Peak after value", "Number of positions after binding site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),50);
 			
-			 
+			
 			return new ToolParameterSet(getShortName(),genome,bg,tsel,tals,strand,bismark,fai,narrowPeak,coveragePileup,calculateCoverageArea,peak_before,peak_after);
 
 		} catch (ParameterException e) {
@@ -149,6 +150,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 		MethylationprofilHashMap methylationProfiles=null;
 		if(bismarkPath==null){
 			bismarkPath="projects/tals/epigenetic/empty.cov.gz";
+			
 			methylationProfiles=new MethylationprofilHashMap(faiPath,bismarkPath, 0.0f,0.0f);//withoutMethyl
 		}else{
 			useMethylationData=true;
@@ -386,7 +388,7 @@ public class QuickTBSPredictionToolMethylAccessibilityAnnotation implements Jsta
 	@Override
 	public String getHelpText() {
 		try {
-			return FileManager.readInputStream( QuickTBSPredictionToolMethylAccessibilityAnnotation.class.getClassLoader().getResourceAsStream( "projects/tals/prediction/PrediTALE.txt" ) ).toString();
+			return FileManager.readInputStream( QuickTBSPredictionToolMethylAccessibilityAnnotation_fai.class.getClassLoader().getResourceAsStream( "projects/tals/prediction/PrediTALE.txt" ) ).toString();
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			return "";

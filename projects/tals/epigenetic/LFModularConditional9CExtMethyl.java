@@ -2,6 +2,7 @@ package projects.tals.epigenetic;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.Arrays;
 
 import de.jstacs.data.AlphabetContainer;
@@ -9,6 +10,7 @@ import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
+import de.jstacs.io.FileManager;
 import projects.tals.RVDSequence;
 import projects.tals.linear.LFModularConditional9C;
 
@@ -21,7 +23,8 @@ public class LFModularConditional9CExtMethyl extends LFModularConditional9C {
 		super(xml);
 		this.methylSpecsThirteen=new double[(int)thirteen.getAlphabetLengthAt(0)];
 		this.methylSeparateSpecs = new double[separateRVDs.length];
-		BufferedReader br = new BufferedReader(new FileReader("projects/tals/epigenetic/PrediTALE13Specs_MethylC.csv"));
+		StringBuffer SF_13Specs_MethylC=FileManager.readInputStream( QuickTBSPredictionToolMethylAccessibilityAnnotation_fai.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/PrediTALE13Specs_MethylC.csv"));
+		BufferedReader br = new BufferedReader(new BufferedReader(new StringReader(SF_13Specs_MethylC.toString())));
 		String line="";
 		String[] splitLine;
 		while ((line = br.readLine()) != null){
@@ -29,8 +32,8 @@ public class LFModularConditional9CExtMethyl extends LFModularConditional9C {
 			methylSpecsThirteen[(int) thirteen.getCode(0, splitLine[0])]=Double.parseDouble(splitLine[1]);
 		}
 		br.close();
-		
-		BufferedReader br2 = new BufferedReader(new FileReader("projects/tals/epigenetic/PrediTALEcomRVDSpecs_MethylC.csv"));
+		StringBuffer SF_comRVDSpecs_MethylC=FileManager.readInputStream( QuickTBSPredictionToolMethylAccessibilityAnnotation_fai.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/PrediTALEcomRVDSpecs_MethylC.csv"));
+		BufferedReader br2 = new BufferedReader(new BufferedReader(new StringReader(SF_comRVDSpecs_MethylC.toString())));
 		
 		separateMap = new int[(int) rvds.getAlphabetLengthAt(0)];
 		Arrays.fill(separateMap, -1);

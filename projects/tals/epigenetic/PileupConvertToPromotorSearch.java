@@ -116,7 +116,11 @@ public class PileupConvertToPromotorSearch implements JstacsTool{
 							strand=false;
 						}
 						splitPos=splitArea[1].split("-");
-						gene=splitHeader[1];
+						gene=line.substring(1).trim();
+						int idx = gene.indexOf(" ");
+						if (idx > 0) {
+							gene = gene.substring(0, idx);
+						}
 						
 						chrom=splitArea[0];
 
