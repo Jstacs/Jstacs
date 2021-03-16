@@ -15,9 +15,9 @@ import projects.tals.RVDSequence;
 import projects.tals.linear.LFModularConditional9C;
 
 public class LFModularConditional9CExtMethyl extends LFModularConditional9C {
-	private double[] methylSpecsThirteen; 
-	private int[] separateMap;
-	private double[] methylSeparateSpecs;
+	protected double[] methylSpecsThirteen; 
+	protected int[] separateMap;
+	protected double[] methylSeparateSpecs;
 	
 	public LFModularConditional9CExtMethyl(StringBuffer xml,AlphabetContainer thirteen,AlphabetContainer rvds,String[] separateRVDs) throws Exception {
 		super(xml);
