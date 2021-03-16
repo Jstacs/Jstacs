@@ -19,10 +19,10 @@ import projects.tals.RVDSequence;
 
 public class LFModularConditional9C extends AbstractDifferentiableSequenceScore {
 
-	private LFPosition_mixture position;
-	private LFSpecificity_parallel_cond9C specificity;
-	private LF0Conditional lf0;
-	private double[] a, b;
+	protected LFPosition_mixture position;
+	protected LFSpecificity_parallel_cond9C specificity;
+	protected LF0Conditional lf0;
+	protected double[] a, b;
 
 	
 	public LFModularConditional9C(LF0Conditional lf0, LFSpecificity_parallel_cond9C specificity, LFPosition_mixture lfPosition, int numberOfGroups) throws IllegalArgumentException {
