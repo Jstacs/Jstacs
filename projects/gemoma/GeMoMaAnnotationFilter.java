@@ -69,6 +69,20 @@ import de.jstacs.tools.ToolResult;
  */
 public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	
+	private static String replace( String cds, String oldString, String newString, int idx ) {
+		if( (idx=cds.indexOf(oldString,idx))>=0 ) {
+			char c = cds.charAt(idx);
+			if( c=='\t' || c==';' ) {
+				cds = cds.substring(0, idx)
+						+ newString
+						+ cds.substring(idx+oldString.length());
+			} else {
+				cds = replace( cds, oldString, newString, idx+1 );
+			}
+		}
+		return cds;
+	}
+	
 	private static int MAX;
 	
 	private static HashMap<String,int[]> del = new HashMap<String,int[]>();
@@ -121,10 +135,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 		}
 		
-		public static int compareAsDoubles( String d1, String d2 ) {
-			return Double.compare(parse(d1), parse(d2));
-		}
-		
 		public void prepare( Prediction p ) {
 			p.comp = new Comparable[keys.length+1];
 			for( int i = 0; i < keys.length; i++ ) {
@@ -145,6 +155,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			p.comp[keys.length]=p.id;
 		}
 
+		@SuppressWarnings("unchecked")
 		public int compare(Prediction o1, Prediction o2) {
 			int d=0;
 			for( int i=0; i < o1.comp.length && d==0; i++ ) {
@@ -154,17 +165,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			return d;
 		}
-	}
-	
-	private static String prepareFilter( String filter ) {
-		if( filter == null ) {
-			filter = "";
-		} else {
-			filter = filter.trim();
-		}
-		filter = filter.replaceAll( " or ", " || " );
-		filter = filter.replaceAll( " and ", " && " );
-		return filter;
 	}
 	
 	@Override
@@ -179,9 +179,9 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				defAttributes[i] = null;
 			}
 		}
-		String filter = prepareFilter( (String) parameters.getParameterForName("filter").getValue() );
+		String filter = Tools.prepareFilter( (String) parameters.getParameterForName("filter").getValue() );
 		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), protocol );
-		String altFilter = prepareFilter( (String) parameters.getParameterForName("alternative transcript filter").getValue() );
+		String altFilter = Tools.prepareFilter( (String) parameters.getParameterForName("alternative transcript filter").getValue() );
 		Parameter pa = parameters.getParameterForName( "add alternative transcripts" );
 		boolean addAltTransIDs = pa==null ? false : (Boolean) pa.getValue();
 		pa = parameters.getParameterForName( "transfer features" );
@@ -379,12 +379,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				for( int i = pred.size()-1; i >= 0; i-- ){
 					Prediction p = pred.get(i);
 					p.setEvidenceAndWeight( weight );
-					if( !p.filter(filter, engine) ) {
+					if( !Tools.filter(engine, filter, p.hash) ) {
 						//System.out.println(p.hash.toString());
 						pred.remove(i);
 					} else {
 						fillEvidence(p.evidence, p.index, 0);
-						p.altCand = p.filter(altFilter, engine);
+						p.altCand = Tools.filter(engine, altFilter, p.hash);
 						comp.prepare(p);
 						altCand+=p.altCand?1:0;
 					}
@@ -778,11 +778,15 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				//old:
 				//cds = cds.replaceAll("([;\t])(ID|Parent)="+oldId, "$1$2=" + id);
 				
+				//middle
+				//cds = cds.replace("\tParent="+oldId, "\tParent=" + id);
+				//cds = cds.replace(";Parent="+oldId, ";Parent=" + id);
+				//cds = cds.replace("\tID="+oldId, "\tID=" + id);
+				//cds = cds.replace(";ID="+oldId, ";ID=" + id);
+				
 				//new:
-				cds = cds.replace("\tParent="+oldId, "\tParent=" + id);
-				cds = cds.replace(";Parent="+oldId, ";Parent=" + id);
-				cds = cds.replace("\tID="+oldId, "\tID=" + id);
-				cds = cds.replace(";ID="+oldId, ";ID=" + id);
+				replace( cds, "Parent="+oldId, "Parent="+id, 0 );
+				replace( cds, "ID="+oldId, "ID="+id, 0 );
 			}
 			CDS current = new CDS( cds.split("\t") );
 			this.cds.add( current );
@@ -1006,29 +1010,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			return anz;
 		}
-	
-		boolean filter( String filter, ScriptEngine engine ) throws ScriptException {
-			if( filter.length()== 0 ) {
-				return true;
-			} else {
-				Bindings b = engine.createBindings();
-				Iterator<Entry<String,String>> it = hash.entrySet().iterator();
-				while( it.hasNext() ) {
-					Entry<String,String> e = it.next();
-					String key = e.getKey();
-					if( filter.indexOf(key)>=0 ) {
-						String val = e.getValue();
-						b.put(key, val.equals("NA")?""+Double.NaN:val);
-					}
-				}			
-				
-				String s = engine.eval(filter, b).toString();
-				Boolean bool = Boolean.parseBoolean( s );
-	//System.out.println(toBeChecked.id + "\t" + f + "\t" + s + "\t" + bool);
-				return bool;
-			}
-		}
-		
+
 		void fillNuc( BitSet nuc, int s, int e ) {
 			for( int i = 0; i < cds.size(); i++ ) {
 				CDS c = cds.get(i);

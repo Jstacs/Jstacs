@@ -38,6 +38,10 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipException;
 
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+
 import de.jstacs.parameters.Parameter;
 import de.jstacs.tools.Protocol;
 
@@ -655,4 +659,62 @@ public class Tools {
 		}
 		
 	}
+	
+	/**
+	 * This method modifies a filter String that can be used in a {@link ScriptEngine}.
+	 *  
+	 * @param filter the user-specified filter String
+	 * 
+	 * @return the modified filter String
+	 * 
+	 * @see ScriptEngine
+	 * @see #filter(ScriptEngine, String, HashMap)
+	 */
+	public static String prepareFilter( String filter ) {
+		if( filter == null ) {
+			filter = "";
+		} else {
+			filter = filter.trim();
+		}
+		filter = filter.replaceAll( " or ", " || " );
+		filter = filter.replaceAll( " and ", " && " );
+		return filter;
+	}
+	
+	/**
+	 * This method evaluates a filter String and returns a boolean.
+	 * 
+	 * @param engine the {@link ScriptEngine} to be used for filtering
+	 * @param filter the filter String
+	 * @param hash the hash containing the attributes in key-value-pairs
+	 * @return the result or the evaluated filter String
+	 * 
+	 * @throws ScriptException if the filter String could not be evaluated properly
+	 * 
+	 * @see #prepareFilter(String)
+	 */
+	public static boolean filter( ScriptEngine engine, String filter, HashMap<String,String> hash ) throws ScriptException {
+		if( hash == null ) {
+			return false;
+		} else if( filter.length()== 0 ) {
+			return true;
+		} else {
+			Bindings b = engine.createBindings();
+			Iterator<Entry<String,String>> it = hash.entrySet().iterator();
+			while( it.hasNext() ) {
+				Entry<String,String> e = it.next();
+				String key = e.getKey();
+				if( filter.indexOf(key)>=0 ) {
+					String val = e.getValue();
+					b.put(key, val.equals("NA")?""+Double.NaN:val);
+				}
+			}			
+			
+			String s = engine.eval(filter, b).toString();
+			Boolean bool = Boolean.parseBoolean( s );
+//System.out.println(toBeChecked.id + "\t" + f + "\t" + s + "\t" + bool);
+			return bool;
+		}
+	}
+	
 }
