@@ -98,7 +98,7 @@ public class Analyzer extends GeMoMaModule {
 		attributesTruth.put(ALL,new int[1]);
 		ArrayList<String> attTruth = new ArrayList<String>();
 		HashMap<String,HashMap<String,Transcript>> res = readGFF( feature, truth, protocol, attributesTruth, attTruth );
-		HashMap<String,Gene[]> genes = toGenes(res, engine, filter);
+		HashMap<String,Gene[]> genes = toGenes(res, engine, filter, protocol);
 		
 		//read prediction
 		protocol.append("reading predicted annotation\n\n");
@@ -345,9 +345,14 @@ public class Analyzer extends GeMoMaModule {
 		protocol.append( "number of perfectly predicted transcripts: " + ((int)anzPerfect) + "\n" );
 		if( rel ) protocol.append( "number of perfectly predicted reliable transcripts: " + ((int)anzRPerfect) + "\n" );
 
-		protocol.append( "\n" );
+		protocol.append( "\nnumber of true genes: " + anzTruthG + "\n" );
+		if( rel ) protocol.append( "number of reliable true genes: " + anzRTruthG + " (" + (anzRTruthG/(double)anzTruthG) + ")\n" );
+		
+		protocol.append( "\nnumber of predicted genes: " + predGenes.size() + "\n" );
+		protocol.append( "number of perfectly predicted genes: " + ((int)anzPerfectG) + "\n" );
+		if( rel ) protocol.append( "number of perfectly predicted reliable genes: " + ((int)anzRPerfectG) + "\n" );
 
-		protocol.append( "transcript sensitivity: " + (anzPerfect / anzTruth) + "\n" );
+		protocol.append( "\ntranscript sensitivity: " + (anzPerfect / anzTruth) + "\n" );
 		protocol.append( "transcript precision: " + (anzPerfect / anzPrediction) + "\n" );
 		if( rel ) protocol.append( "reliable transcript sensitivity: " + (anzRPerfect / anzRTruth) + "\n" );
 		
@@ -368,10 +373,11 @@ public class Analyzer extends GeMoMaModule {
 		return help.cardinality();
 	}
 	
-	public HashMap<String,Gene[]> toGenes( HashMap<String,HashMap<String,Transcript>> res, ScriptEngine engine, String filter ) throws ScriptException {
+	public HashMap<String,Gene[]> toGenes( HashMap<String,HashMap<String,Transcript>> res, ScriptEngine engine, String filter, Protocol protocol ) throws ScriptException {
 		Iterator<String> it = res.keySet().iterator();
 		HashMap<String,Gene> g = new HashMap<String,Gene>();
 		HashMap<String,Gene[]> sortedGenes = new HashMap<String,Gene[]>();
+		int empty=0, duplicate=0;
 		while( it.hasNext() ) {
 			String key = it.next();
 			HashMap<String,Transcript> current = res.get(key);
@@ -383,27 +389,35 @@ public class Analyzer extends GeMoMaModule {
 			while( tit.hasNext() ) {
 				String tkey = tit.next();
 				Transcript t = current.get(tkey);
-				if( filter.length()>0 ) t.reliable = Tools.filter(engine, filter, t.hash);
-				t.sortParts();
-				if( t.parent == null ) {
-					t.parent = t.id+".gene";
+				if( t.parts.size()>0 ) {
+					if( filter.length()>0 ) t.reliable = Tools.filter(engine, filter, t.hash);
+					t.sortParts();
+					if( t.parent == null ) {
+						t.parent = t.id+".gene";
+					}
+					Gene gene = g.get(t.parent);
+					if( gene == null ) {
+						gene = new Gene(t.parent);
+						g.put(t.parent, gene);
+					}
+					gene.addTranscript(t);
+				} else {
+					empty++;
 				}
-				Gene gene = g.get(t.parent);
-				if( gene == null ) {
-					gene = new Gene(t.parent);
-					g.put(t.parent, gene);
-				}
-				gene.addTranscript(t);
 			}
 			Gene[] gArray=g.values().toArray(new Gene[0]);
 			Arrays.sort(gArray);
 			for( int i = 0; i < gArray.length; i++ ) {
-				gArray[i].eliminateDuplicates();
+				duplicate+=gArray[i].eliminateDuplicates();
 			}
 			
 			sortedGenes.put( key, gArray );
 			//System.out.println(key + "\t" + gArray.length );
 		}
+		protocol.append("removed:\n" );
+		protocol.append( empty + "\tempty transcripts\n" );
+		protocol.append( duplicate + "\tduplicates\n\n" );
+		//System.out.println(key + "\t" + gArray.length );
 		return sortedGenes;
 	}
 
@@ -724,8 +738,9 @@ public class Analyzer extends GeMoMaModule {
 			max = -100;
 		}
 		
-		public void eliminateDuplicates() {
+		public int eliminateDuplicates() {
 			Collections.sort( t, TranscriptComparator.SINGLETON );
+			int dupl=0;
 			for( int i = t.size()-1; i>0; i--) {
 				Transcript current = t.get(i);
 				Transcript next = t.get(i-1);
@@ -738,8 +753,10 @@ public class Analyzer extends GeMoMaModule {
 						t.remove(i-1);
 						current.id += ","+next.id;
 					}
+					dupl++;
 				}
 			}
+			return dupl;
 		}
 
 		void addTranscript( Transcript transcript ) {
