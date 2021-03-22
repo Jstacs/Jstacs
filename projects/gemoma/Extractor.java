@@ -250,7 +250,7 @@ public class Extractor extends GeMoMaModule {
 	private static String gID = "gene_id \"";
 	private static String tID = "transcript_id \"";
 	
-	static void add( HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String evidence, String c, String strand, String geneID, String transcriptID, String attributes ) {
+	static void add( HashSet<String> errors, HashMap<String, Gene> trans, HashMap<String, HashMap<String,Gene>> annot, String evidence, String c, String strand, String geneID, String transcriptID, String attributes ) {
 		HashMap<String,Gene> chr = annot.get(c);
 		if( chr == null ) {
 			chr = new HashMap<String,Gene>();
@@ -262,6 +262,10 @@ public class Extractor extends GeMoMaModule {
 			gene = new Gene(evidence,geneID,strand);
 			chr.put(geneID, gene);
 			
+		} else {
+			if( gene.strand != (strand.charAt(0)=='+' ? 1: -1) ) {
+				errors.add(c+";"+geneID);
+			}
 		}
 		gene.add( transcriptID, attributes );
 		trans.put(transcriptID, gene);
@@ -295,6 +299,7 @@ public class Extractor extends GeMoMaModule {
 		HashMap<String, ArrayList<String[]>> additional = new HashMap<String, ArrayList<String[]>>();
 		ArrayList<String[]> cds = new ArrayList<String[]>();
 		boolean first = true, gff = true;
+		HashSet<String> errors = new HashSet<String>();
 		while( (line=r.readLine()) != null ) {
 			if( gff && line.equalsIgnoreCase("##FASTA") ) {//http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
 				protocol.append("Stop reading the annotation file because of '##FASTA'\n"); 
@@ -365,7 +370,7 @@ public class Extractor extends GeMoMaModule {
 						if( geneID.length() == 0 ) {
 							geneID = transcriptID+".gene";
 						}
-						add(trans, annot, split[1], split[0], split[6], geneID, transcriptID, null);
+						add(errors,trans, annot, split[1], split[0], split[6], geneID, transcriptID, null);
 						cds.add(split);
 					}
 					break;
@@ -386,7 +391,7 @@ public class Extractor extends GeMoMaModule {
 								protocol.appendWarning("Could not parse line (multiple parents): " + line + "\n" );
 							}
 							
-							add(trans, annot, split[1], split[0], split[6], geneID, transcriptID, split[8]);
+							add(errors,trans, annot, split[1], split[0], split[6], geneID, transcriptID, split[8]);
 						}
 					}
 					break;
@@ -426,17 +431,19 @@ public class Extractor extends GeMoMaModule {
 				gene = trans.get(parent[j]);
 				if( selected==null || selected.containsKey(parent[j]) ) {
 					if( gene == null  ) {
-						add(trans, annot, split[1], split[0], split[6], parent[j]+".gene", parent[j], null);
+						add(errors, trans, annot, split[1], split[0], split[6], parent[j]+".gene", parent[j], null);
 						gene = trans.get(parent[j]);
 					}
 					usedG.add(gene);
 					usedT.add(parent[j]);
+					int s = split[6].charAt(0)=='+'?1:-1;
+					if( gene.strand != s ) errors.add(split[0]+";"+gene.id);
 					gene.add( parent[j], new int[]{
-							split[6].charAt(0)=='+'?1:-1, //strand
+							s, //strand
 							Integer.parseInt( split[3] ), //start
 							Integer.parseInt( split[4] ), //end
 							split[7].charAt(0)=='.' ? Part.NO_PHASE : Integer.parseInt(split[7]) //phase
-					} );
+					} ); 
 				}
 			}			
 		}
@@ -457,6 +464,21 @@ public class Extractor extends GeMoMaModule {
 				}
 			}
 		}
+		
+		if( errors.size()>0 ) {//remove errors from add-method
+			protocol.append("number of genes with errors: " + errors.size() + "\n");
+			Iterator<String> e = errors.iterator();
+			while( e.hasNext() ) {
+				String er = e.next();
+				split = er.split(";");
+				HashMap<String,Gene> x = annot.get(split[0]);
+				Gene g = x.remove(split[1]);
+				
+				usedG.remove(g);
+				usedT.removeAll(g.transcript.keySet());
+			}
+		}
+		
 		protocol.append("number of detected genes: " + usedG.size() + "\n");
 		protocol.append("number of detected transcripts: " + usedT.size() + "\n");
 		return annot;
