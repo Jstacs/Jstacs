@@ -22,7 +22,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -686,6 +685,7 @@ public class Extractor extends GeMoMaModule {
 		String[] don = new String[max];
 		String[] acc = new String[max];
 		SafeOutputStream ident = out.get(6);
+		HashMap<String, int[]> introns = new HashMap<String,int[]>();
 		for( Gene gene: genes ) {
 			if( gene.transcript.size()>0 ) {
 				int[] val = null;
@@ -742,7 +742,7 @@ public class Extractor extends GeMoMaModule {
 							don[i] = off1 > 0 ? p.substring(p.length()-off1,p.length()) : "";
 						}
 					} catch( StringIndexOutOfBoundsException sioobe ) {
-						s=null;//TODO
+						s=null;
 					}
 					part.add(new Part(s,val));
 				}
@@ -838,6 +838,13 @@ public class Extractor extends GeMoMaModule {
 										st = gene.exon.get(k)[2]+1;
 										en = gene.exon.get(j)[1];
 									}
+									String key = chr + "\tannotation\tintron\t" + st + "\t" + en + "\t\t"+ (forward?"+":"-") + "\t.\t.";
+									int[] counts = introns.get(key); 
+									if( counts == null ) {
+										counts = new int[1];
+										introns.put(key, counts);
+									}
+									counts[0]++;
 									/*
 									String intr = seq.substring(st-1, en-1);
 									if( !forward ) {
@@ -847,7 +854,7 @@ public class Extractor extends GeMoMaModule {
 									System.out.println( Arrays.toString( gene.exon.get(k) ) );
 									System.out.println(forward + "\t" + intr);
 									*/
-									out.get(5).writeln(chr + "\tannotation\tintron\t" + st + "\t" + en + "\t.\t" + (forward?"+":"-") + "\t.\t." );
+									//out.get(5).writeln(chr + "\tannotation\tintron\t" + st + "\t" + en + "\t.\t" + (forward?"+":"-") + "\t.\t." );
 								}
 							}
 						}
@@ -855,6 +862,17 @@ public class Extractor extends GeMoMaModule {
 				}
 			}
 		}
+
+		if( !out.get(5).doesNothing() ) {
+			//write introns
+			String[] keys = introns.keySet().toArray(new String[0]);
+			Arrays.sort(keys);//sub optimal sorting due to string instead of integers for positions
+			for( int i = 0;i < keys.length; i++ ) {
+				int[] count = introns.get(keys[i]);
+				out.get(5).writeln(keys[i].replaceFirst("\t\t", "\t" + count[0] + "\t") );
+			}
+		}
+		
 	}
 	
 	ArrayList<SafeOutputStream> out;
@@ -981,7 +999,7 @@ public class Extractor extends GeMoMaModule {
 			} else if( fullLength && p.charAt(p.length()-1)!='*' ){
 				if( verbose ) writeWarning(protocol, trans, "skip missing stop",p, dnaSeqBuff );
 				return 3;
-			} else if( preMature && discardPreMatureStop ) {///XXX
+			} else if( preMature && discardPreMatureStop ) {
 				if( verbose ) writeWarning(protocol, trans, "skip premature stop",p, dnaSeqBuff );
 				return 4;
 			} else if( message.length() > 0 ) {
@@ -1194,7 +1212,7 @@ public class Extractor extends GeMoMaModule {
 				new SimpleParameter( DataType.BOOLEAN, "discard pre-mature stop", "if *true* transcripts with pre-mature stop codon are discarded as they often indicate misannotation", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
-				new SimpleParameter( DataType.BOOLEAN, "long fasta comment", "whether a short (transcript ID) or a long (transcript ID, gene ID, chromsome, strand, interval) fasta comment should be written for proteins, CDSs, and genomic regions", true, false ),
+				new SimpleParameter( DataType.BOOLEAN, "long fasta comment", "whether a short (transcript ID) or a long (transcript ID, gene ID, chromosome, strand, interval) fasta comment should be written for proteins, CDSs, and genomic regions", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information", true, false )
 			);		
 		}catch(Exception e){
