@@ -431,7 +431,7 @@ public class Analyzer extends GeMoMaModule {
 		protocol.append( eol + "transcript sensitivity");
 		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfect / stat.anzTruth) );
 		protocol.append( eol );
-		protocol.append( "transcript precision:" );
+		protocol.append( "transcript precision" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfect / stat.anzPrediction) );
 		protocol.append(eol );
 		if( rel ) {
@@ -468,7 +468,7 @@ public class Analyzer extends GeMoMaModule {
 		Iterator<String> it = res.keySet().iterator();
 		HashMap<String,Gene> g = new HashMap<String,Gene>();
 		HashMap<String,Gene[]> sortedGenes = new HashMap<String,Gene[]>();
-		int empty=0, duplicate=0;
+		int duplicate=0;
 		while( it.hasNext() ) {
 			String key = it.next();
 			HashMap<String,Transcript> current = res.get(key);
@@ -492,8 +492,6 @@ public class Analyzer extends GeMoMaModule {
 						g.put(t.parent, gene);
 					}
 					gene.addTranscript(t);
-				} else {
-					empty++;
 				}
 			}
 			Gene[] gArray=g.values().toArray(new Gene[0]);
@@ -506,9 +504,7 @@ public class Analyzer extends GeMoMaModule {
 			sortedGenes.put( key, gArray );
 			//System.out.println(key + "\t" + gArray.length );
 		}
-		protocol.append("removed:\n" );
-		protocol.append( empty + "\tempty transcripts\n" );
-		protocol.append( duplicate + "\tduplicates\n\n" );
+		protocol.append("removed " + duplicate + " duplicates\n\n" );
 		//System.out.println(key + "\t" + gArray.length );
 		return sortedGenes;
 	}
@@ -567,6 +563,21 @@ public class Analyzer extends GeMoMaModule {
 			}
 		}
 		r.close();
+		
+		int empty=0;
+		Iterator<String> it = res.keySet().iterator();
+		while( it.hasNext() ) {
+			current = res.get(it.next());
+			String[] ids = current.keySet().toArray(new String[0]);
+			for( int i = 0; i < ids.length; i++ ) {
+				Transcript t = current.get(ids[i]);
+				if( t.parts.size() == 0 ) {
+					empty++;
+					current.remove(ids[i]);
+				}
+			}
+		}
+		if( empty>0 ) protocol.append("removed " + empty + " empty transcripts\n" );
 		return res;
 	}
 	
@@ -997,7 +1008,7 @@ public class Analyzer extends GeMoMaModule {
 				+ " Also true and predicted transcripts are listed that do not overlap with any transcript from the predicted and true annotation, respectively."
 				+ " The table contains the attributes of the true and the predicted annotation besides some additional columns allowing to easily filter interesting examples and to do statistics.\n\n"
 				+ "The evaluation can be based on CDS (default) or exon features."
-				+ " The tool also reports transcript sensitivity and transcript precision."
+				+ " The tool also reports sensitivity and precision for the categories gene and transcript."
 			+ MORE;
 	}
 
