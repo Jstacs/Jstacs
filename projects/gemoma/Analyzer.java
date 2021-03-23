@@ -3,7 +3,6 @@ package projects.gemoma;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +20,9 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import de.jstacs.DataType;
+import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
@@ -35,7 +36,6 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.DoubleList;
-import de.jstacs.utils.IntList;
 import projects.gemoma.GeMoMa.IntArrayComparator;
 
 /**
@@ -79,18 +79,22 @@ public class Analyzer extends GeMoMaModule {
 			String temp) throws Exception {
 		FileParameter fp = (FileParameter) parameters.getParameterForName("truth");
 		String truth = fp.getValue();
-		fp = (FileParameter) parameters.getParameterForName("prediction");
-		String predicted = fp.getValue();
 		
 		String feature = ((Boolean) parameters.getParameterForName("CDS").getValue()) ? "CDS" : "exon" ;
 		protocol.append("selected feature: " + feature + "\n\n");
 		
-		double threshold = (Double) parameters.getParameterForName("common attributes").getValue();
+		SimpleParameterSet ps = (SimpleParameterSet) parameters.getParameterForName("write").getValue();
+		boolean write = ps.getNumberOfParameters()>0;
+		double threshold =  write ? (Double) ps.getParameterForName("common attributes").getValue() : 0;
 		
-		SimpleParameterSet ps = (SimpleParameterSet) parameters.getParameterForName("reliable").getValue();
+		ps = (SimpleParameterSet) parameters.getParameterForName("reliable").getValue();
 		String filter = Tools.prepareFilter(ps.getNumberOfParameters()==0? null : (String) ps.getParameterForName("filter").getValue() );
 		ScriptEngineManager mgr = new ScriptEngineManager();
 		ScriptEngine engine = mgr.getEngineByName("nashorn");
+		
+		String sep, eol; //TODO
+		sep="\t"; eol="\n";
+		//sep="\t&"; eol="\\\\\n"; //Latex
 		
 		//read and organize truth
 		protocol.append("reading true annotation and removing duplicate transcripts\n");
@@ -99,26 +103,51 @@ public class Analyzer extends GeMoMaModule {
 		ArrayList<String> attTruth = new ArrayList<String>();
 		HashMap<String,HashMap<String,Transcript>> res = readGFF( feature, truth, protocol, attributesTruth, attTruth );
 		HashMap<String,Gene[]> genes = toGenes(res, engine, filter, protocol);
+
+		ArrayList<String> n = new ArrayList<String>();
+		ArrayList<GFFCompareStat> stats = new ArrayList<GFFCompareStat>();
+		ArrayList<TextResult> tr = new ArrayList<TextResult>();
+		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("prediction").getValue();
+
+		for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
+			SimpleParameterSet sps = ((SimpleParameterSet)eps.getParameterAt(i).getValue());
+			String predicted = (String) sps.getParameterForName("predicted annotation").getValue();
+			String name = (String) sps.getParameterForName("name").getValue();
+			if( name == null || name.length()==1 ) {
+				name = predicted;
+			}
+			n.add(name);
+			
+			//read prediction
+			protocol.append("reading predicted annotation: " + name + "\n");
+			HashMap<String,int[]> attributesPrediction = new HashMap<String,int[]>();
+			attributesPrediction.put(ALL,new int[1]);
+			ArrayList<String> attPrediction = new ArrayList<String>();
+			HashMap<String,HashMap<String,Transcript>> prediction = readGFF( feature, predicted, protocol, attributesPrediction, attPrediction );
+			
+			//compare
+			protocol.append("comparing true and predicted annotation\n");
+			HashMap<String,Transcript[]> noOverlap = compare( genes, prediction, protocol, filter.length()>0, stats );
+			
+			//write result
+			if( write ) {
+				tr.add( write( "Comparison " + i, genes, noOverlap, attributesTruth, attTruth, attributesPrediction, attPrediction, temp, threshold, filter ) );
+			}
+			protocol.append("\n");
+		}
 		
-		//read prediction
-		protocol.append("reading predicted annotation\n\n");
-		HashMap<String,int[]> attributesPrediction = new HashMap<String,int[]>();
-		attributesPrediction.put(ALL,new int[1]);
-		ArrayList<String> attPrediction = new ArrayList<String>();
-		HashMap<String,HashMap<String,Transcript>> prediction = readGFF( feature, predicted, protocol, attributesPrediction, attPrediction );
+		write(protocol, filter.length()>0, n, stats, sep, eol );
 		
-		//compare
-		protocol.append("comparing true and predicted annotation\n");
-		HashMap<String,Transcript[]> noOverlap = compare( genes, prediction, protocol, filter.length()>0 );
-		
-		//write result
-		TextResult tr = write( genes, noOverlap, attributesTruth, attTruth, attributesPrediction, attPrediction, temp, threshold, filter );
-		return new ToolResult("", "", null, new ResultSet(tr), parameters, getToolName(), new Date());
+		if( tr.size()>0 ) {
+			return new ToolResult("", "", null, new ResultSet(tr), parameters, getToolName(), new Date());
+		} else {
+			return null;
+		}
 	}
 	
 	static final String ALL = "ALL";
 	
-	public TextResult write( HashMap<String,Gene[]> genes, HashMap<String,Transcript[]> noOverlap, HashMap<String,int[]> attributesTruth,
+	public TextResult write( String name, HashMap<String,Gene[]> genes, HashMap<String,Transcript[]> noOverlap, HashMap<String,int[]> attributesTruth,
 			ArrayList<String> attTruth, HashMap<String,int[]> attributesPrediction,
 			ArrayList<String> attPrediction, String temp, double threshold, String filter ) throws IOException {
 		File out = Tools.createTempFile("Analyzer", temp);
@@ -207,16 +236,15 @@ public class Analyzer extends GeMoMaModule {
 		}
 		b.close();
 		
-		return new TextResult("Comparison", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tabular", getToolName(), null, true);
+		return new TextResult(name, "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tabular", getToolName(), null, true);
 	}
 	
-	public HashMap<String,Transcript[]> compare( HashMap<String,Gene[]> genes, HashMap<String,HashMap<String,Transcript>> prediction, Protocol protocol, boolean rel ) {
+	public HashMap<String,Transcript[]> compare( HashMap<String,Gene[]> genes, HashMap<String,HashMap<String,Transcript>> prediction, Protocol protocol, boolean rel, ArrayList<GFFCompareStat> stats ) {
 		HashMap<String,Transcript[]> noOverlap = new HashMap<String,Transcript[]>();
 		ArrayList<Transcript> current = new ArrayList<Transcript>();
 		Iterator<String> it = chr.iterator();
 		BitSet predictedRegion = new BitSet(), trueRegion = new BitSet(), help = new BitSet();
-		int anzTruth = 0, anzRTruth=0, anzPrediction=0, anzTruthG=0, anzRTruthG=0;
-		double anzPerfect=0, anzRPerfect=0, anzPerfectG=0, anzRPerfectG=0;
+		GFFCompareStat stat = new GFFCompareStat();
 		HashSet<String> predGenes = new HashSet<String>();
 		
 		while( it.hasNext() ) {
@@ -230,20 +258,24 @@ public class Analyzer extends GeMoMaModule {
 				
 				if( g != null ) {
 					for( int j=0; j < g.length; j++ ) {
-						anzTruth += g[j].t.size();
+						stat.anzTruth += g[j].t.size();
 						boolean r = false;
 						for( int k = 0; k < g[j].t.size(); k++ ) {
-							if( g[j].t.get(k).reliable ) {
-								anzRTruth++;
+							Transcript t = g[j].t.get(k);
+							//delete old
+							t.clear();
+							
+							if( t.reliable ) {
+								stat.anzRTruth++;
 								r=true;
 							}
 						}
-						if( r ) anzRTruthG++;
+						if( r ) stat.anzRTruthG++;
 					}
-					anzTruthG +=g.length;
+					stat.anzTruthG +=g.length;
 				}
 				if( pred!= null ) {
-					anzPrediction += pred.size();
+					stat.anzPrediction += pred.size();
 					Iterator<Transcript> iter = pred.values().iterator();
 					while( iter.hasNext() ) {
 						predGenes.add( iter.next().parent );
@@ -307,15 +339,15 @@ public class Analyzer extends GeMoMaModule {
 								g[bestG].t.get(bestT).set( predictions[j], bestF1, tp, fn, fp );
 								
 								if( bestF1 == 1 ) {
-									anzPerfect++;
-									if( g[bestG].t.get(bestT).reliable ) anzRPerfect++;
+									stat.anzPerfect++;
+									if( g[bestG].t.get(bestT).reliable ) stat.anzRPerfect++;
 								}
 							}
 						}
 						
 						for( int j=0; j < g.length; j++ ) {
 							if( g[j].getBestF1()==1 ) {
-								anzPerfectG++;
+								stat.anzPerfectG++;
 							}
 							if( rel ) {
 								boolean r = false;
@@ -325,7 +357,7 @@ public class Analyzer extends GeMoMaModule {
 										r=true;
 									}
 								}
-								if( r ) anzRPerfectG++;
+								if( r ) stat.anzRPerfectG++;
 							}
 						}
 					} else {
@@ -338,30 +370,89 @@ public class Analyzer extends GeMoMaModule {
 			noOverlap.put(chrom, current.toArray(new Transcript[0]) );
 		}
 
-		protocol.append( "\nnumber of true transcripts: " + anzTruth + "\n" );
-		if( rel ) protocol.append( "number of reliable true transcripts: " + anzRTruth + " (" + (anzRTruth/(double)anzTruth) + ")\n" );
-		
-		protocol.append( "\nnumber of predicted transcripts: " + anzPrediction + "\n" );
-		protocol.append( "number of perfectly predicted transcripts: " + ((int)anzPerfect) + "\n" );
-		if( rel ) protocol.append( "number of perfectly predicted reliable transcripts: " + ((int)anzRPerfect) + "\n" );
-
-		protocol.append( "\nnumber of true genes: " + anzTruthG + "\n" );
-		if( rel ) protocol.append( "number of reliable true genes: " + anzRTruthG + " (" + (anzRTruthG/(double)anzTruthG) + ")\n" );
-		
-		protocol.append( "\nnumber of predicted genes: " + predGenes.size() + "\n" );
-		protocol.append( "number of perfectly predicted genes: " + ((int)anzPerfectG) + "\n" );
-		if( rel ) protocol.append( "number of perfectly predicted reliable genes: " + ((int)anzRPerfectG) + "\n" );
-
-		protocol.append( "\ntranscript sensitivity: " + (anzPerfect / anzTruth) + "\n" );
-		protocol.append( "transcript precision: " + (anzPerfect / anzPrediction) + "\n" );
-		if( rel ) protocol.append( "reliable transcript sensitivity: " + (anzRPerfect / anzRTruth) + "\n" );
-		
-		protocol.append( "\ngene sensitivity: " + (anzPerfectG / anzTruthG) + "\n" );
-		protocol.append( "gene precision: " + (anzPerfectG / predGenes.size()) + "\n" );
-		if( rel ) protocol.append( "reliable gene sensitivity: " + (anzRPerfectG / anzRTruthG) + "\n" );
+		stat.anzPredG=predGenes.size();
+		stats.add(stat);
 		
 		return noOverlap;
 	}
+	
+	class GFFCompareStat {
+		int anzTruth = 0, anzRTruth=0, anzPrediction=0, anzTruthG=0, anzRTruthG=0, anzPredG;
+		double anzPerfect=0, anzRPerfect=0, anzPerfectG=0, anzRPerfectG=0;		
+	}
+	
+	static void write( Protocol protocol, boolean rel, ArrayList<String> name, ArrayList<GFFCompareStat> list, String sep, String eol ) {
+		protocol.append( "category");
+		for( String n: name ) protocol.append( sep + n );
+		protocol.append( eol+eol );
+		
+		protocol.append( "number of true transcripts");
+		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzTruth );
+		protocol.append( eol );
+		if( rel ) {
+			protocol.append( "number of reliable true transcripts" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzRTruth + " (" + (stat.anzRTruth/(double)stat.anzTruth) + ")" );
+			protocol.append( eol );
+		}
+		
+		protocol.append( eol+"number of predicted transcripts" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzPrediction );
+		protocol.append( eol );
+		protocol.append( "number of perfectly predicted transcripts" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzPerfect) );
+		protocol.append( eol );
+		if( rel ) {
+			protocol.append( "number of perfectly predicted reliable transcripts" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzRPerfect) );
+			protocol.append( eol );
+		}
+
+		protocol.append( eol + "number of true genes" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzTruthG );
+		protocol.append( eol );
+		if( rel ) {
+			protocol.append( "number of reliable true genes" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzRTruthG + " (" + (stat.anzRTruthG/(double)stat.anzTruthG) + ")" );
+			protocol.append( eol );
+		}
+		
+		protocol.append( eol + "number of predicted genes" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzPredG );
+		protocol.append( eol );
+		protocol.append( "number of perfectly predicted genes" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzPerfectG) );
+		protocol.append( eol );
+		if( rel ) {
+			protocol.append( "number of perfectly predicted reliable genes" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzRPerfectG) );
+			protocol.append( eol );
+		}
+
+		protocol.append( eol + "transcript sensitivity");
+		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfect / stat.anzTruth) );
+		protocol.append( eol );
+		protocol.append( "transcript precision:" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfect / stat.anzPrediction) );
+		protocol.append(eol );
+		if( rel ) {
+			protocol.append( "reliable transcript sensitivity" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzRPerfect / stat.anzRTruth) );
+			protocol.append( eol );
+		}
+		
+		protocol.append( eol + "gene sensitivity" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfectG / stat.anzTruthG) );
+		protocol.append( eol );
+		protocol.append( "gene precision" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfectG / stat.anzPredG) );
+		protocol.append( eol );
+		if( rel ) {
+			protocol.append( "reliable gene sensitivity" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzRPerfectG / stat.anzRTruthG) );
+			protocol.append( eol );
+		}
+	}
+
 	
 	private static int count( BitSet help, BitSet b1, BitSet b2, boolean flipFirst ) {
 		help.clear();
@@ -409,6 +500,7 @@ public class Analyzer extends GeMoMaModule {
 			Arrays.sort(gArray);
 			for( int i = 0; i < gArray.length; i++ ) {
 				duplicate+=gArray[i].eliminateDuplicates();
+				Collections.sort( gArray[i].t, Analyzer.TranscriptNameComparator.SINGLETON );
 			}
 			
 			sortedGenes.put( key, gArray );
@@ -422,7 +514,7 @@ public class Analyzer extends GeMoMaModule {
 	}
 
 	public HashMap<String,HashMap<String,Transcript>> readGFF( String feature, String fName, Protocol protocol, HashMap<String,int[]> attributes, ArrayList<String> att ) throws IOException {
-		BufferedReader r = new BufferedReader( new FileReader( fName ) );
+		BufferedReader r = new BufferedReader( Tools.openGzOrPlain(fName) );
 		HashMap<String,HashMap<String,Transcript>> res = new HashMap<String,HashMap<String,Transcript>>();
 		HashMap<String,Transcript> current = new HashMap<String,Transcript>();
 		String line;
@@ -492,10 +584,12 @@ public class Analyzer extends GeMoMaModule {
 		HashMap<String,String> hash;
 		ArrayList<int[]> parts;
 		int min, max;
+		
 		ArrayList<Transcript> overlap;
 		DoubleList overlapF1;
 		ArrayList<String> overlapInfo;
 		double bestF1;
+		
 		boolean reliable;
 		
 		Transcript( String chr, String strand, String id ) {
@@ -507,7 +601,7 @@ public class Analyzer extends GeMoMaModule {
 			parts = new ArrayList<int[]>();
 			min = Integer.MAX_VALUE;
 			max = -100;
-			bestF1 = 0;
+			clear();
 			reliable=true;
 		}
 
@@ -521,6 +615,13 @@ public class Analyzer extends GeMoMaModule {
 				int[] interval = parts.get(i);
 				region.set(interval[0]-start, interval[1]-start+1);
 			}
+		}
+		
+		public void clear() {
+			bestF1=0;
+			if( overlap!=null ) overlap.clear();
+			if( overlapF1!=null ) overlapF1.clear();
+			if( overlapInfo!=null ) overlapInfo.clear();
 		}
 		
 		public void set(Transcript transcript, double f1, double tp, double fn, double fp) {
@@ -623,7 +724,6 @@ public class Analyzer extends GeMoMaModule {
 			overlapInfo.add(s);
 		}
 		
-
 		public void setOverlap(double f1) {
 			if( bestF1 < f1 ) {
 				bestF1=f1;
@@ -631,7 +731,7 @@ public class Analyzer extends GeMoMaModule {
 		}
 		
 		public double bestF1() {
-			if( overlap == null ) {
+			if( overlap == null || overlap.size()==0 ) {
 				if( bestF1>0 ) {
 					return -bestF1;
 				} else {
@@ -691,7 +791,7 @@ public class Analyzer extends GeMoMaModule {
 			appendAttributes(res, attributesTruth, attTruth, threshold, rel);
 			res.append( "\t" + bestF1() );
 			String prefix = res.toString();
-			if( overlap!= null ) {
+			if( overlap!= null && overlap.size()>0 ) {
 				for( int i = 0; i < overlap.size(); i++ ) {
 					if( i>0 ) res.append( prefix );
 					res.append("\t" + overlapF1.get(i) + "\t" + overlapInfo.get(i));
@@ -717,7 +817,14 @@ public class Analyzer extends GeMoMaModule {
 
 		@Override
 		public int compareTo(Transcript t) {
-			return Integer.compare(min, t.min);
+			int d = Integer.compare(min, t.min);
+			if( d == 0 ) {
+				d = Integer.compare(max, t.max);
+				if( d == 0 ) {
+					d = id.compareTo(t.id);
+				}
+			}
+			return d;
 		}
 	}
 	
@@ -782,7 +889,6 @@ public class Analyzer extends GeMoMaModule {
 		public void write( HashMap<String,int[]> attributesTruth, ArrayList<String> attTruth,
 				HashMap<String,int[]> attributesPrediction, ArrayList<String> attPrediction, BufferedWriter b, double threshold, boolean rel ) throws IOException {
 			double bestF1 = getBestF1();
-			Collections.sort( t, Analyzer.TranscriptNameComparator.SINGLETON );
 			for( int i = 0; i < t.size(); i++ ) {
 				Transcript trans = t.get(i);
 				trans.write(tBuff, id, bestF1, t.size(), attributesTruth, attTruth, attributesPrediction, attPrediction, threshold, rel);
@@ -832,18 +938,30 @@ public class Analyzer extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getToolName(),
-				new FileParameter("truth", "the true annotation", "gff,gff3", true, new FileExistsValidator()),
-				new FileParameter("prediction", "the predicted annotation", "gff,gff3", true, new FileExistsValidator()),
+				new FileParameter("truth", "the true annotation", "gff,gff3,gff.gz,gff3.gz", true, new FileExistsValidator()),
+				new ParameterSetContainer( "prediction", "", new ExpandableParameterSet( new SimpleParameterSet(		
+						new SimpleParameter(DataType.STRING,"name", "can be used to distinguish different predictions", false, new RegExpValidator("\\w*") ),
+						new FileParameter( "predicted annotation", "GFF file containing the predicted annotation", "gff,gff3,gff.gz,gff3.gz",  true, new FileExistsValidator(), true )
+					), "gene annotations", "", 1 ) ),
+				//new FileParameter("prediction", "the predicted annotation", "gff,gff3", true, new FileExistsValidator()),
 				new SimpleParameter( DataType.BOOLEAN, "CDS", "if true CDS features are used otherwise exon features", true, true),
-				new SimpleParameter( DataType.DOUBLE, "common attributes", "Only gff attributes of mRNAs are included in the result table, that can be found in the given portion of all mRNAs. Attributes and their portion are handled independently for truth and prediction. This parameter allows to choose between a more informative table or compact table.", true, new NumberValidator<Double>(0d, 1d), 0.5 ),
 				new SelectionParameter( DataType.PARAMETERSET, 
 						new String[]{"NO","YES"},
 						new Object[]{
-								new SimpleParameterSet(),
-								new SimpleParameterSet(	new SimpleParameter(DataType.STRING,"filter","A filter for deciding which transcript from the truth are reliable or not. The filter is applied to the GFF attributes of the truth. You probably need to run AnnotationEvidence on the truth GFF. "
-								+ "The default filter decides based on the completeness of the prediction (start=='M' and stop=='*'), no premature stop codons (nps==0), RNA-seq coverage (tpc==1) and intron evidence (isNaN(tie) or tie==1).",
-								false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!'\\-\\+\\*\\/]*"), "start=='M' and stop=='*' and nps==0 and (tpc==1 and (isNaN(tie) or tie==1))" )
+							new SimpleParameterSet(),
+							new SimpleParameterSet(	new SimpleParameter( DataType.DOUBLE, "common attributes", "Only gff attributes of mRNAs are included in the result table, that can be found in the given portion of all mRNAs. Attributes and their portion are handled independently for truth and prediction. This parameter allows to choose between a more informative table or compact table.", true, new NumberValidator<Double>(0d, 1d), 0.5 ) )
+						},
+						"write", "write detailed table comparing the true and the predicted annotation", true ),
+				new SelectionParameter( DataType.PARAMETERSET, 
+						new String[]{"NO","YES"},
+						new Object[]{
+							new SimpleParameterSet(),
+							new SimpleParameterSet(	
+								new SimpleParameter(DataType.STRING,"filter","A filter for deciding which transcript from the truth are reliable or not. The filter is applied to the GFF attributes of the truth. You probably need to run AnnotationEvidence on the truth GFF. "
+									+ "The default filter decides based on the completeness of the prediction (start=='M' and stop=='*'), no premature stop codons (nps==0), RNA-seq coverage (tpc==1) and intron evidence (isNaN(tie) or tie==1).",
+									false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!'\\-\\+\\*\\/]*"), "start=='M' and stop=='*' and nps==0 and (tpc==1 and (isNaN(tie) or tie==1))"
 								)
+							)
 						},
 						"reliable", "additionally evaluate sensitivity for reliable transcripts", true
 				)
@@ -871,8 +989,8 @@ public class Analyzer extends GeMoMaModule {
 
 	@Override
 	public String getHelpText() {
-		return "This tools allows to compare a true annotation with a predicted annotation as it is frequently done in benchmark studies."
-				+ " Furthermore, it returns a detailed table comparing true annotation and predicted annotation wight might help to identify systematical errors or biases in the predictions."
+		return "This tools allows to compare true annotation with predicted annotation as it is frequently done in benchmark studies."
+				+ " Furthermore, it can return a detailed table comparing true annotation and predicted annotation which might help to identify systematical errors or biases in the predictions."
 				+ " Hence, this tool might help to detect weaknesses of the prediction algorithm.\n\n"
 				+ "True and predicted transcripts are evaluated based on nucleotide F1 measure."
 				+ " For each predicted transcript, the true transcript with highest nucleotide F1 measure is listed."
@@ -885,9 +1003,7 @@ public class Analyzer extends GeMoMaModule {
 
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
-		return new ResultEntry[] {
-				new ResultEntry(TextResult.class, "tabular", "comparison")
-		};
+		return null;
 	}
 
 	@Override
