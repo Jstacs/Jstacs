@@ -33,10 +33,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -70,8 +68,8 @@ import de.jstacs.tools.ToolResult;
 public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	
 	private static String replace( String cds, String oldString, String newString, int idx ) {
-		if( (idx=cds.indexOf(oldString,idx))>=0 ) {
-			char c = cds.charAt(idx);
+		if( (idx=cds.indexOf(oldString,idx))>0 ) {
+			char c = cds.charAt(idx-1);
 			if( c=='\t' || c==';' ) {
 				cds = cds.substring(0, idx)
 						+ newString
@@ -785,8 +783,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				//cds = cds.replace(";ID="+oldId, ";ID=" + id);
 				
 				//new:
-				replace( cds, "Parent="+oldId, "Parent="+id, 0 );
-				replace( cds, "ID="+oldId, "ID="+id, 0 );
+				cds=replace( cds, "Parent="+oldId, "Parent="+id, 0 );
+				cds=replace( cds, "ID="+oldId, "ID="+id, 0 );
 			}
 			CDS current = new CDS( cds.split("\t") );
 			this.cds.add( current );
