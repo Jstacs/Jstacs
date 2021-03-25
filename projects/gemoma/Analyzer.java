@@ -504,7 +504,7 @@ public class Analyzer extends GeMoMaModule {
 			sortedGenes.put( key, gArray );
 			//System.out.println(key + "\t" + gArray.length );
 		}
-		protocol.append("removed " + duplicate + " duplicates\n\n" );
+		if( duplicate>0 ) protocol.append("removed " + duplicate + " duplicates\n\n" );
 		//System.out.println(key + "\t" + gArray.length );
 		return sortedGenes;
 	}
