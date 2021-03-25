@@ -102,7 +102,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		return new ToolParameterSet( getToolName(), 
 			new FileParameter("BUSCO", "the BUSCO full table based on transcripts/proteins", "tabular", true),
-			new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the genne annotation file (gff,gtf)", "tabular", true)
+			new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true)
 		);
 	}
 
