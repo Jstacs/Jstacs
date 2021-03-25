@@ -81,7 +81,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 		
 		File file = Tools.createTempFile("AnnotationEvidence",temp);
 		BufferedWriter w = new BufferedWriter( new FileWriter(file) );
-		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc\tminCov\tavgCov\tnps" );
+		w.append( "#gene id\tchr\tstart\tend\tstrand\ttranscript id\t#exons\ttie\ttpc\tminCov\tavgCov\tminSplitReads\tnps" );
 		w.newLine();
 		File aFile = Tools.createTempFile("AnnotationEvidence",temp);
 		BufferedWriter annot = new BufferedWriter( new FileWriter(aFile) );
@@ -152,6 +152,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 								w.append( g.id + "\t" + c + "\t" + tStart + "\t" + tEnd + "\t"+ g.strand + "\t" + e.getKey() + "\t" + parts.length() + "\t" );
 								
 								double tie=0;
+								int minSplitReads=Integer.MAX_VALUE;
 								int last=-10;
 								int covered=0, l=0, idx;
 								int[][] donSites = sites==null? null : sites[g.strand==1?0:1];
@@ -169,23 +170,28 @@ public class AnnotationEvidence extends GeMoMaModule {
 									
 									
 									//tie
-									if( donSites != null ) {
-										int v = g.strand==1 ? part[1] : (part[2]+1);
-										
-										idx = Arrays.binarySearch( donSites[0], last );
-										if( idx > 0 ) {
-											while( idx>0 &&  donSites[0][idx-1] == last ) {
-												idx--;
+									if( j > 0 ) {
+										int currentSplitReads=0;
+										if( donSites != null ) {
+											int v = g.strand==1 ? part[1] : (part[2]+1);
+											
+											idx = Arrays.binarySearch( donSites[0], last );
+											if( idx > 0 ) {
+												while( idx>0 &&  donSites[0][idx-1] == last ) {
+													idx--;
+												}
+											}
+											if( idx >= 0 ) {
+												while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
+													idx++;
+												}
+												if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
+													tie++;
+													currentSplitReads=donSites[2][idx];
+												}
 											}
 										}
-										if( idx >= 0 ) {
-											while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
-												idx++;
-											}
-											if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-												tie++;
-											}
-										}
+										minSplitReads=Math.min(minSplitReads,currentSplitReads);
 									}
 									
 									//cov
@@ -250,12 +256,13 @@ public class AnnotationEvidence extends GeMoMaModule {
 								String tpcString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(covered/(double)l);
 								String avgCovString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(sum/(double)l);
 								String minCovString = ( GeMoMa.coverage == null ) ? "NA" : (""+min);
+								String minSplitReadsString = ( parts.length() == 1 ) ? "NA" : (""+minSplitReads);
 								
 								if( (tie==parts.length()-1) && covered==l ) {
 									perfect++;
 								}
 								
-								w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString + "\t" + preMatureStops );
+								w.append( tieString + "\t" + tpcString + "\t" + minCovString + "\t" + avgCovString + "\t" + minSplitReadsString + "\t" + preMatureStops );
 								w.newLine();
 								
 								//annotation
@@ -290,7 +297,10 @@ public class AnnotationEvidence extends GeMoMaModule {
 								add(old,attr,"ID",e.getKey());
 								add(old,attr,"Parent",g.id);
 								add(old,attr,"aa",""+(l/3));
-								if( introns ) add(old,attr,"tie",tieString);
+								if( introns ) {
+									add(old,attr,"tie",tieString);
+									add(old,attr,"minSplitReads",minSplitReadsString);
+								}
 								if( coverage ) {
 									add(old,attr,"tpc",tpcString);
 									add(old,attr,"minCov",""+min);
