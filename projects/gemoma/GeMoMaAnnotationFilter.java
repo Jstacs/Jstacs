@@ -1077,8 +1077,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 							+ "A more sophisticated filter could be applied for instance using the completeness, the relative score, the evidence as well as statistics based on RNA-seq: start=='M' and stop=='*' and score/aa>=0.75 and (evidence>1 or tpc==1.0)", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!'\\-\\+\\*\\/]*"), "start=='M' and stop=='*' and (isNaN(score) or score/aa>=0.75)" ),
 					new SimpleParameter(DataType.STRING,"sorting","comma-separated list that defines the way predictions are sorted within a cluster", true, "sumWeight,score"),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
-							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on evidence (evidence>1). "
-							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or evidence>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!'\\-\\+\\*\\/]*"), "tie==1 or evidence>1" ),
+							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on sumWeight (sumWeight>1). "
+							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or sumWeight>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!'\\-\\+\\*\\/]*"), "tie==1 or sumWeight>1" ),
 					new SimpleParameter(DataType.BOOLEAN, "add alternative transcripts", "a switch to decide whether the IDs of alternative transcripts that have the same CDS should be listed for each prediction", true, false),
 					new SimpleParameter( DataType.BOOLEAN, "transfer features", "if true, additional features like UTRs will be transfered from the input to the output. Only features of the representatives will be trensfered. The UTRs of identical CDS predictions listed in \"alternative\" will not be transfered or combined", true, false )
 				);		
