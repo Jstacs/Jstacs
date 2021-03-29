@@ -234,8 +234,8 @@ public class GeMoMa extends GeMoMaModule {
 		return "gene\ttranscript\t#parts\t#predicted hits\t#blast hits\t#strands\tbest sum score"
 				+ "\t#candidate strands\t#predictions\t#alignments"
 				+ "\tbest final score"
-				+ "\tchromosome\tstrand\tstart\tend\t#predicted parts\tfirst part\tfirst aa\tlast parts\tlast aa\t#*\tintron gain\tintron loss\tbackup\tcut"
-				+ (proteinAlignment ?"\tminimal score\tcurrent score\toptimal score\t%positive\tpid\tmaxGap\tref_length\tpred_length":"")
+				+ "\tchromosome\tstrand\tstart\tend\t#predicted parts\tfirst part\tfirst aa\tlast parts\tlast aa\t#*\tintron gain\tintron loss" //+"\tbackup\tcut"
+				+ (proteinAlignment ?"\tminimal score\tcurrent score\toptimal score\t%positive\tpid"+/*\tmaxGap*/"\tref_length\tpred_length":"")
 				+ (acceptorSites == null ? "" :"\tacceptor evidence")
 				+ (donorSites == null ? "" : "\tdonor evidence")
 				+ (donorSites == null ? "" : "\tintron evidence")
@@ -2072,7 +2072,7 @@ public class GeMoMa extends GeMoMaModule {
 		
 		double[][] used;
 		
-		int[][][][] splice; //part 1 idx, anz, parts2 idx (relative), anz
+		int[][][][][] splice; //part 1 idx, anz, parts2 idx (relative), anz, (score,intron,exp intron)
 		static final int NOT_COMPUTED = Integer.MAX_VALUE;
 		static final int NO_SPLICE_VARIANT = Integer.MIN_VALUE;
 				
@@ -2288,7 +2288,8 @@ public class GeMoMa extends GeMoMaModule {
 		public void sort( HashMap<Integer,ArrayList<Hit>> lines, boolean forward ) {
 			Iterator<ArrayList<Hit>> it = lines.values().iterator();
 			while( it.hasNext() ) {
-				Collections.sort( it.next(), HitComparator.comparator[forward?0:1]  );
+				ArrayList<Hit> current = it.next();
+				if( current != null ) Collections.sort( current, HitComparator.comparator[forward?0:1]  );
 			}
 		}
 		
@@ -2453,6 +2454,7 @@ public class GeMoMa extends GeMoMaModule {
 		        					}
 		        				}
 		        			} else {
+		        				//if the user specifies the contig
 		        				lines = HASH.get( CHROM );
 		        				if( lines != null && lines[STRAND].size()>0 ) {
 		        					numberOfTestedStrands++;
@@ -2511,7 +2513,7 @@ public class GeMoMa extends GeMoMaModule {
 	        }
 			
 			if( out ) {
-				String seq = proteinAlignment ? getRefProtein(transcriptName) : null;
+				String protein = getRefProtein(transcriptName);
 				int counts = 0;
 				for( int i = 0; i < predictions && result.size()>0; i++ ) {
 					Solution best = result.poll();
@@ -2520,6 +2522,7 @@ public class GeMoMa extends GeMoMaModule {
 						best = best.refine(transcriptName);
 						
 						best.writeSummary( geneName, transcriptName, i);
+						gff.append( ";raa=" + protein.length());
 						gff.append( ";score=" + best.score);
 						
 						gffHelp.delete(0, gffHelp.length());
@@ -2542,18 +2545,18 @@ public class GeMoMa extends GeMoMaModule {
 							gff.append( ";avgCov=" + decFormat.format(best.Sum/(double)best.Len) );
 						}
 						
-						int id = 0, pos = 0, gap=-1, currentGap=0, maxGap=0;
+						int id = 0, pos = 0, longest=0, current=0;//, gap=-1, currentGap=0, maxGap=0;
 						String s0, s1 = null, pred = best.getProtein();
 						PairwiseStringAlignment psa = null;
-						if( seq != null ) {
+						if( proteinAlignment ) {
 							
-							psa = align.getAlignment(AlignmentType.GLOBAL, Sequence.create(alph, seq), Sequence.create(alph, pred) );
+							psa = align.getAlignment(AlignmentType.GLOBAL, Sequence.create(alph, protein), Sequence.create(alph, pred) );
 							s0 = psa.getAlignedString(0);
 							s1 = psa.getAlignedString(1);
 							
 							for( int p = 0; p < s1.length(); p++ ) {
-								if( s0.charAt(p) == '-' ) {
-									if( gap != 0 ) {
+								/*if( s0.charAt(p) == '-' ) {
+									/*if( gap != 0 ) {
 										if( currentGap > maxGap ) {
 											maxGap = currentGap;
 										}
@@ -2570,32 +2573,42 @@ public class GeMoMa extends GeMoMaModule {
 										currentGap=0;
 									}
 									currentGap++;
+								*/
+								if( s0.charAt(p) == '-' || s1.charAt(p) == '-' ) {
+									if( longest < current ) longest=current;
+									current=0;
 								} else {
 									//(mis)match
-									if( gap != -1 ) {
+									/*if( gap != -1 ) {
 										if( currentGap > maxGap ) {
 											maxGap = currentGap;
 										}
 										gap=-1;
 										currentGap=0;
-									}
+									}*/
 									if( s1.charAt(p) == s0.charAt(p) ) {
 										id++;
 										pos++;
+										current++;
 									} else {
 										if( matrix[aaAlphabet.getCode(s0.substring(p, p+1))][aaAlphabet.getCode(s1.substring(p, p+1))] > 0 ) {
 											pos++;
+											current++;
+										} else {
+											if( longest < current ) longest=current;
+											current=0;
 										}
 									}
 								}
 							}
+							if( longest < current ) longest=current;
 							if( verbose ) {
 								protocol.append(s0+"\n");
 								protocol.append(s1+"\n");
 							}
 							
 							//additional GFF tags
-							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) );//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) +";lpm=" + longest);//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						int preMatureStops=0, j=-1;
 						String aa =pred.substring(0, pred.length()-1);
@@ -2611,11 +2624,11 @@ public class GeMoMa extends GeMoMaModule {
 								+ "\t" + best.score
 								+ "\t" + best.hits.getFirst().targetID + "\t" + (best.forward?+1:-1)
 								+ "\t" + (best.forward? best.hits.getFirst().targetStart + "\t" + best.hits.getLast().targetEnd : best.hits.getLast().targetStart + "\t" + best.hits.getFirst().targetEnd )
-								+ "\t" + anz + "\t" + best.getInfo(gff) + "\t" + best.backup + "\t" + best.cut
-								+ ( seq != null ?  
-										"\t" + getGapCost(seq.length(), currentInfo.exonID.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
-										+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(seq, seq)
-										+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + "\t" + maxGap + "\t" + seq.length() + "\t" + pred.length()
+								+ "\t" + anz + "\t" + best.getInfo(gff)
+								+ ( proteinAlignment ?  
+										"\t" + getGapCost(protein.length(), currentInfo.exonID.length) /*-(seq.length()*gapExtension+gapOpening+parts.length*INTRON_GAIN_LOSS)*/
+										+ "\t" + ((int)-psa.getCost()) + "\t" + getScore(protein, protein)
+										+ "\t" + (pos/(double)s1.length()) + "\t" + (id/(double)s1.length()) + /*"\t" + maxGap +*/ "\t" + protein.length() + "\t" + pred.length()
 										: "" )
 								+ (acceptorSites == null ? "" : ("\t" + (best.A==0? "NA": decFormat.format(best.a/(double)best.A))) )
 								+ (donorSites == null ? "" : ("\t" + (best.D==0? "NA": decFormat.format(best.d/(double)best.D))) )
@@ -2713,7 +2726,7 @@ public class GeMoMa extends GeMoMaModule {
 					qL[i] = new int[anz];
 					if( splice != null && splice[i] == null ) {
 //protocol.append( "create " + anz + "\n");
-						splice[i] = new int[anz][currentInfo.exonID.length-i][];
+						splice[i] = new int[anz][currentInfo.exonID.length-i][][];
 					}
 					for( int j = anz-1; j >= 0; j-- ) {
 						o = l.get(j);
@@ -2806,8 +2819,10 @@ public class GeMoMa extends GeMoMaModule {
 			if( splice != null && splice[i][j][k-i] == null ) {
 				//protocol.appendln(o.targetID + "\t" + i + "\t" + j + "\t" + (k-i) );
 				try {
-					splice[i][j][k-i] = new int[ref.size()];
-					Arrays.fill(splice[i][j][k-i], NOT_COMPUTED );
+					splice[i][j][k-i] = new int[ref.size()][5];
+					for( int x=0; x <splice[i][j][k-i].length;x++) {
+						splice[i][j][k-i][x][0]=NOT_COMPUTED;
+					}
 				} catch( OutOfMemoryError e ) {
 					protocol.append(currentInfo.exonID[i] + "\t" + length[i] + "\n" );
 					protocol.append(splice[i].length+"\n");
@@ -2829,10 +2844,10 @@ public class GeMoMa extends GeMoMaModule {
 					if( check(forward, i, j, k, m) ) {
 						int adScore = 0;
 						if( splice != null && splice[i][j][k-i] != null ) {
-							if( splice[i][j][k-i][m] == NOT_COMPUTED ) {
-								splice[i][j][k-i][m] = checkSpliceSites(chr, upstreamHit, ref.get(m), len);
+							if( splice[i][j][k-i][m][0] == NOT_COMPUTED ) {
+								checkSpliceSites(chr, upstreamHit, ref.get(m), len, splice[i][j][k-i][m] );
 							}
-							adScore = splice[i][j][k-i][m];
+							adScore = splice[i][j][k-i][m][0];
 						} else if( check2( i, j, k, m) ) {
 							adScore=NO_SPLICE_VARIANT;
 						}
@@ -2843,17 +2858,18 @@ public class GeMoMa extends GeMoMaModule {
 						}
 					} else {
 						if( splice != null && splice[i][j][k-i] != null ) {
-							splice[i][j][k-i][m] = NO_SPLICE_VARIANT;
+							splice[i][j][k-i][m][0] = NO_SPLICE_VARIANT;
 						}
 					}
 				} else {
 					if( splice != null && splice[i][j][k-i] != null ) {
-						Arrays.fill( splice[i][j][k-i], m, splice[i][j][k-i].length, NO_SPLICE_VARIANT );
+						for( int x = m; x < splice[i][j][k-i].length; x++ ) {
+							splice[i][j][k-i][x][0] = NO_SPLICE_VARIANT;
+						}
 					}
 					break;
 				}
 			}
-			
 			return max;
 		}
 		
@@ -2864,11 +2880,13 @@ public class GeMoMa extends GeMoMaModule {
 		 * @param lines the {@link Hit}s
 		 * @param i the current part
 		 * @param j the index of the current {@link Hit} of part <code>i</code>
+		 * @param intron indicates whether the current {@link Hit} is reached through an intron (1) or not (0)
+		 * @param exp indicates whether the intron is experimentally verified (1) or not (0)
 		 * @param diff the allowed difference
 		 * @param current the current {@link Solution}
 		 * @param best the best {@link Solution}
 		 */
-		private void backTracking( boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int i, int j, double diff, Solution current, Solution best, boolean gap ) {
+		private void backTracking( int[][] sites, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int i, int j, int intron, int exp, double diff, Solution current, Solution best, boolean gap ) {
 			Hit o = lines.get(currentInfo.exonID[i]).get(j);
 			if( used != null ) {
 				if( used[i] == null ) {
@@ -2883,6 +2901,8 @@ public class GeMoMa extends GeMoMaModule {
 			}
 
 			if( current!= null ) {
+				current.I +=intron;
+				current.i +=exp;
 				current.hits.add(o);
 			}
 			//protocol.append("check hit " + i+", " + j + "\t" + diff );
@@ -2892,7 +2912,7 @@ public class GeMoMa extends GeMoMaModule {
 			//same & downstream exons
 			int min=Math.min(i+MAX_GAP,currentInfo.exonID.length), startIdx=j+1;
 			for( int k = i; k < min; k++ ) {
-				findNext( forward, lines, i, j, k, startIdx, diff, current, best, gap );
+				findNext( sites, forward, lines, i, j, k, startIdx, diff, current, best, gap );
 				startIdx=0;
 			}
 			
@@ -2920,25 +2940,39 @@ public class GeMoMa extends GeMoMaModule {
 		 * 
 		 * @see TranscriptPredictor#backTracking(boolean, HashMap, int, int, double, Solution, Solution)
 		 */
-		private void findNext( boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int i, int j, int k, int startIdx, double diff, Solution current, Solution best, boolean gap ) {
+		private void findNext( int[][] sites, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int i, int j, int k, int startIdx, double diff, Solution current, Solution best, boolean gap ) {
 			if( sums[k] != null ) {
 				int introns= Math.max(1,k-i);
 				for( int m = startIdx; m < sums[k].length; m++ ) {			
 					int d = (forward?1:-1) * (start[k][m]-(end[i][j]+1));
 					if( d < introns*maxAllowedIntron ) {
 						if( check(forward, i, j, k, m) ){
-							int adScore = 0;
+							int adScore=0;
 							if( splice != null ) {
-								adScore = splice[i][j][k-i][m];
+								adScore = splice[i][j][k-i][m][0];
 							} else if( check2( i, j, k, m) ) {
 								adScore=NO_SPLICE_VARIANT;
 							}
 							double newDiff = diff+adScore+sums[k][m];
 							if( adScore != NO_SPLICE_VARIANT && newDiff>= 0 ) {
+								int intron=0, exp=0;
+								if( splice != null ) {
+									if( splice[i][j][k-i][m][4] == NOT_COMPUTED ) {
+										if( sites != null ) {//we have introns for this chr
+											splice[i][j][k-i][m][4] = getSplitReads(sites, forward, splice[i][j][k-i][m][3], splice[i][j][k-i][m][3], splice[i][j][k-i][m][2] )>0 ? 1 : 0;
+										} else {
+											splice[i][j][k-i][m][4] = 0;
+										}
+									}
+									intron=splice[i][j][k-i][m][1];
+									exp=splice[i][j][k-i][m][4];
+								}
 								//recursive
-								backTracking( forward, lines, k, m, newDiff, current, best, gap );
+								backTracking( sites, forward, lines, k, m, intron, exp, newDiff, current, best, gap );
 								if( current!= null ) {
 									current.hits.removeLast();
+									current.I -= intron;
+									current.i -= exp;
 								}
 							}
 						}
@@ -2969,8 +3003,8 @@ public class GeMoMa extends GeMoMaModule {
 				show(lines);
 			}
 			//TASK 1: reduce blast hit set	
-			int max = forwardDP(forward, lines, false);
-			HashMap<Integer, ArrayList<Hit>> filtered = reduce(chromosome, forward, lines, avoidPrematureStop, false, max*hitThreshold);
+			int bestValue = forwardDP(forward, lines, false);
+			HashMap<Integer, ArrayList<Hit>> filtered = reduce(null, chromosome, forward, lines, avoidPrematureStop, false, bestValue*hitThreshold);
 			
 			if( verbose ) {
 				protocol.append( "filtered hits " + chromosome + " " + (forward?"+":"-")+"\n" );
@@ -2987,29 +3021,28 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			Collections.sort( all, HitComparator.comparator[forward ? 0 : 1] );
 			
+//XXX change? RNAseq?
 			Hit now;
-			int previous = -1, last=-1, prevPart = -1;
+			int last=-1, prevPart = -1;
 			boolean informative;
 			IntList endIdx = new IntList(), startIdx = new IntList();
+			startIdx.add(0);
 			for( int j=0; j<all.size(); j++ ) {
 				now = all.get(j);
 				informative = ((now.queryEnd-now.queryStart+1d) / Math.max(20d,now.queryLength)) >= 0.9;//XXX check this value
 				if( informative ) 
 				{
-					if( previous >= 0 && prevPart>=revParts[now.part] ) {
-						startIdx.add(last+1);
-						last=previous;
+					if( prevPart>=0 && prevPart>=revParts[now.part] ) {
 						endIdx.add(j);
+						startIdx.add(last+1);
 					}
-					previous = j;
+					last=j;
 					prevPart = revParts[now.part];
 				}
 				if( verbose ) protocol.append( j + "\t" + informative + "\t" + now + "\n" );
 			}
-			startIdx.add(last+1);
 			endIdx.add(all.size());
 			
-			boolean backup = false;
 			if( endIdx.length() > 1 ) {
 				int a = 0;
 				HashMap<Integer,ArrayList<Hit>> region = new HashMap<Integer, ArrayList<Hit>>();
@@ -3028,8 +3061,8 @@ public class GeMoMa extends GeMoMaModule {
 						list.add( now );
 						k++;
 					}
-					if( forwardDP(forward, region, false) >= max*regionThreshold ) {
-						result.add( detailedAnalyseRegion( chromosome, forward, region, backup ) );
+					if( forwardDP(forward, region, false) >= bestValue*regionThreshold ) {
+						result.add( detailedAnalyseRegion( chromosome, forward, region ) );
 						a++;
 					} else {
 						if( verbose ) protocol.append( "discard region\n" );
@@ -3040,7 +3073,7 @@ public class GeMoMa extends GeMoMaModule {
 				}
 			}
 			if( verbose ) protocol.append("check region: [" + startIdx.get(0) + ", " + endIdx.get(0) + ")\n");
-			result.add( detailedAnalyseRegion( chromosome, forward, filtered, backup ) );
+			result.add( detailedAnalyseRegion( chromosome, forward, filtered ) );
 		}
 		
 		private void show( HashMap<Integer, ArrayList<Hit>> lines ) throws IOException {
@@ -3054,7 +3087,7 @@ public class GeMoMa extends GeMoMaModule {
 			protocol.append("\n");
 		}
 		
-		private HashMap<Integer, ArrayList<Hit>> reduce( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, boolean avoidStop, boolean gap, double thresh ) throws IOException, WrongAlphabetException {
+		private HashMap<Integer, ArrayList<Hit>> reduce( int[][] sites, String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, boolean avoidStop, boolean gap, double thresh ) throws IOException, WrongAlphabetException {
 			used = new double[currentInfo.exonID.length][];
 			//mark unused blast hits
 			ArrayList<Hit> list;
@@ -3063,7 +3096,7 @@ public class GeMoMa extends GeMoMaModule {
 				for( int j = 0; sums[i] != null && j < sums[i].length; j++ ) {
 					int c = getCost(list.get(j), gap, true, i);
 					//System.out.println(i+"\t"+j + "\t" + (sums[i][j]+c - thresh));
-					backTracking( forward, lines, i, j, sums[i][j]+c - thresh, null, null, gap );
+					backTracking( sites, forward, lines, i, j, 0, 0, sums[i][j]+c - thresh, null, null, gap );
 				}
 			}			
 			
@@ -3091,11 +3124,11 @@ public class GeMoMa extends GeMoMaModule {
 				if( verbose ) protocol.append("#new hits: " + Arrays.toString(anz) + "\n");
 				
 				if( changed ) {
-					int[][][][] splice2 = new int[currentInfo.exonID.length][][][]; 
+					int[][][][][] splice2 = new int[currentInfo.exonID.length][][][][]; 
 					int[] su, st, e, qS, qE, qL;
 					for( int i = 0; i < used.length; i++ ) {
 						if( anz[i] > 0 ) {
-							splice2[i] = new int[anz[i]][currentInfo.exonID.length-i][];
+							splice2[i] = new int[anz[i]][currentInfo.exonID.length-i][][];
 							su = new int[anz[i]];
 							st = new int[anz[i]];
 							e = new int[anz[i]];
@@ -3113,12 +3146,12 @@ public class GeMoMa extends GeMoMaModule {
 									qE[idx]=qEnd[i][j];
 									qL[idx]=this.qL[i][j];
 									for( int k = i; k < used.length; k++ ) {
-										splice2[i][idx][k-i] = new int[anz[k]];
+										splice2[i][idx][k-i] = new int[anz[k]][5];
 										if( splice[i][j][k-i] != null && anz[k]>0 ) {
 											idx2=0;
 											for( int l = 0; l < used[k].length; l++ ) {
 												if( used[k][l] >= 0 ) {
-													splice2[i][idx][k-i][idx2++] = splice[i][j][k-i][l];
+													System.arraycopy(splice[i][j][k-i][l], 0, splice2[i][idx][k-i][idx2++], 0, splice[i][j][k-i][l].length);
 												}
 											}
 										}
@@ -3166,7 +3199,7 @@ public class GeMoMa extends GeMoMaModule {
 			return filtered;
 		}
 		
-		private Solution detailedAnalyseRegion( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> filtered, boolean backup ) throws CloneNotSupportedException, WrongAlphabetException, IOException {
+		private Solution detailedAnalyseRegion( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> filtered ) throws CloneNotSupportedException, WrongAlphabetException, IOException {
 			if( verbose ) show(filtered);
 			ArrayList<Hit> current;
 			
@@ -3272,14 +3305,12 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			
 			//check
-			boolean cut = false;
 			for( int i = 0; i < currentInfo.exonID.length; i++ ) {
 				current = filtered.get(currentInfo.exonID[i]);
 				if( current != null && current.size()-oldSize[i] > 20000 ) {
 					while( current.size() > oldSize[i] ) {
 						current.remove( current.size()-1 );
 					}
-					cut=true;
 				}
 			}
 			
@@ -3304,9 +3335,11 @@ public class GeMoMa extends GeMoMaModule {
 			sort(filtered, forward);
 					
 			//DP with splicing
-			splice = new int[currentInfo.exonID.length][][][];
+			splice = new int[currentInfo.exonID.length][][][][];
 			int bestValue = forwardDP(forward, filtered, true);
-			filtered = reduce(chromosome, forward, filtered, avoidPrematureStop, true, bestValue);
+			int[][][] sites = donorSites != null ? donorSites.get(chromosome): null;
+			int[][] specSites = sites==null? null : sites[forward?0:1];
+			filtered = reduce(specSites, chromosome, forward, filtered, avoidPrematureStop, true, bestValue);
 			if( verbose ) {			
 				for( int h = 0; h <currentInfo.exonID.length; h++ ) {
 					ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
@@ -3324,19 +3357,18 @@ public class GeMoMa extends GeMoMaModule {
 				protocol.append( bestValue + "\n" );
 				protocol.append( bestIdx[0] + ", " + bestIdx[1] +"\n" );
 			}
-			Solution best = new Solution( backup, cut );
-			best.clear(forward);
+			Solution best = new Solution();
+			best.clear(forward,Integer.MIN_VALUE);
 			for( int h = 0; h < bestIdx[0].length(); h++ ) {
 				int i = bestIdx[0].get(h);
 				int idx = bestIdx[1].get(h);
-				sol.clear(forward);
+				sol.clear(forward,bestValue);
 				
 				if( verbose ) protocol.append( i + ", " + idx + "\n" );
-				backTracking( forward, filtered, i, idx, 0, sol, best, true );
+				backTracking( specSites, forward, filtered, i, idx, 0, 0, 0, sol, best, true );
 				if( verbose ) protocol.append( best + "\n" );
 			}
 			splice = null;
-			best.setScore( bestValue );
 			return best;
 		}
 		
@@ -3378,21 +3410,30 @@ public class GeMoMa extends GeMoMaModule {
 				boolean site = false;
 				for( int i = 1; i <array.length; i++ ) {
 					if( array[i][0]-array[i-1][0] > d ) {
+						int endLast, startNext;					
 						if( forward ) {
-							align(chromosome, forward, array[startIndex][0]-f*(d-a), array[i-1][0]+f*a, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
+							endLast=array[startIndex][0]-f*(d-a); 
+							startNext=array[i-1][0]+f*a;
 						} else {
-							align(chromosome, forward, array[i-1][0]+f*(d-a), array[startIndex][0]-f*a, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
+							endLast=array[i-1][0]+f*(d-a);
+							startNext=array[startIndex][0]-f*a;
 						}
+						align(chromosome, forward, endLast, startNext, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
 						startIndex=i;
 						site = false;
 					}
 					site |= array[i][1] == 1;
 				}
+				int endLast, startNext;
 				if( forward ) {
-					align(chromosome, forward, array[startIndex][0]-f*(d-a), array[array.length-1][0]+f*a, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
+					endLast=array[startIndex][0]-f*(d-a); 
+					startNext=array[array.length-1][0]+f*a;
 				} else {
-					align(chromosome, forward, array[array.length-1][0]+f*(d-a), array[startIndex][0]-f*a, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
+					endLast=array[array.length-1][0]+f*(d-a);
+					startNext=array[startIndex][0]-f*a;
 				}
+				align(chromosome, forward, endLast,startNext, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
+
 				index=next;
 			} while( index+dir != end );
 		}
@@ -3622,12 +3663,11 @@ public class GeMoMa extends GeMoMaModule {
 		 * @param chr the chromosome
 		 * @param first the first {@link Hit}
 		 * @param second the second {@link Hit}
-		 * 
-		 * @return the score for the best splice variant between both {@link Hit}s
+		 * @param res an int array of length 3: score the best splice variant between both {@link Hit}s, intron, exp. verified intron
 		 */
-		private int checkSpliceSites( String chr, Hit first, Hit second, int delta)
+		private void checkSpliceSites( String chr, Hit first, Hit second, int delta, int[] res )
 				throws WrongAlphabetException {
-			int d = revParts[second.part] - revParts[first.part], score;
+			int d = revParts[second.part] - revParts[first.part];
 
 			if( d <= 1 ) {
 				boolean b = d!=0;
@@ -3645,25 +3685,24 @@ public class GeMoMa extends GeMoMaModule {
 				}/**/
 				
 				//find splice variant that has same exon phase as the reference
-				score = checkSpecificSpliceSiteTypes(chr, first, second, delta);
-				if( score == NO_SPLICE_VARIANT ) { /// if not found, search any splice variant
+				checkSpecificSpliceSiteTypes(chr, first, second, delta, res);
+				if( res[0] == NO_SPLICE_VARIANT ) { /// if not found, search any splice variant
 					for( int i = 0; i < spliceType.length; i++ ) {
 						spliceType[i] = !spliceType[i];
 					}
-					score = checkSpecificSpliceSiteTypes(chr, first, second, delta);
+					checkSpecificSpliceSiteTypes(chr, first, second, delta, res);
 				}
 			} else {
 				Arrays.fill(spliceType, true);
-				score = checkSpecificSpliceSiteTypes(chr, first, second, delta);
+				checkSpecificSpliceSiteTypes(chr, first, second, delta, res);
 			}
-			return score;
 		}
 		
 		
-		private int checkSpecificSpliceSiteTypes( String chr, Hit first, Hit second, int delta ) throws WrongAlphabetException {	
+		private void checkSpecificSpliceSiteTypes( String chr, Hit first, Hit second, int delta, int[] res ) throws WrongAlphabetException {	
 			refined[0] = refined[1]= 0;
 			boolean f = first.forward;
-			int best=NO_SPLICE_VARIANT, current;
+			int best=NO_SPLICE_VARIANT, intron=0, current;
 			
 			Sequence targetSeq, cdsSeq = null;
 			String region = null;
@@ -3806,10 +3845,11 @@ public class GeMoMa extends GeMoMaModule {
 													((current > best)  || (current == best && len < length)) //best solution so far
 											) {
 												best = current;
-												length = len;											
+												length = len;
 	
-												refined[0]=first.donCand[p][remainingFirst].get(k);
-												refined[1]=second.accCand[remainingSecond].get(j);
+												refined[0]=b;
+												refined[1]=a;
+												intron=1;
 												set=true;
 											}
 										}										
@@ -3821,7 +3861,36 @@ public class GeMoMa extends GeMoMaModule {
 					p++;
 				}while( p < first.donCand.length && !set );
 			}			
-			return best;
+			res[0] = best;
+			res[1] = intron;
+			if( intron==1 ) { //&& rnaSeq
+				res[2] = first.forward ? (first.targetEnd+refined[0]+1) : (first.targetStart-refined[0]);
+				res[3] = second.forward ? (second.targetStart-refined[1]) : (second.targetEnd+refined[1]);
+				res[4] = NOT_COMPUTED;
+			}
+		}
+		
+		int getSplitReads( int[][] donSites, boolean forward, int start, int end, int last ) {
+			int result = 0;
+			if( donSites != null ) {
+				int v = forward ? start : (end+1);
+				//TODO faster
+				int idx = Arrays.binarySearch( donSites[0], last );
+				if( idx > 0 ) {
+					while( idx>0 &&  donSites[0][idx-1] == last ) {
+						idx--;
+					}
+				}
+				if( idx >= 0 ) {
+					while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
+						idx++;
+					}
+					if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
+						result = donSites[2][idx];
+					}
+				}
+			}
+			return result;
 		}
 		
 		IntList[] bestIdx = new IntList[]{new IntList(), new IntList()}; 
@@ -3860,23 +3929,13 @@ public class GeMoMa extends GeMoMaModule {
 		 */
 		class Solution implements Comparable<Solution>, Cloneable {
 			LinkedList<Hit> hits;
-			boolean forward, backup, cut;
+			boolean forward;
 			int score, minSplitReads, a, A, d, D, i, I;
 			int Len, Cov, minC, Sum;
 			
 			public Solution() {
-				this( false, false );
-			}
-			
-			public Solution( boolean b, boolean c ) {
 				hits = new LinkedList<Hit>();
 				score = Integer.MIN_VALUE;
-				backup = b;
-				cut = c;
-			}
-
-			public void setScore( int score ) {
-				this.score = score;
 			}
 
 			public int getNumberOfAA() {
@@ -3911,10 +3970,11 @@ public class GeMoMa extends GeMoMaModule {
 				return clone;
 			}
 			
-			public void clear(boolean f) {
+			public void clear(boolean f, int score) {
 				hits.clear();
 				forward = f;
 				a=d=A=D=i=I=0;
+				this.score=score;
 			}
 			
 			public int matchParts() {
@@ -3935,7 +3995,7 @@ public class GeMoMa extends GeMoMaModule {
 				int min = Integer.MAX_VALUE;
 				for( int i = 0; i < hits.size(); i++ ) {
 					Hit o = hits.get(i);
-					int v = forward ? o.targetStart : o.targetEnd;
+					int v = o.targetStart;
 					if( v < min ) {
 						min=v;
 					}
@@ -3947,7 +4007,7 @@ public class GeMoMa extends GeMoMaModule {
 				int max = Integer.MIN_VALUE;
 				for( int i = 0; i < hits.size(); i++ ) {
 					Hit o = hits.get(i);
-					int v = forward ? o.targetStart : o.targetEnd;
+					int v = o.targetEnd;
 					if( v > max ) {
 						max=v;
 					}
@@ -3960,15 +4020,21 @@ public class GeMoMa extends GeMoMaModule {
 			}
 		
 			public void set( Solution s ) {
-				clear( s.forward );
+				clear( s.forward, s.score );
 				hits.addAll( s.hits );
+				I = s.I;
+				i = s.i;
 			}
 			
 			public int compareTo(Solution o) {//TODO check: do something better
 				int d = similar( o );
 				if( d == 0 ) {
-					//XXX use RNAseq data!?
-					d = getDifference() - o.getDifference();
+					if( I>0 && o.I>0 ) {//use RNAseq data: tie
+						d = -Double.compare( i/(double) I, o.i/(double) o.I);
+					}
+					if( d==0 ) {
+						d = getDifference() - o.getDifference();
+					}
 				}
 				return d;
 			}
@@ -4031,14 +4097,16 @@ public class GeMoMa extends GeMoMaModule {
 				}
 				//refine = add start codon, splice sites, and stop codon to the annotation
 				Solution res = new Solution();
-				res.clear(forward);
-				res.setScore(score);
-
+				res.clear(forward, score);
+//XXX
+res.i=i;
+res.I=I;
 				Hit l = hits.get(0), c;
 				res.hits.add(l.clone());
 				
 				String chr = seqs.get(l.targetID);
-				//splicing				
+				//splicing
+				int[] help = new int[5];
 				for( int i = 1; i < hits.size(); i++ ) {//iterate over found parts
 					c = hits.get(i);
 					res.hits.add(c.clone());
@@ -4046,7 +4114,8 @@ public class GeMoMa extends GeMoMaModule {
 					for( int j = revParts[l.part]+1; j < revParts[c.part]; j++ ) {
 						delta += length[j];
 					}
-					if( checkSpliceSites(chr, l, c, delta/*, true*/ )!= NO_SPLICE_VARIANT ) {
+					checkSpliceSites(chr, l, c, delta, help );
+					if( help[0]!= NO_SPLICE_VARIANT ) {
 						res.hits.get(i-1).setSpliceSite(true, refined[0]);
 						res.hits.get(i).setSpliceSite(false, refined[1]);
 					}
@@ -4126,6 +4195,7 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {
+//String help = i+"/"+I+"="+(i/(double) I);//XXX
 				a=d=A=D=i=I=0;
 				minSplitReads = Integer.MAX_VALUE;
 				
@@ -4291,6 +4361,13 @@ public class GeMoMa extends GeMoMaModule {
 				);
 				combineIntronStat(first, ae, donSites, forward, start, end, last);
 				parts++;
+/* XXX
+String help2=i+"/"+I+"="+(i/(double)I);
+if( !help.equals(help2) ) {
+	System.out.println(help + "\t" + help2);
+	System.out.println(hits.get(0).queryID);
+	System.exit(1);
+}*/
 								
 				return parts;
 			}
@@ -4300,29 +4377,11 @@ public class GeMoMa extends GeMoMaModule {
 					A++;
 					a += ae ? 1 : 0;
 					I++;
-					if( donSites != null ) {
-							int v = forward ? start : (end+1);
-							//TODO faster
-							int idx = Arrays.binarySearch( donSites[0], last );
-							if( idx > 0 ) {
-								while( idx>0 &&  donSites[0][idx-1] == last ) {
-									idx--;
-								}
-							}
-							if( idx >= 0 ) {
-								while( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] != v ) {
-									idx++;
-								}
-							if( idx < donSites[0].length && donSites[0][idx] == last && donSites[1][idx] == v ) {
-								minSplitReads = Math.min(minSplitReads, donSites[2][idx]);
-								i++;
-							}  else {
-								minSplitReads = 0;
-							}
-						} else {
-							minSplitReads = 0;
-						}
-					} else {
+					int splitReads=getSplitReads( donSites, forward, start, end, last );
+					if( splitReads>0 ) {
+						i++;
+						minSplitReads = Math.min(minSplitReads, splitReads);
+					} else{
 						minSplitReads = 0;
 					}
 				}
