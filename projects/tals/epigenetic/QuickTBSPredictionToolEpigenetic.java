@@ -105,16 +105,16 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 			//chromosome04    892     892     14.2857142857143        1       6
 			//chromosome04    893     893     28.5714285714286        2       5
 
-			FileParameter bismark = new FileParameter("Bismark bedGraph output","The bedGraph output of bismark (file.cov.gz) containig <chromosome> <start position> <end position> <methylation percentage> <count methylated> <count unmethylated>","cov.gz",false);
+			FileParameter bismark = new FileParameter("Bismark output","The bedGraph output of bismark (file.cov.gz) containig <chromosome> <start position> <end position> <methylation percentage> <count methylated> <count unmethylated>","cov,cov.gz",false);
 			
 			//narrowPeakFile
-			FileParameter narrowPeak = new FileParameter("NarrowPeak File","The output of a peak caller (all.peaks.narrowPeak)","narrowPeak",false);
+			FileParameter narrowPeak = new FileParameter("NarrowPeak File","The output of a peak caller (all.peaks.narrowPeak)","narrowPeak,narrowPeak.gz",false);
 			
 			//normalized CoverageFile/Pileup-Output
-			FileParameter coveragePileup =new FileParameter("normalized pileup output","The normalized output of pileup with values larger than zero (file.txt) containig <chromosome> <position> <coverage>","txt",false);
+			FileParameter coveragePileup =new FileParameter("normalized pileup output","The normalized output of pileup with values larger than zero (file.txt) containig <chromosome> <position> <coverage>","tsv,tsv.gz",false);
 			
-			SimpleParameter cov_before = new SimpleParameter(DataType.INT,"Coverage before value", "Number of positions before binding site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
-			SimpleParameter cov_after = new SimpleParameter(DataType.INT,"Coverage after value", "Number of positions after binding site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),50);
+			SimpleParameter cov_before = new SimpleParameter(DataType.INT,"Coverage before value", "Number of positions before target site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
+			SimpleParameter cov_after = new SimpleParameter(DataType.INT,"Coverage after value", "Number of positions after target site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),200);
 			
 			SelectionParameter calculateCoverageArea = new SelectionParameter(DataType.PARAMETERSET, new String[]{"surround target site","on complete sequence"}, new ParameterSet[]{
 					new SimpleParameterSet( cov_before,cov_after),
@@ -122,8 +122,8 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 			}, "calculate coverage area", "Calculate coverage area surround target site, or on complete sequence", false);
 			
 
-			SimpleParameter peak_before = new SimpleParameter(DataType.INT,"Peak before value", "Number of positions before binding site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
-			SimpleParameter peak_after = new SimpleParameter(DataType.INT,"Peak after value", "Number of positions after binding site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),50);
+			SimpleParameter peak_before = new SimpleParameter(DataType.INT,"Peak before value", "Number of positions before target site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
+			SimpleParameter peak_after = new SimpleParameter(DataType.INT,"Peak after value", "Number of positions after target site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),50);
 			 
 			return new ToolParameterSet(getShortName(),genome,bg,tsel,tals,strand,bismark,narrowPeak,coveragePileup,calculateCoverageArea,peak_before,peak_after);
 
@@ -134,7 +134,6 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
 			throws Exception {
-
 		progress.setLast(1.0);
 		progress.setCurrent(0.0);
 
@@ -367,17 +366,17 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 
 	@Override
 	public String getToolName() {
-		return "PrediTALE";
+		return "EpiTALE prediction";
 	}
 
 	@Override
 	public String getToolVersion() {
-		return "0.2";
+		return "0.1";
 	}
 
 	@Override
 	public String getShortName() {
-		return "preditale";
+		return "epitale";
 	}
 
 	@Override
@@ -388,7 +387,7 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 	@Override
 	public String getHelpText() {
 		try {
-			return FileManager.readInputStream( QuickTBSPredictionToolEpigenetic.class.getClassLoader().getResourceAsStream( "projects/tals/prediction/PrediTALE.txt" ) ).toString();
+			return FileManager.readInputStream( QuickTBSPredictionToolEpigenetic.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/EpiTALE.txt" ) ).toString();
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			return "";
@@ -418,7 +417,6 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 		CategoricalResult rvdsRes = new CategoricalResult("RVDs", "", rvds.toString("-", 0, rvds.getLength()));
 		
 		int[] idxs = new int[offs.length];
-
 		Pair<IntList,ArrayList<Sequence>> pair = null;
 
 		double prog = 0.3;
@@ -444,13 +442,15 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 				String id = seq.getSequenceAnnotationByType("id", 0).getIdentifier().trim();
 				if(!(id.equals(id_old))){
 					MP=methylationProfiles.getMethylationprofil(id);
+					
 					id_old=id;
 				}
 				
-				seq=seq.annotate(true, new MethylationSequenceAnnotation( "methyl", MP ) );
+				
 				
 				int off = starts.get(itIdx); 
-
+				MP.setSeqLength(off+sl);
+				seq=seq.annotate(true, new MethylationSequenceAnnotation( "methyl", MP ) );
 				itIdx++;
 
 				double sPen = 0.0;
@@ -481,11 +481,13 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 							
 							if(d == 1){
 								MP.setStrand(false);
+								MP.setStartPos(off+sl-j);	
 							}else{
 								MP.setStrand(true);
+								MP.setStartPos(off+j);	
 							}
-
-							MP.setStartPos(off+j);	
+							
+						
 
 							double score = model.getLogScoreFor(seq, j) + sPen;
 
@@ -501,6 +503,7 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 								rl.add(rvdsRes);
 								rl.add(talRes);
 								if(useMethylationData){
+									//rl.add(new CategoricalResult("MethylationProp", "", ((PFMWrapperTrainSMMethyl) model).getMethylProb(seq,j,j+rvds.getLength())));
 									rl.add(new CategoricalResult("MethylationProp", "", ((PFMWrapperTrainSMMethyl) model).getMethylProb(seq,j,j+rvds.getLength())));
 								}
 								if(narrowPeakProfiles!=null){

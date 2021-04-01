@@ -1,0 +1,7 @@
+**PileupConvertToPromoter** Converts the pileup output file to promoter search.
+
+The input of *PileupConvertToPromoter* is a normalized pileup output file from *NormalizePileupOutput* tool and the promoter sequences in FastA format with headers like "> *id* *chromosomeName*:*start*-*end*:*strand*", e.g. "> Os01g01010.1 Chr1:2602-3102:+"
+
+If you experience problems using *PileupConvertToPromoter*, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de

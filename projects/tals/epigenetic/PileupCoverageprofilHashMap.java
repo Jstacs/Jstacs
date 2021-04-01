@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
 
 public class PileupCoverageprofilHashMap {
 
@@ -17,9 +18,14 @@ public class PileupCoverageprofilHashMap {
 	}
 	
 	public PileupCoverageprofilHashMap(HashMap<String, Integer> chromLengthHash,String PathtoFile, int before,int after,boolean calculateAlwaysOnCompleteSeq) throws Exception {
+		BufferedReader BR;
 		
+		if(PathtoFile.endsWith("gz")){
+			BR=new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(PathtoFile)))));
+		}else{
+			BR=new BufferedReader(new InputStreamReader(new FileInputStream(new File(PathtoFile))));
+		}
 		
-		BufferedReader BR=new BufferedReader(new InputStreamReader(new FileInputStream(new File(PathtoFile))));
 		String line="";
 		HashMap <String,float[]>covValueHash=new HashMap<>();
 		float[] covValue;

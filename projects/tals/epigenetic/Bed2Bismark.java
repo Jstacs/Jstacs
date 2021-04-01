@@ -4,12 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -76,7 +78,7 @@ public class Bed2Bismark implements JstacsTool {
 
 	@Override
 	public String getToolName() {
-		return "BedMethylConverter";
+		return "Bed2Bismark";
 	}
 
 	@Override
@@ -86,19 +88,23 @@ public class Bed2Bismark implements JstacsTool {
 
 	@Override
 	public String getShortName() {
-		return "bedmethylconverter";
+		return "bed2bismark";
 	}
 
 	@Override
 	public String getDescription() {
-		return "converts bedMethyl files to bismark";
+		return "Converts bedMethyl files to bismark format";
 	}
 
 
 	@Override
 	public String getHelpText() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return FileManager.readInputStream( Bed2Bismark.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/Bed2Bismark.txt" ) ).toString();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	@Override

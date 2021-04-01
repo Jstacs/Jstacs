@@ -16,7 +16,7 @@ public class Methylationprofil {
 
 	private int startPos;
 	private String chrom;
-	int chromLength;
+	int seqLength;
 	private float[] MethylationProb;
 	private boolean origStrand;
 	private float pseudoCounts;
@@ -25,7 +25,7 @@ public class Methylationprofil {
 	public Methylationprofil(int startPos, String chrom,int chromLength,float[] MethylationProb, boolean strand, float pseudoCounts, float probCMethylated){
 		this.startPos = startPos;
 		this.chrom=chrom;
-		this.chromLength=chromLength;
+		this.seqLength=chromLength;
 		this.MethylationProb=MethylationProb;
 		this.origStrand=strand;
 		this.pseudoCounts=pseudoCounts;
@@ -46,11 +46,9 @@ public class Methylationprofil {
 	} 
 	
 	public void setStartPos ( int i ) {
-		if(this.origStrand){
+		
 			this.startPos = i;
-		}else{
-			this.startPos = this.chromLength-i;
-		}
+		
 		
 	}
 	
@@ -69,5 +67,7 @@ public class Methylationprofil {
 	public double getPseudoProb(){
 		return this.pseudoCounts*this.probCMethylated;
 	}
-	
+	public void setSeqLength(int seqLength){
+		this.seqLength=seqLength;
+	}
 }

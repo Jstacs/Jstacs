@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Date;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -24,23 +26,23 @@ import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 
-public class PileupConvertToPromotorSearch implements JstacsTool{
+public class PileupConvertToPromoterSearch implements JstacsTool{
 	
 	public static void main(String[] args) throws Exception {
-		CLI cli = new CLI(new PileupConvertToPromotorSearch());
+		CLI cli = new CLI(new PileupConvertToPromoterSearch());
 		
 		cli.run(args);
 	}
 	
-	public PileupConvertToPromotorSearch() {
+	public PileupConvertToPromoterSearch() {
 
 	}
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter pileupFile = new FileParameter("pileup-output-File","Pileup output file.","tsv.gz,tsv",true);
-		FileParameter promotorFasta = new FileParameter("promotor fasta file","Promotor fastA file","fa,fasta",true);
-		return new ToolParameterSet(this.getShortName(),pileupFile,promotorFasta);
+		FileParameter pileupFile = new FileParameter("normalized pileup output file","Normalized pileup output file.","tsv.gz,tsv",true);
+		FileParameter promoterFasta = new FileParameter("promoter fasta file","Promoter fastA file","fa,fasta",true);
+		return new ToolParameterSet(this.getShortName(),pileupFile,promoterFasta);
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class PileupConvertToPromotorSearch implements JstacsTool{
 				String promotorFasta = parameters.getParameterAt(1).getValue().toString();
 				BufferedReader FA=new BufferedReader(new FileReader(promotorFasta));
 				
-				File out = File.createTempFile("promotor.pileup", ".temp.tsv.gz", new File("."));
+				File out = File.createTempFile("promoter.pileup", ".temp.tsv.gz", new File("."));
 				out.deleteOnExit();
 				
 				GZIPOutputStream os = new GZIPOutputStream(new FileOutputStream(out));
@@ -105,16 +107,16 @@ public class PileupConvertToPromotorSearch implements JstacsTool{
 				String[] splitBAM;
 
 				int startBAM=-1;
-				boolean strand;
+//				boolean strand;
 				while ((line = FA.readLine()) != null){
 					if(line.startsWith(">")){
 						splitHeader=line.split(" ");
 						splitArea=splitHeader[2].split(":");
-						if(splitArea[2].equals("+")){
-							strand=true;
-						}else{
-							strand=false;
-						}
+//						if(splitArea[2].equals("+")){
+//							strand=true;
+//						}else{
+//							strand=false;
+//						}
 						splitPos=splitArea[1].split("-");
 						gene=line.substring(1).trim();
 						int idx = gene.indexOf(" ");
@@ -146,14 +148,14 @@ public class PileupConvertToPromotorSearch implements JstacsTool{
 				}
 				FA.close();
 				os.close();	
-				
-				TextResult tr = new TextResult("Pileup promotor file", "Pileup promotor file", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tsv.gz", getToolName(), null, true);
+								
+				TextResult tr = new TextResult("Pileup promoter file", "Pileup promoter file", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tsv.gz", getToolName(), null, true);
 				return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 	}
 
 	@Override
 	public String getToolName() {
-		return "PileupConvertToPromotor";
+		return "PileupConvertToPromoter";
 	}
 
 	@Override
@@ -163,18 +165,22 @@ public class PileupConvertToPromotorSearch implements JstacsTool{
 
 	@Override
 	public String getShortName() {
-		return "PileupConvertToPromotor";
+		return "pile2prom";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Creates Pileup file in promotor region";
+		return "Creates Pileup file in promoter region";
 	}
 
 	@Override
 	public String getHelpText() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return FileManager.readInputStream( PileupConvertToPromoterSearch.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/PileupConvertToPromoterSearch.txt" ) ).toString();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	@Override

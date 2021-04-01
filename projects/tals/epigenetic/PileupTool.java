@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.util.Date;
 import java.util.zip.GZIPOutputStream;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -83,8 +84,12 @@ public class PileupTool implements JstacsTool {
 
 	@Override
 	public String getHelpText() {
-		return "This tool takes as input a BAM file of mapped reads from an DNase-seq or ATAC-seq experiment, computes a coverage pileup of 5' ends of mapped reads,"
-				+ " and ouputs a simple tab-separated file with columns chromosome, position, and pileup value (number of reads with a 5' end at this position).";
+		try {
+			return FileManager.readInputStream( PileupTool.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/PileupTool.txt" ) ).toString();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	@Override

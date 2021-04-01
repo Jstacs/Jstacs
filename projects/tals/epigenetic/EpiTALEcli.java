@@ -9,12 +9,13 @@ public class EpiTALEcli {
 		
 		JstacsTool[] tools = new JstacsTool[] {
 			new Bed2Bismark(),
-			new BismarkConvertToPromotorSearch(),
 			new BismarkMerge2Files(),
-			new PileupConvertToPromotorSearch(),
+			new BismarkConvertToPromoterSearch(),
+			new PileupTool(),
 			new NormalizePileupOutput(),
-			new NarrowPeakConvertToPromotorSearch(),
-			new QuickTBSPredictionToolEpigenetic()	
+			new PileupConvertToPromoterSearch(),
+			new NarrowPeakConvertToPromoterSearch(),
+			new QuickTBSPredictionToolEpigenetic()
 		};
 		
 		CLI cli = new CLI(tools);
