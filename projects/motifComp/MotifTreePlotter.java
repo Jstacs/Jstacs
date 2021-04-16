@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 import de.jstacs.clustering.distances.DeBruijnMotifComparison;
 import de.jstacs.clustering.hierachical.ClusterTree;
@@ -93,6 +94,25 @@ public class MotifTreePlotter {
 		public double[][] getRepresentative(){
 			return pair.getFirstElement();
 		}
+		
+		
+		public HashMap<String,int[]> getOffsets(){
+			HashMap<String, int[]> res = new HashMap<String, int[]>();
+			StatisticalModel[] members = tree.getClusterElements();
+			int[][] offs = pair.getSecondElement();
+			int maxLen = 0;
+			for(int i=0;i<offs.length;i++) {
+				int len = offs[i][0] + members[i].getLength();
+				if(len > maxLen) {
+					maxLen = len;
+				}
+			}
+			for(int i=0;i<offs.length;i++) {
+				res.put( ((PFMWrapperTrainSM)members[i]).getName(), new int[] {offs[i][0],maxLen-(((PFMWrapperTrainSM)members[i]).getLength()+offs[i][0]),offs[i][1]});
+			}
+			return res;
+		}
+
 		
 		@Override
 		public void generatePlot(GraphicsAdaptor ga) throws Exception {
@@ -223,7 +243,7 @@ public class MotifTreePlotter {
 						
 						if((x+textCenter < lastEnd && x-textCenter > firstStart) || 
 								i >= max - tick/2.0){
-							graphics.drawString( label, x-textCenter, treeDim+lineHeight+lineHeight/4 + textHeight*2 );
+							graphics.drawString( label, x-textCenter, treeDim+lineHeight+lineHeight/3 + textHeight*2 );
 							lastEnd = x-(int)(textCenter*1.25);
 						}
 					}
