@@ -25,9 +25,12 @@ You can alternatively use the tool **Bed2Bismark**, which converts data in BedMe
 (i) In case of **genomic search** the parameter *calculate coverage area* should be ``surround target site`` and you can set the number of positions before target site with ``coverage before value`` (default: 300) and the positions after target site ``coverage after value`` (default: 200). 
 (ii) In case of **promoter search** the parameter *calculate coverage area* may set to ``on complete sequence`` or ``surround target site``. The number of positions before and after binding site in peak profile can be set by ``Peak before value`` (default: 300) and ``Peak after value`` (default: 50).
 
+In case of **genomic search** you can filter predictions of TALE target boxes by the presence of differentially expressed regions in a defined vicinity around a predicted target box. with the tool **DerTALE** of AnnoTALE suite_.
+
 If you experience problems using **EpiTALE**, please contact_ us.
 
 .. _contact: mailto:grau@informatik.uni-halle.de
 .. _JAMM: https://github.com/mahmoudibrahim/JAMM
 .. _AnnoTALE: http://www.jstacs.de/index.php/AnnoTALE
+.. _AnnoTALE suite: http://www.jstacs.de/index.php/AnnoTALE
 .. _Bismark methylation extractor: https://www.bioinformatics.babraham.ac.uk/projects/bismark/
