@@ -40,8 +40,8 @@ public class BismarkMerge2Files implements JstacsTool{
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter bismarkFile1 = new FileParameter("bismarkFile1","Methylationinformation in bismark format file 1","cov.gz,cov",true);
-		FileParameter bismarkFile2 = new FileParameter("bismarkFile2","Methylationinformation in bismark format file 2","cov.gz,cov",true);
+		FileParameter bismarkFile1 = new FileParameter("Bismark file 1","Methylationinformation in bismark format file 1","cov.gz,cov",true);
+		FileParameter bismarkFile2 = new FileParameter("Bismark file 2","Methylationinformation in bismark format file 2","cov.gz,cov",true);
 		return new ToolParameterSet(this.getShortName(),bismarkFile1,bismarkFile2);
 	}
 

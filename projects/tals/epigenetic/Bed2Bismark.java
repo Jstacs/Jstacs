@@ -37,7 +37,7 @@ public class Bed2Bismark implements JstacsTool {
 	
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter bedMethylFile = new FileParameter("bedMethyl-file","Methylationinformation in bedMethyl format","bed.gz,bed",true);
+		FileParameter bedMethylFile = new FileParameter("BedMethyl file","Methylationinformation in bedMethyl format","bed.gz,bed",true);
 		return new ToolParameterSet(this.getShortName(),bedMethylFile);
 	}
 

@@ -40,8 +40,8 @@ public class NarrowPeakConvertToPromoterSearch implements JstacsTool{
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter narrowPeakFile = new FileParameter("narrowPeak file","Peak-calling output in narrowPeak format.","narrowPeak,narrowPeak.gz",true);
-		FileParameter promotorFasta = new FileParameter("promoter fasta file","Promoter fastA file","fa,fasta",true);
+		FileParameter narrowPeakFile = new FileParameter("NarrowPeak file","Peak-calling output in narrowPeak format.","narrowPeak,narrowPeak.gz",true);
+		FileParameter promotorFasta = new FileParameter("Promoter fasta file","Promoter fastA file","fa,fasta",true);
 		return new ToolParameterSet(this.getShortName(),narrowPeakFile,promotorFasta);
 	}
 
