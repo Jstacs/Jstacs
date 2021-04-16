@@ -41,7 +41,7 @@ public class NormalizePileupOutput implements JstacsTool{
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter pileupFile = new FileParameter("pileup-output-File","Pileup output file.","tsv.gz,tsv,txt",true);
+		FileParameter pileupFile = new FileParameter("Pileup output file","Pileup output file.","tsv.gz,tsv,txt",true);
 		return new ToolParameterSet(this.getShortName(),pileupFile);
 	}
 

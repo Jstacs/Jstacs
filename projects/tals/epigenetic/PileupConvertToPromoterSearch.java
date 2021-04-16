@@ -40,8 +40,8 @@ public class PileupConvertToPromoterSearch implements JstacsTool{
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter pileupFile = new FileParameter("normalized pileup output file","Normalized pileup output file.","tsv.gz,tsv",true);
-		FileParameter promoterFasta = new FileParameter("promoter fasta file","Promoter fastA file","fa,fasta",true);
+		FileParameter pileupFile = new FileParameter("Normalized pileup output file","Normalized pileup output file.","tsv.gz,tsv",true);
+		FileParameter promoterFasta = new FileParameter("Promoter fasta file","Promoter fastA file","fa,fasta",true);
 		return new ToolParameterSet(this.getShortName(),pileupFile,promoterFasta);
 	}
 

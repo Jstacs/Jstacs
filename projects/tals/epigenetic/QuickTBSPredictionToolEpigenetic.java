@@ -105,13 +105,13 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 			//chromosome04    892     892     14.2857142857143        1       6
 			//chromosome04    893     893     28.5714285714286        2       5
 
-			FileParameter bismark = new FileParameter("Bismark output","The bedGraph output of bismark (file.cov.gz) containig <chromosome> <start position> <end position> <methylation percentage> <count methylated> <count unmethylated>","cov,cov.gz",false);
+			FileParameter bismark = new FileParameter("Bismark file","The bedGraph output of bismark (file.cov.gz) containig <chromosome> <start position> <end position> <methylation percentage> <count methylated> <count unmethylated>","cov,cov.gz",false);
 			
 			//narrowPeakFile
-			FileParameter narrowPeak = new FileParameter("NarrowPeak File","The output of a peak caller (all.peaks.narrowPeak)","narrowPeak,narrowPeak.gz",false);
+			FileParameter narrowPeak = new FileParameter("NarrowPeak file","The output of a peak caller (all.peaks.narrowPeak)","narrowPeak,narrowPeak.gz",false);
 			
 			//normalized CoverageFile/Pileup-Output
-			FileParameter coveragePileup =new FileParameter("normalized pileup output","The normalized output of pileup with values larger than zero (file.txt) containig <chromosome> <position> <coverage>","tsv,tsv.gz",false);
+			FileParameter coveragePileup =new FileParameter("Normalized pileup output","The normalized output of pileup with values larger than zero (file.txt) containig <chromosome> <position> <coverage>","tsv,tsv.gz",false);
 			
 			SimpleParameter cov_before = new SimpleParameter(DataType.INT,"Coverage before value", "Number of positions before target site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
 			SimpleParameter cov_after = new SimpleParameter(DataType.INT,"Coverage after value", "Number of positions after target site in coverage profile", false, new NumberValidator<Comparable<Integer>>(1, 500),200);
@@ -119,7 +119,7 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 			SelectionParameter calculateCoverageArea = new SelectionParameter(DataType.PARAMETERSET, new String[]{"surround target site","on complete sequence"}, new ParameterSet[]{
 					new SimpleParameterSet( cov_before,cov_after),
 					new SimpleParameterSet()
-			}, "calculate coverage area", "Calculate coverage area surround target site, or on complete sequence", false);
+			}, "Calculate coverage area", "Calculate coverage area surround target site, or on complete sequence", false);
 			
 
 			SimpleParameter peak_before = new SimpleParameter(DataType.INT,"Peak before value", "Number of positions before target site in peak profile", false, new NumberValidator<Comparable<Integer>>(1, 500),300);
@@ -505,6 +505,8 @@ public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 								if(useMethylationData){
 									//rl.add(new CategoricalResult("MethylationProp", "", ((PFMWrapperTrainSMMethyl) model).getMethylProb(seq,j,j+rvds.getLength())));
 									rl.add(new CategoricalResult("MethylationProp", "", ((PFMWrapperTrainSMMethyl) model).getMethylProb(seq,j,j+rvds.getLength())));
+								}else{
+									//rl.add(new CategoricalResult("MethylationProp", "", "NA"));
 								}
 								if(narrowPeakProfiles!=null){
 									rl.add(new CategoricalResult("isPeakSurroundBox","",narrowPeakProfiles.getNarrowpeakprofil(id).isPeakSurroundPos((d==0 ? off+j : off+sl-j-ml), (d==0 ? true : false))));

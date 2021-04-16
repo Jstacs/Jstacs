@@ -41,8 +41,8 @@ public class BismarkConvertToPromoterSearch implements JstacsTool{
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter bismarkFile = new FileParameter("bismark-File","Methylationinformation in bismark format","cov.gz,cov",true);
-		FileParameter promotorFasta = new FileParameter("promoter fasta file","Promoter fastA file","fa,fasta",true);
+		FileParameter bismarkFile = new FileParameter("Bismark file","Methylationinformation in bismark format","cov.gz,cov",true);
+		FileParameter promotorFasta = new FileParameter("Promoter fasta file","Promoter fastA file","fa,fasta",true);
 		return new ToolParameterSet(this.getShortName(),bismarkFile,promotorFasta);
 	}
 

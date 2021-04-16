@@ -1,35 +1,38 @@
 <project name="publish-jstacs" basedir=".">
-	
-	<!--
-		You should set the build dir, i.e. the directory where the resulting zips and tars are created
-		using the ant command line argument -Dbuilddir="/my/funny/dir/"
-		<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
-	-->
-	
+
+	<!-- You should set the build dir, i.e. the directory where the resulting 
+		zips and tars are created using the ant command line argument -Dbuilddir="/my/funny/dir/" 
+		<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" 
+		/> -->
+
 	<property name="version" value="2.3" />
 	<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
-	<property name="cp" value="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode-1.9.0.jar:lib/core-1.9.0.jar:lib/xml-commons/pdf-transcoder.jar:lib/xml-commons/xmlgraphics-commons-1.5.jar:lib/Jama-1.0.3.jar:lib/xml-commons/batik-transcoder.jar:lib/colt.jar:lib/ssj.jar:lib/xml-commons/batik-dom.jar:lib/xml-commons/batik-svggen.jar:lib/xml-commons/batik-svg-dom.jar:lib/xml-commons/batik-awt-util.jar:lib/xml-commons/batik-util.jar" />
-	
+	<property name="cp"
+		value="lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode-1.9.0.jar:lib/core-1.9.0.jar:lib/xml-commons/pdf-transcoder.jar:lib/xml-commons/xmlgraphics-commons-1.5.jar:lib/Jama-1.0.3.jar:lib/xml-commons/batik-transcoder.jar:lib/colt.jar:lib/ssj.jar:lib/xml-commons/batik-dom.jar:lib/xml-commons/batik-svggen.jar:lib/xml-commons/batik-svg-dom.jar:lib/xml-commons/batik-awt-util.jar:lib/xml-commons/batik-util.jar" />
+
 	<target name="javadoc">
 		<javadoc access="protected" author="true" classpath="${cp}"
-				destdir="${builddir}/jstacs-api" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false"
-				additionalparam="  -tagletpath lib/LaTeXlet-1.2f8.jar -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -taglet latexlet.CopyInheritedTaglet -encoding UTF-8 "
-				packagenames="de.jstacs.*"
-				doctitle="Jstacs ${version} API Specification"
-				source="1.8" sourcepath="." splitindex="true" use="true" version="true" verbose="false">
+			destdir="${builddir}/jstacs-api" nodeprecated="false"
+			nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false"
+			additionalparam="  -tagletpath lib/LaTeXlet-1.2f8.jar -taglet latexlet.InlineBlockLaTeXlet -taglet latexlet.BlockLaTeXlet -taglet latexlet.InlineLaTeXlet -taglet latexlet.CopyInheritedTaglet -encoding UTF-8 "
+			packagenames="de.jstacs.*" doctitle="Jstacs ${version} API Specification"
+			source="1.8" sourcepath="." splitindex="true" use="true" version="true"
+			verbose="false">
 			<link href="http://www.biojava.org/docs/api1.9.1/" />
-			<link href="http://docs.oracle.com/javase/7/docs/api/"/>
-			<link href="http://rforge.net/org/doc/"/>
-			<link href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/"/>
-			<link href="http://math.nist.gov/javanumerics/jama/doc/"/>
-			<link href="https://xmlgraphics.apache.org/batik/javadoc/"/>
-			<link href="https://samtools.github.io/htsjdk/javadoc/htsjdk/"/>
+			<link href="http://docs.oracle.com/javase/7/docs/api/" />
+			<link href="http://rforge.net/org/doc/" />
+			<link
+				href="http://www-sfb288.math.tu-berlin.de/~jtem/numericalMethods/api/" />
+			<link href="http://math.nist.gov/javanumerics/jama/doc/" />
+			<link href="https://xmlgraphics.apache.org/batik/javadoc/" />
+			<link href="https://samtools.github.io/htsjdk/javadoc/htsjdk/" />
 		</javadoc>
 		<zip destfile="${builddir}/jstacs-api-${version}.zip">
 			<zipfileset dir="${builddir}" includes="jstacs-api/**" />
 			<zipfileset dir="." includes="COPYING.txt,ReadMe.txt" />
 		</zip>
-		<tar destfile="${builddir}/jstacs-api-${version}.tar.gz" compression="gzip" longfile="gnu">
+		<tar destfile="${builddir}/jstacs-api-${version}.tar.gz"
+			compression="gzip" longfile="gnu">
 			<tarfileset dir="${builddir}" includes="jstacs-api/**" />
 			<tarfileset dir="." includes="COPYING.txt,ReadMe.txt" />
 		</tar>
@@ -37,16 +40,13 @@
 			<fileset dir="${builddir}/jstacs-api" />
 		</delete>
 	</target>
-	
+
 	<target name="buildjar">
 		<mkdir dir="tempbin" />
 		<delete includeemptydirs="true">
 			<fileset dir="tempbin" includes="**/*" />
 		</delete>
-		<javac srcdir="de" 
-		       destdir="tempbin"
-		       classpath="${cp}"
-		       debug="on">
+		<javac srcdir="de" destdir="tempbin" classpath="${cp}" debug="on">
 		</javac>
 		<jar destfile="${builddir}/jstacs-${version}.jar">
 			<fileset dir="tempbin" />
@@ -56,98 +56,116 @@
 		</delete>
 	</target>
 
-	
+
 	<target name="bin" depends="buildjar">
 		<zip destfile="${builddir}/jstacs-bin-${version}.zip">
-			<zipfileset dir="${builddir}" includes="jstacs-${version}.jar" prefix="jstacs-bin-${version}" />
-			<zipfileset dir="lib" prefix="jstacs-bin-${version}/lib" excludes="LaTeXlet-1.1.jar" />
-			<zipfileset dir="." includes="COPYING.txt,ReadMe.txt" prefix="jstacs-bin-${version}" />
-			<zipfileset dir="de/jstacs/utils" includes="de_jstacs_utils_UserTime.h,de_jstacs_utils_UserTime.c,libUserTime.jnilib,libUserTime.so,UserTime.dll" prefix="jstacs-bin-${version}/native" />
+			<zipfileset dir="${builddir}" includes="jstacs-${version}.jar"
+				prefix="jstacs-bin-${version}" />
+			<zipfileset dir="lib" prefix="jstacs-bin-${version}/lib"
+				excludes="LaTeXlet-1.1.jar" />
+			<zipfileset dir="." includes="COPYING.txt,ReadMe.txt"
+				prefix="jstacs-bin-${version}" />
+			<zipfileset dir="de/jstacs/utils"
+				includes="de_jstacs_utils_UserTime.h,de_jstacs_utils_UserTime.c,libUserTime.jnilib,libUserTime.so,UserTime.dll"
+				prefix="jstacs-bin-${version}/native" />
 		</zip>
-		<tar destfile="${builddir}/jstacs-bin-${version}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset dir="${builddir}" includes="jstacs-${version}.jar" prefix="jstacs-bin-${version}" />
-			<tarfileset dir="lib" prefix="jstacs-bin-${version}/lib"  excludes="LaTeXlet-*.jar" />
-			<tarfileset dir="." includes="COPYING.txt,ReadMe.txt" prefix="jstacs-bin-${version}" />
-			<tarfileset dir="de/jstacs/utils" includes="de_jstacs_utils_UserTime.h,de_jstacs_utils_UserTime.c,libUserTime.jnilib,libUserTime.so,UserTime.dll" prefix="jstacs-bin-${version}/native" />
+		<tar destfile="${builddir}/jstacs-bin-${version}.tar.gz"
+			compression="gzip" longfile="gnu">
+			<tarfileset dir="${builddir}" includes="jstacs-${version}.jar"
+				prefix="jstacs-bin-${version}" />
+			<tarfileset dir="lib" prefix="jstacs-bin-${version}/lib"
+				excludes="LaTeXlet-*.jar" />
+			<tarfileset dir="." includes="COPYING.txt,ReadMe.txt"
+				prefix="jstacs-bin-${version}" />
+			<tarfileset dir="de/jstacs/utils"
+				includes="de_jstacs_utils_UserTime.h,de_jstacs_utils_UserTime.c,libUserTime.jnilib,libUserTime.so,UserTime.dll"
+				prefix="jstacs-bin-${version}/native" />
 		</tar>
 	</target>
-	
+
 	<target name="src">
 		<zip destfile="${builddir}/jstacs-source-${version}.zip">
-			<zipfileset dir="." includes="de/**,COPYING.txt,ReadMe.txt,projects/**,supplementary/**" prefix="jstacs-source-${version}" />
+			<zipfileset dir="."
+				includes="de/**,COPYING.txt,ReadMe.txt,projects/**,supplementary/**"
+				prefix="jstacs-source-${version}" />
 		</zip>
-		<tar destfile="${builddir}/jstacs-source-${version}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset dir="." includes="de/**,COPYING.txt,ReadMe.txt,projects/**,supplementary/**" prefix="jstacs-source-${version}" />
-		</tar>		
+		<tar destfile="${builddir}/jstacs-source-${version}.tar.gz"
+			compression="gzip" longfile="gnu">
+			<tarfileset dir="."
+				includes="de/**,COPYING.txt,ReadMe.txt,projects/**,supplementary/**"
+				prefix="jstacs-source-${version}" />
+		</tar>
 	</target>
-	
+
 	<target name="Dispom">
-			<mkdir dir="tempbin" />
-			<delete includeemptydirs="true">
-				<fileset dir="tempbin" includes="**/*" />
-			</delete>
-			<javac srcdir="de:projects" 
-			       destdir="tempbin"
-			       classpath="${cp}"
-			       debug="on">
-			</javac>
-			<mkdir dir="${builddir}/Dispom" />
-	        <jar destfile="${builddir}/Dispom/Dispom.jar" filesetmanifest="mergewithoutmain">
-	            <manifest>
-	                <attribute name="Main-Class" value="projects.dispom.Dispom"/>
-	                <attribute name="Class-Path" value="."/>
-	            </manifest>
-	            <fileset dir="tempbin"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2f7.jar"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
-	            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
-	        </jar>
-			<jar destfile="${builddir}/Dispom/DispomPredictor.jar" filesetmanifest="mergewithoutmain">
-			            <manifest>
-			                <attribute name="Main-Class" value="projects.dispom.DispomPredictor"/>
-			                <attribute name="Class-Path" value="."/>
-			            </manifest>
-			            <fileset dir="tempbin"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2f7.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar"/>
-			            <zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar"/>
-			        </jar>
-			<delete includeemptydirs="true">
-				<fileset dir="tempbin" />
-			</delete>
-			<zip destfile="${builddir}/Dispom1.2.zip">
-					<zipfileset dir="projects/dispom" includes="Dispom-ReadMe.html" />
-					<zipfileset dir="." includes="COPYING.txt" />
-					<zipfileset dir="${builddir}/Dispom" includes="Dispom.jar,DispomPredictor.jar" />
-			</zip>
-			<delete includeemptydirs="true">
-					<fileset dir="${builddir}/Dispom" />
-			</delete>
-	    </target>
-	
+		<mkdir dir="tempbin" />
+		<delete includeemptydirs="true">
+			<fileset dir="tempbin" includes="**/*" />
+		</delete>
+		<javac srcdir="de:projects" destdir="tempbin" classpath="${cp}"
+			debug="on">
+		</javac>
+		<mkdir dir="${builddir}/Dispom" />
+		<jar destfile="${builddir}/Dispom/Dispom.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="projects.dispom.Dispom" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset dir="tempbin" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2f7.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar" />
+		</jar>
+		<jar destfile="${builddir}/Dispom/DispomPredictor.jar"
+			filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="projects.dispom.DispomPredictor" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset dir="tempbin" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/biojava-live.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/bytecode.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/LaTeXlet-1.2f7.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/numericalMethods.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/RClient-0.6.7.jar" />
+		</jar>
+		<delete includeemptydirs="true">
+			<fileset dir="tempbin" />
+		</delete>
+		<zip destfile="${builddir}/Dispom1.2.zip">
+			<zipfileset dir="projects/dispom" includes="Dispom-ReadMe.html" />
+			<zipfileset dir="." includes="COPYING.txt" />
+			<zipfileset dir="${builddir}/Dispom" includes="Dispom.jar,DispomPredictor.jar" />
+		</zip>
+		<delete includeemptydirs="true">
+			<fileset dir="${builddir}/Dispom" />
+		</delete>
+	</target>
+
 	<target name="cleanjar" depends="buildjar">
 		<delete file="${builddir}/jstacs-${version}.jar" />
 	</target>
-	
+
 	<target name="recipes">
 		<exec executable="sh">
 			<arg value="supplementary/cookbook/comment_pkg_recipes.sh" />
 		</exec>
 		<zip destfile="${builddir}/recipes.zip">
-			<zipfileset dir="supplementary/cookbook/recipes" includes="*" prefix="recipes" />
+			<zipfileset dir="supplementary/cookbook/recipes" includes="*"
+				prefix="recipes" />
 		</zip>
-		<tar destfile="${builddir}/recipes.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset dir="supplementary/cookbook/recipes" includes="*" prefix="recipes" />
+		<tar destfile="${builddir}/recipes.tar.gz" compression="gzip"
+			longfile="gnu">
+			<tarfileset dir="supplementary/cookbook/recipes" includes="*"
+				prefix="recipes" />
 		</tar>
 		<exec executable="sh">
 			<arg value="supplementary/cookbook/uncomment_pkg_recipes.sh" />
 		</exec>
 	</target>
-	
+
 	<target name="all" depends="src,bin,javadoc,cleanjar,Dispom,recipes" />
-	
+
 </project>
