@@ -464,7 +464,7 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 	public String toString(){
 		return name + " (" + comment
 				+ (defaultValue!=null?", default = " + defaultValue.getFilename():"")
-				+ (mime!=null?", mime = " + mime:"")
+				+ (mime!=null?", type = " + mime:"")
 				+ (required ? "" : ", OPTIONAL" )
 				+ ")\t= " + (value != null ? value.getFilename() : "null");
 	}
