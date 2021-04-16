@@ -761,6 +761,7 @@ public class Analyzer extends GeMoMaModule {
 			String[] split = attributes.split(";");
 			hash = new HashMap<String, String>();
 			for( String s: split ) {
+				s = s.trim();
 				if( s.length()== 0 ) continue;
 				int index = s.indexOf('=');
 				if( index < 0 ) {
