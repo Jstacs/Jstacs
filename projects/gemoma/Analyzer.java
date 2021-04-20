@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -476,7 +475,7 @@ public class Analyzer extends GeMoMaModule {
 		protocol.append( eol + "gene sensitivity" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfectG / stat.anzTruthG*100) );
 		protocol.append( eol );
-		protocol.append( "gene precision" );//TODO
+		protocol.append( "gene precision" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfectG2 / stat.anzPredG*100) );
 		protocol.append( eol );
 		if( rel ) {
