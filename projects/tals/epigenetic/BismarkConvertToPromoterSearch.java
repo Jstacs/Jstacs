@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -25,22 +27,22 @@ import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 
 
-public class BismarkConvertToPromotorSearch implements JstacsTool{
+public class BismarkConvertToPromoterSearch implements JstacsTool{
 	
 	public static void main(String[] args) throws Exception {
-		CLI cli = new CLI(new BismarkConvertToPromotorSearch());
+		CLI cli = new CLI(new BismarkConvertToPromoterSearch());
 		
 		cli.run(args);
 	}
 	
-	public BismarkConvertToPromotorSearch() {
+	public BismarkConvertToPromoterSearch() {
 
 	}
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter bismarkFile = new FileParameter("bismark-File","Methylationinformation in bismark format","cov.gz,cov",true);
-		FileParameter promotorFasta = new FileParameter("promotor fasta file","Promotor fastA file","fa,fasta",true);
+		FileParameter bismarkFile = new FileParameter("Bismark file","Methylationinformation in bismark format","cov.gz,cov",true);
+		FileParameter promotorFasta = new FileParameter("Promoter fasta file","Promoter fastA file","fa,fasta",true);
 		return new ToolParameterSet(this.getShortName(),bismarkFile,promotorFasta);
 	}
 
@@ -61,7 +63,7 @@ public class BismarkConvertToPromotorSearch implements JstacsTool{
 		String promotorFasta = parameters.getParameterAt(1).getValue().toString();
 		BufferedReader FA=new BufferedReader(new FileReader(promotorFasta));
 		
-		File out = File.createTempFile("bimark.promotor", ".temp.cov.gz", new File("."));
+		File out = File.createTempFile("bimark.promoter", ".temp.cov.gz", new File("."));
 		out.deleteOnExit();
 		
 		GZIPOutputStream os = new GZIPOutputStream(new FileOutputStream(out));
@@ -160,14 +162,14 @@ public class BismarkConvertToPromotorSearch implements JstacsTool{
 		FA.close();
 		os.close();
 		
-		TextResult tr = new TextResult("Bismark promotor file", "Bismark file in promotor region", new FileParameter.FileRepresentation(out.getAbsolutePath()), "cov.gz", getToolName(), null, true);
+		TextResult tr = new TextResult("Bismark promoter file", "Bismark file in promoter region", new FileParameter.FileRepresentation(out.getAbsolutePath()), "cov.gz", getToolName(), null, true);
 		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 
 	}
 
 	@Override
 	public String getToolName() {
-		return "BismarkConvertToPromotor";
+		return "BismarkConvertToPromoter";
 	}
 
 	@Override
@@ -177,18 +179,22 @@ public class BismarkConvertToPromotorSearch implements JstacsTool{
 
 	@Override
 	public String getShortName() {
-		return "BismarkConvertToPromotor";
+		return "bis2prom";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Creates Bismark file in promotor region";
+		return "Creates Bismark file in promoter region";
 	}
 
 	@Override
 	public String getHelpText() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return FileManager.readInputStream( BismarkConvertToPromoterSearch.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/BismarkConvertToPromoterSearch.txt" ) ).toString();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	@Override

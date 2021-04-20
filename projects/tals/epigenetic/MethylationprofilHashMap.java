@@ -20,8 +20,13 @@ public class MethylationprofilHashMap {
 	public MethylationprofilHashMap(HashMap<String, Integer> chromLengthHash,String pathToBismarkFile, float PseudoCounts, float probCMethylated) throws Exception {
 		
 	//	methylationProfiles =new
-		
-		BufferedReader BR=new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(pathToBismarkFile)))));
+		BufferedReader BR=null;
+		if(pathToBismarkFile.endsWith("gz")){
+			BR=new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(pathToBismarkFile)))));
+		}else{
+			BR=new BufferedReader(new InputStreamReader(new FileInputStream(new File(pathToBismarkFile))));
+		}
+	
 		String line="";
 		HashMap <String,float[]>MethylationProbHash=new HashMap<>();
 		float[] MethylationProb;

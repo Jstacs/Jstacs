@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -39,7 +41,7 @@ public class NormalizePileupOutput implements JstacsTool{
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter pileupFile = new FileParameter("pileup-output-File","Pileup output file.","tsv.gz,tsv",true);
+		FileParameter pileupFile = new FileParameter("Pileup output file","Pileup output file.","tsv.gz,tsv,txt",true);
 		return new ToolParameterSet(this.getShortName(),pileupFile);
 	}
 
@@ -62,89 +64,97 @@ public class NormalizePileupOutput implements JstacsTool{
 		GZIPOutputStream os = new GZIPOutputStream(new FileOutputStream(out));
 		PrintStream os_ps=new PrintStream(os);
 		
-		HashMap<String, HashMap<Integer,String>> tempPileup=new HashMap<>();
-		HashMap<String, HashMap<Integer,Integer>> tempPileupCov=new HashMap<>();
+		//HashMap<String, HashMap<Integer,String>> tempPileup=new HashMap<>();
 		
 		String line="";
 		String[] splitLine;
+	//	HashMap <Integer,String> temp=null;
+		HashMap <Integer,Integer> tempCov=null;
+		String chrom_before="";
+		String chrom="";
+		int pos=0;
+		
+		boolean first=true;
 		while ((line = BR.readLine()) != null){
 			if(line.matches("Chr([\\d]+)\\t([\\d]+)\\t([\\d]+)")){
 //				Chr1    1015    1
 //				Chr1    1016    3
 				splitLine=line.split("\t");
-				
-				HashMap <Integer,String> temp=null;
-				HashMap <Integer,Integer> tempCov=null;
-				String chrom=splitLine[0];
-
-				int pos=Integer.parseInt(splitLine[1]);
-				if(tempPileup.containsKey(chrom)){
-					temp=tempPileup.get(chrom);
-					tempCov=tempPileupCov.get(chrom);
-				}else {
-					temp=new HashMap<>();
+				chrom=splitLine[0];
+				pos=Integer.parseInt(splitLine[1]);
+				if(chrom.equals(chrom_before)){
+					tempCov.put(pos, Integer.parseInt(splitLine[2]));
+				}else{//neues chromosom beginnt
+					if(first){
+						first=false;
+					}else{
+						//System.out.println(line);
+						normalizeChrom(chrom_before,os_ps,tempCov);
+					}
+					
 					tempCov=new HashMap<>();
+					tempCov.put(pos, Integer.parseInt(splitLine[2]));
 				}
-				temp.put(pos, line);
-				tempCov.put(pos, Integer.parseInt(splitLine[2]));
-				
-				tempPileup.put(chrom, temp);	
-				tempPileupCov.put(chrom, tempCov);	
+				chrom_before=chrom;
 			}
 		}
+		normalizeChrom(chrom_before,os_ps,tempCov);
 		BR.close();
 
-		double window=10000.0;
-		int half=(int)(window/2);
-		
-		for (String chrom : tempPileupCov.keySet()) {
-			
-			Integer[] tempPileupCovKeySetArray = new Integer[tempPileupCov.get(chrom).keySet().size()];
-			tempPileupCov.get(chrom).keySet().toArray(tempPileupCovKeySetArray);
-			Arrays.sort(tempPileupCovKeySetArray);
-			Integer lastPos=tempPileupCovKeySetArray[tempPileupCovKeySetArray.length-1];
-			Double[] originalCov=new Double[lastPos];
-			Double[] normalizeCov=new Double[lastPos];
-			Arrays.fill(originalCov, 0.0);
-			Arrays.fill(normalizeCov, 0.0);
-			
-			for(int i=0;i<originalCov.length;i++){
-				if(tempPileupCov.get(chrom).containsKey(i)){
-					originalCov[i]=tempPileupCov.get(chrom).get(i).doubleValue();
-				}
-			}
-			double tempSum=0;
-			boolean isFirst=true;
-			for(int i=0;i<originalCov.length;i++){
-				int windowStart=((i-half<0)?0:(i-half));
-				int windowend=((i+half>lastPos)?lastPos:(i+half));
-				if(isFirst){
-					for(int j=windowStart;j<windowend;j++){
-						tempSum+=originalCov[j];
-					}
-					isFirst=false;
-				}else{
-					tempSum-=originalCov[windowStart];
-					tempSum+=originalCov[windowend-1];
-				}
 
-				normalizeCov[i]=originalCov[i]-(tempSum/(windowend-windowStart+1));
-
-				if(tempPileup.get(chrom).containsKey(i)){
-					os_ps.print(chrom+"\t"+i+"\t"+normalizeCov[i]+"\n");
-				}
-			}
-		}
+	
 		os.close();
 		
 		TextResult tr = new TextResult("Normalized pileup file", "Normalized pileup file", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tsv.gz", getToolName(), null, true);
 		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 
 	}
+	
+	private void normalizeChrom(String chrom,PrintStream os_ps,HashMap <Integer,Integer> tempCov){
+		double window=10000.0;
+		int half=(int)(window/2);
+		Integer[] tempPileupCovKeySetArray= new Integer[tempCov.keySet().size()];
+		tempCov.keySet().toArray(tempPileupCovKeySetArray);
+		Arrays.sort(tempPileupCovKeySetArray);
+		Integer lastPos=tempPileupCovKeySetArray[tempPileupCovKeySetArray.length-1];
+		Double[] originalCov=new Double[lastPos];
+		Double[] normalizeCov=new Double[lastPos];
+		Arrays.fill(originalCov, 0.0);
+		Arrays.fill(normalizeCov, 0.0);
+		
+		for(int i=0;i<originalCov.length;i++){
+			if(tempCov.containsKey(i)){
+				originalCov[i]=tempCov.get(i).doubleValue();
+			}
+		}
+		double tempSum=0;
+		boolean isFirst=true;
+		for(int i=0;i<originalCov.length;i++){
+			int windowStart=((i-half<0)?0:(i-half));
+			int windowend=((i+half>lastPos)?lastPos:(i+half));
+			if(isFirst){
+				for(int j=windowStart;j<windowend;j++){
+					tempSum+=originalCov[j];
+				}
+				isFirst=false;
+			}else{
+				tempSum-=originalCov[windowStart];
+				tempSum+=originalCov[windowend-1];
+			}
+
+			normalizeCov[i]=originalCov[i]-(tempSum/(windowend-windowStart+1));
+
+			if(tempCov.containsKey(i)){
+				if(normalizeCov[i]>0.0){
+					os_ps.print(chrom+"\t"+i+"\t"+normalizeCov[i]+"\n");
+				}
+			}
+		}
+	}
 
 	@Override
 	public String getToolName() {
-		return "NormalizePielupOutput";
+		return "NormalizePileupOutput";
 	}
 
 	@Override
@@ -154,7 +164,7 @@ public class NormalizePileupOutput implements JstacsTool{
 
 	@Override
 	public String getShortName() {
-		return "NormalizePielupOutput";
+		return "normpileup";
 	}
 
 	@Override
@@ -164,8 +174,12 @@ public class NormalizePileupOutput implements JstacsTool{
 
 	@Override
 	public String getHelpText() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return FileManager.readInputStream( NormalizePileupOutput.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/NormalizePileupOutput.txt" ) ).toString();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	@Override

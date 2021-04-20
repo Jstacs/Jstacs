@@ -1,0 +1,36 @@
+**EpiTALE** predicts TALE target boxes using a novel model learned from quantitative data based on the RVD sequence of a TALE and optionally considers methylation state of the target box during prediction as DNA methylation affects the binding specificity of RVDs. 
+Additionally, EpiTALE optionally annotates chromatin accessibility of predicted target sites using output of the **NormalizePileupOutput** tool and result of peak-calling of DNase-seq and ATAC-seq data to the predictions of **EpiTALE**.
+
+As input, **EpiTALE** requires
+
+1. a set of sequences that are scanned for putative TALE target boxes. These sequences could be promoters of genes but also complete genomic sequences (FastA format). 
+
+2. For computing p-values, EpiTALE additional needs a background set of sequences, which is by default generated as a sub-sample of the original input data.
+
+3. The prediction threshold may be defined either by means of a p-values or an approximate number of expected sites. The latter will also be converted to a p-value, internally, and the defined number of expected sites in not met exactly, in general.
+
+4. TALEs are specified by a FastA file containing their RVD sequences, where individual RVDs are separated by dashes (-). This is the same format also output by the *TALE Analysis* tool of AnnoTALE_.
+
+5. It can be specified if both strands or only one of the strands are scanned where, in the former case, a penalty may be assigned to predictions on the reverse strand. While this penalty may be reasonable when scanning promoters, it should usually be set to ``0`` in case of genome-wide predictions.
+
+6. As optional input **EpiTALE** considers methylation during prediction, if bismark output is provided. With Bismark methylation extractor_ with  parameters ``–bedGraph –CX -p`` you can generate a coverage file, which contains the tab-separated columns: 
+``chromosome, start_position, end_position, methylation_percentage, count_methylated, count_unmethylated`` (file.cov.gz). 
+You can alternatively use the tool **Bed2Bismark**, which converts data in BedMethyl format to bismark format. 
+
+7.
+(i) The chromatin accessibility of the input sequences can optionally be provided in narrowPeak format. By mapping ATAC-seq or DNase-seq data to the corresponding genome and then performing peak calling, e.g. with JAMM_. In case of promoter sequences as input, you should run the tool **NarrowPeakConvertToPromoter** to convert the narrowPeak-File to promoter positions. 
+(ii) Additionally, you can calculate a coverage pileup of 5' ends of mapped reads with **Chromatin pileup** and normalize it with **NormalizePileupOutput**. In case of promoter sequences as input, you should run the tool **PileupConvertToPromoter** to convert to promoter positions. 
+
+8.
+(i) In case of **genomic search** the parameter *calculate coverage area* should be ``surround target site`` and you can set the number of positions before target site with ``coverage before value`` (default: 300) and the positions after target site ``coverage after value`` (default: 200). 
+(ii) In case of **promoter search** the parameter *calculate coverage area* may set to ``on complete sequence`` or ``surround target site``. The number of positions before and after binding site in peak profile can be set by ``Peak before value`` (default: 300) and ``Peak after value`` (default: 50).
+
+In case of **genomic search** you can filter predictions of TALE target boxes by the presence of differentially expressed regions in a defined vicinity around a predicted target box. with the tool **DerTALE** of AnnoTALE suite_.
+
+If you experience problems using **EpiTALE**, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de
+.. _JAMM: https://github.com/mahmoudibrahim/JAMM
+.. _AnnoTALE: http://www.jstacs.de/index.php/AnnoTALE
+.. _AnnoTALE suite: http://www.jstacs.de/index.php/AnnoTALE
+.. _Bismark methylation extractor: https://www.bioinformatics.babraham.ac.uk/projects/bismark/

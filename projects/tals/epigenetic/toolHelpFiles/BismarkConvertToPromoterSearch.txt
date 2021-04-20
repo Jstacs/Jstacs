@@ -1,0 +1,13 @@
+**BismarkConvertToPromoter** converts the bismark output file to promoter search.
+
+The input of **BismarkConvertToPromoter** is 
+1. a bismark coverage output file, which contains tab-separated columns: 
+``chromosome, start_position, end_position, methylation_percentage, count_methylated, count_unmethylated`` and 
+2. the promoter sequences in FastA format with headers like:
+``> id chromosomeName:start-end:strand``
+e.g.
+``> Os01g01010.1 Chr1:2602-3102:+``.
+
+If you experience problems using **BismarkConvertToPromoter**, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de

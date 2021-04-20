@@ -1,38 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project Jstacs_projects">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
-    <!--define folder properties-->
-    <property name="dir.buildfile" value="../../.."/>
-    <!-- <property name="dir.workspace" value="${dir.buildfile}/.."/> -->
-    <property name="dir.jarfile" value="/Users/dev/Downloads"/>
-    <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/Catchitt5.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="projects.encodedream.tools.Catchitt"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${dir.buildfile}/bin">
-            	<exclude name="**/.svn/**" />
-            	<exclude name="**/clusters.xml" />
-            	<exclude name="lib/**/*.jar" />
-            	<exclude name="projects/gemoma/**" />
-            	<exclude name="projects/motifComp/**" />
-            	<exclude name="projects/dream2016/**" />
-            	<exclude name="projects/quickscan/**" />
-            	<exclude name="*.xml" />
-        	</fileset>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/colt.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/ssj.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/numericalMethods.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/RClient-0.6.7.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/bytecode-1.9.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/core-1.9.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/Jama-1.0.3.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/BigWig.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/junit-4.5.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/log4j-1.2.15.jar"/>            
-        </jar>
-    </target>
+<project default="create_run_jar"
+	name="Create Runnable Jar for Project Jstacs_projects">
+	<!--this file was created by Eclipse Runnable JAR Export Wizard -->
+	<!--ANT 1.7 is required -->
+	<!--define folder properties -->
+	<property name="dir.buildfile" value="../../.." />
+	<!-- <property name="dir.workspace" value="${dir.buildfile}/.."/> -->
+	<property name="dir.jarfile" value="/Users/dev/Downloads" />
+	<target name="create_run_jar">
+		<jar destfile="${dir.jarfile}/Catchitt5.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="projects.encodedream.tools.Catchitt" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset dir="${dir.buildfile}/bin">
+				<exclude name="**/.svn/**" />
+				<exclude name="**/clusters.xml" />
+				<exclude name="lib/**/*.jar" />
+				<exclude name="projects/gemoma/**" />
+				<exclude name="projects/motifComp/**" />
+				<exclude name="projects/dream2016/**" />
+				<exclude name="projects/quickscan/**" />
+				<exclude name="*.xml" />
+			</fileset>
+			<zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/colt.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/ssj.jar" />
+			<zipfileset excludes="META-INF/*.SF"
+				src="${dir.buildfile}/lib/numericalMethods.jar" />
+			<zipfileset excludes="META-INF/*.SF"
+				src="${dir.buildfile}/lib/RClient-0.6.7.jar" />
+			<zipfileset excludes="META-INF/*.SF"
+				src="${dir.buildfile}/lib/bytecode-1.9.0.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/core-1.9.0.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/Jama-1.0.3.jar" />
+			<zipfileset excludes="META-INF/*.SF"
+				src="${dir.buildfile}/lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/BigWig.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${dir.buildfile}/lib/junit-4.5.jar" />
+			<zipfileset excludes="META-INF/*.SF"
+				src="${dir.buildfile}/lib/log4j-1.2.15.jar" />
+		</jar>
+	</target>
 </project>

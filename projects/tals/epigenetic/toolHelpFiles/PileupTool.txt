@@ -1,0 +1,8 @@
+**Chromatin pileup** takes as input a BAM file of mapped reads from an DNase-seq or ATAC-seq experiment 
+and computes a coverage pileup of 5' ends of mapped reads, 
+and outputs a simple tab-separated file with columns: 
+``chromosome, position,`` and ``pileup value`` (number of reads with a 5' end at this position).
+
+If you experience problems using **Chromatin pileup**, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de

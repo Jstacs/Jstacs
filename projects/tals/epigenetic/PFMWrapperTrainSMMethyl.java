@@ -154,9 +154,8 @@ public class PFMWrapperTrainSMMethyl extends AbstractTrainableStatisticalModel i
 		String methProb="";
 		if(methylAnno!=null){
 			Methylationprofil MP=methylAnno.getMethylationprofile();
-			
 			boolean strand=MP.getStrand();
-
+		
 			int k=1;
 			for(int i=startpos+1;i<=endpos;i++){
 				methProb+=",";

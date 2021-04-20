@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
 
 public class NarrowpeakprofilHashMap {
 
@@ -17,8 +18,14 @@ public class NarrowpeakprofilHashMap {
 	}
 	
 	public NarrowpeakprofilHashMap(HashMap<String, Integer> chromLengthHash,String PathtoFile, int before,int after) throws Exception {
+		BufferedReader BR;
 		
-		BufferedReader BR=new BufferedReader(new InputStreamReader(new FileInputStream(new File(PathtoFile))));
+		if(PathtoFile.endsWith("gz")){
+			BR=new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(PathtoFile)))));
+		}else{
+			BR=new BufferedReader(new InputStreamReader(new FileInputStream(new File(PathtoFile))));
+		}
+		
 		String line="";
 		HashMap <String,float[]>peakValueHash=new HashMap<>();
 		float[] peakValue;

@@ -189,6 +189,10 @@ public class NHMMer {
 			len += 3;
 		}
 		
+		while( start+off+len+3>original.getLength() ) {
+			len -= 3;
+		}
+		
 		//Sequence sub = original.getSubSequence( start+off, len );
 		//System.out.println(sub.getLength()+" ");
 		//System.out.println(Translator.DEFAULT.translate( sub, 0 ));

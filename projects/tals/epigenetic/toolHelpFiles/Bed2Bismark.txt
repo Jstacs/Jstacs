@@ -1,0 +1,7 @@
+**Bed2Bismark** Converts methylationinformation in bedMethyl format to bismark format.
+
+The input of **Bed2Bismark** is a file in bedMethyl format.
+
+If you experience problems using **Bed2Bismark**, please contact_ us.
+
+.. _contact: mailto:grau@informatik.uni-halle.de

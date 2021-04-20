@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Date;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
@@ -24,22 +26,22 @@ import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.tools.ui.cli.CLI;
 
-public class NarrowPeakConvertToPromotorSearch implements JstacsTool{
+public class NarrowPeakConvertToPromoterSearch implements JstacsTool{
 	
 	public static void main(String[] args) throws Exception {
-		CLI cli = new CLI(new NarrowPeakConvertToPromotorSearch());
+		CLI cli = new CLI(new NarrowPeakConvertToPromoterSearch());
 		
 		cli.run(args);
 	}
 	
-	public NarrowPeakConvertToPromotorSearch() {
+	public NarrowPeakConvertToPromoterSearch() {
 
 	}
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		FileParameter narrowPeakFile = new FileParameter("bismark-File-1","Methylationinformation in bismark format file 1","cov.gz,cov",true);
-		FileParameter promotorFasta = new FileParameter("promotor fasta file","Promotor fastA file","fa,fasta",true);
+		FileParameter narrowPeakFile = new FileParameter("NarrowPeak file","Peak-calling output in narrowPeak format.","narrowPeak,narrowPeak.gz",true);
+		FileParameter promotorFasta = new FileParameter("Promoter fasta file","Promoter fastA file","fa,fasta",true);
 		return new ToolParameterSet(this.getShortName(),narrowPeakFile,promotorFasta);
 	}
 
@@ -60,7 +62,7 @@ public class NarrowPeakConvertToPromotorSearch implements JstacsTool{
 		String promotorFasta = parameters.getParameterAt(1).getValue().toString();
 		BufferedReader FA=new BufferedReader(new FileReader(promotorFasta));
 		
-		File outF = File.createTempFile("promotor.peaks.narrowPeak", ".temp.gz", new File("."));
+		File outF = File.createTempFile("promoter.peaks.narrowPeak", ".temp.gz", new File("."));
 		outF.deleteOnExit();
 		
 		GZIPOutputStream os = new GZIPOutputStream(new FileOutputStream(outF));
@@ -152,14 +154,14 @@ public class NarrowPeakConvertToPromotorSearch implements JstacsTool{
 		FA.close();
 		os.close();
 		
-		TextResult tr = new TextResult("Narrow peak promotor file", "Narrow peak promotor file", new FileParameter.FileRepresentation(outF.getAbsolutePath()), "narrowPeak.gz", getToolName(), null, true);
+		TextResult tr = new TextResult("Narrow peak promoter file", "Narrow peak promoter file", new FileParameter.FileRepresentation(outF.getAbsolutePath()), "narrowPeak.gz", getToolName(), null, true);
 		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 
 	}
 
 	@Override
 	public String getToolName() {
-		return "NarrowPeakConvertToPromotor";
+		return "NarrowPeakConvertToPromoter";
 	}
 
 	@Override
@@ -169,18 +171,22 @@ public class NarrowPeakConvertToPromotorSearch implements JstacsTool{
 
 	@Override
 	public String getShortName() {
-		return "NarrowPeakConvertToPromotor";
+		return "peak2Prom";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Creates NarrowPeak file in promotor region";
+		return "Creates NarrowPeak file in promoter region";
 	}
 
 	@Override
 	public String getHelpText() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return FileManager.readInputStream( NarrowPeakConvertToPromoterSearch.class.getClassLoader().getResourceAsStream( "projects/tals/epigenetic/toolHelpFiles/NarrowPeakConvertToPromoterSearch.txt" ) ).toString();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	@Override
