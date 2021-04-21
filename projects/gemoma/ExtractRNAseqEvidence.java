@@ -41,6 +41,7 @@ import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.ParameterSetContainer;
+import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.FileExistsValidator;
@@ -269,6 +270,18 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 						new SimpleParameter(DataType.INT,"minimum mapping quality", "reads with a mapping quality that is lower than this value will be ignored", true, new NumberValidator<Integer>(0, 255), 40),
 						new SimpleParameter(DataType.INT,"minimum context", "only introns that have evidence of at least one split read with a minimal M (=(mis)match) stretch in the cigar string larger than or equal to this value will be used", true, new NumberValidator<Integer>(1, 1000000), 1),
 						new SimpleParameter(DataType.INT,"maximum coverage", "optional parameter to reduce the size of coverage output files, coverage higher than this value will be reported as this value", false, new NumberValidator<Integer>(1, 10000) ),
+						new SelectionParameter(DataType.PARAMETERSET,
+								new String[] {"no","yes"},
+								new ParameterSet[] {
+									new SimpleParameterSet(),
+									new SimpleParameterSet(
+											new SimpleParameter(DataType.INT,"region around introns","test region of this size around introns/splits for mismatches to the genome",true,new NumberValidator<Integer>(0,100),10),
+											new SimpleParameter(DataType.INT,"number of mismatches","number of mismatches allowed in regions around introns/splits",true,new NumberValidator<Integer>(0,100),3),
+											new FileParameter( "target genome", "The target genome file (FASTA). Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true )
+											)
+								},"Filter by intron mismatches","Filter reads by the number of mismatches around splits",true),
+						new SimpleParameter(DataType.DOUBLE, "evidence long splits", "require introns to have at least this number of times the supporting reads as their length deviates from the mean split length", true, new NumberValidator<Double>(0.0,100.0), 0.0 ),
+						new SimpleParameter(DataType.INT,"minimum intron length","introns shorter than the minimum length are discarded and considered as contiguous",true,new NumberValidator<Integer>(0,1000),0),
 						new FileParameter( "repositioning", "due to limitations in BAM/SAM format huge chromosomes need to be split before mapping. This parameter allows to undo the split mapping to real chromosomes and coordinates. The repositioning file has 3 columns: split_chr_name, original_chr_name, offset_in_original_chr", "tabular", false, new FileExistsValidator() )
 					);
 		} catch (Exception e) {
@@ -285,12 +298,32 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		ValidationStringency stringency = (ValidationStringency) parameters.getParameterAt(2).getValue();
 		boolean sa = (Boolean) parameters.getParameterAt(3).getValue();
 		boolean coverage = (Boolean) parameters.getParameterAt(4).getValue();
-		int minQual = (Integer) parameters.getParameterForName("minimum mapping quality").getValue();
+		int minQuality = (Integer) parameters.getParameterForName("minimum mapping quality").getValue();
 		int minContext = (Integer) parameters.getParameterForName("minimum context").getValue();
 		FileParameter fp = (FileParameter) parameters.getParameterForName("repositioning");
 		SimpleParameter sp = (SimpleParameter) parameters.getParameterForName("maximum coverage");
 		int maxCov=-1;
 		if( sp!=null && sp.isSet()) maxCov = (Integer)sp.getValue();
+		
+		SelectionParameter filtSP = (SelectionParameter) parameters.getParameterForName("Filter by intron mismatches");
+		
+		int positionsAroundSpliceSite = 0;
+		int maxMismatches = Integer.MAX_VALUE;
+		String targetGenome = null;
+
+		if(filtSP.getSelected() == 1) {
+			positionsAroundSpliceSite = (Integer) ((ParameterSet)filtSP.getValue()).getParameterForName("region around introns").getValue();
+			maxMismatches = (Integer) ((ParameterSet)filtSP.getValue()).getParameterForName("number of mismatches").getValue();
+			targetGenome = (String) ((ParameterSet)filtSP.getValue()).getParameterForName("target genome").getValue();
+		}
+		
+		SAMRecordFilter samFilter = new SAMRecordFilter(minQuality, positionsAroundSpliceSite, maxMismatches, targetGenome);
+		
+		int minIntronLength = (int) parameters.getParameterForName("minimum intron length").getValue();
+		
+		double evidenceLongIntrons = (double) parameters.getParameterForName("evidence long splits").getValue();
+		
+		
 		
 		HashMap<String,String[]> repos = null;
 		if( fp != null && fp.isSet() ) {
@@ -314,9 +347,11 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		
 		SAMRecordIterator[] its = new SAMRecordIterator[eps.getNumberOfParameters()];
 		SAMRecord[] curr = new SAMRecord[eps.getNumberOfParameters()];
+		String[] bams = new String[eps.getNumberOfParameters()];
 		String[] firstChrs = new String[eps.getNumberOfParameters()];
 		for( int k = 0; k < eps.getNumberOfParameters(); k++ ) {
 			String fName = ((ParameterSet)eps.getParameterAt(k).getValue()).getParameterAt(0).getValue().toString();
+			bams[k] = fName;
 			SamReader sr = srf.open(new File(fName));
 			
 			SAMRecordIterator samIt = sr.iterator();
@@ -326,6 +361,11 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				curr[k] = its[k].next();
 				firstChrs[k] = curr[k].getReferenceName();
 			}
+		}
+		
+		ReadStats stats = null;
+		if(evidenceLongIntrons > 0.0) {
+			stats = new ReadStats(minIntronLength, evidenceLongIntrons, bams);
 		}
 		
 		
@@ -397,7 +437,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				SAMRecord rec = curr[wm];
 				int q = rec.getMappingQuality();
 				qual[0][q]++;
-				if( q >= minQual ) {
+				if( /*q >= minQual*/samFilter.accept(rec) ) {
 					if( sa || !rec.isSecondaryOrSupplementary() ) {
 						qual[1][q]++;
 						int numIntrons = Intron.addIntrons(rec, stranded, introns);
@@ -447,6 +487,23 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 										if( maxCov < 0 || current[0]<maxCov ) current[0]++;
 									}
 								}
+								int il = introns.size();
+								for(int k=0;k<numIntrons;k++) {
+									Intron intron = introns.get(il-numIntrons+k);
+									int start = intron.getStart();
+									int end = intron.getEnd();
+									int len = end - start;
+									if( len < minIntronLength ) {
+										for(int l=start;l<end;l++) {
+											int[] current = map.get(l);
+											if(current == null) {
+												current = new int[1];
+												map.put(l, current);
+											}
+											if( maxCov < 0 || current[0]<maxCov ) current[0]++;
+										}
+									}
+								}
 							}
 						}
 					}
@@ -494,7 +551,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				Arrays.sort(firstChrs,scomp);
 				
 				if( firstChrs[0] == null || !chr.equals(firstChrs[0]) ) {
-					introns = count(introns);
+					introns = count(introns,stats,minIntronLength);
 					intronNum += print(chrOut,offset,introns,sosInt, minContext);
 					introns.clear();
 				}
@@ -595,7 +652,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		return i;
 	}
 	
-	private static ArrayList<Intron> count(ArrayList<Intron> introns) {
+	private static ArrayList<Intron> count(ArrayList<Intron> introns, ReadStats stats, int minIntronLength) {
 		Collections.sort(introns);
 		ArrayList<Intron> agg = new ArrayList<Intron>();
 		
@@ -612,7 +669,10 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				n++;
 			}else{
 				last.setCount(n);
-				agg.add(last);
+				int lastLen = last.getEnd()-last.getStart();
+				if((stats == null || stats.isOK(lastLen, n)) && lastLen >= minIntronLength) {
+					agg.add(last);
+				}
 				last = curr;
 				n = 1;
 			}
