@@ -25,7 +25,7 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import projects.gemoma.old.GeMoMa;
+//import projects.gemoma.old.GeMoMa;
 
 public class GAFComparison extends GeMoMaModule {
 

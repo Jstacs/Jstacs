@@ -336,7 +336,7 @@ public class DimontTool implements JstacsTool {
 		ComparableElement<double[], Double>[] preOpt = new ComparableElement[restarts];
 		for( int r = 0; r < restarts; r++ ) {
 			
-			progress.setCurrent(0.5/(double)restarts*(r));
+			progress.setCurrent(0.4/(double)restarts*(r));
 			
 			data[0] = smallData;
 			weights = smallWeight;
@@ -362,7 +362,7 @@ public class DimontTool implements JstacsTool {
 			((AbstractSingleMotifChIPper)score[0]).resetPositions();
 		}
 		protocol.append("-----------------------------------------\n");
-		progress.setCurrent(0.5);
+		progress.setCurrent(0.4);
 		
 		//filter out redundant motifs
 		Arrays.sort( preOpt );
@@ -374,7 +374,7 @@ public class DimontTool implements JstacsTool {
 		double[] opts = new double[best.length];
 		Pair<double[][][],int[][]>[] pairs = new Pair[best.length];		
 		for( int m = 0; m < best.length; m++ ) {
-			progress.setCurrent(0.5 + ( m*1.0/((double)best.length+1) ));
+			progress.setCurrent(0.4 + 0.6*( m*1.0/((double)best.length+1) ));
 			protocol.append("+++++++++++++++++++++++++++++++++++++++++++++++++++" +
 					"\n\nfinalOpt " + m + " -----------------------------------------\n");
 			
@@ -735,7 +735,6 @@ public class DimontTool implements JstacsTool {
 			for( int i = 0; i < histogram[j].length; i++ ) {
 				histogram[j][i] = (float)(weights[0][j] * histogram[j][i] + weights[1][j] * histBg[i]);
 			}
-			
 			annotated[j] = annotated[j].annotate( false, new ReferenceSequenceAnnotation( "reads", new ArbitraryFloatSequence( ref, histogram[j] ) ) );
 		}
 		return new DataSet( "", annotated );

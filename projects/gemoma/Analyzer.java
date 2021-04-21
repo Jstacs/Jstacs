@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -245,7 +247,7 @@ public class Analyzer extends GeMoMaModule {
 		Iterator<String> it = chr.iterator();
 		BitSet predictedRegion = new BitSet(), trueRegion = new BitSet(), help = new BitSet();
 		GFFCompareStat stat = new GFFCompareStat();
-		HashSet<String> predGenes = new HashSet<String>();
+		HashMap<String,Double> predGenes = new HashMap<String,Double>();
 		
 		while( it.hasNext() ) {
 			String chrom = it.next();
@@ -278,7 +280,7 @@ public class Analyzer extends GeMoMaModule {
 					stat.anzPrediction += pred.size();
 					Iterator<Transcript> iter = pred.values().iterator();
 					while( iter.hasNext() ) {
-						predGenes.add( iter.next().parent );
+						predGenes.put( iter.next().parent, 0d );
 					}
 					if( g!= null ) {
 						Transcript[] predictions = pred.values().toArray(new Transcript[0]);
@@ -324,6 +326,11 @@ public class Analyzer extends GeMoMaModule {
 								}
 								idx++;
 							}
+							
+							if( predGenes.get(predictions[j].parent) < bestF1 ) {
+								predGenes.put(predictions[j].parent, bestF1);
+							}
+							
 							if( bestF1<=0 ) {
 								current.add(predictions[j]);
 							} else {
@@ -371,6 +378,12 @@ public class Analyzer extends GeMoMaModule {
 		}
 
 		stat.anzPredG=predGenes.size();
+		Iterator<Double> f = predGenes.values().iterator();
+		while( f.hasNext() ) {
+			if( f.next() == 1d ) {
+				stat.anzPerfectG2++;
+			}
+		}
 		stats.add(stat);
 		
 		return noOverlap;
@@ -378,77 +391,96 @@ public class Analyzer extends GeMoMaModule {
 	
 	class GFFCompareStat {
 		int anzTruth = 0, anzRTruth=0, anzPrediction=0, anzTruthG=0, anzRTruthG=0, anzPredG;
-		double anzPerfect=0, anzRPerfect=0, anzPerfectG=0, anzRPerfectG=0;		
+		double anzPerfect=0, anzRPerfect=0, anzPerfectG=0, anzPerfectG2=0, anzRPerfectG=0;		
 	}
 	
 	static void write( Protocol protocol, boolean rel, ArrayList<String> name, ArrayList<GFFCompareStat> list, String sep, String eol ) {
-		protocol.append( "category");
+		Locale l = Locale.US;
+		int prec=2;
+		
+		NumberFormat nf1 = NumberFormat.getInstance(l);
+		nf1.setMinimumFractionDigits(prec);
+		nf1.setMaximumFractionDigits(prec);
+		NumberFormat nf2 = NumberFormat.getInstance(l);
+		nf2.setMaximumFractionDigits(0);
+		
+		protocol.append( "number of true transcripts");
+		int val = list.get(0).anzTruth;
+		for( GFFCompareStat stat: list ) if(val!=stat.anzTruth) throw new IllegalArgumentException("anzTruth corrupted") ;
+		protocol.append( sep + nf2.format(val) + eol );
+		protocol.append( "number of true genes" );
+		int val2 = list.get(0).anzTruthG;
+		for( GFFCompareStat stat: list ) if(val2!=stat.anzTruthG) throw new IllegalArgumentException("anzTruthG corrupted") ;
+		protocol.append( sep + nf2.format(val2) + eol );
+		protocol.append( "number of true transcripts per true gene" + sep + nf1.format(val/(double)val2) + eol );
+		
+		if( rel ) {
+			protocol.append( "number of reliable true transcripts" );
+			val = list.get(0).anzRTruth;
+			for( GFFCompareStat stat: list ) if(val!=stat.anzRTruth) throw new IllegalArgumentException("anzRTruthG corrupted") ;
+			protocol.append( sep + nf2.format(val)  + " (" + nf1.format(val/(double)list.get(0).anzTruth*100) + "%)" + eol );
+			protocol.append( "number of reliable true genes" );
+			val = list.get(0).anzRTruthG;
+			for( GFFCompareStat stat: list ) if(val!=stat.anzRTruthG) throw new IllegalArgumentException("anzRTruthG corrupted") ;
+			protocol.append( sep + nf2.format(val) + " (" + nf1.format(val/(double)list.get(0).anzTruthG*100) + "%)"  + eol );
+		}
+		
+		protocol.append( eol+eol+"category");
 		for( String n: name ) protocol.append( sep + n );
 		protocol.append( eol+eol );
 		
-		protocol.append( "number of true transcripts");
-		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzTruth );
+		protocol.append( "number of predicted transcripts" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzPrediction) );
 		protocol.append( eol );
-		if( rel ) {
-			protocol.append( "number of reliable true transcripts" );
-			for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzRTruth + " (" + (stat.anzRTruth/(double)stat.anzTruth) + ")" );
-			protocol.append( eol );
-		}
+		protocol.append( "number of predicted genes" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzPredG) );
+		protocol.append( eol );
+		protocol.append( "number of predicted transcripts per predicted gene" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPrediction/(double)stat.anzPredG) );
+		protocol.append( eol );
 		
-		protocol.append( eol+"number of predicted transcripts" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzPrediction );
-		protocol.append( eol );
-		protocol.append( "number of perfectly predicted transcripts" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzPerfect) );
+		protocol.append( eol + "number of perfectly predicted transcripts" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzPerfect) );
 		protocol.append( eol );
 		if( rel ) {
-			protocol.append( "number of perfectly predicted reliable transcripts" );
-			for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzRPerfect) );
+			protocol.append( "number of perfectly predicted reliable true transcripts" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzRPerfect) );
 			protocol.append( eol );
 		}
 
-		protocol.append( eol + "number of true genes" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzTruthG );
+		protocol.append( eol + "number of true genes with at least one perfectly predicted transcript" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzPerfectG) );
+		protocol.append( eol );
+		protocol.append( "number of predicted genes with at least one perfectly predicted transcript" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzPerfectG2) );
 		protocol.append( eol );
 		if( rel ) {
-			protocol.append( "number of reliable true genes" );
-			for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzRTruthG + " (" + (stat.anzRTruthG/(double)stat.anzTruthG) + ")" );
+			protocol.append( "number of reliable true genes with at least one perfectly predicted transcript" );
+			for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzRPerfectG) );
 			protocol.append( eol );
 		}
 		
-		protocol.append( eol + "number of predicted genes" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + stat.anzPredG );
-		protocol.append( eol );
-		protocol.append( "number of perfectly predicted genes" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzPerfectG) );
-		protocol.append( eol );
-		if( rel ) {
-			protocol.append( "number of perfectly predicted reliable genes" );
-			for( GFFCompareStat stat: list ) protocol.append( sep + ((int)stat.anzRPerfectG) );
-			protocol.append( eol );
-		}
-
 		protocol.append( eol + "transcript sensitivity");
-		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfect / stat.anzTruth) );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfect / stat.anzTruth*100) );
 		protocol.append( eol );
 		protocol.append( "transcript precision" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfect / stat.anzPrediction) );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfect / stat.anzPrediction*100) );
 		protocol.append(eol );
 		if( rel ) {
 			protocol.append( "reliable transcript sensitivity" );
-			for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzRPerfect / stat.anzRTruth) );
+			for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzRPerfect / stat.anzRTruth*100) );
 			protocol.append( eol );
 		}
 		
 		protocol.append( eol + "gene sensitivity" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfectG / stat.anzTruthG) );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfectG / stat.anzTruthG*100) );
 		protocol.append( eol );
 		protocol.append( "gene precision" );
-		for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzPerfectG / stat.anzPredG) );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfectG2 / stat.anzPredG*100) );
 		protocol.append( eol );
 		if( rel ) {
 			protocol.append( "reliable gene sensitivity" );
-			for( GFFCompareStat stat: list ) protocol.append( sep + (stat.anzRPerfectG / stat.anzRTruthG) );
+			for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzRPerfectG / stat.anzRTruthG *100) );
 			protocol.append( eol );
 		}
 	}

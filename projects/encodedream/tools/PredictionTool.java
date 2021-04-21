@@ -123,7 +123,7 @@ public class PredictionTool implements JstacsTool {
 		if(numClass != null){
 			cls.limitClassifiers(numClass);
 		}
-		System.out.println(binsBefore+" "+binsAfter);
+		//System.out.println(binsBefore+" "+binsAfter);
 		
 		
 		FeatureReader reader = new FeatureReader(cls.getNumBins(), null, dnaseFile, motifFiles);

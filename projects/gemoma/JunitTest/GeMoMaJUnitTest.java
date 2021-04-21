@@ -18,7 +18,7 @@ import projects.gemoma.AnnotationEvidence;
 import projects.gemoma.AnnotationFinalizer;
 import projects.gemoma.CheckIntrons;
 import projects.gemoma.CompareTranscripts;
-import projects.gemoma.Denoise;
+import projects.gemoma.DenoiseIntrons;
 import projects.gemoma.ExtractRNAseqEvidence;
 import projects.gemoma.Extractor;
 import projects.gemoma.GeMoMa;
@@ -51,7 +51,7 @@ public class GeMoMaJUnitTest {
 				
 				new ExtractRNAseqEvidence(),
 				new CheckIntrons(),
-				new Denoise(),
+				new DenoiseIntrons(),
 				
 				new Extractor(maxSize),
 				new GeMoMa(maxSize, timeOut, maxTimeOut),

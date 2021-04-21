@@ -309,7 +309,7 @@ public class TALEComparisonTool implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.0";
+		return "1.4.1";
 	}
 
 	@Override
