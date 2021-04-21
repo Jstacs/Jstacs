@@ -2447,7 +2447,7 @@ public class GeMoMa extends GeMoMaModule {
 		        						if( lines[j].size() > 0 ) {
 		        							if( score.get(m) >= threshold ) {
 		        								k++;
-		        								detailedAnalyse( c, j==0, lines[j] );
+		        								detailedAnalyse( c, j==0, lines[j], bestSumScore, -1, -1 );
 		        							}
 		        							m++;
 		        						}
@@ -2459,7 +2459,7 @@ public class GeMoMa extends GeMoMaModule {
 		        				if( lines != null && lines[STRAND].size()>0 ) {
 		        					numberOfTestedStrands++;
 		        					bestSumScore = forwardDP( STRAND==0, lines[STRAND], false );
-		        					detailedAnalyse( CHROM, STRAND==0, lines[STRAND] );
+		        					detailedAnalyse( CHROM, STRAND==0, lines[STRAND], bestSumScore, -1, -1 );
 		        					k=1;
 		        				}
 		        			}
@@ -2997,83 +2997,204 @@ public class GeMoMa extends GeMoMaModule {
 		 * @param forward the strand
 		 * @param lines the search {@link Hit}s
 		 */
-		private void detailedAnalyse( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines ) throws CloneNotSupportedException, IllegalArgumentException, WrongAlphabetException, IOException {
+		private void detailedAnalyse( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, double bestSumScore, int start, int end ) throws CloneNotSupportedException, IllegalArgumentException, WrongAlphabetException, IOException {
 			if( verbose ) {
 				protocol.append( "all hits " + chromosome + " " + (forward?"+":"-") +"\n");
 				show(lines);
 			}
-			//TASK 1: reduce blast hit set	
 			int bestValue = forwardDP(forward, lines, false);
-			HashMap<Integer, ArrayList<Hit>> filtered = reduce(null, chromosome, forward, lines, avoidPrematureStop, false, bestValue*hitThreshold);
-			
-			if( verbose ) {
-				protocol.append( "filtered hits " + chromosome + " " + (forward?"+":"-")+"\n" );
-				show(filtered);
-			}
-			
-			//XXX split region?
-			ArrayList<Hit> current, all = new ArrayList<Hit>();
-			for( int j=0; j<currentInfo.exonID.length; j++ ) {
-				current = filtered.get(currentInfo.exonID[j]);
-				if( current != null && current.size() > 0 ) {
-					all.addAll( current );
+			if( bestValue >= bestSumScore*GeMoMa.this.contigThreshold ) {
+				double infThresh=0.5;//TODO check this value
+				
+				//determine borders of best solution(s)
+				getBest(true, lines);
+				Solution best = new Solution();
+				best.clear(forward,Integer.MIN_VALUE);
+				ArrayList<int[]> borders = new ArrayList<int[]>();
+				for( int h = 0; h < bestIdx[0].length(); h++ ) {
+					int i = bestIdx[0].get(h);
+					int idx = bestIdx[1].get(h);
+					sol.clear(forward, bestValue);
+				
+					backTracking( null, forward, lines, i, idx, 0, 0, 0, sol, best, false );
+					borders.add( new int[] { best.getMin(), best.getMax() } );
 				}
-			}
-			Collections.sort( all, HitComparator.comparator[forward ? 0 : 1] );
-			
-//XXX change? RNAseq?
-			Hit now;
-			int last=-1, prevPart = -1;
-			boolean informative;
-			IntList endIdx = new IntList(), startIdx = new IntList();
-			startIdx.add(0);
-			for( int j=0; j<all.size(); j++ ) {
-				now = all.get(j);
-				informative = ((now.queryEnd-now.queryStart+1d) / Math.max(20d,now.queryLength)) >= 0.9;//XXX check this value
-				if( informative ) 
-				{
-					if( prevPart>=0 && prevPart>=revParts[now.part] ) {
-						endIdx.add(j);
-						startIdx.add(last+1);
-					}
-					last=j;
-					prevPart = revParts[now.part];
+				
+				//enlarge if solutions are overlapping
+				Collections.sort(borders,IntArrayComparator.comparator[0]);
+				int[] bo = borders.get(0);
+				int min=bo[0], max=bo[1], k=1;
+				while( k < borders.size() && (bo=borders.get(k))[0]<max ) {
+					max=Math.max(max, bo[1]);
+					k++;
 				}
-				if( verbose ) protocol.append( j + "\t" + informative + "\t" + now + "\n" );
-			}
-			endIdx.add(all.size());
-			
-			if( endIdx.length() > 1 ) {
-				int a = 0;
-				HashMap<Integer,ArrayList<Hit>> region = new HashMap<Integer, ArrayList<Hit>>();
-				for( int j=0; j<endIdx.length(); j++ ) {
-					region.clear();
-					region = new HashMap<Integer,ArrayList<Hit>>();
-					int end = endIdx.get(j), k = startIdx.get(j);
-					if( verbose ) protocol.append("check region: [" + k + ", " + end + ")\n");
-					while( k < end ) {
-						now = all.get(k);
-						ArrayList<Hit> list = region.get( now.part );
-						if( list == null ) {
-							list = new ArrayList<Hit>();
-							region.put( now.part, list );
+//System.out.println("intervall: " + chromosome + "\t" + forward + "\t" + min + ", " + max );
+
+				//determine whether middle can be split
+				int mid = findSubInterval(infThresh, forward, lines, min, max);
+				if( forward ) {
+					max=mid;
+				} else {
+					min=mid;
+				}
+				HashMap<Integer,ArrayList<Hit>> middle = new HashMap<Integer,ArrayList<Hit>>();
+				for( int j=0; j<currentInfo.exonID.length; j++ ) {
+					int key = currentInfo.exonID[j];
+					ArrayList<Hit> current = lines.get(key), m;
+					if( current != null ) {
+						m=new ArrayList<Hit>();
+						for( int i = 0; i < current.size(); i++ ) {
+							Hit now = current.get(i);
+							if( min <= now.targetEnd && now.targetStart <= max ) {
+								m.add(now);
+							}
 						}
-						list.add( now );
-						k++;
-					}
-					if( forwardDP(forward, region, false) >= bestValue*regionThreshold ) {
-						result.add( detailedAnalyseRegion( chromosome, forward, region ) );
-						a++;
 					} else {
-						if( verbose ) protocol.append( "discard region\n" );
+						m=current;
 					}
+					middle.put(key, (m==null ||m.size()==0)?null:m);
 				}
-				if ( a > 0 ) {
-					return;
+			
+				//reduce
+				int v = forwardDP(forward, middle, false);
+				HashMap<Integer, ArrayList<Hit>> filtered = reduce(null, chromosome, forward, middle, avoidPrematureStop, false, v*hitThreshold);
+				if( verbose ) {
+					protocol.append( "filtered hits " + chromosome + " " + (forward?"+":"-")+"\n" );
+					show(filtered);
+				}
+				middle=filtered;
+				
+				//determine solution for middle region
+				Solution s = detailedAnalyseRegion( chromosome, forward, middle, start, end );
+				if( s.hits.size()>0 ) {
+					result.add( s );
+					min = s.getMin();
+					max = s.getMax();
+				}
+
+				//create 2 lists: before, after
+				HashMap<Integer,ArrayList<Hit>> before = new HashMap<Integer,ArrayList<Hit>>();
+				HashMap<Integer,ArrayList<Hit>> after = new HashMap<Integer,ArrayList<Hit>>();
+				int numA=0, numB=0;
+				for( int j=0; j<currentInfo.exonID.length; j++ ) {
+					int key = currentInfo.exonID[j];
+					ArrayList<Hit> current = lines.get(key);
+					ArrayList<Hit> b=new ArrayList<Hit>();
+					ArrayList<Hit> a=new ArrayList<Hit>();
+					if( current != null ) {
+						for( int i = 0; i < current.size(); i++ ) {
+							Hit now = current.get(i);
+							if( Math.max( now.targetStart, now.targetEnd )<min ) {
+								b.add(now);
+								numB++;
+							} else if( Math.min( now.targetStart, now.targetEnd )>max ) {
+								a.add(now);
+								numA++;
+							}
+						}
+					}
+					before.put(key, b.size()==0?null:b);
+					after.put(key, a.size()==0?null:a);
+				}
+
+				//recursive for before and after
+				if( numB>0 ) detailedAnalyse(chromosome, forward, before, bestSumScore, start, min );
+				if( numA>0 ) detailedAnalyse(chromosome, forward, after, bestSumScore, max, end );
+			}
+		}
+		
+		private int findSubInterval( double infThresh, boolean forward, HashMap<Integer, ArrayList<Hit>> lines, int myMin, int myMax ) {
+			ArrayList<Hit> inf = new ArrayList<Hit>();
+			ArrayList<String> keys = new ArrayList<String>();
+			for( int j=0; j<currentInfo.exonID.length; j++ ) {
+				String key = geneName + (transcriptInfo==null? "":("_" + currentInfo.exonID[j]));
+				String r = cds.get( key );
+				if( r!= null && r.length()>=30 ) {
+					keys.add(key);
+					ArrayList<Hit> current = lines.get(currentInfo.exonID[j]);
+					if( current != null ) {
+						for( int i = 0; i < current.size(); i++ ) {
+							Hit now = current.get(i);
+							if( myMin <= now.targetEnd && now.targetStart <= myMax ) {
+								double v = (now.queryEnd-now.queryStart+1d) / (double) now.queryLength;
+								if(  v >= infThresh ) {
+									inf.add(now);
+								}
+							}
+						}
+					}
 				}
 			}
-			if( verbose ) protocol.append("check region: [" + startIdx.get(0) + ", " + endIdx.get(0) + ")\n");
-			result.add( detailedAnalyseRegion( chromosome, forward, filtered ) );
+//System.out.println("CHECK");
+			int j=-2, i=-2;
+			Hit b=null;
+			if( inf.size()> 0 ) {
+				Collections.sort( inf, HitComparator.comparator[forward?0:1] );
+				i = findChain(inf, 0, keys, forward, forward ? myMin : myMax);
+				if( i < inf.size() ) {
+					b = inf.get(i);
+					int middle = forward ? b.targetStart : b.targetEnd;
+					j = findChain(inf, i, keys, forward, middle );
+				}
+			}
+			if( inf.size()>0  &&  i < inf.size() && j != inf.size() ) {
+				//split
+//System.out.println("YES " + i + "/" + inf.size() + "\t" + b );
+				int middle = forward ? b.targetStart : b.targetEnd;
+				return middle;
+			} else {
+//System.out.println("NO");
+				//do not split
+				return forward ? myMax : myMin;
+			}
+		}
+		
+		private int findChain( ArrayList<Hit> inf, int i, ArrayList<String> keys, boolean forward, int start ) {
+			int s=0;
+//System.out.println("findChain");
+//System.out.println( inf.get(0).targetID + "\t" + forward + "\t" + start + "\t" + keys );
+			while( i < inf.size() && s < keys.size() ) {
+				Hit h = inf.get(i);
+//System.out.print( h.queryID + "\t" + h.targetStart + "\t" + h.targetEnd );
+				if( h.queryID.equals(keys.get(s)) ) { //expected cds part
+//System.out.print( "\t*");
+					if( forward ) {
+						if( start<=h.targetStart ) {
+//System.out.print( "*");
+							start=h.targetEnd;
+							s++;
+						}
+					} else {
+//System.out.print( "*");
+						if( h.targetEnd<=start ) {
+							start=h.targetStart;
+							s++;
+						}
+					}
+				}
+//System.out.println();
+				i++;
+			}
+			if( s==keys.size() ) {
+				String k = keys.get(0);
+				while( i < inf.size()  ) {
+					Hit h = inf.get(i);
+					if( h.queryID.equals(k) ) { //expected cds part
+						if( forward ) {
+							if( start<h.targetStart ) {
+								break;
+							}
+						} else {
+							if( h.targetEnd<start ) {
+								break;
+							}
+						}
+					}
+					i++;
+				}
+				if( i==inf.size() ) i++;
+			}
+			return i;
 		}
 		
 		private void show( HashMap<Integer, ArrayList<Hit>> lines ) throws IOException {
@@ -3199,7 +3320,7 @@ public class GeMoMa extends GeMoMaModule {
 			return filtered;
 		}
 		
-		private Solution detailedAnalyseRegion( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> filtered ) throws CloneNotSupportedException, WrongAlphabetException, IOException {
+		private Solution detailedAnalyseRegion( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> filtered, int globalStart, int globalEnd ) throws CloneNotSupportedException, WrongAlphabetException, IOException {
 			if( verbose ) show(filtered);
 			ArrayList<Hit> current;
 			
@@ -3210,6 +3331,8 @@ public class GeMoMa extends GeMoMaModule {
 			}
 			
 			String chr = seqs.get(chromosome);
+			if( globalStart < 0 ) globalStart=0;
+			if( globalEnd < 0 ) globalEnd=chr.length();
 			if( acceptorSites!= null && donorSites != null ) {
 				for( int h = 0; h <currentInfo.exonID.length; h++ ) {
 					ArrayList<Hit> list = filtered.get(currentInfo.exonID[h]);
@@ -3296,12 +3419,12 @@ public class GeMoMa extends GeMoMaModule {
 			//add upstream CDS part candidates
 			if( first > 0 ) {
 				if( verbose ) protocol.append("FIRST\t" + first + "\t" + currentInfo.exonID[first] + "\n");
-				extend(chromosome, forward, filtered, first, true, "upstream");
+				extend(chromosome, forward, filtered, first, true, "upstream", globalStart, globalEnd);
 			}
 			//add downstream CDS part candidates
 			if( last < currentInfo.exonID.length-1 ) {
 				if( verbose ) protocol.append("LAST\t" + last + "\t" + currentInfo.exonID[last] + "\n");
-				extend(chromosome, forward, filtered, last, false, "downstream");
+				extend(chromosome, forward, filtered, last, false, "downstream", globalStart, globalEnd);
 			}
 			
 			//check
@@ -3372,7 +3495,7 @@ public class GeMoMa extends GeMoMaModule {
 			return best;
 		}
 		
-		private void extend( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int index, boolean upstream, String info ) throws IllegalArgumentException, WrongAlphabetException {
+		private void extend( String chromosome, boolean forward, HashMap<Integer,ArrayList<Hit>> lines, int index, boolean upstream, String info, int globalStart, int globalEnd ) throws IllegalArgumentException, WrongAlphabetException {
 			int next, dir, end;
 			if( upstream ) {
 				dir = -1;
@@ -3410,13 +3533,13 @@ public class GeMoMa extends GeMoMaModule {
 				boolean site = false;
 				for( int i = 1; i <array.length; i++ ) {
 					if( array[i][0]-array[i-1][0] > d ) {
-						int endLast, startNext;					
+						int endLast, startNext;
 						if( forward ) {
-							endLast=array[startIndex][0]-f*(d-a); 
-							startNext=array[i-1][0]+f*a;
+							endLast=Math.max(globalStart, array[startIndex][0]-f*(d-a)); 
+							startNext=Math.min(globalEnd, array[i-1][0]+f*a);
 						} else {
-							endLast=array[i-1][0]+f*(d-a);
-							startNext=array[startIndex][0]-f*a;
+							endLast=Math.min(globalEnd, array[i-1][0]+f*(d-a));
+							startNext=Math.max(globalStart, array[startIndex][0]-f*a);
 						}
 						align(chromosome, forward, endLast, startNext, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
 						startIndex=i;
@@ -3426,11 +3549,11 @@ public class GeMoMa extends GeMoMaModule {
 				}
 				int endLast, startNext;
 				if( forward ) {
-					endLast=array[startIndex][0]-f*(d-a); 
-					startNext=array[array.length-1][0]+f*a;
+					endLast=Math.max(globalStart, array[startIndex][0]-f*(d-a)); 
+					startNext=Math.min(globalEnd, array[array.length-1][0]+f*a);
 				} else {
-					endLast=array[array.length-1][0]+f*(d-a);
-					startNext=array[startIndex][0]-f*a;
+					endLast=Math.min(globalEnd, array[array.length-1][0]+f*(d-a));
+					startNext=Math.max(globalStart, array[startIndex][0]-f*a);
 				}
 				align(chromosome, forward, endLast,startNext, next, stop, lines, info, upstream ? false : site, upstream ? site : false );
 
