@@ -5,13 +5,16 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import de.jstacs.DataType;
+import de.jstacs.algorithms.graphs.GenericUnionFind;
 import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSetContainer;
@@ -25,7 +28,6 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import projects.gemoma.old.GeMoMa;
 
 public class GAFComparison extends GeMoMaModule {
 
@@ -36,10 +38,13 @@ public class GAFComparison extends GeMoMaModule {
 		boolean splitPrefix = (Boolean)parameters.getParameterForName("split prefix").getValue();
 		boolean differences = (Boolean)parameters.getParameterForName("differences").getValue();
 		
+		//key=ref-gene/alternative, value=
 		HashMap<String,HashMap<String,int[]>[]> hash = new HashMap<String,HashMap<String,int[]>[]>();
 		
 		//read genes in GAF gff format!
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("predicted annotation").getValue();
+
+		GenericUnionFind<String> guf = new GenericUnionFind<String>();
 		
 		BufferedReader r;
 		int MAX = eps.getNumberOfParameters();
@@ -61,13 +66,18 @@ public class GAFComparison extends GeMoMaModule {
 							pa=split[j].substring(7);
 						}
 					}
+					String rg = null;
 					for( int j = 0; j < split.length; j++ ) {
 						if( split[j].startsWith("ref-gene=") ) {
-							add(hash,pa,split[j].substring(9),name.length,k);
+							rg=reformat(split[j].substring(9));
+							add(hash,pa,rg,name.length,k);
+							guf.find(rg);
 						} else if ( split[j].startsWith("alternative=\"") ) {
 							String[] s = split[j].substring(13,split[j].length()-1).split(",");
 							for( int h = 0; h < s.length; h++ ) {
+								s[h]=reformat(s[h]);
 								add(hash,pa,s[h],name.length,k);
+								guf.union( rg, s[h]);
 							}
 						}
 					}					
@@ -80,15 +90,17 @@ public class GAFComparison extends GeMoMaModule {
 		Arrays.sort(genes);
 
 		File out = Tools.createTempFile("GAFComparison", temp);
-		
+
+		HashMap<Integer, ArrayList<String>> comp = guf.getComponents();
+
 		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
-		w.append((splitPrefix?"\t":"") + "\t\t");
+		w.append((splitPrefix?"\t":"") + "\t\t\t\t");
 		for( int i = 0; i < name.length; i++ ) {
 			w.append( "\t" + name[i] + "\t" );
 		}
 		w.newLine();
-		if( splitPrefix ) System.out.print("prefix\t");
-		w.append("gene-ID\tmin #genes\tmax #genes");
+		if( splitPrefix ) w.append("prefix\t");
+		w.append("gene-ID\tcomponent\tcomponents size\tmin #genes\tmax #genes");
 		for( int i = 0; i < name.length; i++ ) {
 			w.append( "\t#genes\t#transcripts" );
 		}
@@ -110,6 +122,8 @@ public class GAFComparison extends GeMoMaModule {
 				} else {
 					w.append(g);
 				}
+				int compIdx = guf.find(g);
+				w.append( "\t" + compIdx + "\t" + comp.get(compIdx).size() );
 				w.append( "\t" + min );
 				w.append( "\t" + max );
 				for( int i = 0; i < v.length; i++ ) {
@@ -120,12 +134,36 @@ public class GAFComparison extends GeMoMaModule {
 		}
 		w.close();
 		
+		Iterator<Integer> it = comp.keySet().iterator();
+		HashSet<String> prefix = new HashSet<String>();
+		protocol.append("component\t#elements\t#prefixes\tmembers\n");
+		while( it.hasNext() ) {
+			int k = it.next();
+			ArrayList<String> list = comp.get(k);
+			if( splitPrefix ) {
+				prefix.clear();
+				for( int i = 0; i < list.size(); i++ ) {
+					String g = list.get(i);
+					int idx = g.indexOf('_');
+					if( idx>=0 && splitPrefix ) {
+						g=g.substring(0, idx);
+					} else {
+						g="";
+					}
+					prefix.add(g);
+				}
+			}		
+			protocol.append( k + "\t" + list.size() +"\t" + prefix.size() + "\t" + list +"\n");
+		}
+		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("GAF comparison", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tabular", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 	
+	private String reformat(String string) {
+		return string.toUpperCase(); //TODO
+	}
+
 	static void add( HashMap<String, HashMap<String,int[]>[]> hash, String parent, String rGene, int max, int current ) {
-		rGene=rGene.toUpperCase();
-		
 		HashMap<String,int[]>[] val = hash.get(rGene);
 		if( val == null ) {
 			val = new HashMap[max];
