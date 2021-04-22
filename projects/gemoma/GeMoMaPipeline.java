@@ -235,7 +235,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	}
 	
 	public GeMoMaPipelineParameterSet getToolParameters() {
-		ToolParameterSet ere = new ExtractRNAseqEvidence().getToolParameters();
+		ParameterSet ere = getRelevantParameters(new ExtractRNAseqEvidence().getToolParameters(),"target genome");
 		ParameterSet denoise = getRelevantParameters(new DenoiseIntrons().getToolParameters(), "introns", "coverage" );
 		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", Extractor.name[2], Extractor.name[3], Extractor.name[4], Extractor.name[5], Extractor.name[6] );
 		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "selected", "genetic code", "tag", "coverage", "introns", "sort" );
@@ -405,7 +405,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				
 				if( b instanceof SelectionParameter ) {
 					int idx = ((SelectionParameter)a).getSelected();
-					b.setValue( a.getParametersInCollection().getParameterAt(idx) );
+					b.setValue( ((SelectionParameter)b).getParametersInCollection().getParameterAt(idx) );
 				}
 				
 				setParameters( ps, (ParameterSet) b.getValue() );
@@ -890,7 +890,12 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					
 					ere = new JEREAndFill();
 				} else {
-					ere = new JEREAndFill((ToolParameterSet) pa);
+					ToolParameterSet ereParams = new ExtractRNAseqEvidence().getToolParameters();
+					setParameters( pa, ereParams);
+					ParameterSet par = (ParameterSet) ereParams.getParameterForName("filter by intron mismatches").getValue();
+					if( par.getNumberOfParameters()>0 ) par.getParameterForName("target genome").setValue(target);
+					
+					ere = new JEREAndFill(ereParams);
 				}
 			} else {
 				ere = new JEREAndFill();
@@ -1490,7 +1495,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		
 		@Override
 		public void doJob() throws Exception {
-			Protocol protocol = new QuietSysProtocol();
+			Protocol protocol = threads>1?new QuietSysProtocol():pipelineProtocol;
 			if( params != null ) {
 				//run ERE
 				ExtractRNAseqEvidence ere = new ExtractRNAseqEvidence();
