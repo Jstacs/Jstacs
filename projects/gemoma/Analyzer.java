@@ -466,6 +466,13 @@ public class Analyzer extends GeMoMaModule {
 		protocol.append( "transcript precision" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfect / stat.anzPrediction*100) );
 		protocol.append(eol );
+		protocol.append( "transcript F1" );
+		for( GFFCompareStat stat: list ) {
+			double sn = stat.anzPerfect / stat.anzTruth;
+			double pr = stat.anzPerfect / stat.anzPrediction;
+			protocol.append( sep + nf1.format(2*sn*pr/(sn+pr)) );
+		}
+		protocol.append(eol );		
 		if( rel ) {
 			protocol.append( "reliable transcript sensitivity" );
 			for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzRPerfect / stat.anzRTruth*100) );
@@ -478,6 +485,14 @@ public class Analyzer extends GeMoMaModule {
 		protocol.append( "gene precision" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfectG2 / stat.anzPredG*100) );
 		protocol.append( eol );
+		/*protocol.append( "gene F1" );
+		for( GFFCompareStat stat: list ) {
+			double sn = stat.anzPerfectG / stat.anzTruthG;
+			double pr = stat.anzPerfectG2 / stat.anzPredG;
+			protocol.append( sep + nf1.format(2*sn*pr/(sn+pr)) );
+		}*/
+		protocol.append(eol );
+
 		if( rel ) {
 			protocol.append( "reliable gene sensitivity" );
 			for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzRPerfectG / stat.anzRTruthG *100) );
