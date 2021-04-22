@@ -271,7 +271,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 						new SimpleParameter(DataType.INT,"minimum context", "only introns that have evidence of at least one split read with a minimal M (=(mis)match) stretch in the cigar string larger than or equal to this value will be used", true, new NumberValidator<Integer>(1, 1000000), 1),
 						new SimpleParameter(DataType.INT,"maximum coverage", "optional parameter to reduce the size of coverage output files, coverage higher than this value will be reported as this value", false, new NumberValidator<Integer>(1, 10000) ),
 						new SelectionParameter(DataType.PARAMETERSET,
-								new String[] {"no","yes"},
+								new String[] {"NO","YES"},
 								new ParameterSet[] {
 									new SimpleParameterSet(),
 									new SimpleParameterSet(
@@ -279,7 +279,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 											new SimpleParameter(DataType.INT,"number of mismatches","number of mismatches allowed in regions around introns/splits",true,new NumberValidator<Integer>(0,100),3),
 											new FileParameter( "target genome", "The target genome file (FASTA). Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true )
 											)
-								},"Filter by intron mismatches","Filter reads by the number of mismatches around splits",true),
+								},"filter by intron mismatches","filter reads by the number of mismatches around splits",true),
 						new SimpleParameter(DataType.DOUBLE, "evidence long splits", "require introns to have at least this number of times the supporting reads as their length deviates from the mean split length", true, new NumberValidator<Double>(0.0,100.0), 0.0 ),
 						new SimpleParameter(DataType.INT,"minimum intron length","introns shorter than the minimum length are discarded and considered as contiguous",true,new NumberValidator<Integer>(0,1000),0),
 						new FileParameter( "repositioning", "due to limitations in BAM/SAM format huge chromosomes need to be split before mapping. This parameter allows to undo the split mapping to real chromosomes and coordinates. The repositioning file has 3 columns: split_chr_name, original_chr_name, offset_in_original_chr", "tabular", false, new FileExistsValidator() )
@@ -305,7 +305,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		int maxCov=-1;
 		if( sp!=null && sp.isSet()) maxCov = (Integer)sp.getValue();
 		
-		SelectionParameter filtSP = (SelectionParameter) parameters.getParameterForName("Filter by intron mismatches");
+		SelectionParameter filtSP = (SelectionParameter) parameters.getParameterForName("filter by intron mismatches");
 		
 		int positionsAroundSpliceSite = 0;
 		int maxMismatches = Integer.MAX_VALUE;
@@ -394,6 +394,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 			sosInt.write("SIMPLE PARAMETERS: " + info );
 		}
 		sosInt.writeln();
+		int[] intronLength= {Integer.MAX_VALUE, Integer.MIN_VALUE};
 		
 		Comparator<String> scomp = new Comparator<String>() {
 			
@@ -552,7 +553,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				
 				if( firstChrs[0] == null || !chr.equals(firstChrs[0]) ) {
 					introns = count(introns,stats,minIntronLength);
-					intronNum += print(chrOut,offset,introns,sosInt, minContext);
+					intronNum += print(chrOut,offset,introns,sosInt, minContext,intronLength);
 					introns.clear();
 				}
 				
@@ -597,6 +598,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		protocol.append("#reads:\t" + i + "\n");
 		protocol.append("#split reads:\t" + splits + "\n");
 		protocol.append("#introns:\t" + intronNum + "\n");
+		protocol.append("#intron length:\t" + intronLength[0] + " .. " + intronLength[1] + "\n");
 		
 		protocol.append("\n");
 		Integer[] il = new Integer[intronL.size()];
@@ -631,7 +633,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	private static HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
 	private static long anz = 0;
 	
-	private static long print(String chrom, int offset, ArrayList<Intron> introns,SafeOutputStream sos, int threshold) throws IOException{
+	private static long print(String chrom, int offset, ArrayList<Intron> introns,SafeOutputStream sos, int threshold,int[] intronLength ) throws IOException{
 		Iterator<Intron> it = introns.iterator();
 		long i = 0;
 		while(it.hasNext()){
@@ -647,6 +649,10 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				anz++;
 				sos.writeln(chrom+"\tRNAseq\tintron\t"+(offset+in.getStart())+"\t"+(offset+in.getEnd())+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
 				i++;
+				
+				int len = in.getEnd()-in.getStart();
+				intronLength[0]=Math.min(len, intronLength[0]);
+				intronLength[1]=Math.max(len, intronLength[1]);
 			}
 		}
 		return i;
