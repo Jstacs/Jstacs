@@ -556,8 +556,8 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				Arrays.sort(firstChrs,scomp);
 				
 				if( firstChrs[0] == null || !chr.equals(firstChrs[0]) ) {
-					introns = count(introns,stats,minIntronLength);
-					intronNum += print(chrOut,offset,introns,sosInt, minContext,intronLength);
+					introns = count(introns,minIntronLength);
+					intronNum += print(chrOut,offset,introns,stats,sosInt,minContext,intronLength); //XXX if write done in a separate loop at the end intronL could be used for ReadStats
 					introns.clear();
 				}
 				
@@ -639,32 +639,26 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	private static HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
 	private static long anz = 0;
 	
-	private static long print(String chrom, int offset, ArrayList<Intron> introns,SafeOutputStream sos, int threshold,int[] intronLength ) throws IOException{
+	private static long print(String chrom, int offset, ArrayList<Intron> introns, ReadStats stats, SafeOutputStream sos, int threshold,int[] intronLength ) throws IOException{
 		Iterator<Intron> it = introns.iterator();
 		long i = 0;
 		while(it.hasNext()){
 			Intron in = it.next();
 			if( in.minContext >= threshold ) {
-				int l = in.getEnd()-in.getStart();
-				int[] stat = intronL.get(l);
-				if( stat == null ) {
-					stat = new int[1];
-					intronL.put(l, stat);
-				}
-				stat[0]++;
-				anz++;
-				sos.writeln(chrom+"\tRNAseq\tintron\t"+(offset+in.getStart())+"\t"+(offset+in.getEnd())+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
-				i++;
-				
 				int len = in.getEnd()-in.getStart();
-				intronLength[0]=Math.min(len, intronLength[0]);
-				intronLength[1]=Math.max(len, intronLength[1]);
+				if( stats == null || stats.isOK(len, in.count) ) {
+					sos.writeln(chrom+"\tRNAseq\tintron\t"+(offset+in.getStart())+"\t"+(offset+in.getEnd())+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
+					i++;
+					
+					intronLength[0]=Math.min(len, intronLength[0]);
+					intronLength[1]=Math.max(len, intronLength[1]);
+				}
 			}
 		}
 		return i;
 	}
 	
-	private static ArrayList<Intron> count(ArrayList<Intron> introns, ReadStats stats, int minIntronLength) {
+	private static ArrayList<Intron> count(ArrayList<Intron> introns, int minIntronLength) {
 		Collections.sort(introns);
 		ArrayList<Intron> agg = new ArrayList<Intron>();
 		
@@ -680,23 +674,30 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				last.bestContext(curr);
 				n++;
 			}else{
-				last.setCount(n);
-				int lastLen = last.getEnd()-last.getStart();
-				if((stats == null || stats.isOK(lastLen, n)) && lastLen >= minIntronLength) {
-					agg.add(last);
-				}
+				addIntron(agg, last, n, minIntronLength);
 				last = curr;
 				n = 1;
 			}
 		}
-		
-		last.setCount(n);
-		int lastLen = last.getEnd()-last.getStart();
-		if((stats == null || stats.isOK(lastLen, n)) && lastLen >= minIntronLength) {
-			agg.add(last);
-		}
+		addIntron(agg, last, n, minIntronLength);
 		
 		return agg;
+	}
+	
+	private static void addIntron( ArrayList<Intron> agg, Intron last, int n, int minIntronLength ) {
+		last.setCount(n);
+		int lastLen = last.getEnd()-last.getStart();
+		if( lastLen >= minIntronLength) {
+			agg.add(last);
+			
+			int[] stat = intronL.get(lastLen);
+			if( stat == null ) {
+				stat = new int[1];
+				intronL.put(lastLen, stat);
+			}
+			stat[0]++;
+			anz++;
+		}		
 	}
 	
 
