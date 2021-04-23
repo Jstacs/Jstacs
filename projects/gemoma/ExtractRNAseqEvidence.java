@@ -429,6 +429,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		Arrays.fill(corrupt, false);
 		long i = 0;
 		long[][] qual = new long[3][260];
+		int questionable=0, tooShort=0;
 		while(true){
 			
 			int wm = whichMin(curr,chr);
@@ -503,11 +504,14 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 											}
 											if( maxCov < 0 || current[0]<maxCov ) current[0]++;
 										}
+										tooShort++;
 									}
 								}
 							}
 						}
 					}
+				} else {
+					if( q >= minQuality ) questionable++;
 				}
 				if(its[wm].hasNext()){
 					try {
@@ -597,6 +601,8 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		protocol.append("#corrupt files:\t" + c + "\n");
 		protocol.append("#reads:\t" + i + "\n");
 		protocol.append("#split reads:\t" + splits + "\n");
+		protocol.append("#questionable split reads:\t" + questionable + "\n");
+		protocol.append("#removed very short intron:\t" + tooShort + "\n");
 		protocol.append("#introns:\t" + intronNum + "\n");
 		protocol.append("#intron length:\t" + intronLength[0] + " .. " + intronLength[1] + "\n");
 		
@@ -685,7 +691,10 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		}
 		
 		last.setCount(n);
-		agg.add(last);
+		int lastLen = last.getEnd()-last.getStart();
+		if((stats == null || stats.isOK(lastLen, n)) && lastLen >= minIntronLength) {
+			agg.add(last);
+		}
 		
 		return agg;
 	}
