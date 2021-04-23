@@ -490,9 +490,8 @@ public class Analyzer extends GeMoMaModule {
 			double sn = stat.anzPerfectG / stat.anzTruthG;
 			double pr = stat.anzPerfectG2 / stat.anzPredG;
 			protocol.append( sep + nf1.format(2*sn*pr/(sn+pr)) );
-		}*/
-		protocol.append(eol );
-
+		}
+		protocol.append(eol );*/
 		if( rel ) {
 			protocol.append( "reliable gene sensitivity" );
 			for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzRPerfectG / stat.anzRTruthG *100) );
