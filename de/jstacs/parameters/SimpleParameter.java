@@ -665,7 +665,7 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 		
 		if( value != null ) {
 			String	val = unescape( value.toString() );
-			this.setValue( val );
+			if( isRequired() || val.length()>0 || checkValue(val) ) this.setValue(val); 
 		} else {
 			if( isRequired() && !hasDefaultOrIsSet() ) {
 				throw new NullPointerException( getName()+" "+command+" "+namePrefix );
