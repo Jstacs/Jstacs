@@ -1071,8 +1071,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				}
 			}
 			return overlap;
-		}
-	}*/
+		}*/
+	}
 
 
 	@Override
