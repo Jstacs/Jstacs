@@ -391,7 +391,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				
 				if( pred.size() > 0 ) {
 					//cluster predictions
-					split(addAdd, clustered, pred, comp, rnaSeq, maxTranscripts, w, weight, cbTh, protocol);
+					split(addAdd, clustered, pred, comp, rnaSeq, maxTranscripts, w, cbTh, protocol);
 				}
 			}
 			w.close();
@@ -429,7 +429,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	static int[][] stats;
 	static int gene=0;
 	
-	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, Comparator<Prediction> comp, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double[] weight, double cbTh, Protocol protocol ) throws Exception {
+	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, Comparator<Prediction> comp, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
 		int i = 0;
 		Prediction next = pred.get(i), current;
 		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
@@ -448,141 +448,106 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			if( clustered!= null ) clustered[0]++;
 			
 			Collections.sort( currentCluster, comp );
-			create( addAdd, rnaSeq, maxTranscripts, currentCluster, w, weight, cbTh, protocol, comp );
+			create( addAdd, rnaSeq, maxTranscripts, currentCluster, w, cbTh, protocol );
 		}
 	}
 	
-	void create( boolean addAdd, boolean rnaSeq, int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, double[] weight, double cbTh, Protocol protocol, Comparator<Prediction> comp ) throws Exception {
-		//select best prediction from notUsed
-		Prediction current = list.get(0);
-		ArrayList<Prediction> sel = new ArrayList<Prediction>();
-		sel.add( current );
-		current.used=true;
-		int start = current.start;
-		int end = current.end;
-
-		int s=0, e=0;
-		if( addAdd ) {
-			s = Integer.parseInt(current.split[3]);
-			e = Integer.parseInt(current.split[4]);
+	void create( boolean addAdd, boolean rnaSeq, int maxTranscripts, ArrayList<Prediction> list, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
+		ArrayList<ArrayList<Prediction>> sel = new ArrayList<ArrayList<Prediction>>();
+		ArrayList<BitSet> usedBp = new ArrayList<BitSet>();
+		int clusterStart = Integer.MAX_VALUE;
+		int clusterEnd = 0;
+		for( int i = 0; i < list.size(); i++ ) {
+			Prediction p = list.get(i);
+			if( p.start < clusterStart ) {
+				clusterStart = p.start;
+			}
+			if( p.end > clusterEnd ) {
+				clusterEnd = p.end;
+			}
 		}
 		
-		int[] startSearch = new int[list.size()];
-		
-		int old;
-		do {
-			old = sel.size();
-			//find alternative transcripts
-			for( int i = 1; i < list.size(); i++ ) {
-				Prediction n = list.get(i);
-				if( !n.used && n.altCand ) {
-					if( n.end < start || end < n.start ) {//no overlap
-					} else { //overlapping
-						int j = startSearch[i];
-						for( ; j < sel.size(); j++ ) {
-							Prediction x = sel.get(j);
-							double min=2d*Math.min(x.cds.size(),n.cds.size());
-							double cb = x.commonBorders(n);
-							if( cb/min>=cbTh ) {//there are enough common borders to at least one other transcript
-								sel.add(n);
-								n.used=true;
-								start = Math.min(start, n.start);
-								end = Math.max(end, n.end);
-								
-								if( addAdd ) {
-									s = Math.min(s, Integer.parseInt(n.split[3]));
-									e = Math.max(e, Integer.parseInt(n.split[4]));
-								}
-								break;
-							}
-						}
-						if( j==sel.size() ) {
-							//not included
-							startSearch[i]=sel.size();
-						}
+		int minOverlapThreshold = 0; // can later be extended to small overlap
+		for( int i = 0; i < list.size(); i++ ) {
+			Prediction n = list.get(i);
+			int overlapIdx = -1, enoughOverlap = 0, maxOverlap=0;
+			for( int j = 0; j < sel.size(); j++ ) {
+				//check overlap
+				int o = n.overlap(usedBp.get(j),clusterStart,clusterEnd);
+				if( o > minOverlapThreshold ) {
+					enoughOverlap++;
+					if( o>maxOverlap ) {
+						maxOverlap=o;
+						overlapIdx=j;
 					}
 				}
 			}
-		} while( old < sel.size() );
+			if( enoughOverlap==0 ) {
+				//new gene
+				ArrayList<Prediction> selection = new ArrayList<Prediction>();
+				selection.add(n);
+				n.used=true;
+				sel.add( selection );
+				
+				BitSet usedCov = new BitSet(clusterEnd-clusterStart+1);
+				n.fillNuc(usedCov,clusterStart,clusterEnd);
+				usedBp.add(usedCov);
+			} else {
+				//new alternative transcript?
+				if( n.altCand && enoughOverlap==1 ) {
+					ArrayList<Prediction> selection = sel.get(overlapIdx);
+					
+					//TODO
+					//for( int k = 0; k < selection.size(); k++ ) { //test all members
+					int k=0; //test cluster representative
+						Prediction x = selection.get(k);
+						
+						
+						double min=2d*Math.min(x.cds.size(),n.cds.size());
+						double overlap = x.commonBorders(n)/min;
+						//double overlap = n.phaseCompatible(x)/(double) n.length;
+						if( overlap>=cbTh ) {
+							selection.add(n);
+							n.used=true;
+							n.fillNuc(usedBp.get(overlapIdx),clusterStart,clusterEnd);
+							//break;
+						}
+					//}
+				}
+			}
+		}			
 		
-		maxEvidence=0;
-		Arrays.fill( combinedEvidence, false );
-		maxTie=-1;
-		complete=0;
+		//write
 		Prediction n=null;
-		
-		int i = 0;
-		for( i = 0; i < sel.size() && i < maxTranscripts; i++ ) {
-			n = sel.get(i);
-			n.write(w, protocol);
-		}
-		transcripts+=i;
-		if( i>0 ) {
-			//write
-			fillEvidence(combinedEvidence, -999, 2);
-			if( addAdd ) {
-				start=s;
-				end=e;
+		for( int j = 0; j < sel.size(); j++ ) {
+			ArrayList<Prediction> selection = sel.get(j);
+			int start=Integer.MAX_VALUE, end=Integer.MIN_VALUE;
+			maxEvidence=0;
+			Arrays.fill( combinedEvidence, false );
+			maxTie=-1;
+			complete=0;
+			int i = 0;
+			//write transcripts and deterime start and end
+			for( ; i < selection.size() && i < maxTranscripts; i++ ) {
+				n = selection.get(i);
+				n.write(w, protocol);
+				
+				start = Math.min(start, addAdd ? Integer.parseInt(n.split[3]) : n.start);
+				end = Math.max(end, addAdd ? Integer.parseInt(n.split[4]) : n.end );
 			}
-			w.append(n.split[0] + "\tGAF\tgene\t" + start + "\t" + end  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + i + ";complete="+complete+ (rnaSeq?";maxTie=" + (maxTie<0?"NA":maxTie):"") +(MAX>1?";maxEvidence="+maxEvidence+";combinedEvidence=" + count(combinedEvidence):"") );
-			w.newLine();
-			
-			stats[maxEvidence-1][0]++;
-			if( maxTie == 1 ) {
-				stats[maxEvidence-1][1]++;
+			transcripts+=i;
+			if( i>0 ) {
+				//write gene
+				fillEvidence(combinedEvidence, -999, 2);
+				w.append(n.split[0] + "\tGAF\tgene\t" + start + "\t" + end  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + i + ";complete="+complete+ (rnaSeq?";maxTie=" + (maxTie<0?"NA":maxTie):"") +(MAX>1?";maxEvidence="+maxEvidence+";combinedEvidence=" + count(combinedEvidence):"") );
+				w.newLine();
+				
+				stats[maxEvidence-1][0]++;
+				if( maxTie == 1 ) {
+					stats[maxEvidence-1][1]++;
+				}
+				gene++;
 			}
-			gene++;
-		}
-		
-		//find predictions that could be added
-		ArrayList<Prediction> used = new ArrayList<Prediction>(), notUsed = new ArrayList<Prediction>();
-		s = Integer.MAX_VALUE;
-		e = 0;
-		for( i = 0; i < list.size(); i++ ) {
-			Prediction p = list.get(i);
-			if( p.start < s ) {
-				s = p.start;
-			}
-			if( p.end > e ) {
-				e = p.end;
-			}
-			if( p.used ) {
-				used.add(p);
-			} else {
-				notUsed.add(p);
-			}
-		}
-		
-		//find predictions that do not overlap with any of the "used" predictions
-		BitSet usedCov = new BitSet(e-s+1);
-		for( int u = 0; u < used.size(); u++ ) {
-			used.get(u).fillNuc(usedCov,s,e);
-		}
-		
-		ArrayList<int[]> combined = new ArrayList<int[]>();
-		int cStart = 0, cEnd=-1;
-		while( (cStart=usedCov.nextSetBit(cEnd+1)) >= 0 ) {
-			cEnd=usedCov.nextClearBit(cStart);
-			if( cEnd<0 ) {
-				cEnd=e-s;
-			} else {
-				cEnd=cEnd-1;
-			}
-			combined.add(new int[] {cStart+s,cEnd+s} );
-		}
-
-		used.clear();
-		for( int j = 0; j < notUsed.size(); j++ ) {
-			Prediction not = notUsed.get(j);
-			if( !not.overlap(combined) ) {
-				used.add(not);
-			}
-		}	
-			
-		notUsed=used;
-		if( notUsed.size() > 0 ) {
-			Collections.sort(notUsed);
-			split(addAdd, null, notUsed, comp, rnaSeq, maxTranscripts, w, weight, cbTh, protocol);
 		}
 	}
 	
@@ -1022,36 +987,92 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 		}
 
-		boolean overlap( ArrayList<int[]> combined ) {
+		int overlap( BitSet b, int clusterStart, int clusterEnd ) {
 			int dir = split[6].charAt(0)=='+'?+1:-1;
-			int cIndex=0, pIndex= dir == 1 ? 0 : (cds.size()-1);
-			CDS c = cds.get(pIndex);
-			int[] com = combined.get(cIndex);
-			while( true ) {
-				if( com[1] < c.start ) {
-					cIndex++;
-					if( cIndex < combined.size() ) {
-						com = combined.get(cIndex);
-					} else {
+
+			int overlap = 0;
+			for( int i = dir==1?0:cds.size()-1; dir==1 ? (i < cds.size()) : (i>=0); i+=dir ) {
+				CDS c = cds.get(i);
+				int s = c.start-clusterStart;
+				int e = c.end-clusterStart;
+				
+				int set = b.nextSetBit( s );
+				//overlap
+				while( set >=0 && set < e ) {
+					int unset = b.nextClearBit(set);
+					if( unset > e ) {
+						overlap += (e-set+1);
 						break;
-					}
-				} else if( c.end < com[0] ) {
-					pIndex+=dir;
-					if( 0 <= pIndex && pIndex < cds.size() ) {
-						c = cds.get(pIndex);
 					} else {
-						break;
+						overlap += (unset-set);
+						set = b.nextSetBit( unset );
 					}
+				}
+				if( set < 0 ) break;
+			}
+			return overlap;
+		}
+		
+		/*int phaseCompatible( Prediction p ) {
+			//TODO read this from gff?
+			int phase = 0;
+			int pPhase = 0;
+
+			int overlap=0, common=0;
+			int i = 0, j = 0;
+			while( i<cds.size() && j<p.cds.size() ) {
+				CDS c = null;
+				CDS d = p.cds.get(j);
+				while( i<cds.size() && (c=cds.get(i)).end < d.start ) {
+					phase = (phase+ (c.end-c.start+1) ) % 3;
+					i++;
+					common=0;
+				}
+				if( i==cds.size() ) break;
+				
+				while( j<p.cds.size() && (d=p.cds.get(j)).end < c.start ) {
+					pPhase = (pPhase+ (d.end-d.start+1) ) % 3;
+					j++;
+					common=0;
+				}
+				if( j==p.cds.size() ) break;
+
+				//TODO test
+				//if( d.end < c.start ) //does not happen
+				if( c.end < d.start ) {
+					//skip
+					common=0;
 				} else {
-					//c.start <= c.end && com[0] <= c.end 
-					//com[0] <= com[1] && c.start <= com[1]
-					//-->> overlap
-					return true;
+					//overlap
+					//c.start,d.start < c.end,d.end
+					int start = Math.max(d.start,c.start);
+					int end = Math.min(d.end,c.end);
+					int len = end-start;
+					
+					//if( c.start==d.start && common>0 ) common=;
+					
+					int compPhase = (phase+start-c.start) % 3;
+					int compPPhase = (pPhase+start-d.start) % 3;
+					
+					if( compPhase == compPPhase ) {
+						overlap += ((len-compPhase)/3)*3;
+					}
+					
+					//if( c.end==d.end ) common=;
+					
+					if( c.end==end ) {
+						phase = (phase+ (c.end-c.start+1) ) % 3;
+						i++;
+					}
+					if( d.end==end ) {
+						pPhase = (phase+ (d.end-d.start+1) ) % 3;
+						j++;
+					}
 				}
 			}
-			return false;
+			return overlap;
 		}
-	}
+	}*/
 
 
 	@Override
@@ -1078,7 +1099,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					new SimpleParameter(DataType.STRING,"sorting","comma-separated list that defines the way predictions are sorted within a cluster", true, "sumWeight,score"),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on sumWeight (sumWeight>1). "
-							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or sumWeight>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!'\\-\\+\\*\\/]*"), "tie==1 or sumWeight>1" ),
+							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or sumWeight>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!?:'\\-\\+\\*\\/]*"), "tie==1 or sumWeight>1" ),
 					new SimpleParameter(DataType.BOOLEAN, "add alternative transcripts", "a switch to decide whether the IDs of alternative transcripts that have the same CDS should be listed for each prediction", true, false),
 					new SimpleParameter( DataType.BOOLEAN, "transfer features", "if true, additional features like UTRs will be transfered from the input to the output. Only features of the representatives will be trensfered. The UTRs of identical CDS predictions listed in \"alternative\" will not be transfered or combined", true, false )
 				);		
