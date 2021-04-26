@@ -3055,7 +3055,7 @@ public class GeMoMa extends GeMoMaModule {
 					middle.put(key, (m==null ||m.size()==0)?null:m);
 				}
 			
-				//reduce
+				//reduce TODO
 				int v = forwardDP(forward, middle, false);
 				HashMap<Integer, ArrayList<Hit>> filtered = reduce(null, chromosome, forward, middle, avoidPrematureStop, false, v*hitThreshold);
 				if( verbose ) {
