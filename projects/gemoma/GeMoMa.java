@@ -2545,7 +2545,8 @@ public class GeMoMa extends GeMoMaModule {
 							gff.append( ";avgCov=" + decFormat.format(best.Sum/(double)best.Len) );
 						}
 						
-						int id = 0, pos = 0, longest=0, current=0;//, gap=-1, currentGap=0, maxGap=0;
+						int id = 0, pos = 0, longest=0, current=0, gap=-1, currentGap=0, maxGap=0;
+						double maxScore=0;
 						String s0, s1 = null, pred = best.getProtein();
 						PairwiseStringAlignment psa = null;
 						if( proteinAlignment ) {
@@ -2555,8 +2556,8 @@ public class GeMoMa extends GeMoMaModule {
 							s1 = psa.getAlignedString(1);
 							
 							for( int p = 0; p < s1.length(); p++ ) {
-								/*if( s0.charAt(p) == '-' ) {
-									/*if( gap != 0 ) {
+								if( s0.charAt(p) == '-' ) {
+									if( gap != 0 ) {
 										if( currentGap > maxGap ) {
 											maxGap = currentGap;
 										}
@@ -2564,28 +2565,32 @@ public class GeMoMa extends GeMoMaModule {
 										currentGap=0;
 									}
 									currentGap++;
-								} else if( s1.charAt(p) == '-' ) {
-									if( gap != 1 ) {
-										if( currentGap > maxGap ) {
-											maxGap = currentGap;
+								} else {
+									int idx = aaAlphabet.getCode(s0.substring(p, p+1));
+									maxScore -= matrix[idx][idx];
+									if( s1.charAt(p) == '-' ) {
+										if( gap != 1 ) {
+											if( currentGap > maxGap ) {
+												maxGap = currentGap;
+											}
+											gap=1;
+											currentGap=0;
 										}
-										gap=1;
-										currentGap=0;
+										currentGap++;
 									}
-									currentGap++;
-								*/
+								}
 								if( s0.charAt(p) == '-' || s1.charAt(p) == '-' ) {
 									if( longest < current ) longest=current;
 									current=0;
 								} else {
 									//(mis)match
-									/*if( gap != -1 ) {
+									if( gap != -1 ) {
 										if( currentGap > maxGap ) {
 											maxGap = currentGap;
 										}
 										gap=-1;
 										currentGap=0;
-									}*/
+									}
 									if( s1.charAt(p) == s0.charAt(p) ) {
 										id++;
 										pos++;
@@ -2608,7 +2613,7 @@ public class GeMoMa extends GeMoMaModule {
 							}
 							
 							//additional GFF tags
-							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) +";lpm=" + longest);//+ ";maxGap=" + maxGap + ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) +";lpm=" + longest+ ";maxScore=" + maxScore + ";maxGap=" + maxGap );//+ ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						int preMatureStops=0, j=-1;
 						String aa =pred.substring(0, pred.length()-1);
