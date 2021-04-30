@@ -979,9 +979,9 @@ public class Extractor extends GeMoMaModule {
 		}
 		
 		if( stopCodonEx && current != null ) {
-			if( current.aa == null ) {
+			if( current.aa == null || current.aa.length()==0 ) {
 				current.aa="*";
-			} else if( current.aa.charAt(current.aa.length()-1)=='*' ) {
+			} else if( current.aa.charAt(current.aa.length()-1)!='*' ) {
 				current.aa +="*";
 			}
 		}
