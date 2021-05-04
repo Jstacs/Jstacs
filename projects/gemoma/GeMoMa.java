@@ -2515,6 +2515,7 @@ public class GeMoMa extends GeMoMaModule {
 			if( out ) {
 				String protein = getRefProtein(transcriptName);
 				int counts = 0;
+				int bestScore=Integer.MIN_VALUE;
 				for( int i = 0; i < predictions && result.size()>0; i++ ) {
 					Solution best = result.poll();
 					if( best.hits.size() > 0 ) {
@@ -2524,6 +2525,10 @@ public class GeMoMa extends GeMoMaModule {
 						best.writeSummary( geneName, transcriptName, i);
 						gff.append( ";raa=" + protein.length());
 						gff.append( ";score=" + best.score);
+						if( bestScore == Integer.MIN_VALUE ) {
+							bestScore = best.score;
+						}
+						gff.append( ";prediction=" + i +";bestScore=" + bestScore);
 						
 						gffHelp.delete(0, gffHelp.length());
 						int anz = best.writeGFF( transcriptName, i, gffHelp );
