@@ -18,6 +18,8 @@
 
 package de.jstacs.clustering.distances;
 
+import java.io.PrintWriter;
+
 import de.jstacs.clustering.hierachical.ClusterTree;
 import de.jstacs.data.DeBruijnGraphSequenceGenerator;
 import de.jstacs.data.alphabets.DNAAlphabet;
@@ -88,7 +90,7 @@ public class DeBruijnMotifComparison {
 			
 			double corMinus = cr - 1.0/profile1.length * fullStat1[0]*fullStat2[0];
 			corMinus /= fac;
-		
+					
 			if(corPlus > max){
 				max = corPlus;
 				maxOff = i;
@@ -104,7 +106,7 @@ public class DeBruijnMotifComparison {
 	}
 	
 	/**
-	 * Returns the score profile on a De Bruin sequence for a De Bruijn sequence.
+	 * Returns the score profile on a De Bruijn sequence for a De Bruijn sequence.
 	 * @param model the model
 	 * @param n the length of n-mers represented in the De Bruijn sequence
 	 * @param revcom if the reverse complementary profile should be computed
@@ -209,13 +211,18 @@ public class DeBruijnMotifComparison {
 			for(int i=1;i<reps.length;i++){
 				StatisticalModel model = new PFMWrapperTrainSM( DNAAlphabetContainer.SINGLETON, null, rep, 0 );
 				double[][] prof1 = getProfilesForMotif( model, n, false, false );
+
 				StatisticalModel model2 = new PFMWrapperTrainSM( DNAAlphabetContainer.SINGLETON, null, reps[i], 0 );
 				double[][] prof2 = getProfilesForMotif( model2, n, false, false );
+
 				double[][] prof2Rc = getProfilesForMotif( model2, n, true, false );
-			
-				Pair<Integer,Double> fwd = compare(prof1[0], prof2[0], Math.max( rep.length - (int)Math.floor( reps[i].length ), reps[i].length - (int)Math.floor( reps.length ) ));
 				
-				Pair<Integer,Double> rev = compare( prof1[0], prof2Rc[0], Math.max( rep.length - (int)Math.floor( reps[i].length ), reps[i].length - (int)Math.floor( reps.length ) ) );
+				//int maxShift = Math.max( rep.length - (int)Math.floor(reps[i].length/3), reps[i].length - (int)Math.floor( rep.length/3 ) );
+				int maxShift = Math.max( rep.length, reps[i].length );
+				
+				Pair<Integer,Double> fwd = compare(prof1[0], prof2[0], maxShift/*Math.max( rep.length - (int)Math.floor( reps[i].length ), reps[i].length - (int)Math.floor( reps.length ) )*/);
+			//	System.out.println("rev");
+				Pair<Integer,Double> rev = compare( prof1[0], prof2Rc[0], maxShift/*Math.max( rep.length - (int)Math.floor( reps[i].length ), reps[i].length - (int)Math.floor( reps.length ) )*/ );
 				int shift = fwd.getFirstElement();
 				int rc = 1;
 				double[][] mat = ArrayHandler.clone( reps[i] );
