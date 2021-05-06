@@ -31,6 +31,7 @@ import de.jstacs.clustering.distances.DeBruijnMotifComparison;
 import de.jstacs.clustering.hierachical.ClusterTree;
 import de.jstacs.clustering.hierachical.PWMSupplier;
 import de.jstacs.data.alphabets.DNAAlphabet;
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.PlotGeneratorResult.PlotGenerator;
@@ -96,10 +97,21 @@ public class MotifTreePlotter {
 		}
 		
 		
-		public HashMap<String,int[]> getOffsets(){
+		public HashMap<String,int[]> getOffsets() throws CloneNotSupportedException{
 			HashMap<String, int[]> res = new HashMap<String, int[]>();
 			StatisticalModel[] members = tree.getClusterElements();
-			int[][] offs = pair.getSecondElement();
+			int[][] offs = ArrayHandler.clone(pair.getSecondElement());
+			
+			int minShift = 0;
+			for(int i=0;i<offs.length;i++){
+				if(offs[i][0] < minShift){
+					minShift = offs[i][0];
+				}
+			}
+			for(int i=0;i<offs.length;i++){
+				offs[i][0] -= minShift;
+			}
+			
 			int maxLen = 0;
 			for(int i=0;i<offs.length;i++) {
 				int len = offs[i][0] + members[i].getLength();
