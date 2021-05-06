@@ -36,7 +36,7 @@ public abstract class DistanceMetric<T> {
 	public abstract double getDistance(T o1, T o2) throws Exception;
 	
 	/**
-	 * Returns the matrix of all pairwise distance of the supplied objects, where rows and colums are indexed in the order
+	 * Returns the matrix of all pairwise distance of the supplied objects, where rows and columns are indexed in the order
 	 * of the supplied objects.
 	 * @param metric the metric
 	 * @param objects the objects
