@@ -1,4 +1,4 @@
-**NarrowPeakConvertToPromoter** converts the narrowPeak file to promoter search.
+**NarrowPeakConvertToPromoter** converts the narrowPeak containing peaks of chromatin accessibility file to promoter coordinates.
 
 The input of **NarrowPeakConvertToPromoter** is 
 1. a narrowPeak file and 

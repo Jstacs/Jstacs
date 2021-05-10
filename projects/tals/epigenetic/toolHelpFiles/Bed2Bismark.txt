@@ -1,4 +1,4 @@
-**Bed2Bismark** Converts methylationinformation in bedMethyl format to bismark format.
+**Bed2Bismark** converts methylation information in bedMethyl format to Bismark format.
 
 The input of **Bed2Bismark** is a file in bedMethyl format.
 

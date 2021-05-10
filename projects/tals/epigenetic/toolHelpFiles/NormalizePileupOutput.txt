@@ -1,4 +1,4 @@
-**NormalizePileupOutput** Normalizes the pileup output file, that contains the coverage with 5’ ATAC-seq or DNase-seq reads at each position. It normalizes the coverage relative to the mean of a 10000 bp sliding window.
+**NormalizePileupOutput** normalizes the pileup output file, that contains the coverage with 5’ ATAC-seq or DNase-seq reads at each position. It normalizes the coverage relative to the mean of a 10000 bp sliding window.
 
 The input of **NormalizePileupOutput** is a pileup output file from **Chromatin pileup** tool.
 

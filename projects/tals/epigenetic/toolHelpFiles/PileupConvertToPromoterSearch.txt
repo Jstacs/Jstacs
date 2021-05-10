@@ -1,4 +1,4 @@
-**PileupConvertToPromoter** converts the pileup output file to promoter search.
+**PileupConvertToPromoter** converts the pileup output file to promoter coordinates.
 
 The input of **PileupConvertToPromoter** is 
 1. a normalized pileup output file from **NormalizePileupOutput** tool and 
