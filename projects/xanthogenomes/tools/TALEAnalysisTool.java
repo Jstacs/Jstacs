@@ -263,7 +263,15 @@ public class TALEAnalysisTool implements JstacsTool {
 
 	@Override
 	public String[] getReferences() {
-		return null;
+		return new String[] {"@article{grau16annotale,\n" + 
+				"	title = {{AnnoTALE}: bioinformatics tools for identification, annotation, and nomenclature of {TALEs} from \\emph{Xanthomonas} genomic sequences},\n" + 
+				"	author = {Grau, Jan and Reschke, Maik and Erkes, Annett and Streubel, Jana and Morgan, Richard D. and Wilson, Geoffrey G. and Koebnik, Ralf and Boch, Jens},\n" + 
+				"	journal = {Scientific Reports},\n" + 
+				"	year = {2016},\n" + 
+				"	volume = {6},\n" + 
+				"	pages = {21077},\n" + 
+				"	doi = {10.1038/srep21077}\n" + 
+				"	}\n"};
 	}
 
 

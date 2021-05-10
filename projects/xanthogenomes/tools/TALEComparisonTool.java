@@ -350,7 +350,25 @@ public class TALEComparisonTool implements JstacsTool {
 
 	@Override
 	public String[] getReferences() {
-		return null;
+		return new String[] {"@article{grau16annotale,\n" + 
+				"	title = {{AnnoTALE}: bioinformatics tools for identification, annotation, and nomenclature of {TALEs} from \\emph{Xanthomonas} genomic sequences},\n" + 
+				"	author = {Grau, Jan and Reschke, Maik and Erkes, Annett and Streubel, Jana and Morgan, Richard D. and Wilson, Geoffrey G. and Koebnik, Ralf and Boch, Jens},\n" + 
+				"	journal = {Scientific Reports},\n" + 
+				"	year = {2016},\n" + 
+				"	volume = {6},\n" + 
+				"	pages = {21077},\n" + 
+				"	doi = {10.1038/srep21077}\n" + 
+				"	}\n",
+				"@article{erkes17evolution,\n" + 
+				"	title = {Evolution of Transcription Activator-Like Effectors in \\emph{Xanthomonas oryzae}},\n" + 
+				"	author = {Erkes, Annett and Reschke, Maik and Boch, Jens and Grau, Jan},\n" + 
+				"	journal = {Genome Biology and Evolution},\n" + 
+				"	year = {2017},\n" + 
+				"	volume = {9},\n" + 
+				"	number = {6},\n" + 
+				"	pages = {1599-1615},\n" + 
+				"	doi = {10.1093/gbe/evx108}\n" + 
+				"	}\n"};
 	}
 
 	

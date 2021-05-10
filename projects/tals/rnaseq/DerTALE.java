@@ -584,7 +584,16 @@ public class DerTALE implements JstacsTool {
 
 	@Override
 	public String[] getReferences() {
-		return null;
+		return new String[] {"@article{erkes19preditale,\n" + 
+				"	title = {{PrediTALE}: A novel model learned from quantitative data allows for new perspectives on {TALE} targeting},\n" + 
+				"	author = {Erkes, Annett AND M\\\"ucke, Stefanie AND Reschke, Maik AND Boch, Jens AND Grau, Jan},\n" + 
+				"	journal = {PLOS Computational Biology},\n" + 
+				"	year = {2019},\n" + 
+				"	volume = {15},\n" + 
+				"	number = {7},\n" + 
+				"	pages = {1-31},\n" + 
+				"	doi = {10.1371/journal.pcbi.1007206}\n" + 
+				"	}\n"};
 	}
 
 
