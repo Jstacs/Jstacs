@@ -326,14 +326,18 @@ public class GeMoMa extends GeMoMaModule {
 			timeOut = XMLParser.extractObjectForTags(xml, "timeOut", Long.class);
 			maxTimeOut = XMLParser.extractObjectForTags(xml, "maxTimeOut", Long.class);
 		} else {
-			//default an write
+			//default and write
 			StringBuffer xml = new StringBuffer();
 			XMLParser.appendObjectWithTags( xml, maxSize, "maxSize" );
 			xml.append("\n");
 			XMLParser.appendObjectWithTags( xml, timeOut, "timeOut" );
 			xml.append("\n");
 			XMLParser.appendObjectWithTags( xml, maxTimeOut, "maxTimeOut" );
-			FileManager.writeFile(ini, xml);
+			try {
+				FileManager.writeFile(ini, xml);
+			} catch( Exception e ) {
+				System.err.println( "Default values could not be written to " + ini.getAbsolutePath() );
+			}
 		}
 		//System.out.println(maxSize + "\t" + timeOut + "\t" + maxTimeOut );
 		
