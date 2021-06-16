@@ -1016,13 +1016,13 @@ public class Extractor extends GeMoMaModule {
 				if( verbose ) protocol.appendWarning(trans + "\tskip start phase not zero\n" );
 				return 1;
 			} else if( fullLength && p.charAt(0)!='M' ) {
-				if( verbose ) writeWarning(protocol, trans, "skip missing start",p, dnaSeqBuff );
+				if( verbose ) writeWarning(protocol, trans, il.length(), "skip missing start",p, dnaSeqBuff );
 				return 2;
 			} else if( fullLength && p.charAt(p.length()-1)!='*' ){
-				if( verbose ) writeWarning(protocol, trans, "skip missing stop",p, dnaSeqBuff );
+				if( verbose ) writeWarning(protocol, trans, il.length(), "skip missing stop",p, dnaSeqBuff );
 				return 3;
 			} else if( preMature && discardPreMatureStop ) {
-				if( verbose ) writeWarning(protocol, trans, "skip premature stop",p, dnaSeqBuff );
+				if( verbose ) writeWarning(protocol, trans, il.length(), "skip premature stop",p, dnaSeqBuff );
 				return 4;
 			} else if( message.length() > 0 ) {
 				if( verbose ) {
@@ -1180,8 +1180,8 @@ public class Extractor extends GeMoMaModule {
 		}
 	}	
 	
-	void writeWarning( Protocol protocol, String trans, String reason, String p, CharSequence dna ) {
-		protocol.appendWarning(trans + "\t" + reason + "\n"+p+"\n"+dna+"\n" );
+	void writeWarning( Protocol protocol, String trans, int numExons, String reason, String p, CharSequence dna ) {
+		protocol.appendWarning(trans + "\tnumExons=" + numExons + "\t" + reason + "\n"+p+"\n"+dna+"\n" );
 	}
 	
 	static class Part {
