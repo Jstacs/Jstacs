@@ -207,6 +207,7 @@ public class GeMoMa extends GeMoMaModule {
 	
 	//alignment
 	private DiscreteAlphabet aaAlphabet;
+	private Character unknown;
 	private AlphabetContainer alph;
 	private double[][] matrix;
 	private int gapOpening;
@@ -894,6 +895,10 @@ public class GeMoMa extends GeMoMaModule {
 		}	
 
 		aaAlphabet=new DiscreteAlphabet(true,abc2);
+		
+		Parameter p = parameters.getParameterForName("replace unknown");
+		unknown = (p!= null && (Boolean) p.getValue()) ? 'X' : null;
+		
 		alph = new AlphabetContainer(aaAlphabet);
 		matrix = new double[abc2.length][abc2.length];
 		int j = 0;
@@ -1170,7 +1175,13 @@ public class GeMoMa extends GeMoMaModule {
 			
 			int s = Integer.parseInt(split[scoreIndex]);
 			String queryAlign = split[20];
-			String targetAlign = split[21];		
+			String targetAlign = split[21];
+			
+			if( unknown!= null ) {
+				queryAlign=replace(queryAlign);
+				targetAlign=replace(targetAlign);
+			}
+			
 			switch( score ) {
 				case Trust: break;
 				case ReScore:
@@ -1212,6 +1223,20 @@ public class GeMoMa extends GeMoMaModule {
 			moreDetails.setStackTrace(aiobe.getStackTrace());
 			throw moreDetails;
 		}
+	}
+	
+	String replace( String s ) {
+		char[] c = s.toCharArray();
+		int anz = 0;
+		for( int i = 0; i < c.length; i++ ) {
+			if( c[i] == '-' || aaAlphabet.isSymbol(""+c[i]) ) {
+				//no problem
+			} else {
+				c[i]=unknown;
+				anz++;
+			}
+		}
+		return anz == 0 ? s : new String(c);
 	}
 	
 	
@@ -4731,6 +4756,7 @@ if( !help.equals(help2) ) {
 					new SimpleParameter( DataType.LONG, "timeout", "The (maximal) number of seconds to be used for the predictions of one transcript, if exceeded GeMoMa does not output a prediction for this transcript.", true, new NumberValidator<Long>((long) 0, maxTimeOut), timeOut ),
 					
 					new SimpleParameter( DataType.BOOLEAN, "sort", "A flag which allows to sort the search results", true, false ),
+					new SimpleParameter( DataType.BOOLEAN, "replace unknown", "Replace unknown amino acid symbols by X", true, false ),
 					new EnumParameter( Score.class, "A flag which allows to do nothing, re-score or re-align the search results", true, "Trust" )
 			);		
 		}catch(Exception e){
