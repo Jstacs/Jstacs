@@ -904,30 +904,51 @@ public class TALEFamilyBuilder implements Storable {
 		LinkedList<TALEFamily> list = new LinkedList<TALEFamily>();
 		int k=0;
 		for(int i=0;i<subtrees.length;i++) {
-			double d = subtrees[i].getMaximumDistance();
-			TALE[] members = subtrees[i].getClusterElements();
-			int l=0;
-			for(int j=0;j<members.length;j++) {
-				if(members[j].getNumberOfRepeats() > l) {
-					l = members[j].getNumberOfRepeats();
-				}
-			}
-			if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
-				ClusterTree<TALE>[] subs = Hclust.cutTree(RELATIVE_MISMATCH_SHORT*l, subtrees[i]);
-				for(int j=0;j<subs.length;j++) {
-					subtrees[i].leafOrder(dmat);
-					list.add(new TALEFamily((k+1)+"", subs[j], this));
+			
+			LinkedList<ClusterTree<TALE>> curr = new LinkedList<ClusterTree<TALE>>();
+			curr.add(subtrees[i]);
+			
+			while(curr.size()>0) {
+				ClusterTree<TALE> currTree = curr.removeFirst();
+				if(currTree.getNumberOfElements() > 1) {
+					ClusterTree<TALE>[] children = currTree.getSubTrees();
+					double d = currTree.getMaximumDistance();
+					
+					int l1 = getMaximumTALELength(children[0]);
+					int l2 = getMaximumTALELength(children[1]);
+					
+					if(d/(double)Math.min(l1,l2) >= RELATIVE_MISMATCH_SHORT) {
+						curr.add(children[0]);
+						curr.add(children[1]);
+					}else {
+						currTree.leafOrder(dmat);
+						list.add(new TALEFamily((k+1)+"", currTree, this));
+						k++;
+					}
+					
+				}else {
+					currTree.leafOrder(dmat);
+					list.add(new TALEFamily((k+1)+"", currTree, this));
 					k++;
 				}
-			}else {
-				subtrees[i].leafOrder(dmat);
-				list.add(new TALEFamily((k+1)+"", subtrees[i], this));
-				k++;
+				
+				
 			}
 		}
 		
 		this.families = list.toArray(new TALEFamily[0]);
 		
+	}
+	
+	private static int getMaximumTALELength(ClusterTree<TALE> tree) {
+		TALE[] members = tree.getClusterElements();
+		int l=members[0].getNumberOfRepeats();
+		for(int j=1;j<members.length;j++) {
+			if(members[j].getNumberOfRepeats() > l) {
+				l = members[j].getNumberOfRepeats();
+			}
+		}
+		return l;
 	}
 	
 	public TALEFamilyBuilder(StringBuffer xml) throws NonParsableException {
