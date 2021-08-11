@@ -42,6 +42,8 @@ public class TALEFamilyBuilder implements Storable {
 	private static NumberFormat format = DecimalFormat.getInstance( Locale.US );
 	private static NumberFormat formatE = new DecimalFormat("0.##E0");
 	
+	public static double RELATIVE_MISMATCH_SHORT = 0.3;
+	
 	enum FamilyDistance{
 		MIN,
 		MAX,
@@ -52,11 +54,31 @@ public class TALEFamilyBuilder implements Storable {
 
 		@Override
 		public void setFamilyIDs( TALEFamily[] families, TALEFamilyBuilder builder ) {
-			for(int i=0,k=1;i<families.length;i++){
+			//TODO old
+			/*for(int i=0,k=1;i<families.length;i++){
 				if(families[i].getFamilyId() == null){
 					families[i].setFamilyId( "New Class "+(k) );
 				}
-			}			
+			}*/
+			int max = 0;
+			for(int i=0;i<families.length;i++) {
+				if(families[i].getFamilyId() != null) {
+					String id = families[i].getFamilyId();
+					if(id.matches("^[0-9]+$")) {
+						int l = Integer.parseInt(id);
+						if(l > max) {
+							max = l;
+						}
+					}
+				}
+			}
+			for(int i=0;i<families.length;i++) {
+				if(families[i].getFamilyId() == null) {
+					max++;
+					families[i].setFamilyId(max+"");
+				}
+			}
+			
 		}
 		
 		
@@ -70,6 +92,7 @@ public class TALEFamilyBuilder implements Storable {
 	}
 	
 	public static class TALEFamily implements PlotGenerator, Comparable<TALEFamily> {
+		
 		
 		private String id;
 		private StringAlignment[][] alignments;
@@ -322,6 +345,18 @@ public class TALEFamilyBuilder implements Storable {
 		
 		public int getFamilySize(){
 			return tree.getNumberOfElements();
+		}
+		
+		public int getLengthOfLongestFamilyMember() {
+			int max = 0;
+			TALE[] tales = getFamilyMembers();
+			for(TALE tale : tales){
+				int l = tale.getNumberOfRepeats();
+				if(l>max) {
+					max = l;
+				}
+			}
+			return max;
 		}
 		
 		public String toString(TALgetterDiffSM model, TALEFamilyBuilder builder){
@@ -1485,6 +1520,29 @@ public class TALEFamilyBuilder implements Storable {
 			ClusterTree<TALE> newTree = hclust.cluster( -minIndex, newDmat, newLeaves );
 
 			createdTrees = Hclust.cutTree( cut, newTree );
+			
+			LinkedList<ClusterTree<TALE>> temp = new LinkedList<ClusterTree<TALE>>();
+			for(int i=0;i<createdTrees.length;i++) {
+				double d = createdTrees[i].getMaximumDistance();
+				TALE[] members = createdTrees[i].getClusterElements();
+				int l=0;
+				for(int j=0;j<members.length;j++) {
+					if(members[j].getNumberOfRepeats() > l) {
+						l = members[j].getNumberOfRepeats();
+					}
+				}
+				if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
+					ClusterTree<TALE>[] subs = Hclust.cutTree(RELATIVE_MISMATCH_SHORT*l, createdTrees[i]);
+					for(int j=0;j<subs.length;j++) {
+						temp.add(subs[j]);
+					}
+				}else {
+					temp.add(createdTrees[i]);
+				}
+			}
+			
+			createdTrees = temp.toArray(new ClusterTree[0]);
+			
 
 		}else{
 			createdTrees = new ClusterTree[0];
@@ -1506,16 +1564,22 @@ public class TALEFamilyBuilder implements Storable {
 	}
 	
 	
-	public Pair<TALEFamily,Double> getClosestFamily(TALE tale, FamilyDistance dist ){
+	/*public Pair<TALEFamily,Double> getClosestFamily(TALE tale, FamilyDistance dist ){
 		Pair<Integer,Double> pair = getClosestFamilyIndex( tale, dist );
 		return new Pair<TALEFamily,Double>(getFamily( pair.getFirstElement() ),pair.getSecondElement());
-	}
+	}*/
 	
-	public Pair<Integer,Double> getClosestFamilyIndex(TALE tale, FamilyDistance dist){
+	public Pair<Integer,Double> getClosestFamilyIndex(TALE tale, FamilyDistance dist, boolean filterByLength){
 		int closest = -1;
 		double min = Double.POSITIVE_INFINITY;
 		for(int i=0;i<this.families.length;i++){
 			double d = this.families[i].getDistance( tale, dist, this );
+			if(filterByLength) {
+				int l = this.families[i].getLengthOfLongestFamilyMember();
+				if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
+					continue;
+				}
+			}
 			if(d < min){
 				min = d;
 				closest = i;
