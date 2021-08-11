@@ -891,13 +891,42 @@ public class TALEFamilyBuilder implements Storable {
 		
 		ClusterTree<TALE>[] subtrees = Hclust.cutTree( cut, tree );	
 		
+		/*
+		 * this.families = new TALEFamily[subtrees.length]; 
+		 * for(int i=0;i<subtrees.length;i++){
+		 * 
+		 * subtrees[i].leafOrder( dmat ); 
+		 * this.families[i] = new TALEFamily( (i+1)+"",
+		 * subtrees[i], this ); 
+		 * }
+		 */
 		
-		this.families = new TALEFamily[subtrees.length];
-		for(int i=0;i<subtrees.length;i++){
-			
-			subtrees[i].leafOrder( dmat );
-			this.families[i] = new TALEFamily( (i+1)+"", subtrees[i], this );
+		LinkedList<TALEFamily> list = new LinkedList<TALEFamily>();
+		int k=0;
+		for(int i=0;i<subtrees.length;i++) {
+			double d = subtrees[i].getMaximumDistance();
+			TALE[] members = subtrees[i].getClusterElements();
+			int l=0;
+			for(int j=0;j<members.length;j++) {
+				if(members[j].getNumberOfRepeats() > l) {
+					l = members[j].getNumberOfRepeats();
+				}
+			}
+			if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
+				ClusterTree<TALE>[] subs = Hclust.cutTree(RELATIVE_MISMATCH_SHORT*l, subtrees[i]);
+				for(int j=0;j<subs.length;j++) {
+					subtrees[i].leafOrder(dmat);
+					list.add(new TALEFamily((k+1)+"", subs[j], this));
+					k++;
+				}
+			}else {
+				subtrees[i].leafOrder(dmat);
+				list.add(new TALEFamily((k+1)+"", subtrees[i], this));
+				k++;
+			}
 		}
+		
+		this.families = list.toArray(new TALEFamily[0]);
 		
 	}
 	
