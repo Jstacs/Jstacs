@@ -143,7 +143,7 @@ public class MotifScores implements JstacsTool {
 		int bin = (int) parameters.getParameterAt(3).getValue();
 		boolean lowmem = (boolean) parameters.getParameterAt(4).getValue();
 		
-		File outfile = File.createTempFile("motif", ".temp.gz");
+		File outfile = File.createTempFile("motif", ".temp.gz", new File("."));
 		outfile.deleteOnExit();
 		
 		PrintStream out2 = new PrintStream(new GZIPOutputStream(new FileOutputStream(outfile)));

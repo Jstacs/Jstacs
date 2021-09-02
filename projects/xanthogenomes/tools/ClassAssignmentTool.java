@@ -49,6 +49,7 @@ public class ClassAssignmentTool implements JstacsTool {
 
 	private static LinkedList<String> alreadyGiven = new LinkedList<String>();
 	
+	
 	public static class SchemaFamilyIdGenerator implements FamilyIdGenerator{
 
 		private String orgSuff;
@@ -277,7 +278,10 @@ public class ClassAssignmentTool implements JstacsTool {
 		//LinkedList<TALE>[] assignments = new LinkedList[fams.length];
 		protocol.append( "Assigning TALE...\n" );
 		
-		SchemaFamilyIdGenerator gen = new SchemaFamilyIdGenerator( orgSuff, accession );
+		SchemaFamilyIdGenerator gen = null;
+		if(!fams[0].getFamilyId().matches("^[0-9]+$")) {
+			gen = new SchemaFamilyIdGenerator( orgSuff, accession );
+		}
 		
 		for(int i=0;i<newttales.length;i++){
 			protocol.append( newttales[i].getId() + "\n" );
@@ -289,7 +293,7 @@ public class ClassAssignmentTool implements JstacsTool {
 
 			if(newttales[i].getNumberOfRepeats()>3){
 				
-				Pair<Integer,Double> idx = builder.getClosestFamilyIndex( newttales[i], null );
+				Pair<Integer,Double> idx = builder.getClosestFamilyIndex( newttales[i], null, true );
 				
 				/*if(newttales[i].getId().equals("tempTALE9 (Pseudo)") && orgSuff.equals("Xoo PXO142")){
 					for(int j=0;j<fams.length;j++){
@@ -299,8 +303,9 @@ public class ClassAssignmentTool implements JstacsTool {
 					}
 				}*/
 				
-				
-				if(idx.getSecondElement() < cut){
+				boolean assigned = false;
+				//System.out.println(idx.getSecondElement()+" "+newttales[i].getNumberOfRepeats()+" "+fams[idx.getFirstElement()].getLengthOfLongestFamilyMember()+" "+fams[idx.getFirstElement()].getFamilyId());
+				if(idx.getSecondElement() < cut && idx.getSecondElement()/(double)newttales[i].getNumberOfRepeats()<TALEFamilyBuilder.RELATIVE_MISMATCH_SHORT && idx.getSecondElement()/(double)fams[idx.getFirstElement()].getLengthOfLongestFamilyMember() < TALEFamilyBuilder.RELATIVE_MISMATCH_SHORT){
 					report.append("Assigned to class "+fams[idx.getFirstElement()].getFamilyId()+".\n");
 					double p2 = fams[idx.getFirstElement()].getSignificance(newttales[i], null, null, builder);
 					report.append("distance "+format.format(idx.getSecondElement())+", (p="+formatE.format(Math.pow( 10, p2 ))+")\n");
@@ -326,16 +331,17 @@ public class ClassAssignmentTool implements JstacsTool {
 					newttales[i].setIsNew(false);
 					
 					added[idx.getFirstElement()] = true;
+					assigned = true;
 				}else{
 					report.append("Not assigned to any class.\n");
 					notAssigned.add( newttales[i] );
 					idx = new Pair<Integer, Double>(-1, null);
 				}
 
-				report.append("Other families with significant matches:\n");
+				report.append("Other classes with significant matches:\n");
 				boolean found = false;
 				for(int j=0;j<fams.length;j++){
-					if(j != idx.getFirstElement()){
+					if(j != idx.getFirstElement() || !assigned){
 						double p = fams[j].getSignificance( newttales[i], null, null, builder );
 						//System.out.println(fams[j].getFamilyId()+" "+format.format(fams[j].getDistance( newttales[i], null, builder ))+" "+p);
 						if(p < Math.log10( 0.001 )){
@@ -438,22 +444,23 @@ public class ClassAssignmentTool implements JstacsTool {
 		
 		LinkedList<ResultSet> props = new LinkedList<ResultSet>();
 		
-		String[][] map = gen.lastNameMap;
-		
-		summary.append("The "+map.length+" TALEs have been assigned to the following classes:\n");
-		for(int i=0;i<map.length;i++){
-			props.add( new ResultSet( new Result[]{
-			                                       new CategoricalResult( "Old name", "", map[i][0] ),
-			                                       new CategoricalResult( "New name", "", map[i][1] )
-			} ) );
-			String clazz = map[i][1];
-			String temp = clazz.replaceAll("\\s.*$", "");
-			clazz = temp.replaceAll("[0-9]+$", "");
-			int num = Integer.parseInt(temp.substring(clazz.length()));
-			
-			summary.append("- "+map[i][0]+" has been assigned to "+(num == 1 ? "new" : "existing")+" class "+clazz+" with name "+map[i][1]+"\n");
+		if(gen != null) {
+			String[][] map = gen.lastNameMap;
+
+			summary.append("The "+map.length+" TALEs have been assigned to the following classes:\n");
+			for(int i=0;i<map.length;i++){
+				props.add( new ResultSet( new Result[]{
+						new CategoricalResult( "Old name", "", map[i][0] ),
+						new CategoricalResult( "New name", "", map[i][1] )
+				} ) );
+				String clazz = map[i][1];
+				String temp = clazz.replaceAll("\\s.*$", "");
+				clazz = temp.replaceAll("[0-9]+$", "");
+				int num = Integer.parseInt(temp.substring(clazz.length()));
+
+				summary.append("- "+map[i][0]+" has been assigned to "+(num == 1 ? "new" : "existing")+" class "+clazz+" with name "+map[i][1]+"\n");
+			}
 		}
-		
 		String oss = orgSuff == null ? "" : " ("+orgSuff+")";
 		
 		summary.append("\nPlease note that numbers within TALE classes are assigned successively and may change when TALEs are included into the official AnnoTALE database later.\n");
@@ -554,7 +561,7 @@ public class ClassAssignmentTool implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.4.1";
+		return "1.5.1";
 	}
 
 	@Override
