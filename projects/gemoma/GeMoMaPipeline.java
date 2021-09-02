@@ -348,7 +348,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					new ParameterSetContainer("GAF parameter set", "parameters for the GAF module of GeMoMa", gaf ),
 					new ParameterSetContainer("AnnotationFinalizer parameter set", "parameters for the AnnotationFinalizer module of GeMoMa", af ),
 					
-					new SimpleParameter( DataType.BOOLEAN, "SyntenyChecker", "run SyntenyChecker if possible", true, true ),
+					new SimpleParameter( DataType.BOOLEAN, "synteny check", "run SyntenyChecker if possible", true, true ),
 
 					new SimpleParameter( DataType.BOOLEAN, "predicted proteins", "If *true*, returns the predicted proteins of the target organism as fastA file", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "predicted CDSs", "If *true*, returns the predicted CDSs of the target organism as fastA file", true, false ),
