@@ -348,6 +348,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					new ParameterSetContainer("GAF parameter set", "parameters for the GAF module of GeMoMa", gaf ),
 					new ParameterSetContainer("AnnotationFinalizer parameter set", "parameters for the AnnotationFinalizer module of GeMoMa", af ),
 					
+					new SimpleParameter( DataType.BOOLEAN, "SyntenyChecker", "run SyntenyChecker if possible", true, true ),
+
 					new SimpleParameter( DataType.BOOLEAN, "predicted proteins", "If *true*, returns the predicted proteins of the target organism as fastA file", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "predicted CDSs", "If *true*, returns the predicted CDSs of the target organism as fastA file", true, false ),
 					new SimpleParameter( DataType.BOOLEAN, "predicted genomic regions", "If *true*, returns the genomic regions of predicted gene models of the target organism as fastA file", true, false ),
@@ -1014,11 +1016,38 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				}
 				
 				//UTR prediction
+				boolean shouldWait = false;
 				if( !queue.isShutdown() ) {
 					addNewPhase();
 					add(new JAnnotationFinalizer(clear));
-					waitPhase();
+					shouldWait=true;
 				}
+				
+				
+				//SyntenyChecker
+				if( (Boolean) parameters.getParameterForName("SyntenyChecker").getValue() ) {
+					ToolParameterSet syn = (new SyntenyChecker()).getToolParameters();
+					int a=0;
+					ExpandableParameterSet eps = (ExpandableParameterSet) syn.getParameterForName("references").getValue();
+					for( Species current : species ) {
+						if( current.assignment != null ) {
+							if( a == eps.getNumberOfParameters() ) {
+								eps.addParameterToSet();
+							}
+							SimpleParameterSet sps = (SimpleParameterSet) eps.getParameterAt(a).getValue();
+							if( current.id != null ) sps.getParameterForName("prefix").setValue( current.id );
+							sps.getParameterForName("assignment").setValue( current.assignment );
+							a++;
+						}
+					}
+					
+					if( a>0 && !queue.isShutdown() ) {
+						add(new JSyntenyChecker(syn));
+						shouldWait=true;
+					}
+				}
+				
+				if( shouldWait ) waitPhase();
 				
 				//extract predictions
 				boolean cds = (Boolean) parameters.getParameterForName("predicted CDSs").getValue();
@@ -1029,7 +1058,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					add(new JExtractor(cds, protein, genomic));
 					waitPhase();
 				}
-			}
+				
+				
+			}			
 		} catch( Exception e ) {
 			Thread.sleep(1000);
 			tr=e;
@@ -2173,6 +2204,38 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				res.add( new TextResult( "predicted " + sub.getName(), sub.getComment(), sub.getValue(), sub.getMime(), (String) sub.getProducer(), sub.getExtendedType(), sub.getExport() ) );
 			}
 			CLI.writeToolResults(tr, protocol, home, extractor, params);
+		}	
+	}
+	
+	/**
+	 * Job for running the SyntenyChecker on the final prediction.
+	 * 
+	 * @author Jens Keilwagen
+	 * 
+	 * @see SyntenyChecker
+	 */
+	class JSyntenyChecker extends FlaggedRunnable {
+		ToolParameterSet params;
+				
+		JSyntenyChecker( ToolParameterSet par ) throws IllegalValueException {
+			super("SyntenyChecker");
+			par.getParameterForName("tag").setValue( parameters.getParameterForName("tag").getValue() );
+			par.getParameterForName("gene annotation file").setValue(home+"filtered_predictions.gff");
+
+			params = par;
+		}
+				
+		@Override
+		public void doJob() throws Exception {
+			SysProtocol protocol = new QuietSysProtocol();
+			SyntenyChecker syn = new SyntenyChecker();
+			ToolResult tr = syn.run(params, protocol, new ProgressUpdater(), 1, home);
+			ResultSet raw = tr.getRawResult()[0];
+			
+			int i=0;
+			res.add( raw.getResultAt(i) );
+			
+			CLI.writeToolResults(tr, protocol, home, syn, params);
 		}	
 	}
 
