@@ -448,7 +448,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			SelectionParameter sel = (SelectionParameter) ((SimpleParameterSet)(exp.getParameterAt(i).getValue())).getParameterAt(0);
 			sel.setValue("STRANDED");
 			((SimpleParameterSet) sel.getValue()).getParameterAt(0).setValue(rnaSeqData.coverageFwd.get(j));
-			((SimpleParameterSet) sel.getValue()).getParameterAt(2).setValue(rnaSeqData.coverageRC.get(j));
+			((SimpleParameterSet) sel.getValue()).getParameterAt(1).setValue(rnaSeqData.coverageRC.get(j));
 		}
 	}
 
@@ -1025,7 +1025,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				
 				
 				//SyntenyChecker
-				if( (Boolean) parameters.getParameterForName("SyntenyChecker").getValue() ) {
+				if( (Boolean) parameters.getParameterForName("synteny check").getValue() ) {
 					ToolParameterSet syn = (new SyntenyChecker()).getToolParameters();
 					int a=0;
 					ExpandableParameterSet eps = (ExpandableParameterSet) syn.getParameterForName("references").getValue();
