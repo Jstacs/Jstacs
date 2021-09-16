@@ -97,6 +97,7 @@ import projects.gemoma.Tools.Ambiguity;
  * @see GAF
  * @see AnnotationEvidence
  * @see AnnotationFinalizer
+ * @see SyntenyChecker
  */
 public class GeMoMaPipeline extends GeMoMaModule {
 
@@ -777,8 +778,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			afParams.getParameterForName("genome").setValue(target);
 			ParameterSet ap = ((ParameterSetContainer) parameters.getParameterForName("AnnotationFinalizer parameter set")).getValue();
 			setParameters(ap, afParams);
-			boolean clear = rnaSeq && (((SimpleParameterSet) ap.getParameterForName("UTR").getValue()).getNumberOfParameters()==0);
-			
+			SelectionParameter selP = (SelectionParameter) ap.getParameterForName("UTR");
+			boolean clear = rnaSeq && selP.getParametersInCollection().getParameterAt(selP.getSelected()).getName().equals("NO");
 			
 			String[] key = {"selected", "genetic code"};
 			for( int i = 0; i < key.length; i++ ) {
@@ -1016,14 +1017,13 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				}
 				
 				//UTR prediction
-				boolean shouldWait = false;
 				if( !queue.isShutdown() ) {
 					addNewPhase();
 					add(new JAnnotationFinalizer(clear));
-					shouldWait=true;
+					waitPhase();
 				}
 				
-				
+				boolean shouldWait=false;
 				//SyntenyChecker
 				if( (Boolean) parameters.getParameterForName("synteny check").getValue() ) {
 					ToolParameterSet syn = (new SyntenyChecker()).getToolParameters();
@@ -1047,8 +1047,6 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					}
 				}
 				
-				if( shouldWait ) waitPhase();
-				
 				//extract predictions
 				boolean cds = (Boolean) parameters.getParameterForName("predicted CDSs").getValue();
 				boolean protein = (Boolean) parameters.getParameterForName("predicted proteins").getValue();
@@ -1056,10 +1054,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				if( !queue.isShutdown() & (cds | protein | genomic) ) {
 					addNewPhase();
 					add(new JExtractor(cds, protein, genomic));
-					waitPhase();
+					shouldWait=true;
 				}
-				
-				
+				if( shouldWait ) waitPhase();				
 			}			
 		} catch( Exception e ) {
 			Thread.sleep(1000);
@@ -2152,12 +2149,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			
 			AnnotationFinalizer af = new AnnotationFinalizer();
 			if( clear ) af.clear();
-			
 			afParams.getParameterForName("annotation").setValue(home+"filtered_predictions.gff");
-			
-			if( rnaSeq && "YES".equals( afParams.getParameterForName("UTR").getValue() ) ) {
-				setRNASeqParams(afParams);
-			}
 			
 			ToolResult tr = af.run(afParams, protocol, new ProgressUpdater(), 1, parameters, getToolVersion(), home );
 			pipelineProtocol.append(protocol.getLog().toString());
@@ -2220,7 +2212,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		JSyntenyChecker( ToolParameterSet par ) throws IllegalValueException {
 			super("SyntenyChecker");
 			par.getParameterForName("tag").setValue( parameters.getParameterForName("tag").getValue() );
-			par.getParameterForName("gene annotation file").setValue(home+"filtered_predictions.gff");
+			par.getParameterForName("gene annotation file").setValue(home+"final_annotation.gff");
 
 			params = par;
 		}
@@ -2274,7 +2266,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		try {
 			return new ToolResult[]{
 					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test.xml")),
-					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test2.xml"))
+					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test2.xml")),
+					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test3.xml"))
 			};
 		} catch( Exception e ) {
 			e.printStackTrace();
