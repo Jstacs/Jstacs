@@ -114,7 +114,7 @@ public class SyntenyChecker extends GeMoMaModule {
 			w.append("contig\tmiddle position\tstrand\tord\tname\tref-genes");
 			for( int as = 0; as < assign.size(); as++ ) {
 				Assignment ass = assign.get(as);
-				w.append( "\t" + (ass.prefix.length()>0?ass.prefix.substring(0,ass.prefix.length()-1):"") );
+				w.append( "\t" + (ass.prefix.length()>0?ass.prefix.substring(0,ass.prefix.length()-1):("reference_species_"+as)) );
 			}
 			w.newLine();
 			for( int i = 0; i < anno.size(); i++ ) {
