@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import de.jstacs.DataType;
+import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.SelectionParameter;
@@ -184,7 +185,14 @@ public class AddAttribute extends GeMoMaModule {
 
 	@Override
 	public ToolResult[] getTestCases(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return new ToolResult[]{
+					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/addAttribute-test.xml")),
+					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/addAttribute-test2.xml"))
+			};
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return null;
+		}
 	}	
 }
