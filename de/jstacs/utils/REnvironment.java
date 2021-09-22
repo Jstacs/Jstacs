@@ -83,11 +83,13 @@ public class REnvironment {
 	 * @param initSize
 	 *            the initial number of slots for files on the server (has to be
 	 *            at least 1)
+	 * @param pngOkay
+	 *            if png can be used for creating BufferedImages  			
 	 * 
 	 * @throws Exception
 	 *             if something went wrong
 	 */
-	private REnvironment( String server, boolean defaultPort, int port, String user, String passwd, int initSize ) throws Exception {
+	private REnvironment( String server, boolean defaultPort, int port, String user, String passwd, int initSize, boolean pngOkay ) throws Exception {
 		if( defaultPort ) {
 			c = new RConnection( server );
 		} else {
@@ -102,8 +104,7 @@ public class REnvironment {
 		this.initSize = initSize;
 		resetFilesOnTheServer();
 		windows = eval( ".Platform$OS.type" ).asString().equalsIgnoreCase( "windows" );
-		// since Java 1.5.0_9 it should be possible to use png 
-		pngOkay = Integer.parseInt( System.getProperty( "java.version" ).substring( 2, 3 ) ) > 5;
+		this.pngOkay = pngOkay;
 	}
 	
 	/**
@@ -135,7 +136,7 @@ public class REnvironment {
 	 *             if something went wrong
 	 */
 	public REnvironment( String server, String user, String passwd, int initSize ) throws Exception {
-		this( server, true, -1, user, passwd, initSize );
+		this( server, true, -1, user, passwd, initSize, true );
 	}
 
 	/**
@@ -155,7 +156,7 @@ public class REnvironment {
 	 * @see REnvironment#REnvironment(String, String, String, int)
 	 */
 	public REnvironment( String server, String user, String passwd ) throws Exception {
-		this( server, true, -1, user, passwd, 10 );
+		this( server, true, -1, user, passwd, 10, true );
 	}
 
 	/**
@@ -177,7 +178,7 @@ public class REnvironment {
 	 *             if something went wrong
 	 */
 	public REnvironment( String server, int port, String user, String passwd, int initSize ) throws Exception {
-		this( server, false, port, user, passwd, initSize );
+		this( server, false, port, user, passwd, initSize, true );
 	}
 
 	/**
@@ -199,7 +200,7 @@ public class REnvironment {
 	 * @see REnvironment#REnvironment(String, String, String, int)
 	 */
 	public REnvironment( String server, int port, String user, String passwd ) throws Exception {
-		this( server, false, port, user, passwd, 10 );
+		this( server, false, port, user, passwd, 10, true );
 	}
 
 	/**
