@@ -164,6 +164,26 @@ public class TrainableStatisticalModelFactory {
 	 * This method allows to create a {@link MixtureTrainSM} that allows to model a {@link de.jstacs.data.DataSet} as a mixture of individual components.
 	 * 
 	 * @param hyper the hyper parameters for the components (should be identical to the ESS of the components)
+	 * @param starts the number of independent starts
+	 * @param model the internally used model
+	 * 
+	 * @return the {@link MixtureTrainSM}
+	 * 
+	 * @throws Exception if the model can not be created correctly
+	 */
+	public static MixtureTrainSM createMixtureModel( double[] hyper, int starts, TrainableStatisticalModel[] model ) throws Exception {
+		//in most cases length can be determined by the components
+		int i = 0;
+		while( i < model.length && model[i].getLength() == 0 ) {
+			i++;
+		}
+		return new MixtureTrainSM( i==model.length ? 0 : model[i].getLength(), model, starts, hyper, 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), Parameterization.LAMBDA );
+	}
+	
+	/**
+	 * This method allows to create a {@link MixtureTrainSM} that allows to model a {@link de.jstacs.data.DataSet} as a mixture of individual components.
+	 * 
+	 * @param hyper the hyper parameters for the components (should be identical to the ESS of the components)
 	 * @param model the internally used model
 	 * 
 	 * @return the {@link MixtureTrainSM}
@@ -171,12 +191,7 @@ public class TrainableStatisticalModelFactory {
 	 * @throws Exception if the model can not be created correctly
 	 */
 	public static MixtureTrainSM createMixtureModel( double[] hyper, TrainableStatisticalModel[] model ) throws Exception {
-		//in most cases length can be determined by the components
-		int i = 0;
-		while( i < model.length && model[i].getLength() == 0 ) {
-			i++;
-		}
-		return new MixtureTrainSM( i==model.length ? 0 : model[i].getLength(), model, 10, hyper, 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), Parameterization.LAMBDA );
+		return createMixtureModel(hyper, 10, model);
 	}
 	
 	/**
