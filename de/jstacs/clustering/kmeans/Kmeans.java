@@ -21,7 +21,6 @@ package de.jstacs.clustering.kmeans;
 import java.util.Arrays;
 import java.util.Random;
 
-import de.jstacs.clustering.distances.EucleadianDistance;
 import de.jstacs.clustering.distances.PNorm;
 
 /**
@@ -33,6 +32,9 @@ public class Kmeans {
 	
 	private PNorm ed;
 	
+	/**
+	 * The constructor for a {@link Kmeans} instance.
+	 */
 	public Kmeans() {
 		ed = new PNorm(2);
 	}
@@ -153,9 +155,9 @@ public class Kmeans {
 	 * 
 	 * @return SSE
 	 * 
-	 * @throws Exception forwarded from {@link EucleadianDistance}
+	 * @throws Exception forwarded from {@link PNorm}
 	 * 
-	 * @see EucleadianDistance
+	 * @see PNorm
 	 */
 	double getSSE( double[][] center, int[] assignment, double[][] data ) throws Exception {
 		double sse = 0;
