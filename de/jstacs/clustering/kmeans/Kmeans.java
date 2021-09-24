@@ -153,9 +153,9 @@ public class Kmeans {
 	 * 
 	 * @return SSE
 	 * 
-	 * @throws Exception forwarded from {@link EucleadianDistance}
+	 * @throws Exception forwarded from {@link PNorm}
 	 * 
-	 * @see EucleadianDistance
+	 * @see PNorm
 	 */
 	double getSSE( double[][] center, int[] assignment, double[][] data ) throws Exception {
 		double sse = 0;
