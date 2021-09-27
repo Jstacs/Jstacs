@@ -682,37 +682,54 @@ public class Tools {
 	}
 	
 	/**
+	 * This method evaluates an <code>expression</code>.
+	 * 
+	 * @param engine the {@link ScriptEngine} to be used for filtering
+	 * @param expression to be evaluated
+	 * @param hash the hash containing the attributes in key-value-pairs
+	 * 
+	 * @return the evaluated expression as String
+	 * 
+	 * @throws ScriptException if the expression could not be evaluated properly
+	 * 
+	 * @see ScriptEngine
+	 */
+	public static String eval( ScriptEngine engine, String expression, HashMap<String,String> hash ) throws ScriptException {
+		Bindings b = engine.createBindings();
+		Iterator<Entry<String,String>> it = hash.entrySet().iterator();
+		while( it.hasNext() ) {
+			Entry<String,String> e = it.next();
+			String key = e.getKey();
+			if( expression.indexOf(key)>=0 ) {
+				String val = e.getValue();
+				b.put(key, val.equals("NA")?""+Double.NaN:val);
+			}
+		}			
+		
+		return engine.eval(expression, b).toString();
+	}
+	
+	/**
 	 * This method evaluates a filter String and returns a boolean.
 	 * 
 	 * @param engine the {@link ScriptEngine} to be used for filtering
 	 * @param filter the filter String
 	 * @param hash the hash containing the attributes in key-value-pairs
-	 * @return the result or the evaluated filter String
+	 * @return the result of the evaluated filter String
 	 * 
 	 * @throws ScriptException if the filter String could not be evaluated properly
 	 * 
 	 * @see #prepareFilter(String)
+	 * @see #eval(ScriptEngine, String, HashMap)
 	 */
 	public static boolean filter( ScriptEngine engine, String filter, HashMap<String,String> hash ) throws ScriptException {
 		if( hash == null ) {
 			return false;
 		} else if( filter.length()== 0 ) {
 			return true;
-		} else {
-			Bindings b = engine.createBindings();
-			Iterator<Entry<String,String>> it = hash.entrySet().iterator();
-			while( it.hasNext() ) {
-				Entry<String,String> e = it.next();
-				String key = e.getKey();
-				if( filter.indexOf(key)>=0 ) {
-					String val = e.getValue();
-					b.put(key, val.equals("NA")?""+Double.NaN:val);
-				}
-			}			
-			
-			String s = engine.eval(filter, b).toString();
+		} else {			
+			String s = eval(engine, filter, hash);
 			Boolean bool = Boolean.parseBoolean( s );
-//System.out.println(toBeChecked.id + "\t" + f + "\t" + s + "\t" + bool);
 			return bool;
 		}
 	}
