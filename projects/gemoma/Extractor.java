@@ -909,7 +909,8 @@ public class Extractor extends GeMoMaModule {
 		dnaSeqBuff.delete(0, dnaSeqBuff.length());
 		int currentProb=-1;
 		
-		IntList il = gene.transcript.get( trans ).b;
+		Transcript tr = gene.transcript.get( trans ); 
+		IntList il = tr.b;
 		if( il.length() == 0 ) {
 			protocol.append("No coding exon(s) for: " + trans + "\n");
 			return -1;
@@ -1041,7 +1042,16 @@ public class Extractor extends GeMoMaModule {
 				return 6;
 			} else {				
 				info[2]++;
-				String comment = trans + (longComment?(" gene=" + gene.id + " chr=" + chr + " strand=" + gene.strand + " interval=" + start + ".." + end):"");
+				String comment = trans;
+				if( longComment ) {
+					comment += " gene=" + gene.id + " chr=" + chr + " strand=" + gene.strand + " interval=" + start + ".." + end;
+					if( tr.attributes != null ) {
+						String a = deleteAttribute( "Parent=", tr.attributes );
+						a = deleteAttribute( "ID=", a );
+						a=a.replaceAll(";", " ");
+						comment += " " + a;
+					}
+				}
 				out.get(3).write( ">" + comment + "\n" + dnaSeqBuff.toString() + "\n" );
 				out.get(2).write( ">" + comment + "\n" + p + "\n" );
 				String x = il.toString();
@@ -1179,6 +1189,19 @@ public class Extractor extends GeMoMaModule {
 			return 8;	
 		}
 	}	
+	
+	String deleteAttribute( String attribute, String all ) {
+		int startIndex = all.indexOf(attribute);
+		if( startIndex>=0 ) {
+			int endIndex = all.indexOf(';', startIndex);
+			if( endIndex < 0 ) {
+				all=all.substring(0,startIndex);
+			} else {
+				all=all.substring(0,startIndex) + all.substring(endIndex+1);
+			}
+		}
+		return all;
+	}
 	
 	void writeWarning( Protocol protocol, String trans, int numExons, String reason, String p, CharSequence dna ) {
 		protocol.appendWarning(trans + "\tnumExons=" + numExons + "\t" + reason + "\n"+p+"\n"+dna+"\n" );
