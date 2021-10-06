@@ -2,16 +2,32 @@
 
 %\setlength{\textheight}{21cm}
 
-\usepackage{hyperref, color, graphicx, rotating}
+\usepackage[paper=portrait,pagesize]{typearea}
+\usepackage[textwidth=14cm,textheight=24cm]{geometry}
+\usepackage{fancyvrb}
+
+\usepackage{hyperref, color, graphicx, rotating,ifthen}
 \hypersetup{
 	colorlinks=true,
 	urlcolor=blue
+}
+
+\newcommand{\myPortrait}[1]{
+	\clearpage
+	\KOMAoptions{paper=#1,pagesize}
+	\recalctypearea
+	\ifthenelse{\equal{#1}{landscape}}{
+		\newgeometry{textwidth=24cm,textheight=14cm,hoffset=4cm,voffset=-3cm}
+	}{
+		\restoregeometry
+	}
 }
 
 \newcommand{\TODO}[1]{\textcolor{red}{#1}}
 
 
 \begin{document}
+\myPortrait{portrait}
 \begin{center}
 {\Huge GeMoMa manual}\\[5mm]
 \today\\[1cm]
@@ -36,7 +52,7 @@ java -jar GeMoMa-<version>.jar CLI <toolname>
 \end{verbatim}
 which will provide descriptions of all available parameters.
 
-Keep in mind that homology-based gene prediction only allows us to infer genes with known peers in at least one reference organism. Hence, homology based gene prediction might miss genes with no known peer in the reference organism(s), even if these are expressed in the RNA-seq data. On the other hand, homology-based gene prediction allows for inferring genes that are not or rarely expressed in the RNA-seq samples.
+Note that homology-based gene prediction only infers genes with known counterparts in at least one reference organism. Therefore, homology-based gene prediction may miss genes for which counterparts are missing in the reference organisms, even if they are expressed and can be found in the RNA-seq data. On the other hand, homology-based gene prediction allows inference of genes that are not or rarely expressed in the RNA-seq samples.
 
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{{drawing_pipeline5}.pdf}
@@ -161,7 +177,26 @@ and follow the instructions.
 \subsection{Check extracted introns}
 If you like to check whether the extracted introns (cf. ERE) show the expected distribution of conserved di-nucleotides (cf. canonical splice sites), we have implemented the module CheckIntrons that can be used as follows:
 \begin{verbatim}
-java -jar GeMoMa-<version>.jar CLI CheckIntrons
+java -jar GeMoMa-<version>.jar CLI CheckIntrons ...
+\end{verbatim}
+
+\subsection{Benchmarking}
+Benchmarking is essential to compare different gene prediction approaches. If you use a target organism where the annotation is known, the prediction can be compared to this known annotation and performance measures like sensitivity and specificity can be computed. In case of a target organism without known gene annotation, BUSCO is often used to compare or measure the quality of the gene annotation. For both cases, we provide additional modules that help to analyze the gene prediction.
+
+\subsubsection{Sensitivity and specificity}
+Given some gold standard gene annotation, gene predictions can be compared in terms of sensitivity and specificity. There are several tools available that can do this, including the eval package  and gffcompare. However, they all have some problems, such as runtime or handling experimentally verified genes. For these reasons, we decided to implement our own benchmarking module called Analyzer that can be used as follows:
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar CLI Analyzer ...
+\end{verbatim}
+
+In addition, this module allows retrieving a table with pairs of true and predicted annotations and F1 measure between these annotations. This table can be used for instance for analyzing the predicted annotation, plotting the F1 measure vs. sensitivity and comparing different annotations in detail. The R script analyze.r can be used for this purpose and is provided with the package.
+
+\subsubsection{BUSCORecomputer}
+If no gene annotation of the target organism is known, it is difficult to assess the quality of a predicted gene annotation. For this case, BUSCO has been proposed (\url{https://doi.org/10.1093/bioinformatics/btv351}), which is \textit{\textbf{B}enchmarking \textbf{U}niversal \textbf{S}ingle-\textbf{C}opy \textbf{O}rthologs}. BUSCO thus checks whether there is a single gene prediction for each universal ortholog of a taxon that should occur only once. However, alternative transcripts cause problems in BUSCO as they can increase the number of genes designated as \textit{duplicated}. For this reason, the BUSCO authors recommend using a single transcript per gene. Unfortunately, this is also subject to some caveats, as the selection of a single transcript per gene is not straightforward. Sometimes one transcript is accepted as ortholog and another transcript not. Therefore, one might underestimate the number of \textit{complete} genes.
+
+For these reasons, we implemented a module called BUSCORecomputer, which uses the result of BUSCO and the gene-transcript relationship to recompute the percentage of complete and duplicated genes.
+\begin{verbatim}
+java -jar GeMoMa-<version>.jar CLI BUSCORecomputer ...
 \end{verbatim}
 
 \subsection{General speed-up}
@@ -278,6 +313,151 @@ java -jar GeMoMa-<version>.jar --create GeMoMa -Xmx40g
 \end{verbatim}
 to create the corresponding XML integration for GeMoMa.
 
+\myPortrait{landscape}
+\section{Real example}
+In this section, we show how to run the main modules and analysis with GeMoMa using some real data from NCBI (\emph{Arabidopsis thaliana} and \emph{Arabidopsis lyrata}). You can rerun this example using the script \verb+real-example.sh+. First of all, we need some data:
+
+\begin{Verbatim}
+mkdir NCBI
+cd NCBI
+wget -c https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_genomic.fna.gz
+wget -c https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_genomic.gff.gz
+wget -c https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/004/255/GCF_000004255.2_v.1.0/GCF_000004255.2_v.1.0_genomic.fna.gz
+wget -c https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/004/255/GCF_000004255.2_v.1.0/GCF_000004255.2_v.1.0_genomic.gff.gz
+cd ..
+\end{Verbatim}
+
+\subsection{GeMoMaPipeline}
+We try to predict genes in \emph{Arabidopsis lyrata} based on the gene annotation of a single reference organism, here \emph{Arabidopsis thaliana}. We do not like to rename the predictions (\verb+AnnotationFinalizer.r=NO+) or obtain the predicted proteins (\verb+p=false+). However, we like to have the individual predictions of GeMoMa for each reference species (\verb+o=true+). This allows to rerun the GAF with slightly different parameter settings, obtaining new results very quickly without the need of time-consuming search and GeMoMa steps.
+
+GeMoMaPipeline with default parameters and without RNA-seq evidence predicts a single transcript per gene. As we like to demonstrate the utility of BUSCORecomputer later, we modify the parameter \verb+GAF.a+ to allow multiple transcript predictions per gene:
+
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO p=false o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz GAF.a="pAA>=0.7" outdir=output/
+	i=thaliana a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+\end{Verbatim}
+
+\subsubsection{Tips}
+Depending on your default settings and the amount of data, you might have to increase the memory that can be used by setting the VM arguments for initial and maximal heap size, e.g., \verb+-Xms200G -Xmx400G+.\\
+
+GeMoMaPipeline writes its version and all parameters that are no files at the beginning of the predicted annotation. This allows to check parameters at any time point.\\
+
+If GeMoMaPipline crashes with an Exception, the parameter \verb+restart+ can be used to restart the latest GeMoMaPipeline run, which was finished without results, with very similar parameters. This allows to avoid time-consuming steps like the search that were successful in the latest GeMoMaPipeline run.\\
+
+If you like to use several reference organisms, you can use the parameters \verb+a+ and \verb+g+ several times, but you new to add the parameter \verb+s+. Additionally, we recommend to use the parameter \verb+i+, which allows providing an ID for each reference organism:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO p=false o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/
+	s=own i=<speciesA> a=<speciesA.gff> g=<speciesA.fna>
+	s=own i=<speciesB> a=<speciesB.gff> g=<speciesC.fna>
+	s=own i=<speciesC> a=<speciesC.gff> g=<speciesC.fna>
+\end{Verbatim}
+If you like to use mapped RNA-seq data, you have to use the parameters \verb+r+ and \verb+ERE.m+:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO p=false o=true
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/ r=MAPPED ERE.m=<SAM/BAM>
+	a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+\end{Verbatim}
+If you have multiple mapped RNA-seq data sets, for example 3, you can use them all
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO p=false o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/ r=MAPPED ERE.m=<SAM/BAM1> ERE.m=<SAM/BAM2> ERE.m=<SAM/BAM3>
+	a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+\end{Verbatim}
+If you like to use predict only homologs for a specific gene, gene family or set of genes from the reference organism, you can use the parameter \verb++. You have to provide a list of reference transcript ID as a file and pass it to the parameter:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO p=false o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/ selected=<SELECTED>
+	a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+\end{Verbatim}
+If you like to rename your predictions, you can use the parameters \verb+AnnotationFinalizer.r+. This parameter has three options
+\begin{itemize}
+\item \verb+NO+, which does not rename the transcripts,
+\item \verb+SIMPLE+, which renames the predictions according to the schema <PREFIX><digit>, and
+\item \verb+COMPOSED+, which renames the predictions according to the schema <PREFIX><contig\_identifier><INFIX><digit><SUFFIX> (cf. TAIR name schema)
+\end{itemize}
+where upper case place holders (such as \verb+<PREFIX>+) are determined by the user via additional parameters and lower case place holders are determined internally. Hence, additional parameters need to be set for the options \verb+SIMPLE+ and \verb+COMPOSED+, e.g., the prefix via \verb+AnnotationFinalizer.p+. Furthermore, you can decide whether the name should be used for an additional GFF attribute \verb+name+ or for the existing GFF attribute \verb+ID+ and \verb+parent+. You can choose between these to options using the parameter \verb+AnnotationFinalizer.n+. 
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=SIMPLE AnnotationFinalizer.p=<PREFIX>
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/ o=true
+	a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+\end{Verbatim}
+If you like to retrieve the predictions as proteins, CDS, or genomic regions, you can use the parameters \verb+p+, \verb+pc+, and \verb+pgr+, respectively. Internally, GeMoMaPipeline will call Extractor on the final prediction to obtain the desired files. Alternatively, you can run Extractor on you own. 
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/ p=true pc=true pgr=true
+	a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+\end{Verbatim}
+If you like to use protein input as reference, you can also use GeMoMa, although it is not able to utilize intron position conservation in this case. Given a \verb+ref-protein.fasta+, you can run GeMoMaPipeline:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO p=false o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/
+	s=pre-extracted c=ref-proteins.fasta
+\end{Verbatim}
+If you like to combine GeMoMa predictions with given external annotation \verb+external.gff+, e.g., from \emph{ab-initio} gene prediction, you can use the parameter \verb+e+:. In this case we highly recommend to use the optional parameters \verb+i+ and verb+ID+ to be able to clearly distinguish the origin of a prediction in the final annotation:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO o=true 
+	t=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz outdir=output/ p=true pc=true pgr=true
+	i=<REFERENCE_ID> a=NCBI/GCF_000001735.4_TAIR10.1_genomic.gff.gz g=NCBI/GCF_000001735.4_TAIR10.1_genomic.fna.gz 
+	ID=<EXTERNAL_ID> e=external.gff
+\end{Verbatim}
+\clearpage
+\subsection{Synteny}
+If you like to compare the order of genes between two organisms the module SyntenyChecker that is run by default at the end of the pipeline can be used. This module creates a table that can be visualized with the R script \verb+synplot.r+:
+\begin{verbatim}
+Rscript synplot.r output/reference_gene_table.tabular 5 output/test lyrata
+\end{verbatim}
+\vspace{-5mm}
+\begin{center}\includegraphics[width=0.3\linewidth]{{test-synteny-k=5}.pdf}\end{center}
+
+\subsection{Analyzer}
+Based on the results of the previous subsection and the gene annotation from NCBI, we run the Analyzer to evaluate sensitivity and specificity:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI Analyzer t=NCBI/GCF_000004255.2_v.1.0_genomic.gff.gz
+	n="test" p=output/final_annotation.gff w=YES outdir=output/
+\end{Verbatim}
+
+Using the parameter \verb+w=YES+, the Analyzer writes a table analyzed in detail. Some interesting aspects can be visualized using the R script \verb+analyze.r+ that is include in GeMoMa:
+\begin{verbatim}
+Rscript analyze.r output/Comparison_0.tabular
+\end{verbatim}
+
+This script produces several outputs that allow to judge the gene prediction, e.g.,\\
+\includegraphics[width=0.3\linewidth,page=2]{{Comparison_0.tabular-comparison-with-truth}.pdf}
+\includegraphics[width=0.3\linewidth,page=3]{{Comparison_0.tabular-comparison-with-truth}.pdf}
+\includegraphics[width=0.3\linewidth,page=6]{{Comparison_0.tabular-comparison-with-truth}.pdf}
+
+\subsubsection{Tips}
+If you like to compare several gene predictions, e.g., several gene prediction programs or different parameter setting you can run the R script with several inputs. This will create a combined plot of F1 versus sensitivity:
+\begin{verbatim}
+Rscript analyze.r <name1=table1> <name2=table2> <name3=table3>
+\end{verbatim}
+
+\subsection{BuscoRecomputer}
+Based on the results of the GeMoMaPipeline section, we like to evaluate the BUSCO score. First we extract all predicted proteins. This could be either done in the GeMoMaPipeline or explicitly via the module Extractor. As we need the assignment file for BUSCORecomputer, we use the Extractor as follows:
+\begin{Verbatim}
+java -jar GeMoMa-1.8.jar CLI Extractor Ambiguity=AMBIGUOUS p=true outdir=output/
+	g=NCBI/GCF_000004255.2_v.1.0_genomic.fna.gz a=output/final_annotation.gff
+\end{Verbatim}
+Now, we can run BUSCO (which needs to be installed) on these proteins:
+\begin{verbatim}
+busco -i output/proteins.fasta -l embryophyta_odb10 -o busco -m proteins
+\end{verbatim}
+Finally, we can run BUSCORecomputer based on the BUSCO results and the assignment file:
+\begin{verbatim}
+java -jar GeMoMa-1.8.jar CLI BUSCORecomputer b=busco/full_table.tsv i=output/assignment.tabular outdir=output/
+\end{verbatim}
+Comparing the results, we clearly see that BUSCORecomputer lead to less \emph{duplicated} genes which is more realistic since the difference is explained by alternative transcripts and not different genes.  
+If you have multiple transcripts per gene BUSCO has problems with the number of duplicated genes.
+\begin{center}\begin{tabular}{ll}
+BUSCO	&C:99.2\%[S:68.3\%,D:30.9\%],F:0.2\%,M:0.6\%,n:1614\\
+BUSCORecomputer	&C:99.3\%[S:97.4\%,D:1.9\%],F:0.2\%,M:0.6\%,n:1614
+\end{tabular}\end{center}
+Slight differences in the percentages of complete (C), fragmented (F) or missing (M) BUSCOs might occur due to different rounding modes.
+
+
+\myPortrait{portrait}
 \section{Reference, questions and comments}
 If you use GeMoMa please cite:\\[\medskipamount]
 \emph{Using intron position conservation for homology-based gene prediction.}\\
@@ -287,8 +467,15 @@ Nucleic Acids Research, 2016. doi: \href{https://doi.org/10.1093/nar/gkw092}{10.
 J. Keilwagen, F. Hartung, M. Paulini, S. O. Twardziok, and J. Grau.\\
 BMC Bioinformatics, 2018. doi: \href{https://doi.org/10.1186/s12859-018-2203-5}{10.1186/s12859-018-2203-5}\\
 ~\\
-FAQs, complete parameter lists, release notes, \ldots can be found on the homepage: 
+The complete documentation can be found at:\\
+\url{http://www.jstacs.de/index.php/GeMoMa-Docs}\\
+~\\
+FAQs, release notes, \ldots can be found on the homepage:\\
 \url{http://www.jstacs.de/index.php/GeMoMa}\\
+~\\
+Issues can be checked and reported at:\\
+\url{https://github.com/Jstacs/Jstacs/issues?q=label\%3AGeMoMa}\\
+
 ~\\
 For further questions or comments, please contact:\\
 \href{mailto:jens.keilwagen@julius-kuehn.de?subject=GeMoMa manual}{jens.keilwagen@julius-kuehn.de}
