@@ -115,18 +115,23 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		String[] keys;
 		HashSet<String> errors;
 		Protocol protocol;
+		ScriptEngine engine;
 		
-		public UserSpecifiedComparator( String specified, Protocol protocol ) {
+		public UserSpecifiedComparator( String specified, ScriptEngine engine, Protocol protocol ) {
 			keys=specified.split(",");
 			for( int i = 0; i < keys.length; i++ ) {
 				keys[i] = keys[i].trim();
 			}
 			errors = new HashSet<String>();
+			this.engine=engine;
 			this.protocol = protocol;
 		}
 		
-		public static double parse( String d ) {
+		public static Double parse( String d ) {
 			if( d.equals( "NA" ) ) {
+				return null;
+			}
+			else if( d.equals( "NA" ) ) {
 				return Double.NaN;
 			} else {
 				return -Double.parseDouble(d);
@@ -137,17 +142,20 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			p.comp = new Comparable[keys.length+1];
 			for( int i = 0; i < keys.length; i++ ) {
 				String v = p.hash.get(keys[i]);
-				if( v != null ) {
-					if( asDouble.contains(keys[i]) ) {
-						p.comp[i] = parse(v);
-					} else {
-						p.comp[i] = v;
+				if( v == null ) {
+					try {
+						v=Tools.eval(engine, keys[i], p.hash);
+					} catch( ScriptException se ) {
+						if( !errors.contains(keys[i])) {
+							errors.add(keys[i]);
+							protocol.appendWarning("Could not find key (" + keys[i] + ") that is used for sorting\n");
+						}
 					}
+				}
+				if( asDouble.contains(keys[i]) ) {
+					p.comp[i] = parse(v);
 				} else {
-					if( !errors.contains(keys[i])) {
-						errors.add(keys[i]);
-						protocol.appendWarning("Could not find key (" + keys[i] + ") that is used for sorting\n");
-					}
+					p.comp[i] = v;
 				}
 			}
 			p.comp[keys.length]=p.id;
@@ -177,17 +185,27 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				defAttributes[i] = null;
 			}
 		}
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("nashorn");
+
 		String filter = Tools.prepareFilter( (String) parameters.getParameterForName("filter").getValue() );
-		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), protocol );
+		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), engine, protocol );
 		String altFilter = Tools.prepareFilter( (String) parameters.getParameterForName("alternative transcript filter").getValue() );
 		Parameter pa = parameters.getParameterForName( "add alternative transcripts" );
 		boolean addAltTransIDs = pa==null ? false : (Boolean) pa.getValue();
 		pa = parameters.getParameterForName( "transfer features" );
 		boolean addAdd= pa==null ? false : (Boolean) pa.getValue();
-		
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine engine = mgr.getEngineByName("nashorn");
-	    
+		/*
+		pa = parameters.getParameterForName( "kmeans" );
+		int cluster=0;
+		if( pa!=null ) {
+			pa = ((ParameterSet) pa.getValue()).getParameterForName("cluster");
+			if( pa != null ) {
+				cluster = (Integer) pa.getValue();
+			}
+		}
+		boolean kmeans = cluster>0;*/
+			    
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("predicted annotation").getValue();
 		
 		String line, t;
@@ -250,6 +268,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			String fName = sps.getParameterAt(2).getValue().toString();
 			//System.out.println(fName);
 			hash.clear();
+			ArrayList<Prediction> list = new ArrayList<Prediction>();
 			r = new BufferedReader(new FileReader(fName));
 			while( (line=r.readLine()) != null ) {
 				if( line.length() == 0 ) continue;
@@ -275,12 +294,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					} else {
 						ids.add(current.id);
 					}
-					pred = pHash.get( current.contigStrand );
-					if( pred == null ) {
-						pred = new ArrayList<Prediction>();
-						pHash.put(current.contigStrand,pred);
-					}
-					pred.add( current );
+					list.add(current);
 					rnaSeq |= split[8].indexOf(";tie=")>0;
 				} else {
 					if( current==null ) {
@@ -322,7 +336,59 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				allInfos.add(it.next());
 			}
 			
-			//System.out.println( pred.size() + "\t" + k + "\t" +current.index);
+			/*
+			//ML-filter of predictions
+			if( kmeans ) {
+				//TOCO extend: further attributes, rescale, pca?
+				double[][] matrix = new double[list.size()][1];
+				boolean anyNAN = false;
+				for( int i = 0; i < list.size(); i++ ) {
+					Prediction cur = list.get(i);
+					matrix[i][0] = cur.score / Double.parseDouble(cur.hash.get("maxScore"));
+					anyNAN = Double.isNaN( matrix[i][0] );
+				}
+				
+				if( matrix.length>1 && !anyNAN ) {
+					int[] assignment = new Kmeans().cluster(matrix, cluster, 10);
+					double[] mean = new double[cluster];
+					int[] stat = new int[cluster];
+					for( int i = 0; i < matrix.length; i++ ) {
+						mean[assignment[i]] += matrix[i][0];
+						stat[assignment[i]]++;
+					}
+					int bad = -1;
+					double val = Double.POSITIVE_INFINITY;
+					for( int i = 0; i < mean.length; i++ ) {
+						mean[i] /=stat[i];
+						if( mean[i] < val ) {
+							bad=i;
+							val=mean[i];
+						}
+					}
+					ArrayList<Prediction> mlFiltered = new ArrayList<Prediction>();
+					for( int i = 0; i < list.size(); i++ ) {
+						Prediction cur = list.get(i);
+						if( assignment[i] != bad ) {
+							mlFiltered.add(cur);
+						}
+					}
+					protocol.append( sampleInfo + ": ml-filtered: " + mlFiltered.size() + "/" + list.size() + "\n" );
+					
+					list.clear();
+					list=mlFiltered;
+				} else {
+					protocol.append( sampleInfo + ": ml-filter not possible\n" );
+				}
+			}*/
+			
+			for( Prediction p: list ) {
+				pred = pHash.get( p.contigStrand );
+				if( pred == null ) {
+					pred = new ArrayList<Prediction>();
+					pHash.put(p.contigStrand,pred);
+				}
+				pred.add( p );
+			}
 		}
 		
 		Set<String> s = pHash.keySet();
@@ -332,7 +398,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		}
 		protocol.append( "all: " + anz + "\n" );
 
-		int filtered = 0, altCand=0;;
+		int filtered = 0;
 		File out = Tools.createTempFile("GAF-filtered", tempD);
 		if( anz>0 ) {
 			//per contig/chromosome and strand combination => could be parallelized
@@ -368,19 +434,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						pred.remove(i);
 					} else {
 						fillEvidence(p.evidence, 0);
-						
-						//if ml-filter will be implemented, this might be done afterwards
-						p.altCand = Tools.filter(engine, altFilter, p.hash);
-						comp.prepare(p);
-						altCand+=p.altCand?1:0;
 					}
 				}
 				filtered += pred.size();
 			}
 		}
 		protocol.append( "filtered: " + filtered + "\n" );
-		
-		//TODO ML-filter of predictions
 		
 		if( filtered >=0 ) {
 			//per contig/chromosome and strand combination => could be parallelized
@@ -401,13 +460,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				pred = pHash.get(chrSt);
 				if( pred.size() > 0 ) {
 					//cluster predictions
-					split(addAdd, clustered, pred, comp, rnaSeq, maxTranscripts, w, cbTh, protocol);
+					split(addAdd, clustered, pred, comp, engine, altFilter, rnaSeq, maxTranscripts, w, cbTh, protocol);
 				}
 			}
 			w.close();
 		}
 	
-		protocol.append( "alternative transcript filtered: " + altCand + "\n" );
 		protocol.append( "clustered: " + clustered[0] + "\n\n" );
 		protocol.append( "genes: " + gene + "\n" );
 		protocol.append( "transcripts: " + transcripts + "\n\n" );
@@ -438,17 +496,17 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	static int[][] stats;
 	static int gene=0;
 	
-	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, Comparator<Prediction> comp, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
+	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, UserSpecifiedComparator comp, ScriptEngine engine, String altFilter, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
 		int i = 0;
 		Prediction next = pred.get(i), current;
 		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
 		while( i < pred.size() ) {
+			//determine next cluster
 			currentCluster.clear();
 			current = next;
-			currentCluster.add(current);
+			currentCluster.add(current);			
 			int end = current.end;
 			i++;	
-
 			while( i < pred.size() && end>(next = pred.get(i)).start ) {
 				end = Math.max(end,next.end);
 				currentCluster.add(next);
@@ -456,7 +514,17 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			if( clustered!= null ) clustered[0]++;
 			
+			//sort and alternative filter
+			for( Prediction p: currentCluster ) {
+				comp.prepare(p);
+				p.altCand = Tools.filter(engine, altFilter, p.hash);
+			}
 			Collections.sort( currentCluster, comp );
+			for( Prediction p: currentCluster ) {
+				p.comp=null;
+			}
+			
+			//select predictions
 			create( addAdd, rnaSeq, maxTranscripts, currentCluster, w, cbTh, protocol );
 		}
 	}
@@ -476,6 +544,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 		}
 		
+		//XXX change
 		int minOverlapThreshold = 0; // can later be extended to small overlap
 		for( int i = 0; i < list.size(); i++ ) {
 			Prediction n = list.get(i);
@@ -528,6 +597,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		
 		//write
 		Prediction n=null;
+		StringBuffer anno = new StringBuffer();
 		for( int j = 0; j < sel.size(); j++ ) {
 			ArrayList<Prediction> selection = sel.get(j);
 			int start=Integer.MAX_VALUE, end=Integer.MIN_VALUE;
@@ -536,10 +606,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			maxTie=-1;
 			complete=0;
 			int i = 0;
-			//write transcripts and deterime start and end
+			//write transcripts and determine start and end
+			anno.delete(0, anno.length());
 			for( ; i < selection.size() && i < maxTranscripts; i++ ) {
 				n = selection.get(i);
-				n.write(w, protocol);
+				n.write(anno, protocol);
 				
 				start = Math.min(start, addAdd ? Integer.parseInt(n.split[3]) : n.start);
 				end = Math.max(end, addAdd ? Integer.parseInt(n.split[4]) : n.end );
@@ -550,6 +621,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				fillEvidence(combinedEvidence, 2);
 				w.append(n.split[0] + "\tGAF\tgene\t" + start + "\t" + end  + "\t.\t" + n.split[6] + "\t.\tID=gene_"+gene+";transcripts=" + i + ";complete="+complete+ (rnaSeq?";maxTie=" + (maxTie<0?"NA":maxTie):"") +(MAX>1?";maxEvidence="+maxEvidence+";combinedEvidence=" + count(combinedEvidence):"") );
 				w.newLine();
+				w.append(anno);
 				
 				stats[maxEvidence-1][0]++;
 				if( maxTie == 1 ) {
@@ -601,10 +673,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		static boolean first=true;
 		
 		static class CDS {
-			String[] split;
+			String line;
 			int start, end;
-			CDS( String[] split ) {
-				this.split=split;
+			CDS( String line ) {
+				this.line=line;
+				String[] split = line.split("\t");
 				start=Integer.parseInt(split[3]);
 				end=Integer.parseInt(split[4]);
 			}
@@ -753,7 +826,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				cds=replace( cds, "Parent="+oldId, "Parent="+id, 0 );
 				cds=replace( cds, "ID="+oldId, "ID="+id, 0 );
 			}
-			CDS current = new CDS( cds.split("\t") );
+			CDS current = new CDS( cds );
 			this.cds.add( current );
 			length+= (current.end-current.start+1);
 			start = Math.min(start, current.start);
@@ -819,7 +892,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 		}
 		
-		public void write( BufferedWriter w, Protocol p ) throws IOException, NumberFormatException, ScriptException {
+		public void write( StringBuffer w, Protocol p ) throws IOException, NumberFormatException, ScriptException {
 			for( int i = 0; i < evidence.length; i++ ) {
 				combinedEvidence[i] |= evidence[i];
 			}
@@ -855,7 +928,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			if( h.charAt(h.length()-1)!=';') {
 				w.append(";");
 			}
-			w.write( "evidence=" + count + ";Parent=gene_"+gene + ";sumWeight=" + we + ";" );
+			w.append( "evidence=" + count + ";Parent=gene_"+gene + ";sumWeight=" + we + ";" );
 			
 			maxEvidence = Math.max(count, maxEvidence);
 			if( hash.containsKey("start") && hash.containsKey("stop") ) {
@@ -870,36 +943,36 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			if( alternative.size() > 0 ) {
 				String[] it = alternative.toArray(new String[0]);
 				Arrays.sort(it);
-				w.write( "alternative=\"" + it[0] );
+				w.append( "alternative=\"" + it[0] );
 				for( int i = 1; i < it.length; i++ ) {
-					w.write("," + it[i] );
+					w.append("," + it[i] );
 				}
-				w.write( "\";" );
+				w.append( "\";" );
 			}
 			if( alternativeTranscript.size() > 0 ) {
 				String[] it = alternativeTranscript.toArray(new String[0]);
 				Arrays.sort(it);
-				w.write( "alternativeTranscript=\"" + it[0] );
+				w.append( "alternativeTranscript=\"" + it[0] );
 				for( int i = 1; i < it.length; i++ ) {
-					w.write("," + it[i] );
+					w.append("," + it[i] );
 				}
-				w.write( "\";" );
+				w.append( "\";" );
 			}
 			if( gos!= null ) {
 				String[] goTerms = gos==null ? new String[0] : gos.toArray(new String[0]);
 				if( goTerms != null && goTerms.length > 0 )
 				{
 					h = Arrays.toString(goTerms).replace("[","\"").replace("]", "\"");
-					w.write("potential_GO=" + h+ ";");
+					w.append("potential_GO=" + h+ ";");
 				}
 				String[] defTerms = defl==null ? new String[0] : defl.toArray(new String[0]);
 				if( defTerms != null && defTerms.length > 0 )
 				{
 					h = Arrays.toString(defTerms).replace("[","\"").replace("]", "\"");
-					w.write("potential_defline=" + h);
+					w.append("potential_defline=" + h);
 				}
 			}
-			w.newLine();
+			w.append("\n");//w.newLine();
 			if( add!= null ) {
 				for( int i = 0; i < add.size(); i++ ) {
 					String line = add.get(i);
@@ -908,15 +981,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						line = line.replace("Parent="+oldId,"Parent=" + id);
 					}
 					w.append( line );
-					w.newLine();
+					w.append("\n");//w.newLine();
 				}
 			}
 			for( int i = 0; i < cds.size(); i++ ) {
-				String[] split = cds.get(i).split;
-				for( int j = 0; j < split.length; j++ ) {
-					w.append( (j==0?"":"\t") + split[j] );
-				}
-				w.newLine();
+				w.append( cds.get(i).line );
+				w.append("\n");//w.newLine();
 			}
 			
 			fillEvidence(evidence, 1);
@@ -964,7 +1034,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					nuc.set( c.start-s, c.end-s+1 );
 				} catch( IndexOutOfBoundsException ioobe ) {
 					System.out.println(Arrays.toString(split));
-					System.out.println(Arrays.toString(c.split));
+					System.out.println(c.line);
 					throw ioobe;
 				}
 			}
@@ -1064,8 +1134,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			return
 				new ToolParameterSet( getShortName(),
 					new SimpleParameter(DataType.STRING,"tag","the tag used to read the GeMoMa annotations",true,GeMoMa.TAG),
-					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
-					new SimpleParameter(DataType.INT,"maximal number of transcripts per gene","the maximal number of allowed transcript predictions per gene", true, new NumberValidator<Comparable<Integer>>(1, Integer.MAX_VALUE), Integer.MAX_VALUE ),
 					new ParameterSetContainer( "predicted annotation", "", new ExpandableParameterSet( new SimpleParameterSet(		
 							new SimpleParameter(DataType.STRING,"prefix","the prefix can be used to distinguish predictions from different input files", false, new RegExpValidator("\\w*") ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
@@ -1075,6 +1143,14 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					new SimpleParameter(DataType.STRING,"default attributes","Comma-separated list of attributes that is set to NaN if they are not given in the annotation file. "
 							+ "This allows to use these attributes for sorting or filter criteria. "
 							+ "It is especially meaningful if the gene annotation files were received fom different software packages (e.g., GeMoMa, Braker, ...) having different attributes.", true, "tie,tde,tae,iAA,pAA,score,lpm,maxGap,bestScore,maxScore,raa,rce" ),				
+					/*new SelectionParameter(DataType.PARAMETERSET, new String[] {"NO","YES"},
+							new ParameterSet[] {
+									new SimpleParameterSet(),
+									new SimpleParameterSet( new SimpleParameter( DataType.INT, "cluster", "the number of clusters to be used for kmeans, only the worst cluster is excluded", true, new NumberValidator<Integer>(2, 100), 2) )
+							},
+							"kmeans",
+							"whether kmeans should be performed for each input file and the cluster with the lowest mean score/maxScore value sshould be discarded",
+							true ),*/
 					new SimpleParameter(DataType.STRING,"filter","A filter can be applied to transcript predictions to receive only reasonable predictions. The filter is applied to the GFF attributes. "
 							+ "The default filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/aa>=0.75) whether a prediction is used or not. In addition, predictions without score (isNaN(score)) will be used as external annotations do not have the attribute score. "
 							+ "Different criteria can be combined using 'and' and 'or'. "
@@ -1083,6 +1159,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on sumWeight (sumWeight>1). "
 							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or sumWeight>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!?:'\\-\\+\\*\\/]*"), "tie==1 or sumWeight>1" ),
+					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
+					new SimpleParameter(DataType.INT,"maximal number of transcripts per gene","the maximal number of allowed transcript predictions per gene", true, new NumberValidator<Comparable<Integer>>(1, Integer.MAX_VALUE), Integer.MAX_VALUE ),
 					new SimpleParameter(DataType.BOOLEAN, "add alternative transcripts", "a switch to decide whether the IDs of alternative transcripts that have the same CDS should be listed for each prediction", true, false),
 					new SimpleParameter( DataType.BOOLEAN, "transfer features", "if true, additional features like UTRs will be transfered from the input to the output. Only features of the representatives will be transfered. The UTRs of identical CDS predictions listed in \"alternative\" will not be transfered or combined", true, false )
 				);		
