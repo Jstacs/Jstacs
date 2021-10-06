@@ -121,9 +121,10 @@ synPlot <- function( syn, column, k, target, pch=16, cex=0.1, order=T ) {
 	return(a);
 }
 
+###test parameter
+#inputName="./reference_gene_table.tabular";
 #k=5;
-#fName="./reference_gene_table.tabular";
-#name="GSD";
+#outputName="GSD";
 
 #user parameters
 args <- commandArgs(trailingOnly = TRUE)
