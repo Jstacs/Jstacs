@@ -178,7 +178,7 @@ public class Analyzer extends GeMoMaModule {
 				+ "\tadditional upstream features truth\tadditional internal features truth\tadditional downstream features truth"
 				+ "\tadditional upstream features prediction\tadditional internal features prediction\tadditional downstream features prediction"
 				+ "\tintron retention in truth\tintron retention in prediction"
-				+ "\tperfect features"
+				+ "\tperfect features\tacceptor\tdonor"
 				
 				+ "\tpredictionId\tprediction start position\tprediction end position" );
 		all = attributesPrediction.get(ALL)[0];
@@ -227,7 +227,7 @@ public class Analyzer extends GeMoMaModule {
 					}
 					tBuff.append( "\tNA\tNA" );
 					//last part is for additional fields: start, end, number of exons, ...
-					for( int k = 0; k < 17; k++ ) {
+					for( int k = 0; k < 19; k++ ) {
 						tBuff.append( "\t" );
 					}
 					o.appendAttributes( tBuff, attributesPrediction, attPrediction, threshold, false ); 
@@ -775,6 +775,42 @@ public class Analyzer extends GeMoMaModule {
 			}
 			s += "\t" + anz;
 
+			//donor and acceptor sites
+			i = j = 0;
+			int anzD=0, anzA=0;
+			while( i < parts.size() && j < transcript.parts.size() ) {
+				int[] p1 = parts.get(i);
+				int[] p2 = transcript.parts.get(j);
+				//donor
+				if( p1[0] == p2[0] ) {
+					if( i>0 && j>0 ) {
+						anzA++;
+					}
+				}
+				//acceptor
+				if( p1[1] == p2[1] ) {
+					if( i+1<parts.size() && j+1<transcript.parts.size() ) {
+						anzD++;
+					}
+				}
+				
+				//jump to the next
+				if( p1[1] == p2[1] ) {
+					i++;
+					j++;
+				} else if( p1[1] < p2[1] ) {
+					i++;
+				} else { //p2[1] < p1[1]
+					j++;
+				}
+			}
+			
+			double n = transcript.parts.size()-1;
+			if( n>0 ) {
+				s += "\t" + (anzA/n) + "\t" + (anzD/n);
+			} else {
+				s += "\tNA\tNA";
+			}
 			
 			//TODO extend?
 			
@@ -1052,6 +1088,8 @@ public class Analyzer extends GeMoMaModule {
 				+ " Hence, this tool might help to detect weaknesses of the prediction algorithm.\n\n"
 				+ "True and predicted transcripts are evaluated based on nucleotide F1 measure."
 				+ " For each predicted transcript, the true transcript with highest nucleotide F1 measure is listed."
+				+ " A negative value in a F1 measure column indicates that there is a predicted transcript that matches the true transcript with a F1 measure value that is the absolute value of"
+				+ " this entry, but there is another true transcript that matches this predicted transcript with an even better F1."
 				+ " Also true and predicted transcripts are listed that do not overlap with any transcript from the predicted and true annotation, respectively."
 				+ " The table contains the attributes of the true and the predicted annotation besides some additional columns allowing to easily filter interesting examples and to do statistics.\n\n"
 				+ "The evaluation can be based on CDS (default) or exon features."
