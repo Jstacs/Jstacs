@@ -30,7 +30,8 @@ import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 
 /**
- * 
+ * Allows to compare the order of genes in target organism and reference organism(s).
+ *  
  * @author Jens Keilwagen
  */
 public class SyntenyChecker extends GeMoMaModule {
