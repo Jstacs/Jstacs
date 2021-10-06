@@ -79,11 +79,21 @@ public class BUSCORecomputer extends GeMoMaModule {
 		r.close();
 		
 		NumberFormat nf = NumberFormat.getInstance(Locale.US);
-		protocol.append("Complete\t" + nf.format((stat[0]+stat[1])/all) + "\n" );
-		protocol.append(" Single\t" + nf.format(stat[0]/all) + "\n" );
-		protocol.append(" Duplicated\t" + nf.format(stat[1]/all) + "\n" );
-		protocol.append("Fragmented\t" + nf.format(stat[2]/all) + "\n" );
-		protocol.append("Missing\t" + nf.format(stat[3]/all) + "\n" );
+		nf.setMaximumFractionDigits(1);
+		int a = (int) all;
+		protocol.append("C:" + nf.format((stat[0]+stat[1])/all*100) );
+		protocol.append("%[S:" + nf.format(stat[0]/all*100) );
+		protocol.append("%,D:" + nf.format(stat[1]/all*100) );
+		protocol.append("%],F:" + nf.format(stat[2]/all*100) );
+		protocol.append("%,M:" + nf.format(stat[3]/all*100) );
+		protocol.append("%,n:"+a+"\n" );
+		
+		protocol.append( (stat[0]+stat[1]) + "\t" + nf.format((stat[0]+stat[1])/all*100) + "%\tComplete BUSCOs (C)\n" );
+		protocol.append( stat[0] + "\t" + nf.format(stat[0]/all*100) + "%\tComplete and single-copy BUSCOs (S)\n" );
+		protocol.append( stat[1] + "\t" + nf.format(stat[1]/all*100) + "%\tComplete and duplicated BUSCOs (D)\n" );
+		protocol.append( stat[2] + "\t" + nf.format(stat[2]/all*100) + "%\tFragmented BUSCOs (F)\n" );
+		protocol.append( stat[3] + "\t" + nf.format(stat[3]/all*100) + "%\tMissing BUSCOs (M)\n" );
+		protocol.append( a + "\t\tTotal BUSCO groups searched\n" );
 		
 		return null;
 	}
