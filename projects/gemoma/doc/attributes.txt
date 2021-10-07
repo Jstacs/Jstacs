@@ -6,9 +6,19 @@ Using GeMoMa and GAF, you'll obtain GFFs containing some special attributes. We 
 |-
 !Attribute	!!Long name	!!Tool	!!Necessary parameter	!!Feature	!!Description
 |-
-| aa	|| amino acids	|| GeMoMa	||	|| mRNA	|| the number of amino acids in the protein
+| aa	|| amino acids	|| GeMoMa	||	|| mRNA	|| the number of amino acids in the predicted protein
+|-
+| raa	|| reference amino acids	|| GeMoMa	||	|| mRNA	|| the number of amino acids in the reference protein
 |-
 | score	|| GeMoMa score	|| GeMoMa	||	|| mRNA	|| score computed by GeMoMa using the substitution matrix, gap costs and additional penalties
+|-
+| maxScore	|| maximal GeMoMa score	|| GeMoMa	||	|| mRNA	|| maximal score which will be obtained by a prediction that is identical to the reference transcript
+|-
+| bestScore	|| best GeMoMa score	|| GeMoMa	||	|| mRNA	|| score of the best GeMoMa prediction of this transcript and this target organism
+|-
+| maxGap	|| maximal gap	|| GeMoMa	||	|| mRNA	|| length of the longest gap in the alignment between predicted and reference protein
+|-
+| lpm	|| longest positive match	|| GeMoMa	||	|| mRNA	|| length of the longest positive scoring match in the alignment between predicted and reference protein, i.e., each pair of amino acids in the match has a positive score
 |-
 | nps	|| number of premature stops	|| GeMoMa	||	|| mRNA	|| the number of premature stop codons in the prediction
 |-

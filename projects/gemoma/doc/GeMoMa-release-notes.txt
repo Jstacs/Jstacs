@@ -230,4 +230,52 @@ GeMoMa 1.7.1 (07.09.2020)
 	- Galaxy integration bugfix for hidden parameter restart
 	- hide BLAST_PATH and MMSEQS_PATH from Galaxy integration
 	- improved protocol output if threads=1
-	- add addtional test to GeMoMaPipeline
+	- add additional test to GeMoMaPipeline
+
+GeMoMa 1.8 (07.10.2021)
+- extended manual
+- new module Analyzer: for benchmarking
+- new module BUSCORecomputer: allowing to recompute BUSCO stats based on geneID instead of transcriptID avoiding to overestimate the number of duplicates
+- AnnotationEvidence
+	- bugfix: gene borders if only one gene is on the contig
+	- discard genes that do not code for a protein
+- AnnotationFinalizer:
+	- new parameter "transfer feature" allowing to keep additional features like UTRs, ...
+	- implemented check of regular expression for prefix
+	- bugfix if score==NA
+- CheckIntrons: introns are not optional
+- ERE: 
+	- new parameters for handling spurious split reads
+	- new parameter for repositioning that is needed for genomes with huge chromosome due to limitations of BAM/SAM
+	- bugfix last intron
+	- improved protocol
+- Extractor:
+	- new parameter for long fasta comment
+	- new parameter identical
+	- more verbose output in case of problems
+	- finding errors if CDS parts have different strands
+	- changed optional intron output
+	- bugfix for exons with DNA but no AA
+- GAF:
+	- new parameter allowing to output the transcript names of redundant predictions as GFF attribute
+	- new parameter "transfer feature" allowing to keep additional features like UTRs, ...
+	- bugfix: missing entries for alternative
+	- changed default value for atf and sorting
+	- implemented check of regular expression for prefix
+	- changed handling of transcript within clusters
+	- changed output order in gff: now for each gene the gene feature is reported first and subsequently the mRNA and CDS features
+- GeMoMa: 
+	- new parameter for replacing unknown AA by X
+	- handling missing GeMoMa.ini.xml
+	- additional GFF attributes: lpm, maxScore, maxGap, bestScore
+	- improved error handling and protocol
+	- changed heuristic for identifying multiple transcripts predictions on one contig/chromosome
+- GeMoMaPipeline:
+	- new parameter "check synteny" allowing to run SyntenyChecker
+	- implemented check of regular expression for prefix
+	- removed unnecessary parameter
+	- improved handling of exceptions
+	- bugfix for stranded RNA-seq evidence
+	- allow re-start only for same version
+	- improved protocol if threads==1
+- SyntenyChecker: implemented check of regular expression for prefix
