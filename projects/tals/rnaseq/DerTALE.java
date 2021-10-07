@@ -463,8 +463,8 @@ public class DerTALE implements JstacsTool {
 				
 
 
-				int start = en.getPos()-regionWidth; //3000 positionen davor und 3000 Positionen danach
-				int end = en.getPos()+regionWidth;
+				int start = Math.max(0, en.getPos()-regionWidth); //3000 positionen davor und 3000 Positionen danach
+				int end = Math.min(sr.getFileHeader().getSequence(en.chr).getSequenceLength(),  en.getPos()+regionWidth );
 				SAMRecordIterator sri = sr.query(en.chr, start, end, true);
 				
 				BAMIndex index = sr.indexing().getIndex();
