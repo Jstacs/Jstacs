@@ -179,7 +179,12 @@ public class FeatureReader {
 			return true;
 		}
 		if (lines[1] == null) {
-            return false;
+            for(int i=2;i<lines.length;i++) {
+            	if(lines[i] != null) {
+            		return false;
+            	}
+            }
+            return true;
         }
 		String[] parts = lines[1].split("\t");
 		String ref = parts[0]+"\t"+parts[1]+"\t";
@@ -357,7 +362,7 @@ public class FeatureReader {
 		String[] temp = null;
 		while(vals==null){
 			temp = readNextLines();
-			if(temp[0] == null){
+			if(temp[1] == null){
 				return false;
 			}
 			lab = getLabel(temp);
