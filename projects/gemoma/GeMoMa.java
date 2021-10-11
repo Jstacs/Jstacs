@@ -259,10 +259,7 @@ public class GeMoMa extends GeMoMaModule {
 	 */
 	public static void main(String[] args) throws Exception{
 		File jarfile = new File(Galaxy.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-		if( jarfile != null ) {
-			System.out.println("jar time stamp: " + new Date(jarfile.lastModified()) + "\n" );
-		}
-		
+				
 		//checking for available updates
 		System.setProperty("java.net.useSystemProxies", "true");
 		String site="https://www.jstacs.de/index.php/GeMoMa";
@@ -369,7 +366,21 @@ public class GeMoMa extends GeMoMaModule {
 		
 		//running the program
 		if( args.length == 0 ) {
-			System.out.println( "If you start with the tool with \"CLI\" as first parameter you can use the command line interface, otherwise you can use the Galaxy interface.");
+			System.out.print( "version: " + GeMoMaModule.VERSION );
+			if( jarfile != null ) {
+				System.out.print(" (jar time stamp: " + new Date(jarfile.lastModified()) + ")" );
+			}
+			System.out.println();
+			System.out.println();
+			
+			System.out.println( "If you like to run GeMoMa on the command line, you have to start with the tool with with first parameter \"CLI\":" );
+			System.out.println( " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar CLI <input>");
+			
+			System.out.println( "If you like to run GeMoMa in Galaxy, you need to start with the tool with:" );
+			System.out.println( " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar <input>");
+			
+			System.out.println( "If you like to receive some documentation as given in the wiki, you can start with the tool with:" );
+			System.out.println( " java -jar GeMoMa-"+GeMoMaModule.VERSION+".jar wiki");
 		} else {
 			if( args[0].equalsIgnoreCase("CLI") || args[0].equalsIgnoreCase("wiki") ) {
 				CLI cli = new CLI( "This jar allows to run all parts of GeneModelMapper (GeMoMa) except the external search algorithm (e.g. tblastn).\n" 
@@ -405,7 +416,8 @@ public class GeMoMa extends GeMoMaModule {
 						sb.toString()
 						.replaceAll(MORE, "")
 						.replace(Extractor.EXAMPLE, "")
-						.replace("c=<cds_parts>", "c=<cds_parts> a=<assignment>")	
+						.replace("c=<cds_parts>", "c=<cds_parts> a=<assignment>")
+						.replace("CLI GeMoMaPipeline t=", "CLI GeMoMaPipeline a=<reference_annotation> g=<reference_genome> t=")
 					);
 					//cli.wiki("wiki");
 				}
