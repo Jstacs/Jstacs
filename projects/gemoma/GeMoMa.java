@@ -181,7 +181,6 @@ public class GeMoMa extends GeMoMaModule {
 	
 	//user?
 	private double contigThreshold;//threshold for initial solutions (filtering of contigs)
-	private double regionThreshold;//threshold for regions
 	private double hitThreshold;//threshold for hits
 	
 	private int MAX_INTRON_LENGTH;//the maximal intron length used in the DP to determine possible connections
@@ -858,7 +857,6 @@ public class GeMoMa extends GeMoMaModule {
 		boolean staticIntronLength = (Boolean) parameters.getParameterForName( "static intron length" ).getValue();
 		eValue = (Double) parameters.getParameterForName( "e-value" ).getValue();
 		contigThreshold = (Double) parameters.getParameterForName( "contig threshold" ).getValue();
-		regionThreshold = (Double) parameters.getParameterForName( "region threshold" ).getValue();
 		hitThreshold = (Double) parameters.getParameterForName( "hit threshold" ).getValue();
 		
 		predictions = (Integer) parameters.getParameterForName( "predictions" ).getValue();
@@ -4740,7 +4738,6 @@ if( !help.equals(help2) ) {
 			
 					new SimpleParameter( DataType.DOUBLE, "e-value", "The e-value for filtering blast results", true, 1E2 ),
 					new SimpleParameter( DataType.DOUBLE, "contig threshold", "The threshold for evaluating contigs", true, new NumberValidator<Double>(0d, 1d), 0.4 ),
-					new SimpleParameter( DataType.DOUBLE, "region threshold", "The threshold for evaluating regions", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
 					
 					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 10 ), 
