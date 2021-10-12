@@ -7,7 +7,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
+import de.jstacs.DataType;
+import de.jstacs.parameters.ExpandableParameterSet;
 import de.jstacs.parameters.FileParameter;
+import de.jstacs.parameters.ParameterSetContainer;
+import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -23,8 +28,23 @@ import de.jstacs.tools.ToolResult;
  */
 public class BUSCORecomputer extends GeMoMaModule {
 	
+	public static String rem = "<REMAINING>";
+	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
+		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("subgenomes").getValue();
+		int poly=eps.getNumberOfParameters();
+		String[] regex;
+		if( poly == 0 ) {
+			regex = new String[0];
+			poly = 1;
+		} else {
+			regex=new String[poly];
+			for( int i = 0;i < poly; i++ ) {
+				regex[i] = (String) ((SimpleParameterSet) eps.getParameterAt(i).getValue()).getParameterAt(0).getValue();
+			}
+		}
+		
 		FileParameter fp = (FileParameter) parameters.getParameterForName("BUSCO");
 		String busco = fp.getValue();
 		
@@ -32,20 +52,45 @@ public class BUSCORecomputer extends GeMoMaModule {
 		String genTranscript = fp.getValue();
 		
 		HashMap<String,String> trans2gene = new HashMap<String,String>();
+		HashMap<String,Integer> gene2subgenome = new HashMap<String,Integer>();
 		BufferedReader r = new BufferedReader( new FileReader( genTranscript ) );
 		String line;
 		while( (line=r.readLine()).charAt(0)=='#' );
 		while( (line=r.readLine()) != null ) {
 			String[] split = line.split("\t");
 			trans2gene.put(split[1], split[0]);
+			if( !gene2subgenome.containsKey(split[0]) ) {
+				int match=-1;
+				for( int j = 0; j < regex.length; j++ ) {
+					if( split[4].matches(regex[j]) ) {
+						if( match<0 ) {
+							match=j;
+						} else {
+							throw new IllegalArgumentException(split[4] +" matches multiple regular expressions: " + regex[match] + " and " + regex[j] );
+						}
+					}
+				}
+				if( match<0 ) {
+					match = regex.length;
+					if( poly==regex.length ) {
+						poly++;
+					}
+				}
+				gene2subgenome.put(split[0], match);
+			} else {
+				//TODO?
+			}
 		}
 		r.close();
 		
-		int[] stat = new int[4];
+		int[][] stat = new int[poly][4];
 		double all=0;
 		r = new BufferedReader( new FileReader( busco ) );
 		String old = null;
-		HashSet<String> hash = new HashSet<String>();
+		HashSet<String>[] hash = new HashSet[poly];
+		for( int c = 0; c < poly; c++ ) {
+			hash[c] = new HashSet<String>();
+		}
 		int anz=0;
 		while( (line=r.readLine()).charAt(0)=='#' ) {
 			if( anz < 3 ) protocol.append(line+"\n");
@@ -54,26 +99,36 @@ public class BUSCORecomputer extends GeMoMaModule {
 		protocol.append( "# " + "BUSCORecomputer\n" );
 		while( (line=r.readLine()) != null ) {
 			String[] split = line.split("\t");
+			
 			if( old!= null && !split[0].equals(old) ) {
-				stat[hash.size()==1?0:1]++;
+				for( int c = 0; c < poly; c++ ) {
+					stat[c][hash[c].size()==1?0:1]++;
+					hash[c].clear();
+				}
 				all++;
-				hash.clear();
 				old=null;
 			}
+			
 			int v = getIndex(split[1]);
-			if( v>= 0 ) {
-				stat[v]++;
+			if( v== 3 ) {
 				all++;
 			} else {
-				if( old == null ) {
-					old=split[0];
-				}
 				String gene = trans2gene.get(split[2]);
 				if( gene == null ) {
 					gene = split[2];
 					protocol.append("Warning no gene found for transcript: " + gene + "\n");
 				}
-				hash.add(gene);
+				Integer sub = gene2subgenome.get(gene);
+					
+				if( v>= 0 ) {
+					stat[sub][v]++;
+					all++;
+				} else {
+					if( old == null ) {
+						old=split[0];
+					}
+					hash[sub].add(gene);
+				}
 			}
 		}
 		r.close();
@@ -81,21 +136,54 @@ public class BUSCORecomputer extends GeMoMaModule {
 		NumberFormat nf = NumberFormat.getInstance(Locale.US);
 		nf.setMaximumFractionDigits(1);
 		int a = (int) all;
-		protocol.append("C:" + nf.format((stat[0]+stat[1])/all*100) );
-		protocol.append("%[S:" + nf.format(stat[0]/all*100) );
-		protocol.append("%,D:" + nf.format(stat[1]/all*100) );
-		protocol.append("%],F:" + nf.format(stat[2]/all*100) );
-		protocol.append("%,M:" + nf.format(stat[3]/all*100) );
-		protocol.append("%,n:"+a+"\n" );
+		for( int c = 0; c < poly; c++ ) {
+			stat[c][3] = (int)all - (stat[c][0]+stat[c][1]+stat[c][2]);
+			
+			protocol.append( c < regex.length ? (regex[c]+"\t") : (regex.length==0?"":(rem+"\t")));
+			protocol.append("C:" + nf.format((stat[c][0]+stat[c][1])/all*100) );
+			protocol.append("%[S:" + nf.format(stat[c][0]/all*100) );
+			protocol.append("%,D:" + nf.format(stat[c][1]/all*100) );
+			protocol.append("%],F:" + nf.format(stat[c][2]/all*100) );
+			protocol.append("%,M:" + nf.format(stat[c][3]/all*100) );
+			protocol.append("%,n:"+a+"\n" );
+		}
+		protocol.append("\n");
 		
-		protocol.append( (stat[0]+stat[1]) + "\t" + nf.format((stat[0]+stat[1])/all*100) + "%\tComplete BUSCOs (C)\n" );
-		protocol.append( stat[0] + "\t" + nf.format(stat[0]/all*100) + "%\tComplete and single-copy BUSCOs (S)\n" );
-		protocol.append( stat[1] + "\t" + nf.format(stat[1]/all*100) + "%\tComplete and duplicated BUSCOs (D)\n" );
-		protocol.append( stat[2] + "\t" + nf.format(stat[2]/all*100) + "%\tFragmented BUSCOs (F)\n" );
-		protocol.append( stat[3] + "\t" + nf.format(stat[3]/all*100) + "%\tMissing BUSCOs (M)\n" );
-		protocol.append( a + "\t\tTotal BUSCO groups searched\n" );
+		if( regex.length > 0 ) {
+			for( int c = 0; c < stat.length; c++ ) {
+				if( c <regex.length ) {
+					protocol.append("\t"+regex[c] + "\t");
+				} else {
+					protocol.append("\t"+rem + "\t");
+				}
+			}
+			protocol.append("\n");
+		}
+		protocol.append( get(stat, all,nf,"Complete BUSCOs (C)",0,1) );
+		protocol.append( get(stat, all,nf,"Complete and single-copy BUSCOs (S)",0) );
+		protocol.append( get(stat, all,nf, "Complete and duplicated BUSCOs (D)",1) );
+		protocol.append( get(stat, all,nf,"Fragmented BUSCOs (F)",2) );
+		protocol.append( get(stat, all,nf,"Missing BUSCOs (M)",3) );
+		protocol.append( "\nTotal BUSCO groups searched\t"+(int)all+"\n" );
 		
 		return null;
+	}
+	
+	static String get( int[][] stat, double all, NumberFormat nf, String info, int... index ) {
+		StringBuffer sb = new StringBuffer(info);
+		for( int c = 0; c < stat.length; c++ ) {
+			int sum = 0;
+			for( int i = 0; i < index.length; i++ ) {
+				sum +=stat[c][index[i]];
+			}
+			sb.append(get(all, sum, nf));
+		}
+		sb.append("\n");
+		return sb.toString();
+	}
+	
+	static String get( double all, int anz, NumberFormat nf ) {
+		return "\t"+ anz + "\t" + nf.format(anz/all*100) + "%";
 	}
 	
 	static int getIndex( String value ) {
@@ -110,10 +198,20 @@ public class BUSCORecomputer extends GeMoMaModule {
 
 	@Override
 	public ToolParameterSet getToolParameters() {
-		return new ToolParameterSet( getToolName(), 
-			new FileParameter("BUSCO", "the BUSCO full table based on transcripts/proteins", "tabular", true),
-			new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true)
-		);
+		try {
+			return new ToolParameterSet( getToolName(), 
+				new FileParameter("BUSCO", "the BUSCO full table based on transcripts/proteins", "tabular", true),
+				new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true),
+				new ParameterSetContainer("subgenomes", "", new ExpandableParameterSet( 
+						new SimpleParameterSet(	
+								new SimpleParameter(DataType.STRING,"subgenome","regex for contigs/chromosomes of this subgenome", true )
+						),  "subgenomes", "regular expression for subgenome contigs/chromsome names", 0 )
+				)
+			);
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
 	}
 
 	@Override
