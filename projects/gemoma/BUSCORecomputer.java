@@ -131,6 +131,13 @@ public class BUSCORecomputer extends GeMoMaModule {
 				}
 			}
 		}
+		if( old!= null ) {
+			for( int c = 0; c < poly; c++ ) {
+				stat[c][hash[c].size()==1?0:1]++;
+				hash[c].clear();
+			}
+			all++;
+		}
 		r.close();
 		
 		NumberFormat nf = NumberFormat.getInstance(Locale.US);
