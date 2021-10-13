@@ -13,6 +13,7 @@ import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
+import de.jstacs.parameters.validation.FileExistsValidator;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
@@ -233,8 +234,8 @@ public class BUSCORecomputer extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try {
 			return new ToolParameterSet( getToolName(), 
-				new FileParameter("BUSCO", "the BUSCO full table based on transcripts/proteins", "tabular", true),
-				new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true),
+				new FileParameter("BUSCO", "the BUSCO full table based on transcripts/proteins", "tabular", true, new FileExistsValidator()),
+				new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true, new FileExistsValidator()),
 				new ParameterSetContainer("subgenomes", "", new ExpandableParameterSet( 
 						new SimpleParameterSet(	
 								new SimpleParameter(DataType.STRING,"subgenome","regex for contigs/chromosomes of this subgenome", true )
