@@ -54,6 +54,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 		HashMap<String,String> trans2gene = new HashMap<String,String>();
 		HashMap<String,Integer> gene2subgenome = new HashMap<String,Integer>();
 		BufferedReader r = new BufferedReader( new FileReader( genTranscript ) );
+		int[] num = new int[poly+1];
 		String line;
 		while( (line=r.readLine()).charAt(0)=='#' );
 		while( (line=r.readLine()) != null ) {
@@ -77,11 +78,17 @@ public class BUSCORecomputer extends GeMoMaModule {
 					}
 				}
 				gene2subgenome.put(split[0], match);
+				num[match]++;
 			} else {
 				//TODO?
 			}
 		}
 		r.close();
+		protocol.append("subgenome\t#transcripts\n");
+		for( int c = 0; c < poly; c++ ) {
+			protocol.append( (c < regex.length ? regex[c] : (regex.length==0?"":rem)) + "\t" + num[c] +"\n");
+		}
+		protocol.append("\n");
 		
 		int[][] stat = new int[poly][4];
 		double all=0;
@@ -97,20 +104,20 @@ public class BUSCORecomputer extends GeMoMaModule {
 			anz++;
 		}
 		protocol.append( "# " + "BUSCORecomputer\n" );
-		while( (line=r.readLine()) != null ) {
+		do {
 			String[] split = line.split("\t");
 			
 			if( old!= null && !split[0].equals(old) ) {
-				for( int c = 0; c < poly; c++ ) {
-					stat[c][hash[c].size()==1?0:1]++;
-					hash[c].clear();
-				}
+				add(stat,hash);
 				all++;
 				old=null;
 			}
 			
 			int v = getIndex(split[1]);
-			if( v== 3 ) {
+			if( v==3 ) {
+				/*for( int c = 0; c < poly; c++ ) {
+					stat[c][v]++;
+				}*/
 				all++;
 			} else {
 				String gene = trans2gene.get(split[2]);
@@ -119,9 +126,16 @@ public class BUSCORecomputer extends GeMoMaModule {
 					protocol.append("Warning no gene found for transcript: " + gene + "\n");
 				}
 				Integer sub = gene2subgenome.get(gene);
-					
 				if( v>= 0 ) {
 					stat[sub][v]++;
+					/*
+					for( int c = 0; c < poly; c++ ) {
+						if( c==sub ) {
+							stat[sub][v]++;
+						} else {
+							stat[c][3]++;
+						}
+					}*/
 					all++;
 				} else {
 					if( old == null ) {
@@ -130,12 +144,9 @@ public class BUSCORecomputer extends GeMoMaModule {
 					hash[sub].add(gene);
 				}
 			}
-		}
+		} while( (line=r.readLine()) != null );
 		if( old!= null ) {
-			for( int c = 0; c < poly; c++ ) {
-				stat[c][hash[c].size()==1?0:1]++;
-				hash[c].clear();
-			}
+			add(stat,hash);
 			all++;
 		}
 		r.close();
@@ -174,6 +185,21 @@ public class BUSCORecomputer extends GeMoMaModule {
 		protocol.append( "\nTotal BUSCO groups searched\t"+(int)all+"\n" );
 		
 		return null;
+	}
+	
+	static void add( int[][] stat, HashSet[] hash ) {
+		for( int c = 0; c < hash.length; c++ ) {
+			int idx;
+			switch( hash[c].size() ) {
+				case 0: idx=3; break;
+				case 1: idx=0; break;
+				default: idx=1; break;
+			}
+			if( idx <= 1 ) {
+				stat[c][idx]++;
+				hash[c].clear();
+			}			
+		}
 	}
 	
 	static String get( int[][] stat, double all, NumberFormat nf, String info, int... index ) {
