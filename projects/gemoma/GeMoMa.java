@@ -3456,7 +3456,7 @@ public class GeMoMa extends GeMoMaModule {
 							
 							//align cds parts in this region to find hits
 							if( (start > end ) == forward ) {
-								if( verbose ) protocol.append("INTERNAL\t" + (old+1) + ".." + j + "\t" + currentInfo.exonID[old+1] + ".." + currentInfo.exonID[j] + "\n");
+								if( verbose ) protocol.append("INTERNAL\t" + (old+1) + ".." + (j-1) + "\t" + currentInfo.exonID[old+1] + ".." + currentInfo.exonID[j-1] + "\n");
 								align(chromosome, forward, end, start, old+1, j, filtered, "internal", ae && de, ae && de );
 							}
 						}
