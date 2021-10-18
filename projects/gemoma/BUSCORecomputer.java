@@ -58,7 +58,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 		int[] num = new int[poly+1];
 		String line;
 		while( (line=r.readLine()).charAt(0)=='#' );
-		while( (line=r.readLine()) != null ) {
+		do {
 			String[] split = line.split("\t");
 			trans2gene.put(split[1], split[0]);
 			if( !gene2subgenome.containsKey(split[0]) ) {
@@ -83,13 +83,15 @@ public class BUSCORecomputer extends GeMoMaModule {
 			} else {
 				//TODO?
 			}
-		}
+		} while( (line=r.readLine()) != null );
 		r.close();
-		protocol.append("subgenome\t#transcripts\n");
-		for( int c = 0; c < poly; c++ ) {
-			protocol.append( (c < regex.length ? regex[c] : (regex.length==0?"":rem)) + "\t" + num[c] +"\n");
+		if( poly>1 ) {
+			protocol.append("subgenome\t#transcripts\n");
+			for( int c = 0; c < poly; c++ ) {
+				protocol.append( (c < regex.length ? regex[c] : (regex.length==0?"":rem)) + "\t" + num[c] +"\n");
+			}
+			protocol.append("\n");
 		}
-		protocol.append("\n");
 		
 		int[][] stat = new int[poly][4];
 		double all=0;
@@ -235,7 +237,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 		try {
 			return new ToolParameterSet( getToolName(), 
 				new FileParameter("BUSCO", "the BUSCO full table based on transcripts/proteins", "tabular", true, new FileExistsValidator()),
-				new FileParameter("IDs", "a table with at leat two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true, new FileExistsValidator()),
+				new FileParameter("IDs", "a table with at least two columns, the first is the gene ID, the second is the transcript/protein ID. The assignment file from the Extractor can be used or a table can be derived by the user from the gene annotation file (gff,gtf)", "tabular", true, new FileExistsValidator()),
 				new ParameterSetContainer("subgenomes", "", new ExpandableParameterSet( 
 						new SimpleParameterSet(	
 								new SimpleParameter(DataType.STRING,"subgenome","regex for contigs/chromosomes of this subgenome", true )
