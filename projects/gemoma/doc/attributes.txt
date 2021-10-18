@@ -40,9 +40,9 @@ Using GeMoMa and GAF, you'll obtain GFFs containing some special attributes. We 
 |-
 | minSplitReads	|| minimal split reads	|| GeMoMa	|| introns	|| mRNA	|| minimal number of split reads for any of the predicted introns per predicted transcript
 |-
-| iAA	|| identical amino acid	|| GeMoMa	|| query proteins	|| mRNA	|| percentage of identical amino acids between reference transcript and prediction
+| iAA	|| identical amino acid	|| GeMoMa	|| protein alignment	|| mRNA	|| percentage of identical amino acids between reference transcript and prediction
 |-
-| pAA	|| positive amino acid	|| GeMoMa	|| query proteins	|| mRNA	|| percentage of aligned positions between reference transcript and prediction yielding a positive score in the substitution matrix
+| pAA	|| positive amino acid	|| GeMoMa	|| protein alignment	|| mRNA	|| percentage of aligned positions between reference transcript and prediction yielding a positive score in the substitution matrix
 |-
 | evidence	|| 	|| GAF	||	|| mRNA	|| number of reference organisms that have a transcript yielding this prediction
 |-
