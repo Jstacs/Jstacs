@@ -1399,6 +1399,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				status = JobStatus.SUCCEEDED;
 			} else {
 				//status == JobStatus.FAILED || status == JobStatus.INTERRUPTED
+				queue.shutdown();
+				stop=true;
+				killer.run();
 				clean();
 			}
 		}
