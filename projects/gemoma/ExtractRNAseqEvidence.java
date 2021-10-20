@@ -420,8 +420,9 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 		BedgraphEntry previousFwd = null;
 		BedgraphEntry previousRev = null;
 		
-		String chr = firstChrs[0], chrOut = repos == null ? chr : repos.get(chr)[1];
+		String chr = firstChrs[0];
 		protocol.append(chr+"\n");
+		String chrOut = repos == null ? chr : repos.get(chr)[1];
 		int currPos = 0, offset=repos == null ? 0 : Integer.parseInt(repos.get(chr)[2]);
 		ArrayList<Intron> introns = new ArrayList<Intron>();
 		long splits = 0, intronNum = 0;
