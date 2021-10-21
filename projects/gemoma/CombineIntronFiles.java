@@ -25,14 +25,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ui.cli.CLI.SysProtocol;
+import de.jstacs.utils.IntList;
 
 /**
  * A simple tool for combining intron gff files that might be created in parallel using a compute cluster.
+ * Assumes sorted GFF.
  * 
  * @author Jens Keilwagen
  */
@@ -45,62 +45,56 @@ public class CombineIntronFiles {
 	}
 	
 	public static void combine( Protocol protocol, String out, String... in ) throws IOException {
+		protocol.append("files: " + in.length+"\n");
+		
 		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 		
 		//read files
-		BufferedReader r;
-		HashMap<String,HashMap<String,int[]>> combined = new HashMap<String,HashMap<String,int[]>>();
-		HashMap<String,int[]> current;
-		
+		BufferedReader[] r = new BufferedReader[in.length];
+		Intron[] intron = new Intron[in.length];
 		String line;
 		for( int i = 0; i < in.length; i++ ) {
 			protocol.append(i + "\t" + in[i]+"\n");
-			r = new BufferedReader( new FileReader( in[i] ) );
+			r[i] = new BufferedReader( new FileReader( in[i] ) );
 			//skip header
-			while( (line=r.readLine()) != null && line.charAt(0)=='#' ) {
-				if( i==1 ) {
+			while( (line=r[i].readLine()) != null && line.charAt(0)=='#' ) {
+				if( i==0 ) {
 					w.append(line);
 					w.newLine();
 				}
 			}
-			
-			//add to hash
-			while( (line=r.readLine()) != null ) {
-				String[] split = line.split("\t");
-				current = combined.get(split[0]);
-				if( current == null ) {
-					current = new HashMap<String,int[]>();
-					combined.put(split[0], current);
-				}
-				int anz = Integer.parseInt(split[5]);
-				String key = split[3] + "\t" + split[4] + ";" + split[6];
-				int[] a = current.get(key);
-				if( a == null ) {
-					a = new int[1];
-					current.put(key, a);
-				}
-				a[0] += anz;
-			}
-			r.close();
+			if( line != null ) intron[i] = new Intron(line);
 		}
 
-		//write
 		HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
 		long anz = 0;
-		String[] chr = combined.keySet().toArray(new String[0]);
-		Arrays.sort(chr);
-		for( int i = 0; i < chr.length; i++ ) {
-			Iterator<Entry<String,int[]>> it = combined.get(chr[i]).entrySet().iterator();//not sorted!?
-			while( it.hasNext() ) {
-				Entry<String,int[]> e = it.next();
-				w.write( chr[i] + "\tRNAseq\tintron\t" + e.getKey().replaceAll(";", "\t"+e.getValue()[0]+"\t") + "\t.\t.");
-				w.newLine();
-				
-				//for statistic
-				String h = e.getKey();
-				h=h.substring(0, h.indexOf(';'));
-				int idx = h.indexOf('\t');
-				int l = Integer.parseInt(h.substring(idx+1))-Integer.parseInt(h.substring(0,idx));
+		IntList same = new IntList();
+		do {
+			//determine next intron
+			same.clear();
+			int a = 0;
+			for( int i = 0; i < in.length; i++ ) {
+				if( intron[i]!=null ) {
+					if( same.length()==0 ) {
+						same.add(i);
+					} else {
+						int comp = intron[same.get(0)].compareTo(intron[i]);
+						if( comp >= 0 ) {
+							if( comp>0 ) {
+								same.clear();
+							}
+							same.add(i);
+						}
+					}
+					a++;
+				}
+			}
+			
+			//combine & read next
+			if( same.length()>0 ) {
+				Intron rep = intron[same.get(0)];
+				String[] split = rep.split;
+				int l = rep.end - rep.start;
 				int[] stat = intronL.get(l);
 				if( stat == null ) {
 					stat = new int[1];
@@ -108,11 +102,29 @@ public class CombineIntronFiles {
 				}
 				stat[0]++;
 				anz++;
+				
+				int sum=0;
+				for( int j = 0; j < same.length(); j++ ) {
+					int i = same.get(j);
+					sum += Integer.parseInt(intron[i].split[5]);
+					line = r[i].readLine();
+					if( line != null ) {
+						intron[i]=new Intron( line );
+					} else {
+						intron[i]=null;
+					}
+				}
+				split[5] = ""+sum;
+				for( int j = 0; j < split.length; j++ ) {
+					w.write( (j==0?"":"\t") + split[j] );
+				}
+				w.newLine();
 			}
-		}
+		} while( same.length()>0 );
 		w.close();
 		
 		//print statistic
+		protocol.append("\n");
 		Integer[] il = new Integer[intronL.size()];
 		intronL.keySet().toArray(il);
 		Arrays.sort(il);
@@ -122,6 +134,31 @@ public class CombineIntronFiles {
 			all += stat[0];
 			protocol.append(il[j] + "\t" + stat[0] + "\t" + (all/anz) +"\n");
 		}
+	}
+
+	static class Intron implements Comparable<Intron>{
+		String[] split;
+		int start, end;
 		
+		Intron( String line ) {
+			split = line.split("\t");
+			start = Integer.parseInt(split[3]);
+			end = Integer.parseInt(split[4]);
+		}
+
+		@Override
+		public int compareTo(Intron o) {
+			int diff = split[0].compareTo(o.split[0]);
+			if( diff == 0 ) {
+				diff = split[6].compareTo(o.split[6]);
+				if( diff == 0 ) {
+					diff = Integer.compare(start,o.start);
+					if( diff == 0 ) {
+						diff = Integer.compare(end,o.end);	
+					}
+				}
+			}
+			return diff;
+		}
 	}
 }
