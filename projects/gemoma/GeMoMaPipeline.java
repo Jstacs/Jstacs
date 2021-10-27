@@ -1030,7 +1030,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					int a=0;
 					ExpandableParameterSet eps = (ExpandableParameterSet) syn.getParameterForName("references").getValue();
 					for( Species current : species ) {
-						if( current.assignment != null ) {
+						if( !current.assignment.equals(OPTIONAL) ) {
 							if( a == eps.getNumberOfParameters() ) {
 								eps.addParameterToSet();
 							}
