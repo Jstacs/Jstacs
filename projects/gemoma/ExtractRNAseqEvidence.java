@@ -152,9 +152,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 			}
 		}
 		
-		public static int addIntrons(SAMRecord record, Stranded stranded, List<Intron> introns){
-			
-			int start = record.getAlignmentStart();
+		public static int addIntrons(SAMRecord record, int start, Stranded stranded, List<Intron> introns){
 			
 			String cigar = record.getCigarString();
 			int idx=cigar.indexOf('N');
@@ -438,13 +436,22 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 			
 			if(wm > -1){
 			
-				SAMRecord rec = curr[wm];
+				SAMRecord rec;
+				//the next two line leads to "Ignoring SAM validation error"
+				//rec  = curr[wm].deepCopy();
+				//if( offset!=0 ) rec.setAlignmentStart(rec.getAlignmentStart()+offset);
+				
+				//XXX alternatively: "long recStart" if chromosome will be larger than Integer.MAX_VALUE (but then we have to change much more in GeMoMa)
+				rec = curr[wm];
+				int recStart = rec.getAlignmentStart();
+				if( offset!= 0 ) recStart += offset;
+				
 				int q = rec.getMappingQuality();
 				qual[0][q]++;
 				if( /*q >= minQual*/samFilter.accept(rec) ) {
 					if( sa || !rec.isSecondaryOrSupplementary() ) {
 						qual[1][q]++;
-						int numIntrons = Intron.addIntrons(rec, stranded, introns);
+						int numIntrons = Intron.addIntrons(rec, recStart, stranded, introns);
 						if( numIntrons>=0 ) { //well mapped
 							if( numIntrons>0 ) {//has at least one intron
 								qual[2][q]++;
@@ -462,14 +469,13 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 									countAsFwd = (isFirst && isNeg)||(!isFirst && !isNeg);
 								}
 								
-								int recStart = rec.getStart();
 								while(currPos < recStart){
 									if(mapFwd.containsKey(currPos)){
-										previousFwd = write(previousFwd,chrOut,offset,mapFwd,currPos,sosFwd);
+										previousFwd = write(previousFwd,chrOut,mapFwd,currPos,sosFwd);
 										mapFwd.remove(currPos);
 									}
 									if(mapRev.containsKey(currPos)){
-										previousRev = write(previousRev,chrOut,offset,mapRev,currPos,sosRev);
+										previousRev = write(previousRev,chrOut,mapRev,currPos,sosRev);
 										mapRev.remove(currPos);
 									}
 									currPos++;
@@ -480,7 +486,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 								Iterator<AlignmentBlock> blockIt = blocks.iterator();
 								while(blockIt.hasNext()){
 									AlignmentBlock block = blockIt.next();
-									int start = block.getReferenceStart();
+									int start = offset+block.getReferenceStart();
 									int len = block.getLength();
 									for(int k=0;k<len;k++){
 										int[] current = map.get(start+k);
@@ -534,7 +540,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 					int temp = currPos;
 					while(mapFwd.size()>0){
 						if(mapFwd.containsKey(temp)){
-							previousFwd = write(previousFwd,chrOut,offset,mapFwd,temp,sosFwd);
+							previousFwd = write(previousFwd,chrOut,mapFwd,temp,sosFwd);
 							mapFwd.remove(temp);
 						}
 						temp++;
@@ -542,7 +548,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 					temp = currPos;
 					while(mapRev.size()>0){
 						if(mapRev.containsKey(temp)){
-							previousRev = write(previousRev,chrOut,offset,mapRev,temp,sosRev);
+							previousRev = write(previousRev,chrOut,mapRev,temp,sosRev);
 							mapRev.remove(temp);
 						}
 						temp++;
@@ -559,7 +565,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				
 				if( firstChrs[0] == null || !chr.equals(firstChrs[0]) ) {
 					introns = count(introns,minIntronLength);
-					intronNum += print(chrOut,offset,introns,stats,sosInt,minContext,intronLength); //XXX if write done in a separate loop at the end intronL could be used for ReadStats
+					intronNum += print(chrOut,introns,stats,sosInt,minContext,intronLength); //XXX if write done in a separate loop at the end intronL could be used for ReadStats
 					introns.clear();
 				}
 				
@@ -641,7 +647,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	private static HashMap<Integer,int[]> intronL = new HashMap<Integer, int[]>();
 	private static long anz = 0;
 	
-	private static long print(String chrom, int offset, ArrayList<Intron> introns, ReadStats stats, SafeOutputStream sos, int threshold,int[] intronLength ) throws IOException{
+	private static long print(String chrom, ArrayList<Intron> introns, ReadStats stats, SafeOutputStream sos, int threshold,int[] intronLength ) throws IOException{
 		Iterator<Intron> it = introns.iterator();
 		long i = 0;
 		while(it.hasNext()){
@@ -649,7 +655,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 			if( in.minContext >= threshold ) {
 				int len = in.getEnd()-in.getStart();
 				if( stats == null || stats.isOK(len, in.count) ) {
-					sos.writeln(chrom+"\tRNAseq\tintron\t"+(offset+in.getStart())+"\t"+(offset+in.getEnd())+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
+					sos.writeln(chrom+"\tRNAseq\tintron\t"+in.getStart()+"\t"+in.getEnd()+"\t"+in.getCount()+"\t"+in.getStrand()+"\t.\t.");
 					i++;
 					
 					intronLength[0]=Math.min(len, intronLength[0]);
@@ -703,7 +709,7 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 	}
 	
 
-	private BedgraphEntry write(BedgraphEntry previous, String chr, int offset, HashMap<Integer, int[]> map, int currPos, SafeOutputStream safeOutputStream) throws IOException {
+	private BedgraphEntry write(BedgraphEntry previous, String chr, HashMap<Integer, int[]> map, int currPos, SafeOutputStream safeOutputStream) throws IOException {
 		int[] temp = map.get(currPos);
 		
 		
@@ -713,12 +719,12 @@ public class ExtractRNAseqEvidence extends GeMoMaModule {
 				return previous;
 			}else{
 				if(previous != null){
-					safeOutputStream.writeln(previous.chr+"\t"+(offset+previous.start)+"\t"+(offset+previous.end)+"\t"+previous.value);
+					safeOutputStream.writeln(previous.chr+"\t"+previous.start+"\t"+previous.end+"\t"+previous.value);
 				}
 				return new BedgraphEntry(chr, currPos, currPos+1, temp[0]);
 			}
 		}else if(previous != null){
-			safeOutputStream.writeln(previous.chr+"\t"+(offset+previous.start)+"\t"+(offset+previous.end)+"\t"+previous.value);
+			safeOutputStream.writeln(previous.chr+"\t"+previous.start+"\t"+previous.end+"\t"+previous.value);
 		}
 		return null;
 	}
