@@ -1,10 +1,16 @@
 package projects.gemoma;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 
 import de.jstacs.DataType;
@@ -14,10 +20,13 @@ import de.jstacs.parameters.ParameterSetContainer;
 import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameterSet;
 import de.jstacs.parameters.validation.FileExistsValidator;
+import de.jstacs.results.ResultSet;
+import de.jstacs.results.TextResult;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.tools.JstacsTool.ResultEntry;
 
 /**
  * The {@link BUSCORecomputer} allows to compute BUSCO statistics based on genes rather than on transcripts.
@@ -32,7 +41,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 	public static String rem = "<REMAINING>";
 	
 	@Override
-	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
+	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String tempD ) throws Exception {
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("subgenomes").getValue();
 		int poly=eps.getNumberOfParameters();
 		String[] regex;
@@ -52,6 +61,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 		fp = (FileParameter) parameters.getParameterForName("IDs");
 		String genTranscript = fp.getValue();
 		
+		//read assignment file
 		HashMap<String,String> trans2gene = new HashMap<String,String>();
 		HashMap<String,Integer> gene2subgenome = new HashMap<String,Integer>();
 		BufferedReader r = new BufferedReader( new FileReader( genTranscript ) );
@@ -93,34 +103,53 @@ public class BUSCORecomputer extends GeMoMaModule {
 			protocol.append("\n");
 		}
 		
+		//assume BUSCO full table is sorted
 		int[][] stat = new int[poly][4];
 		double all=0;
 		r = new BufferedReader( new FileReader( busco ) );
 		String old = null;
-		HashSet<String>[] hash = new HashSet[poly];
+		HashMap<String,ArrayList<String>>[] hash = new HashMap[poly];
 		for( int c = 0; c < poly; c++ ) {
-			hash[c] = new HashSet<String>();
+			hash[c] = new HashMap<String,ArrayList<String>>();
 		}
+		File out = Tools.createTempFile("BUSCO-full-table-parsed", tempD);
+		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
 		int anz=0;
 		while( (line=r.readLine()).charAt(0)=='#' ) {
-			if( anz < 3 ) protocol.append(line+"\n");
+			if( anz < 2 ) w.append(line+"\n");
 			anz++;
 		}
-		protocol.append( "# " + "BUSCORecomputer\n" );
+		w.append( "# " + "BUSCORecomputer" );
+		if( regex.length>0 ) {
+			for( int i = 0; i < poly; i++ ) {
+				w.append("\t" + (i<regex.length?regex[i]:rem) + "\t\t");
+			}
+		}
+		w.newLine();
+		w.append("# Busco id");
+		for( int i = 0; i < poly; i++ ) {
+			w.append("\tstatus\tgene(s)\ttranscript(s)");
+		}
+		w.newLine();
 		do {
 			String[] split = line.split("\t");
 			
 			if( old!= null && !split[0].equals(old) ) {
-				add(stat,hash);
+				add(old,stat,hash,w);
 				all++;
 				old=null;
 			}
 			
 			int v = getIndex(split[1]);
 			if( v==3 ) {
-				/*for( int c = 0; c < poly; c++ ) {
-					stat[c][v]++;
-				}*/
+				w.append( split[0] );
+				for( int c = 0; c < poly; c++ ) {
+					w.append( "\t" + split[1] 
+							+ "\t" //gene
+							+ "\t" //transcript
+					);
+				}
+				w.newLine();
 				all++;
 			} else {
 				String gene = trans2gene.get(split[2]);
@@ -131,6 +160,15 @@ public class BUSCORecomputer extends GeMoMaModule {
 				Integer sub = gene2subgenome.get(gene);
 				if( v>= 0 ) {
 					stat[sub][v]++;
+					w.append( split[0] );
+					for( int c = 0; c < poly; c++ ) {
+						if( c==sub ) {
+							w.append( "\t" + split[1] +"\t" + gene + "\t" + split[2] );
+						} else {
+							w.append( "\tMissing\t\t" );
+						}
+					}
+					w.newLine();
 					/*
 					for( int c = 0; c < poly; c++ ) {
 						if( c==sub ) {
@@ -144,12 +182,17 @@ public class BUSCORecomputer extends GeMoMaModule {
 					if( old == null ) {
 						old=split[0];
 					}
-					hash[sub].add(gene);
+					ArrayList<String> list = hash[sub].get(gene);
+					if( list == null ) {
+						list = new ArrayList<String>();
+						hash[sub].put(gene, list);
+					}
+					list.add( split[2] );
 				}
 			}
 		} while( (line=r.readLine()) != null );
 		if( old!= null ) {
-			add(stat,hash);
+			add(old,stat,hash,w);
 			all++;
 		}
 		r.close();
@@ -187,22 +230,42 @@ public class BUSCORecomputer extends GeMoMaModule {
 		protocol.append( get(stat, all,nf,"Missing BUSCOs (M)",3) );
 		protocol.append( "\nTotal BUSCO groups searched\t"+(int)all+"\n" );
 		
-		return null;
+		return new ToolResult("", "", null, new ResultSet(new TextResult("BUSCO parsed full table", "Result", new FileParameter.FileRepresentation(out.getAbsolutePath()), "tabular", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
 	
-	static void add( int[][] stat, HashSet[] hash ) {
+	static void add( String busco, int[][] stat, HashMap<String,ArrayList<String>>[] hash, BufferedWriter w ) throws IOException {
+		w.append(busco);
 		for( int c = 0; c < hash.length; c++ ) {
 			int idx;
 			switch( hash[c].size() ) {
-				case 0: idx=3; break;
-				case 1: idx=0; break;
-				default: idx=1; break;
+				case 0:
+					w.append( "\tMissing\t\t");
+					idx=3;
+					break;
+				case 1:
+					w.append( "\tComplete");
+					idx=0;
+					break;
+				default:
+					w.append( "\tDuplicated");
+					idx=1;
+					break;
 			}
 			if( idx <= 1 ) {
+				String[] keys = hash[c].keySet().toArray(new String[0]);
+				String genes = Arrays.toString(keys);
+				w.append("\t" + genes.substring(1,genes.length()-1)+"\t");
+				for( int i = 0; i < keys.length; i++ ) {
+					ArrayList<String> trans = hash[c].get(keys[i]);
+					for( int j = 0; j < trans.size(); j++ ) {
+						w.append( ((i==0&&j==0)?"":",") + trans.get(j) );
+					}
+				}
 				stat[c][idx]++;
 				hash[c].clear();
 			}			
 		}
+		w.newLine();
 	}
 	
 	static String get( int[][] stat, double all, NumberFormat nf, String info, int... index ) {
@@ -276,8 +339,9 @@ public class BUSCORecomputer extends GeMoMaModule {
 
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ResultEntry[] {
+				new ResultEntry(TextResult.class, "tabular", "BUSCO parsed full table"),
+		};
 	}
 
 	@Override
