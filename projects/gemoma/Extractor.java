@@ -925,7 +925,7 @@ public class Extractor extends GeMoMaModule {
 		int offset = 3-startPhase, pa = -1;
 		message.clear();
 		Part current = null;
-		int minExon=Integer.MAX_VALUE, maxIntron=0;
+		int minExon=Integer.MAX_VALUE, maxIntron=-1;
 		for( j = 0; j < il.length(); j++ ) {
 			pa = il.get(j);
 			current = part.get(pa);
@@ -1073,7 +1073,7 @@ public class Extractor extends GeMoMaModule {
 						splitAA += p.substring(pos, pos+1);
 					}
 				}
-				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (part.size()>1?maxIntron:"NA") + "\t" + minExon + "\t" + splitAA + "\n" );
+				sos.write( "\t" + chr + "\t" + gene.strand + "\t" + start + "\t" + end + "\t" + (p.charAt(0)=='M' && p.charAt(p.length()-1)=='*') + "\t" + (maxIntron>0?maxIntron:"NA") + "\t" + minExon + "\t" + splitAA + "\n" );
 				for( j = 0; j < il.length(); j++ ) {
 					used[il.get(j)] = true;
 				}
