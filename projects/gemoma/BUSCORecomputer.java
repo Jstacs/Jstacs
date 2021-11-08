@@ -196,6 +196,7 @@ public class BUSCORecomputer extends GeMoMaModule {
 			all++;
 		}
 		r.close();
+		w.close();
 		
 		NumberFormat nf = NumberFormat.getInstance(Locale.US);
 		nf.setMaximumFractionDigits(1);
