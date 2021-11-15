@@ -305,7 +305,7 @@ public class ClassAssignmentTool implements JstacsTool {
 				
 				boolean assigned = false;
 				//System.out.println(idx.getSecondElement()+" "+newttales[i].getNumberOfRepeats()+" "+fams[idx.getFirstElement()].getLengthOfLongestFamilyMember()+" "+fams[idx.getFirstElement()].getFamilyId());
-				if(idx.getSecondElement() < cut && idx.getSecondElement()/(double)newttales[i].getNumberOfRepeats()<TALEFamilyBuilder.RELATIVE_MISMATCH_SHORT && idx.getSecondElement()/(double)fams[idx.getFirstElement()].getLengthOfLongestFamilyMember() < TALEFamilyBuilder.RELATIVE_MISMATCH_SHORT){
+				if(idx.getSecondElement() < cut/* && idx.getSecondElement()/(double)newttales[i].getNumberOfRepeats()<TALEFamilyBuilder.RELATIVE_MISMATCH_SHORT && idx.getSecondElement()/(double)fams[idx.getFirstElement()].getLengthOfLongestFamilyMember() < TALEFamilyBuilder.RELATIVE_MISMATCH_SHORT*/){
 					report.append("Assigned to class "+fams[idx.getFirstElement()].getFamilyId()+".\n");
 					double p2 = fams[idx.getFirstElement()].getSignificance(newttales[i], null, null, builder);
 					report.append("distance "+format.format(idx.getSecondElement())+", (p="+formatE.format(Math.pow( 10, p2 ))+")\n");
@@ -345,7 +345,7 @@ public class ClassAssignmentTool implements JstacsTool {
 						double p = fams[j].getSignificance( newttales[i], null, null, builder );
 						//System.out.println(fams[j].getFamilyId()+" "+format.format(fams[j].getDistance( newttales[i], null, builder ))+" "+p);
 						if(p < Math.log10( 0.001 )){
-							double d = fams[j].getDistance( newttales[i], null, builder );
+							double d = fams[j].getDistance( newttales[i], null, builder )[0];
 							report.append("Class "+fams[j].getFamilyId()+": distance "+format.format(d)+", (p="+formatE.format(Math.pow( 10, p ))+"),\n");
 							found = true;
 						}
