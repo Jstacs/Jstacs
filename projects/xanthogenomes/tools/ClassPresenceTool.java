@@ -69,7 +69,9 @@ public class ClassPresenceTool implements JstacsTool {
 			
 			SelectionParameter sp = new SelectionParameter(DataType.PARAMETERSET, new String[]{"by class tree","alphabetically"}, new ParameterSet[]{new SimpleParameterSet(cut),new SimpleParameterSet()}, "Arrangement of classes", "If the list of classes should be arranged by the order in the class tree or alphabetically", true);
 
-			SelectionParameter inex = new SelectionParameter(DataType.PARAMETERSET, new String[]{"none","include","exclude"}, new ParameterSet[]{new SimpleParameterSet(), new SimpleParameterSet(include), new SimpleParameterSet(exclude)}, "Exclude/Include", "Choose wether to exclude or (exclusively) include specific strains", true); 
+			SelectionParameter inex = new SelectionParameter(DataType.PARAMETERSET, new String[]{"none","include","exclude"}, new ParameterSet[]{new SimpleParameterSet(), new SimpleParameterSet(
+					include, new SimpleParameter(DataType.BOOLEAN, "Keep order in plots", "If selected, order of strains in the plot will be kept as in the include file",true,false)
+					), new SimpleParameterSet(exclude)}, "Exclude/Include", "Choose wether to exclude or (exclusively) include specific strains", true); 
 			
 			SimpleParameter bool = new SimpleParameter(DataType.BOOLEAN, "Strains by presence", "If selected, strains will be ordered by presence, otherwise by TALE distance", true, false);
 			
@@ -102,6 +104,7 @@ public class ClassPresenceTool implements JstacsTool {
 		SelectionParameter inex = (SelectionParameter) parameters.getParameterAt(2);
 		
 		boolean bool = (Boolean) parameters.getParameterAt(3).getValue();
+		String[] strainOrder = null;
 		
 		HashSet<String> excluded = null;
 		HashSet<String> included = null;
@@ -124,11 +127,17 @@ public class ClassPresenceTool implements JstacsTool {
 			if(((ParameterSet)inex.getValue()).getParameterAt(0).getValue() != null){
 				String cont = ((FileParameter)((ParameterSet)inex.getValue()).getParameterAt(0)).getFileContents().getContent();
 				String[] parts = cont.split("\n");
+				LinkedList<String> order = new LinkedList<>();
 				for(int i=0;i<parts.length;i++){
 					parts[i] = parts[i].trim();
 					if(parts[i].length() > 0){
 						included.add(parts[i]);
+						order.add(parts[i]);
 					}
+				}
+				boolean keepOrder = (Boolean) ((SimpleParameter)((ParameterSet)inex.getValue()).getParameterAt(1)).getValue();
+				if(keepOrder) {
+					strainOrder = order.toArray(new String[0]);
 				}
 			}
 		}
@@ -149,6 +158,7 @@ public class ClassPresenceTool implements JstacsTool {
 				allStrains.add( tales[i].getStrain() );
 			}
 		}
+		System.out.println(allStrains);
 		String[] strains = allStrains.toArray(new String[0]);
 		Arrays.sort(strains);
 		final HashMap<String,Integer> tempMap = new HashMap<String,Integer>();
@@ -286,6 +296,7 @@ public class ClassPresenceTool implements JstacsTool {
 		
 		
 		ClusterTree<String> strainTree = clus.cluster(distMat,strains);
+		System.out.println(strainTree);
 		strainTree.leafOrder(distMat);
 		
 		String newick = strainTree.toNewick();
@@ -293,6 +304,10 @@ public class ClassPresenceTool implements JstacsTool {
 		TextResult tr = new TextResult("Strain tree", "Strain tree (average linkage) in newick format", new FileParameter.FileRepresentation("", newick), "txt", this.getToolName(), null, true);
 		
 		strains = strainTree.getClusterElements();
+		
+		if(strainOrder != null) {
+			strains = strainOrder;
+		}
 		
 		progress.setCurrent(0.9);
 		
