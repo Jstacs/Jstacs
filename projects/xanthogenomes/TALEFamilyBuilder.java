@@ -251,7 +251,7 @@ public class TALEFamilyBuilder implements Storable {
 			return dist;
 		}
 		
-		public double getDistance(TALE tale, FamilyDistance dist, TALEFamilyBuilder builder){
+		public double[] getDistance(TALE tale, FamilyDistance dist, TALEFamilyBuilder builder){
 			if(dist == null){
 				dist = getDist(builder);
 			}
@@ -260,14 +260,18 @@ public class TALEFamilyBuilder implements Storable {
 			for(int i=0;i<members.length;i++){
 				ds[i] = TALEAligner.align( tale, members[i], builder.costs, builder.at, builder.extraGapOpening, builder.extraGapExtension ).getCost();
 			}
+			
+			int idx = ToolBox.getMinIndex(ds);
+			double minD = ds[idx]/(double)Math.min(tale.getNumberOfRepeats(), members[idx].getNumberOfRepeats());
+			
 			if(dist == FamilyDistance.MAX){
-				return ToolBox.max( ds );
+				return new double[] {ToolBox.max( ds ), minD};
 			}else if(dist == FamilyDistance.MIN){
-				return ToolBox.min( ds );
+				return new double[] {ToolBox.min( ds ), minD};
 			}else if(dist == FamilyDistance.MEAN){
-				return ToolBox.mean( 0, ds.length, ds );
+				return new double[] {ToolBox.mean( 0, ds.length, ds ), minD};
 			}else{
-				return Double.NaN;
+				return new double[] {Double.NaN, Double.NaN};
 			}
 		}
 		
@@ -1575,12 +1579,12 @@ public class TALEFamilyBuilder implements Storable {
 			for(int i=0;i<createdTrees.length;i++) {
 				double d = createdTrees[i].getMaximumDistance();
 				TALE[] members = createdTrees[i].getClusterElements();
-				int l=0;
+				int l= getMaximumTALELength(createdTrees[i]);/*0;
 				for(int j=0;j<members.length;j++) {
 					if(members[j].getNumberOfRepeats() > l) {
 						l = members[j].getNumberOfRepeats();
 					}
-				}
+				}*/
 				if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
 					ClusterTree<TALE>[] subs = Hclust.cutTree(RELATIVE_MISMATCH_SHORT*l, createdTrees[i]);
 					for(int j=0;j<subs.length;j++) {
@@ -1623,15 +1627,18 @@ public class TALEFamilyBuilder implements Storable {
 		int closest = -1;
 		double min = Double.POSITIVE_INFINITY;
 		for(int i=0;i<this.families.length;i++){
-			double d = this.families[i].getDistance( tale, dist, this );
+			double[] d = this.families[i].getDistance( tale, dist, this );
 			if(filterByLength) {
-				int l = this.families[i].getLengthOfLongestFamilyMember();
-				if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
+				if(d[1] >= RELATIVE_MISMATCH_SHORT) {
 					continue;
 				}
+				/*int l = this.families[i].getLengthOfLongestFamilyMember();
+				if(d/(double)l >= RELATIVE_MISMATCH_SHORT) {
+					continue;
+				}*/
 			}
-			if(d < min){
-				min = d;
+			if(d[0] < min){
+				min = d[0];
 				closest = i;
 			}
 		}
