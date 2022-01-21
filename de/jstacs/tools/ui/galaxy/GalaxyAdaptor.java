@@ -275,6 +275,13 @@ public class GalaxyAdaptor {
 		//description
 		XMLParser.appendObjectWithTagsAndAttributes( allBuffer, description, "description", null, false );
 		allBuffer.append( "\n" );
+		//improved handling of warnings in Galaxy
+		allBuffer.append("<stdio>\n"
+				+"\t<exit_code range=\"1:\"/>\n"
+				+"\t<exit_code range=\":-1\"/>\n"
+				+"\t<regex match=\"Error:\"/>\n"
+				+"\t<regex match=\"Exception:\"/>\n"
+			+"</stdio>\n");
 		
 		//input section
 		StringBuffer defaultOuts = new StringBuffer();
