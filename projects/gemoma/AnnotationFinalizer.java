@@ -186,7 +186,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			determine();
 			split[3] = "" + min;
 			split[4] = "" + max;
-			Collections.sort(list);
+			//not needed: Collections.sort(list);
 		}
 		
 		@Override
@@ -281,6 +281,14 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			downUTR = new ArrayList<UTR>();
 		}
 		
+		public void add( String[] split ) {
+			switch( split[2] ) {
+				case "three_prime_UTR": downUTR.add(new UTR(split) ); break;
+				case "five_prime_UTR": upUTR.add(new UTR(split) ); break;
+				default: super.add(split);
+			}
+		}
+		
 		public int strand() {
 			return split[6].charAt(0)=='+' ? 1 : -1;
 		}
@@ -366,7 +374,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 
 		@Override
 		public int compareTo(Transcript t) {
-			return Double.compare(score, t.score);
+			return -Double.compare(score, t.score);
 		}
 	}
 	
@@ -432,7 +440,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			}
 			if( line.length() == 0 ) continue;
 			if( line.startsWith("#") ) {
-				if( start ) {
+				if( start && !line.startsWith("##sequence-region")) {
 					begin.append(line+"\n");
 				}
 				continue;
@@ -482,8 +490,8 @@ public class AnnotationFinalizer extends GeMoMaModule {
 						String id = attr[k].substring(3);
 						Gene g = new Gene(split);
 						anz++;
-						h.put(id, g );
-						all.put(id, g );
+						h.put( id, g );
+						all.put( id, g );
 					} else {
 						System.out.println("WARNING1: " + Arrays.toString(split) );
 						w[0]++;
@@ -599,7 +607,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			int reads = 1;
 			ExpandableParameterSet introns=null, coverage=null;
 			
-			if( utrPs.getNumberOfParameters()>1 ) {
+			if( utrPs.getNumberOfParameters()>0 ) {
 				reads = (Integer) utrPs.getParameterForName("reads").getValue();
 				introns = (ExpandableParameterSet)((ParameterSetContainer)utrPs.getParameterAt(0)).getValue();
 				coverage = (ExpandableParameterSet)((ParameterSetContainer)utrPs.getParameterAt(2)).getValue();
@@ -607,12 +615,23 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			GeMoMa.fill(protocol, false, 0, genome, null, reads, introns, coverage );				
 			protocol.append("\n");
 		}
+		
+		String source=null;
+		if( utrPs.getNumberOfParameters()>0 ) {
+			Parameter p = utrPs.getParameterForName("additional source suffix");
+			source = p==null ? null : (String) p.getValue();
+			
+			if( source!=null && source.length()==1) {
+				source=null;
+			}
+		}
+		source= toolName+(source==null?"":("_"+source));
 
 		SimpleParameterSet renamePS = (SimpleParameterSet) parameters.getParameterForName("rename").getValue();
 		int n = renamePS.getNumberOfParameters();
 		int digits=-100;
 		String prefix, infix=null, suffix = "";
-		String[] del = null;
+		String search = null, replace = null;
 		rename = n>0;
 		if( rename ) {
 			prefix = renamePS.getParameterForName("prefix").getValue().toString();
@@ -620,17 +639,15 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			if( n>2 ) {
 				infix = renamePS.getParameterForName("infix").getValue().toString();
 				suffix = renamePS.getParameterForName("suffix").getValue().toString();
-				del = renamePS.getParameterForName("delete infix").getValue().toString().split(",");
-				for( int i = 0; i < del.length; i++ ) {
-					del[i] = del[i].trim();
-				}
+				search = renamePS.getParameterForName("contig search pattern").getValue().toString();
+				replace = renamePS.getParameterForName("contig replace pattern").getValue().toString();
 			}
 		} else {
 			prefix=null;
 		}
 		boolean asName = (Boolean) parameters.getParameterForName("name attribute").getValue();
 		
-		Parameter p = utrPs.getParameterForName("transfer features");
+		Parameter p = parameters.getParameterForName("transfer features");
 		boolean addAdditional=p==null?false:(Boolean)p.getValue();
 		
 		//annotation
@@ -674,9 +691,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 				if( n==2 ) {
 					pref = prefix;
 				} else {
-					for( int i = 0; i < del.length; i++ ) {
-						newC = newC.replaceAll(del[i], "");
-					}
+					newC=newC.replaceAll(search, replace);
 					pref = prefix + newC + infix;
 					num=1;
 				}
@@ -714,8 +729,8 @@ public class AnnotationFinalizer extends GeMoMaModule {
 					if( cov != null ) {
 						for( Transcript t : g.list ) {
 //if( c.equals("1") ) System.out.println(t);
-							boolean u5 = extendUTR( t, -1, cov, a, 1 ); //upstream
-							boolean u3 = extendUTR( t, 1, cov, d, 0 ); //downstream
+							boolean u5 = extendUTR( t, -1, cov, a, 1, source ); //upstream
+							boolean u3 = extendUTR( t, 1, cov, d, 0, source ); //downstream
 //if( c.equals("1") ) System.exit(1);
 							if( u5 ) {
 								utr5++;
@@ -760,7 +775,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 
 	}
 	
-	private static boolean extendUTR( Transcript t, int d, int[][] cov, int[][] splice, int sIdx ) {
+	private static boolean extendUTR( Transcript t, int d, int[][] cov, int[][] splice, int sIdx, String source ) {
 		int strand = t.strand();
 		int min = t.getMin();
 		int max = t.getMax();
@@ -770,7 +785,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 		LinkedList<String[]> utrs = new LinkedList<String[]>();
 		
 		int start = dir==-1 ? min : max;
-		boolean extend = true;
+		boolean extend = d==1 ? t.downUTR.size()==0 : t.upUTR.size()==0; //only extend if there is no annotation available yet (cf. transfer feature) 
 //System.out.println(t.id);
 		while( extend ) {
 			int firstBase = start+dir;
@@ -861,7 +876,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			if( firstBase <= lastBase ) {
 				String[] split = {
 					t.split[0],
-					toolName,
+					source,
 					utr,
 					""+ firstBase,
 					""+ lastBase,
@@ -898,14 +913,13 @@ public class AnnotationFinalizer extends GeMoMaModule {
 					new FileParameter( "annotation", "The predicted genome annotation file (GFF)", "gff,gff3", true, new FileExistsValidator(), true ),
 					
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),					
+					new SimpleParameter( DataType.BOOLEAN, "transfer features", "if true other features than gene, &lt;tag&gt; (default: mRNA), and CDS of the input will be written in the output", true, false ),
 
 					new SelectionParameter( DataType.PARAMETERSET, 
 							new String[]{"NO", "YES"},
 							new Object[]{
 								//no UTRs
-								new SimpleParameterSet(
-									new SimpleParameter( DataType.BOOLEAN, "transfer features", "if true other features than gene, &lt;tag&gt; (default: mRNA), and CDS of the input will be written in the output", true, false )
-								),
+								new SimpleParameterSet(),
 								//UTR prediction
 								new SimpleParameterSet(
 									new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
@@ -930,7 +944,9 @@ public class AnnotationFinalizer extends GeMoMaModule {
 													)
 												},  "coverage file", "experimental coverage (RNA-seq)", true
 										)
-									), "coverage", "", 1 ) )
+									), "coverage", "", 1 ) ),
+									
+									new SimpleParameter( DataType.STRING, "additional source suffix", "a suffix for source values of UTR features", true, new RegExpValidator("\\w*"), "" )
 								),
 							},
 							new String[] {
@@ -949,7 +965,8 @@ public class AnnotationFinalizer extends GeMoMaModule {
 										new SimpleParameter( DataType.STRING, "infix", "the infix of the generic name", true, "G" ),
 										new SimpleParameter( DataType.STRING, "suffix", "the suffix of the generic name", true, "0" ),
 										new SimpleParameter( DataType.INT, "digits", "the number of informative digits", true, new NumberValidator<Integer>(4, 10), 5 ),
-										new SimpleParameter( DataType.STRING, "delete infix", "a comma-separated list of infixes that is deleted from the sequence names before building the gene/transcript name", true, "" )
+										new SimpleParameter( DataType.STRING, "contig search pattern", "search string, i.e., a regular expression for search-and-replace parts of the contig/scaffold/chromosome names, the modified string is used as infix for the gene name", true, "" ),
+										new SimpleParameter( DataType.STRING, "contig replace pattern", "replace string, i.e., a regular expression for search-and-replace parts of the contig/scaffold/chromosome names, the modified string is used as infix for the gene name", true, new RegExpValidator("[^;^=^\"^\\s]*"), "" )
 								),
 								//simple renaming
 								new SimpleParameterSet(
