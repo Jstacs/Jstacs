@@ -205,7 +205,7 @@ public class DenoiseIntrons extends GeMoMaModule {
 		}
 		r.close();
 		w.close();
-		protocol.append( "remove introns: " + del + "/" + all + " = " + (del/(double)all) + "\n");
+		protocol.append( "removed introns: " + del + "/" + all + " = " + (del/(double)all) + "\n");
 		
 		return new ToolResult("", "", null, new ResultSet(new TextResult("denoised introns", "Result", new FileParameter.FileRepresentation(denoise.getAbsolutePath()), "gff", getToolName(), null, true)), parameters, getToolName(), new Date());
 	}
