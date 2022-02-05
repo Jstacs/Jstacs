@@ -239,7 +239,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		ParameterSet ere = getRelevantParameters(new ExtractRNAseqEvidence().getToolParameters(),"target genome");
 		ParameterSet denoise = getRelevantParameters(new DenoiseIntrons().getToolParameters(), "introns", "coverage" );
 		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", "long fasta comment", Extractor.name[2], Extractor.name[3], Extractor.name[4], Extractor.name[5], Extractor.name[6] );
-		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "selected", "genetic code", "tag", "coverage", "introns", "sort" );
+		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "selected", "genetic code", "tag", "coverage", "introns", "sort", "prefix" );
 		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
 		try {
@@ -266,7 +266,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 							new FileParameter( "cds parts", "The query CDS parts file (protein FASTA), i.e., the CDS parts that have been searched in the target genome using for instance BLAST or mmseqs", "fasta,fa,fas,fna", true, new FileExistsValidator(), true ),
 							new FileParameter( "assignment", "The assignment file, which combines CDS parts to proteins", "tabular", false, new FileExistsValidator() ),
 							new SimpleParameter(DataType.DOUBLE,"weight","the weight can be used to prioritize predictions from different input files; each prediction will get an additional attribute sumWeight that can be used in the filter", false, new NumberValidator<Double>(0d, 1000d), 1d),
-							new FileParameter( "annotation info", "annotation information of the reference, tab-delimted file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
+							new FileParameter( "annotation info", "annotation information of the reference, tab-delimited file containing at least the columns transcriptName, GO and .*defline", "tabular",  false, new FileExistsValidator() )
 			) );
 			
 			/*TODO BUSCO
@@ -389,6 +389,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		for( int i = 0; i < given.getNumberOfParameters(); i++ ) {
 			Parameter p = given.getParameterAt(i);
 			Parameter q = toBeSet.getParameterForName( p.getName() );
+			if( q==null ) {
+				System.err.println(p.getName());
+			}
+			
 			/*
 			System.out.println(q.getName() + "\t" + p.getName() );
 			System.out.println(q.getClass().getName() + "\t" + p.getClass().getName() );
@@ -473,7 +477,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		Double weight;
 		String[] cds_parts;
 		String[] searchResults;
-		boolean hasCDS;
+		boolean hasCDS, set;
 		int ext;
 		
 		Species( int idx, String id, double weight, String annotationInfo ) {
@@ -482,6 +486,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			this.weight = weight;
 			this.annotationInfo=annotationInfo;
 			ext=-1;
+			set=false;
 		}
 		
 		void setExt( int ext ) {
@@ -1805,7 +1810,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					sp.searchResults = new String[sp.cds_parts.length];
 				}
 			} else {
-				pipelineProtocol.append("Did not extract any gene model from species " + speciesIndex + "\n");
+				pipelineProtocol.append("Did not extract any gene model from species " + sp.name + "\n");
 			}
 		}	
 	}
@@ -1967,6 +1972,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			Species sp = species.get(speciesIndex);
 			
 			ToolParameterSet params = gemomaParams.clone();
+			if( sp.id != null && sp.id.length()>0 ) {
+				params.getParameterForName("prefix").setValue(sp.id+"_");
+				sp.set=true;
+			}
 			params.getParameterForName("search results").setValue(sp.searchResults[split]);
 			params.getParameterForName("cds parts").setValue(sp.cds);
 			if( !sp.assignment.equals(OPTIONAL) ) params.getParameterForName("assignment").setValue(sp.assignment);
@@ -2098,7 +2107,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 						eps.addParameterToSet();
 					}
 					ParameterSet ps = ((ParameterSetContainer) eps.getParameterAt(i++)).getValue();
-					if( current.id != null ) {
+					if( current.id != null && !current.set ) {
 						ps.getParameterForName("prefix").setValue(current.id);
 					}
 					ps.getParameterForName("gene annotation file").setValue(current.anno);
