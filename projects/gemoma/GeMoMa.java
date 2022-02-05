@@ -356,7 +356,8 @@ public class GeMoMa extends GeMoMaModule {
 				new AddAttribute(),
 				new GAFComparison(),
 				new Analyzer(),
-				new BUSCORecomputer()
+				new BUSCORecomputer(),
+				new GFFAttributes()
 				/*,
 				new TranscribedCluster()/**/
 		};
@@ -2553,6 +2554,13 @@ public class GeMoMa extends GeMoMaModule {
 			
 			if( out ) {
 				String protein = getRefProtein(transcriptName);
+				double maxScore=0;
+				if( proteinAlignment ) {
+					for( int i=0; i < protein.length(); i++ ) {
+						int idx = aaAlphabet.getCode(protein.substring(i, i+1));
+						maxScore -= matrix[idx][idx];
+					}
+				}
 				int counts = 0;
 				int bestScore=Integer.MIN_VALUE;
 				for( int i = 0; i < predictions && result.size()>0; i++ ) {
@@ -2590,7 +2598,6 @@ public class GeMoMa extends GeMoMaModule {
 						}
 						
 						int id = 0, pos = 0, longest=0, current=0, gap=-1, currentGap=0, maxGap=0;
-						double maxScore=0;
 						String s0, s1 = null, pred = best.getProtein();
 						PairwiseStringAlignment psa = null;
 						if( proteinAlignment ) {
@@ -2610,8 +2617,6 @@ public class GeMoMa extends GeMoMaModule {
 									}
 									currentGap++;
 								} else {
-									int idx = aaAlphabet.getCode(s0.substring(p, p+1));
-									maxScore -= matrix[idx][idx];
 									if( s1.charAt(p) == '-' ) {
 										if( gap != 1 ) {
 											if( currentGap > maxGap ) {
@@ -2657,7 +2662,7 @@ public class GeMoMa extends GeMoMaModule {
 							}
 							
 							//additional GFF tags
-							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) +";lpm=" + longest+ ";maxScore=" + maxScore + ";maxGap=" + maxGap );//+ ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
+							gff.append( ";pAA=" + decFormat.format(pos/(double)s1.length()) + ";iAA=" + decFormat.format(id/(double)s1.length()) +";lpm=" + longest+ ";maxScore=" + ((int)maxScore) + ";maxGap=" + maxGap );//+ ";alignF1=" + (2*aligned/(2*aligned+g1+g2)) ); 
 						}
 						int preMatureStops=0, j=-1;
 						String aa =pred.substring(0, pred.length()-1);
@@ -3813,14 +3818,13 @@ public class GeMoMa extends GeMoMaModule {
 				m = firstCDS.substring(first.queryStart-1, second.queryEnd);				
 			} else {
 				m = firstCDS.substring(first.queryStart-1);
+				m += currentInfo.splitAA[revParts[partStart]];
 				for( int idx = revParts[partStart]+1; idx < revParts[partEnd]; idx++ ) {
 					String p=cds.get(geneName + (transcriptInfo==null?"":("_" + currentInfo.exonID[idx])) );
 					if( p != null ) {
 						m += p;
 					}
-					if( idx+1 < revParts[partEnd] ) {
-						m += currentInfo.splitAA[idx];
-					}
+					m += currentInfo.splitAA[idx];
 				}
 				m += cds.get( second.queryID ).substring(0, second.queryEnd);
 			}
@@ -3957,6 +3961,19 @@ public class GeMoMa extends GeMoMaModule {
 												current = first.donCandScore[p][remainingFirst].get(k)
 														+ second.accCandScore[remainingSecond].get(j)
 														+ gap;
+												//neighboring exons in reference
+												if( revParts[first.part]+1 == revParts[second.part] ) {
+													String ref = currentInfo.splitAA[revParts[first.part]];
+													if( aa=='!' || ref.length()==0 ) {
+														if( aa=='!' && ref.length()==0 ) {
+															//no additional term
+														} else {
+															current += getGapCost(1, 0);
+														}
+													} else {
+														current -= matrix[aaAlphabet.getCode(""+aa)][aaAlphabet.getCode(ref)];
+													}
+												}
 												//TODO possible double or triple gap opening cost
 											} else {
 												//gap cost are computed in the alignment
@@ -4363,7 +4380,7 @@ res.I=I;
 				} else {
 					gff.append( hits.getLast().targetStart + "\t" + first.targetEnd );
 				}
-				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + geneName + ";aa="+getNumberOfAA() );
+				gff.append( "\t.\t" + (forward?"+":"-") + "\t.\tID=" + prefix+transcriptName + "_R" + i + ";ref-gene=" + prefix+geneName + ";aa="+getNumberOfAA() );
 			}
 			
 			public int writeGFF( String transcriptName, int pred, StringBuffer sb ) throws Exception {
