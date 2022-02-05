@@ -167,4 +167,45 @@ public class Kmeans {
 		}
 		return sse;
 	}
+	
+	/**
+	 * This method allows to rescale the data, which might be useful ahead of clustering.
+	 * 
+	 * @param x the data
+	 * 
+	 * @return the rescaled data
+	 */
+	public static double[][] rescale( double[][] x ) {
+		//mean
+		double[] mean = new double[x[0].length];
+		for( int i = 0; i < x.length; i++ ) {
+			for( int j = 0; j < x[0].length; j++ ) {
+				mean[j] += x[i][j];
+			}
+		}
+		for( int j = 0; j < mean.length; j++ ) {
+			mean[j] /= x.length;
+		}
+
+		//sd
+		double[] sd = new double[x[0].length];
+		for( int i = 0; i < x.length; i++ ) {
+			for( int j = 0; j < x[0].length; j++ ) {
+				double v = x[i][j]-mean[j];
+				sd[j] += v*v;
+			}
+		}
+		for( int j = 0; j < mean.length; j++ ) {
+			sd[j] = Math.sqrt(sd[j])/(x.length-1);
+		}
+		
+		double[][] rescaled = new double[x.length][x[0].length];
+		for( int i = 0; i < x.length; i++ ) {
+			for( int j = 0; j < x[0].length; j++ ) {
+				rescaled[i][j] = (x[i][j]-mean[j])/sd[j];
+			}
+		}
+		
+		return rescaled;
+	}
 }
