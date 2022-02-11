@@ -236,6 +236,11 @@ public class AnnotationFinalizer extends GeMoMaModule {
 					
 					t.rename("Parent",old,name);
 					t.rename("ID",oldT,newT);
+					if( t.split[8].indexOf("oldID=")<0 ) {
+						t.split[8] += (t.split[8].endsWith(";")?"":";") + "oldID="+oldT;
+					} else {
+						throw new IllegalArgumentException("oldID already exists as attribute");
+					}
 					
 					Feature.rename("Parent", oldT, newT, t.upUTR);
 					Feature.rename("Parent", oldT, newT, t.list);
