@@ -193,8 +193,10 @@ public class SyntenyChecker extends GeMoMaModule {
 				String current = rgs.next();
 				if( current.startsWith(prefix) ) {
 					Gene ref = hash.get(current);
-					if( sb.length()>0 ) sb.append("; ");
-					sb.append(ref.chr+","+ref.middle+","+ref.strand+","+ref.num+","+ref.name);
+					if( ref != null ) {
+						if( sb.length()>0 ) sb.append("; ");
+						sb.append(ref.chr+","+ref.middle+","+ref.strand+","+ref.num+","+ref.name);
+					}
 				}
 			}
 			return sb.toString();			
@@ -203,12 +205,23 @@ public class SyntenyChecker extends GeMoMaModule {
 		public void add( String line ) {
 			String[] split = line.split("\t");
 			split[0]=prefix+split[0];
-			Gene g = hash.get(split[0]);
-			if( g==null ) {
-				g = new Gene( split[0] );
-				hash.put( split[0], g );
+			int strand, start, end;
+			try {
+				strand=Integer.parseInt(split[5]);
+				start=Integer.parseInt(split[6]);
+				end=Integer.parseInt(split[7]);
+			} catch( NumberFormatException nfe ) {
+				//ignore this line
+				strand=start=end=-9999;
 			}
-			g.extend( split[4], Integer.parseInt(split[5]), Integer.parseInt(split[6]), Integer.parseInt(split[7]) );
+			if( strand!= -9999 ) {
+				Gene g = hash.get(split[0]);
+				if( g==null ) {
+					g = new Gene( split[0] );
+					hash.put( split[0], g );
+				}
+				g.extend( split[4], strand, start, end );
+			}
 		}
 	}
 	
