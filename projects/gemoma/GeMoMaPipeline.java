@@ -240,7 +240,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		ParameterSet denoise = getRelevantParameters(new DenoiseIntrons().getToolParameters(), "introns", "coverage" );
 		ParameterSet ex = getRelevantParameters(new Extractor(maxSize).getToolParameters(), "annotation", "genome", "selected", "verbose", "genetic code", "long fasta comment", Extractor.name[2], Extractor.name[3], Extractor.name[4], Extractor.name[5], Extractor.name[6] );
 		ParameterSet gem = getRelevantParameters(new GeMoMa(maxSize,timeOut,maxTimeOut).getToolParameters(), "search results", "target genome", "cds parts", "assignment", "selected", "genetic code", "tag", "coverage", "introns", "sort", "prefix" );
-		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag");
+		ParameterSet gaf = getRelevantParameters(new GeMoMaAnnotationFilter().getToolParameters(), "predicted annotation", "tag", "intermediate result");
 		ParameterSet af = getRelevantParameters(new AnnotationFinalizer().getToolParameters(), "genome", "annotation", "tag", "introns", "reads", "coverage" );
 		try {
 			ex.getParameterForName("Ambiguity").setDefault(Ambiguity.AMBIGUOUS);
