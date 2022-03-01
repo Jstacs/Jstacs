@@ -35,15 +35,15 @@ public class EvaluateScoringTool implements JstacsTool {
 	@Override
 	public ToolParameterSet getToolParameters() {
 		LinkedList<Parameter> pars = new LinkedList<Parameter>();
-		FileParameter fp =  new FileParameter("Positives", "Output of \"Sequence Scoring\" for positive test sequences.", "tsv,tabular", true);
+		FileParameter fp =  new FileParameter("Positives", "Output of \"Sequence Scoring\" for the positive test sequences.", "tsv,tabular", true);
 		pars.add(fp);
-		FileParameter fp2 =  new FileParameter("Negatives", "Output of \"Sequence Scoring\" for negative test sequences.", "tsv,tabular", true);
+		FileParameter fp2 =  new FileParameter("Negatives", "Output of \"Sequence Scoring\" for the negative test sequences.", "tsv,tabular", true);
 		pars.add(fp2);
 		try {
-			SimpleParameter sp = new SimpleParameter(DataType.BOOLEAN, "Curves", "Also compute and draw curves", true, false);
+			SimpleParameter sp = new SimpleParameter(DataType.BOOLEAN, "Curves", "Also compute and draw ROC and PR curves", true, false);
 			pars.add(sp);
 			
-			SimpleParameter sp2 = new SimpleParameter(DataType.BOOLEAN, "Use sum-occupancy", "Use log-sum occupancy score instead of maximum", true, false);
+			SimpleParameter sp2 = new SimpleParameter(DataType.BOOLEAN, "Use sum-occupancy", "Use log-sum occupancy score instead of maximum score", true, false);
 			pars.add(sp2);
 		} catch (DatatypeNotValidException | IllegalValueException e) {
 			throw new RuntimeException(e);
