@@ -52,8 +52,6 @@ public class CurvePlotter implements PlotGenerator {
 	public void generatePlot(GraphicsAdaptor ga) throws Exception {
 		
 		plot(ga.getGraphics(1180, 1180));
-		
-		
 
 	}
 
