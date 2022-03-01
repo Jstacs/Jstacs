@@ -132,8 +132,8 @@ public class MethylSlimDimontTool implements JstacsTool {
 		
 		FileParameter bgFile = new FileParameter( "Background file", "The file name of the file containing background sequences in annotated FastA format.", "fasta,fa,fas",false );
 		
-		SelectionParameter sp = new SelectionParameter(DataType.PARAMETERSET,new String[] {"background file","shuffled input"},
-				new ParameterSet[]{new SimpleParameterSet(bgFile),new SimpleParameterSet()},
+		SelectionParameter sp = new SelectionParameter(DataType.PARAMETERSET,new String[] {"background file","shuffled input","none"},
+				new ParameterSet[]{new SimpleParameterSet(bgFile),new SimpleParameterSet(),new SimpleParameterSet()},
 				"Background sample","Background sample containing negative examples, may be di-nucleotide shuffled input sequences",true);
 		sp.setDefault("shuffled input");
 		parameters.add( sp );
@@ -231,8 +231,10 @@ public class MethylSlimDimontTool implements JstacsTool {
 					new StringReader(
 							((FileParameter)((ParameterSet)((SelectionParameter)parameters.getParameterAt(2)).getValue()).getParameterAt(0)).getFileContents().getContent())
 					, '>', "", new SplitSequenceAnnotationParser(":",";") ) );
-		}else {
+		}else if(bgSample == 1){
 			bgData = shuffle(fgData);
+		}else {
+			bgData = null;
 		}
 		
 		
@@ -297,11 +299,12 @@ public class MethylSlimDimontTool implements JstacsTool {
 		}
 		weights[1] = Interpolation.getBgWeight( weights[0] );
 		
-		double fac2 = ((double)fgData.getNumberOfElements())/((double)bgData.getNumberOfElements());
-		for(int i=w.length;i<weights.length;i++){
-			weights[1][i] *= fac2;
+		if(bgData != null) {
+			double fac2 = ((double)fgData.getNumberOfElements())/((double)bgData.getNumberOfElements());
+			for(int i=w.length;i<weights.length;i++){
+				weights[1][i] *= fac2;
+			}
 		}
-		
 		
 		boolean[][] allowed = new boolean[annotated.length][];//TODO Jan? BitSets?
 		for(int i=0;i<annotated.length;i++){
