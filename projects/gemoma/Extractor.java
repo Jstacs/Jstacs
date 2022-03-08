@@ -84,7 +84,7 @@ public class Extractor extends GeMoMaModule {
 		type[6]="tabular";
 	}
 	
-	private int[] problem = new int[9];
+	private int[] problem = new int[10];
 	private int repair = 0;
 	private boolean rep;
 	StringBuffer shortInfo = new StringBuffer(), discarded = new StringBuffer(); 
@@ -183,8 +183,9 @@ public class Extractor extends GeMoMaModule {
 		shortInfo.append( "premature stop\t" + problem[4]+"\n");
 		shortInfo.append( "no DNA\t" + problem[5]+"\n");
 		shortInfo.append( "wrong phase\t" + problem[6]+"\n");
-		shortInfo.append( "conflicting phase\t" + problem[7]+"\n\n");
-		shortInfo.append( "unexpected error\t" + problem[8]+"\n\n");
+		shortInfo.append( "conflicting phase\t" + problem[7]+"\n");
+		shortInfo.append( "not linear\t" + problem[8]+"\n\n");
+		shortInfo.append( "unexpected error\t" + problem[9]+"\n\n");
 		
 		shortInfo.append( "repaired\t" + repair+"\n\n");
 
@@ -925,10 +926,26 @@ public class Extractor extends GeMoMaModule {
 		int offset = 3-startPhase, pa = -1;
 		message.clear();
 		Part current = null;
-		int minExon=Integer.MAX_VALUE, maxIntron=-1;
+		int minExon=Integer.MAX_VALUE, maxIntron=-1, lastPos=-1;
 		for( j = 0; j < il.length(); j++ ) {
 			pa = il.get(j);
 			current = part.get(pa);
+			if( lastPos>=0 ) {
+				if( (gene.strand>0 && current.start <= lastPos)
+					|| (gene.strand<0 && current.end >= lastPos) ) {
+					if( verbose ) {
+						int oldPa = il.get(j-1);
+						Part old = part.get(oldPa);
+						protocol.appendWarning(trans + "\tnot linear: "+ il.toString() + " strand=" + gene.strand + " " + oldPa + ":" + old.start + ".." + old.end + " " + pa + ":" + current.start + ".." + current.end + "\n" );
+					}
+					return 8;
+				}
+			}
+			if( gene.strand>0 ) {
+				lastPos = current.end;
+			} else {
+				lastPos = current.start;
+			}
 			if( current.dna == null ) {
 				currentProb=1;
 				break;
@@ -1007,7 +1024,7 @@ public class Extractor extends GeMoMaModule {
 		
 		if( j == il.length() ) {
 			if( p.length() == 0 ) {
-				return 8;
+				return 9;
 			}
 			
 			int idx = p.indexOf('*');
