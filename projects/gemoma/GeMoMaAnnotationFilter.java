@@ -220,6 +220,8 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		pa = parameters.getParameterForName( "kmeans" );
 		int cluster=0, good = 0;
 		String[] ex = null;
+		int margin=-1;
+		double quantile=-1;
 		if( pa!=null ) {
 			ParameterSet ps = (ParameterSet) pa.getValue();
 			if( ps.getNumberOfParameters()>0 ) {
@@ -235,10 +237,24 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					throw new IllegalArgumentException("The number of good clusters must be smaller than the total number of clusters");
 				}
 				
+				/*
 				ExpandableParameterSet att = (ExpandableParameterSet) ps.getParameterForName("cluster attribute").getValue();
 				ex = new String[att.getNumberOfParameters()];
 				for( int j = 0; j < ex.length; j++ ) {
 					ex[j] = ((SimpleParameterSet) att.getParameterAt(j).getValue()).getParameterAt(0).getValue().toString();
+				}
+				*/
+				ex = new String[]{
+						//"Math.abs(maxScore-Math.max(0,score))/maxScore"
+						//to be tested: 
+						"Math.max(0,1 - Math.max(0,score)/maxScore)"
+				};
+				
+				ps = (ParameterSet) ps.getParameterForName("trend").getValue();
+				if( ps.getNumberOfParameters()>0 ) {
+					//local
+					margin = (Integer) ps.getParameterForName("margin").getValue();
+					quantile = (Double) ps.getParameterForName("quantile").getValue();
 				}
 			}
 		}
@@ -377,10 +393,11 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			
 			//ML-filter of predictions
 			if( kmeans ) {
+				Collections.sort(list);
 				double[][] matrix = new double[list.size()][ex.length];
 				boolean anyNAN = false;
 				for( int i = 0; i < list.size(); i++ ) {
-					Prediction cur = list.get(i);					
+					Prediction cur = list.get(i);
 					for( int j = 0; j< ex.length; j++ ) {
 						matrix[i][j] = Double.parseDouble(Tools.eval(engine, ex[j], cur.hash));
 						anyNAN |= Double.isNaN( matrix[i][j] ) ;
@@ -388,8 +405,59 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				}
 				
 				if( matrix.length>1 && !anyNAN ) {
-					//TOCO extend: rescale, pca?
-					int[] assignment = new Kmeans().cluster(Kmeans.rescale(matrix), cluster, 10);
+					if( margin>0 ) {	
+						double[] quant = new double[list.size()];
+						
+						//compute quantile using margin and quantile
+						int first=0, last=0, old=-1;
+						String oldChr="";
+						for( int i = 0; i < list.size(); i++ ) {
+							Prediction cur = list.get(i), help;
+							boolean changed=false;
+							if( !cur.split[0].equals(oldChr) || old != cur.start ) {
+								//find start
+								while( !(help=list.get(first)).split[0].equals(cur.split[0]) 
+										|| help.start+margin<cur.start ) {
+									first++;
+									changed=true;
+								}
+								//find end
+								while( last < list.size() && (help=list.get(last)).split[0].equals(cur.split[0]) 
+										&& help.start<cur.start+margin ) {
+									last++;
+									changed=true;
+								}
+							}
+							
+							if( !changed ) {
+								//same predictions lead to same value 
+								quant[i] = quant[i-1];
+							} else {
+								//find quantile between first and last
+								
+								//naive implementation: TODO improve
+								double[] forSorting = new double[last-first];
+								for( int j = first; j < last; j++ ) {
+									forSorting[j-first] = matrix[j][0];
+								}
+								Arrays.sort(forSorting);
+								
+								quant[i] = forSorting[ (int) Math.ceil((forSorting.length-1)*quantile) ];
+							}
+//System.out.println(first + ".." + i + ".."+last + "\t" + quant[i] );
+							
+							oldChr=cur.split[0];
+							old=cur.start;
+						}
+						
+						//use local trend
+						for( int i = 0; i < list.size(); i++ ) {
+							matrix[i][0] -= quant[i];
+						}
+					}
+					
+					double[][] data = ex.length>1 ? Kmeans.rescale(matrix) : matrix;
+					int[] assignment = new Kmeans().cluster(data, cluster, 10);
 					double[][] mean = new double[cluster][ex.length];
 					int[] stat = new int[cluster];
 					for( int i = 0; i < matrix.length; i++ ) {
@@ -401,11 +469,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					protocol.append("cluster assignment: " + Arrays.toString(stat) + "\n" );
 					double[] dist = new double[mean.length];
 					for( int i = 0; i < mean.length; i++ ) {
-						dist[i]=0;
+						mean[i][0]/=stat[i];
+						dist[i]=mean[i][0]; /*0
 						for( int j = 0; j< ex.length; j++ ) {
 							mean[i][j] /=stat[i];
 							dist[i]+=mean[i][j]*mean[i][j];
-						}
+						}*/
 					}
 					double[] clone = dist.clone();
 					Arrays.sort(clone);
@@ -413,7 +482,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 					boolean[] use = new boolean[dist.length];
 					for( int i = 0; i < dist.length; i++ ) {
 						use[i] = dist[i]<threshold;
-						protocol.append( i + "\t" + Arrays.toString(mean[i]) + "\t" + dist[i] + "\t" + use[i] + "\t" + stat[i] + "\n" );
+						protocol.append( i + /*"\t" + Arrays.toString(mean[i]) +*/ "\t" + dist[i] + "\t" + use[i] + "\t" + stat[i] + "\n" );
 					}
 					
 					ArrayList<Prediction> mlFiltered = new ArrayList<Prediction>();
@@ -914,9 +983,9 @@ System.out.println();
 
 		@Override
 		public int compareTo(Prediction o) {
-			//int res = contigStrand.compareTo(o.contigStrand);
-			//if( res == 0 ) {
-				int res = Integer.compare( start, o.start );
+			int res = split[0].compareTo(o.split[0]);
+			if( res == 0 ) {
+				res = Integer.compare( start, o.start );
 				if( res == 0 ) {
 					res = Integer.compare( end, o.end );
 					if( res == 0 ) {
@@ -939,7 +1008,7 @@ System.out.println();
 						}
 					}
 				}
-			//}
+			}
 			return res;
 		}
 		
@@ -1238,12 +1307,24 @@ System.out.println();
 									new SimpleParameterSet(),
 									new SimpleParameterSet( 
 											new SimpleParameter( DataType.INT, "cluster", "the number of clusters to be used for kmeans", true, new NumberValidator<Integer>(2, 100), 2),
-											new SimpleParameter( DataType.INT, "good cluster", "the number of good clusters, good clusters are those with small distance to the origin, all members of a good cluster are further used", true, new NumberValidator<Integer>(1, 99), 1),
-											new ParameterSetContainer( "cluster attribute", "", attribute )
+											new SimpleParameter( DataType.INT, "good cluster", "the number of good clusters, good clusters are those with small mean, all members of a good cluster are further used", true, new NumberValidator<Integer>(1, 99), 1),
+											//new ParameterSetContainer( "cluster attribute", "", attribute )
+											
+											new SelectionParameter(DataType.PARAMETERSET, new String[] {"GLOBAL","LOCAL"},
+													new ParameterSet[] {
+															new SimpleParameterSet(),
+															new SimpleParameterSet( 
+																	new SimpleParameter( DataType.INT, "margin", "the number of bp upstream and downstream of a predictions used to identify neighboring predictions for the statistics", true, new NumberValidator<Integer>(0, 100000000), 1000000),
+																	new SimpleParameter( DataType.INT, "quantile", "the quantile used for the local trend", true, new NumberValidator<Double>(0d,1d), 0.2)
+															)
+													},
+													"trend",
+													"whether a local component should be used for the cluster attribute (might be helpful for regions with different conservation (e.g. introgressions in chromosomes))",
+													true )
 									)
 							},
 							"kmeans",
-							"whether kmeans should be performed for each input file and the cluster with the largest mean distance to the origin will be discarded",
+							"whether kmeans should be performed for each input file and clusters with large mean distance to the origin will be discarded",
 							true ),
 					new SimpleParameter(DataType.STRING,"filter","A filter can be applied to transcript predictions to receive only reasonable predictions. The filter is applied to the GFF attributes. "
 							+ "The default filter decides based on the completeness of the prediction (start=='M' and stop=='*') and the relative score (score/aa>=0.75) whether a prediction is used or not. In addition, predictions without score (isNaN(score)) will be used as external annotations do not have the attribute score. "
