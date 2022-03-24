@@ -217,7 +217,7 @@ java -cp GeMoMa-<version>.jar projects.gemoma.CombineCoverageFiles
      <output name> <input0> <input1> ...
 \end{verbatim}
 
-Instead of listing all files, you can also use wildcards, e.g., ERE/*/*.bam, to easily combine individuals files.
+Instead of listing all files, you can also use wildcards to easily combine individual coverage or intron files.
 
 \subsubsection{Search and GeMoMa}
 If you have large data sets, i.e., a large number of lines in the CDS-parts file, you can split the job in several independent jobs. Splitting the job can be done using
@@ -256,6 +256,8 @@ java -jar GeMoMa-1.7.jar GeMoMaPipeline threads=<threads>
      r=MAPPED ERE.m=AlignedSorted-2pass.bam
 \end{verbatim}
 Runtime was measured with the Linux command \verb+time+.
+The runtime issue for tblastn version 2.6.0 until 2.10.1 has been reported to NCBI (TRACKING:000412000006306). NCBI could reproduce the problem and will hopefully fix it soon.
+
 \begin{table}[ht]\centering
 \begin{tabular}{|r||r|r|r|}
 \hline
@@ -273,9 +275,8 @@ Runtime comparison of the GeMoMaPipeline. The runtime is given using the format 
 The prediction accuracy was identical for the different blast versions and very similar for mmseqs.
 }
 \end{table}
-The runtime issue for tblastn version 2.6.0 until 2.10.1 has been reported to NCBI (TRACKING:000412000006306). NCBI could reproduce the problem and will hopefully fix it soon.
 
-Of course, the runtime also depends on the reference organisms and the size of the target genome.
+Of course, the runtime also depends on the hardware, the reference organisms and the size of the target genome.
 
 
 \subsection{Genome-wide vs. specific genes}

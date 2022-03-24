@@ -279,3 +279,39 @@ GeMoMa 1.8 (07.10.2021)
 	- allow re-start only for same version
 	- improved protocol if threads==1
 - SyntenyChecker: implemented check of regular expression for prefix
+
+GeMoMa 1.9 (XX.XX.XXXX)
+- improved handling of warnings in Galaxy
+- AnnotationFinalizer:
+	- new parameters: transfer features, additional source suffix
+	- changed renaming using regex
+	- adding oldID if renaming IDs 
+	- do not re-sort transcripts of a gene
+- BUSCORecomputer:
+	- add FileExistsValidator
+	- extend to polyploid organisms
+	- new result: BUSCO parsed full table
+	- bugfix last duplicated 
+- CombineCoverageFiles:
+	- make it more memory efficient	
+- CombineIntronFiles:
+	- make it more memory efficient
+- GAF:
+	- new parameters allowing gene set specific kmeans using global or local detrending
+	- new parameter "intermediate result" allowing to retrieve intermediate results
+	- new parameter "length difference" allowing to discard predictions that deviate too much from the representative transcript at a locus
+- GeMoMa:
+	- delete unnecessary parameter "region threshold"
+	- improved verbose output
+- GeMoMaPipeline:
+	- removed long fasta comment parameter 
+	- improved behaviour if errors occur if restart=true 
+	- shifted prefix from GAF to GeMoMa module were possible 
+	- bug fix: SyntenyChecker if assignment is not used 
+- GFFAttributes:
+	- new module that allows to create a simple table with attributes from the features of GFF
+- Extractor:
+	- new category for discarded annotation: non-linear transcripts 
+	- bugfix longest intron=0
+- ExtractRNAseqEvidence:
+	- improved protocol if errors with the repositioning occur 
