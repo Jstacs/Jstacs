@@ -283,30 +283,34 @@ public class SimpleParameter extends Parameter implements GalaxyConvertible {
 		} catch ( Exception e ) {
 			res = false;
 		}
-		if( res  ) {
-			Object value2 = value;
-			if (value instanceof String) {
-				//if (((String) value).length() > 0) {
+		if( res ) {
+			if(validator != null) {
+				Object value2 = value;
+				if (value instanceof String) {
+					//if (((String) value).length() > 0) {
 					try {
 						switch( datatype ) {
-							case BOOLEAN: value2 = new Boolean((String) value); break;
-							case BYTE: value2 = new Byte((String) value); break;
-							case CHAR: value2 = ((String) value).charAt(0); break;
-							case SHORT: value2 = new Short((String) value); break;
-							case INT: value2 = new Integer((String) value); break;
-							case LONG: value2 = new Long((String) value); break;
-							case FLOAT: value2 = new Float((String) value); break;
-							case DOUBLE: value2 = new Double((String) value); break;
-							//other datatypes are not allowed for this class
+						case BOOLEAN: value2 = new Boolean((String) value); break;
+						case BYTE: value2 = new Byte((String) value); break;
+						case CHAR: value2 = ((String) value).charAt(0); break;
+						case SHORT: value2 = new Short((String) value); break;
+						case INT: value2 = new Integer((String) value); break;
+						case LONG: value2 = new Long((String) value); break;
+						case FLOAT: value2 = new Float((String) value); break;
+						case DOUBLE: value2 = new Double((String) value); break;
+						//other datatypes are not allowed for this class
 						}
 					} catch (NumberFormatException e) {
 						errorMessage = "Value is not of the expected format.";
 						return false;
 					}
-			}
+				}
 
-			res = validator.checkValue(value2);
-			errorMessage = validator.getErrorMessage();
+				res = validator.checkValue(value2);
+				errorMessage = validator.getErrorMessage();
+			} else {
+				errorMessage = "";
+			}
 		} else {
 			errorMessage = "The specified value is no " + datatype + ".";
 		}
