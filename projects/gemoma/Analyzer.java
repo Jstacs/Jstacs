@@ -103,7 +103,7 @@ public class Analyzer extends GeMoMaModule {
 		HashMap<String,int[]> attributesTruth = new HashMap<String,int[]>();
 		attributesTruth.put(ALL,new int[1]);
 		ArrayList<String> attTruth = new ArrayList<String>();
-		HashMap<String,HashMap<String,Transcript>> res = readGFF( feature, truth, protocol, attributesTruth, attTruth );
+		HashMap<String,HashMap<String,Transcript>> res = readGFF( feature, truth, protocol, attributesTruth, attTruth, false );
 		HashMap<String,Gene[]> genes = toGenes(res, engine, filter, protocol);
 
 		ArrayList<String> n = new ArrayList<String>();
@@ -125,7 +125,7 @@ public class Analyzer extends GeMoMaModule {
 			HashMap<String,int[]> attributesPrediction = new HashMap<String,int[]>();
 			attributesPrediction.put(ALL,new int[1]);
 			ArrayList<String> attPrediction = new ArrayList<String>();
-			HashMap<String,HashMap<String,Transcript>> prediction = readGFF( feature, predicted, protocol, attributesPrediction, attPrediction );
+			HashMap<String,HashMap<String,Transcript>> prediction = readGFF( feature, predicted, protocol, attributesPrediction, attPrediction, false );
 			
 			//compare
 			protocol.append("comparing true and predicted annotation\n");
@@ -555,7 +555,7 @@ public class Analyzer extends GeMoMaModule {
 		return sortedGenes;
 	}
 
-	public HashMap<String,HashMap<String,Transcript>> readGFF( String feature, String fName, Protocol protocol, HashMap<String,int[]> attributes, ArrayList<String> att ) throws IOException {
+	public HashMap<String,HashMap<String,Transcript>> readGFF( String feature, String fName, Protocol protocol, HashMap<String,int[]> attributes, ArrayList<String> att, boolean isGtf ) throws IOException {
 		BufferedReader r = new BufferedReader( Tools.openGzOrPlain(fName) );
 		HashMap<String,HashMap<String,Transcript>> res = new HashMap<String,HashMap<String,Transcript>>();
 		HashMap<String,Transcript> current = new HashMap<String,Transcript>();
@@ -584,18 +584,31 @@ public class Analyzer extends GeMoMaModule {
 				
 				int idx1, idx2;
 				if( relevant ) {
-					idx1 = split[8].indexOf("Parent=")+7;
-					idx2 = split[8].indexOf(';',idx1);
+					if(isGtf) {
+						idx1 = split[8].indexOf("transcript_id ")+14;
+						idx2 = split[8].indexOf(';',idx1);
+					}else {
+						idx1 = split[8].indexOf("Parent=")+7;
+						idx2 = split[8].indexOf(';',idx1);	
+					}
 					if( idx2<0 ) idx2=split[8].length();
 				} else {
-					idx1 = split[8].indexOf("ID=")+3;
-					idx2 = split[8].indexOf(';',idx1);
+					if(isGtf) {
+						idx1 = split[8].indexOf("transcript_id ")+14;
+						idx2 = split[8].indexOf(';',idx1);
+					}else {
+						idx1 = split[8].indexOf("ID=")+3;
+						idx2 = split[8].indexOf(';',idx1);
+					}
 					if( idx2<0 ) idx2=split[8].length();
 				}
 				if( idx1<0 || idx2<0 ) {
 					throw new IllegalArgumentException(line);
 				}
 				String tID = split[8].substring(idx1,idx2);
+				if(isGtf) {
+					tID = tID.trim().replaceAll("^\"", "").replaceAll("\"$", "");
+				}
 				Transcript t = current.get( tID );
 				if( t == null ) {
 					t = new Transcript(split[0], split[6], tID );
@@ -604,7 +617,7 @@ public class Analyzer extends GeMoMaModule {
 				if( relevant ) {
 					t.addFeature(split[3], split[4]);
 				} else {
-					t.addInfo(split[8],attributes,att);
+					t.addInfo(split[8],attributes,att,isGtf);
 				}
 			}
 		}
@@ -635,7 +648,7 @@ public class Analyzer extends GeMoMaModule {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	class Transcript implements Comparable<Transcript> {
+	public class Transcript implements Comparable<Transcript> {
 		String chr, id, parent;
 		char strand;
 		HashMap<String,String> hash;
@@ -662,6 +675,38 @@ public class Analyzer extends GeMoMaModule {
 			reliable=true;
 		}
 
+		public String getChromosome() {
+			return chr;
+		}
+		
+		public String getID() {
+			return id;
+		}
+		
+		public String getParent() {
+			return parent;
+		}
+		
+		public char getStrand() {
+			return strand;
+		}
+		
+		public int getNumberOfParts() {
+			return parts.size();
+		}
+		
+		public int[] getPart(int idx) {
+			return parts.get(idx);
+		}
+		
+		public int getMin() {
+			return min;
+		}
+		
+		public HashMap<String,String> getInfos(){
+			return hash;
+		}
+		
 		public void sortParts() {
 			Collections.sort( parts, IntArrayComparator.comparator[2] );
 		}
@@ -835,7 +880,7 @@ public class Analyzer extends GeMoMaModule {
 			}
 		}
 
-		public void addInfo( String attributes, HashMap<String,int[]> attributesHash, ArrayList<String> att ) {
+		public void addInfo( String attributes, HashMap<String,int[]> attributesHash, ArrayList<String> att, boolean isGtf ) {
 			if( hash!= null || parent != null ) {
 				throw new IllegalArgumentException("Could not set attributes ("+hash+") or parent ("+parent+"): " + attributes );
 			}
@@ -845,28 +890,49 @@ public class Analyzer extends GeMoMaModule {
 			for( String s: split ) {
 				s = s.trim();
 				if( s.length()== 0 ) continue;
-				int index = s.indexOf('=');
+				int index = isGtf ? s.indexOf(' ') : s.indexOf('=');
 				if( index < 0 ) {
 					throw new IllegalArgumentException("Illegal attributes: " + s);
 				}
 				String key = s.substring(0,index);
 				String value = s.substring(index+1);
 				
-				if( key.equals("ID") || key.charAt(0)=='#' ) {
-					//ignore
-				} else if( key.equals("Parent") ) {
-					parent=value;
-				} else {
-					int[] h = attributesHash.get(key);
-					if( h == null ) {
-						h=new int[] {att.size(),0};
-						attributesHash.put(key,h);
-						att.add(key);
-					}
-					h[1]++;
+				if(isGtf) {
+					value = value.trim().replaceAll("^\"", "").replaceAll("\"$", "");
+					if(key.equals("transcript_id")) {
+						//ignore
+					}else if(key.equals("gene_id")) {
+						parent = value;
+					}else {
+						int[] h = attributesHash.get(key);
+						if( h == null ) {
+							h=new int[] {att.size(),0};
+							attributesHash.put(key,h);
+							att.add(key);
+						}
+						h[1]++;
 
-					if( value.length()>100 ) value="<TOO_LONG>";
-					hash.put(key, value);
+						if( value.length()>100 ) value="<TOO_LONG>";
+						hash.put(key, value);
+					}
+				}else {
+
+					if( key.equals("ID") || key.charAt(0)=='#' ) {
+						//ignore
+					} else if( key.equals("Parent") ) {
+						parent=value;
+					} else {
+						int[] h = attributesHash.get(key);
+						if( h == null ) {
+							h=new int[] {att.size(),0};
+							attributesHash.put(key,h);
+							att.add(key);
+						}
+						h[1]++;
+
+						if( value.length()>100 ) value="<TOO_LONG>";
+						hash.put(key, value);
+					}
 				}
 			}
 		}
