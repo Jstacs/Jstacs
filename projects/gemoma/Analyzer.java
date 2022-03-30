@@ -640,8 +640,9 @@ public class Analyzer extends GeMoMaModule {
 		HashMap<String,Transcript> current = new HashMap<String,Transcript>();
 		String line;
 		String[] split;
+		boolean first = true, isGtf=false;
 		while( (line=r.readLine()) != null ) {
-			if( line.equalsIgnoreCase("##FASTA") ) {//http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
+			if( !isGtf && line.equalsIgnoreCase("##FASTA") ) {//http://gmod.org/wiki/GFF3#GFF3_Sequence_Section 
 				protocol.append("Stop reading the annotation file because of '##FASTA'\n"); 
 				break;  
 			}
@@ -650,6 +651,12 @@ public class Analyzer extends GeMoMaModule {
 			split = line.split("\t");
 			if( split.length!=9 ) {
 				throw new IllegalArgumentException("This line does not seem to be a valid (tab-delimited) line of the annotation with 9 columns: " + line);
+			}
+			
+			if( first ) {
+				isGtf = split[8].indexOf('=')<0;//!( split[8].indexOf(tID)>=0 && split[8].indexOf(gID)>=0 );
+				protocol.append("detected annotation format: " + (isGtf?"GTF":"GFF") + "\n");
+				first = false;
 			}
 			
 			boolean relevant = split[2].equals(feature);
@@ -663,18 +670,31 @@ public class Analyzer extends GeMoMaModule {
 				
 				int idx1, idx2;
 				if( relevant ) {
-					idx1 = split[8].indexOf("Parent=")+7;
-					idx2 = split[8].indexOf(';',idx1);
+					if(isGtf) {
+						idx1 = split[8].indexOf("transcript_id ")+14;
+						idx2 = split[8].indexOf(';',idx1);
+					}else {
+						idx1 = split[8].indexOf("Parent=")+7;
+						idx2 = split[8].indexOf(';',idx1);	
+					}
 					if( idx2<0 ) idx2=split[8].length();
 				} else {
-					idx1 = split[8].indexOf("ID=")+3;
-					idx2 = split[8].indexOf(';',idx1);
+					if(isGtf) {
+						idx1 = split[8].indexOf("transcript_id ")+14;
+						idx2 = split[8].indexOf(';',idx1);
+					}else {
+						idx1 = split[8].indexOf("ID=")+3;
+						idx2 = split[8].indexOf(';',idx1);
+					}
 					if( idx2<0 ) idx2=split[8].length();
 				}
 				if( idx1<0 || idx2<0 ) {
 					throw new IllegalArgumentException(line);
 				}
 				String tID = split[8].substring(idx1,idx2);
+				if(isGtf) {
+					tID = tID.trim().replaceAll("^\"", "").replaceAll("\"$", "");
+				}
 				Transcript t = current.get( tID );
 				if( t == null ) {
 					t = new Transcript(split[0], split[6], tID );
@@ -683,7 +703,7 @@ public class Analyzer extends GeMoMaModule {
 				if( relevant ) {
 					t.addFeature(split[3], split[4]);
 				} else {
-					t.addInfo(split[8],attributes,att);
+					t.addInfo(split[8],attributes,att,isGtf);
 				}
 			}
 		}
@@ -714,7 +734,7 @@ public class Analyzer extends GeMoMaModule {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	class Transcript implements Comparable<Transcript> {
+	public class Transcript implements Comparable<Transcript> {
 		String chr, id, parent;
 		char strand;
 		HashMap<String,String> hash;
@@ -741,6 +761,38 @@ public class Analyzer extends GeMoMaModule {
 			reliable=true;
 		}
 
+		public String getChromosome() {
+			return chr;
+		}
+		
+		public String getID() {
+			return id;
+		}
+		
+		public String getParent() {
+			return parent;
+		}
+		
+		public char getStrand() {
+			return strand;
+		}
+		
+		public int getNumberOfParts() {
+			return parts.size();
+		}
+		
+		public int[] getPart(int idx) {
+			return parts.get(idx);
+		}
+		
+		public int getMin() {
+			return min;
+		}
+		
+		public HashMap<String,String> getInfos(){
+			return hash;
+		}
+		
 		public void sortParts() {
 			Collections.sort( parts, IntArrayComparator.comparator[2] );
 		}
@@ -923,7 +975,7 @@ public class Analyzer extends GeMoMaModule {
 			}
 		}
 
-		public void addInfo( String attributes, HashMap<String,int[]> attributesHash, ArrayList<String> att ) {
+		public void addInfo( String attributes, HashMap<String,int[]> attributesHash, ArrayList<String> att, boolean isGtf ) {
 			if( hash!= null || parent != null ) {
 				throw new IllegalArgumentException("Could not set attributes ("+hash+") or parent ("+parent+"): " + attributes );
 			}
@@ -933,28 +985,49 @@ public class Analyzer extends GeMoMaModule {
 			for( String s: split ) {
 				s = s.trim();
 				if( s.length()== 0 ) continue;
-				int index = s.indexOf('=');
+				int index = isGtf ? s.indexOf(' ') : s.indexOf('=');
 				if( index < 0 ) {
 					throw new IllegalArgumentException("Illegal attributes: " + s);
 				}
 				String key = s.substring(0,index);
 				String value = s.substring(index+1);
 				
-				if( key.equals("ID") || key.charAt(0)=='#' ) {
-					//ignore
-				} else if( key.equals("Parent") ) {
-					parent=value;
-				} else {
-					int[] h = attributesHash.get(key);
-					if( h == null ) {
-						h=new int[] {att.size(),0};
-						attributesHash.put(key,h);
-						att.add(key);
-					}
-					h[1]++;
+				if(isGtf) {
+					value = value.trim().replaceAll("^\"", "").replaceAll("\"$", "");
+					if(key.equals("transcript_id")) {
+						//ignore
+					}else if(key.equals("gene_id")) {
+						parent = value;
+					}else {
+						int[] h = attributesHash.get(key);
+						if( h == null ) {
+							h=new int[] {att.size(),0};
+							attributesHash.put(key,h);
+							att.add(key);
+						}
+						h[1]++;
 
-					if( value.length()>100 ) value="<TOO_LONG>";
-					hash.put(key, value);
+						if( value.length()>100 ) value="<TOO_LONG>";
+						hash.put(key, value);
+					}
+				}else {
+
+					if( key.equals("ID") || key.charAt(0)=='#' ) {
+						//ignore
+					} else if( key.equals("Parent") ) {
+						parent=value;
+					} else {
+						int[] h = attributesHash.get(key);
+						if( h == null ) {
+							h=new int[] {att.size(),0};
+							attributesHash.put(key,h);
+							att.add(key);
+						}
+						h[1]++;
+
+						if( value.length()>100 ) value="<TOO_LONG>";
+						hash.put(key, value);
+					}
 				}
 			}
 		}
