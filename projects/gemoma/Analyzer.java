@@ -612,7 +612,7 @@ public class Analyzer extends GeMoMaModule {
 			sortedGenes.put( key, dedup.toArray(new Gene[0]) );
 			//System.out.println(key + "\t" + gArray.length );
 		}
-		if( duplicate>0 ) protocol.append("removed " + duplicate + " duplicates\n\n" );
+		if( duplicate>0 ) protocol.append("removed " + duplicate + " duplicates" + (onlyIntrons?" and single-exon features":"") + "\n\n" );
 		//System.out.println(key + "\t" + gArray.length );
 		return sortedGenes;
 	}
