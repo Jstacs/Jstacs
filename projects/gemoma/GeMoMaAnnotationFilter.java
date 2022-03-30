@@ -256,7 +256,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				quantile = (Double) ps.getParameterForName("quantile").getValue();
 			}
 		}
-
+		
 		boolean kmeans = cluster>0;
 			    
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("predicted annotation").getValue();
