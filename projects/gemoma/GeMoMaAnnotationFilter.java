@@ -212,52 +212,51 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		double lenPerc = d==null ? Double.POSITIVE_INFINITY : d;
 
 		String altFilter = Tools.prepareFilter( (String) parameters.getParameterForName("alternative transcript filter").getValue() );
-		pa = parameters.getParameterForName( "add alternative transcripts" );
-		boolean addAltTransIDs = pa==null ? false : (Boolean) pa.getValue();
-		pa = parameters.getParameterForName( "transfer features" );
-		boolean addAdd= pa==null ? false : (Boolean) pa.getValue();
+		boolean addAltTransIDs = (Boolean) getParameter( parameters, "add alternative transcripts" ).getValue();
+		boolean addAdd = (Boolean) getParameter( parameters, "transfer features" ).getValue();
 		
-		pa = parameters.getParameterForName( "kmeans" );
-		int cluster=0, good = 0;
+		pa = getParameter( parameters, "kmeans" );
+		int minNum=0, cluster=0, good = 0;
 		String[] ex = null;
 		int margin=-1;
 		double quantile=-1;
-		if( pa!=null ) {
-			ParameterSet ps = (ParameterSet) pa.getValue();
+		
+		ParameterSet ps = (ParameterSet) pa.getValue();
+		if( ps.getNumberOfParameters()>0 ) {
+			minNum = (Integer) ps.getParameterForName("minimal number of predictions").getValue();
+			pa = ps.getParameterForName("cluster");
+			if( pa != null ) {
+				cluster = (Integer) pa.getValue();
+			}
+			pa = ps.getParameterForName("good cluster");
+			if( pa != null ) {
+				good = (Integer) pa.getValue();
+			}
+			if( good >= cluster ) {
+				throw new IllegalArgumentException("The number of good clusters must be smaller than the total number of clusters");
+			}
+			
+			/*
+			ExpandableParameterSet att = (ExpandableParameterSet) ps.getParameterForName("cluster attribute").getValue();
+			ex = new String[att.getNumberOfParameters()];
+			for( int j = 0; j < ex.length; j++ ) {
+				ex[j] = ((SimpleParameterSet) att.getParameterAt(j).getValue()).getParameterAt(0).getValue().toString();
+			}
+			*/
+			ex = new String[]{
+					//"Math.abs(maxScore-Math.max(0,score))/maxScore"
+					//to be tested: 
+					"Math.max(0,1 - Math.max(0,score)/maxScore)"
+			};
+			
+			ps = (ParameterSet) ps.getParameterForName("trend").getValue();
 			if( ps.getNumberOfParameters()>0 ) {
-				pa = ps.getParameterForName("cluster");
-				if( pa != null ) {
-					cluster = (Integer) pa.getValue();
-				}
-				pa = ps.getParameterForName("good cluster");
-				if( pa != null ) {
-					good = (Integer) pa.getValue();
-				}
-				if( good >= cluster ) {
-					throw new IllegalArgumentException("The number of good clusters must be smaller than the total number of clusters");
-				}
-				
-				/*
-				ExpandableParameterSet att = (ExpandableParameterSet) ps.getParameterForName("cluster attribute").getValue();
-				ex = new String[att.getNumberOfParameters()];
-				for( int j = 0; j < ex.length; j++ ) {
-					ex[j] = ((SimpleParameterSet) att.getParameterAt(j).getValue()).getParameterAt(0).getValue().toString();
-				}
-				*/
-				ex = new String[]{
-						//"Math.abs(maxScore-Math.max(0,score))/maxScore"
-						//to be tested: 
-						"Math.max(0,1 - Math.max(0,score)/maxScore)"
-				};
-				
-				ps = (ParameterSet) ps.getParameterForName("trend").getValue();
-				if( ps.getNumberOfParameters()>0 ) {
-					//local
-					margin = (Integer) ps.getParameterForName("margin").getValue();
-					quantile = (Double) ps.getParameterForName("quantile").getValue();
-				}
+				//local
+				margin = (Integer) ps.getParameterForName("margin").getValue();
+				quantile = (Double) ps.getParameterForName("quantile").getValue();
 			}
 		}
+
 		boolean kmeans = cluster>0;
 			    
 		ExpandableParameterSet eps = (ExpandableParameterSet) parameters.getParameterForName("predicted annotation").getValue();
@@ -392,7 +391,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 			}
 			
 			//ML-filter of predictions
-			if( kmeans ) {
+			if( kmeans && list.size() >= minNum ) {
 				Collections.sort(list);
 				double[][] matrix = new double[list.size()][ex.length];
 				boolean anyNAN = false;
@@ -433,16 +432,21 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 								//same predictions lead to same value 
 								quant[i] = quant[i-1];
 							} else {
-								//find quantile between first and last
-								
-								//naive implementation: TODO improve
-								double[] forSorting = new double[last-first];
-								for( int j = first; j < last; j++ ) {
-									forSorting[j-first] = matrix[j][0];
+								if( last-first==1 ) {
+									//only one prediction detrend does not make sense
+									quant[i]=0;
+								} else {
+									//find quantile between first and last
+									
+									//naive implementation: TODO improve
+									double[] forSorting = new double[last-first];
+									for( int j = first; j < last; j++ ) {
+										forSorting[j-first] = matrix[j][0];
+									}
+									Arrays.sort(forSorting);
+									
+									quant[i] = forSorting[ (int) Math.ceil((forSorting.length-1)*quantile) ];
 								}
-								Arrays.sort(forSorting);
-								
-								quant[i] = forSorting[ (int) Math.ceil((forSorting.length-1)*quantile) ];
 							}
 //System.out.println(first + ".." + i + ".."+last + "\t" + quant[i] );
 							
@@ -1306,6 +1310,7 @@ System.out.println();
 							new ParameterSet[] {
 									new SimpleParameterSet(),
 									new SimpleParameterSet( 
+											new SimpleParameter( DataType.INT, "minimal number of predictions", "only gene sets with at least this number of predictions will be used for clustering", true, new NumberValidator<Integer>(0, 100000000), 1000),
 											new SimpleParameter( DataType.INT, "cluster", "the number of clusters to be used for kmeans", true, new NumberValidator<Integer>(2, 100), 2),
 											new SimpleParameter( DataType.INT, "good cluster", "the number of good clusters, good clusters are those with small mean, all members of a good cluster are further used", true, new NumberValidator<Integer>(1, 99), 1),
 											//new ParameterSetContainer( "cluster attribute", "", attribute )
@@ -1315,7 +1320,7 @@ System.out.println();
 															new SimpleParameterSet(),
 															new SimpleParameterSet( 
 																	new SimpleParameter( DataType.INT, "margin", "the number of bp upstream and downstream of a predictions used to identify neighboring predictions for the statistics", true, new NumberValidator<Integer>(0, 100000000), 1000000),
-																	new SimpleParameter( DataType.INT, "quantile", "the quantile used for the local trend", true, new NumberValidator<Double>(0d,1d), 0.2)
+																	new SimpleParameter( DataType.DOUBLE, "quantile", "the quantile used for the local trend", true, new NumberValidator<Double>(0d,1d), 0.2)
 															)
 													},
 													"trend",
