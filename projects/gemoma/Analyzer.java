@@ -1241,10 +1241,10 @@ public class Analyzer extends GeMoMaModule {
 	public ToolParameterSet getToolParameters() {
 		try{
 			return new ToolParameterSet( getToolName(),
-				new FileParameter("truth", "the true annotation", "gff,gff3,gff.gz,gff3.gz", true, new FileExistsValidator()),
+				new FileParameter("truth", "the true annotation", "gff,gff3,gtf,gff.gz,gff3.gz,gtf.gz", true, new FileExistsValidator()),
 				new ParameterSetContainer( "prediction", "", new ExpandableParameterSet( new SimpleParameterSet(		
 						new SimpleParameter(DataType.STRING,"name", "can be used to distinguish different predictions", false, new RegExpValidator("\\S*") ),
-						new FileParameter( "predicted annotation", "GFF file containing the predicted annotation", "gff,gff3,gff.gz,gff3.gz",  true, new FileExistsValidator(), true )
+						new FileParameter( "predicted annotation", "GFF/GTF file containing the predicted annotation", "gff,gff3,gtf,gff.gz,gff3.gz,gtf.gz",  true, new FileExistsValidator(), true )
 					), "gene annotations", "", 1 ) ),
 				//new FileParameter("prediction", "the predicted annotation", "gff,gff3", true, new FileExistsValidator()),
 				new SimpleParameter( DataType.BOOLEAN, "CDS", "if true CDS features are used otherwise exon features", true, true),
