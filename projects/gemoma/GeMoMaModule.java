@@ -18,6 +18,8 @@
 
 package projects.gemoma;
 
+import de.jstacs.parameters.Parameter;
+import de.jstacs.parameters.ParameterSet;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
@@ -34,7 +36,7 @@ import de.jstacs.tools.ToolResult;
  */
 public abstract class GeMoMaModule implements JstacsTool {
 
-	public static final String VERSION = "1.8";
+	public static final String VERSION = "1.9";
 	
 	public static final String INFO = "#SOFTWARE INFO: ";
 
@@ -93,4 +95,27 @@ public abstract class GeMoMaModule implements JstacsTool {
 	}
 
 	public abstract ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception;
+	
+	/**
+	 * Returns the requested parameter from user-given {@link ToolParameterSet}.
+	 * If the user-given {@link ToolParameterSet} does not contain such a parameter, it is retrieved from the default {@link ToolParameterSet}.
+	 * This method is especially useful for test cases if a new {@link Parameter} is introduced to a new version of a tool.
+	 * 
+	 * @param given the user given parameter set
+	 * @param parameterName the name of the requested parameter
+	 * 
+	 * @return the requested parameter
+	 * 
+	 * @throws Exception if the default parameters cannot be created
+	 * 
+	 * @see #getToolParameters()
+	 * @see #getTestCases(String)
+	 */
+	public Parameter getParameter( ToolParameterSet given, String parameterName ) throws Exception {
+		Parameter p = given.getParameterForName( parameterName );
+		if( p == null ) {
+			p = getToolParameters().getParameterForName( parameterName );
+		}
+		return p;
+	}
 }

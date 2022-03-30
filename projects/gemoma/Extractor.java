@@ -114,8 +114,7 @@ public class Extractor extends GeMoMaModule {
 		boolean stopCodonEx = (Boolean) parameters.getParameterForName("stop-codon excluded from CDS").getValue();
 		boolean fullLength = (Boolean) parameters.getParameterForName("full-length").getValue();
 		boolean verbose = (Boolean) parameters.getParameterForName("verbose").getValue();
-		p = parameters.getParameterForName("long fasta comment");
-		boolean longComment = p==null ? false : (Boolean) p.getValue();
+		boolean longComment = (Boolean) getParameter(parameters, "long fasta comment").getValue();
 		rep = (Boolean) parameters.getParameterForName("repair").getValue();
 		
 		ArrayList<File> file = new ArrayList<File>();
