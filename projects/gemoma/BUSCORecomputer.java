@@ -26,7 +26,6 @@ import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
-import de.jstacs.tools.JstacsTool.ResultEntry;
 
 /**
  * The {@link BUSCORecomputer} allows to compute BUSCO statistics based on genes rather than on transcripts.
