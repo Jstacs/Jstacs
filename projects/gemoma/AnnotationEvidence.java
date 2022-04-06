@@ -383,7 +383,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 			return new ToolParameterSet( getShortName(),
 					new FileParameter( "annotation", "The genome annotation file (GFF,GTF)", "gff,gff3,gtf,gff.gz,gff3.gz,gtf.gz", true, new FileExistsValidator(), true ),
 					new SimpleParameter( DataType.STRING, "tag", "A user-specified tag for transcript predictions in the third column of the returned gff. It might be beneficial to set this to a specific value for some genome browsers.", true, GeMoMa.TAG ),
-					new FileParameter( "genome", "The genome file (FASTA), i.e., the target sequences in the blast run. Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
+					new FileParameter( "genome", "The target genome file (FASTA). Should be in IUPAC code", "fasta,fas,fa,fna,fasta.gz,fas.gz,fa.gz,fna.gz", true, new FileExistsValidator(), true ),
 					new ParameterSetContainer( "introns", "", new ExpandableParameterSet( new SimpleParameterSet(	
 							new FileParameter( "introns file", "Introns (GFF), which might be obtained from RNA-seq", "gff,gff3", false, new FileExistsValidator(), true )
 						), "introns", "", 1 ) ),
