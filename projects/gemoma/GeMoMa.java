@@ -185,6 +185,7 @@ public class GeMoMa extends GeMoMaModule {
 	
 	private int MAX_INTRON_LENGTH;//the maximal intron length used in the DP to determine possible connections
 	private int INTRON_GAIN_LOSS;
+	private int REDUCTION_FACTOR;
 	
 	private boolean approx;
 	private boolean avoidPrematureStop; // avoid premature STOP codons in gene models?
@@ -868,6 +869,7 @@ public class GeMoMa extends GeMoMaModule {
 		
 		MAX_INTRON_LENGTH = (Integer) parameters.getParameterForName( "maximum intron length" ).getValue();
 		boolean staticIntronLength = (Boolean) parameters.getParameterForName( "static intron length" ).getValue();
+		REDUCTION_FACTOR = (Integer) getParameter(parameters, "reduction factor").getValue();
 		eValue = (Double) parameters.getParameterForName( "e-value" ).getValue();
 		contigThreshold = (Double) parameters.getParameterForName( "contig threshold" ).getValue();
 		hitThreshold = (Double) parameters.getParameterForName( "hit threshold" ).getValue();
@@ -3558,7 +3560,7 @@ public class GeMoMa extends GeMoMaModule {
 				dir=1;
 				end = currentInfo.exonID.length;
 			}
-			int d = maxAllowedIntron/10, f=0;
+			int d = maxAllowedIntron, f=0;
 			int startIndex, a = (upstream?0:d), stop;
 			ArrayList<Hit> current;
 			int[][] array = null;
@@ -4764,6 +4766,7 @@ if( !help.equals(help2) ) {
 							+ "dynamic intron length, which is based on the gene-specific maximum intron length in the reference organism plus the user given maximum intron length"
 							, true, true ),
 					new SimpleParameter( DataType.INT, "intron-loss-gain-penalty", "The penalty used for intron loss and gain", true, 25 ),
+					new SimpleParameter( DataType.INT, "reduction factor", "Factor for reducing the allowed intron length when searching for missing marginal exons", true, 10 ),
 			
 					new SimpleParameter( DataType.DOUBLE, "e-value", "The e-value for filtering blast results", true, 1E2 ),
 					new SimpleParameter( DataType.DOUBLE, "contig threshold", "The threshold for evaluating contigs", true, new NumberValidator<Double>(0d, 1d), 0.4 ),
