@@ -1,17 +1,5 @@
 package projects.tals.epigenetic;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.zip.GZIPInputStream;
-
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.SamplingHMMTrainingParameterSet;
-import sun.security.util.Length;
-
 public class Methylationprofil {
 
 	private int startPos;
