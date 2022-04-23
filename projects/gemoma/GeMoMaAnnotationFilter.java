@@ -63,7 +63,6 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import de.jstacs.utils.SafeOutputStream;
-import projects.gemoma.old.GeMoMa;
 
 /**
  * This class allows to filter GeMoMa annotation files (GFFs) to obtain the most relevant predictions.
