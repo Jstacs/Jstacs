@@ -40,7 +40,6 @@ import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
 import de.jstacs.utils.random.FastDirichletMRGParams;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Class for a sparse local inhomogeneous mixture (Slim) model.
@@ -649,7 +648,7 @@ public class LimitedSparseLocalInhomogeneousMixtureDiffSM_higherOrder extends Ab
 	
 	public boolean[][] getInfixFilter( int kmer, double thresh, int... start ) {
 		if( order > 1 ) {
-			throw new NotImplementedException();
+			throw new RuntimeException("Not implemented");
 		}
 		
 		double[][] val = getCum_Complex(kmer);
