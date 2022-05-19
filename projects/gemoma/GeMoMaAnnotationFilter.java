@@ -338,7 +338,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				if( t.equals("gene") ) {
 					//TODO WARNING
 				} else if( t.equals(tag) ) { //tag: prediction/mRNA/transcript
-					current = new Prediction(split, MAX, k, prefix[k], annotInfo, go, defline, defAttributes);
+					current = new Prediction(split, MAX, k, prefix[k], del, annotInfo, go, defline, defAttributes);
 					if( ids.contains( current.id ) ) {
 						//System.out.println(line);
 						//System.out.println(current);
@@ -847,7 +847,11 @@ System.out.println();
 		HashSet<String> gos, defl;
 		Comparable[] comp;
 		
-		public Prediction( String[] split, int max, int index, String prefix, HashMap<String,String[]> annotInfo, int go, int defline, String[] defAttributes ) {
+		public Prediction( String[] split, int max, int index, String prefix, HashMap<String, int[]> del ) {
+			this(split, max, index, prefix, del, null, -1, -1, null);
+		}
+		
+		public Prediction( String[] split, int max, int index, String prefix, HashMap<String,int[]> del, HashMap<String,String[]> annotInfo, int go, int defline, String[] defAttributes ) {
 			evidence=new boolean[max];
 			Arrays.fill(evidence, false);
 			evidence[index]=true;
@@ -908,14 +912,16 @@ System.out.println();
 			}
 			
 			//avoid Exceptions with filter conditions that access attributes that are not defined
+			if( defAttributes!= null ) {
 			String nan= "" + Double.NaN;
 			for( int i = 0; i <defAttributes.length; i++ ) {
 				if( defAttributes[i] != null ) {
 					if( !hash.containsKey(defAttributes[i]) ) hash.put(defAttributes[i], nan);
 				}
 			}
+			}
 			
-			if( annotInfo.size()>0 ) {
+			if( annotInfo!= null && annotInfo.size()>0 ) {
 				gos = new HashSet<String>();
 				defl = new HashSet<String>();
 
@@ -946,6 +952,14 @@ System.out.println();
 			alternative = new HashSet<String>();
 			alternativeTranscript = new HashSet<String>();
 			add=null;
+		}
+		
+		public int getIndex() {
+			int i = 0; 
+			while( i < evidence.length && !evidence[i] ) {
+				i++;
+			}
+			return i;
 		}
 		
 		void addAdd( String line ) {
