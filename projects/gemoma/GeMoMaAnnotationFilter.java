@@ -188,6 +188,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String tempD) throws Exception {
+		gene=h=0;
 		String tag = parameters.getParameterForName("tag").getValue().toString();
 		int maxTranscripts = (Integer) parameters.getParameterForName("maximal number of transcripts per gene").getValue();
 		double cbTh = (Double) parameters.getParameterForName("common border filter").getValue();
@@ -600,7 +601,7 @@ System.out.println();
 					if( !sos.doesNothing() ) {
 						for( Prediction p : pred ) {
 							anno.delete(0, anno.length());
-							p.write(anno, null);
+							p.write(anno, null, gene);
 							sos.write(anno);
 						}
 					}
@@ -637,12 +638,12 @@ System.out.println();
 		return new ToolResult("", "", null, new ResultSet(res), parameters, getToolName(), new Date());
 	}	
 	
-	static int h = 0;
+	int h;
 	int transcripts=0;
 	int[] clustered = new int[1];
 	
 	static int[][] stats;
-	static int gene=0;
+	int gene;
 	
 	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, UserSpecifiedComparator comp, ScriptEngine engine, double lenPerc, String altFilter, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
 		int i = 0;
@@ -761,7 +762,7 @@ System.out.println();
 			anno.delete(0, anno.length());
 			for( ; i < selection.size() && i < maxTranscripts; i++ ) {
 				n = selection.get(i);
-				n.write(anno, protocol);
+				n.write(anno, protocol, gene);
 				
 				start = Math.min(start, addAdd ? Integer.parseInt(n.split[3]) : n.start);
 				end = Math.max(end, addAdd ? Integer.parseInt(n.split[4]) : n.end );
@@ -1057,7 +1058,7 @@ System.out.println();
 			}
 		}
 		
-		public void write( StringBuffer w, Protocol p ) throws IOException, NumberFormatException, ScriptException {			
+		public void write( StringBuffer w, Protocol p, int gene ) throws IOException, NumberFormatException, ScriptException {			
 			int count = Integer.parseInt(hash.get("evidence"));
 			String we = hash.get("sumWeight");
 			String t = hash.get("tie");
