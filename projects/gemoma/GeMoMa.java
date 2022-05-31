@@ -191,6 +191,7 @@ public class GeMoMa extends GeMoMaModule {
 	private boolean avoidPrematureStop; // avoid premature STOP codons in gene models?
 	private double eValue;// the e-value for filtering search hits
 	private int predictions;//how many predictions should be made
+	private double factor;
 	
 	private static final int MIN_INTRON_LENGTH = 30;//the minimal intron length used in the DP to determine possible connections between hits of the same query exon
 	private static final int MAX_GAP = 5;
@@ -874,7 +875,21 @@ public class GeMoMa extends GeMoMaModule {
 		contigThreshold = (Double) parameters.getParameterForName( "contig threshold" ).getValue();
 		hitThreshold = (Double) parameters.getParameterForName( "hit threshold" ).getValue();
 		
-		predictions = (Integer) parameters.getParameterForName( "predictions" ).getValue();
+		factor=-1;
+		predictions=-1;
+		Parameter p = parameters.getParameterForName( "output" );
+		if( p instanceof SimpleParameter ) {
+			predictions = (Integer) p.getValue();
+		} else {
+			p = ((SimpleParameterSet) ((SelectionParameter) p).getValue()).getParameterAt(0);
+			
+			if( p.getName().equals("factor") ) {
+				factor = (Double) p.getValue();
+			} else {
+				predictions = (Integer) p.getValue();
+			}
+		}
+		
 		gapOpening = (Integer) parameters.getParameterForName("gap opening").getValue();
 		gapExtension = (Integer) parameters.getParameterForName("gap extension").getValue();
 		INTRON_GAIN_LOSS = (Integer) parameters.getParameterForName("intron-loss-gain-penalty").getValue();
@@ -909,7 +924,7 @@ public class GeMoMa extends GeMoMaModule {
 
 		aaAlphabet=new DiscreteAlphabet(true,abc2);
 		
-		Parameter p = parameters.getParameterForName("replace unknown");
+		p = parameters.getParameterForName("replace unknown");
 		unknown = (p!= null && (Boolean) p.getValue()) ? 'X' : null;
 		
 		alph = new AlphabetContainer(aaAlphabet);
@@ -2563,10 +2578,23 @@ public class GeMoMa extends GeMoMaModule {
 						maxScore -= matrix[idx][idx];
 					}
 				}
-				int counts = 0;
+				int counts = 0, i=0;
 				int bestScore=Integer.MIN_VALUE;
-				for( int i = 0; i < predictions && result.size()>0; i++ ) {
-					Solution best = result.poll();
+				double th=Double.POSITIVE_INFINITY;
+				while( this.result.size() > 0) {
+	                Solution best = this.result.poll();
+					if( i == 0 ) {
+						bestScore=best.score;
+						th = factor * Math.max(0, bestScore); 
+					}
+					
+					//stop criteria
+					if( (predictions>=0 && i >= predictions) //static
+							|| ( factor>=0 &&  best.score<th ) //dynamic
+					) {
+						break;
+					}
+					
 					if( best.hits.size() > 0 ) {
 						counts++;
 						best = best.refine(transcriptName);
@@ -2607,34 +2635,23 @@ public class GeMoMa extends GeMoMaModule {
 							psa = align.getAlignment(AlignmentType.GLOBAL, Sequence.create(alph, protein), Sequence.create(alph, pred) );
 							s0 = psa.getAlignedString(0);
 							s1 = psa.getAlignedString(1);
-							
+
 							for( int p = 0; p < s1.length(); p++ ) {
-								if( s0.charAt(p) == '-' ) {
-									if( gap != 0 ) {
+								char c0 = s0.charAt(p), c1 = s1.charAt(p); 
+								if( c0 == '-' || c1 == '-' ) { //gap
+									int idx = c0=='-' ? 0 : 1;
+									if( gap != idx ) {
 										if( currentGap > maxGap ) {
 											maxGap = currentGap;
 										}
-										gap=0;
+										gap=idx;
 										currentGap=0;
 									}
 									currentGap++;
-								} else {
-									if( s1.charAt(p) == '-' ) {
-										if( gap != 1 ) {
-											if( currentGap > maxGap ) {
-												maxGap = currentGap;
-											}
-											gap=1;
-											currentGap=0;
-										}
-										currentGap++;
-									}
-								}
-								if( s0.charAt(p) == '-' || s1.charAt(p) == '-' ) {
+									
 									if( longest < current ) longest=current;
 									current=0;
-								} else {
-									//(mis)match
+								} else { //(mis)match
 									if( gap != -1 ) {
 										if( currentGap > maxGap ) {
 											maxGap = currentGap;
@@ -2642,12 +2659,12 @@ public class GeMoMa extends GeMoMaModule {
 										gap=-1;
 										currentGap=0;
 									}
-									if( s1.charAt(p) == s0.charAt(p) ) {
+									if( c0 == c1 ) {
 										id++;
 										pos++;
 										current++;
 									} else {
-										if( matrix[aaAlphabet.getCode(s0.substring(p, p+1))][aaAlphabet.getCode(s1.substring(p, p+1))] > 0 ) {
+										if( matrix[aaAlphabet.getCode(""+c0)][aaAlphabet.getCode(""+c1)] > 0 ) {
 											pos++;
 											current++;
 										} else {
@@ -2657,7 +2674,12 @@ public class GeMoMa extends GeMoMaModule {
 									}
 								}
 							}
-							if( longest < current ) longest=current;
+							if( gap==-1 ) {
+								if( longest < current ) longest=current;
+							} else {
+								if( currentGap > maxGap ) maxGap = currentGap;
+							}
+							
 							if( verbose ) {
 								protocol.append(s0+"\n");
 								protocol.append(s1+"\n");
@@ -2701,6 +2723,10 @@ public class GeMoMa extends GeMoMaModule {
 						
 						gff.flush();
 						//protocol.flush();
+						
+						i++;
+					} else {
+						break; ///TODO?
 					}
 				}
 				if( counts == 0 ) {
@@ -3560,7 +3586,7 @@ public class GeMoMa extends GeMoMaModule {
 				dir=1;
 				end = currentInfo.exonID.length;
 			}
-			int d = maxAllowedIntron, f=0;
+			int d = maxAllowedIntron/REDUCTION_FACTOR, f=0;
 			int startIndex, a = (upstream?0:d), stop;
 			ArrayList<Hit> current;
 			int[][] array = null;
@@ -4766,13 +4792,24 @@ if( !help.equals(help2) ) {
 							+ "dynamic intron length, which is based on the gene-specific maximum intron length in the reference organism plus the user given maximum intron length"
 							, true, true ),
 					new SimpleParameter( DataType.INT, "intron-loss-gain-penalty", "The penalty used for intron loss and gain", true, 25 ),
-					new SimpleParameter( DataType.INT, "reduction factor", "Factor for reducing the allowed intron length when searching for missing marginal exons", true, 10 ),
+					new SimpleParameter( DataType.INT, "reduction factor", "Factor for reducing the allowed intron length when searching for missing marginal exons", true, new NumberValidator<Integer>(1,100), 10 ),
 			
 					new SimpleParameter( DataType.DOUBLE, "e-value", "The e-value for filtering blast results", true, 1E2 ),
 					new SimpleParameter( DataType.DOUBLE, "contig threshold", "The threshold for evaluating contigs", true, new NumberValidator<Double>(0d, 1d), 0.4 ),
 					new SimpleParameter( DataType.DOUBLE, "hit threshold", "The threshold for adding additional hits", true, new NumberValidator<Double>(0d, 1d), 0.9 ),
+
+					new SelectionParameter(DataType.PARAMETERSET, 
+							new String[]{"STATIC", "DYNAMIC"},
+							new Object[]{
+								new SimpleParameterSet(
+										new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 10 )								),
+								new SimpleParameterSet(
+										new SimpleParameter( DataType.DOUBLE, "factor", "a prediction is used if: score >= factor*Math.max(0,bestScore)", true, new NumberValidator<Double>(0d, 1d), 0.8 ) 
+								)
+						},
+						"output", "critierium to determine the number of predictions per reference transcript", true
+					),
 					
-					new SimpleParameter( DataType.INT, "predictions", "The (maximal) number of predictions per transcript", true, 10 ), 
 					new FileParameter( "selected", "The path to list file, which allows to make only a predictions for the contained transcript ids. The first column should contain transcript IDs as given in the annotation. Remaining columns can be used to determine a target region that should be overlapped by the prediction, if columns 2 to 5 contain chromosome, strand, start and end of region", "tabular,txt", maxSize>-1, new FileExistsValidator() ), 
 					new SimpleParameter( DataType.BOOLEAN, "avoid stop", "A flag which allows to avoid (additional) pre-mature stop codons in a transcript", true, true ),
 					new SimpleParameter( DataType.BOOLEAN, "approx", "whether an approximation is used to compute the score for intron gain", true, true ),
