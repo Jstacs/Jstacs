@@ -216,7 +216,7 @@ public class Extractor extends GeMoMaModule {
 			it = acceptor.entrySet().iterator();
 			while( it.hasNext() ) {
 				e = it.next();
-				protocol.append( e.getKey() + "\t" + e.getValue()[0] + "\n");
+				protocol.append( "acceptor\t" + e.getKey() + "\t" + e.getValue()[0] + "\t" + (e.getValue()[0]/(double)a) + "\n");
 			}
 		}
 		if( donor.size() > 0 ) {
@@ -224,7 +224,7 @@ public class Extractor extends GeMoMaModule {
 			it = donor.entrySet().iterator();
 			while( it.hasNext() ) {
 				e = it.next();
-				protocol.append( e.getKey() + "\t" + e.getValue()[0] + "\n");
+				protocol.append( "donor\t" + e.getKey() + "\t" + e.getValue()[0] + "\t" + (e.getValue()[0]/(double)d) + "\n");
 			}
 		}
 		
@@ -903,6 +903,7 @@ public class Extractor extends GeMoMaModule {
 	IntList message = new IntList();
 	HashMap<String, int[]> donor, acceptor;
 	HashMap<Integer,int[]> count;
+	int a=0, d=0;
 	
 	int transcript(StringBuffer seq, boolean stopCodonEx, String chr, Gene gene, String trans, int s, boolean[][] splits, boolean fullLength, int[] info, Ambiguity ambi, HashMap<String,Character> code, Protocol protocol,boolean verbose, boolean[] used, String[] acc, String[] don, boolean discardPreMatureStop, boolean longComment ) throws IOException {
 		int j;
@@ -1170,6 +1171,7 @@ public class Extractor extends GeMoMaModule {
 								acceptor.put(acc[pa], stat);
 							}
 							stat[0]++;
+							a++;
 						}
 						if( j+1<il.length() && don[pa].length() > 0 ) {
 							int[] stat = donor.get(don[pa]);
@@ -1178,6 +1180,7 @@ public class Extractor extends GeMoMaModule {
 								donor.put(don[pa], stat);
 							}
 							stat[0]++;
+							d++;
 						}
 					}
 				}
