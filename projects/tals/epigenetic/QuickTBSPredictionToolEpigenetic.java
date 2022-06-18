@@ -15,12 +15,10 @@ import java.util.Random;
 
 import de.jstacs.DataType;
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.DNADataSet;
 import de.jstacs.data.DiscreteSequenceEnumerator;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.sequences.Sequence;
-import de.jstacs.data.sequences.annotation.SimpleSequenceAnnotationParser;
 import de.jstacs.io.FileManager;
 import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.FileParameter.FileRepresentation;
@@ -51,8 +49,7 @@ import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.util.RuntimeEOFException;
 import projects.tals.RVDSequence;
-import projects.tals.prediction.QuickTBSPredictionTool;
-import umontreal.iro.lecuyer.probdist.NormalDist;
+import umontreal.ssj.probdist.NormalDist;
 
 public class QuickTBSPredictionToolEpigenetic implements JstacsTool {
 

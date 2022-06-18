@@ -4,7 +4,6 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
-import umontreal.iro.lecuyer.util.Num;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
@@ -27,6 +26,7 @@ import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.ToolBox;
 import de.jstacs.utils.random.DirichletMRG;
 import de.jstacs.utils.random.DirichletMRGParams;
+import umontreal.ssj.util.Num;
 
 
 public class DirichletDiffSM extends AbstractDifferentiableStatisticalModel {

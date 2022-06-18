@@ -12,7 +12,7 @@ import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDiffere
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.random.RandomNumberGenerator;
-import umontreal.iro.lecuyer.util.Num;
+import umontreal.ssj.util.Num;
 
 public class PoissonDiffSM extends AbstractDifferentiableStatisticalModel {
 

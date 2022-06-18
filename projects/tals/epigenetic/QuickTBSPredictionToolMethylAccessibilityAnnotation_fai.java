@@ -48,8 +48,7 @@ import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.util.RuntimeEOFException;
 import projects.tals.RVDSequence;
-import projects.tals.prediction.QuickTBSPredictionTool;
-import umontreal.iro.lecuyer.probdist.NormalDist;
+import umontreal.ssj.probdist.NormalDist;
 
 public class QuickTBSPredictionToolMethylAccessibilityAnnotation_fai implements JstacsTool {
 

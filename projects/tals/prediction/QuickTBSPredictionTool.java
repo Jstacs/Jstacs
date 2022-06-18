@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,10 +49,8 @@ import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.util.RuntimeEOFException;
 import projects.tals.RVDSequence;
-import projects.tals.ScanForTBSCLI;
 import projects.tals.linear.LFModularConditional9C;
-import projects.tals.rnaseq.DerTALE;
-import umontreal.iro.lecuyer.probdist.NormalDist;
+import umontreal.ssj.probdist.NormalDist;
 
 public class QuickTBSPredictionTool implements JstacsTool {
 
@@ -312,6 +309,13 @@ public class QuickTBSPredictionTool implements JstacsTool {
 				tals.add(temp);
 			}else{
 				tals.getLast()[0] += str;
+				if(tals.getLast()[0].indexOf("-")<0) {
+					throw new IOException("Malformed TALE sequence; use dashes to separate RVDs");
+				}
+				if(tals.getLast()[0].length()>500) {
+					throw new IOException("Malformed TALE sequence; more than 150 RVDs per TALE not allowed");
+				}
+				
 			}
 		}
 		read.close();
@@ -464,6 +468,7 @@ public class QuickTBSPredictionTool implements JstacsTool {
 								ResultSet rs = new ResultSet(new Result[]{
 										new CategoricalResult("Seq-ID", "", id),
 										new NumericalResult("Position", "",(d==0 ? off+j : off+sl-j-ml) ),
+										new NumericalResult("Distance to end", "",seq.getLength()-(d==0 ? off+j+ml : off+sl-j) ),
 										new CategoricalResult("Strand","",d==0 ? "+" : "-"),
 										new NumericalResult("Score", "", score),
 										new CategoricalResult("Sequence", "", seq.toString(j, j+model.getLength())),

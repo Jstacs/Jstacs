@@ -18,7 +18,7 @@ import de.jstacs.io.SparseStringExtractor;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.AbstractDifferentiableStatisticalModel;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
-import umontreal.iro.lecuyer.util.Num;
+import umontreal.ssj.util.Num;
 
 public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 

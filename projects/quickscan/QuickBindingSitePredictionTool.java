@@ -48,7 +48,7 @@ import de.jstacs.utils.LargeSequenceReader;
 import de.jstacs.utils.Pair;
 import de.jstacs.utils.ToolBox;
 import projects.dimont.ThresholdedStrandChIPper;
-import umontreal.iro.lecuyer.probdist.NormalDist;
+import umontreal.ssj.probdist.NormalDist;
 
 public class QuickBindingSitePredictionTool implements JstacsTool {
 

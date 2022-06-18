@@ -1,10 +1,11 @@
 package de.jstacs.sequenceScores.statisticalModels.differentiable.continuous.gamma;
 
-import umontreal.iro.lecuyer.util.Num;
+
 import de.jstacs.algorithms.optimization.DifferentiableFunction;
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jtem.numericalMethods.calculus.specialFunctions.Gamma;
+import umontreal.ssj.util.Num;
 
 
 public class GammaPriorFunction extends DifferentiableFunction implements IntegrableFunction {
