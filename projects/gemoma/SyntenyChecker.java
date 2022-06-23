@@ -47,12 +47,15 @@ public class SyntenyChecker extends GeMoMaModule {
 			for( int i = 0; i < eps.getNumberOfParameters(); i++ ) {
 				ParameterSet ps = (ParameterSet) eps.getParameterAt(i).getValue();
 				String prefix = (String) ps.getParameterForName("prefix").getValue();
-				if( prefix != null && !prefix.endsWith("_") ) {
+				if( prefix != null && prefix.length()!=0 && !prefix.endsWith("_") ) {
 					prefix += "_";
 				}
 				String assignFile = (String) ps.getParameterForName("assignment").getValue();
-				assign.add( new Assignment( assignFile, prefix ) );
+				Assignment a = new Assignment( assignFile, prefix );
+				assign.add( a );
+				protocol.append("assignment: " + a.hash.size() + "\n" );
 			}
+			protocol.append("read assignment files: " + assign.size() );
 			
 			//read annotation
 			String annot = (String) parameters.getParameterForName("gene annotation file").getValue();
