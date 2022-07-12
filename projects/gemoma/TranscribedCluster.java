@@ -57,7 +57,7 @@ public class TranscribedCluster extends GeMoMaModule {
 	
 	public ToolResult run( ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp ) throws Exception {
 		//sequence
-		HashMap<String, String> seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,".*");
+		GeMoMa.seqs = Tools.getFasta(parameters.getParameterForName("genome").getValue().toString(),20,".*");
 				
 		//introns
 		ExpandableParameterSet eps = (ExpandableParameterSet)((ParameterSetContainer)parameters.getParameterAt(1)).getValue();
@@ -69,7 +69,7 @@ public class TranscribedCluster extends GeMoMaModule {
 			}
 		}
 		if( fName.size()>0 ) {
-			spliceSites = GeMoMa.readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, false, seqs, null, fName.toArray(new String[fName.size()]) );
+			spliceSites = GeMoMa.readIntrons( (Integer) parameters.getParameterForName("reads").getValue(), protocol, false, GeMoMa.seqs, null, fName.toArray(new String[fName.size()]) );
 		} else {
 			spliceSites = null;
 		}
@@ -80,7 +80,7 @@ public class TranscribedCluster extends GeMoMaModule {
 		int minGap = (Integer) parameters.getParameterForName("minimal gap").getValue();
 
 		//compute
-		String[] chr = seqs.keySet().toArray(new String[seqs.size()]);
+		String[] chr = GeMoMa.seqs.keySet().toArray(new String[GeMoMa.seqs.size()]);
 		Arrays.sort(chr);
 
 		File file = Tools.createTempFile("TranscribedCluster",temp);
