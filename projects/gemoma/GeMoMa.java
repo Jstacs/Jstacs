@@ -354,13 +354,14 @@ public class GeMoMa extends GeMoMaModule {
 				new GeMoMaAnnotationFilter(),
 				new AnnotationFinalizer(),
 				new AnnotationEvidence(),
+				new Attribute2Table(),
 				new SyntenyChecker(),
 				new AddAttribute(),
 				new GAFComparison(),
 				new Analyzer(),
 				new BUSCORecomputer(),
 				new GFFAttributes()
-				/*,
+				,
 				new TranscribedCluster()/**/
 		};
 		boolean[] configureThreads = new boolean[tools.length];
