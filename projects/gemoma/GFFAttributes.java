@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -71,6 +74,9 @@ public class GFFAttributes extends GeMoMaModule {
 		return null;
 	}
 
+	static String[] pos = {"0chromosome","1start position","2end postion"};
+	static int[] ind = {0, 3, 4};
+	
 	@Override
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads, String temp) throws Exception {
 		//read and parse annotation
@@ -79,7 +85,10 @@ public class GFFAttributes extends GeMoMaModule {
 		String fName = parameters.getParameterForName("annotation").getValue().toString();
 		
 		HashMap<String, Integer> keys = new HashMap<String,Integer>();
-		HashMap<String, String[]> feature = new HashMap<String, String[]>();
+		for( int i = 0; i < pos.length; i++ ) {
+			keys.put(pos[i], i);
+		}
+		ArrayList<String[]> feature = new ArrayList<String[]>();
 		BufferedReader r = Tools.openGzOrPlain(fName);
 		String line;
 		while( (line=r.readLine()) != null ) {
@@ -90,37 +99,33 @@ public class GFFAttributes extends GeMoMaModule {
 			if( split[2].equalsIgnoreCase(tag) ) {
 				//parse and extend keys if necessary
 				String[] att = split[8].split(";");
-				String[] v = new String[att.length];
-				int[] index = new int[att.length];
+				String[] v = new String[att.length+3];
+				int[] index = new int[att.length+3];
 				for( int i = 0; i < att.length; i++ ) {
 					int j = att[i].indexOf('=');
 					if( j < 0 ) throw new IllegalArgumentException("Could not parse attribute: " + att[i]);
 					String a = att[i].substring(0,j);
 					v[i] = att[i].substring(j+1);
-					if( !a.equals("ID") ) {
-						Integer ind = keys.get(a);
-						if( ind == null ) {
-							ind = keys.size();
-							keys.put(a, ind );
-						}
-						index[i]=ind;
-					} else {
-						index[i]=-1;
+					
+					Integer ind = keys.get(a);
+					if( ind == null ) {
+						ind = keys.size();
+						keys.put(a, ind );
 					}
+					index[i]=ind;
+				}
+				for( int i = 0; i < pos.length; i++ ) {
+					index[att.length+i]=keys.get(pos[i]);
+					v[att.length+i]=split[ind[i]];
 				}
 				
 				//create entry
 				String[] filled = new String[keys.size()];
 				Arrays.fill(filled, missing);
-				String id = null;
-				for( int i = 0; i < att.length; i++ ) {
-					if( index[i]<0 ) {
-						id=v[i];
-					} else {
-						filled[index[i]] = v[i];
-					}
+				for( int i = 0; i < v.length; i++ ) {
+					filled[index[i]] = v[i];
 				}
-				feature.put(id, filled);
+				feature.add(filled);
 			}
 		}
 		r.close();
@@ -128,23 +133,25 @@ public class GFFAttributes extends GeMoMaModule {
 		//output
 		String[] k = keys.keySet().toArray(new String[0]);
 		Arrays.sort(k);
-		String[] id = feature.keySet().toArray(new String[0]);
-		Arrays.sort(id);
+		
+		Collections.sort(feature,new StringArrayComparator() );
 		
 		File out = Tools.createTempFile("GFF-attributes", temp );
 		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
-		w.append("ID");
-		for( String g: k ) {
-			w.append( "\t" + g );
+		for( int i = 0; i <k.length; i++ ) {
+			String h =k[i];
+			if( i<pos.length) {
+				h=h.substring(1);
+			}
+			w.append( (i==0?"":"\t") + h );
 		}
 		w.newLine();
-		for( String i: id ) {
+		for( int i = 0; i < feature.size(); i++ ) {
 			String[] attributes = feature.get(i);
 			
-			w.append(i);
-			for( String g: k ) {
-				int idx = keys.get(g);
-				w.append( "\t" + (idx < attributes.length? attributes[idx] : missing) );
+			for( int j = 0; j <k.length; j++ ) {
+				int idx = keys.get(k[j]);
+				w.append( (j==0?"":"\t") + (idx < attributes.length? attributes[idx] : missing) );
 			}
 			w.newLine();
 		}
@@ -158,5 +165,31 @@ public class GFFAttributes extends GeMoMaModule {
 		return new ResultEntry[] {
 				new ResultEntry(TextResult.class, "tabular", "GFF attributes"),
 		};
+	}
+	
+	public static class StringArrayComparator implements Comparator<String[]> {
+
+		@Override
+		public int compare(String[] a, String[] b) {
+			int res = 0;
+			if( a == b ) {}
+			else if( a==null ) {
+				res=1;
+			} else if( b==null ) {
+				res=-1;
+			} else {
+				int i = 0, n = Math.min(a.length,b.length);
+				while( res == 0 && i < n ) {
+					if( i==2 || i==1 ) {
+						res = Integer.compare( Integer.parseInt(a[i]), Integer.parseInt(b[i]) );
+					} else {
+						res = a[i].compareTo(b[i]);
+					}
+					i++;
+				}
+			}
+			return res;
+		}
+		
 	}
 }
