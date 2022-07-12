@@ -607,7 +607,7 @@ public class Tools {
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize ) throws Exception {
-		return getFasta(fName, initSize, "([^_]+)|(.+_\\d+)");
+		return getFasta(fName, initSize, "([^_^\t^,^;^=^\"]+)|([^\t^,^;^=^\"]+_\\d+)");
 	}
 	
 	public static HashMap<String,String> getFasta( String fName, int initSize, String seqIdRegex ) throws Exception {
