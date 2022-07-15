@@ -280,8 +280,9 @@ GeMoMa 1.8 (07.10.2021)
 	- improved protocol if threads==1
 - SyntenyChecker: implemented check of regular expression for prefix
 
-GeMoMa 1.9 (XX.XX.XXXX)
+GeMoMa 1.9 (15.07.2022)
 - improved handling of warnings in Galaxy
+- new modules: TranscribedCluster
 - AnnotationFinalizer:
 	- new parameters: transfer features, additional source suffix
 	- changed renaming using regex
@@ -301,6 +302,7 @@ GeMoMa 1.9 (XX.XX.XXXX)
 	- new parameter "intermediate result" allowing to retrieve intermediate results
 	- new parameter "length difference" allowing to discard predictions that deviate too much from the representative transcript at a locus
 - GeMoMa:
+	- new parameter options for the amount of predictions per reference transcript: STATIC(=default) or DYNAMIC
 	- delete unnecessary parameter "region threshold"
 	- improved verbose output
 - GeMoMaPipeline:
