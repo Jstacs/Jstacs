@@ -45,7 +45,6 @@ import de.jstacs.tools.Protocol;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
 import projects.gemoma.GeMoMaAnnotationFilter.Prediction;
-import projects.gemoma.old.GeMoMa;
 
 /**
  * This class allows get attribute for all references.
