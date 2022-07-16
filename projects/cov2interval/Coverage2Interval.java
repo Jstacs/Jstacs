@@ -1,3 +1,5 @@
+package projects.cov2interval;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
