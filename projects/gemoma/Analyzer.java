@@ -45,8 +45,8 @@ import projects.gemoma.GeMoMa.IntArrayComparator;
  * It allows to choose between the features CDS and transcript as basic feature.
  * Furthermore, the tools has two modes: either using the complete prediction (including start and end position) or only the internal borders (=splice sites) are used for evaluation.
  * It computes sensitivity and precision for the selected feature and mode and returns a table including all true and predicted features.
- * Based on the selected mode, redundant (and single exon) annotations and predictions are eliminated.
- * For each predicted feature, best best matching true feature is determined.
+ * Based on the selected mode, redundant (and single exon) annotations and predictions are eliminated, i.e., alternative transcripts of the <b>same</b> gene. Identical feature of different genes are not removed.
+ * For each predicted feature, the best matching true feature is determined.
  * F1 measure is computed for the predicted and the best matching true feature.
  * A negative value in a F1 measure column indicates that there is a predicted transcript that matches the true transcript with
  * a F1 measure value that is the absolute value of this entry, but there is another true transcript that matches this predicted
@@ -388,13 +388,18 @@ public class Analyzer extends GeMoMaModule {
 								double tp = count( help, predictedRegion, trueRegion, false); //tp
 								double fn = count( help, predictedRegion, trueRegion, true); //fn
 								double fp = count( help, trueRegion, predictedRegion, true); //fp
-								
+
+								boolean wasComplete=currentT.isComplete(onlyIntrons);
 								int[] res = currentT.spliceSites(predictions[j]);
 								currentT.set( predictions[j], bestF1, tp, fn, fp, res );
 
-								if( onlyIntrons ? bestOI : (bestF1==1) ) {
+								if( currentT.isComplete(onlyIntrons) ) {
 									stat.anzPerfect++;
-									if( currentT.reliable ) stat.anzRPerfect++;
+									
+									if( !wasComplete ) {
+										stat.anzTPerfect++;										
+										if( currentT.reliable ) stat.anzRPerfect++;
+									}
 								}
 							}
 						}
@@ -447,7 +452,8 @@ public class Analyzer extends GeMoMaModule {
 	
 	class GFFCompareStat {
 		int anzTruth = 0, anzRTruth=0, anzPrediction=0, anzTruthG=0, anzRTruthG=0, anzPredG;
-		double anzPerfect=0, anzRPerfect=0, anzPerfectG=0, anzPerfectG2=0, anzRPerfectG=0;		
+		double anzPerfect=0, anzRPerfect=0, anzPerfectG=0, anzPerfectG2=0, anzRPerfectG=0;
+		double anzTPerfect=0;
 	}
 	
 	static void write( Protocol protocol, boolean rel, ArrayList<String> name, ArrayList<GFFCompareStat> list, String sep, String eol, boolean cds, boolean onlyIntrons ) {
@@ -499,12 +505,14 @@ public class Analyzer extends GeMoMaModule {
 		protocol.append( "number of predicted " + feature + "s per predicted gene" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPrediction/(double)stat.anzPredG) );
 		protocol.append( eol );
-		
+
+		protocol.append( eol + "number of non-redundant perfectly predicted " + feature + "s" );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzTPerfect) );
 		protocol.append( eol + "number of perfectly predicted " + feature + "s" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzPerfect) );
 		protocol.append( eol );
 		if( rel ) {
-			protocol.append( "number of perfectly predicted reliable true " + feature + "s" );
+			protocol.append( "number of perfectly predicted non-redundant reliable true " + feature + "s" );
 			for( GFFCompareStat stat: list ) protocol.append( sep + nf2.format(stat.anzRPerfect) );
 			protocol.append( eol );
 		}
@@ -522,12 +530,12 @@ public class Analyzer extends GeMoMaModule {
 		}
 		
 		protocol.append( eol + feature + " sensitivity");
-		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfect / stat.anzTruth*100) );
+		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzTPerfect / stat.anzTruth*100) );
 		protocol.append( eol + feature + " precision" );
 		for( GFFCompareStat stat: list ) protocol.append( sep + nf1.format(stat.anzPerfect / stat.anzPrediction*100) );
 		protocol.append( eol + feature + " F1" );
 		for( GFFCompareStat stat: list ) {
-			double sn = stat.anzPerfect / stat.anzTruth;
+			double sn = stat.anzTPerfect / stat.anzTruth;
 			double pr = stat.anzPerfect / stat.anzPrediction;
 			protocol.append( sep + nf1.format(2*sn*pr/(sn+pr)) );
 		}		
