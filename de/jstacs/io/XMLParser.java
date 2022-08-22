@@ -923,7 +923,7 @@ public final class XMLParser {
 	 */
 	public static String unescape( String escaped ) {
 		if( escaped != null ) {
-			for( int i = 0; i < table.length; i++ ) {
+			for( int i = table.length-1; i>=0; i-- ) {
 				escaped = escaped.replaceAll( table[i][1], table[i][0] );
 			}
 		}
