@@ -44,6 +44,7 @@ import de.jstacs.results.ListResult;
 import de.jstacs.results.PlotGeneratorResult;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
 import de.jstacs.tools.Protocol;
@@ -217,7 +218,7 @@ public class DimontPredictorTool implements JstacsTool {
 	@Override
 	public ResultEntry[] getDefaultResultInfos() {
 		return new ResultEntry[]{
-				new ResultEntry(ListResult.class, null, "Predictions for motif 1")
+				new ResultEntry(TextResult.class, "tsv", "Predictions for motif 1")
 		};
 	}
 	
