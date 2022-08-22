@@ -282,7 +282,7 @@ public class Galaxy {
 	}
 	
 	
-	private static Pair<Result,boolean[]>[] flatten(ResultSet ress){
+	public static Pair<Result,boolean[]>[] flatten(ResultSet ress){
 		LinkedList<Pair<Result,boolean[]>> all = new LinkedList<Pair<Result,boolean[]>>();
 		
 		for(int i=0;i<ress.getNumberOfResults();i++){
