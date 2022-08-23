@@ -393,7 +393,7 @@ public class Analyzer extends GeMoMaModule {
 								int[] res = currentT.spliceSites(predictions[j]);
 								currentT.set( predictions[j], bestF1, tp, fn, fp, res );
 
-								if( currentT.isComplete(onlyIntrons) ) {
+								if( onlyIntrons ? bestOI : bestF1==1d ) {
 									stat.anzPerfect++;
 									
 									if( !wasComplete ) {
