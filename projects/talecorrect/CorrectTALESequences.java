@@ -189,7 +189,9 @@ public class CorrectTALESequences implements JstacsTool {
 		igvToolsCountScript.append("pathFiles=$3\n");
 		List<String> sortedKeys = new ArrayList<>(seqTALEs.keySet());
 		Collections.sort(sortedKeys);
+		int seqCounter=0;
 		for(String seqName : sortedKeys){
+			seqCounter++;
 			//System.out.println(seqName);
 			correctedSequences.append(">"+seqName+"\n");
 			String seq=seqTALEs.get(seqName).toString();
@@ -211,7 +213,7 @@ public class CorrectTALESequences implements JstacsTool {
 						}else{
 							countWigFiles++;
 							Collections.sort(posList);
-							igvToolsCountScript.append("wigFile=$pathFiles"+"\"out.igvtools.count."+countWigFiles+".wig\"\n");
+							igvToolsCountScript.append("wigFile=$pathFiles"+"\"out.igvtools.count."+seqCounter+"_"+countWigFiles+".wig\"\n");
 							//System.out.println(posList.toString()+"\t"+posList.size());
 							//igvToolsCountScript.append("igvtools count -w 1 --bases --minMapQuality 1 --query=\""+seqName+":"+posList.get(0)+"-"+posList.get(posList.size()-1)+"\" $bamFile $wigFile $assembly &\n");
 							igvToolsCountScript.append("igvtools count -w 1 --bases --minMapQuality 1 --query=\""+seqName+":"+posList.get(0)+"-"+posList.get(posList.size()-1)+"\" $bamFile $wigFile $assembly\n");

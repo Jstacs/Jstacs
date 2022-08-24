@@ -9,7 +9,8 @@ public class TALEcorrection {
 		
 		JstacsTool[] tools = new JstacsTool[]{
 				new CorrectTALESequences(),
-				new PolishTALESubstitutions()};
+				new PolishTALESubstitutions(),
+				new PrepareTALEparts()};
 
 		CLI cli = new CLI( tools );
 		
