@@ -303,13 +303,16 @@ public class DimontTool implements JstacsTool {
 			d = (1d-a*d)/(a*d);
 			h = d * motif.getESS();
 			for( int z = 0; z < array.length; z++ ) {
-				((AbstractSingleMotifChIPper)score[0]).initializeMotif( 0, new DataSet("", Sequence.create(con, array[z].getElement()) ), new double[]{h} );
+				//((AbstractSingleMotifChIPper)score[0]).initializeMotif( 0, new DataSet("", Sequence.create(con, array[z].getElement()) ), new double[]{h} );
+				setMotifParameters((AbstractSingleMotifChIPper)score[0], Sequence.create(con, array[z].getElement()), h);
 				p = objective.getParameters(KindOfParameter.PLUGIN);
 			
+				System.out.println(score[0]);
+				
 				initObjective.reset(score);
 				initObjective.resetHeuristics();
 				double val = initObjective.evaluateFunction(p);
-				
+				System.out.println("val: "+val);
 				array2[z] = new ComparableElement<double[], Double>( p, val );
 			}
 			Arrays.sort( array2 );
@@ -459,7 +462,7 @@ public class DimontTool implements JstacsTool {
 				LinkedList<Result> result = new LinkedList<Result>();
 				
 				//result.add(new StorableResult( "Dimont "+(n+1), "The Dimont classifier", storables[index[m]] ) );//TODO
-				result.add(new TextResult("Dimont "+(n+1), "The Dimont classifier", new FileRepresentation("", storables[index[m]].toXML().toString()), "xml", "Dimont", null, true));
+				result.add(new TextResult("Dimont "+(n+1), "The Dimont classifier", new FileRepresentation("", storables[index[m]].toXML().toString()), false, "xml", "Dimont", null, true));
 				
 				//result.add(getListResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
 				result.add(getTextResult(fgData, completeWeight[0],pairs[index[m]], ((ThresholdedStrandChIPper)((GenDisMixClassifier)storables[index[m]]).getDifferentiableSequenceScore( 0 )).getMotifLength( 0 ), n ));//TODO
@@ -504,7 +507,7 @@ public class DimontTool implements JstacsTool {
 						sb.append("\n");
 					}
 
-					TextResult trPwm = new TextResult("Model PWM", "The model PWM in HOCOMOCO format", new FileParameter.FileRepresentation("", sb.toString()), "pwm", this.getToolName(), null, true);
+					TextResult trPwm = new TextResult("Model PWM", "The model PWM in HOCOMOCO format", new FileParameter.FileRepresentation("", sb.toString()), false, "pwm", this.getToolName(), null, true);
 
 					result.add(trPwm);
 				}
@@ -525,6 +528,26 @@ public class DimontTool implements JstacsTool {
 		
 	}
 
+	
+	public static void setMotifParameters(AbstractSingleMotifChIPper model, Sequence kmer, double h) 
+            throws IllegalArgumentException, EmptyDataSetException, WrongAlphabetException, Exception {
+        
+        model.initializeMotif( 0, new DataSet("", kmer ), new double[]{h} );
+       /* double[][] pwm = ((MarkovModelDiffSM) ((AbstractSingleMotifChIPper) model).getFunction(0)).getPWM();
+        
+        double[] parameters = new double[pwm.length*pwm[0].length];
+        for (int col=0;col<pwm.length;col++) {
+            for (int row=0;row<pwm[0].length;row++) {
+                parameters[col*pwm[0].length+row] = Math.log(pwm[col][row]);
+            }
+        }*/
+        double[] parameters = model.getFunction(0).getCurrentParameterValues();
+        
+        model.resetPositions();
+        model.setParametersForFunction(0, parameters, 0);
+        model.initializeHiddenUniformly();
+    }
+	
 	@Override
 	public String getToolName() {
 		return "Dimont";
@@ -594,7 +617,7 @@ public class DimontTool implements JstacsTool {
 		
 		FileParameter.FileRepresentation file = new FileRepresentation("",sb.toString());
 		
-		TextResult tr = new TextResult("Predictions for motif "+(motifIndex+1), "", file, "tsv", "Dimont", null, true);
+		TextResult tr = new TextResult("Predictions for motif "+(motifIndex+1), "", file, false, "tsv", "Dimont", null, true);
 		
 		return tr;
 	}

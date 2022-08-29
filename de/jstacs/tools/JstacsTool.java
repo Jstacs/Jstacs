@@ -32,6 +32,7 @@ import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
+import de.jstacs.results.ResultSetResult;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.cli.CLI.QuietSysProtocol;
@@ -340,6 +341,11 @@ public interface JstacsTool {
 					String v = f.getFilename();
 					if( v != null ) {
 						f.setFilename( path + File.separator + v );
+					}
+					break;
+				case LIST:
+					if(re instanceof ResultSetResult) {
+						setPathOfFiles(path, ((ResultSetResult)re).getResultSet());
 					}
 					break;
 				default: //do nothing

@@ -179,19 +179,23 @@ public class LoadAndViewClassesTool implements JstacsTool {
 			String strain = tales[i].getStrain();
 			if(strain != null){
 				String acc = tales[i].getAccession();
+				String key = acc;
 				if(acc == null){
-					acc = "";
+					key = strain;
+					acc="";
 				}
-				if(strainMap.containsKey(acc)){
+				/*if(strainMap.containsKey(key)){
 					String[] cont = strainMap.get(acc);
 					if(!cont[1].equals(acc)){
+						System.out.println(cont[1]+" "+acc);
 						strainRes.add(new ResultSet(new Result[]{new CategoricalResult("Strain", "", strain),
 								new CategoricalResult("Accession", "", acc)}));
 					}
-				}else{
+				}else{*/
+				if(!strainMap.containsKey(key)) {
 					strainRes.add(new ResultSet(new Result[]{new CategoricalResult("Strain", "", strain),
 							new CategoricalResult("Accession", "", acc)}));
-					strainMap.put(acc, new String[]{strain,acc});
+					strainMap.put(key, new String[]{strain,acc});
 				}
 			}else{
 				woStrain++;

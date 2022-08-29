@@ -48,5 +48,9 @@ public class ResultSetResult extends ListResult {
 	public ResultSetResult( StringBuffer representation ) throws NonParsableException {
 		super( representation );
 	}
+	
+	public ResultSet getResultSet() {
+		return list[0];
+	}
 
 }

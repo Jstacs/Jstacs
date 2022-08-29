@@ -60,6 +60,7 @@ import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.JstacsTool.ResultEntry;
 import de.jstacs.tools.ToolParameterSet;
 import de.jstacs.tools.ToolResult;
+import de.jstacs.utils.Pair;
 
 /**
  * Adaptor class between the parameter representation of Jstacs in {@link de.jstacs.parameters.Parameter}s and {@link ParameterSet}s and the parameter representation
@@ -403,6 +404,7 @@ public class GalaxyAdaptor {
 				//results
 				//protocol ?
 				ResultSet rs = tests[i].getRawResult()[0];
+				rs = matchDefaults(defaultResults,rs);
 				for(int j=0;j<defaultResults.length;j++){
 					XMLParser.addIndentation(testBuf, 2);
 					
@@ -421,6 +423,29 @@ public class GalaxyAdaptor {
 		return allBuffer.toString().replaceAll("\n\n\n","\n\n").replaceAll("\n*(\n\t*</)", "$1");
 	}
 	
+	private static ResultSet matchDefaults(ResultEntry[] defaultResults, ResultSet rs) {
+		
+		Pair<Result,boolean[]>[] pairs = Galaxy.flatten(rs);
+		
+		Result[] temp = new Result[defaultResults.length];
+		
+		int l=0;
+		for(int k=0;k<defaultResults.length;k++) {
+			for(int i=0;i<pairs.length;i++) {
+				Result el = pairs[i].getFirstElement();
+				if(defaultResults[k].getName().equals(el.getName()) && defaultResults[k].getDeclaredClass().equals(el.getClass())) {
+					temp[l] = el;
+					l++;
+					break;
+				}
+			}
+		}
+		if(l != temp.length) {
+			throw new RuntimeException();
+		}
+		return new ResultSet(temp);
+	}
+
 	/**
 	 * Parses the values of the parameters from a galaxy script file
 	 * @param filename the name of the script file
