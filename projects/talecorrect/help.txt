@@ -1,0 +1,24 @@
+### Helptext for TALEcorrection:#################################################
+TALEcorrection is a java implemented tool that corrects TALE sequences in ONT sequenced Xanthomonas genomes. It contains three tools: 
+1. The tool "prepare" is used to build custom TALE HMMs. 
+2. The tool "correct" is doing the correction within TALE sequences based on the trained TALE HMMs. 
+3. The tool "polish" is an optional polishing step to polish substitutions. This requires a mapping of the reads to the corrected assembly. 
+To run these tools the folder TALEcorrection_scripts contains three different bash scripts explained in the following lines:
+
+### First install:############################################################## 
+# HMMER, see: http://hmmer.org/documentation.html					 
+# clustalo, see: http://www.clustal.org/omega/ 					 
+# igvtools, see https://software.broadinstitute.org/software/igv/igvtools_commandline 
+################################################################################
+
+### build custom TALE HMMs ###
+1. If you want to build custom HMMs for TALEs of different strains, you can prepare and run bash script buildCustomHMMs.sh -> To prepare - please read comments within buildCustomHMMs.sh
+# In case you want to correct TALEs in Xoo or Xoc genomes, you can use pre-built HMMs in folder HMMs/Xoo or HMMs/Xoc and you can skip step 1.
+
+### run TALE correction ###
+2. To correct TALE sequences within ONT assemblies, run the bash script runTALEcorrection.sh 
+-> To prepare - please read comments within runTALEcorrection.sh to change settings to your purpose, like configuration of the matching pathovar.
+
+### run substitution polishing ###
+3. After runTALECorrection.sh, you can optionally run bash script runSubPolish.sh to polish inserted/substituted nucleotides based on mapping of reads to the corrected assembly
+# Please map reads against the corrected assembly first
