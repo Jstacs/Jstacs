@@ -90,13 +90,11 @@ For instance, if you would like to build custom HMMs for *Xanthomonas translucen
 
 ### b) Custom TALE sequences
 
-Alternatively, if you would like to build custom HMMs from your own file (assumed to be stored in *path/to/myTALEs.fasta*), you would need to adapt the definition of `pathToAnnoTALE_AllTALEsFasta` to
+Alternatively, if you would like to build custom HMMs from your own file (assumed to be stored in *path/to/myTALEs.fasta*), you would need to adapt the definition of `pathToTALEsFasta` to
 
-`pathToAnnoTALE_AllTALEsFasta=path/to/myTALEs.fasta`
+`pathToTALEsFasta=path/to/myTALEs.fasta`.
 
-and, assuming that you want to use all TALE DNA sequences present in that file, the definition of `customSpeciesName` to
-
-`customSpeciesName="\>"`
+You can comment out all lines before except the line where the output folder is set: `pathToHMMs="HMMs/custom/"`.
 
 ### Run the script after option a) or b)
 
