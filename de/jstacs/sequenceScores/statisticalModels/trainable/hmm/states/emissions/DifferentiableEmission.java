@@ -30,7 +30,7 @@ import de.jstacs.utils.IntList;
  * 
  * @author Jens Keilwagen
  */
-public interface DifferentiableEmission extends Emission {
+public interface DifferentiableEmission extends Emission, Cloneable {
 	
 	/**
 	 * Fills the current parameters in the global <code>params</code> array using the internal offset.
@@ -130,4 +130,12 @@ public interface DifferentiableEmission extends Emission {
 	 */
 	public int getSizeOfEventSpace();
 
+	/**
+	 * Returns a deep clone of the emission.
+	 * 
+	 * @return a deep clone of the emission
+	 * 
+	 * @throws CloneNotSupportedException if the object cannot be cloned
+	 */
+	public DifferentiableEmission clone() throws CloneNotSupportedException;
 }
