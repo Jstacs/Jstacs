@@ -460,7 +460,7 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	 * @return the transition elements
 	 * @throws CloneNotSupportedException if the transition elements could not be cloned
 	 */
-	public TransitionElement[] getTransisionElements() throws CloneNotSupportedException {
+	public TransitionElement[] getTransitionElements() throws CloneNotSupportedException {
 		return (TransitionElement[])ArrayHandler.cast( ArrayHandler.clone( transitions ) );
 	}
 	

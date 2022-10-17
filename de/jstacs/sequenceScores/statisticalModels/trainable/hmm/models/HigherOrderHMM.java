@@ -1169,7 +1169,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @throws CloneNotSupportedException if the transition elements could not be cloned
 	 * @see HigherOrderTransition#getTransisionElements()
 	 */
-	public TransitionElement[] getTransisionElements() throws CloneNotSupportedException {
+	public TransitionElement[] getTransitionElements() throws CloneNotSupportedException {
 		return ((HigherOrderTransition)transition).getTransisionElements();
 	}
 
