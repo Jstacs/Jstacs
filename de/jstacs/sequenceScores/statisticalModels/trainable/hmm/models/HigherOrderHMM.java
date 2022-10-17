@@ -1167,10 +1167,10 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * Returns the transition elements of the internal {@link Transition}.
 	 * @return the transition elements
 	 * @throws CloneNotSupportedException if the transition elements could not be cloned
-	 * @see HigherOrderTransition#getTransisionElements()
+	 * @see HigherOrderTransition#getTransitionElements()
 	 */
 	public TransitionElement[] getTransitionElements() throws CloneNotSupportedException {
-		return ((HigherOrderTransition)transition).getTransisionElements();
+		return ((HigherOrderTransition)transition).getTransitionElements();
 	}
 
 	/**
