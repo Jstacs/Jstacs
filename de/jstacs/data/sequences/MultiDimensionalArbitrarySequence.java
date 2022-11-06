@@ -30,7 +30,7 @@ import de.jstacs.io.ArrayHandler;
 public class MultiDimensionalArbitrarySequence extends MultiDimensionalSequence<double[]> {
 
 	/**
-	 * This constructor creates an {@link MultiDimensionalDiscreteSequence} from a set of individual {@link Sequence}s.
+	 * This constructor creates an {@link MultiDimensionalArbitrarySequence} from a set of individual {@link Sequence}s.
 	 * 
 	 * @param seqAn the annotations for the aligned sequences
 	 * @param sequence the individual sequences that have been aligned
