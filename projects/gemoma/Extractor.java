@@ -141,14 +141,15 @@ public class Extractor extends GeMoMaModule {
 		Arrays.fill(info, 0);
 		
 		HashSet<String> unUsedChr = new HashSet<String>( annot.keySet() );
+		String ref = "";
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
 				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment );
 				unUsedChr.remove(comment);
 				//clear
-				int idx = line.indexOf(' ');
-				comment = line.substring(1,idx < 0 ? line.length() : idx);
+				comment = line.substring(1).replaceAll("\\s.*", "");
+				ref += (ref.length()>0 ? ", " : "") + comment;
 				seq.delete(0, seq.length());
 			} else {
 				//add
@@ -193,6 +194,7 @@ public class Extractor extends GeMoMaModule {
 		}
 		if( unUsedChr.size() > 0 ) {
 			shortInfo.append( "WARNING: There are gene annotations on chromosomes/contigs with missing reference sequence: " + unUsedChr + "\n");
+			shortInfo.append( "reference sequence IDS: " + ref + "\n");
 		}
 		shortInfo.append("\n");
 		
