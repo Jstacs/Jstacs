@@ -64,7 +64,7 @@ public class EchoEmission implements DifferentiableEmission {
 	public double getLogProbFor(boolean forward, int startPos, int endPos, Sequence seq)
 			throws OperationNotSupportedException {
 		double res = 0;
-		while( startPos < endPos ) {
+		while( startPos <= endPos ) {
 				res += seq.continuousVal(startPos++);
 		}
 		return res;
