@@ -25,9 +25,18 @@ public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 	
 	private double r,lambda;
 	private double p,beta;
+	private boolean fixR;
+	private double offset;
 	
-	public NegativeBinomial() throws IllegalArgumentException {
+	
+	public NegativeBinomial(Double r, double offset) throws IllegalArgumentException {
 		super(new AlphabetContainer(new ContinuousAlphabet()), 1);
+		if(r != null) {
+			this.r = r;
+			this.lambda = Math.log(r);
+			this.fixR = true;
+		}
+		this.offset = offset;
 	}
 
 	
@@ -78,19 +87,26 @@ public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 		p = 0.9;
 		beta = Math.log(p/(1.0-p));
 		
-		r=1;
+		if(!fixR) {
+			r=1;
+		}
 		lambda = Math.log(r);
 
 	}
 
 	@Override
 	public double getLogScoreAndPartialDerivation(Sequence seq, int start, IntList indices, DoubleList partialDer) {
-		double k = seq.continuousVal(start);
+		double k = seq.continuousVal(start) - offset;
 		
-		indices.add(0);
-		partialDer.add( r*( Num.digamma(k+r) - Num.digamma(r) + Math.log(1-p) ) );
+		int i=0;
 		
-		indices.add(1);
+		if(!fixR) {
+			indices.add(i);
+			partialDer.add( r*( Num.digamma(k+r) - Num.digamma(r) + Math.log(1-p) ) );
+			i++;
+		}
+		
+		indices.add(i);
 		partialDer.add( k*(1.0-p) - r*p );
 		
 		return getLogScoreFor(seq, start);
@@ -100,19 +116,29 @@ public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 
 	@Override
 	public int getNumberOfParameters() {
-		return 2;
+		if(fixR) {
+			return 1;
+		}else {
+			return 2;
+		}
 	}
 
 	@Override
 	public double[] getCurrentParameterValues() throws Exception {
-		return new double[]{lambda,beta};
+		if(fixR) {
+			return new double[] {beta};
+		}else {
+			return new double[]{lambda,beta};
+		}
 	}
 
 	@Override
 	public void setParameters(double[] params, int start) {
-		lambda = params[start];
-		r = Math.exp(lambda);
-		beta = params[start+1];
+		if(!fixR) {
+			lambda = params[start++];
+			r = Math.exp(lambda);
+		}
+		beta = params[start];
 		p = Math.exp(beta)/(1.0+Math.exp(beta));
 	}
 
@@ -123,7 +149,7 @@ public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 
 	@Override
 	public double getLogScoreFor(Sequence seq, int start) {
-		double k = seq.continuousVal(start);
+		double k = seq.continuousVal(start) - offset;
 		return Num.lnGamma(k+r) - Num.lnGamma(k+1) - Num.lnGamma(r) + k*Math.log(p) + r*Math.log1p(-p);
 	}
 
@@ -150,9 +176,9 @@ public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 
 	
 	public static void main(String[] args) throws Exception {
-		DataSet ds = new DataSet(new AlphabetContainer(new ContinuousAlphabet()), new SparseStringExtractor("/Users/dev/Downloads/allnb.txt", '#'));
+		DataSet ds = new DataSet(new AlphabetContainer(new ContinuousAlphabet()), new SparseStringExtractor("/Users/dev/Desktop/current_projects/Matthias/lens.txt", '#'));
 		
-		NegativeBinomial nb = new NegativeBinomial();
+		NegativeBinomial nb = new NegativeBinomial(3.0,0);
 		
 		nb.initializeFunctionRandomly(false);
 		
@@ -173,7 +199,6 @@ public class NegativeBinomial extends AbstractDifferentiableStatisticalModel {
 		nb = (NegativeBinomial) cl.getDifferentiableSequenceScore(0);
 		
 		System.out.println(nb);
-		System.out.println( nb.getLogScoreFor(new ArbitrarySequence(new AlphabetContainer(new ContinuousAlphabet()), 2.0)) );
 		
 	}
 	
