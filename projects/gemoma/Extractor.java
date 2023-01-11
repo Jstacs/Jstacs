@@ -117,6 +117,11 @@ public class Extractor extends GeMoMaModule {
 		boolean longComment = (Boolean) getParameter(parameters, "long fasta comment").getValue();
 		rep = (Boolean) parameters.getParameterForName("repair").getValue();
 		
+		p = parameters.getParameterForName("replace");
+		String replacement = p.isSet() ? p.getValue().toString() : null;
+
+		HashSet<String> geneIDs = new HashSet<String>(10000);
+		
 		ArrayList<File> file = new ArrayList<File>();
 		out = new ArrayList<SafeOutputStream>();
 		getOut( name[0], file, out, temp );
@@ -145,7 +150,7 @@ public class Extractor extends GeMoMaModule {
 		while( (line=r.readLine()) != null ) {
 			if( line.startsWith(">") ) {
 				//do
-				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment );
+				extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment, replacement, geneIDs );
 				unUsedChr.remove(comment);
 				//clear
 				comment = line.substring(1).replaceAll("\\s.*", "");
@@ -157,7 +162,7 @@ public class Extractor extends GeMoMaModule {
 			}
 		}
 		//do
-		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment );
+		extract( stopCodonEx, fullLength, ambi, protocol, verbose, comment, info, seq, annot, code, discardPreMatureStop, longComment, replacement, geneIDs );
 		unUsedChr.remove(comment);
 		r.close();
 
@@ -570,7 +575,7 @@ public class Extractor extends GeMoMaModule {
 			x.add(i);
 		}
 		
-		void reduce( String geneName, int[] info, SafeOutputStream out ) throws IOException {
+		void reduce( int[] info, SafeOutputStream out ) throws IOException {
 			info[0]++;
 			String[] s = new String[transcript.size()];
 			transcript.keySet().toArray(s);
@@ -682,7 +687,8 @@ public class Extractor extends GeMoMaModule {
 	}	
 	
 	private void extract( boolean stopCodonEx, boolean fullLength, Ambiguity ambi, Protocol protocol, boolean verbose, String comment, int[] info,
-			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code, boolean discardPreMatureStop, boolean longComment
+			StringBuffer seq, HashMap<String, HashMap<String,Gene>> annot, HashMap<String,Character> code, boolean discardPreMatureStop, boolean longComment,
+			String replacement, HashSet<String> geneIDs
 			) throws Exception {
 		if( comment == null ) {
 			return;
@@ -712,6 +718,20 @@ public class Extractor extends GeMoMaModule {
 		HashMap<String, int[]> introns = new HashMap<String,int[]>();
 		for( Gene gene: genes ) {
 			if( gene.transcript.size()>0 ) {
+				if( gene.id.split("\\s").length>1 ) {
+					if( replacement!= null ) {
+						String newID = gene.id.replaceAll("\\s", replacement);
+						protocol.append("replaced gene-ID: " + gene.id + " by " + newID + "\n");
+						gene.id=newID;
+					} else {
+						throw new IllegalArgumentException( "Gene ID ("+gene.id+") contains a whitespace character, please use parameter replace" );
+					}
+				}
+				if( geneIDs.contains( gene.id ) ) {
+					throw new IllegalArgumentException( "At least two genes with gene id: " + gene.id );
+				} else {
+					geneIDs.add(gene.id);
+				}
 				int[] val = null;
 				boolean[][] splits = new boolean[gene.exon.size()][gene.exon.size()];
 				for( int k = 0; k < splits.length; k++ ) {
@@ -721,7 +741,7 @@ public class Extractor extends GeMoMaModule {
 				int strand = gene.strand;
 				boolean forward=strand==1;
 				
-				gene.reduce( gene.id, info, ident );
+				gene.reduce( info, ident );
 				part.clear();
 				int i, j;
 				
@@ -1279,6 +1299,7 @@ public class Extractor extends GeMoMaModule {
 				new SimpleParameter( DataType.BOOLEAN, "stop-codon excluded from CDS", "A flag that states whether the reference annotation contains the stop codon in the CDS annotation or not", true, false ),
 				new SimpleParameter( DataType.BOOLEAN, "full-length", "A flag which allows for choosing between only full-length and all (i.e., full-length and partial) transcripts", true, true ),
 				new SimpleParameter( DataType.BOOLEAN, "long fasta comment", "whether a short (transcript ID) or a long (transcript ID, gene ID, chromosome, strand, interval) fasta comment should be written for proteins, CDSs, and genomic regions", true, false ),
+				new SimpleParameter( DataType.BOOLEAN, "replace", "Replacement for whitespace characters in gene IDs", false ),
 				new SimpleParameter( DataType.BOOLEAN, "verbose", "A flag which allows to output a wealth of additional information", true, false )
 			);		
 		}catch(Exception e){
