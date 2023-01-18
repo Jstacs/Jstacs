@@ -27,24 +27,32 @@ public class EchoEmission implements DifferentiableEmission {
 	private static String XML_TAG = "ECHO";
 	
 	private AlphabetContainer con;
+	private int offset;
 	
 	/**
 	 * The main constructor.
 	 * 
 	 * @param con the alphabet container
+	 * @param the offset of emissions that are echoed
 	 * 
 	 * @throws WrongAlphabetException if the {@link AlphabetContainer} does not allow continuous {@link Sequence}s of arbitrary length 
 	 */
-	public EchoEmission( AlphabetContainer con ) throws WrongAlphabetException {
+	public EchoEmission( AlphabetContainer con, int offset ) throws WrongAlphabetException {
 		if( con.getPossibleLength()!= 0 || con.isDiscreteAt(0) ) {
 			throw new WrongAlphabetException("The Alphabet needs to be continuous.");
 		}
 		this.con = con;
+		this.offset = offset;
+	}
+	
+	public EchoEmission( AlphabetContainer con ) throws WrongAlphabetException {
+		this(con,0);
 	}
 	
 	public EchoEmission( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag(xml, XML_TAG);
-		con = (AlphabetContainer) XMLParser.extractObjectForTags(xml, "con");
+		this.con = (AlphabetContainer) XMLParser.extractObjectForTags(xml, "con");
+		this.offset = (Integer) XMLParser.extractObjectForTags(xml, "offset");
 	}
 
 	public EchoEmission clone() throws CloneNotSupportedException {
@@ -64,6 +72,8 @@ public class EchoEmission implements DifferentiableEmission {
 	public double getLogProbFor(boolean forward, int startPos, int endPos, Sequence seq)
 			throws OperationNotSupportedException {
 		double res = 0;
+		startPos = Math.max(startPos+offset, 0);
+		endPos = Math.min(endPos+offset, seq.getLength()-1);
 		while( startPos <= endPos ) {
 				res += seq.continuousVal(startPos++);
 		}
@@ -99,7 +109,7 @@ public class EchoEmission implements DifferentiableEmission {
 
 	@Override
 	public String getNodeLabel( double weight, String name, NumberFormat nf ) {
-		return "\""+name+"\"";
+		return "\""+name+"("+offset+")"+"\"";
 	}
 
 	@Override
@@ -115,6 +125,7 @@ public class EchoEmission implements DifferentiableEmission {
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags(xml, con, "con");
+		XMLParser.appendObjectWithTags(xml, offset, "offset");
 		XMLParser.addTags(xml, XML_TAG);
 		return xml;
 	}
@@ -135,10 +146,7 @@ public class EchoEmission implements DifferentiableEmission {
 	@Override
 	public double getLogProbAndPartialDerivationFor(boolean forward, int startPos, int endPos, IntList indices,
 			DoubleList partDer, Sequence seq) throws OperationNotSupportedException {
-		double res = 0;
-		while( startPos < endPos ) {
-				res += seq.continuousVal(startPos++);
-		}
+		double res = getLogProbFor(forward, startPos, endPos, seq);
 		return res;
 	}
 
