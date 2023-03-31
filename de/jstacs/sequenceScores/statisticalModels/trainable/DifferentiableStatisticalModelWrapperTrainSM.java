@@ -29,7 +29,6 @@ import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
@@ -192,11 +191,19 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		if( !(nsf instanceof UniformDiffSM || nsf instanceof UniformHomogeneousDiffSM ) ) {
 			WeightedDataSetFactory wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data, weights );
 			DataSet small = wsf.getDataSet();
-			double[] smallWeights = wsf.getWeights();  
+			double[] smallWeights = wsf.getWeights();
+			//if there's no redundancy
+			if( small.getNumberOfElements() == data.getNumberOfElements() ) {
+				//use the data as is was
+				small=data;
+				if( weights != null ) {
+					smallWeights=weights;
+				}
+			}
 			
 			double[] params;
 			DifferentiableStatisticalModel best = null;
-			double current, max = Double.NEGATIVE_INFINITY, fac = data.getNumberOfElements(), ess = nsf.getESS();
+			double current, max = Double.NEGATIVE_INFINITY, fac = wsf.getSumOfWeights(), ess = nsf.getESS();
 			fac = fac / (ess+ fac) * (ess == 0 ? 1d : 2d);
 			
 			DifferentiableStatisticalModel[] score = { (DifferentiableStatisticalModel) nsf.clone() };
