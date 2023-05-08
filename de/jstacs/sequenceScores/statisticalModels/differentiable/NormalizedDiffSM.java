@@ -121,6 +121,7 @@ public final class NormalizedDiffSM extends AbstractDifferentiableStatisticalMod
 	{
 		NormalizedDiffSM clone = (NormalizedDiffSM) super.clone();
 		clone.nsf = (DifferentiableStatisticalModel) nsf.clone();
+		clone.proportion = proportion.clone();
 		return clone;
 	}
 
