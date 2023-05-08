@@ -371,12 +371,12 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 			this.freeParams = freeParams;
 			getNumberOfParameters();
 		}
-		double f, g = constr.length / (double) length;
+		double f, g = constr.length / (double) length, e = ess==0?alphabets.getAlphabetLengthAt(0):ess;
 		for (int k, j, i = 0; i < constr.length; i++) {
 			k = constr[i].getNumberOfSpecificConstraints();
 			
 			double[] d = new double[k];
-			f=ess/k;
+			f=e/k;
 			DirichletMRG.DEFAULT_INSTANCE.generateLog(d, 0, k, new DirichletMRGParams(f, k));
 			for (j = 0; j < k; j++) {
 				constr[i].setLambda(j, 
