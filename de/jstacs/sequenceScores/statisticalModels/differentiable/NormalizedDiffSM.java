@@ -252,7 +252,7 @@ public final class NormalizedDiffSM extends AbstractDifferentiableStatisticalMod
 	 */
 	private void precompute() throws Exception
 	{
-		if( proportion == null )
+		if( proportion == null || proportion.length!= nsf.getNumberOfParameters() )
 		{
 			proportion = new double[nsf.getNumberOfParameters()];
 		}
