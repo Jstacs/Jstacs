@@ -41,9 +41,9 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MultiThreadedTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.HigherOrderTransition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.utils.IntList;
 import de.jstacs.utils.Normalisation;
@@ -129,19 +129,87 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	protected int threads;
 	
 	/**
+	 * Set of allowed default contexts that is used, if the allowed states per position are not specified by the user.
+	 * First dimension is the used order. Second dimension the allowed contexts.
+	 */
+	protected int[][] defContext;
+	
+	/**
+	 * Set of pre-computed contexts that are allowed.
+	 * First dimension allowed state group. Second dimension the allowed contexts.
+	 */
+	protected int[][] preComputedContext;	
+
+	protected void fillDefContext() {
+		int dim, max = transition.getMaximalMarkovOrder();
+		defContext = new int[max+1][];
+		for( int l = 0; l <= max; l++ ) {
+			dim = transition.getNumberOfIndexes( l );
+			defContext[l] = new int[dim];
+			for( int i = 0; i < defContext[l].length; i++ ) {
+				defContext[l][i]=i;
+			}
+		}
+	}
+	
+	/**
+	 * Fills {@link #preComputedContext}.
+	 * 
+	 * @param statesGroups the allowed state groups, first dimension state group, second dimension allowed
+	 */
+	protected void fillPreComputedContext( int[][] statesGroups ) {
+		if( statesGroups==null || statesGroups.length==0 ) {
+			preComputedContext = null;
+		} else {
+			preComputedContext = new int[statesGroups.length][];
+			HashSet<Integer> allowed = new HashSet<Integer>();
+			HashSet<Integer> hash = new HashSet<Integer>();
+			int maxOrder= transition.getMaximalMarkovOrder();
+			int[] cont = new int[3];
+			for( int i = 0; i < statesGroups.length; i++ ) {
+				allowed.clear();
+				hash.clear();
+				for( int j = 0; j < statesGroups[i].length; j++ ) {
+					hash.add(statesGroups[i][j]);
+				}
+				//maxOrder is necessary, as some state might not be reachable for maxOrder-1
+				for( int context=0; context < defContext[maxOrder].length; context++ ) {
+					//check context and add if allowed
+					for( int ch = 0; ch < transition.getNumberOfChildren(maxOrder, context); ch++ ) {
+						transition.fillTransitionInformation( maxOrder, context, ch, cont ); 
+						if( hash.contains(cont[0]) ) {
+							allowed.add(cont[1]);
+						}
+					}
+				}
+				preComputedContext[i]=new int[allowed.size()];
+				Iterator<Integer> it = allowed.iterator();
+				int j=0;
+				while( it.hasNext() ) {
+					preComputedContext[i][j++] = it.next();
+				}
+				Arrays.sort(preComputedContext[i]);
+				
+				//System.out.println(i + "\t" + Arrays.toString(allowedStatesGroups[i]) + "\t" + Arrays.toString(preComputedContext[i]));
+			}
+		}
+	}
+	
+	/**
 	 * This is the main constructor for an HMM.
 	 * 
+	 * @param statesGroups groups of states that might be used to define allowed paths
 	 * @param trainingParameterSet a {@link de.jstacs.parameters.ParameterSet} containing all {@link de.jstacs.parameters.Parameter}s for the training of the HMM
 	 * @param name the names of the states
 	 * @param emissionIdx the indices of the emissions that should be used for each state, if <code>null</code> state <code>i</code> will use emission <code>i</code>
 	 * @param forward a boolean array that indicates whether the symbol on the forward or the reverse complementary strand should be used,
 	 * 				  if <code>null</code> all states use the forward strand
 	 * @param emission the emissions
+	 * @param te the {@link AbstractTransitionElement}s building a transition
 	 * 
-	 * @throws CloneNotSupportedException if <code>trainingParameterSet</code> can not be cloned
-	 * @throws WrongAlphabetException if not all (non-silent) emissions have use the same {@link AlphabetContainer}
+	 * @throws Exception if a problem occurs during the creation
 	 */
-	protected AbstractHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission ) throws CloneNotSupportedException, WrongAlphabetException {
+	protected AbstractHMM( int[][] statesGroups, HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
 		super( getAlphabetContainer( emission ), 0 );
 		if( !trainingParameterSet.hasDefaultOrIsSet() ) {
 			throw new IllegalArgumentException( "Please check the training parameters." );
@@ -189,6 +257,13 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		}
 		
 		this.emission = ArrayHandler.clone(emission);
+				
+		createStates();
+		initTransition( te );
+		determineFinalStates();
+
+		fillDefContext();
+		fillPreComputedContext(statesGroups);
 	}
 	
 	private void setThreads() {
@@ -226,6 +301,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	protected AbstractHMM( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
+		fillDefContext();
 	}
 	
 	/**
@@ -280,6 +356,8 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		XMLParser.appendObjectWithTags( xml, forward, "strand" );
 		XMLParser.appendObjectWithTags( xml, emission, "emission" );
 		
+		XMLParser.appendObjectWithTags( xml, preComputedContext, "preComputedContext" );
+		
 		appendFurtherInformation( xml );
 		XMLParser.addTags( xml, getXMLTag() );
 		return xml;
@@ -315,6 +393,8 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		}
 		createStates();
 		determineFinalStates();
+	
+		preComputedContext = XMLParser.extractObjectForTags( xml, "preComputedContext",int[][].class );
 	}
 	
 	/**
@@ -348,6 +428,8 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		clone.bwdMatrix = ArrayHandler.clone( bwdMatrix );
 		clone.trainingParameter = (HMMTrainingParameterSet) trainingParameter.clone();
 		clone.finalState = finalState.clone();
+		clone.preComputedContext = ArrayHandler.clone(preComputedContext);
+		clone.defContext = ArrayHandler.clone(defContext);
 		
 		clone.createStates();		
 		clone.setOutputStream( sostream.doesNothing() ? null : SafeOutputStream.DEFAULT_STREAM );
@@ -368,7 +450,21 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 * 
 	 * @throws Exception if some error occurs during the computation 
 	 */
-	protected abstract void fillFwdMatrix( int startPos, int endPos, Sequence seq ) throws Exception;
+	protected void fillFwdMatrix( int startPos, int endPos, Sequence seq ) throws Exception {
+		fillFwdMatrix(startPos, endPos, seq, null);
+	}
+	
+	/**
+	 * This method fills the forward-matrix for a given sequence.
+	 * 
+	 * @param startPos the start position (inclusive) in the sequence
+	 * @param endPos the end position (inclusive) in the sequence
+	 * @param seq the sequence
+	 * @param allowedStatesGroups groups of allowed states per position
+	 * 
+	 * @throws Exception if some error occurs during the computation 
+	 */
+	protected abstract void fillFwdMatrix( int startPos, int endPos, Sequence seq, int[] allowedStatesGroups ) throws Exception;
 	
 	/**
 	 * This method fills the backward-matrix for a given sequence.
@@ -379,7 +475,21 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 * 
 	 * @throws Exception if some error occurs during the computation
 	 */
-	protected abstract void fillBwdMatrix( int startPos, int endPos, Sequence seq ) throws Exception;
+	protected void fillBwdMatrix( int startPos, int endPos, Sequence seq ) throws Exception {
+		fillBwdMatrix(startPos, endPos, seq, null);
+	}
+	
+	/**
+	 * This method fills the backward-matrix for a given sequence.
+	 * 
+	 * @param startPos the start position (inclusive) in the sequence
+	 * @param endPos the end position (inclusive) in the sequence
+	 * @param seq the sequence
+	 * @param allowedStatesGroups groups of allowed states per position
+	 * 
+	 * @throws Exception if some error occurs during the computation
+	 */
+	protected abstract void fillBwdMatrix( int startPos, int endPos, Sequence seq, int[] allowedStatesGroups ) throws Exception;
 	
 	/**
 	 * The {@link String} for the start node used in Graphviz annotation.
@@ -802,8 +912,11 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#getLogProbFor(de.jstacs.data.Sequence, int,
 	 * int)
 	 */
-	public double getLogProbFor(Sequence sequence, int startpos, int endpos)
-			throws Exception {
+	public double getLogProbFor(Sequence sequence, int startpos, int endpos) throws Exception {
+		return getLogProbFor(sequence, startpos, endpos, null);
+	}
+	
+	public double getLogProbFor(Sequence sequence, int startpos, int endpos, int[] statesGroups) throws Exception {
 		int l = endpos - startpos+1, len = getLength();
 		if( !sequence.getAlphabetContainer().checkConsistency(getAlphabetContainer()) ) {
 			throw new WrongAlphabetException( "The AlphabetContainer of the sequence and the model do not match." );
@@ -811,7 +924,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		if( len != 0 && l != len ) {
 			throw new WrongLengthException( "The given start position ("+ startpos + ") and end position (" + endpos + ") yield an length of " + l + " which is not possible for the current model that models sequences of length " + len + "." );
 		}
-		return logProb( startpos, endpos, sequence );
+		return logProb( startpos, endpos, sequence, statesGroups );
 	}
 	
 	/**
@@ -846,8 +959,40 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 * @throws Exception if the model has no parameters (for instance if it is not trained)
 	 */
 	protected double logProb( int startpos, int endpos, Sequence sequence ) throws Exception {
+		return logProb(startpos, endpos, sequence, null);
+	}
+	
+	/**
+	 * This method computes the logarithm of the probability of the corresponding subsequences.
+	 * The method does not check the {@link AlphabetContainer} and possible further features
+	 * before starting the computation.
+	 * 
+	 * @param startpos the start position (inclusive)
+	 * @param endpos the end position (inclusive)
+	 * @param sequence the {@link Sequence}(s)
+	 * @param allowedStatesGroups the groups of allowed states per position
+	 * 
+	 * @return the logarithm of the probability
+	 * 
+	 * @throws Exception if the model has no parameters (for instance if it is not trained)
+	 */
+	protected double logProb( int startpos, int endpos, Sequence sequence, int[] allowedStatesGroups ) throws Exception {
 		try {
-			fillBwdMatrix(startpos, endpos, sequence);
+			fillBwdMatrix(startpos, endpos, sequence, allowedStatesGroups );
+			
+			/* sanity check
+			fillFwdMatrix(startpos, endpos, sequence, allowedStatesGroups );
+			System.out.println(bwdMatrix[0][0] + "\t" + Normalisation.getLogSum(fwdMatrix[endpos-startpos+1]));
+			
+			System.out.println("bwd");
+			for( int i = 0; i < endpos-startpos+1; i++ ) {
+				System.out.println(i + "\t" + Arrays.toString(bwdMatrix[i]));
+			}
+			System.out.println("fwd");
+			for( int i = 0; i < endpos-startpos+1; i++ ) {
+				System.out.println(i + "\t" + Arrays.toString(fwdMatrix[i]));
+			}
+			/**/		
 		} catch( Exception e ) {
 			throw getRunTimeException( e );
 		}
@@ -892,7 +1037,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 * @see #finalState
 	 */
 	protected void determineFinalStates() {
-		finalState = transition.isAbsoring();
+		finalState = transition.isAbsorbing();
 		int i = 0;
 		while( i < finalState.length && !finalState[i] ){
 			i++;
@@ -937,11 +1082,60 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 */
 	@Override
 	public String toString( NumberFormat nf ) {
-		String res = "Transition:\n-----------\n" + transition.toString( name, nf ); 
-		res += "\nStates:\n-------\n";
-		for( int e = 0; e < states.length; e++ ) {
-			res += states[e].toString( nf ) + "\n";
-		}		
-		return res;
+		StringBuffer sb = new StringBuffer();
+		sb.append( "Transition:\n-----------\n" + transition.toString( name, nf ) ); 
+		if( emission.length==states.length ) {
+			sb.append( "\nStates:\n-------\n" );
+			for( int e = 0; e < states.length; e++ ) {
+				sb.append( states[e].toString( nf ) + "\n" );
+			}			
+		} else {
+			sb.append( "\nEmissions:\n----------\n" );
+			for( int e = 0; e < emission.length; e++ ) { 
+				sb.append( "emission " + e + ": (");
+				sb.append( "states: ");
+				boolean first = true;
+				for( int s = 0; s < emissionIdx.length; s++ ) {
+					if( emissionIdx[s] == e ) {
+						sb.append( (first ? "": ", ") + name[s] );
+						first = false;
+					}
+				}
+				sb.append( ")\n" + emission[e].toString( nf ) + "\n" );
+			}
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * A {@link Storable} class for the sequence of  allowed states groups.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	public static class AllowedStatesGroups implements Storable {
+
+		public int[] groups;
+		
+		public AllowedStatesGroups( IntList g ) {
+			groups = g.toArray();
+		}
+		
+		public AllowedStatesGroups( int[] g ) {
+			groups = g.clone();
+		}
+			
+		
+		public AllowedStatesGroups( StringBuffer xml ) throws NonParsableException {
+			xml = XMLParser.extractForTag(xml, "AllowedStatesGroups");
+			groups = (int[]) XMLParser.extractObjectForTags(xml, "groups");
+		}
+		
+		@Override
+		public StringBuffer toXML() {
+			StringBuffer xml = new StringBuffer();
+			XMLParser.appendObjectWithTags(xml, groups, "groups");
+			XMLParser.addTags(xml, "AllowedStatesGroups");
+			return xml;
+		}	
 	}
 }

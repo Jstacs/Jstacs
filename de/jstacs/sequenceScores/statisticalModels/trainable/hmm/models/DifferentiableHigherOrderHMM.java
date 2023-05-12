@@ -22,18 +22,30 @@ package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import javax.naming.OperationNotSupportedException;
+
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.data.DataSet;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.results.StorableResult;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.DifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleDifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableSMWrapperEmission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.UniformEmission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWelchParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet.TrainingType;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.ViterbiParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.DifferentiableTransition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.utils.DoubleList;
@@ -60,17 +72,12 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	protected double ess;
 	
 	/**
-	 * The type of the score that is evaluated
-	 */
-	protected Type score;
-	
-	/**
 	 * Index array used for computing the gradient
 	 */
 	protected int[][] index;
 	
 	/**
-	 * Help array for the gradient
+	 * Help array for the gradient. (Dimensions: first = layer mod 2, second = context, third = parameter)
 	 */
 	protected double[][][] gradient;
 	
@@ -91,6 +98,10 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 */
 	protected DoubleList[] partDerTransition;
 	
+	private NumericalHMMTrainingParameterSet.TrainingType training;
+	private Type score = Type.LIKELIHOOD;
+	private boolean train;
+		
 	/**
 	 * This is the main constructor.
 	 * 
@@ -100,7 +111,6 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 * @param forward a boolean array that indicates whether the symbol on the forward or the reverse complementary strand should be used,
 	 * 				  if <code>null</code> all states use the forward strand
 	 * @param emission the emissions
-	 * @param likelihood if <code>true</code> the likelihood is return  by {@link #getLogScoreFor(Sequence)} otherwise the viterbi score
 	 * @param ess the ess of the model
 	 * @param te the {@link TransitionElement}s used for creating a {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition}
 	 * 
@@ -113,14 +123,30 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 *  </ul>
 	 */
 	public DifferentiableHigherOrderHMM( MaxHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward,
-			DifferentiableEmission[] emission, boolean likelihood, double ess, TransitionElement... te ) throws Exception {
-		super( trainingParameterSet, name, emissionIdx, forward, emission, te );
+			DifferentiableEmission[] emission, double ess, TransitionElement... te ) throws Exception {
+		this(null, null, trainingParameterSet, name, emissionIdx, forward, emission, ess, te);
+	}
+	
+	public DifferentiableHigherOrderHMM( String type, int[][] statesGroups, MaxHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward,
+			DifferentiableEmission[] emission, double ess, TransitionElement... te ) throws Exception {
+		super( type, statesGroups, trainingParameterSet, name, emissionIdx, forward, emission, te );
 		getOffsets();
-		this.score = likelihood ? Type.LIKELIHOOD : Type.VITERBI;
 		if( ess < 0 ) {
 			throw new IllegalArgumentException();
 		}
 		this.ess = ess;
+		set();
+	}
+	
+	private void set() {
+		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
+			training = ((NumericalHMMTrainingParameterSet) trainingParameter).getTrainingType();
+		} else if( trainingParameter instanceof ViterbiParameterSet ){
+			training = TrainingType.VITERBI;
+		} else if( trainingParameter instanceof BaumWelchParameterSet ){
+			training = TrainingType.LIKELIHOOD;
+		}
+		setTrain(false);
 	}	
 	
 	/**
@@ -143,15 +169,13 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	protected void appendFurtherInformation( StringBuffer xml ) {
 		super.appendFurtherInformation( xml );
 		XMLParser.appendObjectWithTags( xml, ess, "ess" );
-		XMLParser.appendObjectWithTags( xml, score, "score" );
 	}
 
 	@Override
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {
 		super.extractFurtherInformation( xml );
 		ess = XMLParser.extractObjectForTags( xml, "ess", double.class );
-		score = XMLParser.extractObjectForTags( xml, "score", Type.class );
-
+		set();
 	}
 
 	protected void createHelperVariables() {
@@ -236,11 +260,11 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 
 	public double[] getCurrentParameterValues() throws Exception {
-		int i = 0, n = getNumberOfParameters();
+		int n = getNumberOfParameters();
 		
 		if( n != UNKNOWN ) {
 			double[] params = new double[n];
-			for( int e = 0; e < emission.length; e++, i++ ) {
+			for( int e = 0; e < emission.length; e++ ) {
 				((DifferentiableEmission)emission[e]).fillCurrentParameter( params );
 			}
 			((DifferentiableTransition)transition).fillParameters( params );
@@ -277,25 +301,85 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		if(skipInit){
 			return;
 		}
+		//XXX
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
+			boolean[] diffEM = new boolean[emission.length]; 
+			boolean sub = false;
+			for( int i = 0; i < emission.length; i++ ) {
+				diffEM[i] = emission[i] instanceof DifferentiableSMWrapperEmission;
+				sub |= diffEM[i];
+			}
+						
+			try {
+				NumericalHMMTrainingParameterSet trainingParameterSet = (NumericalHMMTrainingParameterSet) trainingParameter;
+				TrainingType tType = trainingParameterSet.getTrainingType();
+				if( tType.isViterbiLike() ) {
+					trainingParameter = new ViterbiParameterSet(1, ((MaxHMMTrainingParameterSet)trainingParameter).getTerminationCondition(), ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads() );
+					training = TrainingType.VITERBI;
+				} else {
+					trainingParameter = new BaumWelchParameterSet(1, ((MaxHMMTrainingParameterSet)trainingParameter).getTerminationCondition(), ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads() );
+					training = TrainingType.LIKELIHOOD;
+				}
+				if( !sub ) {
+					super.train(data[index], weights==null? null : weights[index] );
+				} else {
+					//create simple variant
+					DifferentiableEmission[] dEmission = new DifferentiableEmission[emission.length];
+					for( int i = 0; i < emission.length; i++ ) {
+						if( diffEM[i] ) {
+							dEmission[i] = new UniformEmission(getAlphabetContainer());
+						} else {
+							dEmission[i] = (DifferentiableEmission) emission[i];
+						}
+					}
+					DifferentiableHigherOrderHMM simple;
+					if( this instanceof FastDifferentiableHigherOrderHMM ) {
+						simple = new FastDifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, emissionIdx, dEmission, ess, getTransitionElements() );
+					} else {
+						simple = new DifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, emissionIdx, forward, dEmission, ess, getTransitionElements() );
+					}
+					simple.defContext = defContext;
+					simple.preComputedContext = preComputedContext;
+					
+					//train
+					simple.train(data[index], weights==null? null : weights[index] );
+					
+					//set
+					transition.setParameters(simple.transition);					
+					for( int i = 0; i < emission.length; i++ ) {
+						if( diffEM[i] ) {
+							//emission[i].initializeFunctionRandomly();
+							((DifferentiableSMWrapperEmission)emission[i]).initializeUniformly();
+						} else {
+							emission[i].setParameters(simple.emission[i]);
+						}
+					}
+				}
+				trainingParameter = trainingParameterSet;
+				training = tType;
+			} catch( Exception e ) {
+				e.printStackTrace();
+				sostream.writeln("Problem while initialization from data. " + e.getClass().getSimpleName() + ": " + e.getCause() );
 			initializeFunctionRandomly( freeParams );
-		} else {
-			train( data[index], weights==null? null : weights[index] );
-			getOffsets();
+			}
+		} else {			
+			initializeFunctionRandomly( freeParams );
 		}
 	}
 	
 	public void train( DataSet data, double[] weights ) throws Exception {
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
+			setTrain(true);
 			NumericalHMMTrainingParameterSet params = (NumericalHMMTrainingParameterSet) trainingParameter;
-			DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance() );
+			DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance(), params.randomInitialization() );
 			model.setOutputStream( sostream );
 			model.train( data, weights );
 			
 			DifferentiableHigherOrderHMM hmm = (DifferentiableHigherOrderHMM) model.getFunction();
 			this.emission = hmm.emission;
 			createStates();
-			this.transition = hmm.transition;	
+			this.transition = hmm.transition;
+			setTrain(false);
 		} else {
 			super.train( data, weights );
 		}
@@ -343,12 +427,56 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 */
 	@Override
 	public double getLogScoreFor( Sequence seq, int start, int end ) {
-		return logProb( start, seq.getLength()-1, seq );
+		int[] allowedStatesGroup=null;
+		if( train && type != null ) {
+			SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
+			if( sa !=null ) {
+				StorableResult res = (StorableResult) sa.getResultAt(0);
+				AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
+				allowedStatesGroup=asg.groups;
+			}
+		}
+		double s = logProb( start, end, seq, allowedStatesGroup, score );
+		if( train && training.isDiscrimnative() ) {
+			/*if( training == TrainingType.DISCRIMINATIVE_VITERBI2 ) {
+				s -= logProb( start, end, seq, null, Type.VITERBI );
+			} else {*/
+				s -= logProb( start, end, seq, null, Type.LIKELIHOOD );
+			//}
+		}
+		return s;
+	}
+	
+	public double getLogScoreFor( Sequence seq, int start, int end, int[] allowedStatesGroup ) {
+		return logProb( start, end, seq, allowedStatesGroup );
 	}
 	
 	protected double logProb( int startpos, int endpos, Sequence sequence ) {
+		return logProb(startpos, endpos, sequence, null);
+	}
+	
+	protected double logProb( int startpos, int endpos, Sequence sequence, int[] allowedStatesGroups ) {
+		return logProb(startpos, endpos, sequence, allowedStatesGroups, score);
+	}
+	
+	protected double logProb( int startpos, int endpos, Sequence sequence, int[] allowedStatesGroups, Type score ) {
 		try {
-			fillBwdOrViterbiMatrix( score, startpos, endpos, 0, sequence );
+			fillBwdOrViterbiMatrix( score, startpos, endpos, 0, sequence, allowedStatesGroups, false );
+			
+			/* sanity check
+			fillFwdMatrix(startpos, endpos, sequence, allowedStatesGroups );
+			System.out.println(bwdMatrix[0][0] + "\t" + Normalisation.getLogSum(fwdMatrix[endpos-startpos+1]));
+			
+			System.out.println("bwd");
+			for( int i = 0; i < endpos-startpos+1; i++ ) {
+				System.out.println(i + "\t" + Arrays.toString(bwdMatrix[i]));
+			}
+			System.out.println("fwd");
+			for( int i = 0; i < endpos-startpos+1; i++ ) {
+				System.out.println(i + "\t" + Arrays.toString(fwdMatrix[i]));
+			}
+			System.exit(1);
+			/**/
 		} catch( Exception e ) {
 			throw getRunTimeException( e );
 		}
@@ -365,8 +493,30 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 		
 	public double getLogScoreAndPartialDerivation( Sequence seq, int startPos, int endPos, IntList indices, DoubleList partialDer ) {
+		int[] allowedStatesGroup=null;
+		if( train && type != null ) {
+			SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
+			if( sa !=null ) {
+				StorableResult res = (StorableResult) sa.getResultAt(0);
+				AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
+				allowedStatesGroup=asg.groups;
+			}
+		}
+		double s = logScoreAndPartialDerivation( seq, startPos, endPos, indices, partialDer, allowedStatesGroup, score, 1d );
+		if( train && training.isDiscrimnative() ) {
+			/*if( training == TrainingType.DISCRIMINATIVE_VITERBI2 ) {
+				s -= logScoreAndPartialDerivation( seq, startPos, endPos, indices, partialDer, null, Type.VITERBI, -1d );
+			} else {*/
+				s -= logScoreAndPartialDerivation( seq, startPos, endPos, indices, partialDer, null, Type.LIKELIHOOD, -1d );
+			//}
+		}
+		return s;
+	}
+	
+	protected double logScoreAndPartialDerivation( Sequence seq, int startPos, int endPos, IntList indices, DoubleList partialDer, int[] allowedStatesGroup, Type score, double factor ) {
 		try {
-			boolean zero = transition.getMaximalMarkovOrder() == 0;
+			int maxOrder = transition.getMaximalMarkovOrder();
+			boolean zero = maxOrder == 0;
 			int l = endPos-startPos+1, stateID, context, n, children;
 			
 			provideMatrix( 1, endPos-startPos+1 );
@@ -383,7 +533,10 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 				indicesState[stateID].clear();
 				partDerState[stateID].clear();
 			}
-			for( context = bwdMatrix[l].length-1; context >= 0; context-- ) {
+			int[] allContext = getAllowedContext(endPos+1, startPos, allowedStatesGroup, maxOrder);
+			Arrays.fill( bwdMatrix[l], zero ? 0 : Double.NEGATIVE_INFINITY );
+			for( int x = allContext.length-1; x>=0; x-- ) {
+				context = allContext[x];
 				n = transition.getNumberOfChildren( l, context );
 
 				children = 0;
@@ -412,24 +565,18 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 						}
 					}
 				}
-				if( children == 0 ) {
-					bwdMatrix[l][context] = val;
-					resetGradient( l, context, 0 );
-				} else {
-					merge( children, l, context, val );
-				}
+				merge( children, l, context, val, score );
 			}
 			//System.out.println( seq.toString(endPos, endPos+1) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
 			
 			//compute scores for all positions backward
 			while( --l >= 0 ) {
-				for( stateID = 0; stateID < states.length; stateID++ ) {
-					indicesState[stateID].clear();
-					partDerState[stateID].clear();
-					logEmission[stateID] = ((DifferentiableState) states[stateID]).getLogScoreAndPartialDerivation( endPos, endPos, indicesState[stateID], partDerState[stateID], seq );
-				}
+				fillLogEmissionAndPartialDer( endPos, seq );
+				
 				//for all different contexts
-				for( context = bwdMatrix[l].length-1; context >= 0; context-- ) {
+				allContext = getAllowedContext(endPos, startPos, allowedStatesGroup, maxOrder);
+				for( int x = allContext.length-1; x>=0; x-- ) {
+					context = allContext[x];
 					n = transition.getNumberOfChildren( l, context );
 					//for all different children states
 					children = 0;
@@ -441,7 +588,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 						
 						backwardIntermediate[children] =
 							bwdMatrix[l+container[2]][container[1]] //backward score until next position
-							+ logEmission[container[0]] //emission
+							+ logEmission[getIndex(container[0])] //emission
 							+ diffTransition.getLogScoreAndPartialDerivation( l, context, stateID, indicesTransition[children], partDerTransition[children], seq, endPos ); //transition
 				
 						if( backwardIntermediate[children] != Double.NEGATIVE_INFINITY ) {
@@ -451,14 +598,13 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 							children++;
 						}
 					}
-					if( children == 0 ) {
-						bwdMatrix[l][context] = Double.NEGATIVE_INFINITY;
-						resetGradient( l, context, 0 );
-					} else {
-						merge( children, l, context, Double.NEGATIVE_INFINITY );
-					}
+					merge( children, l, context, Double.NEGATIVE_INFINITY, score );
 				}
 				endPos--;
+
+				if( l-1>=0 ) {
+					Arrays.fill( bwdMatrix[l-1], Double.NEGATIVE_INFINITY );
+				}
 
 				//System.out.println( (l==0?" ":seq.toString(endPos, endPos+1)) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
 			}
@@ -466,7 +612,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 			for( int p = 0; p < numberOfParameters; p++ ) {
 				if( gradient[0][0][p] != 0 ) {
 					indices.add( p );
-					partialDer.add( gradient[0][0][p] );
+					partialDer.add( factor*gradient[0][0][p] );
 				}
 			}
 			return bwdMatrix[0][0];
@@ -475,24 +621,30 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		}
 	}
 	
-	private void merge( int anz, int layer, int context, double extra ) {
+	protected void fillLogEmissionAndPartialDer( int endPos, Sequence seq ) throws OperationNotSupportedException, WrongLengthException {
+		for( int stateID = 0; stateID < states.length; stateID++ ) {
+			indicesState[stateID].clear();
+			partDerState[stateID].clear();
+			logEmission[stateID] = ((DifferentiableState) states[stateID]).getLogScoreAndPartialDerivation( endPos, endPos, indicesState[stateID], partDerState[stateID], seq );
+		}
+	}
+	
+	protected void merge( int anz, int layer, int context, double val, Type score ) {
+		if( anz == 0 )  {
+			bwdMatrix[layer][context] = val;
+			resetGradient( layer, context, 0 );
+		} else {
 		int h = layer % 2;
 		if( score == Type.VITERBI ) {
+				//determine best 
 			int idx = ToolBox.getMaxIndex( 0, anz, backwardIntermediate );
-			if( backwardIntermediate[idx] > extra ) {
+				//sum gradient
 				System.arraycopy( gradient[(layer+index[2][idx]) % 2][index[1][idx]], 0, gradient[h][context], 0, numberOfParameters );
 				miniMerge( idx, 1, h, context );
-				
+				//set partial log probability for (viterbi) path 
 				bwdMatrix[layer][context] = backwardIntermediate[idx];
-			} else {
-				bwdMatrix[layer][context] = extra;
-			}
 		} else { //LIKELIHOOD
-			if( extra != Double.NEGATIVE_INFINITY ) {
-				bwdMatrix[layer][context] = Normalisation.logSumNormalisation( backwardIntermediate, 0, anz, new double[]{extra}, backwardIntermediate, 0 );
-			} else {
-				bwdMatrix[layer][context] = Normalisation.logSumNormalisation( backwardIntermediate, 0, anz, backwardIntermediate, 0 );
-			}
+			bwdMatrix[layer][context] = Normalisation.logSumNormalisation( backwardIntermediate, 0, anz, backwardIntermediate, 0 );
 			
 			// S = \sum_i u_i v_i
 			// \frac{\partial \log(S)}{\partial \lambda}
@@ -532,14 +684,16 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 			}
 		}
 	}
+	}
 	
 	//add the partial derivation with given weight
 	private void miniMerge( int i, double weight, int h, int context ) {
 		for( int p = 0; p < indicesTransition[i].length(); p++ ) {
 			gradient[h][context][indicesTransition[i].get(p)] += weight * partDerTransition[i].get(p); 
 		}
-		for( int p = 0; p < indicesState[index[0][i]].length(); p++ ) {
-			gradient[h][context][indicesState[index[0][i]].get(p)] += weight * partDerState[index[0][i]].get(p); 
+		int j = getIndex(index[0][i]);
+		for( int p = 0; p < indicesState[j].length(); p++ ) {
+			gradient[h][context][indicesState[j].get(p)] += weight * partDerState[j].get(p); 
 		}
 	}
 	
@@ -572,6 +726,58 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	}
 	
 	public String getInstanceName() {
-		return "differentiable HMM(" + transition.getMaximalMarkovOrder() + ", " + score + ")";
+		return "differentiable HMM(" + transition.getMaximalMarkovOrder() + ", " + training + ")";
+	}
+
+	//XXX
+	public void setTrain( boolean train ) {
+		this.train=train;
+		if( train ) {
+			if( training==TrainingType.LIKELIHOOD || training==TrainingType.DISCRIMINATIVE_LIKELIHOOD ) {
+				score = Type.LIKELIHOOD;
+			} else {
+				score = Type.VITERBI;
+			}
+		} else {
+			score = Type.LIKELIHOOD;
+		}
+	}
+	
+	//TODO to be removed
+	public void check( DataSet data ) throws Exception {
+		double[] params = new double[1+getNumberOfParameters()];
+		System.arraycopy( getCurrentParameterValues(), 0, params, 1, params.length-1);
+		setTrain(true);
+		double[][] w = new double[1][data.getNumberOfElements()];
+		Arrays.fill(w[0], 1);
+		LogGenDisMixFunction log = new LogGenDisMixFunction(LogGenDisMixFunction.getNumberOfAvailableProcessors(), new DifferentiableHigherOrderHMM[] {this}, new DataSet[] {data}, w, null, LearningPrinciple.getBeta(ess==0?LearningPrinciple.ML:LearningPrinciple.MAP), true, false);
+		log.reset();
+		double[] grad = log.evaluateGradientOfFunction(params);
+		int min = ToolBox.getMinIndex(grad);
+		int max = ToolBox.getMaxIndex(grad);
+		System.out.println( "grad\t" + grad.length + "\t" + grad[min] + "\t" + grad[max] + "\t"  + dist(grad,null) + "\t" + Arrays.toString(grad)	);
+		/*
+		double fx1=log.evaluateFunction(params);
+		for( int i = 0; i < params.length; i++ ) {
+			params[i] +=grad[i];
+		}
+		double fx2=log.evaluateFunction(params);
+		for( int i = 0; i < params.length; i++ ) {
+			params[i] -=2*grad[i];
+		}
+		double fx3=log.evaluateFunction(params);
+		System.out.println(fx1 + " -> " + fx2 + " or " + fx3);
+		System.out.println();
+		*/
+		setTrain(false);
+	}
+	
+	private static double dist( double[] a, double[] b ) {
+		double dist=0;
+		for( int i = 0; i < a.length; i++ ) {
+			double diff = a[i] - (b==null?0:b[i]);
+			dist += diff*diff;
+		}
+		return Math.sqrt(dist)/a.length;
 	}
 }
