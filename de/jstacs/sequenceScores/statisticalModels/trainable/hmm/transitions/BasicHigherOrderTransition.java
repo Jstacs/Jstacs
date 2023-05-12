@@ -599,7 +599,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
     	return sb.toString();
     }
 	
-    public boolean[] isAbsoring() {
+    public boolean[] isAbsorbing() {
     	boolean[] absorbing = new boolean[isSilent.length];
     	Arrays.fill( absorbing, true );
     	for( int t = 0; t < transitions.length; t++ ) {
