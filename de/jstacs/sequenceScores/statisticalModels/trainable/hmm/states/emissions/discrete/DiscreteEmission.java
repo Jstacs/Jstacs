@@ -17,10 +17,8 @@
  */
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
-import java.text.NumberFormat;
-
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 
@@ -37,9 +35,11 @@ public class DiscreteEmission extends AbstractConditionalDiscreteEmission {
 	 * @param con the {@link AlphabetContainer} of this emission
 	 * @param ess the equivalent sample size (ess) of this emission that is equally distributed over all parameters
 	 * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
+	 * 
 	 * @see #DiscreteEmission(AlphabetContainer, double[])
 	 */
-	public DiscreteEmission( AlphabetContainer con, double ess ) {
+	public DiscreteEmission( AlphabetContainer con, double ess ) throws WrongAlphabetException {
 		super( con, 1, ess );
 	}
 
@@ -48,8 +48,10 @@ public class DiscreteEmission extends AbstractConditionalDiscreteEmission {
 	 * 
 	 * @param con the {@link AlphabetContainer} of this emission
 	 * @param hyperParams the individual hyper parameters for each parameter
+	 * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
 	 */
-	public DiscreteEmission( AlphabetContainer con, double[] hyperParams ) {
+	public DiscreteEmission( AlphabetContainer con, double[] hyperParams ) throws WrongAlphabetException {
 		super( con, new double[][]{hyperParams} );
 	}
 
@@ -68,12 +70,7 @@ public class DiscreteEmission extends AbstractConditionalDiscreteEmission {
 	}
 
 	@Override
-	public String toString( NumberFormat nf ) {
-		String res = "";
-		DiscreteAlphabet abc = (DiscreteAlphabet) con.getAlphabetAt( 0 );
-		for( int i = 0; i < probs[0].length; i++ ) {
-			res += "P(X=" + abc.getSymbolAt( i ) + ") = " + nf.format( probs[0][i] ) + "\t";
-		}
-		return res+"\n";
+	protected String getCondition(int i) {
+		return "";
 	}
 }

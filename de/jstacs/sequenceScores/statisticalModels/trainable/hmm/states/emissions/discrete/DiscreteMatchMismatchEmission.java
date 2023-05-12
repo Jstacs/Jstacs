@@ -1,11 +1,11 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
 import de.jstacs.data.alphabets.DoubleSymbolException;
 import de.jstacs.data.alphabets.IUPACDNAAlphabet;
@@ -37,12 +37,12 @@ public class DiscreteMatchMismatchEmission extends ReferenceSequenceDiscreteEmis
 	private DifferentiableEmission[] e;
 	
 	//create the first emission
-	public DiscreteMatchMismatchEmission( AlphabetContainer con, int refIdx, double ess, DifferentiableEmission[] e ) throws IllegalArgumentException, CloneNotSupportedException {
+	public DiscreteMatchMismatchEmission( AlphabetContainer con, int refIdx, double ess, DifferentiableEmission[] e ) throws IllegalArgumentException, CloneNotSupportedException, WrongAlphabetException {
 		this( con, refIdx, getHyperParams(ess, 1, 2), null, null, e );
 	}
 	
 	//create the second, third, ... emission
-	public DiscreteMatchMismatchEmission( AlphabetContainer con, int refIdx, double ess, DiscreteMatchMismatchEmission ref ) throws IllegalArgumentException, CloneNotSupportedException {
+	public DiscreteMatchMismatchEmission( AlphabetContainer con, int refIdx, double ess, DiscreteMatchMismatchEmission ref ) throws IllegalArgumentException, CloneNotSupportedException, WrongAlphabetException {
 		this( con, refIdx, getHyperParams(ess, 1, 2), null, ref, null );
 	}
 		
@@ -60,7 +60,7 @@ public class DiscreteMatchMismatchEmission extends ReferenceSequenceDiscreteEmis
 		return clone;
 	}
 	
-	private DiscreteMatchMismatchEmission( AlphabetContainer con, int refIdx, double[][] hyperParams, double[][] initHyperParams, DiscreteMatchMismatchEmission ref, DifferentiableEmission[] e ) throws IllegalArgumentException, CloneNotSupportedException {
+	private DiscreteMatchMismatchEmission( AlphabetContainer con, int refIdx, double[][] hyperParams, double[][] initHyperParams, DiscreteMatchMismatchEmission ref, DifferentiableEmission[] e ) throws IllegalArgumentException, CloneNotSupportedException, WrongAlphabetException {
 		super( con, dummyRefCon, refIdx, hyperParams, initHyperParams== null ? hyperParams : initHyperParams );
 		if( hyperParams.length!= 1 || hyperParams[0].length!= 2 ) {
 			throw new IllegalArgumentException("hyperParams has to be double[1][2]");
