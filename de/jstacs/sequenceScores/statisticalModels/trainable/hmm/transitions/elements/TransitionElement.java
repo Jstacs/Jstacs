@@ -126,9 +126,14 @@ public class TransitionElement extends BasicTransitionElement {
 	 * @return the logarithmic score
 	 */
 	public double getLogScoreAndPartialDerivation( int childIdx, IntList indices, DoubleList partialDer, Sequence sequence, int sequencePosition ) {
-		for( int i = 0; i < parameters.length; i++) {
-			indices.add( offset + i );
-			partialDer.add( (childIdx==i?1:0) - probs[i] );
+		if( parameters.length>1 ) {
+			for( int i = 0; i < parameters.length; i++) {
+				indices.add( offset + i );
+				partialDer.add( - probs[i] );
+			}
+			
+			indices.add( offset + childIdx );
+			partialDer.add( 1 );
 		}
 		return parameters[childIdx] - logNorm;
 	}
