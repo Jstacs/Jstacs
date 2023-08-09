@@ -25,7 +25,7 @@ import de.jstacs.utils.Normalisation;
 import de.jstacs.utils.ToolBox;
 
 /**
- * This class implements an transition element implements method used
+ * This class implements a transition element used
  * for training via sampling or gradient based optimization approach.
  * 
  * @author Jens Keilwagen
@@ -146,7 +146,11 @@ public class TransitionElement extends BasicTransitionElement {
 	 */
 	public int setParameterOffset( int o ) {
 		offset = o;
-		return offset + parameters.length;
+		if( parameters.length>1 ) {
+			return offset + parameters.length;
+		} else {
+			return offset;
+		}
 	}
 	
 	/**
@@ -159,10 +163,14 @@ public class TransitionElement extends BasicTransitionElement {
 	 * @return the next start index for further parameter filling
 	 */
 	public int fillParameters( double[] params, int offset ) {
-		for( int i = 0; i < parameters.length; i++) {
-			params[offset+i] = parameters[i];
+		if( parameters.length>1 ) {
+			for( int i = 0; i < parameters.length; i++) {
+				params[offset+i] = parameters[i];
+			}
+			return offset + parameters.length;
+		} else {
+			return offset;
 		}
-		return offset + parameters.length;
 	}
 	
 	/**
@@ -177,11 +185,15 @@ public class TransitionElement extends BasicTransitionElement {
 	 * @return the first index in <code>params</code> that has not been used
 	 */
 	public int setParameters( double[] params, int start ) {
-		for( int i = 0; i < parameters.length; i++) {
-			parameters[i] = params[start + i];
+		if( parameters.length > 1 ) {
+			for( int i = 0; i < parameters.length; i++) {
+				parameters[i] = params[start + i];
+			}
+			precompute();
+			return start + parameters.length;
+		} else {
+			return start;
 		}
-		precompute();
-		return start + parameters.length;
 	}
 	
 	/**
@@ -198,12 +210,14 @@ public class TransitionElement extends BasicTransitionElement {
 	 * @see #offset
 	 */
 	public void addGradientForLogPriorTerm( double[] gradient, int start ) {
-		double sum = 0;
-		for( int i = 0; i < hyperParameters.length; i++ ) {
-			sum += hyperParameters[i];
-		}
-		for( int i = 0; i < hyperParameters.length; i++ ) {
-			gradient[start + offset + i] += hyperParameters[i] - sum*probs[i];
+		if( hyperParameters.length>1 ) {
+			double sum = 0;
+			for( int i = 0; i < hyperParameters.length; i++ ) {
+				sum += hyperParameters[i];
+			}
+			for( int i = 0; i < hyperParameters.length; i++ ) {
+				gradient[start + offset + i] += hyperParameters[i] - sum*probs[i];
+			}
 		}
 	}
 	
