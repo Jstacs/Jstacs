@@ -240,6 +240,8 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 		statistic = new double[hyperParams.length][hyperParams[0].length];
 		grad = new double[hyperParams.length][hyperParams[0].length];
 		logNorm = new double[hyperParams.length];
+		
+		logUniform = - Math.log( con.getAlphabetLengthAt(0) );
 		precompute();
 	}
 	
@@ -409,14 +411,12 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @see #probs
 	 */
 	protected void precompute() {
-		logUniform = - Math.log( con.getAlphabetLengthAt(0) );
-		Arrays.fill( logNorm, 0 );
 		for(int i = 0 ; i < params.length; i++ ) {
-			//XXX logNorm[i] = Normalisation.logSumNormalisation(params[i], 0, params[i].length, probs[i], 0 );
-			logNorm[i] = Normalisation.getLogSum( params[i] );
+			logNorm[i] = Normalisation.logSumNormalisation(params[i], 0, params[i].length, probs[i], 0 );
+			/*logNorm[i] = Normalisation.getLogSum( params[i] );
 			for( int j = 0; j < params[i].length; j++ ) {
 				probs[i][j] = Math.exp( params[i][j] - logNorm[i] );
-			}
+			}*/
 		}
 	}
 
@@ -484,6 +484,7 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	protected void fromXML( StringBuffer xml ) throws NonParsableException {
 		xml = XMLParser.extractForTag( xml, XML_TAG );
 		con = (AlphabetContainer) XMLParser.extractObjectForTags( xml, "alphabetContainer" );
+		logUniform = - Math.log( con.getAlphabetLengthAt(0) );
 		params = (double[][]) XMLParser.extractObjectForTags( xml, "params" );
 		probs = new double[params.length][params[0].length];
 		grad = new double[params.length][params[0].length];
