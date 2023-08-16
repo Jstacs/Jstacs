@@ -233,17 +233,15 @@ public class SequenceAnnotation extends ResultSet {
 		buf.append( type );
 		buf.append( ", " );
 		buf.append( identifier );
-		buf.append( ":\n" );
+		buf.append( ":" );
 		for( int i = 0; i < results.size(); i++ ) {
 			if( results.get( i ) instanceof ListResult ) {
 				ResultSet[] ress = (ResultSet[])results.get( i ).getValue();
 				for( int j = 0; j < ress.length; j++ ) {
-					buf.append( ress[j].toString() );
-					buf.append( "\n" );
+					buf.append( "\n" + ress[j].toString() );
 				}
 			} else {
-				buf.append( results.get( i ).toString() );
-				buf.append( "\n" );
+				buf.append( "\n" + results.get( i ).toString() );
 			}
 		}
 		return buf.toString();
