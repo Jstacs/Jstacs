@@ -1035,7 +1035,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition#getLogPriorTerm()
 		 */
 		public double getLogPriorTerm() {
-			if( hyperParameters.length > 0 ) {
+			if( hyperParameters.length > 1 ) {
 				double res = 0, sumHyper = 0;
 				for( int d = 0; d < hyperParameters.length; d++ ) {
 					sumHyper += hyperParameters[d];
@@ -1158,10 +1158,14 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 				}
 				if( logNorm == 0 ) {
 					Arrays.fill( parameters, 0 );
-					logNorm = Math.log( parameters.length );
-				} else {
-					logNorm = Math.log( logNorm );
+					logNorm = parameters.length;
 				}
+				
+				logNorm = Math.log( logNorm );
+				for(int i=0;i<statistic.length;i++){
+					parameters[i] -= logNorm;
+				}
+				logNorm = 0;
 			}
 		}
 
