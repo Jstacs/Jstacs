@@ -102,47 +102,41 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 * Assigns parts of the data to the threads
 	 */
 	protected void prepareThreads() {
-		int i = 0, anz = 0;
-		for( ; i < data.length; i++ )
-		{
-			anz += data[i].getNumberOfElements();
+		long anz = 0;
+		for( int i = 0; i < data.length; i++ ) {
+			int l = data[i].getElementLength();
+			if( l!=0 ) {
+				anz += l*data[i].getNumberOfElements();
+			} else {
+				for( int n = 0; n<data[i].getNumberOfElements(); n++ ) {
+					anz+=data[i].getElementAt(n).getLength();
+				}
+			}
 		}
-		int part, all = anz, current;
-		int startClass, endClass = 0, startSeq, endSeq = 0, c; 
+		long part, all = anz, current;
+		int startClass, endClass = 0, startSeq, endSeq = 0; 
 		boolean out = true;
-		for( i = 0; i < worker.length; i++ )
-		{
-			part = (int) Math.ceil( all / (double) (worker.length-i) );
+		for( int i = 0; i < worker.length; i++ ) {
+			part = (long) Math.ceil( all / (double) (worker.length-i) );
 			startSeq = endSeq;
 			startClass = endClass;
-			/*if( i == worker.length-1 )
-			{
-				endClass = data.length-1;
-				endSeq = data[endClass].getNumberOfElements();
+			current=0;
+			while( endClass < data.length && endSeq <data[endClass].getNumberOfElements() ) {
+				do {
+					int l = data[endClass].getElementAt(endSeq).getLength();
+					current += l;
+					endSeq++;
+				} while( current < part && endSeq < data[endClass].getNumberOfElements() );
+				if( current>=part ) break;
+				endSeq = 0;
+				endClass++;
 			}
-			else*/
-			{
-				c = part;
-				while( endClass < data.length && data[endClass].getNumberOfElements()- endSeq < c )
-				{
-					c -= (data[endClass].getNumberOfElements()- endSeq);
-					endSeq = 0;
-					endClass++;
-				}
-				current = part;
-				endSeq += c;
-				if( endClass >= data.length ) {
-					endClass = data.length-1;
-					current -= (endSeq - data[endClass].getNumberOfElements());
-					endSeq = data[endClass].getNumberOfElements();
-					if( out && startClass == endClass && startSeq == endSeq ) {
-						System.out.println( "Warning: Splitting and assigning the data ("+anz+" sequences) to threads ("+worker.length+"), yields at least one empty thread." );
-						out = false;
-					}
-				}
-			}
+			if( out && startClass == endClass && startSeq == endSeq ) {
+				System.out.println( "Warning: Splitting and assigning the data to threads ("+worker.length+"), yields at least one empty thread." );
+				out = false;
+			}			
 			all -= current;
-			//System.out.println("split " + j + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq );
+			//System.out.println("split " + i + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq + "\t" + current );
 			if( worker[i] != null ) {
 				if( worker[i].isWaiting() ) {
 					worker[i].setIndices(startClass, startSeq, endClass, endSeq);
