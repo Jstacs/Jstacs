@@ -351,7 +351,7 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 			//somehow data specific
 			//System.out.println("MAP");
 			ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, constr );
-			ConstraintManager.computeFreqs( ess, constr );
+			ConstraintManager.computeFreqs( ess==0?1:ess, constr );
 			SequenceIterator sequence = new SequenceIterator( length );
 			MEMTools.train( constr, null, sequence, MEMTools.BGIS_P, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), null, alphLen );
 		}
