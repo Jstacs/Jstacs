@@ -228,7 +228,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 			fac = fac / (ess+ fac) * (ess == 0 ? 1d : 2d);
 			
 			DifferentiableStatisticalModel[] score = { (DifferentiableStatisticalModel) nsf.clone() };
-			double[] beta = LearningPrinciple.getBeta( ess == 0 ? LearningPrinciple.ML : LearningPrinciple.MAP );
+			double[] beta = LearningPrinciple.getBeta( prior == DoesNothingLogPrior.defaultInstance ? LearningPrinciple.ML : LearningPrinciple.MAP );
 			LogGenDisMixFunction f = new LogGenDisMixFunction( threads, score, new DataSet[]{small}, new double[][]{smallWeights}, prior, beta, true, false );
 			NegativeDifferentiableFunction minusF = new NegativeDifferentiableFunction( f );
 			StartDistanceForecaster sd =
