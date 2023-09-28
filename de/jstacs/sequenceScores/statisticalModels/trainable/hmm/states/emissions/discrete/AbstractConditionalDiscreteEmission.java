@@ -351,12 +351,11 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 				res += logUniform;
 			} else {
 				v = getIndex(s, current);
-				res -= logNorm[condIdx];
+				res += params[condIdx][v] - logNorm[condIdx];
+				grad[condIdx][v]++;
 				for(int i=0;i<grad[condIdx].length;i++) {
 					grad[condIdx][i] -= probs[condIdx][i];
 				}
-				res += params[condIdx][v];
-				grad[condIdx][v]++;
 			}
 			s++;
 		}
@@ -391,9 +390,8 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 			int condIdx = getConditionIndex( forward, s, seq );
 			if(condIdx < 0){
 				res += logUniform;
-			} else {
-				res -= logNorm[condIdx];
-				res += params[condIdx][getIndex(s, current)];
+			} else {;
+				res += params[condIdx][getIndex(s, current)] - logNorm[condIdx];
 			}
 			s++;
 		}
