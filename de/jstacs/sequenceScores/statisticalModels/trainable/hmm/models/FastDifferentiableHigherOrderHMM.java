@@ -7,6 +7,7 @@ import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleDifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.filter.Filter;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 
@@ -24,13 +25,13 @@ public class FastDifferentiableHigherOrderHMM extends DifferentiableHigherOrderH
 	public FastDifferentiableHigherOrderHMM(MaxHMMTrainingParameterSet trainingParameterSet, String[] name,
 			int[] emissionIdx, DifferentiableEmission[] emission, double ess,
 			TransitionElement... te) throws Exception {
-		super(trainingParameterSet, name, emissionIdx, null, emission, ess, te);
+		this(null, null, trainingParameterSet, name, null, emissionIdx, emission, ess, null, te);
 	}
 
-	public FastDifferentiableHigherOrderHMM(String type, int[][] statesGroups,
-			MaxHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx,
-			DifferentiableEmission[] emission, double ess, TransitionElement... te) throws Exception {
-		super(type, statesGroups, trainingParameterSet, name, emissionIdx, null, emission, ess, te);
+	public FastDifferentiableHigherOrderHMM( String type, int[][] statesGroups,
+			MaxHMMTrainingParameterSet trainingParameterSet, String[] name, Filter[] filter, int[] emissionIdx,
+			DifferentiableEmission[] emission, double ess, int[] transIndex, TransitionElement... te) throws Exception {
+		super(type, statesGroups, trainingParameterSet, name, filter, emissionIdx, null, emission, ess, transIndex, te);
 	}
 
 	public FastDifferentiableHigherOrderHMM(StringBuffer xml) throws NonParsableException {
@@ -54,11 +55,18 @@ public class FastDifferentiableHigherOrderHMM extends DifferentiableHigherOrderH
 		}
 	}
 	
-	protected void fillLogEmissionAndPartialDer( int endPos, Sequence seq ) throws OperationNotSupportedException, WrongLengthException {
-		for( int e = 0; e < dEmission.length; e++ ) {
-			indicesState[e].clear();
-			partDerState[e].clear();
-			logEmission[e] = dEmission[e].getLogProbAndPartialDerivationFor(true, endPos, endPos, indicesState[e], partDerState[e], seq );
+	protected void fillLogEmissionAndPartialDer( int endPos, Sequence seq, boolean grad ) throws OperationNotSupportedException, WrongLengthException {
+		boolean forward = true; //XXX
+		if( grad ) {
+			for( int e = 0; e < dEmission.length; e++ ) {
+				indicesState[e].clear();
+				partDerState[e].clear();
+				logEmission[e] = dEmission[e].getLogProbAndPartialDerivationFor(forward, endPos, endPos, indicesState[e], partDerState[e], seq );
+			}
+		} else {
+			for( int e = 0; e < dEmission.length; e++ ) {
+				logEmission[e] = dEmission[e].getLogProbFor(forward, endPos, endPos, seq );
+			}
 		}
 	}
 
@@ -75,6 +83,7 @@ public class FastDifferentiableHigherOrderHMM extends DifferentiableHigherOrderH
 	 */
 	private static class RefSimpleDifferentiableState extends SimpleDifferentiableState {
 		int idx;
+				
 		public RefSimpleDifferentiableState( int idx, DifferentiableEmission e, String name, boolean forward ) {
 			super( e, name, forward );
 			this.idx=idx;

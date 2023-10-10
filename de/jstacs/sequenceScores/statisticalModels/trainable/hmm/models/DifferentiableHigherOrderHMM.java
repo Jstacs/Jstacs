@@ -30,8 +30,8 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
-import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.SimpleGaussianSumLogPrior;
 import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
@@ -47,6 +47,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleDif
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableSMWrapperEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.UniformEmission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.DiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.filter.Filter;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWelchParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
@@ -135,12 +136,12 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 */
 	public DifferentiableHigherOrderHMM( MaxHMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward,
 			DifferentiableEmission[] emission, double ess, TransitionElement... te ) throws Exception {
-		this(null, null, trainingParameterSet, name, null, emissionIdx, forward, emission, ess, te);
+		this(null, null, trainingParameterSet, name, null, emissionIdx, forward, emission, ess, null, te);
 	}
 	
 	public DifferentiableHigherOrderHMM( String type, int[][] statesGroups, MaxHMMTrainingParameterSet trainingParameterSet, String[] name, Filter[] filter, int[] emissionIdx, boolean[] forward,
-			DifferentiableEmission[] emission, double ess, TransitionElement... te ) throws Exception {
-		super( type, statesGroups, trainingParameterSet, name, filter, emissionIdx, forward, emission, te );
+			DifferentiableEmission[] emission, double ess, int[] transIndex, TransitionElement... te ) throws Exception {
+		super( type, statesGroups, trainingParameterSet, name, filter, emissionIdx, forward, emission, transIndex, te );
 		getOffsets();
 		if( ess < 0 ) {
 			throw new IllegalArgumentException();
@@ -322,6 +323,23 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		getOffsets();
 	}
 	
+	/*
+	public void initializeTransitionRandomly( int num ) throws Exception {
+		double[] bestParams = null;
+		double best = Double.POSITIVE_INFINITY;
+		for( int i = 0; i < num; i++ ) {
+			transition.initializeRandomly();
+			double[] params = getCurrentParameterValues();
+			double current = 0;//TODO
+			if( best > current ) {
+				best = current;
+				bestParams = params;
+			}
+		}
+		
+		setParameters(bestParams, 0);
+	}/**/
+	
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		if(skipInit){
 			return;
@@ -355,8 +373,11 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 					int[] l = new int[emission.length], offset=new int[l.length];
 					for( int i = 0; i < emission.length; i++ ) {
 						if( diffEM[i] ) {
-							dEmission[i] = new UniformEmission(getAlphabetContainer());
-							
+/*							if( getAlphabetContainer().isDiscrete() ) {
+								dEmission[i] = new DiscreteEmission(getAlphabetContainer(),getESS());
+							} else {/**/
+								dEmission[i] = new UniformEmission(getAlphabetContainer());
+//							}
 							seqs[i] = new ArrayList<Sequence>();
 							subW[i] = new DoubleList();
 							DifferentiableSMWrapperEmission help = (DifferentiableSMWrapperEmission) emission[i];
@@ -368,9 +389,9 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 					}
 					DifferentiableHigherOrderHMM simple;
 					if( this instanceof FastDifferentiableHigherOrderHMM ) {
-						simple = new FastDifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, dEmission, ess, getTransitionElements() );
+						simple = new FastDifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, dEmission, ess, transIndex, getTransitionElements() );
 					} else {
-						simple = new DifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, forward, dEmission, ess, getTransitionElements() );
+						simple = new DifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, forward, dEmission, ess, transIndex, getTransitionElements() );
 					}
 					simple.defContext = defContext;
 					simple.preComputedContext = preComputedContext;
@@ -445,8 +466,8 @@ System.out.println(emission[i].toString(nf));
 			setTrain(true);
 			NumericalHMMTrainingParameterSet params = (NumericalHMMTrainingParameterSet) trainingParameter;
 			LogPrior p = 
-					//DoesNothingLogPrior.defaultInstance;
-					new SimpleGaussianSumLogPrior(2);//TODO
+					DoesNothingLogPrior.defaultInstance;
+					//new SimpleGaussianSumLogPrior(1);//TODO
 			DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance(), params.randomInitialization(), p );
 			model.setOutputStream( sostream );
 			model.train( data, weights );
@@ -918,7 +939,7 @@ System.out.println(emission[i].toString(nf));
 			
 			if( indices!= null ) {
 				for( int p = 0; p < numberOfParameters; p++ ) {
-					double v = prop[0]*prop[1]*(gradient[0][0][p]-gradient2[0][0][p]);
+					double v = prop[1]*(gradient[0][0][p]-gradient2[0][0][p]);
 					if( v!= 0 ) {
 						indices.add( p );
 						partialDer.add( v );
