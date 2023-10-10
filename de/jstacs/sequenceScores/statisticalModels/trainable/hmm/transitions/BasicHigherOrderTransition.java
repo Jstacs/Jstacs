@@ -65,17 +65,39 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	 */
 	protected int[][][] lookup;
 	
+	protected int[] transIndex;
+	
 	/**
 	 * The main constructor.
 	 * 
 	 * @param transitions the {@link AbstractTransitionElement}s for the internal use
+	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 <=transIndex[i] <= i</code>
 	 * @param isSilent an array indicating for each state whether it is silent or not
 	 * 
 	 * @throws Exception if an error occurs during checking the {@link AbstractTransitionElement}s and creating internal fields 
 	 */
-	public BasicHigherOrderTransition( boolean[] isSilent, AbstractTransitionElement... transitions ) throws Exception {
+	public BasicHigherOrderTransition( boolean[] isSilent, int[] transIndex, AbstractTransitionElement... transitions ) throws Exception {
 		this.isSilent = isSilent.clone();
 		this.transitions = ArrayHandler.clone( transitions );
+		this.transIndex = new int[transitions.length];
+		if( transIndex==null ) {
+			for( int i = 0; i < this.transIndex.length; i++ ) {
+				this.transIndex[i] = i;
+			}
+		} else {
+			if( transIndex.length != transitions.length ) {
+				throw new IllegalArgumentException( "The transIndex has to have the same length as the TransitionElements." );
+			}
+			for( int i = 0; i < this.transIndex.length; i++ ) {
+				if( transIndex[i] < 0 || transIndex[i] > i ) {
+					throw new IllegalArgumentException( "The constraint of the transIndex is not met: 0<=" + transIndex[i] + "<=" + i );
+				}
+				if( transIndex[i] != i && transitions[i].getNumberOfChildren() != transitions[transIndex[i]].getNumberOfChildren() ) {
+					throw new IllegalArgumentException( "Error in transIndex: TransitionElements " + i + " and " + transIndex[i] + " don't have the same number of children." );
+				}
+				this.transIndex[i] = transIndex[i];
+			}
+		}
 		init();
 	}
 	
@@ -94,6 +116,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		xml = XMLParser.extractForTag( xml, getXMLTag() );
 		this.transitions = (AbstractTransitionElement[]) XMLParser.extractObjectForTags( xml, "transitions" );
 		this.isSilent = (boolean[]) XMLParser.extractObjectForTags( xml, "isSilent" );
+		this.transIndex = (int[]) XMLParser.extractObjectForTags( xml, "transIndex" );
 		extractFurtherInformation( xml );
 		try {
 			init();
@@ -108,6 +131,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags( xml, transitions, "transitions" );
 		XMLParser.appendObjectWithTags( xml, isSilent, "isSilent" );
+		XMLParser.appendObjectWithTags( xml, transIndex, "transIndex" );
 		appendFurtherInformation( xml );
 		XMLParser.addTags( xml, getXMLTag() );
 		return xml;
@@ -148,6 +172,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		clone.isSilent = isSilent == null ? null : isSilent.clone();
 		clone.lookup = ArrayHandler.clone( lookup );
 		clone.transitions = ArrayHandler.clone( transitions );
+		clone.transIndex = transIndex.clone();
 		return clone;
 	}
 /*	
@@ -279,6 +304,13 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		}
 		if( elements.size() > transitions.length ) {
 			transitions = elements.toArray( new AbstractTransitionElement[0] );
+			
+			int[] help = new int[transitions.length];
+			System.arraycopy(transIndex, 0, help, 0, transIndex.length);
+			for( int i = transIndex.length; i < help.length; i++ ) {
+				help[i]=i;
+			}
+			transIndex = help;
 		}
 		
 		//maxInDegree & check connected & multiple times the same context 
@@ -406,22 +438,28 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	public void joinStatistics(Transition... transitions){
 		AbstractTransitionElement[] ats = new AbstractTransitionElement[transitions.length];
 		for(int j=0;j<this.transitions.length;j++){
-			for(int i=0;i<transitions.length;i++){
-				ats[i] = ((BasicHigherOrderTransition)transitions[i]).transitions[j];
+			if( transIndex[j] == j ) {
+				for(int i=0;i<transitions.length;i++){
+					ats[i] = ((BasicHigherOrderTransition)transitions[i]).transitions[j];
+				}
+				this.transitions[j].joinStatistics( ats );
 			}
-			this.transitions[j].joinStatistics( ats );
 		}
 	}
 	
 	@Override
 	public void addToStatistic( int layer, int index, int childIdx, double weight, Sequence sequence, int sequencePosition ) {
-		transitions[getTransitionElementIndex( layer, index )].addToStatistic( childIdx, weight, sequence, sequencePosition );
+		transitions[transIndex[getTransitionElementIndex( layer, index )]].addToStatistic( childIdx, weight, sequence, sequencePosition );
 	}
 
 	@Override
 	public void estimateFromStatistic() {
 		for( int t = 0; t<transitions.length; t++ ){
-			transitions[t].estimateFromStatistic();
+			if( transIndex[t] == t ) {
+				transitions[t].estimateFromStatistic();
+			} else {
+				transitions[t].setParameters( transitions[transIndex[t]] );
+			}
 		}
 	}
 
@@ -435,7 +473,11 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	 */
 	public void drawParametersFromStatistic() throws Exception {
 		for( int t = 0; t<transitions.length; t++ ){
-			transitions[t].drawParametersFromStatistic();
+			if( transIndex[t] == t ) {
+				transitions[t].drawParametersFromStatistic();
+			} else {
+				this.transitions[t].setParameters( this.transitions[transIndex[t]] );
+			}
 		}
 	}
 	
@@ -457,7 +499,9 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	public double getLogPriorTerm() {
 		double pt = 0;
 		for( int t = 0; t<transitions.length; t++ ){
-			pt += transitions[t].getLogPriorTerm();
+			if( transIndex[t]==t ) {
+				pt += transitions[t].getLogPriorTerm();
+			}
 		}
 		return pt;
 	}
@@ -470,7 +514,11 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	@Override
 	public void initializeRandomly() {
 		for( int t = 0; t<transitions.length; t++ ){
-			transitions[t].initializeRandomly();
+			if( transIndex[t] == t ) {
+				transitions[t].initializeRandomly();
+			} else {
+				this.transitions[t].setParameters( this.transitions[transIndex[t]] );
+			}
 		}
 	}
 
@@ -519,6 +567,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 
 	@Override
 	public double getLogScoreFor( int layer, int index, int childIdx, Sequence sequence, int sequencePosition ) {
+		//the link via transIndex is omitted for runtime reasons
 		return transitions[ getTransitionElementIndex( layer, index ) ].getLogScoreFor( childIdx, sequence, sequencePosition );
 	}
 
@@ -582,7 +631,9 @@ public class BasicHigherOrderTransition implements TrainableTransition {
     public double getLogGammaScoreFromStatistic() {
         double res = 0;
         for( int t = 0; t < transitions.length; t++ ) {
-        	res += transitions[t].getLogGammaScoreFromStatistic();
+        	if( transIndex[t] == t ) {
+        		res += transitions[t].getLogGammaScoreFromStatistic();
+        	}
         }
         return res;
     }
@@ -594,7 +645,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
     public String toString( String[] stateNames, NumberFormat nf ) {
     	StringBuffer sb = new StringBuffer();
     	for( int t = 0; t < transitions.length; t++ ) {
-        	sb.append( transitions[t].toString( stateNames, nf ) );
+        	sb.append( t + (transIndex[t]==t?"":("->"+transIndex[t])) + "\t" + transitions[t].toString( stateNames, nf ) );
         }
     	return sb.toString();
     }
@@ -617,7 +668,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		}
 		BasicHigherOrderTransition tt = (BasicHigherOrderTransition) t;
 		for( int i = 0; i < transitions.length; i++ ) {
-			transitions[i].setParameters( tt.transitions[i] );
+			transitions[i].setParameters( tt.transitions[transIndex[i]] );
 		}		
 	}
     
@@ -1157,7 +1208,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 					parameters[i] = Math.log( statistic[i] );
 				}
 				if( logNorm == 0 ) {
-					Arrays.fill( parameters, 0 );
+					Arrays.fill( parameters, 0 ); //memo: log 1 = 0 ;)
 					logNorm = parameters.length;
 				}
 				
@@ -1189,6 +1240,8 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			resetStatistic();
 			drawParametersFromStatistic();
 			resetStatistic();
+			
+			
 		}
 		
 		/**
@@ -1228,7 +1281,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 				String context = getContext( stateNames );
 				for( int i = 0; i < parameters.length; i++ ) {
 					double v = Math.exp( parameters[i] - logNorm );
-					sb.append("P(" + getLabel( stateNames, states[i] ) + context + ") \t= " + (nf==null?v:nf.format( v )) );
+					sb.append("P(" + getLabel( stateNames, states[i] ) + context + ") = " + (nf==null?v:nf.format( v )) );
 					sb.append("\t");
 				}
 				sb.append( "\n" );
