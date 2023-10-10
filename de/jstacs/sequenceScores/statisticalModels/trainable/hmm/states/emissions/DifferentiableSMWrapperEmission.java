@@ -7,9 +7,11 @@ import java.util.LinkedList;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.DataSet;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -41,7 +43,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 			throw new IllegalArgumentException("Possible only for simple AlphabetContainer");
 		} 
 		if( model.getLength()==0 ) {
-			throw new IllegalArgumentException("Possible only models with fixed length");
+			throw new IllegalArgumentException("Possible only for models with fixed length");
 		}
 		this.model=(DifferentiableStatisticalModel) model.clone();
 		this.offset=offset;
@@ -240,5 +242,46 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 		double[] params = model.getCurrentParameterValues();
 		Arrays.fill(params, 0);
 		model.setParameters(params, 0);
+	}
+	
+	/**
+	 * Allows to initialize the internal model using some data.
+	 * 
+	 * @param index
+	 *            the index of the class the {@link DifferentiableSequenceScore} models
+	 * @param freeParams
+	 *            indicates whether the (reduced) parameterization is used
+	 * @param data
+	 *            the data sets
+	 * @param weights
+	 *            the weights of the sequences in the data sets
+	 * 
+	 * @throws Exception
+	 *             if something went wrong
+	 * 
+	 * @see DifferentiableStatisticalModel#initializeFunction(int, boolean, DataSet[], double[][])
+	 */
+	public void initializeFunction(int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
+		model.initializeFunction( index, freeParams, data, weights );
+	}
+
+	/**
+	 * Returns the length of sequences this internal model can score.
+	 * 
+	 * @return the length of sequences the internal model can score
+	 *  
+	 * @see DifferentiableStatisticalModel#getLength()
+	 */
+	public int getLength() {
+		return l;
+	}
+
+	/**
+	 * Returns the offset that is used for the internal model to extract the sequence to be scored.
+	 * 
+	 * @return the offset that is used for the internal model
+	 */
+	public int getOffset() {
+		return offset;
 	}
 }
