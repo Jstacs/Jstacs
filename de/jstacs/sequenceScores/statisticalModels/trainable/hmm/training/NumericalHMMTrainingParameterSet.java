@@ -73,8 +73,8 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 		LIKELIHOOD(false,false),
 		VITERBI(false,true),
 		DISCRIMINATIVE_LIKELIHOOD(true,false),
-		DISCRIMINATIVE_VITERBI(true,true);
-		//,	DISCRIMINATIVE_VITERBI2(true,true);
+		DISCRIMINATIVE_VITERBI(true,true),
+		DISCRIMINATIVE_VITERBI2(true,true);
 
 		protected boolean discriminative;
 		protected boolean vitLike;
