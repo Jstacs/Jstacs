@@ -6,9 +6,9 @@
 		<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
 	-->
 	
-	<property name="version" value="2.4" />
+	<property name="version" value="2.5" />
 	<property name="builddir" value="/Users/dev/Documents/jstacs_downloads/" />
-	<property name="cp" value="lib/BigWig.jar:lib/junit-4.5.jar:lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar:lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode-1.9.0.jar:lib/core-1.9.0.jar:lib/xml-commons/pdf-transcoder.jar:lib/xml-commons/xmlgraphics-commons-1.5.jar:lib/Jama-1.0.3.jar:lib/xml-commons/batik-transcoder.jar:lib/colt.jar:lib/ssj.jar:lib/xml-commons/batik-dom.jar:lib/xml-commons/batik-svggen.jar:lib/xml-commons/batik-svg-dom.jar:lib/xml-commons/batik-awt-util.jar:lib/xml-commons/batik-util.jar" />
+	<property name="cp" value="lib/BigWig.jar:lib/junit-4.5.jar:lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar:lib/numericalMethods.jar:lib/RClient-0.6.7.jar:lib/biojava-live.jar:lib/bytecode-1.9.0.jar:lib/core-1.9.0.jar:lib/xml-commons/pdf-transcoder.jar:lib/xml-commons/xmlgraphics-commons-1.5.jar:lib/Jama-1.0.3.jar:lib/xml-commons/batik-transcoder.jar:lib/xml-commons/batik-dom.jar:lib/xml-commons/batik-svggen.jar:lib/xml-commons/batik-svg-dom.jar:lib/xml-commons/batik-awt-util.jar:lib/xml-commons/batik-util.jar:lib/ssj/colt-1.2.0.jar:lib/ssj/ssj-3.3.1.jar:" />
 	
 	<target name="javadoc">
 		<javadoc access="protected" author="true" classpath="${cp}"
