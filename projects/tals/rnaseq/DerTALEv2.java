@@ -555,7 +555,7 @@ public class DerTALEv2 implements JstacsTool {
 		TextResult trstatValues = new TextResult("Differentially abundant", "", new FileParameter.FileRepresentation("", statValues.toString()), "tsv", getToolName(), null, true);
 		
 		ress.addFirst(trstatValues);
-		protocol.append("Finished.\nWriting output...");
+		protocol.append("Finished.\nWriting output...\n");
 		
 		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(ress.toArray(new Result[0])), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 		
