@@ -18,6 +18,8 @@
 
 package de.jstacs.classifiers.differentiableSequenceScoreBased;
 
+import java.util.Arrays;
+
 import de.jstacs.algorithms.optimization.DimensionException;
 import de.jstacs.algorithms.optimization.EvaluationException;
 import de.jstacs.algorithms.optimization.MultiThreadedFunction;
@@ -102,47 +104,47 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	 * Assigns parts of the data to the threads
 	 */
 	protected void prepareThreads() {
-		int i = 0, anz = 0;
-		for( ; i < data.length; i++ )
-		{
-			anz += data[i].getNumberOfElements();
+		long numBases = 0, numSeqs=0;
+		for( int i = 0; i < data.length; i++ ) {
+			int l = data[i].getElementLength();
+			int m = data[i].getNumberOfElements();
+			numSeqs+=m;
+			if( l!=0 ) {
+				numBases += l*m;
+			} else {
+				for( int n = 0; n<m; n++ ) {
+					numBases+=data[i].getElementAt(n).getLength();
+				}
+			}
 		}
-		int part, all = anz, current;
-		int startClass, endClass = 0, startSeq, endSeq = 0, c; 
-		boolean out = true;
-		for( i = 0; i < worker.length; i++ )
-		{
-			part = (int) Math.ceil( all / (double) (worker.length-i) );
+		long[] bases = new long[worker.length];
+		long[] seqs = new long[worker.length];
+		long part, remBases = numBases, remSeqs = numSeqs;
+		int startClass, endClass = 0, startSeq, endSeq = 0; 
+		boolean out = false;
+		for( int i = 0; i < worker.length; i++ ) {
+			part = (long) Math.ceil( remBases / (double) (worker.length-i) );
 			startSeq = endSeq;
 			startClass = endClass;
-			/*if( i == worker.length-1 )
-			{
-				endClass = data.length-1;
-				endSeq = data[endClass].getNumberOfElements();
+			bases[i] = seqs[i] = 0;
+			int remWorker = worker.length-i;
+			while( remSeqs >= remWorker && endClass < data.length && endSeq <data[endClass].getNumberOfElements() ) {
+				do {
+					int l = data[endClass].getElementAt(endSeq).getLength();
+					bases[i] += l;
+					seqs[i]++;
+					endSeq++;
+				} while( remSeqs-seqs[i] >= remWorker && bases[i] < part && endSeq < data[endClass].getNumberOfElements() );
+				if( remSeqs-seqs[i] < remWorker || bases[i]>=part ) break;
+				endSeq = 0;
+				endClass++;
 			}
-			else*/
-			{
-				c = part;
-				while( endClass < data.length && data[endClass].getNumberOfElements()- endSeq < c )
-				{
-					c -= (data[endClass].getNumberOfElements()- endSeq);
-					endSeq = 0;
-					endClass++;
-				}
-				current = part;
-				endSeq += c;
-				if( endClass >= data.length ) {
-					endClass = data.length-1;
-					current -= (endSeq - data[endClass].getNumberOfElements());
-					endSeq = data[endClass].getNumberOfElements();
-					if( out && startClass == endClass && startSeq == endSeq ) {
-						System.out.println( "Warning: Splitting and assigning the data ("+anz+" sequences) to threads ("+worker.length+"), yields at least one empty thread." );
-						out = false;
-					}
-				}
+			if( !out && startClass == endClass && startSeq == endSeq ) {
+				out = true;
 			}
-			all -= current;
-			//System.out.println("split " + j + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq );
+			remBases -= bases[i];
+			remSeqs -= seqs[i];
+			//System.out.println("split " + i + ": " + startClass + " " + startSeq + "\t" + endClass + " " + endSeq + "\t" + bases[i] + "\t" + seqs[i] );
 			if( worker[i] != null ) {
 				if( worker[i].isWaiting() ) {
 					worker[i].setIndices(startClass, startSeq, endClass, endSeq);
@@ -154,6 +156,13 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 				worker[i] = new Worker( i, startClass, startSeq, endClass, endSeq );
 				worker[i].start();
 			}
+		}
+		
+		if( out ) {
+			System.out.println( "Warning: Splitting and assigning the data ("+numBases+" characters, "+numSeqs+" sequences) to threads ("+worker.length+"), yields at least one empty thread.\n"
+					+ "#characters = " + Arrays.toString(bases) + "\n"
+					+ "#seqs = " + Arrays.toString(seqs) + "\n" );
+			
 		}
 	}
 

@@ -35,6 +35,7 @@ import de.jstacs.data.DataSetKMerEnumerator;
 import de.jstacs.data.DiscreteSequenceEnumerator;
 import de.jstacs.data.sequences.IntSequence;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.io.ParameterSetParser.NotInstantiableException;
@@ -223,8 +224,10 @@ public class BayesianNetworkDiffSM extends
 	@Override
 	public BayesianNetworkDiffSM clone()
 			throws CloneNotSupportedException {
-		BayesianNetworkDiffSM clone = (BayesianNetworkDiffSM) super
-				.clone();
+		BayesianNetworkDiffSM clone = (BayesianNetworkDiffSM) super.clone();
+		if( parameterSet!=null ) clone.parameterSet = (BayesianNetworkDiffSMParameterSet) parameterSet.clone();
+		if( roots!=null ) clone.roots = roots.clone();
+		clone.order = ArrayHandler.clone(order);
 		if (trees != null) {
 			clone.trees = new BNDiffSMParameterTree[trees.length];
 			for (int i = 0; i < trees.length; i++) {

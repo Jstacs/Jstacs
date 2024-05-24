@@ -20,6 +20,7 @@
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.models;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import javax.naming.OperationNotSupportedException;
 
@@ -28,6 +29,7 @@ import de.jstacs.data.DataSet;
 import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.data.sequences.annotation.SequenceAnnotation;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
@@ -39,14 +41,15 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.AbstractHMM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.TrainableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.Emission;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.filter.Filter;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWelchParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.ViterbiParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.HigherOrderTransition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.TrainableTransition;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.Transition;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.mixture.AbstractMixtureTrainSM;
 import de.jstacs.utils.IntList;
@@ -82,12 +85,18 @@ public class HigherOrderHMM extends AbstractHMM {
 	 */
 	protected int[] container;
 	/**
-	 * Helper variable = only for internal use. This array is used for compute the emissions at each position of a sequence only once,
+	 * Helper variable = only for internal use. This array is used to compute the emissions at each position of a sequence only once,
 	 * which might be beneficial for higher order models.
 	 * 
 	 * @see HigherOrderHMM#emission
 	 */
 	protected double[] logEmission;
+	/**
+	 * Helper variable = only for internal use. This array is used to compute the filter result at each position of a sequence only once,
+	 * which might be beneficial for higher order models.
+	 */
+	protected boolean[] filterRes;
+	
 	
 	/**
 	 * Helper variable = only for internal use. This array is used to compute the forward matrix. It stores intermediate results.
@@ -117,6 +126,14 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * Indicates if the model should be initialized (randomly) before optimization
 	 */
 	protected boolean skipInit;
+
+	/**
+	 * The type of the {@link SequenceAnnotation} that is used for the state groups
+	 * 
+	 * @see #fillBwdMatrix(int, int, Sequence, int[])
+	 * @see #fillFwdMatrix(int, int, Sequence, int[])
+	 */
+	protected String type;
 	
 	/**
 	 * This is a convenience constructor. It assumes that state <code>i</code> used emission <code>i</code> on the forward strand.
@@ -160,10 +177,13 @@ public class HigherOrderHMM extends AbstractHMM {
 	 *  </ul>
 	 */
 	public HigherOrderHMM( HMMTrainingParameterSet trainingParameterSet, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission, AbstractTransitionElement... te ) throws Exception {
-		super( trainingParameterSet, name, emissionIdx, forward, emission );
-		createStates();
-		initTransition( te );
-		determineFinalStates();
+		this(null, null, trainingParameterSet, name, null, emissionIdx, forward, emission, null, te);
+	}
+	
+	public HigherOrderHMM( String sequenceAnnotationType, int[][] statesGroups, HMMTrainingParameterSet trainingParameterSet, String[] name, Filter[] filter, int[] emissionIdx, boolean[] forward, Emission[] emission, int[] transIndex, AbstractTransitionElement... te ) throws Exception {
+		super( statesGroups, trainingParameterSet, name, filter, emissionIdx, forward, emission, transIndex, te );
+		type=sequenceAnnotationType;
+		filterRes = new boolean[states.length];
 	}
 	
 	protected void createHelperVariables() {
@@ -196,6 +216,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	public HigherOrderHMM( StringBuffer xml ) throws NonParsableException {
 		super( xml );
 		createHelperVariables();
+		filterRes = new boolean[states.length];
 	}
 	
 	private static final String XML_TAG = "HigherOrderHMM";
@@ -206,23 +227,19 @@ public class HigherOrderHMM extends AbstractHMM {
 		
 	protected void appendFurtherInformation( StringBuffer xml ) {
 		XMLParser.appendObjectWithTags( xml, skipInit, "skipInit" );
+		XMLParser.appendObjectWithTags( xml, type, "type" );
 	}
 
-	/**
-	 * This method extracts further information from the XML representation. It allows subclasses to cast further parameters that are not defined in the superclass.
-	 * 
-	 * @param xml the XML representation
-	 *  
-	 * @throws NonParsableException if the information could not be reconstructed out of the {@link StringBuffer} <code>xml</code>
-	 */
 	protected void extractFurtherInformation( StringBuffer xml ) throws NonParsableException {
 		skipInit = XMLParser.extractObjectForTags( xml, "skipInit",boolean.class );
+		type = XMLParser.extractObjectForTags( xml, "type", String.class );
 	}	
 	
 	public HigherOrderHMM clone() throws CloneNotSupportedException {
 		HigherOrderHMM clone = (HigherOrderHMM) super.clone();
 		clone.container = null;
 		clone.createHelperVariables();
+		clone.filterRes = filterRes.clone();
 		return clone;
 	}
 	
@@ -254,19 +271,22 @@ public class HigherOrderHMM extends AbstractHMM {
 		container[1] = 0;
 		while( l < path.length() ) {
 			state = path.get( l );
-			
-			int childIdx = transition.getChildIdx( layer, container[1], state );
-			if( childIdx < 0 ) {
-				throw new IllegalArgumentException( "Impossible path" );
+			if( filter[state]==null || filter[state].isAccepted(startPos, seq ) ) {
+				int childIdx = transition.getChildIdx( layer, container[1], state );
+				if( childIdx < 0 ) {
+					throw new IllegalArgumentException( "Impossible path" );
+				}
+				res += transition.getLogScoreFor( layer, container[1], childIdx, seq, startPos ) //transition
+					+ states[state].getLogScoreFor( startPos, startPos, seq ); //emission
+				transition.fillTransitionInformation( layer, container[1], childIdx, container );
+				if( container[2] == 1 ) {
+					startPos++;
+					layer++;
+				}
+				l++;
+			} else {
+				return Double.NEGATIVE_INFINITY;
 			}
-			res += transition.getLogScoreFor( layer, container[1], childIdx, seq, startPos ) //transition
-				+ states[state].getLogScoreFor( startPos, startPos, seq ); //emission
-			transition.fillTransitionInformation( layer, container[1], childIdx, container );
-			if( container[2] == 1 ) {
-				startPos++;
-				layer++;
-			}
-			l++;
 		}
 		return res;
 	}
@@ -307,11 +327,37 @@ public class HigherOrderHMM extends AbstractHMM {
 			}
 		}
 	}
-
+	
+	protected int[] getAllowedContext( int pos, int start, int[] allowedStatesGroup, int maxOrder ) {
+		if( allowedStatesGroup==null //no user-specified allowed states (at all)
+				|| pos-start<maxOrder //only for full context
+				|| allowedStatesGroup[pos-1]==-1 //no user-specified allowed states (for this position) 
+		) {
+			return defContext[Math.min(maxOrder,pos-start)];
+		} else {
+			return preComputedContext[allowedStatesGroup[pos-1]];
+		}
+	}
+	
+	protected void fillLogEmission( int startPos, Sequence seq ) throws OperationNotSupportedException, WrongLengthException {
+		for( int stateID = 0; stateID < states.length; stateID++ ) {
+			logEmission[stateID] = states[stateID].getLogScoreFor(startPos, startPos, seq); 
+		}
+	}
+	
+	protected void fillFilter( int startPos, Sequence seq ) {
+		for( int stateID = 0; stateID < states.length; stateID++ ) {
+			filterRes[stateID] = filter[stateID]==null || filter[stateID].isAccepted(startPos, seq); 
+		}
+	}
+	
+	protected int getIndex( int i ) {
+		return i;
+	}
+	
 	@Override
-	protected void fillFwdMatrix( int startPos, int endPos, Sequence seq ) throws OperationNotSupportedException, WrongLengthException {
+	protected void fillFwdMatrix( int startPos, int endPos, Sequence seq, int[] allowedStatesGroup ) throws OperationNotSupportedException, WrongLengthException {
 		int l = 0, stateID, context, n, h, hh;
-		double logTransition;
 		provideMatrix( 0, endPos-startPos+1 );
 		
 		//init
@@ -320,30 +366,34 @@ public class HigherOrderHMM extends AbstractHMM {
 		forwardIntermediate[0][0][0] = 0;
 		
 		//iterate
+		int s = startPos, maxOrder=transition.getMaximalMarkovOrder();
+		int[] allContext;
 		while( startPos <= endPos ) {
-			for( stateID = 0; stateID < states.length; stateID++ ) {
-				logEmission[stateID] = states[stateID].getLogScoreFor(startPos, startPos, seq); 
-			}
+			fillLogEmission(startPos, seq); 
+			fillFilter(startPos, seq);
 			
 			h=l%2;
 			Arrays.fill( numberOfSummands[1-h], 0 );
 			
-			for( context = 0; context < fwdMatrix[l].length; context++ ) {
+			allContext=getAllowedContext(startPos, s, allowedStatesGroup, maxOrder);
+			for( int x = 0; x < allContext.length; x++ ) {
+				context=allContext[x];
+				
 				n = transition.getNumberOfChildren(l, context);
 	
 				if( numberOfSummands[h][context] > 0 ) {
 					fwdMatrix[l][context] = Normalisation.getLogSum( 0, numberOfSummands[h][context], forwardIntermediate[h][context] );
 				
 					for( stateID = 0; stateID < n; stateID++ ) {
-						transition.fillTransitionInformation( l, context, stateID, container );			
-						logTransition = transition.getLogScoreFor( l, context, stateID, seq, startPos );
-
-						hh = (h + container[2]) % 2;						
-						forwardIntermediate[hh][container[1]][numberOfSummands[hh][container[1]]] = fwdMatrix[l][context] //old part
-						       + logEmission[container[0]] //emission
-						       + logTransition; //transition
-						
-						numberOfSummands[hh][container[1]]++;
+						transition.fillTransitionInformation( l, context, stateID, container );
+						if( filterRes[container[0]] ) {
+							hh = (h + container[2]) % 2;						
+							forwardIntermediate[hh][container[1]][numberOfSummands[hh][container[1]]] = fwdMatrix[l][context] //old part
+							       + logEmission[getIndex(container[0])] //emission
+							       + transition.getLogScoreFor( l, context, stateID, seq, startPos ); //transition
+							
+							numberOfSummands[hh][container[1]]++;
+						}
 					}
 				} else {
 					fwdMatrix[l][context] = Double.NEGATIVE_INFINITY;
@@ -355,8 +405,11 @@ public class HigherOrderHMM extends AbstractHMM {
 		}
 		
 		//final summing and silent states
+		fillFilter(startPos, seq);
+		allContext=getAllowedContext(startPos, s, allowedStatesGroup, maxOrder);
 		h=l%2;
-		for( context = 0; context < fwdMatrix[l].length; context++ ) {
+		for( int x = 0; x<allContext.length; x++ ) {
+			context=allContext[x];
 			n = transition.getNumberOfChildren(l, context);
 			
 			if( numberOfSummands[h][context] > 0 ) {
@@ -364,13 +417,13 @@ public class HigherOrderHMM extends AbstractHMM {
 			
 				for( stateID = 0; stateID < n; stateID++ ) {
 					transition.fillTransitionInformation( l, context, stateID, container );
-					if( states[container[0]].isSilent() ) {
-						logTransition = transition.getLogScoreFor( l, context, stateID, seq, startPos );
-	
-						//hh=h
-						forwardIntermediate[h][container[1]][numberOfSummands[h][container[1]]++] = fwdMatrix[l][context] //old part
-						       // there is no emission (silent state)
-						       + logTransition; //transition
+					if( filterRes[container[0]] ) {
+						if( states[container[0]].isSilent() ) {
+							//hh=h
+							forwardIntermediate[h][container[1]][numberOfSummands[h][container[1]]++] = fwdMatrix[l][context] //old part
+							       // there is no emission (silent state)
+							       + transition.getLogScoreFor( l, context, stateID, seq, startPos ); //transition
+						}
 					}
 				} 
 			} else {
@@ -381,8 +434,8 @@ public class HigherOrderHMM extends AbstractHMM {
 	}
 
 	@Override
-	protected void fillBwdMatrix( int startPos, int endPos, Sequence seq )  throws Exception {
-		fillBwdOrViterbiMatrix( Type.LIKELIHOOD, startPos, endPos, 1, seq );
+	protected void fillBwdMatrix( int startPos, int endPos, Sequence seq, int[] allowedStatesGroup )  throws Exception {
+		fillBwdOrViterbiMatrix( Type.LIKELIHOOD, startPos, endPos, 1, seq, allowedStatesGroup, false );
 	}
 	
 	/**
@@ -398,39 +451,69 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @throws Exception forwarded from {@link TrainableState#addToStatistic} and {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State#getLogScoreFor(int, int, Sequence)}
 	 */
 	protected void fillBwdOrViterbiMatrix( Type t, int startPos, int endPos, double weight, Sequence seq )  throws Exception {
+		fillBwdOrViterbiMatrix(t, startPos, endPos, weight, seq, null, false );
+	}
+	
+	/**
+	 * This method computes the entries of the backward or the viterbi matrix.
+	 * Additionally it allows to modify the sufficient statistics as needed for Baum-Welch training.
+	 * 
+	 * @param t a switch to decide which computation mode
+	 * @param startPos start position of the sequence 
+	 * @param endPos end position of the sequence
+	 * @param seq the sequence
+	 * @param allowedStatesGroup
+	 * @param weight the given external weight of the sequence (only used for Baum-Welch)
+	 * @param add a switch whether to add to the internal statistics
+	 * 
+	 * @throws Exception forwarded from {@link TrainableState#addToStatistic} and {@link de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.State#getLogScoreFor(int, int, Sequence)}
+	 */
+	protected void fillBwdOrViterbiMatrix( Type t, int startPos, int endPos, double weight, Sequence seq, int[] allowedStatesGroup, boolean add )  throws Exception {
+		int maxOrder=transition.getMaximalMarkovOrder();
+		boolean zero = maxOrder == 0;
 		int l = endPos-startPos+1, stateID, context, n;
-		boolean zero = transition.getMaximalMarkovOrder() == 0;
+		
 		provideMatrix( 1, endPos-startPos+1 );
-
-		double val, newWeight, res = t != Type.BAUM_WELCH ? Double.NaN : computeLogScoreFromForward( l );
+		double res;
+		if( add ) {
+			fillFwdMatrix( startPos, endPos, seq, allowedStatesGroup );
+			res = computeLogScoreFromForward( l );
+		} else {
+			res = Double.NaN;
+		}
+		double val, newWeight;
 		
 		//init
-		for( context = bwdMatrix[l].length-1; context >= 0; context-- ) {
-			n = transition.getNumberOfChildren( l, context );			
-			numberOfSummands[0][0] = 0;
+		fillFilter(endPos, seq);
+		int[] allContext = getAllowedContext(endPos+1, startPos, allowedStatesGroup, maxOrder);
+		Arrays.fill( bwdMatrix[l], zero ? 0 : Double.NEGATIVE_INFINITY );
+		for( int x = allContext.length-1; x>=0; x-- ) {
+			context = allContext[x];
+			n = transition.getNumberOfChildren( l, context );
 			
+			numberOfSummands[0][0] = 0;
 			if( zero || finalState[transition.getLastContextState( l, context )] ) {
 				val = 0;
 			} else {
 				val = Double.NEGATIVE_INFINITY;
-			}
-			
+			}			
 			//for all different children states
 			for( stateID = 0; stateID < n; stateID++ ) {
 				transition.fillTransitionInformation( l, context, stateID, container );
-				if( states[container[0]].isSilent() ) {
-					backwardIntermediate[numberOfSummands[0][0]] =
-						bwdMatrix[l][container[1]] //backward score until next position
-						//there is no emission (silent state)
-					    + transition.getLogScoreFor( l, context, stateID, seq, endPos ); //transition
-					
-					if( t == Type.BAUM_WELCH ) {
-						newWeight = weight * Math.exp( fwdMatrix[l][context] + backwardIntermediate[numberOfSummands[0][0]] - res );
+				if( filterRes[container[0]] ) {
+					if( states[container[0]].isSilent() ) {
+						backwardIntermediate[numberOfSummands[0][0]] =
+							bwdMatrix[l][container[1]] //backward score until next position
+							//there is no emission (silent state)
+						    + transition.getLogScoreFor( l, context, stateID, seq, endPos ); //transition
 						
-						((TrainableTransition)transition).addToStatistic( l, context, stateID, newWeight, seq, endPos );
+						if( add ) {
+							newWeight = weight * Math.exp( fwdMatrix[l][context] + backwardIntermediate[numberOfSummands[0][0]] - res );
+							((TrainableTransition)transition).addToStatistic( l, context, stateID, newWeight, seq, endPos );
+						}
+						
+						numberOfSummands[0][0]++;
 					}
-					
-					numberOfSummands[0][0]++;
 				}
 			}
 			
@@ -446,36 +529,42 @@ public class HigherOrderHMM extends AbstractHMM {
 		
 		//compute scores for all positions backward
 		while( --l >= 0 ) {
-			for( stateID = 0; stateID < states.length; stateID++ ) {
-				logEmission[stateID] = states[stateID].getLogScoreFor(endPos, endPos, seq); 
-			}
+			fillLogEmission(endPos, seq);
+			fillFilter(endPos, seq);
+			
 			//for all different contexts
-			for( context = bwdMatrix[l].length-1; context >= 0; context-- ) {
-				n = transition.getNumberOfChildren( l, context );			
-				//for all different children states
-				for( stateID = 0; stateID < n; stateID++ ) {
-					transition.fillTransitionInformation( l, context, stateID, container );
-					
-					backwardIntermediate[stateID] =
-						bwdMatrix[l+container[2]][container[1]] //backward score until next position
-						+ logEmission[container[0]] //emission
-					    + transition.getLogScoreFor( l, context, stateID, seq, endPos ); //transition
-					
-					if( t == Type.BAUM_WELCH ) {
-						newWeight = weight * Math.exp( fwdMatrix[l][context] + backwardIntermediate[stateID] - res );
-						((TrainableState)states[container[0]]).addToStatistic( endPos, endPos, newWeight, seq );
-						((TrainableTransition)transition).addToStatistic( l, context, stateID, newWeight, seq, endPos );
-					}
-				}
+//System.out.println("pos\t" + startPos + "\t" + endPos +"\t" + allowedStatesGroup[endPos]);
+			allContext = getAllowedContext(endPos, startPos, allowedStatesGroup, maxOrder);
+			for( int x = allContext.length-1; x>=0; x-- ) {
+				context = allContext[x];
+				n = transition.getNumberOfChildren( l, context );
 				if( n > 0 ) {
+					//for all different children states
+					for( stateID = 0; stateID < n; stateID++ ) {
+						transition.fillTransitionInformation( l, context, stateID, container );
+						if( filterRes[container[0]] ) {
+							backwardIntermediate[stateID] =
+								bwdMatrix[l+container[2]][container[1]] //backward score until next position
+								+ logEmission[getIndex(container[0])] //emission
+							    + transition.getLogScoreFor( l, context, stateID, seq, endPos ); //transition
+							
+							if( add ) {
+								newWeight = weight * Math.exp( fwdMatrix[l][context] + backwardIntermediate[stateID] - res );
+								((TrainableState)states[getIndex(container[0])]).addToStatistic( endPos, endPos, newWeight, seq );
+								((TrainableTransition)transition).addToStatistic( l, context, stateID, newWeight, seq, endPos );
+							}
+						} else {
+							backwardIntermediate[stateID] = Double.NEGATIVE_INFINITY;
+						}
+					}
 					bwdMatrix[l][context] = t == Type.VITERBI
 						? ToolBox.max( 0, n, backwardIntermediate )
 						: Normalisation.getLogSum( 0, n, backwardIntermediate );
-				} else {
-					bwdMatrix[l][context] = Double.NEGATIVE_INFINITY;
 				}
 			}
 			endPos--;
+
+			if( l-1>=0 ) Arrays.fill( bwdMatrix[l-1], Double.NEGATIVE_INFINITY );
 
 			//System.out.println( (l==0?" ":seq.toString(endPos, endPos+1)) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
 		}
@@ -494,19 +583,19 @@ public class HigherOrderHMM extends AbstractHMM {
 		/**
 		 * Defines to compute the viterbi score: {@latex.inline $\\max_{\\underline{u}} P(\\underline{x},\\underline{u}|\\underline{\\lambda})$}.
 		 */
-		VITERBI,
-		/**
-		 * Defines to do Baum-Welch for the given sequence. In this case the forward matrix has to be filled.
-		 */
-		BAUM_WELCH;
+		VITERBI;
 	}
 		
+	@SuppressWarnings("rawtypes")
 	public Pair<IntList,Double> getViterbiPathFor(int startPos, int endPos, Sequence seq ) throws Exception {
-		IntList path = new IntList(endPos-startPos+1);
-		double score = viterbi( path, startPos, endPos, 0, seq );
-		return new Pair<IntList, Double>( path, score );
+		return getViterbiPathFor(startPos, endPos, seq, null);
 	}
 	
+	public Pair<IntList,Double> getViterbiPathFor(int startPos, int endPos, Sequence seq, int[] allowedStatesGroup ) throws Exception {
+		IntList path = new IntList(endPos-startPos+1);
+		double score = viterbi( path, startPos, endPos, 0, seq, allowedStatesGroup );
+		return new Pair<IntList, Double>( path, score );
+	}
 	
 	/**
 	 * This method computes the viterbi score of a given sequence <code>seq</code>.
@@ -519,22 +608,24 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @param endPos the end position
 	 * @param weight the sequence weight, in most cases this is 1
 	 * @param seq the sequence
+	 * @param allowedStatesGroups groups of allowed states per position
 	 * 
 	 * @return the viterbi score of the sequence
 	 * 
 	 * @throws Exception an error occurs during the computation
 	 */
-	protected double viterbi( IntList path, int startPos, int endPos, double weight, Sequence seq ) throws Exception {
-		fillBwdOrViterbiMatrix( Type.VITERBI, startPos, endPos, 0, seq );
+	protected double viterbi( IntList path, int startPos, int endPos, double weight, Sequence seq, int[] allowedStatesGroup ) throws Exception {
+		fillBwdOrViterbiMatrix( Type.VITERBI, startPos, endPos, 0, seq, allowedStatesGroup, false );
 		int l = endPos-startPos+1, n, layer = 0, stateID, context = 0, add, state, newContext, childIdx;
 		double current, dist, bestDist;
 
 		if( path != null ) {
 			path.clear();
 		}
-			
+
 		//fill
 		while( layer < l ) {
+//System.out.println( layer + "\t" + context + "\t" + Arrays.toString(bwdMatrix[layer]) );
 			n = transition.getNumberOfChildren( layer, context );
 			
 			bestDist = Double.POSITIVE_INFINITY;
@@ -546,7 +637,6 @@ public class HigherOrderHMM extends AbstractHMM {
 					bwdMatrix[layer+container[2]][container[1]] //score until next position
 					+ states[container[0]].getLogScoreFor( startPos, startPos, seq ) //emission
 				    + transition.getLogScoreFor( layer, context, stateID, seq, startPos ); //transition
-				
 				dist = current - bwdMatrix[layer][context];
 				
 				dist*=dist;
@@ -573,7 +663,7 @@ public class HigherOrderHMM extends AbstractHMM {
 			context = newContext;
 		}
 		
-		//add silent sates at the end
+		//add silent states at the end
 		do {
 			n = transition.getNumberOfChildren( layer, context );
 			
@@ -624,14 +714,14 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @param endPos the end position
 	 * @param weight the sequence weight, in most cases this is 1
 	 * @param seq the sequence
+	 * @param allowedStatesGroup the array of allowed states groups
 	 * 
 	 * @return the likelihood of the sequence
 	 * 
 	 * @throws Exception an error occurs during the computation
 	 */
-	protected double baumWelch( int startPos, int endPos, double weight, Sequence seq ) throws Exception {
-		fillFwdMatrix( startPos, endPos, seq );
-		fillBwdOrViterbiMatrix( Type.BAUM_WELCH, startPos, endPos, weight, seq );
+	protected double baumWelch( int startPos, int endPos, double weight, Sequence seq, int[] allowedStatesGroup ) throws Exception {
+		fillBwdOrViterbiMatrix( Type.LIKELIHOOD, startPos, endPos, weight, seq, allowedStatesGroup, true );
 		return bwdMatrix[0][0];
 	}
 /*	
@@ -660,8 +750,8 @@ public class HigherOrderHMM extends AbstractHMM {
 				//init
 				if(!skipInit){
 					initialize( data, weights );
-					compute.setParameters();
 				}
+				compute.setParameters();
 				
 				//iterate
 				double old_value, new_value = Double.NEGATIVE_INFINITY;
@@ -669,7 +759,7 @@ public class HigherOrderHMM extends AbstractHMM {
 				time.reset();
 				do {
 					old_value = new_value;
-					new_value = getLogPriorTerm() + compute.oneIteration();
+					new_value = getLogPriorTerm() + compute.oneIteration(); ///XXX divide by number of sequences?
 										
 					sostream.writeln( it++ + "\t" + time.getElapsedTime() + "\t" + new_value + "\t" + (new_value - old_value) );
 					if( tc.doNextIteration( it, old_value, new_value, null, null, Double.NaN, time) ) {
@@ -702,20 +792,64 @@ public class HigherOrderHMM extends AbstractHMM {
 		Sequence seq;
 		double weight = 1, score = 0;
 		double newValue = 0;
+		int[] allowedStatesGroup;
+		
+		int mode=-1;
+		if( trainingParameter instanceof ViterbiParameterSet ) {
+			mode=0;
+		} else if ( trainingParameter instanceof BaumWelchParameterSet ) {
+			mode=1;
+		} else {
+			throw new IllegalArgumentException( "Training mode not available." );
+		}
+		
 		for( int n = start; n < end; n++ ) {
 			seq = data.getElementAt( n );
 			if( weights != null ) {
 				weight = weights[n];
 			}
 			
-			if( trainingParameter instanceof ViterbiParameterSet ) {
-				score = viterbi( null, 0, seq.getLength()-1, weight, seq ); //viterbi
-			} else if ( trainingParameter instanceof BaumWelchParameterSet ) {
-				score = baumWelch( 0, seq.getLength()-1, weight, seq ); //Baum-Welch
-			} else {
-				throw new IllegalArgumentException( "Training mode not available." );
+			allowedStatesGroup=null;
+			if( type != null ) {
+				SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
+				if( sa !=null ) {
+					StorableResult res = (StorableResult) sa.getResultAt(0);
+					AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
+					allowedStatesGroup=asg.groups;
+				}
 			}
-			newValue += weight*score;
+			
+			try {
+				if( mode==0 ) {
+					score = viterbi( null, 0, seq.getLength()-1, weight, seq, allowedStatesGroup ); //viterbi
+				} else {
+					score = baumWelch( 0, seq.getLength()-1, weight, seq, allowedStatesGroup ); //Baum-Welch
+				}
+				newValue += weight*score;
+			} catch( Exception e ) {
+				System.err.println( "Problem with sequence " + n );
+				System.err.println( seq );
+				if( allowedStatesGroup!=null ) {
+					System.err.println(Arrays.toString(allowedStatesGroup));
+					HashMap<String, int[]> stat = new HashMap<String,int[]>();
+					AllowedStatesGroups.add(allowedStatesGroup, stat, null );
+					System.err.println(AllowedStatesGroups.show(stat));
+				}
+				System.err.println();
+				SequenceAnnotation[] sa = seq.getAnnotation();
+				if( sa!= null ) {
+					for( int i = 0; i < sa.length; i++ ) {
+						System.err.println(sa[i]);
+					}
+				}
+				System.err.println();
+				
+				System.err.println("bwd");
+				for( int i = 0; i <= seq.getLength(); i++ ) {
+					System.err.println( i + "\t" + (i==0?"":alphabets.getSymbol(i-1,seq.discreteVal(i-1))) + "\t" + (allowedStatesGroup==null?"":((i==0?"":allowedStatesGroup[i-1])+"\t")) + ToolBox.max(bwdMatrix[i]) + "\t" + Arrays.toString(bwdMatrix[i]));
+				}
+				throw e;
+			}
 		}
 		return newValue;
 	}
@@ -782,7 +916,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	public String getInstanceName() {
 		return "HMM(" + transition.getMaximalMarkovOrder() + ") " + trainingParameter.getClass().getSimpleName();
 	}
-	
+		
 	@Override
 	public double[] getLogScoreFor(DataSet data) throws Exception {
 		double[] logProb = new double[data.getNumberOfElements()];
@@ -909,7 +1043,7 @@ public class HigherOrderHMM extends AbstractHMM {
 		} while( true );
 	}
 		
-	private double computeLogScoreFromForward( int l ) {
+	protected double computeLogScoreFromForward( int l ) {
 		double res = Double.NEGATIVE_INFINITY;
 		if( transition.getMaximalMarkovOrder() > 0 ) {
 			for( int i = 0; i < fwdMatrix[l].length; i++ ) {
@@ -1173,22 +1307,6 @@ public class HigherOrderHMM extends AbstractHMM {
 		return ((HigherOrderTransition)transition).getTransitionElements();
 	}
 
-	/**
-	 * Returns a clone of the internal array of emission indexes that represent which emission is used in which state.
-	 * @return the emission indexes
-	 */
-	public int[] getEmissionIndexes() {
-		return emissionIdx.clone();
-	}
-	
-	/**
-	 * Returns a clone of the state names.
-	 * @return the name
-	 */
-	public String[] getNames(){
-		return name.clone();
-	}
-	
 	/**
 	 * Returns a clone of the training parameters
 	 * @return the parameters

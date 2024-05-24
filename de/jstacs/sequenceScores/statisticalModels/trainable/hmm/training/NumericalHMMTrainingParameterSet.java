@@ -23,6 +23,7 @@ import de.jstacs.DataType;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.io.NonParsableException;
+import de.jstacs.parameters.EnumParameter;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SelectionParameter;
 import de.jstacs.parameters.SimpleParameter;
@@ -63,6 +64,40 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 														(byte)8,
 														(byte)9,
 														(byte)10 };
+	/**
+	 * Different loss functions for HMM training.
+	 * 
+	 * @author Jens Keilwagen
+	 */
+	public static enum TrainingType {
+		LIKELIHOOD(false,false),
+		VITERBI(false,true),
+		DISCRIMINATIVE_LIKELIHOOD(true,false),
+		DISCRIMINATIVE_VITERBI(true,true),
+		DISCRIMINATIVE_VITERBI2(true,true);
+
+		protected boolean discriminative;
+		protected boolean vitLike;
+		
+		private TrainingType( boolean d, boolean v ) {
+			discriminative=d;
+			vitLike=v;
+		}
+		
+		/**
+		 * Returns whether the training uses some discriminative component.
+		 */
+		public boolean isDiscrimnative() {
+			return discriminative;
+		}
+		
+		/**
+		 * Returns whether the training used some Viterbi component.
+		 */
+		public boolean isViterbiLike() {
+			return vitLike;
+		}
+	}
 	
 	/**
 	 * This is the empty constructor that can be used to fill the parameters after creation.
@@ -80,15 +115,18 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 * @param algorithm the algorithm that shall be used
 	 * @param lineEps the threshold for stopping the line search
 	 * @param startDist the start distance for the line search
+	 * @param randomly if parameters should be initialized randomly
 	 * 
 	 * @throws Exception if this {@link NumericalHMMTrainingParameterSet} could not be created
 	 */
-	public NumericalHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc, int threads, byte algorithm, double lineEps, double startDist ) throws Exception {
+	public NumericalHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc, int threads, byte algorithm, double lineEps, double startDist, TrainingType training, boolean randomly ) throws Exception {
 		super( starts, tc, threads );
 		addParameters();
 		parameters.get( 3 ).setValue(algorithmStrings[getIndex( algorithmStrings, algorithms, algorithm, false )] );
 		parameters.get( 4 ).setValue( lineEps );
 		parameters.get( 5 ).setValue( startDist );
+		parameters.get( 6 ).setValue( training );
+		parameters.get( 7 ).setValue( randomly );
 	}
 
 	/**
@@ -125,6 +163,16 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 					"the start distance for the line search in the numerical training",
 					true,
 					new NumberValidator<Double>( 0d, Double.MAX_VALUE ) ) );
+			parameters.add( new EnumParameter( TrainingType.class,
+					"the function that is optimized while training",
+					true,
+					TrainingType.LIKELIHOOD.toString() ) );
+			parameters.add( new SimpleParameter( DataType.BOOLEAN,
+					"randomly",
+					"if the initial parameters should be sampled randomly",
+					true,
+					true ) );
+			
 		} catch ( ParameterException doesnothappen ) { } 
 	}
 	
@@ -153,5 +201,19 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	 */
 	public double getStartDistance() {
 		return (Double) getParameterForName( "start distance" ).getValue();
+	}
+
+	/**
+	 * This method returns the type of training of the HMM.
+	 */
+	public TrainingType getTrainingType() {
+		return (TrainingType) getParameterForName( "TrainingType" ).getValue();
+	}
+	
+	/**
+	 * This method returns whether the HMM should be initialized randomly before optimization.
+	 */
+	public boolean randomInitialization() {
+		return (Boolean) getParameterForName( "randomly" ).getValue();
 	}
 }

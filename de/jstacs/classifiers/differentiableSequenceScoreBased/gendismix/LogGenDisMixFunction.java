@@ -239,68 +239,70 @@ public class LogGenDisMixFunction extends DiffSSBasedOptimizableFunction
 			{
 				s = data[counter3].getElementAt( counter2 );
 				weight = weights[counter3][counter2];
-				if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 )
-				{
-					for( counter1 = 0; counter1 < cl; counter1++ )
+				if( weight!=0 ) {
+					if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 )
 					{
-						iList[index][counter1].clear();
-						dList[index][counter1].clear();
-						helpArray[index][counter1] = logClazz[counter1]
-								+ score[index][counter1].getLogScoreAndPartialDerivation( s, 0, iList[index][counter1],
-										dList[index][counter1] );
-					}
-				}
-				else
-				{
-					iList[index][counter3].clear();
-					dList[index][counter3].clear();
-					helpArray[index][counter3] = logClazz[counter3]
-							+ score[index][counter3].getLogScoreAndPartialDerivation( s, 0, iList[index][counter3], dList[index][counter3] );
-				}
-				if( beta[LearningPrinciple.LIKELIHOOD_INDEX] != 0 )
-				{
-					if( counter3 < shortcut[0] )
-					{
-						llGrad[index][counter3] += weight;
-					}
-					for( counter4 = 0; counter4 < iList[index][counter3].length(); counter4++ )
-					{
-						llGrad[index][shortcut[counter3] + iList[index][counter3].get( counter4 )] += weight
-								* dList[index][counter3].get( counter4 );
-					}
-				}
-
-				if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 )
-				{
-					Normalisation.logSumNormalisation( helpArray[index], 0, helpArray[index].length, helpArray[index], 0 );
-
-					for( counter1 = 0; counter1 < shortcut[0]; counter1++ )
-					{
-						if( counter1 != counter3 )
+						for( counter1 = 0; counter1 < cl; counter1++ )
 						{
-							cllGrad[index][counter1] -= weight * helpArray[index][counter1];
-						}
-						else
-						{
-							cllGrad[index][counter1] += weight * (1 - helpArray[index][counter1]);
+							iList[index][counter1].clear();
+							dList[index][counter1].clear();
+							helpArray[index][counter1] = logClazz[counter1]
+									+ score[index][counter1].getLogScoreAndPartialDerivation( s, 0, iList[index][counter1],
+											dList[index][counter1] );
 						}
 					}
-					for( counter1 = 0; counter1 < cl; counter1++ )
+					else
 					{
-						if( counter1 != counter3 )
+						iList[index][counter3].clear();
+						dList[index][counter3].clear();
+						helpArray[index][counter3] = logClazz[counter3]
+								+ score[index][counter3].getLogScoreAndPartialDerivation( s, 0, iList[index][counter3], dList[index][counter3] );
+					}
+					if( beta[LearningPrinciple.LIKELIHOOD_INDEX] != 0 )
+					{
+						if( counter3 < shortcut[0] )
 						{
-							for( counter4 = 0; counter4 < iList[index][counter1].length(); counter4++ )
+							llGrad[index][counter3] += weight;
+						}
+						for( counter4 = 0; counter4 < iList[index][counter3].length(); counter4++ )
+						{
+							llGrad[index][shortcut[counter3] + iList[index][counter3].get( counter4 )] += weight
+									* dList[index][counter3].get( counter4 );
+						}
+					}
+	
+					if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 )
+					{
+						Normalisation.logSumNormalisation( helpArray[index], 0, helpArray[index].length, helpArray[index], 0 );
+	
+						for( counter1 = 0; counter1 < shortcut[0]; counter1++ )
+						{
+							if( counter1 != counter3 )
 							{
-								cllGrad[index][shortcut[counter1] + iList[index][counter1].get( counter4 )] -= weight
-										* dList[index][counter1].get( counter4 ) * helpArray[index][counter1];
+								cllGrad[index][counter1] -= weight * helpArray[index][counter1];
+							}
+							else
+							{
+								cllGrad[index][counter1] += weight * (1 - helpArray[index][counter1]);
 							}
 						}
-						else
+						for( counter1 = 0; counter1 < cl; counter1++ )
 						{
-							for( counter4 = 0; counter4 < iList[index][counter1].length(); counter4++ )
+							if( counter1 != counter3 )
 							{
-								cllGrad[index][shortcut[counter1] + iList[index][counter1].get( counter4 )] += weight
-										* dList[index][counter1].get( counter4 ) * (1d - helpArray[index][counter1]);
+								for( counter4 = 0; counter4 < iList[index][counter1].length(); counter4++ )
+								{
+									cllGrad[index][shortcut[counter1] + iList[index][counter1].get( counter4 )] -= weight
+											* dList[index][counter1].get( counter4 ) * helpArray[index][counter1];
+								}
+							}
+							else
+							{
+								for( counter4 = 0; counter4 < iList[index][counter1].length(); counter4++ )
+								{
+									cllGrad[index][shortcut[counter1] + iList[index][counter1].get( counter4 )] += weight
+											* dList[index][counter1].get( counter4 ) * (1d - helpArray[index][counter1]);
+								}
 							}
 						}
 					}
@@ -403,20 +405,22 @@ public class LogGenDisMixFunction extends DiffSSBasedOptimizableFunction
 			for( counter2 = start; counter2 < end; counter2++ )
 			{
 				s = data[counter3].getElementAt( counter2 );
-				if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 )
-				{
-					for( counter1 = 0; counter1 < cl; counter1++ )
+				if( weights[counter3][counter2]!=0 ) {
+					if( beta[LearningPrinciple.CONDITIONAL_LIKELIHOOD_INDEX] != 0 )
 					{
-						// class weight + class score
-						helpArray[index][counter1] = logClazz[counter1] + score[index][counter1].getLogScoreFor( s, 0 );
+						for( counter1 = 0; counter1 < cl; counter1++ )
+						{
+							// class weight + class score
+							helpArray[index][counter1] = logClazz[counter1] + score[index][counter1].getLogScoreFor( s, 0 );
+						}
+						cll += weights[counter3][counter2] * (helpArray[index][counter3] - Normalisation.getLogSum( helpArray[index] ));
 					}
-					cll += weights[counter3][counter2] * (helpArray[index][counter3] - Normalisation.getLogSum( helpArray[index] ));
+					else
+					{
+						helpArray[index][counter3] = logClazz[counter3] + score[index][counter3].getLogScoreFor( s, 0 );
+					}
+					ll += weights[counter3][counter2] * helpArray[index][counter3];
 				}
-				else
-				{
-					helpArray[index][counter3] = logClazz[counter3] + score[index][counter3].getLogScoreFor( s, 0 );
-				}
-				ll += weights[counter3][counter2] * helpArray[index][counter3];
 			}
 		}
 

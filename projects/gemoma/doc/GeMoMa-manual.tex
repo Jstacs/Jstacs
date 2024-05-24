@@ -375,8 +375,8 @@ java -jar GeMoMa-1.8.jar CLI GeMoMaPipeline threads=20 AnnotationFinalizer.r=NO 
 If you like to rename your predictions, you can use the parameters \verb+AnnotationFinalizer.r+. This parameter has three options
 \begin{itemize}
 \item \verb+NO+, which does not rename the transcripts,
-\item \verb+SIMPLE+, which renames the predictions according to the schema <PREFIX><digit>, and
-\item \verb+COMPOSED+, which renames the predictions according to the schema <PREFIX><contig\_identifier><INFIX><digit><SUFFIX> (cf. TAIR name schema)
+\item \verb+SIMPLE+, which renames the predictions according to the schema \verb+<PREFIX><digit>+, and
+\item \verb+COMPOSED+, which renames the predictions according to the schema \verb+<PREFIX><contig_identifier><INFIX><digit><SUFFIX>+ (cf. TAIR name schema)
 \end{itemize}
 where upper case place holders (such as \verb+<PREFIX>+) are determined by the user via additional parameters and lower case place holders are determined internally. Hence, additional parameters need to be set for the options \verb+SIMPLE+ and \verb+COMPOSED+, e.g., the prefix via \verb+AnnotationFinalizer.p+. Furthermore, you can decide whether the name should be used for an additional GFF attribute \verb+name+ or for the existing GFF attribute \verb+ID+ and \verb+parent+. You can choose between these to options using the parameter \verb+AnnotationFinalizer.n+. 
 \begin{Verbatim}

@@ -196,7 +196,7 @@ public interface Transition extends Cloneable, Storable {
 	 * 
 	 * @return for each state whether it is absorbing or not
 	 */
-	public boolean[] isAbsoring();
+	public boolean[] isAbsorbing();
 	
 	/**
 	 * This method returns a {@link String} representation of the {@link Transition} using the given names of the states.

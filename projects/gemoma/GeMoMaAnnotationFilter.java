@@ -140,9 +140,6 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		
 		public static Double parse( String d ) {
 			if( d.equals( "NA" ) ) {
-				return null;
-			}
-			else if( d.equals( "NA" ) ) {
 				return Double.NaN;
 			} else {
 				return -Double.parseDouble(d);
@@ -165,7 +162,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 						}
 					}
 				}
-				if( asDoubleNow ) {
+				if( v!=null && asDoubleNow ) {
 					p.comp[i] = parse(v);
 				} else {
 					p.comp[i] = v;

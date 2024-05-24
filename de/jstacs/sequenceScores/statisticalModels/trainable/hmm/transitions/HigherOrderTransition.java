@@ -82,12 +82,13 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	 * The main constructor.
 	 * 
 	 * @param transitions the {@link TransitionElement}s for the internal use
+	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 <=transIndex[i] <= i</code>
 	 * @param isSilent an array indicating for each state whether it is silent or not
 	 * 
 	 * @throws Exception if an error occurs during checking the {@link TransitionElement}s and creating internal fields 
 	 */
-	public HigherOrderTransition( boolean[] isSilent, TransitionElement... transitions ) throws Exception {
-		super( isSilent, transitions );
+	public HigherOrderTransition( boolean[] isSilent, int[] transIndex, TransitionElement... transitions ) throws Exception {
+		super( isSilent, transIndex, transitions );
 		init();
 	}
 
@@ -111,7 +112,9 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	private void init() {
 		int n = 0;
 		for( int t = 0; t < transitions.length; t++ ) {
-			n += transitions[t].getNumberOfParameters();
+			if( transIndex[t] == t ) {
+				n += transitions[t].getNumberOfParameters();
+			}
 		}
 		params = new double[n];
 	}
@@ -228,7 +231,9 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	 */
 	protected void fillParameters( double[] params, int offset ) {
 		for( int o = offset, t = 0; t < transitions.length; t++ ) {
-			o = ((TransitionElement)transitions[t]).fillParameters( params, o );
+			if( transIndex[t]==t ) {
+				o = ((TransitionElement)transitions[t]).fillParameters( params, o );
+			}
 		}
 	}
 	
@@ -249,7 +254,9 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	protected int setParameterOffset() {
 		int o = this.offset;
 		for( int t = 0; t < transitions.length; t++ ) {
-			o = ((TransitionElement)transitions[t]).setParameterOffset( o );
+			if( transIndex[t] == t ) {
+				o = ((TransitionElement)transitions[t]).setParameterOffset( o );
+			}
 		}
 		return o;
 	}
@@ -270,20 +277,26 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	 */
 	protected void setParams( double[] params, int start ) {
 		for( int s = start, t = 0; t < transitions.length; t++ ) {
-			s = ((TransitionElement)transitions[t]).setParameters( params, s );
+			if( transIndex[t]==t ) {
+				s = ((TransitionElement)transitions[t]).setParameters( params, s );
+			} else {
+				transitions[t].setParameters(transitions[transIndex[t]]);
+			}
 		}
 	}
 	
 	@Override
 	public void addGradientForLogPriorTerm( double[] gradient, int start ) {
 		for( int t = 0; t < transitions.length; t++ ) {
-			((TransitionElement)transitions[t]).addGradientForLogPriorTerm( gradient, start );
+			if( transIndex[t]==t ) {
+				((TransitionElement)transitions[t]).addGradientForLogPriorTerm( gradient, start );
+			}
 		}
 	}
 
 	@Override
 	public double getLogScoreAndPartialDerivation( int layer, int index, int childIdx, IntList indices, DoubleList partDer, Sequence sequence, int sequencePosition ) {
-		return ((TransitionElement)transitions[ getTransitionElementIndex( layer, index ) ]).getLogScoreAndPartialDerivation( childIdx, indices, partDer, sequence, sequencePosition );
+		return ((TransitionElement)transitions[ transIndex[getTransitionElementIndex( layer, index )] ]).getLogScoreAndPartialDerivation( childIdx, indices, partDer, sequence, sequencePosition );
 	}
 
 	@Override
@@ -424,7 +437,9 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	public double getLogPosteriorFromStatistic() {
 		double logPost = 0;
 		for( int t = 0; t < transitions.length; t++ ) {
-			logPost += ((TransitionElement)transitions[t]).getLogPosteriorFromStatistic();
+			if( transIndex[t] == t ) {
+				logPost += ((TransitionElement)transitions[t]).getLogPosteriorFromStatistic();
+			}
 		}
 		return logPost;
 	}
@@ -433,11 +448,13 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	public int getSizeOfEventSpace( int index ) {
 		int off = this.offset;
 		for(int i=0;i<transitions.length;i++){
-			int num = ((TransitionElement)transitions[i]).getNumberOfParameters();
-			if(index >= off && index < off + num){
-				return num;
+			if( transIndex[i] == i ) {
+				int num = ((TransitionElement)transitions[i]).getNumberOfParameters();
+				if(index >= off && index < off + num){
+					return num;
+				}
+				off += num;
 			}
-			off += num;
 		}
 		return 0;
 	}
@@ -446,12 +463,14 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	public void fillSamplingGroups( int parameterOffset, LinkedList<int[]> list ) {
 		int off = this.offset;
 		for(int i=0;i<transitions.length;i++){
-			int[] idxs = new int[((TransitionElement)transitions[i]).getNumberOfParameters()];
-			for(int j=0;j<idxs.length;j++){
-				idxs[j] = j + off + parameterOffset;
+			if( transIndex[i] == i ) {
+				int[] idxs = new int[((TransitionElement)transitions[i]).getNumberOfParameters()];
+				for(int j=0;j<idxs.length;j++){
+					idxs[j] = j + off + parameterOffset;
+				}
+				list.add( idxs );
+				off += idxs.length;
 			}
-			list.add( idxs );
-			off += idxs.length;
 		}
 	}
 
@@ -463,6 +482,4 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	public TransitionElement[] getTransitionElements() throws CloneNotSupportedException {
 		return (TransitionElement[])ArrayHandler.cast( ArrayHandler.clone( transitions ) );
 	}
-	
-	
 }

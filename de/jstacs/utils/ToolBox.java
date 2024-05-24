@@ -204,6 +204,29 @@ public class ToolBox {
 	}
 	
 	/**
+	 * Returns the index with maximal value in a <code>double</code> array.
+	 * 
+	 * @param w
+	 *            the given <code>double</code> array
+	 * @param idx
+	 *            the list with indices to be used 			
+	 * @return the index
+	 */
+	public static final int getMaxIndex( IntList idx, double[] w ) {
+		if(idx.length()==0){
+			throw new IllegalArgumentException( "List idx was empty." );
+		}
+		int max = idx.get(0);
+		for( int i = 1; i < idx.length(); i++ ) {
+			int j = idx.get(i); 
+			if( w[j] > w[max] ) {
+				max = j;
+			}
+		}
+		return max;
+	}
+	
+	/**
 	 * This method returns the median of the elements of <code>array</code>.
 	 * 
 	 * @param array

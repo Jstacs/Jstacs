@@ -24,6 +24,7 @@ import java.util.HashMap;
 import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.MultiDimensionalDiscreteSequence;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.SequenceAnnotation;
@@ -57,8 +58,10 @@ public class PhyloDiscreteEmission extends DiscreteEmission implements SamplingE
      * @param con the {@link AlphabetContainer} of this emission
      * @param ess the equivalent sample size (ess) of this emission that is equally distributed over all parameters
      * @param t the phylogenetic tree {@link PhyloTree}
+     * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
      */
-    public PhyloDiscreteEmission( AlphabetContainer con, double ess , PhyloTree t) {
+    public PhyloDiscreteEmission( AlphabetContainer con, double ess , PhyloTree t) throws WrongAlphabetException {
             this( con, getHyperParams( ess, (int) con.getAlphabetLengthAt( 0 ) ), t );
     }
 
@@ -69,8 +72,10 @@ public class PhyloDiscreteEmission extends DiscreteEmission implements SamplingE
      * @param con the {@link AlphabetContainer} of this emission
      * @param hyperParams the individual hyper parameters for each parameter
      * @param t the phylogenetic tree {@link PhyloTree}
+     * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
      */
-    public PhyloDiscreteEmission( AlphabetContainer con, double[] hyperParams, PhyloTree t ) {
+    public PhyloDiscreteEmission( AlphabetContainer con, double[] hyperParams, PhyloTree t ) throws WrongAlphabetException {
         super(con,hyperParams);
         this.tree = t;
         setTreeLayers();

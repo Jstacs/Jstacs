@@ -532,7 +532,7 @@ public class SamplingHigherOrderHMM extends HigherOrderHMM {
                     
                     	resetStatistics();
                     	path.clear();                    	
-                        score = viterbi( path, startPos, endPos, 0, seq );
+                        score = viterbi( path, startPos, endPos, 0, seq, null ); //XXX
                         addToStatistics( startPos, 1d, seq, path );
 
                         score = (compute == ViterbiComputation.MAX || compute == ViterbiComputation.MAX_AND_SAMPLING) 

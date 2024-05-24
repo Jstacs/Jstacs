@@ -22,7 +22,6 @@ package de.jstacs.algorithms.optimization.termination;
 import de.jstacs.DataType;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.parameters.SimpleParameter;
-import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.utils.Time;

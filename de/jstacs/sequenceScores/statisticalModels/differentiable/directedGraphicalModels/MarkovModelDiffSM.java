@@ -107,7 +107,13 @@ public class MarkovModelDiffSM extends BayesianNetworkDiffSM implements Mutable,
 	 */
 	public MarkovModelDiffSM( StringBuffer xml ) throws NonParsableException {
 		super( xml );
-	}	
+	}
+	
+	public MarkovModelDiffSM clone() throws CloneNotSupportedException {
+		MarkovModelDiffSM clone = (MarkovModelDiffSM) super.clone();
+		if( lengthPenalty!= null ) clone.lengthPenalty = (DurationDiffSM) lengthPenalty.clone();
+		return clone;
+	}
 	
 	private static final String XML_TAG = "MarkovModelDiffSM";
 	

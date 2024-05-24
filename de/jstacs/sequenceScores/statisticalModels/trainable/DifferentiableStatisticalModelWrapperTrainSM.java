@@ -29,7 +29,6 @@ import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
-import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.GenDisMixClassifierParameterSet;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
@@ -73,6 +72,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	private byte algo;
 	private int threads;
 	private LogPrior prior;
+	private boolean randomly;
 
 	/**
 	 * The main constructor that creates an instance with the user given parameters and {@link CompositeLogPrior}.
@@ -88,7 +88,25 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	 */
 	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD ) throws CloneNotSupportedException
 	{
-		this(nsf, threads, algo, tc, lineps, startD, new CompositeLogPrior() );
+		this(nsf, threads, algo, tc, lineps, startD, false );
+	}
+
+	/**
+	 * The main constructor that creates an instance with the user given parameters and {@link CompositeLogPrior}.
+	 * 
+	 * @param nsf the {@link DifferentiableStatisticalModel} that should be used
+	 * @param threads the number of threads that should be used for optimization
+	 * @param algo the algorithm that should be used for the optimization
+	 * @param tc the {@link AbstractTerminationCondition} for stopping the optimization
+	 * @param lineps the line epsilon for stopping the line search in the optimization
+	 * @param startD the start distance that should be used initially
+	 * @param randomly if parameters should be initialized randomly
+	 * 
+	 * @throws CloneNotSupportedException if <code>nsf</code> can not be cloned
+	 */
+	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, boolean randomly ) throws CloneNotSupportedException
+	{
+		this(nsf, threads, algo, tc, lineps, startD, randomly, new CompositeLogPrior() );
 	}
 	
 	/**
@@ -100,11 +118,12 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	 * @param tc the {@link AbstractTerminationCondition} for stopping the optimization
 	 * @param lineps the line epsilon for stopping the line search in the optimization
 	 * @param startD the start distance that should be used initially
+	 * @param randomly if parameters should be initialized randomly
 	 * @param prior The prior on the parameters
 	 * 
 	 * @throws CloneNotSupportedException if <code>nsf</code> can not be cloned
 	 */
-	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, LogPrior prior ) throws CloneNotSupportedException
+	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, boolean randomly, LogPrior prior ) throws CloneNotSupportedException
 	{
 		super( nsf.getAlphabetContainer(), nsf.getLength() );
 		if( threads < 1 )
@@ -135,6 +154,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		}
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
 		this.prior = prior.getNewInstance();
+		this.randomly=randomly;
 	}
 
 	/**
@@ -192,15 +212,23 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		if( !(nsf instanceof UniformDiffSM || nsf instanceof UniformHomogeneousDiffSM ) ) {
 			WeightedDataSetFactory wsf = new WeightedDataSetFactory( SortOperation.NO_SORT, data, weights );
 			DataSet small = wsf.getDataSet();
-			double[] smallWeights = wsf.getWeights();  
+			double[] smallWeights = wsf.getWeights();
+			//if there's no redundancy
+			if( small.getNumberOfElements() == data.getNumberOfElements() ) {
+				//use the data as is was
+				small=data;
+				if( weights != null ) {
+					smallWeights=weights;
+				}
+			}
 			
 			double[] params;
 			DifferentiableStatisticalModel best = null;
-			double current, max = Double.NEGATIVE_INFINITY, fac = data.getNumberOfElements(), ess = nsf.getESS();
+			double current, max = Double.NEGATIVE_INFINITY, fac = wsf.getSumOfWeights(), ess = nsf.getESS();
 			fac = fac / (ess+ fac) * (ess == 0 ? 1d : 2d);
 			
 			DifferentiableStatisticalModel[] score = { (DifferentiableStatisticalModel) nsf.clone() };
-			double[] beta = LearningPrinciple.getBeta( ess == 0 ? LearningPrinciple.ML : LearningPrinciple.MAP );
+			double[] beta = LearningPrinciple.getBeta( prior == DoesNothingLogPrior.defaultInstance ? LearningPrinciple.ML : LearningPrinciple.MAP );
 			LogGenDisMixFunction f = new LogGenDisMixFunction( threads, score, new DataSet[]{small}, new double[][]{smallWeights}, prior, beta, true, false );
 			NegativeDifferentiableFunction minusF = new NegativeDifferentiableFunction( f );
 			StartDistanceForecaster sd =
@@ -209,8 +237,12 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 			for( int i = 0; i < nsf.getNumberOfRecommendedStarts(); i++ )
 			{
 				out.writeln( "start: " + i );
-				//TODO freeParams???
-				score[0].initializeFunction( 0, false, new DataSet[]{small}, new double[][]{smallWeights} );
+				boolean freeParams=false;//TODO freeParams???
+				if( randomly ) {
+					score[0].initializeFunctionRandomly(freeParams);
+				} else {
+					score[0].initializeFunction( 0, freeParams, new DataSet[]{small}, new double[][]{smallWeights} );
+				}
 				f.reset( score );
 				params = f.getParameters( KindOfParameter.PLUGIN );
 				sd.reset();
@@ -310,6 +342,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		{
 			logNorm = Double.NEGATIVE_INFINITY;
 		}
+		randomly = XMLParser.extractObjectForTags( xml, "randomly", boolean.class );
 		StringBuffer pr = XMLParser.extractForTag( xml, "prior" );
 		if( pr != null )
 		{
@@ -359,6 +392,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		XMLParser.appendObjectWithTags( xml, tc, "tc" );
 		XMLParser.appendObjectWithTags( xml, lineps, "lineps" );
 		XMLParser.appendObjectWithTags( xml, startD, "startDistance" );
+		XMLParser.appendObjectWithTags( xml, randomly, "randomly" );
 		if( !(prior instanceof DoesNothingLogPrior) )
 		{
 			StringBuffer pr = new StringBuffer( 1000 );

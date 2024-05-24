@@ -33,7 +33,7 @@ import de.jstacs.utils.IntList;
 public class SimpleDifferentiableState extends SimpleState implements DifferentiableState {
 	
 	/**
-	 * This is the constructor of a {@link SimpleState}.
+	 * This is the constructor of a {@link SimpleDifferentiableState}.
 	 * 
 	 * @param e the emission that is internally used for scoring subsequences
 	 * @param name the name of the state

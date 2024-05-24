@@ -17,10 +17,8 @@
  */
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete;
 
-import java.text.NumberFormat;
-
 import de.jstacs.data.AlphabetContainer;
-import de.jstacs.data.alphabets.DiscreteAlphabet;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.data.sequences.annotation.ReferenceSequenceAnnotation;
 import de.jstacs.io.NonParsableException;
@@ -59,9 +57,11 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 	 * @param refIdx the index in the reference sequence
 	 * @param ess the equivalent sample size (ess) of this emission that is equally distributed over all parameters
 	 * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
+	 * 
 	 * @see #ReferenceSequenceDiscreteEmission(AlphabetContainer, AlphabetContainer, int, double[][])
 	 */
-	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double ess ) {
+	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double ess ) throws WrongAlphabetException {
 		this( con, refCon, refIdx, getHyperParams(ess, (int) refCon.getAlphabetLengthAt(refIdx), (int) con.getAlphabetLengthAt(0)) );
 	}
 	
@@ -74,9 +74,11 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 	 * @param ess the equivalent sample size (ess) of this emission that is equally distributed over all parameters
 	 * @param initHyperParams the individual hyper parameters for each parameter used in {@link #initializeFunctionRandomly()}
 	 * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
+	 * 
 	 * @see #ReferenceSequenceDiscreteEmission(AlphabetContainer, AlphabetContainer, int, double[][])
 	 */
-	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double ess, double[][] initHyperParams ) {
+	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double ess, double[][] initHyperParams ) throws WrongAlphabetException {
 		this( con, refCon, refIdx, getHyperParams(ess, (int) refCon.getAlphabetLengthAt(refIdx), (int) con.getAlphabetLengthAt(0)), initHyperParams );
 	}
 
@@ -89,8 +91,9 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 	 * @param hyperParams the individual hyper parameters for each parameter
 	 * 
 	 * @throws IllegalArgumentException if the dimension of the hyper parameters and the size of the alphabet defined by reference {@link AlphabetContainer} do not match
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
 	 */
-	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double[][] hyperParams ) throws IllegalArgumentException {
+	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double[][] hyperParams ) throws IllegalArgumentException, WrongAlphabetException {
 		super( con, hyperParams );
 		if(refCon.getAlphabetLengthAt( refIdx ) != hyperParams.length){
 			throw new IllegalArgumentException("Hyper-parameters do not match length of alphabet");
@@ -109,8 +112,9 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 	 * @param initHyperParams the individual hyper parameters for each parameter used in {@link #initializeFunctionRandomly()}
 	 * 
 	 * @throws IllegalArgumentException if the dimension of the hyper parameters and the size of the alphabet defined by reference {@link AlphabetContainer} do not match
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
 	 */
-	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double[][] hyperParams, double[][] initHyperParams ) throws IllegalArgumentException {
+	public ReferenceSequenceDiscreteEmission( AlphabetContainer con, AlphabetContainer refCon, int refIdx, double[][] hyperParams, double[][] initHyperParams ) throws IllegalArgumentException, WrongAlphabetException {
 		super( con, hyperParams,initHyperParams );
 		if(refCon.getAlphabetLengthAt( refIdx ) != hyperParams.length){
 			throw new IllegalArgumentException("Hyper-parameters do not match length of alphabet");
@@ -139,17 +143,8 @@ public class ReferenceSequenceDiscreteEmission extends AbstractConditionalDiscre
 	}
 
 	@Override
-	public String toString( NumberFormat nf ) {
-		String res = "";
-		DiscreteAlphabet abc = (DiscreteAlphabet) con.getAlphabetAt( 0 );
-		DiscreteAlphabet abc2 = (DiscreteAlphabet) refCon.getAlphabetAt( 0 );
-		for( int i = 0; i < probs.length; i++ ) {
-			for(int j=0;j<probs[i].length;j++){
-				res += "P(X=" + abc.getSymbolAt( j ) + " | R_" + refIdx + "=" + abc2.getSymbolAt( i ) + ") = " + nf.format(probs[i][j]) + "\t";
-			}
-			res += "\n";
-		}
-		return res;
+	protected String getCondition(int i) {
+		return " | R_" + refIdx + "=" + refCon.getSymbol(0, i);
 	}
 
 	@Override
