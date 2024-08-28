@@ -239,7 +239,11 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 			throw new IllegalArgumentException( "The length of the filter array has to be the same as the length of the names" );
 		}
 		this.name = new String[n];
-		this.filter = filter.clone();
+		if(filter != null) {
+			this.filter = filter.clone();
+		}else {
+			this.filter = new Filter[n];
+		}
 		HashSet<String> hash = new HashSet<String>();
 		for( int i = 0; i < n; i++ ) {
 			if( hash.contains( name[i] ) ) {
