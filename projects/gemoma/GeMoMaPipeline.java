@@ -1739,7 +1739,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 				try {
 					res = extractor.run(params, protocol, new ProgressUpdater(), 1, outDir);
 				} catch( Exception e ) {
-					pipelineProtocol.append("Extractor for species " + sp.name + " throws an Exception\n");
+					pipelineProtocol.append("Extractor for species " + sp.name + " throws an Exception (" + t.getElapsedTime() + "s)\n");
 					throw e;
 				}
 				if( protocol != pipelineProtocol ) {
@@ -1987,7 +1987,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			try{
 				res = gemoma.run(params, protocol, new ProgressUpdater(), 1, outDir);
 			} catch( Exception e )  {
-				pipelineProtocol.append("GeMoMa for species " + sp.name + " split="+split+" throws an Exception\n");
+				pipelineProtocol.append("GeMoMa for species " + sp.name + " split="+split+" throws an Exception (" + t.getElapsedTime() + "s)\n");
 				throw e;
 			}
 			
@@ -2069,7 +2069,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			try{
 				res = ae.run(pars, protocol, new ProgressUpdater(), 1, outDir);
 			} catch( Exception ex )  {
-				pipelineProtocol.append("AnnotationEvidence for external annotation " + sp.name + " throws an Exception\n");
+				pipelineProtocol.append("AnnotationEvidence for external annotation " + sp.name + " throws an Exception (" + t.getElapsedTime() + "s)\n");
 				throw ex;
 			}
 			CLI.writeToolResults(res, protocol, outDir, ae, pars);
