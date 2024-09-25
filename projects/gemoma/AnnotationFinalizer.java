@@ -780,6 +780,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 
 	}
 	
+	//XXX add threshold based on neighboring gene avoiding to obtain too long UTRs (if genes are very close)
 	private static boolean extendUTR( Transcript t, int d, int[][] cov, int[][] splice, int sIdx, String source ) {
 		int strand = t.strand();
 		int min = t.getMin();
@@ -796,7 +797,7 @@ public class AnnotationFinalizer extends GeMoMaModule {
 			int firstBase = start+dir;
 			extend=false;
 			
-			//find stretch that is has some positive coverage
+			//find stretch that has some positive coverage
 			int h=firstBase;
 			int idx = Arrays.binarySearch(cov, new int[]{firstBase}, GeMoMa.IntArrayComparator.comparator[2] );
 			if( idx < 0 ) {

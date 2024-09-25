@@ -879,7 +879,8 @@ public class GeMoMa extends GeMoMaModule {
 		factor=-1;
 		predictions=-1;
 		Parameter p = parameters.getParameterForName( "output" );
-		if( p instanceof SimpleParameter ) {
+		if( p == null ) {
+			p = ((SimpleParameterSet) parameters.getParameterForName( "predictions" ).getValue()).getParameterAt(0);
 			predictions = (Integer) p.getValue();
 		} else {
 			p = ((SimpleParameterSet) ((SelectionParameter) p).getValue()).getParameterAt(0);

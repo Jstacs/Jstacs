@@ -118,7 +118,7 @@ public class Extractor extends GeMoMaModule {
 		rep = (Boolean) parameters.getParameterForName("repair").getValue();
 		
 		p = parameters.getParameterForName("replace");
-		String replacement = p.isSet() ? p.getValue().toString() : null;
+		String replacement = (p!=null && p.isSet()) ? p.getValue().toString() : null;
 
 		HashSet<String> geneIDs = new HashSet<String>(10000);
 		

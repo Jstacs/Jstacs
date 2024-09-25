@@ -203,7 +203,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		}
 	}
 	
-	private static String buscoPath= "BUSCO-references/";
+	private static String buscoPath= "BUSCO-references" + File.separator;
 	private static FilenameFilter dirFilter = new RegExFilenameFilter("", Directory.REQUIRED, true, ".*" );
 	
 	public static class GeMoMaPipelineParameterSet extends ToolParameterSet {
@@ -390,34 +390,35 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			Parameter p = given.getParameterAt(i);
 			Parameter q = toBeSet.getParameterForName( p.getName() );
 			if( q==null ) {
-				System.err.println(p.getName());
-			}
-			
-			/*
-			System.out.println(q.getName() + "\t" + p.getName() );
-			System.out.println(q.getClass().getName() + "\t" + p.getClass().getName() );
-			*/
-			if( p instanceof ParameterSetContainer ) {
-				setParameters( ((ParameterSetContainer)p).getValue(), ((ParameterSetContainer)q).getValue() );
-			} else if( p instanceof FileParameter ){
-				if( p.getValue() != null ) {
-					q.setValue( ((FileParameter) p).getFileContents() );
+				System.err.println("WARNING: Cannot set paremeter " + p.getName());
+			} else {	
+				/*
+				System.out.println(q.getName() + "\t" + p.getName() );
+				System.out.println(q.getClass().getName() + "\t" + p.getClass().getName() );
+				*/
+				if( p instanceof ParameterSetContainer ) {
+					setParameters( ((ParameterSetContainer)p).getValue(), ((ParameterSetContainer)q).getValue() );
+				} else if( p instanceof FileParameter ){
+					if( p.getValue() != null ) {
+						q.setValue( ((FileParameter) p).getFileContents() );
+					} else {
+						q.reset();
+					}
+				} else if( p instanceof AbstractSelectionParameter && ((AbstractSelectionParameter)p).getDatatype()==DataType.PARAMETERSET ) {
+					AbstractSelectionParameter a = (AbstractSelectionParameter) p;
+					ParameterSet ps = (ParameterSet) a.getValue();
+					AbstractSelectionParameter b = (AbstractSelectionParameter) q;
+					if( b != null ) {
+						if( b instanceof SelectionParameter ) {
+							int idx = ((SelectionParameter)a).getSelected();
+							b.setValue( ((SelectionParameter)b).getParametersInCollection().getParameterAt(idx) );
+						}
+						
+						setParameters( ps, (ParameterSet) b.getValue() );
+					}
 				} else {
-					q.reset();
+					q.setValue( p.getValue() );
 				}
-			} else if( p instanceof AbstractSelectionParameter && ((AbstractSelectionParameter)p).getDatatype()==DataType.PARAMETERSET ) {
-				AbstractSelectionParameter a = (AbstractSelectionParameter) p;
-				ParameterSet ps = (ParameterSet) a.getValue();
-				AbstractSelectionParameter b = (AbstractSelectionParameter) q;
-				
-				if( b instanceof SelectionParameter ) {
-					int idx = ((SelectionParameter)a).getSelected();
-					b.setValue( ((SelectionParameter)b).getParametersInCollection().getParameterAt(idx) );
-				}
-				
-				setParameters( ps, (ParameterSet) b.getValue() );
-			} else {
-				q.setValue( p.getValue() );
 			}
 		}
 	}
@@ -720,8 +721,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			//checking whether the search algorithm software is installed
 			boolean blast=(Boolean) parameters.getParameterForName("tblastn").getValue();
 			search_path = (String) parameters.getParameterForName(blast?"BLAST_PATH":"MMSEQS_PATH").getValue();
-			if( search_path.length()> 0 && search_path.charAt(search_path.length()-1)!='/' ) {
-				search_path += "/";
+			if( search_path.length()> 0 && search_path.charAt(search_path.length()-1)!=File.separatorChar ) {
+				search_path += File.separator;
 			}
 			String[][] cmd;
 			if( blast ) {
@@ -829,8 +830,8 @@ public class GeMoMaPipeline extends GeMoMaModule {
 							add(new JExtractorAndSplit(
 									speciesDirs[i],
 									null,
-									path + speciesDirs[i] + "/" + Extractor.name[0] + "." + Extractor.type[0], 
-									path + speciesDirs[i] + "/" + Extractor.name[1] + "." + Extractor.type[1],
+									path + speciesDirs[i] + File.separator + Extractor.name[0] + "." + Extractor.type[0], 
+									path + speciesDirs[i] + File.separator + Extractor.name[1] + "." + Extractor.type[1],
 									blast,
 									null
 							));
@@ -1164,8 +1165,20 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			if( r instanceof TextResult ) {
 				TextResult tr = (TextResult) r;
 				FileRepresentation fr = tr.getValue();
+				//old version: problem with large files
+				/*
 				fr.getContent();//this is important otherwise the output is null, as the files will be deleted within the next lines
 				fr.setFilename(null);
+				/**/
+
+				//new version: move file to standard temp and delete on exit
+				String oldLink = fr.getFilename();
+				if( oldLink!= null ) {
+					File newLink = File.createTempFile( System.getProperty("java.io.tmpdir"), "-"+oldLink.substring(oldLink.lastIndexOf(File.separatorChar)+1));
+					newLink.deleteOnExit();
+					fr.moveFile(newLink.getAbsolutePath());
+				}
+				/**/
 			}
 		}
 		
@@ -1505,7 +1518,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 					if( ((Stranded) params.getParameterForName("Stranded").getValue()) == Stranded.FR_UNSTRANDED ) {//unstranded
 						results.add(home + "coverage.bedgraph");
 						
-						rnaSeqData.coverageUn.add(home + "/coverage.bedgraph");
+						rnaSeqData.coverageUn.add(home + File.separator + "coverage.bedgraph");
 					} else {//stranded
 						results.add(home + "coverage_forward.bedgraph");
 						results.add(home + "coverage_reverse.bedgraph");
@@ -1691,7 +1704,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			params.getParameterForName("annotation").setValue(annotation);
 			params.getParameterForName("genome").setValue(genome);
 			Species sp = species.get(speciesIndex);
-			String outDir = home + speciesIndex + "/";
+			String outDir = home + speciesIndex + File.separator;
 			sp.cds = outDir + Extractor.name[0] + "." + Extractor.type[0];
 			sp.assignment = outDir + Extractor.name[1] + "." + Extractor.type[1];
 			addResults();
@@ -1728,7 +1741,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		@Override
 		public void doJob() throws Exception {
 			Species sp = species.get(speciesIndex);
-			String outDir = home + speciesIndex + "/";
+			String outDir = home + speciesIndex + File.separator;
 			File home = new File( outDir );
 			home.mkdirs();
 			if( params != null ) {
@@ -1791,7 +1804,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		
 		public void postProcessing() throws IOException {
 			Species sp = species.get(speciesIndex);
-			String outDir = home + speciesIndex + "/";
+			String outDir = home + speciesIndex + File.separator;
 			File f = new File( sp.cds );
 			sp.hasCDS = f.exists() && f.length()>0;
 			if( sp.hasCDS ) {
@@ -1827,17 +1840,17 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			super("tblastn split=" + split + " for species " + species.get(speciesIndex).name);
 			this.speciesIndex=speciesIndex;
 			this.split = split;
-			results.add(home+speciesIndex+"/tblastn-"+split+".txt");
+			results.add(home+speciesIndex+File.separator+"tblastn-"+split+".txt");
 		}
 		
 		@Override
 		public void doJob() throws Exception {
 			Species current = species.get(speciesIndex);
 			int exitCode = runProcess( search_path+"tblastn", "-query", current.cds_parts[split],
-					"-db", escape(home+"blastdb"), "-evalue",""+eValue, "-out", home+speciesIndex+"/tblastn-"+split+".txt",
+					"-db", escape(home+"blastdb"), "-evalue",""+eValue, "-out", home+speciesIndex+File.separator+"tblastn-"+split+".txt",
 					"-outfmt", "6 std sallseqid score nident positive gaps ppos qframe sframe qseq sseq qlen slen salltitles",
 					"-db_gencode","1", "-matrix", "BLOSUM62", "-seg", "no", "-word_size", "3", "-comp_based_stats", "F", "-gapopen", ""+gapOpen, "-gapextend", ""+gapExt, "-num_threads", "1" );
-			current.searchResults[split] = home+speciesIndex+"/tblastn-"+split+".txt";
+			current.searchResults[split] = home+speciesIndex+File.separator+"tblastn-"+split+".txt";
 			
 			if( exitCode > 1 ) { //Warnings/error in query will be ignored: https://www.ncbi.nlm.nih.gov/books/NBK279684/table/appendices.Tc/
 				status = JobStatus.FAILED;
@@ -1890,7 +1903,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			super( "mmseqs for species " + species.get(speciesIndex).name );
 			this.speciesIndex=speciesIndex;
 			latch = new CountDownLatch(1);
-			results.add(home+speciesIndex+"/mmseqs.tabular");
+			results.add(home+speciesIndex+File.separator+"mmseqs.tabular");
 		}
 		
 		@Override
@@ -1899,18 +1912,18 @@ public class GeMoMaPipeline extends GeMoMaModule {
 
 			int exitCode=0;
 			//createDB for query
-			exitCode = runProcess( search_path+mmseqs, "createdb", escape(sp.cds), escape(home+speciesIndex+"/mmseqsdb"), /*"--dont-split-seq-by-len", "--dont-shuffle", "--dbtype", "1",*/ "-v", "2" );
+			exitCode = runProcess( search_path+mmseqs, "createdb", escape(sp.cds), escape(home+speciesIndex+File.separator+"mmseqsdb"), /*"--dont-split-seq-by-len", "--dont-shuffle", "--dbtype", "1",*/ "-v", "2" );
 
-			String tmp = home+speciesIndex+"/mmseqsdb_tmp";
+			String tmp = home+speciesIndex+File.separator+"mmseqsdb_tmp";
 			File t = new File( tmp );
 			t.mkdirs();
 
 			//search
 			if( exitCode==0 ) {
 				exitCode = runProcess( search_path+mmseqs, "search",
-					escape(home+speciesIndex+"/mmseqsdb"),
+					escape(home+speciesIndex+File.separator+"mmseqsdb"),
 					escape(home+"mmseqsdb"),
-					escape(home+speciesIndex+"/mmseqsdb_align.out"),
+					escape(home+speciesIndex+File.separator+"mmseqsdb_align.out"),
 					escape(tmp),
 					"-e", "100.0", "--threads", ""+threads, "-s", "8.5", "-a", "--comp-bias-corr", "0", "--max-seqs", "500", "--mask", "0", "--orf-start-mode", "1", "-v", "2" ); 
 			}
@@ -1918,10 +1931,10 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			//convertalis
 			if( exitCode == 0 ) {
 				exitCode = runProcess( search_path+mmseqs, "convertalis",
-						escape(home+speciesIndex+"/mmseqsdb"),
+						escape(home+speciesIndex+File.separator+"mmseqsdb"),
 						escape(home+"mmseqsdb"),
-						escape(home+speciesIndex+"/mmseqsdb_align.out"),
-						escape(home+speciesIndex+"/mmseqs.tabular"),
+						escape(home+speciesIndex+File.separator+"mmseqsdb_align.out"),
+						escape(home+speciesIndex+File.separator+"mmseqs.tabular"),
 						"--threads", ""+threads, "--format-output", "query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits,empty,raw,nident,empty,empty,empty,qframe,tframe,qaln,taln,qlen,tlen", "-v", "2");
 			}
 			latch.countDown();
@@ -1935,7 +1948,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			Species sp = species.get(speciesIndex);
 
 			//ExternalSort (and split)
-			File[] parts = Tools.externalSort(home+speciesIndex+"/mmseqs.tabular", 500000, threads, new QuietSysProtocol(), !sp.assignment.equals(OPTIONAL), home+speciesIndex+"/" );
+			File[] parts = Tools.externalSort(home+speciesIndex+File.separator+"mmseqs.tabular", 500000, threads, new QuietSysProtocol(), !sp.assignment.equals(OPTIONAL), home+speciesIndex+File.separator );
 			sp.searchResults = new String[parts.length];
 			for( int i = 0; i < sp.searchResults.length; i++ ) {
 				sp.searchResults[i] = parts[i].getAbsolutePath();
@@ -1963,7 +1976,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			super("GeMoMa split=" + split + " for species " + species.get(speciesIndex).name);
 			this.speciesIndex = speciesIndex;
 			this.split = split;
-			results.add(home + speciesIndex + "/"+split +"/"+GeMoMa.DEF_RES.replace(' ', '_') +".gff");
+			results.add(home + speciesIndex + File.separator +split + File.separator +GeMoMa.DEF_RES.replace(' ', '_') +".gff");
 			updateComputeBySubset( "GeMoMa parameter set" );
 		}
 		
@@ -1982,7 +1995,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			
 			SysProtocol protocol = threads==1 && pipelineProtocol instanceof SysProtocol ? (SysProtocol) pipelineProtocol : new QuietSysProtocol();
 			GeMoMa gemoma = new GeMoMa(maxSize,timeOut,maxTimeOut);
-			String outDir = home + speciesIndex + "/"+split +"/";
+			String outDir = home + speciesIndex + File.separator +split + File.separator;
 			ToolResult res;
 			try{
 				res = gemoma.run(params, protocol, new ProgressUpdater(), 1, outDir);
@@ -2016,7 +2029,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			super("cat for species " + species.get(speciesIndex).name);
 			this.speciesIndex = speciesIndex;
 			Species current = species.get(speciesIndex);
-			current.anno = home + speciesIndex + "/unfiltered-predictions.gff";
+			current.anno = home + speciesIndex + File.separator + "unfiltered-predictions.gff";
 			results.add(current.anno);
 		}
 		
@@ -2025,7 +2038,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			Species current = species.get(speciesIndex);
 			BufferedWriter w= new BufferedWriter( new FileWriter(current.anno) );
 			for( int sp = 0; sp <species.get(speciesIndex).searchResults.length; sp++ ) {
-				BufferedReader r = new BufferedReader( new FileReader(home + speciesIndex + "/" + sp + "/predicted_annotation.gff") );
+				BufferedReader r = new BufferedReader( new FileReader(home + speciesIndex + File.separator + sp + File.separator + "predicted_annotation.gff") );
 				String line;
 				while( (line=r.readLine()) != null ) {
 					if( line.charAt(0) != '#' || sp==0 ) {
@@ -2052,7 +2065,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 		public JAnnotationEvidence( int speciesIndex ) {
 			super( "AnnotationEvidence for external annotation " + species.get(speciesIndex).name );
 			this.speciesIndex = speciesIndex;
-			results.add(home + speciesIndex + "/annotation_with_attributes.gff");
+			results.add(home + speciesIndex + File.separator + "annotation_with_attributes.gff");
 		}
 
 		@Override
@@ -2065,7 +2078,7 @@ public class GeMoMaPipeline extends GeMoMaModule {
 			
 			ToolResult res;
 			SysProtocol protocol = new QuietSysProtocol();
-			String outDir = home + speciesIndex + "/";
+			String outDir = home + speciesIndex + File.separator;
 			try{
 				res = ae.run(pars, protocol, new ProgressUpdater(), 1, outDir);
 			} catch( Exception ex )  {
@@ -2277,9 +2290,9 @@ public class GeMoMaPipeline extends GeMoMaModule {
 	public ToolResult[] getTestCases( String path ) {
 		try {
 			return new ToolResult[]{
-					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test.xml")),
-					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test2.xml")),
-					new ToolResult(FileManager.readFile(path+File.separator+"tests/gemoma/xml/gemomapipeline-test3.xml"))
+					new ToolResult(FileManager.readFile(path+File.separator+"tests"+File.separator+"gemoma"+File.separator+"xml"+File.separator+"gemomapipeline-test.xml")),
+					new ToolResult(FileManager.readFile(path+File.separator+"tests"+File.separator+"gemoma"+File.separator+"xml"+File.separator+"gemomapipeline-test2.xml")),
+					new ToolResult(FileManager.readFile(path+File.separator+"tests"+File.separator+"gemoma"+File.separator+"xml"+File.separator+"gemomapipeline-test3.xml"))
 			};
 		} catch( Exception e ) {
 			e.printStackTrace();

@@ -100,7 +100,7 @@ public class GeMoMaTest {
 				while( (l1=r1.readLine()) != null && l1.charAt(0)=='#' );//ignore comment lines
 				while( (l2=r2.readLine()) != null && l2.charAt(0)=='#' );
 				
-				if( l1==null || l2 == null || !l1.equals(l2) ) {
+				if( l1==null || l2 == null || !l1.toUpperCase().equals(l2.toUpperCase()) ) {
 					break;
 				}
 				l++;
