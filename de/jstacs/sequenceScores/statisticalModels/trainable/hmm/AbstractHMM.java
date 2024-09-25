@@ -239,9 +239,9 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 			throw new IllegalArgumentException( "The length of the filter array has to be the same as the length of the names" );
 		}
 		this.name = new String[n];
-		if(filter != null) {
+		if( filter!= null ) {
 			this.filter = filter.clone();
-		}else {
+		} else {
 			this.filter = new Filter[n];
 		}
 		HashSet<String> hash = new HashSet<String>();

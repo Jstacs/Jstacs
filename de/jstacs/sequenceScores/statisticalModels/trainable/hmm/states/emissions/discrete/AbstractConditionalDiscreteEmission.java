@@ -146,6 +146,8 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	
 	private double logUniform;
 
+	private boolean norm;
+	
 	/**
 	 * Returns the hyper-parameters for all parameters and a given ess.
 	 * The equivalent sample size is distributed evenly across all parameters
@@ -184,7 +186,11 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	}
 
 	protected AbstractConditionalDiscreteEmission( AlphabetContainer con, int numberOfConditions, double ess, double initEss ) throws WrongAlphabetException {
-		this( con, getHyperParams( ess, numberOfConditions, (int) con.getAlphabetLengthAt( 0 )), getHyperParams( initEss, numberOfConditions, (int) con.getAlphabetLengthAt( 0 )) );
+		this( con, numberOfConditions, ess, initEss, true );
+	}
+	
+	protected AbstractConditionalDiscreteEmission( AlphabetContainer con, int numberOfConditions, double ess, double initEss, boolean norm ) throws WrongAlphabetException {
+		this( con, getHyperParams( ess, numberOfConditions, (int) con.getAlphabetLengthAt( 0 )), getHyperParams( initEss, numberOfConditions, (int) con.getAlphabetLengthAt( 0 )), norm );
 	}
 	
 	/**
@@ -202,7 +208,7 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	}
 	
 	/**
-	 * This constructor creates a {@link AbstractConditionalDiscreteEmission} defining the individual hyper parameters for the
+	 * This constructor creates a normalized {@link AbstractConditionalDiscreteEmission} defining the individual hyper parameters for the
 	 * prior used during training and initialization.
 	 * 
 	 * @param con the {@link AlphabetContainer} of this emission
@@ -212,16 +218,32 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
 	 */
 	protected AbstractConditionalDiscreteEmission( AlphabetContainer con, double[][] hyperParams, double[][] initHyperParams ) throws WrongAlphabetException {
+		this(con,hyperParams,initHyperParams,true);
+	}
+
+	/**
+	 * This constructor creates a {@link AbstractConditionalDiscreteEmission} defining the individual hyper parameters for the
+	 * prior used during training and initialization.
+	 * 
+	 * @param con the {@link AlphabetContainer} of this emission
+	 * @param hyperParams the individual hyper parameters for each parameter (used during training)
+	 * @param initHyperParams the individual hyper parameters for each parameter used in {@link #initializeFunctionRandomly()}
+	 * @param normalized whether a normalized or unnormalized variante shoudl be created
+	 * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
+	 */
+	protected AbstractConditionalDiscreteEmission( AlphabetContainer con, double[][] hyperParams, double[][] initHyperParams, boolean normalized ) throws WrongAlphabetException {
 		if( !con.isDiscrete() || !con.isSimple() ) {
 			throw new WrongAlphabetException("The AlphabetContainer has to be discrete and simple.");
 		}
 		this.con = con;
+		int a = hyperParams[0].length;
 		ess = new double[hyperParams.length];
-		this.hyperParams = new double[hyperParams.length][hyperParams[0].length];
+		this.hyperParams = new double[hyperParams.length][a];
 		if(hyperParams == initHyperParams){
 			this.initHyperParams = this.hyperParams;
 		}else{
-			this.initHyperParams = new double[initHyperParams.length][initHyperParams[0].length];
+			this.initHyperParams = new double[initHyperParams.length][a];
 		}
 		for( int i = 0; i < hyperParams.length; i++ ) {
 			for( int j = 0; j < hyperParams[i].length; j++ ) {
@@ -235,13 +257,14 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 				ess[i] += hyperParams[i][j];
 			}
 		}
-		params = new double[hyperParams.length][hyperParams[0].length];
-		probs = new double[hyperParams.length][hyperParams[0].length];
-		statistic = new double[hyperParams.length][hyperParams[0].length];
-		grad = new double[hyperParams.length][hyperParams[0].length];
+		params = new double[hyperParams.length][a];
+		probs = new double[hyperParams.length][a];
+		statistic = new double[hyperParams.length][a];
+		grad = new double[hyperParams.length][a];
 		logNorm = new double[hyperParams.length];
 		
-		logUniform = - Math.log( con.getAlphabetLengthAt(0) );
+		this.norm = normalized;
+		logUniform = - Math.log( a );
 		precompute();
 	}
 	
@@ -351,11 +374,14 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 				res += logUniform;
 			} else {
 				v = getIndex(s, current);
-				res += params[condIdx][v] - logNorm[condIdx];
-				grad[condIdx][v]++;
-				for(int i=0;i<grad[condIdx].length;i++) {
-					grad[condIdx][i] -= probs[condIdx][i];
+				if( norm ) {
+					res -= logNorm[condIdx];
+					for(int i=0;i<grad[condIdx].length;i++) {
+						grad[condIdx][i] -= probs[condIdx][i];
+					}
 				}
+				res += params[condIdx][v];
+				grad[condIdx][v]++;
 			}
 			s++;
 		}
@@ -390,8 +416,9 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 			int condIdx = getConditionIndex( forward, s, seq );
 			if(condIdx < 0){
 				res += logUniform;
-			} else {;
-				res += params[condIdx][getIndex(s, current)] - logNorm[condIdx];
+			} else {
+				res -= logNorm[condIdx];
+				res += params[condIdx][getIndex(s, current)];
 			}
 			s++;
 		}
@@ -409,12 +436,15 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @see #probs
 	 */
 	protected void precompute() {
-		for(int i = 0 ; i < params.length; i++ ) {
-			logNorm[i] = Normalisation.logSumNormalisation(params[i], 0, params[i].length, probs[i], 0 );
-			/*logNorm[i] = Normalisation.getLogSum( params[i] );
-			for( int j = 0; j < params[i].length; j++ ) {
-				probs[i][j] = Math.exp( params[i][j] - logNorm[i] );
-			}*/
+		if( norm ) {
+			for(int i = 0 ; i < params.length; i++ ) {
+				logNorm[i] = Normalisation.logSumNormalisation(params[i], 0, params[i].length, probs[i], 0 );
+			}
+		} else {
+			Arrays.fill(logNorm,0);
+			for(int i = 0 ; i < params.length; i++ ) {
+				Arrays.fill(probs[i],0);
+			}
 		}
 	}
 
@@ -424,6 +454,7 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags( xml, con, "alphabetContainer" );
 		XMLParser.appendObjectWithTags( xml, params, "params" );
+		XMLParser.appendObjectWithTags( xml, norm, "norm" );	
 		XMLParser.appendObjectWithTags( xml, offset, "offset" );
 		XMLParser.appendObjectWithTags( xml, hyperParams, "hyperParams" );
 		XMLParser.appendObjectWithTags( xml, initHyperParams, "initHyperParams" );
@@ -487,6 +518,11 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 		probs = new double[params.length][params[0].length];
 		grad = new double[params.length][params[0].length];
 		logNorm = new double[params.length];
+		try {
+			norm = (Boolean) XMLParser.extractObjectForTags( xml, "norm" );
+		} catch( NonParsableException npe ) {
+			norm = true;
+		}
 		precompute();
 		
 		offset = (Integer) XMLParser.extractObjectForTags( xml, "offset" );
@@ -1035,14 +1071,21 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	public String toString(NumberFormat nf) {
 		StringBuffer sb = new StringBuffer();
 		for( int i = 0; i < probs.length; i++ ) {
-			for( int j = 0; j < probs[i].length; j++ ) {
+			double[] p;
+			if( norm ) {
+				p = probs[i]; 
+			} else {
+				p = probs[i].clone();
+				Normalisation.logSumNormalisation(params[i], 0, params[i].length, p, 0 );
+			}
+			for( int j = 0; j < p.length; j++ ) {
 				String cond;
 				if( probs.length==1 ) {
 					cond = "";
 				} else {
 					cond= getCondition(i);
 				}
-				sb.append( "P(X=" + con.getSymbol( 0, j ) + cond +") = " + nf.format( probs[i][j] ) + "\t");
+				sb.append( "P(X=" + con.getSymbol( 0, j ) + cond +") = " + nf.format( p[j] ) + "\t");
 				
 			}
 			sb.append("\n");
@@ -1057,4 +1100,9 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @return the String representation of condition <code>i</code>
 	 */
 	protected abstract String getCondition( int i );
+
+	@Override
+	public boolean isNormalized() {
+		return norm;
+	}
 }

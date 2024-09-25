@@ -51,7 +51,20 @@ public class BasicTransitionElement extends AbstractTransitionElement {
 	 * @param weight the weight for plotting the edges in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
 	 */
 	public BasicTransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight ){
-		super( context, states, hyperParameters, weight );
+		this( context, states, hyperParameters, weight, true );
+	}
+
+	/**
+	 * This is the main constructor creating a new instance with given context, descendant states, and hyper parameters.
+	 * 
+	 * @param context the context (=previously visited state indices); last entry corresponds to the last state visited
+	 * @param states the transitions to all possible states; if <code>null</code> then no transition allowed
+	 * @param hyperParameters the hyper parameters for the transitions; if <code>null</code> then no prior is used
+	 * @param weight the weight for plotting the edges in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
+	 * @param norm whether a normalized or unnormalized variant should be created
+	 */
+	public BasicTransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight, boolean norm ){
+		super( context, states, hyperParameters, weight, norm );
 	}
 	
 	/**

@@ -323,22 +323,9 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		getOffsets();
 	}
 	
-	/*
-	public void initializeTransitionRandomly( int num ) throws Exception {
-		double[] bestParams = null;
-		double best = Double.POSITIVE_INFINITY;
-		for( int i = 0; i < num; i++ ) {
-			transition.initializeRandomly();
-			double[] params = getCurrentParameterValues();
-			double current = 0;//TODO
-			if( best > current ) {
-				best = current;
-				bestParams = params;
-			}
-		}
-		
-		setParameters(bestParams, 0);
-	}/**/
+	public void initializeTransitionRandomly() throws Exception {
+		transition.initializeRandomly();
+	}
 	
 	public void initializeFunction( int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		if(skipInit){
@@ -484,7 +471,16 @@ System.out.println(emission[i].toString(nf));
 
 //XXX is normalized? start
 	public boolean isNormalized() {
-		return true;
+		boolean isNormalized=((DifferentiableTransition)transition).isNormalized();
+System.out.println("trans\t" + isNormalized);
+		if( isNormalized ) {
+			int i = 0;
+			while( i < emission.length && (isNormalized=((DifferentiableEmission)emission[i]).isNormalized()) ) {
+				System.out.println("em\t"+i+"/"+emission.length+"\t" + isNormalized);
+				i++;
+			}
+		}
+		return isNormalized;
 	}
 	
 	public double getLogNormalizationConstant() {
@@ -780,10 +776,9 @@ System.out.println(emission[i].toString(nf));
 		return fill(seq,allowedStatesGroup,startPos,endPos, null, null );
 	}
 	
-	protected double fill( Sequence seq, int[] allowedStatesGroup, int startPos, int endPos, IntList indices, DoubleList partialDer ) {
+	public double fill( Sequence seq, int[] allowedStatesGroup, int startPos, int endPos, IntList indices, DoubleList partialDer ) {
 		//viterbi => backward
 		//second best => forward
-		int aa = startPos, ab = endPos;
 		try {
 			int maxOrder = transition.getMaximalMarkovOrder();
 			boolean zero = maxOrder == 0;
@@ -857,8 +852,8 @@ System.out.println(emission[i].toString(nf));
 						}
 					}
 				}
-				max( bwdMatrix, backwardIntermediate, childrenBW, l, context, val, indices==null ? null : gradient, null );
-				max( fwdMatrix, forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient2, gradient );
+				bwdMatrix[l][context]=max( backwardIntermediate, childrenBW, l, context, val, indices==null ? null : gradient, null );
+				fwdMatrix[l][context]=max( forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient2, gradient );
 				
 				if( allowedState ) {
 					a--;
@@ -920,8 +915,8 @@ System.out.println(emission[i].toString(nf));
 							childrenFW.add(stateID);							
 						}
 					}
-					max( bwdMatrix, backwardIntermediate, childrenBW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient, null );
-					max( fwdMatrix, forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient2, gradient );
+					bwdMatrix[l][context]=max( backwardIntermediate, childrenBW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient, null );
+					fwdMatrix[l][context]=max( forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient2, gradient );
 
 					if( allowedState ) {
 						a--;
@@ -967,14 +962,12 @@ System.out.println(emission[i].toString(nf));
 		}
 	}
 
-	protected void max( double[][] matrix, double[] intermediate, IntList children, int layer, int context, double val, double[][][] gradient, double[][][] altGradient ) {
+	protected double max( double[] intermediate, IntList children, int layer, int context, double val, double[][][] gradient, double[][][] altGradient ) {
 		if( children.length() == 0 )  {
-			matrix[layer][context] = val;
 			if( gradient != null ) resetGradient( gradient, layer, context, 0 );
+			return val;
 		} else {
 			int idx = ToolBox.getMaxIndex( children, intermediate );
-			matrix[layer][context] = intermediate[idx];
-			
 			if( gradient != null ) {
 				int h = layer % 2;
 				
@@ -991,6 +984,7 @@ System.out.println(emission[i].toString(nf));
 				
 				miniMerge(idx, 1, h, context, gradient);
 			}
+			return intermediate[idx];
 		}
 	}
 	
