@@ -91,7 +91,7 @@ public class Hclust<T> {
 		int oi = -indexOff-1;
 		while(list.size() > 1){
 			Iterator<ClusterTree<Integer>> it = list.iterator();
-			int mini = -1, minj = -1;
+			int mini = -1, minj = -2; //mini>minj
 			double min = Double.POSITIVE_INFINITY;
 			int i=0;
 			while(it.hasNext()){
@@ -99,11 +99,12 @@ public class Hclust<T> {
 				Iterator<ClusterTree<Integer>> it2 = list.iterator();
 				for(int j=0;j<i;j++){
 					ClusterTree<Integer> tree2 = it2.next();
-					double dist = getDistance(distMat, tree,tree2);
+					double dist = getDistance(linkage, distMat, tree,tree2);
 					if(dist < min){
 						min = dist;
 						mini = i;
 						minj = j;
+						//still mini>minj, since i>j
 					}
 				}
 				i++;
@@ -111,8 +112,8 @@ public class Hclust<T> {
 			
 			ClusterTree<Integer> nt = new ClusterTree<Integer>( min, oi, list.get( mini ), list.get( minj ) );
 			oi--;
-			list.remove( Math.max( mini, minj ) );
-			list.remove( Math.min( mini, minj ) );
+			list.remove( mini );
+			list.remove( minj );
 			list.add( nt );
 		}
 		
@@ -213,7 +214,7 @@ public class Hclust<T> {
 	}
 	
 	/**
-	 * Creates a cluster tree given an index tree using the original indexes refering to the indexes
+	 * Creates a cluster tree given an index tree using the original indexes referring to the indexes
 	 * of elements in <code>objects</code>.
 	 * @param intTree the index tree
 	 * @param objects the objects filled into the tree instead of the indexes
@@ -241,7 +242,7 @@ public class Hclust<T> {
 	 * @param tree2 the second tree
 	 * @return the distance between the trees
 	 */
-	public double getDistance( double[][] distMat, ClusterTree<Integer> tree, ClusterTree<Integer> tree2 ) {
+	public static double getDistance( Linkage linkage, double[][] distMat, ClusterTree<Integer> tree, ClusterTree<Integer> tree2 ) {
 		double dist = linkage == Linkage.SINGLE ? Double.POSITIVE_INFINITY : ( linkage == Linkage.AVERAGE ? 0 : Double.NEGATIVE_INFINITY );
 		
 		Integer[] el1 = tree.getClusterElements();
