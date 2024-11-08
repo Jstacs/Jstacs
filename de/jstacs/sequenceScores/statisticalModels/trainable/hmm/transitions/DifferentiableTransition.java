@@ -106,4 +106,13 @@ public interface DifferentiableTransition extends Transition {
 	 * @param list the list of sampling groups
 	 */
 	public void fillSamplingGroups( int parameterOffset, LinkedList<int[]> list );
+	
+	/**
+	 * This method indicates whether the implemented score is already normalized
+	 * to 1 or not.
+	 * 
+	 * @return <code>true</code> if the implemented score is already normalized
+	 *         to 1, <code>false</code> otherwise
+	 */
+	public boolean isNormalized();
 }

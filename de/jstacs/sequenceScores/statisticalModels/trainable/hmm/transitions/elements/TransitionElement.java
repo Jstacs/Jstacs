@@ -17,6 +17,8 @@
  */
 package de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements;
 
+import java.util.Arrays;
+
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.utils.DoubleList;
@@ -71,7 +73,20 @@ public class TransitionElement extends BasicTransitionElement {
 	 * @param weight the weight for plotting the edge in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
 	 */
 	public TransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight ) {
-		super( context, states, hyperParameters, weight );
+		this( context, states, hyperParameters, weight, true );
+	}
+	
+	/**
+	 * This is the main constructor creating a new instance with given context, descendant states, and hyper parameters.
+	 * 
+	 * @param context the context (=previously visited state indices); last entry corresponds to the last state visited
+	 * @param states the transitions to all possible states; if <code>null</code> than no transition allowed
+	 * @param hyperParameters the hyper parameters for the transitions; if <code>null</code> than no prior is used
+	 * @param weight the weight for plotting the edge in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
+	 * @param norm whether a normalized or unnormalized variant should be created
+	 */
+	public TransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight, boolean norm ) {
+		super( context, states, hyperParameters, weight, norm );
 	}
 
 	/**
@@ -102,7 +117,12 @@ public class TransitionElement extends BasicTransitionElement {
 	}
 	
 	protected void precompute() {
-		logNorm = Normalisation.logSumNormalisation( parameters, 0, parameters.length, probs, 0 );
+		if( norm ) {
+			logNorm = Normalisation.logSumNormalisation( parameters, 0, parameters.length, probs, 0 );
+		} else { 
+			logNorm=0;
+			Arrays.fill(probs, 0);
+		}
 	}
 	
 	/**
@@ -127,9 +147,11 @@ public class TransitionElement extends BasicTransitionElement {
 	 */
 	public double getLogScoreAndPartialDerivation( int childIdx, IntList indices, DoubleList partialDer, Sequence sequence, int sequencePosition ) {
 		if( parameters.length>1 ) {
-			for( int i = 0; i < parameters.length; i++) {
-				indices.add( offset + i );
-				partialDer.add( - probs[i] );
+			if( norm ) {
+				for( int i = 0; i < parameters.length; i++) {
+					indices.add( offset + i );
+					partialDer.add( - probs[i] );
+				}
 			}
 			
 			indices.add( offset + childIdx );

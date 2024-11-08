@@ -24,6 +24,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -35,6 +38,7 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.validation.ParameterValidator;
+import de.jstacs.tools.ui.cli.CLI;
 import de.jstacs.tools.ui.galaxy.GalaxyAdaptor;
 import de.jstacs.utils.Compression;
 
@@ -666,6 +670,27 @@ public class FileParameter extends Parameter implements GalaxyConvertible {
 		 */
 		public String getExtension(){
 			return ext;
+		}
+		
+		/**
+		 * This method moves the underlying file to the specified location. If the underlying file does not exist, it return false.
+		 * 
+		 * @param newFileName the new file name
+		 * 
+		 * @return <code>true</code>
+		 * 
+		 * @throws IOException if something went wrong while moving the file
+		 * 
+		 * @see Files#move(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...)
+		 */
+		public boolean moveFile( String newFileName ) throws IOException {
+			boolean moved = false;
+			if( filename != null ) {
+				Files.move( Paths.get(filename), Paths.get(newFileName), StandardCopyOption.REPLACE_EXISTING );
+				setFilename(newFileName);
+				moved=true;
+			}
+			return moved;
 		}
 
 		/*

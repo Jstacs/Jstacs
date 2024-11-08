@@ -138,4 +138,13 @@ public interface DifferentiableEmission extends Emission, Cloneable {
 	 * @throws CloneNotSupportedException if the object cannot be cloned
 	 */
 	public DifferentiableEmission clone() throws CloneNotSupportedException;
+
+	/**
+	 * This method indicates whether the implemented score is already normalized
+	 * to 1 or not.
+	 * 
+	 * @return <code>true</code> if the implemented score is already normalized
+	 *         to 1, <code>false</code> otherwise
+	 */
+	public boolean isNormalized();
 }

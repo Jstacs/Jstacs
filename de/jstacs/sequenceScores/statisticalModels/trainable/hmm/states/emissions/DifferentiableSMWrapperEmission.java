@@ -112,9 +112,9 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 		int s = startPos + offset;//, e=endPos+offset+l-1;
 		//System.out.println(startPos+".."+endPos + "\t" + s + ".." + e); //System.exit(1);
 		try {
-			double logScore=0;
-			if( s < 0 || s+l > seq.getLength() ) logScore += logUniform;
-			else logScore += model.getLogScoreFor(seq, s);
+			double logScore;
+			if( s < 0 || s+l > seq.getLength() ) logScore = logUniform;
+			else logScore = model.getLogScoreFor(seq, s);
 			return logScore;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -130,9 +130,9 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 		//System.out.println(startPos+".."+endPos + " -> " + s + ".." + e); //System.exit(1);
 		try {
 			int indStart = indices.length();
-			double logScore=0;
-			if( s < 0 || s+l > seq.getLength() ) logScore += logUniform;
-			else logScore += model.getLogScoreAndPartialDerivation(seq, s, indices, partDer);
+			double logScore;
+			if( s < 0 || s+l > seq.getLength() ) logScore = logUniform;
+			else logScore = model.getLogScoreAndPartialDerivation(seq, s, indices, partDer);
 			indices.addToValues(indStart, indices.length(), pOffset);
 			return logScore;
 		} catch (Exception ex) {
@@ -283,5 +283,10 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	 */
 	public int getOffset() {
 		return offset;
+	}
+
+	@Override
+	public boolean isNormalized() {
+		return model.isNormalized();
 	}
 }

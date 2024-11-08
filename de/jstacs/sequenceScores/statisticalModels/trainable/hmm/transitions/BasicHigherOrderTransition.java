@@ -732,6 +732,8 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 */
 		private double[] weight;
 		
+		protected boolean norm;
+		
 		/**
 		 * This is the main constructor creating a new instance with given context, descendant states, and hyper parameters.
 		 * 
@@ -754,6 +756,19 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @param weight the weight for plotting the edges in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
 		 */
 		public AbstractTransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight ){
+this(context,states,hyperParameters,weight,true);
+		}
+		
+		/**
+		 * This is the main constructor creating a new instance with given context, descendant states, and hyper parameters.
+		 * 
+		 * @param context the context (=previously visited state indices); last entry corresponds to the last state visited
+		 * @param states the transitions to all possible states; if <code>null</code> then no transition allowed
+		 * @param hyperParameters the hyper parameters for the transitions; if <code>null</code> then no prior is used
+		 * @param weight the weight for plotting the edges in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
+		 * @param norm whether a normalized or unnormalized variant should be returned
+		 */
+		public AbstractTransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight, boolean norm ){
 			this.context = context==null ? new int[0] : context.clone();
 			int s = states==null ? 0 : states.length, h = hyperParameters == null ? s : hyperParameters.length;
 			if( s != h ) {
@@ -785,6 +800,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			this.parameters = new double[s];
 			init();
 			this.weight = weight==null ? null : weight.clone();
+			this.norm = norm;
 		}
 		
 		/**
@@ -808,6 +824,11 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 				this.weight = (double[]) XMLParser.extractObjectForTags( xml, "weight" );
 			} else {
 				this.weight = null;
+			}
+			try {
+				norm = (Boolean) XMLParser.extractObjectForTags( xml, "norm" );
+			} catch( NonParsableException npe ) {
+				norm = true;
 			}
 			extractFurtherInformation( xml );
 			init();
@@ -850,6 +871,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			XMLParser.appendObjectWithTags( xml, hyperParameters, "hyperparameters" );
 			XMLParser.appendObjectWithTags( xml, parameters, "parameters" );
 			XMLParser.appendObjectWithTags( xml, weight, "weight" );
+			XMLParser.appendObjectWithTags( xml, norm, "norm" );
 			appendFurtherInformation( xml );
 			XMLParser.addTags( xml, getXMLTag() );
 			return xml;
@@ -891,7 +913,11 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @see #logNorm
 		 */
 		protected void precompute() {
-			logNorm = Normalisation.getLogSum( parameters );
+			if( norm ) {
+				logNorm = Normalisation.getLogSum( parameters );
+			} else { 
+				logNorm=0;
+			}
 		}
 		
 		/**
@@ -1279,9 +1305,10 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			if( parameters.length > 0 ) {
 				StringBuffer sb = new StringBuffer();
 				String context = getContext( stateNames );
+				double n = norm ? logNorm : Normalisation.getLogSum(parameters);
 				for( int i = 0; i < parameters.length; i++ ) {
-					double v = Math.exp( parameters[i] - logNorm );
-					sb.append("P(" + getLabel( stateNames, states[i] ) + context + ") = " + (nf==null?v:nf.format( v )) );
+					double v = Math.exp( parameters[i] - n );
+					sb.append("P(" + getLabel( stateNames, states[i] ) + context + ") \t= " + (nf==null?v:nf.format( v )) );
 					sb.append("\t");
 				}
 				sb.append( "\n" );
@@ -1355,6 +1382,10 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			}
 			System.arraycopy( t.parameters, 0, parameters, 0, t.parameters.length );
 			precompute();
+		}
+		
+		public final boolean isNormalized() {
+			return norm;
 		}
 	}
 }

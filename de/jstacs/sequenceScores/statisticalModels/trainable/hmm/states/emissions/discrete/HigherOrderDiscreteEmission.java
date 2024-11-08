@@ -51,7 +51,22 @@ public class HigherOrderDiscreteEmission extends AbstractConditionalDiscreteEmis
 	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
 	 */
 	public HigherOrderDiscreteEmission(AlphabetContainer con, double ess, double initESS, int order ) throws WrongAlphabetException {
-		super(con, (int) Math.pow(con.getAlphabetLengthAt(0), order), ess, initESS);
+		this(con,ess,initESS,order,true);
+	}
+	
+	/**
+	 * Creates a higher order discrete {@link Emission} with given order.
+	 * 
+	 * @param con the {@link AlphabetContainer}
+	 * @param ess the ess that is equally distributed to all parameters
+	 * @param initESS the ess for the initialization
+	 * @param order the non negative Markov order
+	 * @param norm whether a normalized or unnormalized variant should be created
+	 * 
+	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
+	 */
+	public HigherOrderDiscreteEmission(AlphabetContainer con, double ess, double initESS, int order, boolean norm ) throws WrongAlphabetException {
+		super(con, (int) Math.pow(con.getAlphabetLengthAt(0), order), ess, initESS, norm);
 		if( order < 0 ) {
 			throw new IllegalArgumentException("The order must be non-negative");
 		}	

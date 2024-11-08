@@ -122,7 +122,7 @@ public class NumericalHMMTrainingParameterSet extends MultiThreadedTrainingParam
 	public NumericalHMMTrainingParameterSet( int starts, AbstractTerminationCondition tc, int threads, byte algorithm, double lineEps, double startDist, TrainingType training, boolean randomly ) throws Exception {
 		super( starts, tc, threads );
 		addParameters();
-		parameters.get( 3 ).setValue(algorithmStrings[getIndex( algorithmStrings, algorithms, algorithm, false )] );
+		parameters.get( 3 ).setValue( algorithmStrings[getIndex( algorithmStrings, algorithms, algorithm, false )] );
 		parameters.get( 4 ).setValue( lineEps );
 		parameters.get( 5 ).setValue( startDist );
 		parameters.get( 6 ).setValue( training );

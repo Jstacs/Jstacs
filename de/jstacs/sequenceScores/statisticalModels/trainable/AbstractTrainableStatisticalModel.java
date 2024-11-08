@@ -32,6 +32,7 @@ import de.jstacs.io.NonParsableException;
 import de.jstacs.results.Result;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.StorableResult;
+import de.jstacs.sequenceScores.SequenceScore;
 
 /**
  * Abstract class for a model for pattern recognition. <br>
@@ -319,9 +320,23 @@ public abstract class AbstractTrainableStatisticalModel implements Cloneable, St
 	 */
 	protected abstract void fromXML(StringBuffer xml) throws NonParsableException;
 
-	public final String toString() {
+	/**
+	 * Simple method to obtain a String representation with a certain number of maximal fraction digits.
+	 * 
+	 * @param maxFractionDigits the maximal number of fraction digits
+	 * 
+	 * @return a String representation of the object
+	 * 
+	 * @see #toString()
+	 * @see SequenceScore#toString(NumberFormat)
+	 */
+	public final String toString( int maxFractionDigits ) {
 		NumberFormat nf = NumberFormat.getInstance(Locale.US);
-		nf.setMaximumFractionDigits(3);
+		nf.setMaximumFractionDigits(maxFractionDigits);
 		return toString(nf);
+	}
+	
+	public final String toString() {
+		return toString(3);
 	}
 }

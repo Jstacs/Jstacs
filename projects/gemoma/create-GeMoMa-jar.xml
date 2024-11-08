@@ -7,7 +7,7 @@
 	<property name="dir.workspace" value="${dir.buildfile}/.." />
 	<property name="dir.jarfile" value="${dir.buildfile}/projects/gemoma/" />
 	<target name="create_run_jar">
-		<jar destfile="${dir.jarfile}/GeMoMa-1.6.2beta.jar"
+		<jar destfile="${dir.jarfile}/GeMoMa-1.9_next.jar"
 			filesetmanifest="mergewithoutmain">
 			<manifest>
 				<attribute name="Main-Class" value="projects.gemoma.GeMoMa" />
@@ -16,24 +16,19 @@
 			<fileset dir="${dir.buildfile}/bin">
 				<exclude name="**/.svn/**/" />
 				<exclude name="MeDIP_HMM/**" />
-				<exclude name="projects/dimont/**" />
-				<exclude name="projects/dispom/**" />
-				<exclude name="projects/dream2016/**" />
-				<exclude name="projects/dream2016_jk/**" />
-				<exclude name="projects/dream2016_last/**" />
-				<exclude name="projects/encodedream/**" />
+				<exclude name="projects/c*/**" />
+				<exclude name="projects/d*/**" />
 				<exclude name="projects/gemoma/old/**" />
 				<exclude name="projects/gemoma/doc/**" />
 				<exclude name="projects/gemoma/quatsch/**" />
 				<exclude name="projects/gemoma/JunitTest/**" />
-				<exclude name="projects/motifComp/**" />
+				<exclude name="projects/m*/**" />
 				<exclude name="projects/quickscan/**" />
-				<exclude name="projects/slim/**" />
-				<exclude name="projects/tals/**" />
-				<exclude name="projects/talen/**" />
-				<exclude name="projects/tsp/**" />
+				<exclude name="projects/s*/**" />
+				<exclude name="projects/t*/**" />
+				<exclude name="projects/x*/**" />
 				<exclude name="supplementary/**" />
-				<exclude name="GeMoMa_temp/**" />
+				<exclude name="**/GeMoMa_temp/**" />
 				<exclude name="tests/**" />
 				<exclude name="*.*" />
 				<exclude name="**/*.xml" />
