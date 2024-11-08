@@ -407,6 +407,41 @@ public class Tools {
 		return annot;
 	}
 	
+	
+	public static char[] rc( char[] in ) {
+		char[] out = new char[in.length]; 
+		for( int i = 0; i < in.length; i++ ) {
+			switch( in[i] ) {
+				case 'a': case 'A': out[in.length-1-i]='T'; break;
+				case 'c': case 'C': out[in.length-1-i]='G'; break;
+				case 'g': case 'G': out[in.length-1-i]='C'; break;
+				case 't': case 'T': out[in.length-1-i]='A'; break;
+				
+				case 'n': case 'N': out[in.length-1-i]='N'; break;
+				
+				case 'y': case 'Y': out[in.length-1-i]='R'; break;
+				case 'r': case 'R': out[in.length-1-i]='Y'; break;
+				
+				case 'w': case 'W': out[in.length-1-i]='W'; break;
+				case 's': case 'S': out[in.length-1-i]='S'; break;
+				
+				case 'k': case 'K': out[in.length-1-i]='M'; break;
+				case 'm': case 'M': out[in.length-1-i]='K'; break;
+				
+				case 'v': case 'V': out[in.length-1-i]='T'; break;
+				case 'h': case 'H': out[in.length-1-i]='G'; break;
+				case 'd': case 'D': out[in.length-1-i]='C'; break;
+				case 'b': case 'B': out[in.length-1-i]='A'; break;
+
+				case '-': out[in.length-1-i]='-'; break;
+
+				
+				default: throw new IllegalArgumentException("unknown character: '"+in[i]+"'");
+			}
+		}
+		return out;
+	}
+	
 	public static String rc( CharSequence in ) {
 		char[] out = new char[in.length()]; 
 		for( int i = 0; i < in.length(); i++ ) {
