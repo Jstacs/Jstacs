@@ -557,21 +557,21 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 	public ToolParameterSet getToolParameters() {
 		LinkedList<Parameter> pars = new LinkedList<>();
 		
-		pars.add(new FileParameter("GeMoMa", "", "gff,gff3", true));
-		pars.add(new FileParameter("GeMoRNA","","gff,gff3",true));
+		pars.add(new FileParameter("GeMoMa", "GeMoMa predictions", "gff,gff3", true));
+		pars.add(new FileParameter("GeMoRNA","GeMoRNA predictions","gff,gff3",true));
 		
 		try {
 			pars.add(new SelectionParameter(DataType.PARAMETERSET, new String[] {"intersect","union","intermediate","annotate"}, new ParameterSet[] {
 					new SimpleParameterSet(),
 					new SimpleParameterSet(),
 					new SimpleParameterSet(
-							new FileParameter("GeMoMa-strict","","gff,gff3",true),
-							new FileParameter("GeMoRNA-strict","","gff,gff3",true)
+							new FileParameter("GeMoMa-strict","GeMoMa predictions with strict settings","gff,gff3",true),
+							new FileParameter("GeMoRNA-strict","GeMoRNA predictions with strict settings","gff,gff3",true)
 							),
 					new SimpleParameterSet(
-							new FileParameter("GeMoMa-strict","","gff,gff3",true),
-							new FileParameter("GeMoRNA-strict","","gff,gff3",true)
-			)}, new String[] {"","","",""}, "Mode", "", true));
+							new FileParameter("GeMoMa-strict","GeMoMa predictions with strict settings","gff,gff3",true),
+							new FileParameter("GeMoRNA-strict","GeMoRNA predictions with strict settings","gff,gff3",true)
+			)}, new String[] {"Intersection of GeMoRNA and GeMoMa predictions","Union of GeMoRNA and GeMoMa predictions","Intersection and strict GeMoRNA and GeMoMa predictions","Union of GeMoRNA and GeMoMa predictions with annotation as high, medium or low confidence"}, "Mode", "", true));
 		} catch (InconsistentCollectionException | IllegalValueException | DatatypeNotValidException e) {
 			e.printStackTrace();
 		}

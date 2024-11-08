@@ -583,32 +583,32 @@ public class TranscriptPrediction implements JstacsTool {
 		LinkedList<Parameter> pars = new LinkedList<Parameter>();
 		
 		pars.add(new FileParameter("Genome", "Genome sequence as FastA", "fa,fna,fasta", true));
-		pars.add(new FileParameter("Mapped reads","Mapped Reads in BAM format","bam",true));
+		pars.add(new FileParameter("Mapped reads","Mapped Reads in BAM format, coordinate sorted","bam",true));
 		
 		try {
 			pars.add(new EnumParameter(Stranded.class, "Library strandedness", true,Stranded.FR_UNSTRANDED.name()));
 			
 			
-			pars.add(new SimpleParameter(DataType.INT,"Longest intron length","",true,100000));
-			pars.add(new SimpleParameter(DataType.INT,"Shortest intron length","",true,10));
+			pars.add(new SimpleParameter(DataType.INT,"Longest intron length","Length of the longest intron reported",true,100000));
+			pars.add(new SimpleParameter(DataType.INT,"Shortest intron length","Length of the shortest intron considered",true,10));
 			
-			pars.add(new SimpleParameter(DataType.BOOLEAN,"Long reads","",true,false));
+			pars.add(new SimpleParameter(DataType.BOOLEAN,"Long reads","Long-read mode",true,false));
 		
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of reads","",true,1.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of reads","",true,0.01));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of reads","Minimum number of reads required for an edge in the read graph",true,1.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of reads","Minimum fraction of reads relative to adjacent exons that must support an intron in the enumeration",true,0.01));
 			
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of intron reads","",true,1.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of intron reads","",true,0.01));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of intron reads","Minimum number of reads required for an intron",true,1.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of intron reads","Minimum fraction of reads relative to adjacent exons for an intron to be considered",true,0.01));
 			
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent explained","",true,0.9));//was 0.8
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per gene","",true,40.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per transcript","",true,20.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent abundance","",true,0.05));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Successive fraction","",true,20.0));//was 10.0
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent explained","Percent of abundance that must be explained by transcript models after quantification",true,0.9));//was 0.8
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per gene","Minimum abundance required for a gene to be reported",true,40.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per transcript","Minimum abundance required for a transcript to be reported",true,20.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent abundance","Minimum relative abundance required for a transcript to be reported",true,0.05));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Successive fraction","Factor of the drop in abundance between successive transcript models",true,20.0));//was 10.0
 			
-			pars.add(new SimpleParameter(DataType.INT,"Maximum region length","",true,750000));
-			pars.add(new SimpleParameter(DataType.INT,"Maximum filled gap length","",true,50));
-			pars.add(new SimpleParameter(DataType.INT,"Quality filter","",true,40));
+			pars.add(new SimpleParameter(DataType.INT,"Maximum region length","Maximum length of a region considered before it is split",true,750000));
+			pars.add(new SimpleParameter(DataType.INT,"Maximum filled gap length","Maximum length of a gap filled by dummy reads",true,50));
+			pars.add(new SimpleParameter(DataType.INT,"Quality filter","Minimum mapping quality required for a read to be considered",true,40));
 			
 			pars.add(new SimpleParameter(DataType.INT,"Minimum protein length","Minimum length of protein in AA",true,70));
 			
