@@ -52,8 +52,10 @@ public class SyntenyChecker extends GeMoMaModule {
 				}
 				String assignFile = (String) ps.getParameterForName("assignment").getValue();
 				Assignment a = new Assignment( assignFile, prefix );
-				assign.add( a );
 				protocol.append("assignment: " + a.hash.size() + "\n" );
+				if( a.hash.size()>0 ) {
+					assign.add( a );
+				}
 			}
 			protocol.append("read assignment files: " + assign.size() );
 			
@@ -207,23 +209,25 @@ public class SyntenyChecker extends GeMoMaModule {
 
 		public void add( String line ) {
 			String[] split = line.split("\t");
-			split[0]=prefix+split[0];
-			int strand, start, end;
-			try {
-				strand=Integer.parseInt(split[5]);
-				start=Integer.parseInt(split[6]);
-				end=Integer.parseInt(split[7]);
-			} catch( NumberFormatException nfe ) {
-				//ignore this line
-				strand=start=end=-9999;
-			}
-			if( strand!= -9999 ) {
-				Gene g = hash.get(split[0]);
-				if( g==null ) {
-					g = new Gene( split[0] );
-					hash.put( split[0], g );
+			if( !split[3].startsWith(".") ) {
+				split[0]=prefix+split[0];
+				int strand, start, end;
+				try {
+					strand=Integer.parseInt(split[5]);
+					start=Integer.parseInt(split[6]);
+					end=Integer.parseInt(split[7]);
+				} catch( NumberFormatException nfe ) {
+					//ignore this line
+					strand=start=end=-9999;
 				}
-				g.extend( split[4], strand, start, end );
+				if( strand!= -9999 ) {
+					Gene g = hash.get(split[0]);
+					if( g==null ) {
+						g = new Gene( split[0] );
+						hash.put( split[0], g );
+					}
+					g.extend( split[4], strand, start, end );
+				}
 			}
 		}
 	}
