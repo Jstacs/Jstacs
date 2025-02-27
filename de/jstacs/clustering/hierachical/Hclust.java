@@ -250,20 +250,23 @@ public class Hclust<T> {
 		for(int i=0;i<el1.length;i++){
 			for(int j=0;j<el2.length;j++){
 				double d = distMat[ Math.max( el1[i], el2[j] ) ][ Math.min( el1[i], el2[j] ) ];
-				if(linkage == Linkage.SINGLE){
-					if(d < dist){
-						dist = d;
-					}
-				}else if(linkage == Linkage.AVERAGE){
-					dist += d / (el1.length*el2.length);
-				}else if(linkage == Linkage.COMPLETE){
-					if(d > dist){
-						dist = d;
-					}
-				}else{
-					throw new RuntimeException( "Linkage not supported" );
+				switch( linkage ) {
+					case SINGLE:
+						if(d < dist) dist = d;
+						break;
+					case AVERAGE:
+						dist += d;
+						break;
+					case COMPLETE:
+						if(d > dist) dist = d;
+						break;
+					default:
+						throw new RuntimeException( "Linkage not supported" );
 				}
 			}
+		}
+		if( linkage == Linkage.AVERAGE ) {
+			dist /= (el1.length*el2.length);
 		}
 		return dist;
 	}

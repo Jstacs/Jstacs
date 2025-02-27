@@ -268,7 +268,27 @@ public class FileManager {
 	 * @see #write(Writer, CharSequence)
 	 */
 	public static void writeFile( File outputFile, CharSequence buffer ) throws IOException {
-		write( new FileWriter( outputFile ), buffer );
+		writeFile( outputFile, buffer, false );
+	}
+	
+	/**
+	 * This method writes a {@link CharSequence} to a given {@link File}.
+	 * 
+	 * @param outputFile
+	 *            the {@link File} into which the output should be written
+	 * @param buffer
+	 *            the buffer to be written in the {@link File}
+	 * @param append
+	 *            whether the {@link CharSequence} should be appended to the file or not
+	 * 
+	 * @throws IOException
+	 *             if something went wrong with the {@link File}
+	 * 
+	 * @see #readFile(File)
+	 * @see #write(Writer, CharSequence)
+	 */	
+	public static void writeFile( File outputFile, CharSequence buffer, boolean append ) throws IOException {
+		write( new FileWriter( outputFile, append ), buffer );
 	}
 	
 	/**
