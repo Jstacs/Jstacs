@@ -45,8 +45,24 @@ public abstract class DistanceMetric<T> {
 	 * @throws Exception if the distance could not be computed for one pair of objects
 	 */
 	public static <T> double[][] getPairwiseDistanceMatrix(DistanceMetric<T> metric, T... objects) throws Exception {
-		double[][] matrix = new double[objects.length][];
-		for(int i=0;i<matrix.length;i++){
+		return getPairwiseDistanceMatrix(metric, objects, objects.length);
+	}
+
+	/**
+	 * Returns the matrix of pairwise distance of the supplied objects until the given end position, where rows and columns are indexed in the order
+	 * of the supplied objects.
+	 * 
+	 * @param metric the metric
+	 * @param objects the objects
+	 * @param end the end index (exclusive)
+	 * @param <T> the generic type on which the metric is defined
+	 * 
+	 * @return the pairwise distances
+	 * @throws Exception if the distance could not be computed for one pair of objects
+	 */
+	public static <T> double[][] getPairwiseDistanceMatrix(DistanceMetric<T> metric, T[] objects, int end) throws Exception {
+		double[][] matrix = new double[end][];
+		for(int i=0;i<end;i++){
 			matrix[i] = new double[i];
 			for(int j=0;j<i;j++){
 				matrix[i][j] = metric.getDistance( objects[i], objects[j] );
@@ -54,6 +70,4 @@ public abstract class DistanceMetric<T> {
 		}
 		return matrix;
 	}
-	
-	
 }
