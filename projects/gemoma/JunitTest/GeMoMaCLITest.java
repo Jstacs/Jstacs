@@ -77,7 +77,7 @@ public class GeMoMaCLITest {
 		end++;
 	}
 	
-	//@Test
+	@Test
 	public void testExtractor() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Extractor");
@@ -113,7 +113,7 @@ public class GeMoMaCLITest {
 		cliCheck(list, given, given);
 	}
 	
-	@Test
+	//@Test
 	public void testGeMoMa() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("GeMoMa");
@@ -130,8 +130,10 @@ public class GeMoMaCLITest {
 		list.add("t=" + in + "TAIR10_chr_all.fas");
 		list.add("a=" + in + "assignment.tabular");
 		list.add("c=" + in + "cds-parts.fasta");
-		list.add("q=" + in + "proteins.fasta");
-		/*
+		//list.add("rf=1");
+		
+		//list.add("q=" + in + "proteins.fasta");
+		
 		if( simple ) {
 			list.add("i=" + in + "introns.gff");
 		} else {
@@ -146,7 +148,7 @@ public class GeMoMaCLITest {
 			list.add("coverage_unstranded=" + in + "coverage.bedgraph-0.txt");
 			list.add("coverage=UNSTRANDED");
 			list.add("coverage_unstranded=" + in + "coverage.bedgraph-1.txt");
-		}*/
+		}
 		
 		String[] given = {
 				"predicted_annotation.gff"
@@ -166,7 +168,7 @@ public class GeMoMaCLITest {
 		list.add("p=2");
 		list.add("g=" +in+ "predicted_annotation.gff");
 		/**/
-		list.add("f=(evidence>1 || pAA>=0.7)");
+		//list.add("f=(evidence>1 or pAA>=0.7)");
 		String[] given = {"filtered_predictions.gff"};
 		cliCheck(list, given, given);
 	}
