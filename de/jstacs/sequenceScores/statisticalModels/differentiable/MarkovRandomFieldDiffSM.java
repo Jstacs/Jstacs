@@ -21,9 +21,8 @@ package de.jstacs.sequenceScores.statisticalModels.differentiable;
 
 import java.text.NumberFormat;
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Arrays;
-
-import javax.management.ReflectionException;
 
 import de.jstacs.NotTrainedException;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
@@ -195,7 +194,6 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 		for (int i = 0; i < partNorm.length; i++) {
 			clone.partNorm[i] = partNorm[i].clone();
 		}
-		clone.norm = norm;
 
 		clone.help = help.clone();
 		clone.offset = null;
@@ -343,17 +341,49 @@ public final class MarkovRandomFieldDiffSM extends AbstractDifferentiableStatist
 			d *= alphLen[l];
 		}
 		
-		if( d > 5E6 ) {
-			// uniform
-			//System.out.println("uniform");
-			MEMTools.setParametersToValue( constr, 0 );
+		if( name.equals("m2sx") ) {
+			//initialize m2sx with WAM
+			ArrayList<MEMConstraint> selected = new ArrayList<MEMConstraint>();
+			for( int i = 0; i < constr.length; i++ ) {
+				if( constr[i].getPosition(0)==0 ) {
+					selected.add( constr[i] );
+				} else {
+					constr[i].reset();
+				}
+			}
+			MEMConstraint[] sel = selected.toArray( new MEMConstraint[0] );
+			ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, sel );
+			for( int i = 0; i < sel.length; i++ ) {
+				if( sel[i].getPosition(1)==1 ) {
+					sel[i].estimate(ess);
+					for( int j = 0; j < sel[i].getNumberOfSpecificConstraints(); j++ ) {
+						sel[i].setExpLambda(j, sel[i].getFreq(j));
+					}
+				} else {
+					for( int j = 0, l=0; j < alphLen[sel[i].getPosition(0)]; j++ ) {
+						double sum = 0, e = ess/alphLen[sel[i].getPosition(0)];
+						for( int k = 0, ll = l; k < alphLen[sel[i].getPosition(1)]; k++, ll++ ) {
+							sum += sel[i].getCount(ll)+e;
+						}
+						for( int k = 0; k < alphLen[sel[i].getPosition(1)]; k++, l++ ) {
+							sel[i].setExpLambda(l, (sel[i].getCount(l)+e)/sum );
+						}
+					}
+				}
+			}
 		} else {
-			//somehow data specific
-			//System.out.println("MAP");
-			ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, constr );
-			ConstraintManager.computeFreqs( ess==0?1:ess, constr );
-			SequenceIterator sequence = new SequenceIterator( length );
-			MEMTools.train( constr, null, sequence, MEMTools.BGIS_P, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), null, alphLen );
+			if( d > 5E6 ) {
+				// uniform
+				//System.out.println("uniform");
+				MEMTools.setParametersToValue( constr, 0 );
+			} else {
+				//somehow data specific
+				//System.out.println("MAP");
+				ConstraintManager.countInhomogeneous( alphabets, length, data[index], weights == null ? null : weights[index], true, constr );
+				ConstraintManager.computeFreqs( ess==0?1:ess, constr );
+				SequenceIterator sequence = new SequenceIterator( length );
+				MEMTools.train( constr, null, sequence, MEMTools.BGIS_P, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), null, alphLen );
+			}
 		}
 		norm = Double.NaN;
 	}
