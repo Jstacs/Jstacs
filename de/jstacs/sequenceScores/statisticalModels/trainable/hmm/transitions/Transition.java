@@ -209,6 +209,13 @@ public interface Transition extends Cloneable, Storable {
 	public String toString( String[] stateNames, NumberFormat nf );
 	
 	/**
+	 * Sets a specific transition element to a uniform distribution
+	 * 
+	 * @param idx the index of the transition element that should be set uniformly
+	 */
+	public void setUniformly( int idx );
+	
+	/**
 	 * Set values of parameters of the instance to the value of the parameters of the given instance.
 	 * It can be assumed that the given instance and the current instance are from the same class.
 	 * 
