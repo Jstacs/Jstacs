@@ -710,14 +710,29 @@ public class Analyzer extends GeMoMaModule {
 				if(isGtf) {
 					tID = tID.trim().replaceAll("^\"", "").replaceAll("\"$", "");
 				}
-				Transcript t = current.get( tID );
-				if( t == null ) {
-					t = new Transcript(split[0], split[6], tID );
-					current.put( tID, t );
-				}
 				if( relevant ) {
-					t.addFeature(split[3], split[4]);
+					String[] sp = tID.split(",");
+					int anz = 0;
+					for( int j = 0; j < sp.length; j++ ) {
+						Transcript t = current.get( sp[j] );
+						if( t != null ) {
+							anz++; 
+							t.addFeature(split[3], split[4]);
+						}
+					}
+					if( anz==0 ) {
+						for( int j = 0; j < sp.length; j++ ) {
+							Transcript t = new Transcript(split[0], split[6], sp[j] );
+							current.put( sp[j], t );
+							t.addFeature(split[3], split[4]);
+						}
+					}
 				} else {
+					Transcript t = current.get( tID );
+					if( t == null ) {
+						t = new Transcript(split[0], split[6], tID );
+						current.put( tID, t );
+					}
 					t.addInfo(split[8],attributes,att,isGtf);
 				}
 			}
