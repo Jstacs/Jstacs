@@ -106,14 +106,11 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 	protected void prepareThreads() {
 		long numBases = 0, numSeqs=0;
 		for( int i = 0; i < data.length; i++ ) {
-			int l = data[i].getElementLength();
 			int m = data[i].getNumberOfElements();
-			numSeqs+=m;
-			if( l!=0 ) {
-				numBases += l*m;
-			} else {
-				for( int n = 0; n<m; n++ ) {
+			for( int n = 0; n<m; n++ ) {
+				if( weights[i][n]!= 0 ) {
 					numBases+=data[i].getElementAt(n).getLength();
+					numSeqs++;
 				}
 			}
 		}
@@ -130,9 +127,10 @@ public abstract class AbstractMultiThreadedOptimizableFunction extends AbstractO
 			int remWorker = worker.length-i;
 			while( remSeqs >= remWorker && endClass < data.length && endSeq <data[endClass].getNumberOfElements() ) {
 				do {
-					int l = data[endClass].getElementAt(endSeq).getLength();
-					bases[i] += l;
-					seqs[i]++;
+					if( weights[endClass][endSeq]!= 0 ) {
+						bases[i] += data[endClass].getElementAt(endSeq).getLength();
+						seqs[i]++;
+					}
 					endSeq++;
 				} while( remSeqs-seqs[i] >= remWorker && bases[i] < part && endSeq < data[endClass].getNumberOfElements() );
 				if( remSeqs-seqs[i] < remWorker || bases[i]>=part ) break;
