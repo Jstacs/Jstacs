@@ -243,6 +243,8 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 				} else {
 					score[0].initializeFunction( 0, freeParams, new DataSet[]{small}, new double[][]{smallWeights} );
 				}
+				out.writeln(score[0]);
+
 				f.reset( score );
 				params = f.getParameters( KindOfParameter.PLUGIN );
 				sd.reset();
