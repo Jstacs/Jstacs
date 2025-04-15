@@ -19,6 +19,7 @@ import de.jstacs.parameters.FileParameter.FileRepresentation;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterSet;
 import de.jstacs.parameters.SelectionParameter;
+import de.jstacs.parameters.SimpleParameter;
 import de.jstacs.parameters.SimpleParameter.DatatypeNotValidException;
 import de.jstacs.parameters.SimpleParameter.IllegalValueException;
 import de.jstacs.parameters.SimpleParameterSet;
@@ -570,7 +571,8 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 							),
 					new SimpleParameterSet(
 							new FileParameter("GeMoMa-strict","GeMoMa predictions with strict settings","gff,gff3",true),
-							new FileParameter("GeMoRNA-strict","GeMoRNA predictions with strict settings","gff,gff3",true)
+							new FileParameter("GeMoRNA-strict","GeMoRNA predictions with strict settings","gff,gff3",true),
+							new SimpleParameter(DataType.BOOLEAN, "Low-confidence", "include low-confidence predictions", true, true)
 			)}, new String[] {"Intersection of GeMoRNA and GeMoMa predictions","Union of GeMoRNA and GeMoMa predictions","Intersection and strict GeMoRNA and GeMoMa predictions","Union of GeMoRNA and GeMoMa predictions with annotation as high, medium or low confidence"}, "Mode", "", true));
 		} catch (InconsistentCollectionException | IllegalValueException | DatatypeNotValidException e) {
 			e.printStackTrace();
@@ -596,6 +598,8 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 		SplitAndSortedGFF gemomaStrict = null;
 		SplitAndSortedGFF gemornaStrict = null;
 		
+		boolean includeLow = true;
+		
 		if(modei == 2||modei==3) {
 			ParameterSet ps= (ParameterSet) parameters.getParameterAt(2).getValue();
 			gemomaStrict = new SplitAndSortedGFF(parseGFF( (String)ps.getParameterAt(0).getValue() ,"GeMoMa_"));
@@ -604,7 +608,15 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 			annotateStrict(gemoma,gemomaStrict);
 			annotateStrict(gemorna,gemornaStrict);
 			
+			if(modei == 3) {
+				includeLow = (boolean) ps.getParameterAt(2).getValue();
+			}
+			
 		}
+		
+		
+		
+		
 		
 		LinkedList<Result> ress = new LinkedList<>();
 		
@@ -617,7 +629,7 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 		}
 		
 		
-		SplitAndSortedGFF union = merge(gemoma,gemorna, mode);
+		SplitAndSortedGFF union = merge(gemoma,gemorna, mode,includeLow);
 		
 		File temp = File.createTempFile("merge", "gff", new File("."));
 		temp.deleteOnExit();
@@ -664,7 +676,7 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 		
 	}
 
-	private SplitAndSortedGFF merge(SplitAndSortedGFF gemoma, SplitAndSortedGFF gemorna, Mode mode) {
+	private SplitAndSortedGFF merge(SplitAndSortedGFF gemoma, SplitAndSortedGFF gemorna, Mode mode, boolean includeLow) {
 		
 		HashMap<String,String> geneMap = new HashMap<>();
 		
@@ -700,7 +712,7 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 						addToMap(maRNA,rnaRNA,geneMap);
 					}
 					if(cmpRes < 0) {
-						if(mode == Mode.UNION || mode == Mode.ANNOTATE || maRNA.isStrict()) {
+						if(mode == Mode.UNION || (mode == Mode.ANNOTATE && includeLow) || maRNA.isStrict()) {
 							if(mode == Mode.ANNOTATE) {
 								maRNA.setConfidence(maRNA.isStrict() ? Confidence.MEDIUM : Confidence.LOW);
 							}
@@ -708,7 +720,7 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 						}
 						i++;
 					}else if(cmpRes > 0) {
-						if(mode == Mode.UNION || mode == Mode.ANNOTATE || rnaRNA.isStrict()) {
+						if(mode == Mode.UNION || (mode == Mode.ANNOTATE && includeLow) || rnaRNA.isStrict()) {
 							if(mode == Mode.ANNOTATE) {
 								rnaRNA.setConfidence(rnaRNA.isStrict() ? Confidence.MEDIUM : Confidence.LOW);
 							}
@@ -720,7 +732,7 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 			}
 			while(i<ma.size()) {
 				mRNA maRNA = ma.get(i);
-				if(mode == Mode.UNION || mode == Mode.ANNOTATE || maRNA.isStrict()) {
+				if(mode == Mode.UNION || (mode == Mode.ANNOTATE && includeLow) || maRNA.isStrict()) {
 					if(mode == Mode.ANNOTATE) {
 						maRNA.setConfidence(maRNA.isStrict() ? Confidence.MEDIUM : Confidence.LOW);
 					}
@@ -730,7 +742,7 @@ public class MergeGeMoMaGeMoRNA implements JstacsTool {
 			}
 			while(j<rna.size()) {
 				mRNA rnaRNA = rna.get(j);
-				if(mode == Mode.UNION || mode == Mode.ANNOTATE || rnaRNA.isStrict()) {
+				if(mode == Mode.UNION || (mode == Mode.ANNOTATE && includeLow) || rnaRNA.isStrict()) {
 					if(mode == Mode.ANNOTATE) {
 						rnaRNA.setConfidence(rnaRNA.isStrict() ? Confidence.MEDIUM : Confidence.LOW);
 					}
