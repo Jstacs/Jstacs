@@ -665,7 +665,7 @@ public class SplicingGraph {
 		return li;
 	}
 	
-	public LinkedList<Gene> finalize(LinkedList<Transcript> list, String geneBase, int firstID, double minReadsPerGene, int minProteinLength) {
+	public LinkedList<Gene> finalize(LinkedList<Transcript> list, String geneBase, boolean useChrPrefix, int firstID, double minReadsPerGene, int minProteinLength) {
 		
 		if(list.size() == 0) {
 			return new LinkedList<Gene>();
@@ -694,7 +694,7 @@ public class SplicingGraph {
 					gene.add(t);
 				}else {
 					
-					firstID = addGenes(allGenes,geneBase,firstID,gene,minReadsPerGene);
+					firstID = addGenes(allGenes,geneBase,useChrPrefix,firstID,gene,minReadsPerGene);
 					gene.clear();
 					gene.add(t);
 					curr = t;
@@ -702,13 +702,18 @@ public class SplicingGraph {
 			}
 		}
 		
-		firstID = addGenes(allGenes,geneBase,firstID,gene,minReadsPerGene);
+		firstID = addGenes(allGenes,geneBase,useChrPrefix,firstID,gene,minReadsPerGene);
 		
 		return allGenes;
 		
 	}
 	
-	private Gene getGene(String geneBase, int firstID, LinkedList<Transcript> gene, char strand, double minReadsPerGene) {
+	private Gene getGene(String geneBase, boolean useChrPrefix,  int firstID, LinkedList<Transcript> gene, char strand, double minReadsPerGene) {
+		
+		if(useChrPrefix) {
+			geneBase += chromosome+".";
+		}
+		
 		LinkedList<Transcript> sub = new LinkedList<SplicingGraph.Transcript>();
 		int j=1;
 		double reads = 0.0;
@@ -729,18 +734,18 @@ public class SplicingGraph {
 		
 	}
 	
-	private int addGenes(LinkedList<Gene> allGenes, String geneBase, int firstID, LinkedList<Transcript> gene, double minReadsPerGene) {
-		Gene plus = getGene(geneBase,firstID,gene,'+',minReadsPerGene);
+	private int addGenes(LinkedList<Gene> allGenes, String geneBase, boolean useChrPrefix,  int firstID, LinkedList<Transcript> gene, double minReadsPerGene) {
+		Gene plus = getGene(geneBase,useChrPrefix,firstID,gene,'+',minReadsPerGene);
 		if(plus != null) {
 			allGenes.add(plus);
 			firstID++;
 		}
-		Gene minus = getGene(geneBase,firstID,gene,'-',minReadsPerGene);
+		Gene minus = getGene(geneBase,useChrPrefix,firstID,gene,'-',minReadsPerGene);
 		if(minus != null) {
 			allGenes.add(minus);
 			firstID++;
 		}
-		Gene none = getGene(geneBase,firstID,gene,'.',minReadsPerGene);
+		Gene none = getGene(geneBase,useChrPrefix,firstID,gene,'.',minReadsPerGene);
 		if(none != null) {
 			allGenes.add(none);
 			firstID++;

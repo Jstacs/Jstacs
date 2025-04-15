@@ -84,7 +84,7 @@ public class TranscriptPrediction implements JstacsTool {
 			this.internal.add(new Result(idx,list));
 		}
 		
-		public synchronized void print(BAMReader reader, PrintWriter wr, double minReadsPerGene, int minProteinLength) {
+		public synchronized void print(BAMReader reader, PrintWriter wr, double minReadsPerGene, int minProteinLength, String genePrefix, boolean useChrPrefix) {
 			
 			while( this.internal.size() > 0 && this.internal.first().idx == lastIdx + 1) {
 
@@ -95,7 +95,7 @@ public class TranscriptPrediction implements JstacsTool {
 				for(TranscriptResult tres : topList) {
 
 					SplicingGraph sg = tres.sg;
-					LinkedList<Gene> genes = sg.finalize(tres.list, "G", n, minReadsPerGene,minProteinLength);
+					LinkedList<Gene> genes = sg.finalize(tres.list, genePrefix,useChrPrefix, n, minReadsPerGene,minProteinLength);
 					if(genes.size() > 0) {
 						String chrom = genes.get(0).getChrom();
 						if(!lastChrom.contentEquals(chrom)) {
@@ -151,10 +151,13 @@ public class TranscriptPrediction implements JstacsTool {
 		private boolean filterSpillover;
 		private boolean longReads;
 		
+		private String geneBase;
+		private boolean useChrPrefix;
+		
 		public Config(int minIntronLength, int maxIntronLength, Stranded stranded, double minReads, double minFraction,
 				double minIntronReads, double minIntronFraction, double maxNumTranscripts, double percentExplained,
 				double minReadsPerTranscript, double minReadsPerGene, double maxFraction, double percentAbundance, double scaleIntronReads,
-				double delta, int nIterations, ReadStats stats, int minProteinLength, int maxGapFilled, boolean longReads) {
+				double delta, int nIterations, ReadStats stats, int minProteinLength, int maxGapFilled, boolean longReads, String geneBase, boolean useChrPrefix) {
 			this.minIntronLength = minIntronLength;
 			this.maxIntronLength = maxIntronLength;
 			this.stranded = stranded;
@@ -184,6 +187,8 @@ public class TranscriptPrediction implements JstacsTool {
 			
 			this.doSplits = true;
 			this.filterSpillover = true;
+			this.geneBase = geneBase;
+			this.useChrPrefix = useChrPrefix;
 			
 		}
 		
@@ -340,7 +345,7 @@ public class TranscriptPrediction implements JstacsTool {
 					
 				}else if(state == State.PRINT) {
 					
-					outset.print(reader, wr, config.minReadsPerGene,config.minProteinLength);
+					outset.print(reader, wr, config.minReadsPerGene,config.minProteinLength,config.geneBase, config.useChrPrefix);
 					
 					state = State.IDLE;
 					
@@ -396,7 +401,7 @@ public class TranscriptPrediction implements JstacsTool {
 
 				SplicingGraph sg = new SplicingGraph(rg,region,config.minIntronLength,proposedSplits);
 				LinkedList<Transcript> list = new LinkedList<SplicingGraph.Transcript>();
-				sg.enumerateTranscripts2(list,config.minReads,config.minFraction,config.maxNumTranscripts);
+				sg.enumerateTranscripts2(list,config.minReads,config.minFraction,config.maxNumTranscripts);//TODO replace for long
 				
 				list.stream().forEach(e -> {if(e.getStrand() == '.') e.setStrand(region.getStrand());} );
 								
@@ -411,7 +416,7 @@ public class TranscriptPrediction implements JstacsTool {
 				}
 				
 				if(config.doSplits && config.stranded == Stranded.FR_UNSTRANDED) {
-					sList = sg.testSplitBySpliceSitesAndORF(sList,config.minProteinLength);
+					sList = sg.testSplitBySpliceSitesAndORF(sList,config.minProteinLength);//TODO before first heuristic?
 					
 				}
 				
@@ -612,7 +617,9 @@ public class TranscriptPrediction implements JstacsTool {
 			
 			pars.add(new SimpleParameter(DataType.INT,"Minimum protein length","Minimum length of protein in AA",true,70));
 			
-			
+			pars.add(new SimpleParameter(DataType.STRING, "Gene prefix", "Prefix to add to all gene names", true,"G"));
+			pars.add(new SimpleParameter(DataType.BOOLEAN, "Gene names with chromosome", "If true, gene names will be constructed as <Gene prefix><chr>.<geneNumber>. Gene numbers will be assigned successively across all chromosomes.", true, false));
+						
 		}catch(ParameterException ex) {
 			ex.printStackTrace();
 		}
@@ -659,13 +666,15 @@ public class TranscriptPrediction implements JstacsTool {
 		
 		boolean longReads = (boolean) parameters.getParameterForName("Long reads").getValue();
 		
+		String geneBase = (String) parameters.getParameterForName("Gene prefix").getValue();
+		boolean useChrPrefix = (boolean) parameters.getParameterForName("Gene names with chromosome").getValue();
 		
 		ReadStats stats = new ReadStats(minIntronLength, 1.0, bamFile);
 		
 		
 		Config config = new Config(minIntronLength, maxIntronLength, stranded, minReads, minFraction, minIntronReads, minIntronFraction, 
 				maxNumTranscripts, percentExplained, minReadsPerTranscript, minReadsPerGene, maxFraction, percentAbundance, scaleIntronReads, 
-				delta, nIterations,stats,minProteinLength,maxGap,longReads);
+				delta, nIterations,stats,minProteinLength,maxGap,longReads,geneBase, useChrPrefix);
 		
 		
 		BAMReader reader = new BAMReader(maxIntronLength, bamFile, maxCov, sample, stranded,minQuality,maxLen, maxGap, longReads);
@@ -713,7 +722,7 @@ public class TranscriptPrediction implements JstacsTool {
 
 				if(pool == null) {
 					worker.compute(idx, region, outset);
-					outset.print(reader, wr, minReadsPerGene,config.minProteinLength);
+					outset.print(reader, wr, minReadsPerGene,config.minProteinLength,config.geneBase,config.useChrPrefix);
 				}else {
 
 					worker = pool.getFree();
@@ -733,7 +742,7 @@ public class TranscriptPrediction implements JstacsTool {
 			pool.stopAll();
 		}
 		
-		outset.print(reader, wr, minReadsPerGene,config.minProteinLength);
+		outset.print(reader, wr, minReadsPerGene,config.minProteinLength,config.geneBase,config.useChrPrefix);
 		
 		wr.close();
 		
@@ -749,7 +758,7 @@ public class TranscriptPrediction implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.0";
+		return "1.1";
 	}
 
 	@Override
