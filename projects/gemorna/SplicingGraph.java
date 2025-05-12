@@ -1956,7 +1956,9 @@ public class SplicingGraph {
 					}
 					key = getCodon(cdsEnd-2);
 					
-					key = Tools.rc(key);
+					if(key != null) {
+						key = Tools.rc(key);
+					}
 					
 					asChar = Genome.code.get(key);
 					if(asChar != null) {
@@ -2110,6 +2112,9 @@ public class SplicingGraph {
 					off += end-start;
 				}
 				i++;
+			}
+			if(ci < 3) {
+				return null;//TODO should not happen (anymore)
 			}
 			return new String(codon);
 		}
@@ -2296,7 +2301,7 @@ public class SplicingGraph {
 							}
 						}
 						int len = length - start + 1;
-						if(it.hasNext() || it.isAtEnd() || afterContainsStop) {
+						if(it.hasNext() /*|| it.isAtEnd()*/ || afterContainsStop) {//left us with incomplete CDS annotations in case of not stop in mRNA sequence
 							int numCDSIntrons = 0;
 							if(d>0) {
 								numCDSIntrons = getNumberOfCDSIntrons((off+start)*3,(off+length+1)*3);
