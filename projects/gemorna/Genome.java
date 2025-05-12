@@ -41,6 +41,10 @@ public class Genome {
 		
 	}
 	
+	public String[] getChromosomeNames() {
+		return this.chromosomes.keySet().toArray(new String[0]);
+	}
+	
 	private Genome(String path) throws Exception {
 		HashMap<String,String> temp = Tools.getFasta(path, 5, ".*");
 		this.chromosomes = new HashMap<String,char[]>();
