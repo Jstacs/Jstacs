@@ -886,7 +886,11 @@ System.out.println();
 			if( sc == null ) {
 				score = Integer.MIN_VALUE;
 			} else {
-				score = Integer.parseInt(sc);
+				try {
+					score = Integer.parseInt(sc);
+				}catch(NumberFormatException nfe) {
+					score = (int) Double.parseDouble(sc);
+				}
 			}
 			oldId = hash.get("ID");
 			String rg = hash.get("ref-gene");
