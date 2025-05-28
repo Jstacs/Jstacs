@@ -199,7 +199,8 @@ public class TranscriptPrediction implements JstacsTool {
 	private enum State{
 		IDLE,
 		COMP,
-		PRINT
+		PRINT,
+		EXCEPTION
 	}
 	
 	
@@ -221,7 +222,7 @@ public class TranscriptPrediction implements JstacsTool {
 			while(true) {
 				int stopped = 0;
 				for(int i=0;i<workers.length;i++) {
-					if(workers[i].getState() == State.IDLE) {
+					if(workers[i].getState() == State.IDLE || workers[i].getState() == State.EXCEPTION) {
 						workers[i].run = false;
 						synchronized(workers[i]) {
 							workers[i].notify();
@@ -244,9 +245,15 @@ public class TranscriptPrediction implements JstacsTool {
 			}
 		}
 		
-		public synchronized Worker getFree() {
+		public synchronized Worker getFree() throws Exception {
 			
 			while(true) {
+				
+				for(int i=0;i<workers.length;i++) {
+					if(workers[i].getState() == State.EXCEPTION) {
+						throw workers[i].exception;
+					}
+				}
 				
 				for(int i=0;i<workers.length;i++) {
 
@@ -277,6 +284,7 @@ public class TranscriptPrediction implements JstacsTool {
 		private OutputSet outset;
 		private int idx;
 		private Region region;
+		private Exception exception;
 		
 		private int id;
 		
@@ -295,18 +303,18 @@ public class TranscriptPrediction implements JstacsTool {
 
 
 		public synchronized void setPrint(BAMReader reader, PrintWriter wr, OutputSet outset) {
-			this.state = State.PRINT;
 			this.reader = reader;
 			this.wr = wr;
 			this.outset = outset;
+			this.state = State.PRINT;
 			this.notify();
 		}
 		
 		public synchronized void setCompute(int idx, Region region, OutputSet outset) {
-			this.state = State.COMP;
 			this.idx = idx;
 			this.region = region;
 			this.outset = outset;
+			this.state = State.COMP;
 			this.notify();
 		}
 		
@@ -315,6 +323,7 @@ public class TranscriptPrediction implements JstacsTool {
 		public void run() {
 			while(run) {
 				
+				try {
 				synchronized(this) {
 					if(state == State.IDLE) {
 						try {
@@ -354,7 +363,15 @@ public class TranscriptPrediction implements JstacsTool {
 					}
 				}
 				
-				
+				}catch(Exception e) {
+					e.printStackTrace();
+					exception = e;
+					state = State.EXCEPTION;
+					synchronized(pool) {;
+						pool.notify();
+					}
+					return;
+				}
 				
 				
 			}
@@ -631,124 +648,135 @@ public class TranscriptPrediction implements JstacsTool {
 	public ToolResult run(ToolParameterSet parameters, Protocol protocol, ProgressUpdater progress, int threads)
 			throws Exception {
 		
-		
-		
-		String genome = ((FileParameter)parameters.getParameterForName("Genome")).getFileContents().getFilename();
-		String bamFile = ((FileParameter)parameters.getParameterForName("Mapped reads")).getFileContents().getFilename();;
-		int minIntronLength = (int) parameters.getParameterForName("Shortest intron length").getValue();
-		int maxIntronLength = (int) parameters.getParameterForName("Longest intron length").getValue();
-		
-		double maxCov = 100.0;
-		double sample = 0.5;
-		
-		
-		Stranded stranded = (Stranded) ((EnumParameter)parameters.getParameterForName(Stranded.class.getSimpleName())).getValue();
-		double minReads = (double) parameters.getParameterForName("Minimum number of reads").getValue();
-		double minFraction = (double) parameters.getParameterForName("Minimum fraction of reads").getValue();
-		double minIntronReads = (double) parameters.getParameterForName("Minimum number of intron reads").getValue();
-		double minIntronFraction = (double) parameters.getParameterForName("Minimum fraction of intron reads").getValue();
-		
-		double maxNumTranscripts = 1000.0;
-		double percentExplained = (double) parameters.getParameterForName("Percent explained").getValue();
-		double minReadsPerTranscript = (double) parameters.getParameterForName("Minimum reads per transcript").getValue();
-		double maxFraction = (double) parameters.getParameterForName("Successive fraction").getValue();
-		double percentAbundance = (double) parameters.getParameterForName("Percent abundance").getValue();
-		double scaleIntronReads = 5.0;//TODO was 2.0
-		double delta = 1E-4;
-		int nIterations = 10000;
-		double minReadsPerGene = (double) parameters.getParameterForName("Minimum reads per gene").getValue();
-		
-		int minQuality = (int) parameters.getParameterForName("Quality filter").getValue();
-		int maxLen = (int) parameters.getParameterForName("Maximum region length").getValue();
-		int maxGap = (int) parameters.getParameterForName("Maximum filled gap length").getValue();
-		
-		int minProteinLength = (int) parameters.getParameterForName("Minimum protein length").getValue();
-		
-		boolean longReads = (boolean) parameters.getParameterForName("Long reads").getValue();
-		
-		String geneBase = (String) parameters.getParameterForName("Gene prefix").getValue();
-		boolean useChrPrefix = (boolean) parameters.getParameterForName("Gene names with chromosome").getValue();
-		
-		ReadStats stats = new ReadStats(minIntronLength, 1.0, bamFile);
-		
-		
-		Config config = new Config(minIntronLength, maxIntronLength, stranded, minReads, minFraction, minIntronReads, minIntronFraction, 
-				maxNumTranscripts, percentExplained, minReadsPerTranscript, minReadsPerGene, maxFraction, percentAbundance, scaleIntronReads, 
-				delta, nIterations,stats,minProteinLength,maxGap,longReads,geneBase, useChrPrefix);
-		
-		
-		BAMReader reader = new BAMReader(maxIntronLength, bamFile, maxCov, sample, stranded,minQuality,maxLen, maxGap, longReads);
-		
-		
-		
-		
-		
-		Genome.init(genome);
-		
-		
-		File out = File.createTempFile("predictions", ".temp", new File("."));
-		out.deleteOnExit();
-		
-		PrintWriter wr = new PrintWriter(out);
-				
-		OutputSet outset = new OutputSet();
-		
 		WorkerPool pool = null;
-		Worker worker = null;
-		if(threads > 1) {
-			pool = new WorkerPool(config, threads-1);
-			
-		}else {
-			worker = new Worker(null,config,0);
-		}
 		
-		int idx = 0;
-		
-		wr.println("##gff-version 3");
-		while(reader.hasNext()) {
-			
-			Region region2 = reader.next();
-						
-			Region[] regions = new Region[] {region2};
-			
-			
-			if(region2.getRegionEnd()-region2.getRegionStart()>maxLen) {
-				regions = region2.splitByCov(maxLen);
-				System.out.println("#split: "+region2.getChrom()+" "+Arrays.toString(regions));
-				System.out.flush();
+		try {
+			if(threads>6) {
+				protocol.appendWarning("LARGE NUMBER OF THREADS DETECTED!\nCurrently, I/O of GeMoRNA runs on a single thread and runtime is limited by I/O performance. Hence, running GeMoRNA with a large number of threads is not recommended. On our infrastructure, a number of 6 threads has been the sweet spot.\n\n");
 			}
+
+			String genome = ((FileParameter)parameters.getParameterForName("Genome")).getFileContents().getFilename();
+			String bamFile = ((FileParameter)parameters.getParameterForName("Mapped reads")).getFileContents().getFilename();;
+			int minIntronLength = (int) parameters.getParameterForName("Shortest intron length").getValue();
+			int maxIntronLength = (int) parameters.getParameterForName("Longest intron length").getValue();
+
+			double maxCov = 100.0;
+			double sample = 0.5;
+
+
+			Stranded stranded = (Stranded) ((EnumParameter)parameters.getParameterForName(Stranded.class.getSimpleName())).getValue();
+			double minReads = (double) parameters.getParameterForName("Minimum number of reads").getValue();
+			double minFraction = (double) parameters.getParameterForName("Minimum fraction of reads").getValue();
+			double minIntronReads = (double) parameters.getParameterForName("Minimum number of intron reads").getValue();
+			double minIntronFraction = (double) parameters.getParameterForName("Minimum fraction of intron reads").getValue();
+
+			double maxNumTranscripts = 1000.0;
+			double percentExplained = (double) parameters.getParameterForName("Percent explained").getValue();
+			double minReadsPerTranscript = (double) parameters.getParameterForName("Minimum reads per transcript").getValue();
+			double maxFraction = (double) parameters.getParameterForName("Successive fraction").getValue();
+			double percentAbundance = (double) parameters.getParameterForName("Percent abundance").getValue();
+			double scaleIntronReads = 5.0;//TODO was 2.0
+			double delta = 1E-4;
+			int nIterations = 10000;
+			double minReadsPerGene = (double) parameters.getParameterForName("Minimum reads per gene").getValue();
+
+			int minQuality = (int) parameters.getParameterForName("Quality filter").getValue();
+			int maxLen = (int) parameters.getParameterForName("Maximum region length").getValue();
+			int maxGap = (int) parameters.getParameterForName("Maximum filled gap length").getValue();
+
+			int minProteinLength = (int) parameters.getParameterForName("Minimum protein length").getValue();
+
+			boolean longReads = (boolean) parameters.getParameterForName("Long reads").getValue();
+
+			String geneBase = (String) parameters.getParameterForName("Gene prefix").getValue();
+			boolean useChrPrefix = (boolean) parameters.getParameterForName("Gene names with chromosome").getValue();
+
+			ReadStats stats = new ReadStats(minIntronLength, 1.0, bamFile);
+
+
+			Config config = new Config(minIntronLength, maxIntronLength, stranded, minReads, minFraction, minIntronReads, minIntronFraction, 
+					maxNumTranscripts, percentExplained, minReadsPerTranscript, minReadsPerGene, maxFraction, percentAbundance, scaleIntronReads, 
+					delta, nIterations,stats,minProteinLength,maxGap,longReads,geneBase, useChrPrefix);
+
+
+			BAMReader reader = new BAMReader(maxIntronLength, bamFile, maxCov, sample, stranded,minQuality,maxLen, maxGap, longReads);
+
+
+
+
+
+			Genome.init(genome);
+
+
+			File out = File.createTempFile("predictions", ".temp", new File("."));
+			out.deleteOnExit();
+
+			PrintWriter wr = new PrintWriter(out);
+
+			OutputSet outset = new OutputSet();
+
 			
-			for(Region region : regions) {
+			Worker worker = null;
+			if(threads > 1) {
+				pool = new WorkerPool(config, threads-1);
 
-				if(pool == null) {
-					worker.compute(idx, region, outset);
-					outset.print(reader, wr, minReadsPerGene,config.minProteinLength,config.geneBase,config.useChrPrefix);
-				}else {
+			}else {
+				worker = new Worker(null,config,0);
+			}
 
-					worker = pool.getFree();
-					worker.setCompute(idx, region, outset);
+			int idx = 0;
 
-					worker = pool.getFree();
-					worker.setPrint(reader, wr, outset);
+			wr.println("##gff-version 3");
+			while(reader.hasNext()) {
 
+				Region region2 = reader.next();
+
+				Region[] regions = new Region[] {region2};
+
+
+				if(region2.getRegionEnd()-region2.getRegionStart()>maxLen) {
+					regions = region2.splitByCov(maxLen);
+					System.out.println("#split: "+region2.getChrom()+" "+Arrays.toString(regions));
+					System.out.flush();
 				}
 
-				idx++;
+				for(Region region : regions) {
+
+					if(pool == null) {
+						worker.compute(idx, region, outset);
+						outset.print(reader, wr, minReadsPerGene,config.minProteinLength,config.geneBase,config.useChrPrefix);
+					}else {
+
+						worker = pool.getFree();
+						worker.setCompute(idx, region, outset);
+
+						worker = pool.getFree();
+						worker.setPrint(reader, wr, outset);
+
+					}
+
+					idx++;
+				}
+
 			}
-			
+
+			if(pool != null) {
+				pool.stopAll();
+			}
+
+			outset.print(reader, wr, minReadsPerGene,config.minProteinLength,config.geneBase,config.useChrPrefix);
+
+			wr.close();
+
+			TextResult tr = new TextResult("Transcript Predictions", "Predictions in GFF format", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff3", getToolName(), null, true);
+
+			return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
+		}catch(Throwable e) {
+			if(pool != null) {
+				pool.stopAll();
+			}
+			throw e;
 		}
-		
-		if(pool != null) {
-			pool.stopAll();
-		}
-		
-		outset.print(reader, wr, minReadsPerGene,config.minProteinLength,config.geneBase,config.useChrPrefix);
-		
-		wr.close();
-		
-		TextResult tr = new TextResult("Transcript Predictions", "Predictions in GFF format", new FileParameter.FileRepresentation(out.getAbsolutePath()), "gff3", getToolName(), null, true);
-		
-		return new ToolResult("Result of "+getToolName(), getToolName(), null, new ResultSet(tr), parameters, getToolName(), new Date(System.currentTimeMillis()) );
 	}
 
 	@Override
@@ -758,7 +786,7 @@ public class TranscriptPrediction implements JstacsTool {
 
 	@Override
 	public String getToolVersion() {
-		return "1.1";
+		return "1.2.1";
 	}
 
 	@Override
