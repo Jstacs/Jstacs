@@ -107,7 +107,7 @@ public class PredictCDSFromGFF implements JstacsTool{
 
 	@Override
 	public String getToolVersion() {
-		return "0.1";
+		return "1.2";
 	}
 
 	@Override
