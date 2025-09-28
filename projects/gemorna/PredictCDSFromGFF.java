@@ -82,7 +82,7 @@ public class PredictCDSFromGFF implements JstacsTool{
 				SplicingGraph sg = new SplicingGraph(t);
 				projects.gemorna.SplicingGraph.Transcript t2 = sg.createTranscript(t);
 				try {
-					t2.addStrandAndCDS(minProteinLength,false);
+					t2.addStrandAndCDS(false,minProteinLength,false);
 				}catch(StringIndexOutOfBoundsException e) {
 					t2.setCDSStartEnd(-1, -1);
 					protocol.appendWarning("Range of "+t.getID()+" outside of chromosome\n");
