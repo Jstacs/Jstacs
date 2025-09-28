@@ -436,7 +436,7 @@ public class Tools {
 				case '-': out[in.length-1-i]='-'; break;
 
 				
-				default: throw new IllegalArgumentException("unknown character: '"+in[i]+"'");
+				default: throw new IllegalArgumentException("unknown character: '"+in[i]+"' at "+i);
 			}
 		}
 		return out;
