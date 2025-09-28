@@ -3,10 +3,13 @@ package projects.gemorna;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -26,6 +29,8 @@ import de.jstacs.utils.Pair;
 import de.jstacs.utils.SafeOutputStream;
 import de.jstacs.utils.ToolBox;
 import htsjdk.samtools.AlignmentBlock;
+import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMRecord;
 import projects.gemoma.ExtractRNAseqEvidence.Stranded;
 import projects.gemoma.Tools;
@@ -41,17 +46,16 @@ public class SplicingGraph {
 		private int offset;
 		private int len;
 		private int start;
+		private boolean afterContainsStop;
 		
-		public void set(char[] sequence, int offset) {
+		public void set(char[] sequence, int offset, boolean afterContainsStop) {
 			this.sequence = sequence;
 			this.offset = offset;
 			len = -1;
 			start = -3;
+			this.afterContainsStop = afterContainsStop;
 		}
 		
-		public boolean isAtEnd() {
-			return len < 0 && offset+3 > sequence.length;
-		}
 		
 		@Override
 		public boolean hasNext() {
@@ -75,7 +79,7 @@ public class SplicingGraph {
 				
 			}
 			len = offset-localOff;
-			return true;
+			return afterContainsStop;//TODO was true
 		}
 
 		@Override
@@ -219,7 +223,7 @@ public class SplicingGraph {
 		return res.toArray();
 	}
 	
-	private static void unionSortedArrays(int[] res, int[] edge, int[] left) {
+	private static int unionSortedArrays(int[] res, int[] edge, int[] left) {
 		int i=0,j=0;
 		int k=0;
 		while(i < edge.length && edge[i] > -1 && j < left.length && left[j] > -1) {
@@ -248,7 +252,12 @@ public class SplicingGraph {
 			k++;
 			j++;
 		}
-		res[k] = -1;
+		if(k<res.length) {
+			res[k] = -1;
+			return k;
+		}else {
+			return -1;
+		}
 	}
 	
 	private static int[] setdiff(int[] ref, int[] diff) {
@@ -273,13 +282,13 @@ public class SplicingGraph {
 	}
 	
 	
-	public SplicingGraph(ReadGraph graph, Region reg, int minIntronLength, int[] proposedSplits) throws CloneNotSupportedException {
+	public SplicingGraph(ReadGraph graph, Region reg, int minIntronLength, int[] proposedSplits, boolean longReads) throws CloneNotSupportedException {
 		this.chromosome = graph.chrom;
 		this.regionStart = graph.regionStart;
 		
 		
-		LinkedList<SplicingGraph.ContiguousRegion> contRegs = new LinkedList<SplicingGraph.ContiguousRegion>();
-		LinkedList<SplicingGraph.Intron> introns = new LinkedList<SplicingGraph.Intron>();
+		ArrayList<SplicingGraph.ContiguousRegion> contRegs = new ArrayList<SplicingGraph.ContiguousRegion>();
+		ArrayList<SplicingGraph.Intron> introns = new ArrayList<SplicingGraph.Intron>();
 		
 		ContiguousRegion[] regs = new ContiguousRegion[graph.nodes.length];
 		
@@ -342,8 +351,22 @@ public class SplicingGraph {
 			}
 		}
 		
-		LinkedList<ContiguousRegion> crRemove = new LinkedList<SplicingGraph.ContiguousRegion>();
-		LinkedList<Intron> inRemove = new LinkedList<SplicingGraph.Intron>();
+		introns.sort(new Comparator<SplicingGraph.Intron>() {
+
+			@Override
+			public int compare(Intron o1, Intron o2) {
+				int cmp = Integer.compare(o1.edge.getRelStart(), o2.edge.getRelStart());
+				if(cmp == 0) {
+					cmp = Integer.compare(o1.edge.getRelEnd(), o2.edge.getRelEnd());
+				}
+				return cmp;
+			}
+			
+		});
+		
+		
+		HashSet<ContiguousRegion> crRemove = new HashSet<SplicingGraph.ContiguousRegion>();
+		HashSet<Intron> inRemove = new HashSet<SplicingGraph.Intron>();
 		
 		for(ContiguousRegion region : contRegs) {
 			if(region.regionEnd-region.regionStart+1 <= SHORTEXON ) {
@@ -388,7 +411,7 @@ public class SplicingGraph {
 		this.introns = introns.toArray(new Intron[0]);
 		
 
-		addReads(reg, minIntronLength);
+		addReads(reg, minIntronLength,longReads);
 		
 		crRemove.clear();
 		inRemove.clear();
@@ -405,6 +428,9 @@ public class SplicingGraph {
 					|| (this.introns[i].getLength()>0 && !this.introns[i].isCanonical(minIntronLength))
 					//TODO end modify
 					) {
+				if(longReads && this.introns[i].readIdxs.length>0) {
+					transfer(this.introns[i],inRemove,this.introns,this.contRegs);
+				}
 				inRemove.add(this.introns[i]);
 				for(int j=0;j<this.contRegs.length;j++) {
 					this.contRegs[j].left.remove(this.introns[i]);
@@ -449,6 +475,85 @@ public class SplicingGraph {
 	}	
 	
 	
+	private void transfer(Intron removed, HashSet<Intron> inRemove, Intron[] introns, ContiguousRegion[] contRegs) {
+		int s1 = removed.getStart();
+		int e1 = removed.getEnd();
+		int maxOverlap = 0;
+		Intron maxIntron = null;
+		for(Intron intron : introns) {
+			if(intron != removed && !inRemove.contains(intron)) {
+				int s2 = intron.getStart();
+				int e2 = intron.getEnd();
+				int overlap = Math.min(e1,e2) - Math.max(s1, s2);
+				if(overlap > maxOverlap) {
+					maxOverlap = overlap;
+					maxIntron = intron;
+				}
+			}
+		}
+		if(maxIntron != null) {
+			transfer2(maxIntron,removed);
+			
+			int s2 = maxIntron.getStart();
+			int e2 = maxIntron.getEnd();
+			
+			
+			int s = Math.min(s1, s2);
+			int e = Math.max(s1, s2);
+			
+			transfer2(s,e-1,contRegs,removed,true);
+			
+			s = Math.min(e1, e2);
+			e = Math.max(e1, e2);
+			
+			transfer2(s+1,e,contRegs,removed,false);
+			
+		}
+	}
+	
+	
+	private void transfer2(Intron target, Intron removed) {
+		int[] res = new int[removed.readIdxs.length+target.readIdxs.length];
+		int len = unionSortedArrays(res, removed.readIdxs, target.readIdxs);
+		if(len > -1) {
+			int[] res2 = new int[len];
+			System.arraycopy(res, 0, res2, 0, len);
+			res = res2;
+		}
+		target.readIdxs = res;
+	}
+	
+
+	private void transfer2(int s, int e, ContiguousRegion[] contRegs2, Intron removed, boolean left) {
+		for(ContiguousRegion cr : contRegs2) {
+			if(cr.regionStart>=s && cr.regionEnd<=e) {
+				int[] res = new int[removed.readIdxs.length+cr.readIdxs.length];
+				int len = unionSortedArrays(res, removed.readIdxs, cr.readIdxs);
+				if(len > -1) {
+					int[] res2 = new int[len];
+					System.arraycopy(res, 0, res2, 0, len);
+					res = res2;
+				}
+				cr.readIdxs = res;	
+				
+				if(left) {
+					for(Intron intron: cr.left) {
+						if(intron.getLength()==0) {
+							transfer2(intron, removed);
+						}
+					}
+				}else {
+					for(Intron intron: cr.right) {
+						if(intron.getLength()==0) {
+							transfer2(intron, removed);
+						}
+					}
+				}
+				
+			}
+		}		
+	}
+
 	SplicingGraph(projects.gemoma.Analyzer.Transcript t) {
 		this.chromosome = t.getChromosome();
 		this.regionStart = t.getMin();
@@ -488,7 +593,7 @@ public class SplicingGraph {
 		return t2;
 	}
 	
-	private void addReads(Region reg, int minIntronLength) throws CloneNotSupportedException {
+	private void addReads(Region reg, int minIntronLength, boolean longReads) throws CloneNotSupportedException {
 		
 		
 		
@@ -536,7 +641,7 @@ public class SplicingGraph {
 			int idx= idMap.get(name);
 			
 			addRead(sr, idx, minIntronLength, intronReads, intronMap, 
-					regions, regReads, firstReads, lastReads);
+					regions, regReads, firstReads, lastReads, longReads);
 		}
 		
 		
@@ -557,8 +662,13 @@ public class SplicingGraph {
 	
 	
 	private void addRead(SAMRecord read, int readIdx, int minIntronLength, IntList[] intronReads, HashMap<IntronKey,Integer> intronMap, 
-			int[] regions, IntList[] regReads, IntList[] firstReads, IntList[] lastReads) {
+			int[] regions, IntList[] regReads, IntList[] firstReads, IntList[] lastReads, boolean longReads) {
 		Iterator<AlignmentBlock> blockIt = read.getAlignmentBlocks().iterator();
+		
+		Iterator<CigarElement> cigIt = null;
+		if(longReads) {
+			cigIt = read.getCigar().getCigarElements().iterator();
+		}
 		
 		int lastRelEnd = -1;
 		
@@ -569,6 +679,21 @@ public class SplicingGraph {
 		while(blockIt.hasNext()) {
 			
 			AlignmentBlock block = blockIt.next();
+			
+			int delOff = 0;
+			int delBefore = 0;
+			if(longReads) {
+				CigarElement el = cigIt.next();
+				CigarElement prev = null;
+				while(el.getLength() != block.getLength() || !el.getOperator().isAlignment()) {
+					if(el.getOperator().isIndelOrSkippedRegion() && !el.getOperator().isIndel()) {
+						delBefore = prev != null && prev.getOperator()==CigarOperator.DELETION ? prev.getLength() : 0;
+					}
+					prev = el;
+					el = cigIt.next();
+				}
+				delOff = prev != null && prev.getOperator()==CigarOperator.DELETION ? prev.getLength() : 0;
+			}
 
 			int relStart = block.getReferenceStart()-regionStart;
 			
@@ -582,7 +707,7 @@ public class SplicingGraph {
 						}
 					}
 				}else {
-					key.setStartEnd(lastRelEnd, relStart);
+					key.setStartEnd(lastRelEnd+delBefore, relStart-delOff);
 					if(intronMap.containsKey(key)) {
 						int idx = intronMap.get(key);
 						intronReads[idx].add(readIdx);
@@ -1478,6 +1603,237 @@ public class SplicingGraph {
 	}
 	
 	
+	
+	public void enumerateLongReadTranscripts(LinkedList<Transcript> results, double minReads) {
+		
+		
+		// calculate largest index of reads for initializing matrix
+		int totalNumReads = 0;
+		// largest read index of contRegs
+		for(int i=0;i<contRegs.length;i++) {
+			int num = contRegs[i].readIdxs[ contRegs[i].readIdxs.length-1 ];
+			if(num > totalNumReads) {
+				totalNumReads = num;
+			}
+		}
+		// largest read index of introns
+		for(int i=0;i<introns.length;i++) {
+			int num = introns[i].readIdxs[ introns[i].readIdxs.length-1 ];
+			if(num > totalNumReads) {
+				totalNumReads = num;
+			}
+		}
+		
+		if(totalNumReads == 0) {
+			// no reads in SplicingGraph -> return
+			return;
+		}else {
+			totalNumReads++;
+		}
+		
+        int totallength = contRegs.length + introns.length;
+		
+		BitSet[] supportingReadsMatrix = new BitSet[totalNumReads];
+
+		for(int col1 = 0; col1 < contRegs.length; col1++) {
+			int[] reads = contRegs[col1].readIdxs;
+			for(int read : reads) { // iterate over all reads of the current contReg
+				if(supportingReadsMatrix[read] == null) {
+					supportingReadsMatrix[read] = new BitSet(totallength);
+				}	
+				supportingReadsMatrix[read].set(col1);
+			}
+		}	
+		for(int col2 = contRegs.length; col2 < contRegs.length + introns.length; col2++) {	// iterate over all reads of the current intron
+			for(int read : introns[col2-contRegs.length].readIdxs) {
+				if(supportingReadsMatrix[read] == null) {
+					supportingReadsMatrix[read] = new BitSet(totallength);
+				}
+				supportingReadsMatrix[read].set(col2);
+			}
+		}	
+		
+		
+		Arrays.sort(supportingReadsMatrix, new Comparator<BitSet>() {
+
+			@Override
+			public int compare(BitSet o1, BitSet o2) {
+				if(o1 == null) {
+					if(o2 == null) {
+						return 0;
+					}else {
+						return -1;
+					}
+				}else {
+					if(o2 == null) {
+						return 1;
+					}
+				}
+				for(int i=0;i<o1.size();i++) {
+					if(o1.get(i) != o2.get(i)) {
+						if(o1.get(i)) {
+							return 1;
+						}else {
+							return -1;
+						}
+					}
+				}
+				return 0;
+			}
+			
+		});
+		
+
+		ArrayList<BitSet> bitList = new ArrayList<>();
+		int[] counts = new int[supportingReadsMatrix.length];
+		
+		BitSet prev = null;
+		BitSet curr = null;
+		for(int i=0;i<supportingReadsMatrix.length;i++) {
+			curr = supportingReadsMatrix[i];
+			if(curr != null) {
+				if(curr.equals(prev)) {
+					counts[bitList.size()-1]++;
+				} else {
+					bitList.add(curr);
+					counts[bitList.size()-1] = 1;
+					prev = curr;
+				}
+				
+			}
+			
+		}
+		
+
+		ArrayList<BitSet> bitList2 = new ArrayList<>();
+		IntList counts2 = new IntList();
+		
+		
+		for(int i=0;i<bitList.size();i++) {
+			curr = bitList.get(i);
+			if(curr != null) {
+				LinkedList<Integer> exonIdx = new LinkedList<>();
+				LinkedList<Integer> intronIdx = new LinkedList<>();
+
+
+				for(int j=0;j<contRegs.length;j++) {//TODO optimize on BitSets
+					if(curr.get(j)) {
+						exonIdx.add(j);
+					}
+				}
+				for(int j=0;j<introns.length;j++) {
+					if(curr.get(contRegs.length+j)) {
+						intronIdx.add(j);
+					}
+				}
+
+
+				int pos = contRegs[ exonIdx.get(0) ].regionEnd;
+				int idx = 1;
+				boolean valid = true;
+				if(intronIdx.size() != exonIdx.size()-1){
+					valid = false;
+				}else {
+					while(idx < exonIdx.size()) {
+						int ins = introns[intronIdx.get(idx-1)].edge.getRelStart();
+						int ine = introns[intronIdx.get(idx-1)].edge.getRelEnd();
+						if(pos != ins) {
+							valid = false;
+							break;
+						}
+						pos = contRegs[ exonIdx.get(idx) ].regionStart;
+						if(ine != pos) {
+							valid = false;
+							break;
+						}
+						pos = contRegs[ exonIdx.get(idx) ].regionEnd;
+						idx++;
+					}
+				}
+
+				if(valid) {
+					bitList2.add(curr);
+					counts2.add(counts[i]);
+				}
+			}
+		}
+		
+		bitList = bitList2;
+		counts = counts2.toArray();		
+		
+		
+		
+		boolean[] remove = new boolean[bitList.size()];
+
+		for(int i=0;i<bitList.size();i++) {
+			BitSet e1 = bitList.get(i);
+			int c1 = counts[i];
+			if(c1 < minReads) {
+				remove[i] = true;
+			}else {
+				for(int j=0;j<bitList.size();j++) {
+					if(i != j) {
+						BitSet e2 = bitList.get(j);
+						if(isSuperSet(e2,e1)) {
+							int c2 = counts[j];
+							if(c2*2 >= c1) {//TODO factor
+								remove[i] = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		counts = null;
+		
+		for(int i=0;i<bitList.size();i++) {
+			if(!remove[i]) {
+				LinkedList<Integer> exonIdx = new LinkedList<>();
+				LinkedList<Integer> intronIdx = new LinkedList<>();
+
+				curr = bitList.get(i);
+				for(int j=0;j<contRegs.length;j++) {
+					if(curr.get(j)) {
+						exonIdx.add(j);
+					}
+				}
+				for(int j=0;j<introns.length;j++) {
+					if(curr.get(contRegs.length+j)) {
+						intronIdx.add(j);
+					}
+				}
+
+				Transcript t = new Transcript(exonIdx, intronIdx);
+				results.add(t);
+			}
+		}
+		
+        
+	}
+	
+	private boolean isSuperSet(BitSet e2, BitSet e1) {
+		
+		int firstSet = e1.nextSetBit(0);
+		int lastSet = e1.previousSetBit(contRegs.length-1);
+		for(int i=firstSet;i<=lastSet;i++) {
+			if(e1.get(i) != e2.get(i)) {
+				return false;
+			}
+		}
+		
+		firstSet = e1.nextSetBit(contRegs.length);
+		lastSet = e1.previousSetBit(e1.size());
+		if(firstSet>=0) {
+			for(int i=firstSet;i<=lastSet;i++) {
+				if(e1.get(i) != e2.get(i)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public void enumerateTranscripts2(LinkedList<Transcript> results, double minReads, double minFraction, double maxNum) {
 		
 		LinkedList<ComparableElement<Integer, Double>> starts = new LinkedList<ComparableElement<Integer,Double>>();
@@ -2195,8 +2551,8 @@ public class SplicingGraph {
 		}
 		
 		
-		public void addStrandAndCDS(int minProteinLength, boolean forTestSplit) {
-			addStrandAndCDS(false,minProteinLength, forTestSplit);
+		public boolean hasBeenFixed() {
+			return this.extraLeft != 0 || this.extraRight != 0;
 		}
 		
 		public void addStrandAndCDS(boolean fix, int minProteinLength, boolean forTestSplit) {
@@ -2268,7 +2624,6 @@ public class SplicingGraph {
 				}
 				
 				for(int i=1;i<=3;i++) {
-					it.set(seq,i-1);
 					
 					boolean beforeContainsStart = false;
 					boolean afterContainsStop = false;
@@ -2280,9 +2635,11 @@ public class SplicingGraph {
 						}
 						beforeContainsStart = containsStart(longSeq, i-1, lastStop, (d<0 ? tempRight : tempLeft) + (i-1)) >= 0;
 						
-						afterContainsStop = containsStop(longSeq,i-1,seq.length + (d<0 ? tempRight : tempLeft) - (seq.length-(i-1))%3 - (i-1)) >= 0;
+						afterContainsStop = containsStop(longSeq,i-1,seq.length + (d<0 ? tempRight : tempLeft) - (seq.length-(i-1))%3 - (i-1) - 3) >= 0;
 						
 					}					
+					
+					it.set(seq,i-1,afterContainsStop);
 					
 					int off = 0;
 					
@@ -2301,7 +2658,8 @@ public class SplicingGraph {
 							}
 						}
 						int len = length - start + 1;
-						if(it.hasNext() /*|| it.isAtEnd()*/ || afterContainsStop) {//left us with incomplete CDS annotations in case of not stop in mRNA sequence
+						
+						if(len > 0) {
 							int numCDSIntrons = 0;
 							if(d>0) {
 								numCDSIntrons = getNumberOfCDSIntrons((off+start)*3,(off+length+1)*3);
@@ -2350,20 +2708,16 @@ public class SplicingGraph {
 			}
 			if(frame != 0) {
 				
-				//String prot = Tools.translate(frame-1, new String(seq), code, false, Ambiguity.AMBIGUOUS);
 				int protlen = (seq.length - (frame-1))/3;
-				//System.out.println(prot);
-				it.set(seq, frame-1);
 				
-			//	String[] parts = prot.split("\\*",-1);
-				
+				boolean afterContainsStop = false;
 				if(fix) {
 					boolean fixed = false;
 					if(isLast) {
 						
 						int posStart = (strand == '-' ? tempRight : tempLeft) - (seq.length-(frame-1))%3 - (frame-1);
-						int cpos2 = containsStop(longSeq, frame-1, seq.length+posStart ) - (strand == '-' ? tempRight : tempLeft) - (frame-1);
-						
+						int cpos2 = containsStop(longSeq, frame-1, seq.length+posStart - 3 ) - (strand == '-' ? tempRight : tempLeft) - (frame-1);
+						afterContainsStop = cpos2 >=0;
 						int cpos = cpos2/3;
 						
 						if(cpos >= 0) {
@@ -2415,7 +2769,7 @@ public class SplicingGraph {
 					}
 				}
 				
-				it.set(seq, frame-1);
+				it.set(seq, frame-1,afterContainsStop);
 				int j=0;
 				int off = frame-1;
 				while(it.hasNext() && j < maxIdx) {
@@ -2762,7 +3116,7 @@ public class SplicingGraph {
 				
 				char tempStrand = t.strand;
 				
-				t.addStrandAndCDS(minProteinLength,true);
+				t.addStrandAndCDS(false,minProteinLength,true);
 				
 				int[][] temp = t.getExonsIntronsAndLengths(possibleSplitPositions);
 				int[] possibleSplitExons = temp[0];
@@ -2823,8 +3177,8 @@ public class SplicingGraph {
 					}
 					//TODO end added
 					
-					s[0].addStrandAndCDS(minProteinLength,true);
-					s[1].addStrandAndCDS(minProteinLength,true);
+					s[0].addStrandAndCDS(false,minProteinLength,true);
+					s[1].addStrandAndCDS(false,minProteinLength,true);
 					
 					
 					if(s[0].cdsStart == -1) {
@@ -2870,7 +3224,7 @@ public class SplicingGraph {
 			
 			char oldstrand = this.strand;
 			
-			this.addStrandAndCDS(minProteinLength,true);
+			this.addStrandAndCDS(false,minProteinLength,true);
 			
 			int cdsStartIdx = -1;
 			int cdsEndIdx = -1;
@@ -2911,8 +3265,8 @@ public class SplicingGraph {
 
 					t2First.strand = this.strand;
 
-					t1First.addStrandAndCDS(minProteinLength,true);
-					t2First.addStrandAndCDS(minProteinLength,true);
+					t1First.addStrandAndCDS(false,minProteinLength,true);
+					t2First.addStrandAndCDS(false,minProteinLength,true);
 
 					if(t1First.cdsEnd-t1First.cdsStart > 500 && t2First.cdsEnd-t2First.cdsStart > 500) {
 						t1 = t1First;
@@ -2932,8 +3286,8 @@ public class SplicingGraph {
 
 					t1Second.strand = this.strand;
 
-					t1Second.addStrandAndCDS(minProteinLength,true);
-					t2Second.addStrandAndCDS(minProteinLength,true);
+					t1Second.addStrandAndCDS(false,minProteinLength,true);
+					t2Second.addStrandAndCDS(false,minProteinLength,true);
 
 					if(t1Second.cdsEnd-t1Second.cdsStart > 500 && t2Second.cdsEnd-t2Second.cdsStart > 500) {
 						if(t1==null || t1Second.cdsEnd-t1Second.cdsStart + t2Second.cdsEnd-t2Second.cdsStart > t1.cdsEnd-t1.cdsStart+t2.cdsEnd-t2.cdsStart) {
@@ -3273,7 +3627,7 @@ public class SplicingGraph {
 		
 	}
 	
-	private class Intron implements Comparable {
+	private class Intron{
 		
 		private ContiguousRegion left;
 		private ContiguousRegion right;
@@ -3290,6 +3644,9 @@ public class SplicingGraph {
 		public double[] getFractions() {
 			int[] leftReads = left.lastReadIdxs;
 			int[] rightReads = right.firstReadIdxs;
+			if(leftReads == null || rightReads == null) {
+				return new double[] {Double.NaN, Double.NaN};
+			}
 			
 			double leftIntersect = intersectSortedArrays(leftReads,readIdxs).length;
 			double rightIntersect = intersectSortedArrays(rightReads,readIdxs).length;
@@ -3325,16 +3682,6 @@ public class SplicingGraph {
 		
 		public int getLength() {
 			return right.regionStart-left.regionEnd-1;
-		}
-
-		@Override
-		public int compareTo(Object o) {
-			if(o instanceof Intron) {
-				Intron i = (Intron)o;
-				return Integer.compare(this.readIdxs.length, i.readIdxs.length);
-			}else {
-				return 1;
-			}
 		}
 		
 		
@@ -3518,7 +3865,7 @@ public class SplicingGraph {
 		boolean split = false;
 		for(Transcript t : list) {
 			char tempStrand = t.getStrand();
-			t.addStrandAndCDS(minProteinLength,true);
+			t.addStrandAndCDS(false,minProteinLength,true);
 
 			double utrFrac = 1.0 - (t.cdsEnd-t.cdsStart)/(double)t.getLength();
 			t.setStrand(tempStrand);
@@ -3717,8 +4064,7 @@ public class SplicingGraph {
 					}
 				}
 			}
-			
-			t.addStrandAndCDS(minProteinLength,false);
+			t.addStrandAndCDS(!t.hasBeenFixed(), minProteinLength,false);
 		}
 		
 		
@@ -3763,7 +4109,7 @@ public class SplicingGraph {
 		};
 		for(Transcript t : sList) {
 			
-			t.addStrandAndCDS(minProteinLength,false);
+			t.addStrandAndCDS(!t.hasBeenFixed(),minProteinLength,false);
 			if(t.getStrand() == '+') {
 				sList2[1].add(t);
 			}else if(t.getStrand() == '-') {

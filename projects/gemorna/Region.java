@@ -225,7 +225,7 @@ public class Region {
 		return chrom+" "+regionStart+"-"+regionEnd+": "+list.size();
 	}
 	
-	public ReadGraph buildGraph(int minIntronLength, int maxGapFilled, Stranded stranded, int maxMM) {
+	public ReadGraph buildGraph(int minIntronLength, int maxGapFilled, Stranded stranded, int maxMM, boolean longReads) {
 		
 		ReadGraph sg = new ReadGraph(chrom, regionStart, regionEnd, minIntronLength);
 		
@@ -236,7 +236,6 @@ public class Region {
 		
 		while(it.hasNext()) {
 			SAMRecord sr = it.next();
-			
 			
 			char strand = '.';
 			
@@ -280,7 +279,7 @@ public class Region {
 
 			strands.put(i, strand);
 			
-			sg.addRead(sr,maxMM);
+			sg.addRead(sr,maxMM,longReads);
 			
 		}
 		

@@ -13,6 +13,7 @@ import de.jstacs.utils.IntList;
 import htsjdk.samtools.AlignmentBlock;
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMRecord;
 import projects.gemoma.ReadStats;
 
@@ -99,7 +100,7 @@ public class ReadGraph {
 		return sb.toString();
 	}
 	
-	public void addRead(SAMRecord read, int maxMM) {
+	public void addRead(SAMRecord read, int maxMM, boolean longReads) {
 		boolean isDummy = "dummy".equals(read.getReadName());
 		
 		List<AlignmentBlock> blockLi = read.getAlignmentBlocks();
@@ -150,20 +151,30 @@ public class ReadGraph {
 			
 			CigarElement el = cigIt.next();
 			CigarElement prev = null;
+			boolean hasBeenSkipped = false;
+			int delBefore = 0;
 			while(el.getLength() != block.getLength() || !el.getOperator().isAlignment()) {
+				if(el.getOperator().isIndelOrSkippedRegion() && !el.getOperator().isIndel()) {
+					hasBeenSkipped = true;
+					delBefore = longReads && prev != null && prev.getOperator()==CigarOperator.DELETION ? prev.getLength() : 0;
+				}
 				prev = el;
 				el = cigIt.next();
 			}
-				
-			
 			
 
 			int relStart = block.getReferenceStart()-regionStart;
 			
+			int delOff = longReads && prev != null && prev.getOperator()==CigarOperator.DELETION ? prev.getLength() : 0;
+
 			if(lastRelEnd > -1) {
 				boolean isSplit = true;
 				if(relStart != lastRelEnd+1) {
-					isSplit = prev.getOperator().isIndelOrSkippedRegion() && ! prev.getOperator().isIndel();					
+					if(longReads) {
+						isSplit = hasBeenSkipped;
+					}else {
+						isSplit = prev.getOperator().isIndelOrSkippedRegion() && ! prev.getOperator().isIndel();
+					}
 				}
 				if(relStart-lastRelEnd < minIntronLength || !isSplit) {
 					for(int i=lastRelEnd+1;i<=relStart;i++) {
@@ -171,7 +182,7 @@ public class ReadGraph {
 						e.nReads++;
 					}
 				}else {
-					Edge e = nodes[lastRelEnd].addOutgoing(lastRelEnd, relStart, edges, nodes);
+					Edge e = nodes[lastRelEnd+delBefore].addOutgoing(lastRelEnd+delBefore, relStart-delOff, edges, nodes);
 					e.nReads++;
 				}
 			}

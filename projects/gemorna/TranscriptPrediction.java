@@ -385,7 +385,7 @@ public class TranscriptPrediction implements JstacsTool {
 			
 			double rpk = region.getTheoreticalNumberOfReads()/(double)(region.getRegionEnd()-region.getRegionStart()+1)*1000.0;
 
-			ReadGraph rg2 = region.buildGraph(config.minIntronLength, config.maxGapFilled, config.stranded, config.maxMM);
+			ReadGraph rg2 = region.buildGraph(config.minIntronLength, config.maxGapFilled, config.stranded, config.maxMM, config.longReads);			
 			
 			rg2.pruneByAbsoluteNumberOfReads(config.minReads,false);
 			if(rpk > 200) {
@@ -416,9 +416,14 @@ public class TranscriptPrediction implements JstacsTool {
 					proposedSplits = rg.proposeSplitByReadCoverage(200, 20);
 				}
 
-				SplicingGraph sg = new SplicingGraph(rg,region,config.minIntronLength,proposedSplits);
+				SplicingGraph sg = new SplicingGraph(rg,region,config.minIntronLength,proposedSplits,config.longReads);
+				
 				LinkedList<Transcript> list = new LinkedList<SplicingGraph.Transcript>();
-				sg.enumerateTranscripts2(list,config.minReads,config.minFraction,config.maxNumTranscripts);//TODO replace for long
+				if(config.longReads) {
+					sg.enumerateLongReadTranscripts(list,config.minReads);
+				}else {
+					sg.enumerateTranscripts2(list,config.minReads,config.minFraction,config.maxNumTranscripts);//TODO replace for long
+				}
 				
 				list.stream().forEach(e -> {if(e.getStrand() == '.') e.setStrand(region.getStrand());} );
 								
@@ -537,7 +542,7 @@ public class TranscriptPrediction implements JstacsTool {
 
 						double sumRegion = 0;
 						double sumRev = 0;
-						for(int j=t.getStart();j<t.getEnd();j++) {
+						for(int j=Math.max(t.getStart(),region2.getRegionStart());j<t.getEnd() && j-region2.getRegionStart()<covRegion.length;j++) {
 							sumRegion += covRegion[ j-region2.getRegionStart() ];
 							if(j-revRegion.getRegionStart() >= 0 && j-revRegion.getRegionStart()<covRev.length) {
 								sumRev += covRev[ j-revRegion.getRegionStart() ];
