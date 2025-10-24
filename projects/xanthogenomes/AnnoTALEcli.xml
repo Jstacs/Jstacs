@@ -3,52 +3,57 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <!--define folder properties-->
-    <property name="dir.jarfile" value="/Users/dev/Downloads/jfx"/>
+    <property name="repo.root" location="${basedir}/../.."/>
+    <property name="lib.dir" location="${repo.root}/lib"/>
+    <property name="jstacs.jar" location="${repo.root}/dist/jstacs-2.5.jar"/>
+    <property name="dir.jarfile" location="${basedir}/dist"/>
     <target name="create_run_jar">
+        <fail message="Required Jstacs jar not found: ${jstacs.jar}">
+            <condition>
+                <not>
+                    <available file="${jstacs.jar}" type="file"/>
+                </not>
+            </condition>
+        </fail>
+        <mkdir dir="${dir.jarfile}"/>
         <jar destfile="${dir.jarfile}/AnnoTALEcli-1.4.1.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="projects.xanthogenomes.AnnoTALEcli"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="/Users/dev/git/Jstacs/bin">
-            	<exclude name="**/.svn/**" />
-            	<exclude name="**/clusters.xml" />
-            	<exclude name="lib/**/*.jar" />
-            	<exclude name="projects/gemoma/**" />
-            	<exclude name="projects/motifComp/**" />
-            </fileset>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/numericalMethods.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/RClient-0.6.7.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/colt.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/ssj.jar"/>
-        	<zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/bytecode-1.9.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/core-1.9.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-anim.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-awt-util.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-bridge.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-codec.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-css.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-dom.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-ext.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-extension.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-gui-util.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-gvt.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-parser.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-script.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-svg-dom.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-svggen.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-swing.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-transcoder.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-util.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik-xml.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/batik.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/commons-io-1.3.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/commons-logging-1.0.4.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/pdf-transcoder.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/xml-apis-ext.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/xml-commons/xmlgraphics-commons-1.5.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/Users/dev/git/Jstacs/bin/lib/Jama-1.0.3.jar"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/MANIFEST.MF,**/clusters.xml,lib/**/*.jar,projects/gemoma/**,projects/motifComp/**" src="${jstacs.jar}"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/numericalMethods.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/RClient-0.6.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/ssj/colt-1.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/ssj/ssj-3.3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/bytecode-1.9.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/core-1.9.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-anim.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-awt-util.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-bridge.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-codec.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-css.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-dom.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-ext.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-extension.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-gui-util.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-gvt.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-parser.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-script.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-svg-dom.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-svggen.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-swing.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-transcoder.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-util.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik-xml.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/batik.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/commons-io-1.3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/commons-logging-1.0.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/pdf-transcoder.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/xml-apis-ext.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/xml-commons/xmlgraphics-commons-1.5.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/Jama-1.0.3.jar"/>
         </jar>
     </target>
 </project>
