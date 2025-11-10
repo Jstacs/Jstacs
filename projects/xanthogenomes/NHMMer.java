@@ -343,83 +343,85 @@ public class NHMMer {
 		
 		for(int i=0;i<ds.getNumberOfElements();i++){
 			Sequence seq = ds.getElementAt( i );
-			
-			double[] vals = new double[seq.getLength()-w+1];
-			
-			int num = -1;
-			
-			for(int j=0;j<seq.getLength()-w+1;j++,l++){
-				
-				if(j%1000 == 0){
-					progress.setCurrent( l/totalLength + progressOffset );
-				}
-				
-				Sequence sub = seq.getSubSequence( j, w );
-				
-				
-				if(num == -1){
-					num = 0;
-					String substr = sub.toString();
-					String[] parts2 = parts.toArray( new String[0] );
-					for(int k=0;k<parts2.length;k++){
-						if(substr.indexOf( parts2[k] ) > -1){
+
+			if(seq.getLength()>=w) {
+
+				double[] vals = new double[seq.getLength()-w+1];
+
+				int num = -1;
+
+				for(int j=0;j<seq.getLength()-w+1;j++,l++){
+
+					if(j%1000 == 0){
+						progress.setCurrent( l/totalLength + progressOffset );
+					}
+
+					Sequence sub = seq.getSubSequence( j, w );
+
+
+					if(num == -1){
+						num = 0;
+						String substr = sub.toString();
+						String[] parts2 = parts.toArray( new String[0] );
+						for(int k=0;k<parts2.length;k++){
+							if(substr.indexOf( parts2[k] ) > -1){
+								num++;
+							}
+						}
+					}
+
+					if(num > parts.size()/2){
+						double fg = hmm.getLogProbFor( sub );
+						double bg = hom.getLogProbFor( sub );
+						double rat = fg-bg;
+						vals[j] = rat;
+					}
+
+
+					if(j<seq.getLength()-w){
+						String substr1 = seq.toString( j, j+frag );
+						String substr2 = seq.toString( j+w-frag+1,j+w+1 );
+						if(parts.contains( substr1 )){
+							num--;
+						}
+						if(parts.contains( substr2 )){
 							num++;
 						}
 					}
 				}
-				
-				if(num > parts.size()/2){
-					double fg = hmm.getLogProbFor( sub );
-					double bg = hom.getLogProbFor( sub );
-					double rat = fg-bg;
-					vals[j] = rat;
-				}
-				
-				
-				if(j<seq.getLength()-w){
-					String substr1 = seq.toString( j, j+frag );
-					String substr2 = seq.toString( j+w-frag+1,j+w+1 );
-					if(parts.contains( substr1 )){
-						num--;
+				//System.out.println("scan finished");
+				LinkedList<ComparableElement<Double,Integer>> list = new LinkedList<ComparableElement<Double,Integer>>();
+				while(true){
+					int maxIdx = ToolBox.getMaxIndex( vals );
+					double max = vals[maxIdx];
+					for(int j=Math.max( 0, maxIdx-w/2);j<maxIdx+w/2 && j< vals.length; j++){
+						vals[j] = 0;
 					}
-					if(parts.contains( substr2 )){
-						num++;
+					if(max > t){
+						list.add( new ComparableElement<Double,Integer>(max,maxIdx) );
+					}else{
+						break;
 					}
+
 				}
-			}
-			//System.out.println("scan finished");
-			LinkedList<ComparableElement<Double,Integer>> list = new LinkedList<ComparableElement<Double,Integer>>();
-			while(true){
-				int maxIdx = ToolBox.getMaxIndex( vals );
-				double max = vals[maxIdx];
-				for(int j=Math.max( 0, maxIdx-w/2);j<maxIdx+w/2 && j< vals.length; j++){
-					vals[j] = 0;
-				}
-				if(max > t){
-					list.add( new ComparableElement<Double,Integer>(max,maxIdx) );
-				}else{
-					break;
-				}
-				
-			}
-			
-			ComparableElement<Double, Integer>[] els = list.toArray( new ComparableElement[0] );
-			Arrays.sort( els );
-			if(els.length > 0){
-				int start = els[0].getWeight();
-				int end = els[0].getWeight()+consensus.length();
-				for(int j=1;j<els.length;j++){
-					//System.out.println(els[j].getWeight());
-					if(els[j].getWeight()-500 > els[j-1].getWeight() || j == els.length-1){
-						end = els[j-1].getWeight()+consensus.length();
-						//System.out.println(start+" "+end );
-						found.add( new int[]{i,start,end} );
-						start = els[j].getWeight();
-						end = els[j].getWeight()+consensus.length();
+
+				ComparableElement<Double, Integer>[] els = list.toArray( new ComparableElement[0] );
+				Arrays.sort( els );
+				if(els.length > 0){
+					int start = els[0].getWeight();
+					int end = els[0].getWeight()+consensus.length();
+					for(int j=1;j<els.length;j++){
+						//System.out.println(els[j].getWeight());
+						if(els[j].getWeight()-500 > els[j-1].getWeight() || j == els.length-1){
+							end = els[j-1].getWeight()+consensus.length();
+							//System.out.println(start+" "+end );
+							found.add( new int[]{i,start,end} );
+							start = els[j].getWeight();
+							end = els[j].getWeight()+consensus.length();
+						}
 					}
 				}
 			}
-			
 		}
 		
 		//System.out.println("time: "+time.getElapsedTime());

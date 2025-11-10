@@ -31,6 +31,7 @@ import java.util.List;
 import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
 import de.jstacs.data.AlphabetContainer;
+import de.jstacs.data.WrongAlphabetException;
 import de.jstacs.data.alphabets.DNAAlphabet;
 import de.jstacs.data.alphabets.DNAAlphabetContainer;
 import de.jstacs.data.alphabets.DiscreteAlphabet;
@@ -55,6 +56,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet.TrainingType;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.SamplingHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.sequenceScores.statisticalModels.trainable.phylo.PhyloTree;
@@ -98,7 +100,7 @@ public class HMMFactory {
 		PLAN8D;
 	}
 	
-	private static AbstractHMM getHMM( HMMTrainingParameterSet pars, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission, TransitionElement[] te, double ess, boolean likelihood ) throws Exception {
+	private static AbstractHMM getHMM( HMMTrainingParameterSet pars, String[] name, int[] emissionIdx, boolean[] forward, Emission[] emission, TransitionElement[] te, double ess ) throws Exception {
 		if( pars instanceof SamplingHMMTrainingParameterSet ) {
 			if(emission instanceof PhyloDiscreteEmission[]) {
 			    return new SamplingPhyloHMM( (SamplingHMMTrainingParameterSet) pars, name, emissionIdx, forward, ArrayHandler.cast( PhyloDiscreteEmission.class, emission ), te );
@@ -111,7 +113,7 @@ public class HMMFactory {
 				diff = emission[e] instanceof DifferentiableEmission;					
 			}
 			if( diff ) {
-				return new DifferentiableHigherOrderHMM( (MaxHMMTrainingParameterSet)pars, name, emissionIdx, forward, ArrayHandler.cast( DifferentiableEmission.class, emission ), likelihood, ess, te );
+				return new DifferentiableHigherOrderHMM( (MaxHMMTrainingParameterSet)pars, name, emissionIdx, forward, ArrayHandler.cast( DifferentiableEmission.class, emission ), ess, te );
 			} else {
 				return new HigherOrderHMM( pars, name, emission, te );
 			}
@@ -175,7 +177,7 @@ public class HMMFactory {
 		}
 		addTransitions( states, ess*(expectedSequenceLength-order), selfTranistionPart, order, list );
 		
-		return getHMM( pars, name, null, null, emission, list.toArray( new TransitionElement[0] ), ess, true );
+		return getHMM( pars, name, null, null, emission, list.toArray( new TransitionElement[0] ), ess );
 	}
 
 	/**
@@ -245,7 +247,7 @@ public class HMMFactory {
 				emission[i] = new DiscreteEmission( con, stateEss[i] );
 			}
 		}
-		return getHMM( pars, name, null, null, emission, createTransition( p.getFirstElement(), list ), ess, false );
+		return getHMM( pars, name, null, null, emission, createTransition( p.getFirstElement(), list ), ess );
 	}
 	
 	/**
@@ -394,17 +396,16 @@ public class HMMFactory {
 			}
 		}
 
-		return getHMM( pars, name, null, null, e, list.toArray( new TransitionElement[0] ), ess, true );
+		return getHMM( pars, name, null, null, e, list.toArray( new TransitionElement[0] ), ess );
 	}
 	
-	private static Emission getEmission( AlphabetContainer con, double ess, PhyloTree t ) {
+	private static Emission getEmission( AlphabetContainer con, double ess, PhyloTree t ) throws WrongAlphabetException {
 		if( t != null ) {
 			return new PhyloDiscreteEmission( con, ess, t );
 		} else {
 			return new DiscreteEmission( con, ess );
 		}
 	}
-	
 	
 	/**
 	 * Parses a profile HMM from the textual HMMer representation.
@@ -416,6 +417,21 @@ public class HMMFactory {
 	 * @throws Exception if the representation could not be parsed
 	 */
 	public static Pair<AbstractHMM,HomogeneousMMDiffSM> parseProfileHMMFromHMMer(Reader hmmReader, StringBuffer consensus, LinkedList<Integer> matchStates, LinkedList<Integer> silentStates) throws Exception {
+		return parseProfileHMMFromHMMer(hmmReader, consensus, matchStates, silentStates, false);
+	}
+	
+	
+	/**
+	 * Parses a profile HMM from the textual HMMer representation.
+	 * @param hmmReader a reader open on the HMMer representation
+	 * @param consensus the consensus of the HMM is appended to this {@link StringBuffer}
+	 * @param matchStates if not <code>null</code>, the indexes of match states are appended to this list
+	 * @param silentStates if <code>matchStates</code> is not <code>null</code>, the indexes of silent states are appended to this list
+	 * @param likelihood if <code>true</code> likelihood is evaluated otherwise viterbi probability
+	 * @return the profile HMM and the background model from the HMMer representation
+	 * @throws Exception if the representation could not be parsed
+	 */
+	public static Pair<AbstractHMM,HomogeneousMMDiffSM> parseProfileHMMFromHMMer(Reader hmmReader, StringBuffer consensus, LinkedList<Integer> matchStates, LinkedList<Integer> silentStates, boolean likelihood) throws Exception {
 		
 		BufferedReader read = new BufferedReader( hmmReader );
 		
@@ -454,7 +470,7 @@ public class HMMFactory {
 		//Transitions 0
 		str = read.readLine();
 		String[] t0 = str.trim().split( "\\s+" );
-		transitionPars.add( 0 );
+		//transitionPars.add( 0 );
 		
 		double BI0 = Math.exp(-parseDouble( t0[1] ) );
 		transitionPars.add( Math.log( 1 - BI0 ) );
@@ -503,15 +519,16 @@ public class HMMFactory {
 		transitionPars.add( 0 );transitionPars.add( Double.NEGATIVE_INFINITY );transitionPars.add( Double.NEGATIVE_INFINITY );
 		transitionPars.add( Math.log( 0.99 ) );transitionPars.add( Math.log( 0.01 ) );
 		
-		MaxHMMTrainingParameterSet trainingParameterSet = new NumericalHMMTrainingParameterSet( 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), 1, Optimizer.QUASI_NEWTON_BFGS, 1E-4, 1E-4 );
+		MaxHMMTrainingParameterSet trainingParameterSet = new NumericalHMMTrainingParameterSet( 1, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), 1, Optimizer.QUASI_NEWTON_BFGS, 1E-4, 1E-4, likelihood ? TrainingType.LIKELIHOOD : TrainingType.VITERBI, false );
 		
 		
-		boolean likelihood = false;
 		int numLayers = l+2;
 		
 		double ess = 16;
 		
-		DifferentiableHigherOrderHMM hmm = (DifferentiableHigherOrderHMM) createProfileHMM( trainingParameterSet, HMMType.PLAN7, likelihood, 1, numLayers, con, ess, MState.UNCONDITIONAL, false, null );
+		DifferentiableHigherOrderHMM hmm = (DifferentiableHigherOrderHMM) createProfileHMM( trainingParameterSet, HMMType.PLAN7, 1, numLayers, con, ess, MState.UNCONDITIONAL, false, null );
+		
+		
 		
 		//NumberFormat nf = DecimalFormat.getInstance();
 		
@@ -542,7 +559,7 @@ public class HMMFactory {
 		
 		
 		hmm.setParameters( pars, 0 );
-		
+				
 		HomogeneousMMDiffSM homo = new HomogeneousMMDiffSM( con, 0, 16.0, numLayers );
 		homo.initializeFunctionRandomly( false );
 		DoubleList homPars = new DoubleList();
@@ -571,7 +588,6 @@ public class HMMFactory {
 	 * Creates a new profile HMM for a given architecture and number of layers.
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
 	 * @param type the type of the HMM, i.e., its architecture
-	 * @param likelihood if <code>true</code>, the likelihood is considered as score of a sequence, and the probability of the Viterbi path otherwise
 	 * @param order the order of the HMM, i.e., the number of previous states that are considered for a transition probability
 	 * @param numLayers the number of layers of the profile HMM
 	 * @param con the alphabet of the profile HMM
@@ -582,9 +598,9 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, HMMType type, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState mState, boolean closeCircle, double[][] conditionInitProbs) throws Exception{
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, HMMType type, int order, int numLayers, AlphabetContainer con, double ess, MState mState, boolean closeCircle, double[][] conditionInitProbs) throws Exception{
 		double[][] initFromTo = getInitFromTo(type, ess);
-		return createProfileHMM( trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, mState, closeCircle, conditionInitProbs, false );
+		return createProfileHMM( trainingParameterSet, initFromTo, order, numLayers, con, ess, mState, closeCircle, conditionInitProbs, false );
 	}
 
 	/**
@@ -593,7 +609,6 @@ public class HMMFactory {
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
 	 * @param initFromTo hyper-parameters of the transition from each state (first dimension) of the current layer to each other state in the same layer (first three entries of the second dimension)
 	 * 						and the next layer (next three entries in the second dimension). If a hyper-parameter is set to {@link Double#NaN}, the corresponding transition is not allowed
-	 * @param likelihood if <code>true</code>, the likelihood is considered as score of a sequence, and the probability of the Viterbi path otherwise
 	 * @param order the order of the HMM, i.e., the number of previous states that are considered for a transition probability
 	 * @param numLayers the number of layers of the profile HMM
 	 * @param con the alphabet of the profile HMM
@@ -606,8 +621,8 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState mState, boolean closeCircle, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
-		return createProfileHMM(trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, mState, closeCircle?1:0, conditionInitProbs, insertUniform );
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, int order, int numLayers, AlphabetContainer con, double ess, MState mState, boolean closeCircle, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+		return createProfileHMM(trainingParameterSet, initFromTo, order, numLayers, con, ess, mState, closeCircle?1:0, conditionInitProbs, insertUniform );
 	}
 	
 	/**
@@ -616,7 +631,6 @@ public class HMMFactory {
 	 * @param trainingParameterSet the parameters of the algorithm for learning the model parameters
 	 * @param initFromTo hyper-parameters of the transition from each state (first dimension) of the current layer to each other state in the same layer (first three entries of the second dimension)
 	 * 						and the next layer (next three entries in the second dimension). If a hyper-parameter is set to {@link Double#NaN}, the corresponding transition is not allowed
-	 * @param likelihood if <code>true</code>, the likelihood is considered as score of a sequence, and the probability of the Viterbi path otherwise
 	 * @param order the order of the HMM, i.e., the number of previous states that are considered for a transition probability
 	 * @param numLayers the number of layers of the profile HMM
 	 * @param con the alphabet of the profile HMM
@@ -629,11 +643,11 @@ public class HMMFactory {
 	 * @return the profile HMM
 	 * @throws Exception if the profile HMM could not be created
 	 */
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState mState, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
-		return createProfileHMM(trainingParameterSet, initFromTo, likelihood, order, numLayers, con, ess, new MState[]{mState}, joiningStates, conditionInitProbs, insertUniform);
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, int order, int numLayers, AlphabetContainer con, double ess, MState mState, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+		return createProfileHMM(trainingParameterSet, initFromTo, order, numLayers, con, ess, new MState[]{mState}, joiningStates, conditionInitProbs, insertUniform);
 	}
 	
-	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, boolean likelihood, int order, int numLayers, AlphabetContainer con, double ess, MState[] mState, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
+	public static AbstractHMM createProfileHMM(MaxHMMTrainingParameterSet trainingParameterSet, double[][] initFromTo, int order, int numLayers, AlphabetContainer con, double ess, MState[] mState, int joiningStates, double[][] conditionInitProbs, boolean insertUniform ) throws Exception{
 		PseudoTransitionElement[] coreTransitionTemplate = null;
 		AbstractList<Class<? extends DifferentiableEmission>> emList = new LinkedList<Class<? extends DifferentiableEmission>>();
 		ArrayList<PseudoTransitionElement> list = new ArrayList<PseudoTransitionElement>();
@@ -747,7 +761,7 @@ public class HMMFactory {
 		
 		return getHMM( trainingParameterSet, nameList.toArray( new String[0] ), null, null, 
 				getEmissions( nameList, emList, p.getSecondElement(), con, conditionInitProbs ),
-				createTransition( p.getFirstElement(), list ), ess, likelihood );
+				createTransition( p.getFirstElement(), list ), ess );
 	}
 	
 	private static class ContextContainer extends ArrayList<int[]> {
