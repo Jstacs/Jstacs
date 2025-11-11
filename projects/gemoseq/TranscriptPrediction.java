@@ -15,6 +15,7 @@ import de.jstacs.parameters.FileParameter;
 import de.jstacs.parameters.Parameter;
 import de.jstacs.parameters.ParameterException;
 import de.jstacs.parameters.SimpleParameter;
+import de.jstacs.parameters.validation.NumberValidator;
 import de.jstacs.results.ResultSet;
 import de.jstacs.results.TextResult;
 import de.jstacs.tools.JstacsTool;
@@ -596,8 +597,8 @@ public class TranscriptPrediction implements JstacsTool {
 		
 		CLI cli = new CLI(new boolean[] {true,false,false,false,false},new TranscriptPrediction(), new PredictCDSFromGFF(), new GeMoMaAnnotationFilter(), new Analyzer(), new MergeGeMoMaGeMoSeq());
 		
-		cli.run(args);
-		
+		//cli.run(args);
+		System.out.println( cli.wikiPage("jar") );
 	}
 	
 	
@@ -616,28 +617,29 @@ public class TranscriptPrediction implements JstacsTool {
 			pars.add(new EnumParameter(Stranded.class, "Library strandedness", true,Stranded.FR_UNSTRANDED.name()));
 			
 			
-			pars.add(new SimpleParameter(DataType.INT,"Longest intron length","Length of the longest intron reported",true,100000));
-			pars.add(new SimpleParameter(DataType.INT,"Shortest intron length","Length of the shortest intron considered",true,10));
+			pars.add(new SimpleParameter(DataType.INT,"Longest intron length","Length of the longest intron reported",true,new NumberValidator<Integer>(0, Integer.MAX_VALUE),100000));
+			pars.add(new SimpleParameter(DataType.INT,"Shortest intron length","Length of the shortest intron considered",true,new NumberValidator<Integer>(0, Integer.MAX_VALUE),10));
 			
 			pars.add(new SimpleParameter(DataType.BOOLEAN,"Long reads","Long-read mode",true,false));
 		
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of reads","Minimum number of reads required for an edge in the read graph",true,1.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of reads","Minimum fraction of reads relative to adjacent exons that must support an intron in the enumeration",true,0.01));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of reads","Minimum number of reads required for an edge in the read graph",true,new NumberValidator<Double>(0.0, Double.POSITIVE_INFINITY),1.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of reads","Minimum fraction of reads relative to adjacent exons that must support an intron in the enumeration",true,new NumberValidator<Double>(0.0, 1.0),0.01));
 			
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of intron reads","Minimum number of reads required for an intron",true,1.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of intron reads","Minimum fraction of reads relative to adjacent exons for an intron to be considered",true,0.01));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum number of intron reads","Minimum number of reads required for an intron",true,new NumberValidator<Double>(0.0, Double.POSITIVE_INFINITY),1.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum fraction of intron reads","Minimum fraction of reads relative to adjacent exons for an intron to be considered",true,new NumberValidator<Double>(0.0, 1.0),0.01));
 			
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent explained","Percent of abundance that must be explained by transcript models after quantification",true,0.9));//was 0.8
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per gene","Minimum abundance required for a gene to be reported",true,40.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per transcript","Minimum abundance required for a transcript to be reported",true,20.0));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent abundance","Minimum relative abundance required for a transcript to be reported",true,0.05));
-			pars.add(new SimpleParameter(DataType.DOUBLE,"Successive fraction","Factor of the drop in abundance between successive transcript models",true,20.0));//was 10.0
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent explained","Percent of abundance that must be explained by transcript models after quantification",true,new NumberValidator<Double>(0.0, 1.0),0.9));//was 0.8
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per gene","Minimum abundance required for a gene to be reported",true,new NumberValidator<Double>(0.0, Double.POSITIVE_INFINITY),40.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Minimum reads per transcript","Minimum abundance required for a transcript to be reported",true,new NumberValidator<Double>(0.0, Double.POSITIVE_INFINITY),20.0));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Percent abundance","Minimum relative abundance required for a transcript to be reported",true,new NumberValidator<Double>(0.0, 1.0),0.05));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Successive fraction","Factor of the drop in abundance between successive transcript models",true,new NumberValidator<Double>(0.0, Double.POSITIVE_INFINITY),20.0));//was 10.0
 			
-			pars.add(new SimpleParameter(DataType.INT,"Maximum region length","Maximum length of a region considered before it is split",true,750000));
-			pars.add(new SimpleParameter(DataType.INT,"Maximum filled gap length","Maximum length of a gap filled by dummy reads",true,50));
-			pars.add(new SimpleParameter(DataType.INT,"Quality filter","Minimum mapping quality required for a read to be considered",true,40));
+			pars.add(new SimpleParameter(DataType.INT,"Maximum region length","Maximum length of a region considered before it is split",true,new NumberValidator<Integer>(0, Integer.MAX_VALUE),750000));
+			pars.add(new SimpleParameter(DataType.DOUBLE,"Maximum region coverage","Maximum coverage in a region before reads are down-sampled",true,new NumberValidator<Double>(0.0, Double.POSITIVE_INFINITY),100.0));
+			pars.add(new SimpleParameter(DataType.INT,"Maximum filled gap length","Maximum length of a gap filled by dummy reads",true,new NumberValidator<Integer>(0, Integer.MAX_VALUE),50));
+			pars.add(new SimpleParameter(DataType.INT,"Quality filter","Minimum mapping quality required for a read to be considered",true,new NumberValidator<Integer>(0, Integer.MAX_VALUE),40));
 			
-			pars.add(new SimpleParameter(DataType.INT,"Minimum protein length","Minimum length of protein in AA",true,70));
+			pars.add(new SimpleParameter(DataType.INT,"Minimum protein length","Minimum length of protein in AA",true,new NumberValidator<Integer>(0, Integer.MAX_VALUE),70));
 			
 			pars.add(new SimpleParameter(DataType.STRING, "Gene prefix", "Prefix to add to all gene names", true,"G"));
 			pars.add(new SimpleParameter(DataType.BOOLEAN, "Gene names with chromosome", "If true, gene names will be constructed as <Gene prefix><chr>.<geneNumber>. Gene numbers will be assigned successively across all chromosomes.", true, false));
@@ -665,7 +667,7 @@ public class TranscriptPrediction implements JstacsTool {
 			int minIntronLength = (int) parameters.getParameterForName("Shortest intron length").getValue();
 			int maxIntronLength = (int) parameters.getParameterForName("Longest intron length").getValue();
 
-			double maxCov = 100.0;
+			double maxCov = (double) parameters.getParameterForName("Maximum region coverage").getValue();//100.0;
 			double sample = 0.5;
 
 
