@@ -597,8 +597,7 @@ public class TranscriptPrediction implements JstacsTool {
 		
 		CLI cli = new CLI(new boolean[] {true,false,false,false,false},new TranscriptPrediction(), new PredictCDSFromGFF(), new GeMoMaAnnotationFilter(), new Analyzer(), new MergeGeMoMaGeMoSeq());
 		
-		//cli.run(args);
-		System.out.println( cli.wikiPage("jar") );
+		cli.run(args);
 	}
 	
 	
