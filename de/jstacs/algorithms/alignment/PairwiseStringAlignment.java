@@ -30,7 +30,7 @@ import de.jstacs.io.XMLParser;
  */
 public class PairwiseStringAlignment extends StringAlignment {
 	
-	private int start, end, nummatches;
+	private int start, end, nummatches, start2, end2;
 
 	/**
 	 * Creates the instance for the two (extended) {@link String}s and the
@@ -52,6 +52,17 @@ public class PairwiseStringAlignment extends StringAlignment {
 		super( cost, r1, r2 );
 		this.start = startPos;
 		this.end = endPos;
+		this.start2 = -1;
+		this.end2 = -1;
+		this.nummatches = numMatches;
+	}
+	
+	protected PairwiseStringAlignment( String r1, String r2, double cost, int startPos, int endPos, int startPos2, int endPos2, int numMatches ) {
+		super( cost, r1, r2 );
+		this.start = startPos;
+		this.end = endPos;
+		this.start2 = startPos2;
+		this.end2 = endPos2;
 		this.nummatches = numMatches;
 	}
 	
@@ -93,12 +104,30 @@ public class PairwiseStringAlignment extends StringAlignment {
 	}
 	
 	/**
+	 * This method returns the start index of the alignment in the second sequence.
+	 * 
+	 * @return the start index of the alignment in the second sequence
+	 */
+	public int getStartIndexOfAlignmentForSecond() {
+		return start2;
+	}
+	
+	/**
 	 * This method returns the end index of the alignment in the first sequence.
 	 * 
 	 * @return the end index of the alignment in the first sequence
 	 */
 	public int getEndIndexOfAlignmentForFirst() {
 		return end;
+	}
+	
+	/**
+	 * This method returns the end index of the alignment in the second sequence.
+	 * 
+	 * @return the end index of the alignment in the second sequence
+	 */
+	public int getEndIndexOfAlignmentForSecond() {
+		return end2;
 	}
 	
 	protected void fromXML(StringBuffer xml) throws NonParsableException{

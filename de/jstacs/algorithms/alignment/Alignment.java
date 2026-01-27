@@ -345,9 +345,11 @@ public class Alignment {
 		AlphabetContainer cont = s1.getAlphabetContainer();
 
 		int[] next = index.clone();
-		int startPos, endPos;
+		int startPos, endPos, startPos2, endPos2;
 		startPos = 0;
+		startPos2 = 0;
 		endPos = type==AlignmentType.LOCAL ? startS1 + index[1] : index[1];
+		endPos2 = type==AlignmentType.LOCAL ? startS2 + index[2] : index[2];
 		int numMatches = 0;
 		while( true ) {
 			algorithm.next(index,next);
@@ -385,14 +387,16 @@ public class Alignment {
 			}
 			if( index[2] == l2 && column == -1 ) {
 				endPos = startS1+index[1];
+				endPos2 = startS2+index[2];
 			}
 			if( (type==AlignmentType.LOCAL || index[2] == 1) && row == -1 ) {
 				startPos = startS1+index[1]-1;
+				startPos2 = startS2+index[2]-1;
 			}
 			
 			System.arraycopy( next, 0, index, 0, 3 );
 		}
-		return new PairwiseStringAlignment( b1.toString(), b2.toString(), cost, startPos, endPos, numMatches );
+		return new PairwiseStringAlignment( b1.toString(), b2.toString(), cost, startPos, endPos, startPos2, endPos2, numMatches );
 	}
 	
 	private static interface AlignmentAlgorithm {
