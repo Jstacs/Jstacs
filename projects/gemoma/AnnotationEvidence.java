@@ -288,8 +288,10 @@ public class AnnotationEvidence extends GeMoMaModule {
 								}
 								attr.clear();
 								for( int j = 0; j < att.length; j++ ) {
-									int pos = att[j].indexOf('=');
-									attr.put(att[j].substring(0,pos), att[j].substring(pos+1));
+									if(att[j].length()>0) {
+										int pos = att[j].indexOf('=');
+										attr.put(att[j].substring(0,pos), att[j].substring(pos+1));
+									}
 								}
 								
 								old.delete(0, old.length());
@@ -313,9 +315,11 @@ public class AnnotationEvidence extends GeMoMaModule {
 								
 								//write attributes in the same order as in the input file
 								for( int j = 0; j < att.length; j++ ) {
-									int pos = att[j].indexOf('=');
-									String key = att[j].substring(0,pos);
-									annot.append(key+"=" + attr.remove(key) + ";");
+									if(att[j].length()>0) {
+										int pos = att[j].indexOf('=');
+										String key = att[j].substring(0,pos);
+										annot.append(key+"=" + attr.remove(key) + ";");
+									}
 								}
 								//add additional attributes
 								String[] k = attr.keySet().toArray(EMPTY);
