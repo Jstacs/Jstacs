@@ -31,7 +31,7 @@ import de.jstacs.utils.Time;
 /**
  * This class stops an optimization if the value of the function
  * becomes less or equal to an absolute value, i.e.,
- * {@latex.inline $f(\\underline{x}_i) \\le t$}.
+ * \( f(\\underline{x}_i) \\le t \).
  * 
  * @author Jens Keilwagen
  * 

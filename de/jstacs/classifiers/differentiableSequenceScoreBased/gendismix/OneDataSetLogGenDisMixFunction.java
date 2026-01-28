@@ -30,20 +30,20 @@ import de.jstacs.utils.Normalisation;
 /**
  * This class implements the the following function
  * 
- * {@latex.ilb \\[f(\\underline{\\lambda}|C,D,\\underline{w},\\underline{\\alpha},\\underline{\\beta})
- * := \\left(\\sum_c \\sum_n w_{c,n} \\left(\\beta_0 \\log p(c|d_n,\\underline{\\lambda}) + \\beta_1 \\log p(c,d_n|\\underline{\\lambda}) \\right) \\right) + \\beta_2 \\log p(\\underline{\\lambda}|\\underline{\\alpha})
- * \\]}
- * where {@latex.inline $w_{c,n}$} is the weight for sequence {@latex.inline $d_n$} and class {@latex.inline $c$}.
+ * $$ f(&#92;underline{\lambda}|C,D,&#92;underline{w},&#92;underline{\alpha},&#92;underline{\beta})
+ * := \left(\sum_c \sum_n w_{c,n} \left(\beta_0 \log p(c|d_n,&#92;underline{\lambda}) + \beta_1 \log p(c,d_n|&#92;underline{\lambda}) \right) \right) + \beta_2 \log p(&#92;underline{\lambda}|&#92;underline{\alpha})
+ * $$
+ * where \( w_{c,n} \) is the weight for sequence \( d_n \) and class \( c \).
  * 
- * The weights {@latex.inline $\\beta_i$} have to sum to 1. For special weights the optimization turns out to be
+ * The weights \( \beta_i \) have to sum to 1. For special weights the optimization turns out to be
  * well known
  * <ul>
  * <li> if the weights are (0,1,0), one obtains maximum likelihood,
  * <li> if the weights are (0,0.5,0.5), one obtains maximum a posteriori,
  * <li> if the weights are (1,0,0), one obtains maximum conditional likelihood,
  * <li> if the weights are (0.5,0,0.5), one obtains maximum supervised posterior,
- * <li> if the {@latex.inline $\\beta_2$}=0, one obtains the generative-discriminative trade-off,
- * <li> if the {@latex.inline $\\beta_2$}=0.5, one obtains the penalized generative-discriminative trade-off.
+ * <li> if the \( \beta_2=0 \), one obtains the generative-discriminative trade-off,
+ * <li> if the \( \beta_2=0.5 \), one obtains the penalized generative-discriminative trade-off.
  * </ul>
  * 
  * Of course, there are also some very interesting cases with other weights.

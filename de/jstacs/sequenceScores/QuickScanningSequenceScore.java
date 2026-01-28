@@ -37,9 +37,9 @@ public interface QuickScanningSequenceScore extends SequenceScore {
 	 * The returned array is indexed by the starting positions (in the same order as provided in <code>starts</code>) in the first dimension, and in the second dimension
 	 * it is indexed by an integer representation of the k-mers, assigning the highest priority to the first k-mer position, i.e.,
 	 * 
-	 * {@latex.ilb $\\sum_{\\ell=0}^{L-1} A^{L-1-\\ell} \\cdot e(x_\\ell)$}
-	 * where {@latex.inline $A$} denotes the size of the alphabet, {@latex.inline $L$} the length of the k-mer (starting at 0 in this case), 
-	 * and {@latex.inline $e(\\ldots)$} denotes the function encoding symbols from the alphabet as integers (see {@link de.jstacs.data.alphabets.DiscreteAlphabet}).
+	 * $$\sum_{\ell=0}^{L-1} A^{L-1-\ell} \cdot e(x_\ell) $$
+	 * where \( A \) denotes the size of the alphabet, \( L \) the length of the k-mer (starting at 0 in this case), 
+	 * and \( e(\ldots) \) denotes the function encoding symbols from the alphabet as integers (see {@link de.jstacs.data.alphabets.DiscreteAlphabet}).
 	 * 
 	 * @param kmer the k-mer length
 	 * @param thresh the threshold

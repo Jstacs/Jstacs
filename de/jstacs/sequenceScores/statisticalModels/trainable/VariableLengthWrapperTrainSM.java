@@ -41,7 +41,7 @@ import de.jstacs.results.NumericalResultSet;
  * 
  * @author Jens Keilwagen
  * 
- * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet, double[], int)
+ * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(SortOperation, DataSet, double[], int)
  * @see de.jstacs.classifiers.assessment.ClassifierAssessment
  */
 public class VariableLengthWrapperTrainSM extends AbstractTrainableStatisticalModel {

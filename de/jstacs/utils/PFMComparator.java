@@ -210,7 +210,7 @@ public class PFMComparator {
 	 * This method returns the PFM that is the reverse complement of the given PFM.
 	 * 
 	 * @param abc the {@link de.jstacs.data.alphabets.ComplementableDiscreteAlphabet} that is used to create the reverse complement
-	 * @param pfm the absolute frequencies for each position and symbol; {@latex.inline $pfm[l][a] := N_{X_\\ell=a}$}
+	 * @param pfm the absolute frequencies for each position and symbol; \( pfm[l][a] := N_{X_\\ell=a} \)
 	 * 
 	 * @return the PFM that is the reverse complement of the given PFM
 	 */

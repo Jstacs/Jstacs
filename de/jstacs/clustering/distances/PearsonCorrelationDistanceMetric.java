@@ -32,7 +32,7 @@ public class PearsonCorrelationDistanceMetric extends DistanceMetric<double[]> {
 	
 	/**
 	 * Creates a new distance based on the Pearson correlation.
-	 * @param abs if <code>true</code>, the distance is computed as {@latex.inline $1 - |cor(x,y)|$}, otherwise as {@latex.inline $1-cor(x,y)$}.
+	 * @param abs if <code>true</code>, the distance is computed as \( 1 - |cor(x,y)| \), otherwise as \( 1-cor(x,y) \).
 	 */
 	public PearsonCorrelationDistanceMetric(boolean abs){
 		this.abs = abs;

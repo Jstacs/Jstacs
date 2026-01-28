@@ -122,7 +122,7 @@ public class ToolResult extends ResultSetResult {
 	 * that have been supplied upon construction. Works successfully only if both parameter sets have an identical structure, which 
 	 * should be the case if both have been created from the same tool's {@link JstacsTool#getToolParameters()} method.
 	 * @param other the parameters to be filled
-	 * @see #ToolResult(String, String, ResultSet, ResultSet, ParameterSet, String, Date)
+	 * @see #ToolResult(String, String, ResultSet, ResultSet, ToolParameterSet, String, Date)
 	 */
 	public void setFromStoredParameters(ParameterSet other){
 		if(toolParameters.isComparable( other )){

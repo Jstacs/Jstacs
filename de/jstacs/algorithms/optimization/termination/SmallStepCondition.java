@@ -30,7 +30,7 @@ import de.jstacs.utils.Time;
 /**
  * This class implements a {@link TerminationCondition} that allows no further iteration in an optimization if the
  * scalar product of the current and the last values of <code>x</code> will be small, i.e.,
- * {@latex.inline $(\\underline{x}_i-\\underline{x}_{i-1})^T (\\underline{x}_i-\\underline{x}_{i-1}) < \\epsilon$}.
+ * \( (\\underline{x}_i-\\underline{x}_{i-1})^T (\\underline{x}_i-\\underline{x}_{i-1}) &lt; \\epsilon \).
  * 
  * @author Jens Keilwagen
  */

@@ -133,12 +133,12 @@ public class TransitionElement extends BasicTransitionElement {
 	 * @param indices
 	 *            an {@link IntList} of indices, after method invocation the
 	 *            list should contain the indices i where
-	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
+	 *            \( \frac{\partial \log score(seq)}{\partial \lambda_i} \)
 	 *            is not zero
 	 * @param partialDer
 	 *            a {@link DoubleList} of partial derivations, after method
 	 *            invocation the list should contain the corresponding
-	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
+	 *            \( \frac{\partial \log score(seq)}{\partial \lambda_i} \)
 	 *            that are not zero
 	 * @param sequence the {@link Sequence} that can be used to extract {@link de.jstacs.data.sequences.annotation.SequenceAnnotation}
 	 * @param sequencePosition the position within the sequence

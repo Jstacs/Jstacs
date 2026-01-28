@@ -61,7 +61,9 @@ public class BuildFamilies {
 		 * @param family
 		 * @param relatedFams
 		 * @param relatedTALEs
-		 * @param relationScores
+		 * @param alignments
+		 * @param pvals
+		 * @param myTALEs
 		 */
 		public FamilyResult( TALEFamily family, TALEFamily[] relatedFams, TALE[][] relatedTALEs, StringAlignment[][] alignments, double[][] pvals, int[][] myTALEs ) {
 			this.family = family;

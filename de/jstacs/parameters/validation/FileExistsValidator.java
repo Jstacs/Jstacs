@@ -27,7 +27,7 @@ public class FileExistsValidator implements ParameterValidator {
 	 * The standard constructor for the interface {@link de.jstacs.Storable}.
 	 * Creates a new {@link FileExistsValidator} from its XML representation.
 	 * 
-	 * @param representation
+	 * @param xml
 	 *            the XML representation as {@link StringBuffer}
 	 * 
 	 * @throws NonParsableException

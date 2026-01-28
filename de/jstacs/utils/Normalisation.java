@@ -35,7 +35,7 @@ public class Normalisation {
 	 *            <code>lnVal[i] = Math.log( val[i] )</code>
 	 * 
 	 * @return the logarithm of the sum of values
-	 * 			{@latex.inline $\\log(\\sum_i \\mathrm{val}[i])$}
+	 * 			\(\log(\sum_i \mathrm{val}[i])\)
 	 * 
 	 * @see Normalisation#getLogSum(int, int, double...)
 	 * 
@@ -57,7 +57,7 @@ public class Normalisation {
 	 *            <code>lnVal[i] = Math.log( val[i] )</code>
 	 * 
 	 * @return the logarithm of the sum of values between the start and end
-	 *         index {@latex.inline $\\log(\\sum_{i=start}^{end - 1} \\mathrm{val}[i])$}
+	 *         index \(\log(\sum_{i=start}^{end - 1} \mathrm{val}[i])\)
 	 * 
 	 */
 	public static double getLogSum( int start, int end, double... lnVal ) {
@@ -99,16 +99,16 @@ public class Normalisation {
 	/**
 	 * The method does a log-sum-normalisation on the array <code>d</code>, where
 	 * the values of <code>d</code> are assumed to be logarithmised.
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=0}^{\\mathrm{length}(d)-1} v_i$}.
-	 * Then after log-sum-normalisation, the array <code>d</code> contains the normalized original values, i.e., {@latex.inline $d_i$} is set to
-	 * {@latex.inline $d_i := \\frac{v_i}{s}$ }. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=0}^{\mathrm{length}(d)-1} v_i\).
+	 * Then after log-sum-normalisation, the array <code>d</code> contains the normalized original values, i.e., \(d_i\) is set to
+	 * \(d_i := \frac{v_i}{s}$ }. The method returns the log-sum of the values, \(\log(s)$ }.
 	 * 
 	 * @param d
 	 *            the array with the logarithmised values that should be
 	 *            normalised
 	 * 
 	 * @return the logarithm of the sum of the values
-	 *         {@latex.inline $\\log(\\sum_{i=0}^{\\mathrm{length}(d)-1} v_i)$ }
+	 *         \(\log(\sum_{i=0}^{\mathrm{length}(d)-1} v_i)$ }
 	 * 
 	 * @see Normalisation#logSumNormalisation(double[], int, int, double[], int)
 	 */
@@ -120,10 +120,10 @@ public class Normalisation {
 	 * The method does a log-sum-normalisation on the values of the array <code>d</code> between start
 	 * index <code>startD</code> and end index <code>endD</code>, where
 	 * the values of <code>d</code> are assumed to be logarithmised.
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i$}.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i\).
 	 * Then after log-sum-normalisation, the part of the array <code>d</code> between start
-	 * index <code>startD</code> and end index <code>endD</code> contains the normalized original values, i.e., {@latex.inline $\\forall i=\\mathrm{startD},\\ldots,\\mathrm{endD}\\ d_i$} is set to
-	 * {@latex.inline $d_i := \\frac{v_i}{s}$ }. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * index <code>startD</code> and end index <code>endD</code> contains the normalized original values, i.e., \(\forall i=\mathrm{startD},\ldots,\mathrm{endD}\ d_i\) is set to
+	 * \(d_i := \frac{v_i}{s}$ }. The method returns the log-sum of the values, \(\log(s)$ }.
 	 * 
 	 * @param d
 	 *            the array with the logarithms of the values that should be
@@ -137,7 +137,7 @@ public class Normalisation {
 	 * 
 	 * @return the logarithm of the sum of the values between
 	 *         <code>startD</code> and <code>endD</code>
-	 *         {@latex.inline $\\log(\\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} val[i])$ }
+	 *         \(\log(\sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} val[i])$ }
 	 * 
 	 * @see Normalisation#logSumNormalisation(double[], int, int, double[], int)
 	 */
@@ -151,10 +151,10 @@ public class Normalisation {
 	 * the values of <code>d</code> are assumed to be logarithmised. In addition to <code>d</code> another array of values 
 	 * <code>secondValues</code> is considered for the normalization constant, but not normalized itself.
 	 * 
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i + \\sum_{i=0}^{\\mathrm{length(secondValues)}-1} \\exp(\\mathrm{secondValues}_i)$}.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i + \sum_{i=0}^{\mathrm{length(secondValues)}-1} \exp(\mathrm{secondValues}_i)\).
 	 * Then after log-sum-normalisation, the part of the array <code>d</code> starting at
-	 * index <code>startD</code> contains the normalized original values, i.e., {@latex.inline $\\forall i=\\mathrm{startD},\\ldots,\\mathrm{endD}-1\\ d_i$} is set to
-	 * {@latex.inline $d_i := \\frac{v_i}{s}$ }. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * index <code>startD</code> contains the normalized original values, i.e., \(\forall i=\mathrm{startD},\ldots,\mathrm{endD}-1\ d_i\) is set to
+	 * \(d_i := \frac{v_i}{s}$ }. The method returns the log-sum of the values, \(\log(s)$ }.
 	 * The method overwrites the values of <code>d</code>
 	 * starting at position <code>startD</code>!. 
 	 * <code>secondValues</code> will be changed during
@@ -176,7 +176,7 @@ public class Normalisation {
 	 * @return the logarithm of the sum of the values of <code>d</code> between
 	 *         <code>startD</code> and <code>endD</code> and the values of
 	 *         <code>secondValue</code><br>
-	 *         {@latex.inline $\\log(\\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i + \\sum_{i=0}^{\\mathrm{length(secondValues)}-1} \\exp(\\mathrm{secondValues}_i))$ }
+	 *         \(\log(\sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i + \sum_{i=0}^{\mathrm{length(secondValues)}-1} \exp(\mathrm{secondValues}_i))$ }
 	 */
 	public static double logSumNormalisation( double[] d, int startD, int endD, double[] secondValues ) {
 		return logSumNormalisation( d, startD, endD, secondValues, d, startD );
@@ -186,10 +186,10 @@ public class Normalisation {
 	 * The method does a log-sum-normalisation on the values of the array <code>d</code> between start
 	 * index <code>startD</code> and end index <code>endD</code>, where
 	 * the values of <code>d</code> are assumed to be logarithmised.
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i$}.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i\).
 	 * Then after log-sum-normalisation, the part of the array <code>dest</code> starting at
-	 * index <code>startDest</code> contains the normalized original values, i.e., {@latex.inline $\\forall i=\\mathrm{startDest},\\ldots,\\mathrm{startDest}+(\\mathrm{endD}-\\mathrm{startD})-1\\ \\mathrm{dest}_i$} is set to
-	 * {@latex.inline $\\mathrm{dest}_i := \\frac{v_j}{s}$ } where {@latex.inline $j = i - \\mathrm{startDest} + \\mathrm{startD}$}. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * index <code>startDest</code> contains the normalized original values, i.e., \(\forall i=\mathrm{startDest},\ldots,\mathrm{startDest}+(\mathrm{endD}-\mathrm{startD})-1\ \mathrm{dest}_i\) is set to
+	 * \(\mathrm{dest}_i := \frac{v_j}{s}$ } where \(j = i - \mathrm{startDest} + \mathrm{startD}\). The method returns the log-sum of the values, \(\log(s)$ }.
 	 * The method writes the result of <code>d</code> in <code>dest</code>
 	 * starting at position <code>startDest</code> while <code>d</code> remains
 	 * unchanged. <code>secondValues</code> will be changed during
@@ -211,7 +211,7 @@ public class Normalisation {
 	 * 
 	 * @return the logarithm of the sum of the values of <code>d</code> between
 	 *         <code>startD</code> and <code>endD</code>
-	 *         {@latex.inline $\\log(\\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i )$ }
+	 *         \(\log(\sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i )$ }
 	 */
 	public static double logSumNormalisation( double[] d, int startD, int endD, double[] dest, int startDest ) {
 		return logSumNormalisation( d, startD, endD, null, dest, startDest );
@@ -223,10 +223,10 @@ public class Normalisation {
 	 * the values of <code>d</code> are assumed to be logarithmised. In addition to <code>d</code> another array of values 
 	 * <code>secondValues</code> is considered for the normalization constant, but not normalized itself.
 	 * 
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i + \\sum_{i=0}^{\\mathrm{length(secondValues)}-1} \\exp(\\mathrm{secondValues}_i)$}.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i + \sum_{i=0}^{\mathrm{length(secondValues)}-1} \exp(\mathrm{secondValues}_i)\).
 	 * Then after log-sum-normalisation, the part of the array <code>dest</code> starting at
-	 * index <code>startDest</code> contains the normalized original values, i.e., {@latex.inline $\\forall i=\\mathrm{startDest},\\ldots,\\mathrm{startDest}+(\\mathrm{endD}-\\mathrm{startD})-1\\ \\mathrm{dest}_i$} is set to
-	 * {@latex.inline $\\mathrm{dest}_i := \\frac{v_j}{s}$ } where {@latex.inline $j = i - \\mathrm{startDest} + \\mathrm{startD}$}. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * index <code>startDest</code> contains the normalized original values, i.e., \(\forall i=\mathrm{startDest},\ldots,\mathrm{startDest}+(\mathrm{endD}-\mathrm{startD})-1\ \mathrm{dest}_i\) is set to
+	 * \(\mathrm{dest}_i := \frac{v_j}{s}$ } where \(j = i - \mathrm{startDest} + \mathrm{startD}\). The method returns the log-sum of the values, \(\log(s)$ }.
 	 * The method writes the result of <code>d</code> in <code>dest</code>
 	 * starting at position <code>startDest</code> while <code>d</code> remains
 	 * unchanged. <code>secondValues</code> will be changed during
@@ -252,7 +252,7 @@ public class Normalisation {
 	 * @return the logarithm of the sum of the values of <code>d</code> between
 	 *         <code>startD</code> and <code>endD</code> and the values of
 	 *         <code>secondValue</code><br>
-	 *         {@latex.inline $\\log(\\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i + \\sum_{i=0}^{\\mathrm{length(secondValues)}-1} \\exp(\\mathrm{secondValues}_i))$ }
+	 *         \(\log(\sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i + \sum_{i=0}^{\mathrm{length(secondValues)}-1} \exp(\mathrm{secondValues}_i))$ }
 	 */
 	public static double logSumNormalisation( double[] d, int startD, int endD, double[] secondValues, double[] dest, int startDest ) {
 		double offset = Double.NEGATIVE_INFINITY;
@@ -272,9 +272,9 @@ public class Normalisation {
 	/**
 	 * The method does a log-sum-normalisation on the array <code>d</code>, where
 	 * the values of <code>d</code> are assumed to be logarithmised.
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=0}^{\\mathrm{length}(d)-1} v_i$}.
-	 * Then after log-sum-normalisation, the array <code>d</code> contains the normalized original values, i.e., {@latex.inline $d_i$} is set to
-	 * {@latex.inline $d_i := \\frac{v_i}{s}$ }. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=0}^{\mathrm{length}(d)-1} v_i\).
+	 * Then after log-sum-normalisation, the array <code>d</code> contains the normalized original values, i.e., \(d_i\) is set to
+	 * \(d_i := \frac{v_i}{s}$ }. The method returns the log-sum of the values, \(\log(s)$ }.
 	 * 
 	 * @param d
 	 *            the array with the logarithmised values that should be
@@ -284,7 +284,7 @@ public class Normalisation {
 	 *            the normalization. Typically, this is set to the maximum of the log-values.
 	 * 
 	 * @return the logarithm of the sum of the values
-	 *         {@latex.inline $\\log(\\sum_{i=0}^{\\mathrm{length}(d)-1} v_i)$ }
+	 *         \(\log(\sum_{i=0}^{\mathrm{length}(d)-1} v_i)$ }
 	 * 
 	 * @see Normalisation#logSumNormalisation(double[], int, int, double[], int)
 	 */
@@ -296,10 +296,10 @@ public class Normalisation {
 	 * The method does a log-sum-normalisation on the values of the array <code>d</code> between start
 	 * index <code>startD</code> and end index <code>endD</code>, where
 	 * the values of <code>d</code> are assumed to be logarithmised.
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i$}.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i\).
 	 * Then after log-sum-normalisation, the part of the array <code>dest</code> starting at
-	 * index <code>startDest</code> contains the normalized original values, i.e., {@latex.inline $\\forall i=\\mathrm{startDest},\\ldots,\\mathrm{startDest}+(\\mathrm{endD}-\\mathrm{startD})-1\\ \\mathrm{dest}_i$} is set to
-	 * {@latex.inline $\\mathrm{dest}_i := \\frac{v_j}{s}$ } where {@latex.inline $j = i - \\mathrm{startDest} + \\mathrm{startD}$}. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * index <code>startDest</code> contains the normalized original values, i.e., \(\forall i=\mathrm{startDest},\ldots,\mathrm{startDest}+(\mathrm{endD}-\mathrm{startD})-1\ \mathrm{dest}_i\) is set to
+	 * \(\mathrm{dest}_i := \frac{v_j}{s}$ } where \(j = i - \mathrm{startDest} + \mathrm{startD}\). The method returns the log-sum of the values, \(\log(s)$ }.
 	 * The method writes the result of <code>d</code> in <code>dest</code>
 	 * starting at position <code>startDest</code> while <code>d</code> remains
 	 * unchanged. <code>secondValues</code> will be changed during
@@ -324,7 +324,7 @@ public class Normalisation {
 	 * 
 	 * @return the logarithm of the sum of the values of <code>d</code> between
 	 *         <code>startD</code> and <code>endD</code>
-	 *         {@latex.inline $\\log(\\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i )$ }
+	 *         \(\log(\sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i )$ }
 	 */
 	public static double logSumNormalisation( double[] d, int startD, int endD, double offset, double[] dest, int startDest ) {
 		return logSumNormalisation( d, startD, endD, offset, null, dest, startDest );
@@ -336,10 +336,10 @@ public class Normalisation {
 	 * the values of <code>d</code> are assumed to be logarithmised. In addition to <code>d</code> another array of values 
 	 * <code>secondValues</code> is considered for the normalization constant, but not normalized itself.
 	 * 
-	 * Let {@latex.inline $d_i = \\log(v_i) \\Leftrightarrow v_i = \\exp(d_i)$} and {@latex.inline $s := \\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i + \\sum_{i=0}^{\\mathrm{length(secondValues)}-1} \\exp(\\mathrm{secondValues}_i)$}.
+	 * Let \(d_i = \log(v_i) \Leftrightarrow v_i = \exp(d_i)\) and \(s := \sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i + \sum_{i=0}^{\mathrm{length(secondValues)}-1} \exp(\mathrm{secondValues}_i)\).
 	 * Then after log-sum-normalisation, the part of the array <code>dest</code> starting at
-	 * index <code>startDest</code> contains the normalized original values, i.e., {@latex.inline $\\forall i=\\mathrm{startDest},\\ldots,\\mathrm{startDest}+(\\mathrm{endD}-\\mathrm{startD})-1\\ \\mathrm{dest}_i$} is set to
-	 * {@latex.inline $\\mathrm{dest}_i := \\frac{v_j}{s}$ } where {@latex.inline $j = i - \\mathrm{startDest} + \\mathrm{startD}$}. The method returns the log-sum of the values, {@latex.inline $\\log(s)$ }.
+	 * index <code>startDest</code> contains the normalized original values, i.e., \(\forall i=\mathrm{startDest},\ldots,\mathrm{startDest}+(\mathrm{endD}-\mathrm{startD})-1\ \mathrm{dest}_i\) is set to
+	 * \(\mathrm{dest}_i := \frac{v_j}{s}$ } where \(j = i - \mathrm{startDest} + \mathrm{startD}\). The method returns the log-sum of the values, \(\log(s)$ }.
 	 * The method writes the result of <code>d</code> in <code>dest</code>
 	 * starting at position <code>startDest</code> while <code>d</code> remains
 	 * unchanged. <code>secondValues</code> will be changed during
@@ -368,7 +368,7 @@ public class Normalisation {
 	 * @return the logarithm of the sum of the values of <code>d</code> between
 	 *         <code>startD</code> and <code>endD</code> and the values of
 	 *         <code>secondValue</code><br>
-	 *         {@latex.inline $\\log(\\sum_{i=\\mathrm{startD}}^{\\mathrm{endD}-1} v_i + \\sum_{i=0}^{\\mathrm{length(secondValues)}-1} \\exp(\\mathrm{secondValues}_i))$ }
+	 *         \(\log(\sum_{i=\mathrm{startD}}^{\mathrm{endD}-1} v_i + \sum_{i=0}^{\mathrm{length(secondValues)}-1} \exp(\mathrm{secondValues}_i))$ }
 	 */
 	public static double logSumNormalisation( double[] d, int startD, int endD, double offset, double[] secondValues, double[] dest,
 			int startDest ) {
@@ -405,7 +405,7 @@ public class Normalisation {
 	 *            the array with the values that should be normalised
 	 * 
 	 * @return the sum of the values of <code>d</code>
-	 *         {@latex.inline $\\sum_{i=0}^{\\mathrm{length}(d)-1} d[i]$}
+	 *         \(\sum_{i=0}^{\mathrm{length}(d)-1} d[i]\)
 	 * 
 	 * @see Normalisation#sumNormalisation(double[], double[], int)
 	 */
@@ -428,7 +428,7 @@ public class Normalisation {
 	 *            the start index of the destination array
 	 * 
 	 * @return the sum of the values of <code>d</code>
-	 *         {@latex.inline $\\sum_{i=0}^{\\mathrm{length}(d)-1} d[i] $}
+	 *         \(\sum_{i=0}^{\mathrm{length}(d)-1} d[i] \)
 	 */
 	public static double sumNormalisation( double[] d, double[] dest, int start ) {
 		int i;

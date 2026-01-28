@@ -719,7 +719,7 @@ System.out.println( i + ")\t" + sp[0].getNumberOfElements() + " vs. " + sp[1].ge
 	}
 	
 	/**
-	 * This extension of {@link MixtureScoringFunction} provides additional methods that are needed for the {@link NewMixtureClassifier}.
+	 * This extension of {@link MixtureDiffSM} provides additional methods that are needed for the {@link NewMixtureClassifier}.
 	 * 
 	 * @author Jens Keilwagen
 	 */
@@ -735,7 +735,7 @@ System.out.println( i + ")\t" + sp[0].getNumberOfElements() + " vs. " + sp[1].ge
 		}
 		
 		/**
-		 * Fills the array with {@latex.inline $\\log score(k, x | \\lambda)$} for sequence x.
+		 * Fills the array with \( \log score(k, x | \lambda) \) for sequence x.
 		 * 
 		 * @param seq the sequence x
 		 * @param logScores the array

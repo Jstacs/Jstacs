@@ -20,7 +20,7 @@ package de.jstacs.algorithms.optimization;
 
 /**
  * This interface is the framework for any mathematical function
- * {@latex.inline $f: \\mathbb{R}^n \\to \\mathbb{R}$}.
+ * \( f: \mathbb{R}^n \to \mathbb{R} \).
  * 
  * @author Jens Keilwagen
  */
@@ -36,7 +36,7 @@ public interface Function {
 	 * @return the evaluation of the function
 	 * 
 	 * @throws DimensionException
-	 *             if <code>dim(x) != n</code>, with {@latex.inline $f: \\mathbb{R}^n \\to \\mathbb{R}$}
+	 *             if <code>dim(x) != n</code>, with \( f: \mathbb{R}^n \to \mathbb{R} \)
 	 * @throws EvaluationException
 	 *             if there was something wrong during the evaluation of the
 	 *             function
@@ -47,7 +47,7 @@ public interface Function {
 	 * Returns the dimension of the scope of the {@link Function}.
 	 * 
 	 * @return the dimension of the scope: <code>n</code> with
-	 *         {@latex.inline $f: \\mathbb{R}^n \\to \\mathbb{R}$}
+	 *         \( f: \mathbb{R}^n \to \mathbb{R} \)
 	 */
 	public int getDimensionOfScope();
 }

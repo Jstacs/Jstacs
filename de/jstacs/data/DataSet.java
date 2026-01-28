@@ -70,10 +70,10 @@ import de.jstacs.utils.ToolBox;
  * <br>
  * <br>
  * 
- * <a name="access"> There are different ways to access the elements of a
+ * <div id="access"> There are different ways to access the elements of a
  * {@link DataSet}. If one needs random access there is the method
  * {@link #getElementAt(int)}. For fast sequential access it is recommended to
- * use an {@link ElementEnumerator}. </a>
+ * use an {@link ElementEnumerator}. </div>
  * 
  * <br>
  * <br>
@@ -1936,8 +1936,8 @@ public class DataSet implements Iterable<Sequence>{
 
 	/**
 	 * This class can be used to have a fast sequential access to a
-	 * {@link DataSet}. <a name="ElementEnumerator"> It enumerates all elements
-	 * of a {@link DataSet}.
+	 * {@link DataSet}. <div id="ElementEnumerator"> It enumerates all elements
+	 * of a {@link DataSet}.</div>
 	 * 
 	 * <br>
 	 * <br>
@@ -1945,7 +1945,7 @@ public class DataSet implements Iterable<Sequence>{
 	 * As further functionality the method {@link #reset()} is implemented to
 	 * reuse an {@link ElementEnumerator}.
 	 * 
-	 * @author Jens Keilwagen </a>
+	 * @author Jens Keilwagen 
 	 */
 	public static class ElementEnumerator implements RecyclableSequenceEnumerator, Iterator<Sequence> {
 
@@ -2064,10 +2064,10 @@ public class DataSet implements Iterable<Sequence>{
 		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
-		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)}
+		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)}
 		 *             )
 		 * 
-		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int) 
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int) 
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet... data ) throws WrongAlphabetException, WrongLengthException {
 			this( sort, data, null, 0 );
@@ -2089,10 +2089,10 @@ public class DataSet implements Iterable<Sequence>{
 		 *             if the alphabets of the {@link DataSet}s do not match
 		 * @throws WrongLengthException
 		 *             does not happen (forwarded from
-		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)}
+		 *             {@link de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)}
 		 *             )
 		 * 
-		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights ) throws WrongAlphabetException,
 																							WrongLengthException {
@@ -2119,7 +2119,7 @@ public class DataSet implements Iterable<Sequence>{
 		 * @throws WrongLengthException
 		 *             if the length is not supported
 		 * 
-		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#DataSet.WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)
+		 * @see de.jstacs.data.DataSet.WeightedDataSetFactory#WeightedDataSetFactory(DataSet.WeightedDataSetFactory.SortOperation, DataSet[], double[][], int)
 		 */
 		public WeightedDataSetFactory( SortOperation sort, DataSet data, double[] weights, int length ) throws WrongAlphabetException,
 																										WrongLengthException {

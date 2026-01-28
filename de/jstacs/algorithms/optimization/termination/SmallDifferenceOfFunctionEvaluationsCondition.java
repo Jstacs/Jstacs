@@ -29,7 +29,7 @@ import de.jstacs.utils.Time;
 /**
  * This class implements a {@link TerminationCondition} that stops an optimization
  * if the difference of the current and the last function evaluations will be small, i.e., 
- * {@latex.inline $|f(\\underline{x}_{i-1}) - f(\\underline{x}_i)| < \\epsilon$}.
+ * \( |f(\\underline{x}_{i-1}) - f(\\underline{x}_i)| &lt; \\epsilon \).
  * 
  * @author Jens Keilwagen
  */

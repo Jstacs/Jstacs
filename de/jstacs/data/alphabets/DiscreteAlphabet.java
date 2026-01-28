@@ -412,7 +412,7 @@ public class DiscreteAlphabet extends Alphabet {
 		 * Creates a new {@link DiscreteAlphabetParameterSet} with empty values.
 		 * @throws ParameterException if the parameters could not be created
 		 * 
-		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(Class)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#AlphabetParameterSet(Class)
 		 */
 		public DiscreteAlphabetParameterSet() throws ParameterException {
 			this( DiscreteAlphabet.class );
@@ -432,7 +432,7 @@ public class DiscreteAlphabet extends Alphabet {
 		 * @throws Exception
 		 *             if the parameter set could not be created
 		 * 
-		 * @see de.jstacs.data.alphabets.DiscreteAlphabet.DiscreteAlphabetParameterSet#DiscreteAlphabet.DiscreteAlphabetParameterSet()
+		 * @see de.jstacs.data.alphabets.DiscreteAlphabet.DiscreteAlphabetParameterSet#DiscreteAlphabetParameterSet()
 		 */
 		public DiscreteAlphabetParameterSet( String[] alphabet, boolean caseInsensitive ) throws Exception {
 			this();
@@ -457,7 +457,7 @@ public class DiscreteAlphabet extends Alphabet {
 		 * @throws Exception
 		 *             if the parameter set could not be created
 		 * 
-		 * @see  DiscreteAlphabet.DiscreteAlphabetParameterSet#DiscreteAlphabet.DiscreteAlphabetParameterSet()
+		 * @see  DiscreteAlphabet.DiscreteAlphabetParameterSet#DiscreteAlphabetParameterSet()
 		 */
 		public DiscreteAlphabetParameterSet( char[] alphabet, boolean caseInsensitive ) throws Exception {
 			this();
@@ -483,7 +483,7 @@ public class DiscreteAlphabet extends Alphabet {
 		 *             {@link StringBuffer} <code>representation</code> could
 		 *             not be parsed)
 		 * 
-		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
 		 * @see de.jstacs.Storable
 		 */
 		public DiscreteAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {

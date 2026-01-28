@@ -78,7 +78,7 @@ public class ScanForTBSWeb {
 	/**
 	 * Main method for creating Galaxy tool xml and for running the Galaxy tool.
 	 * 
-	 * @param args for creation of Galaxy tool xml: --create <path_to.xml>, otherwise parameters provided by Galaxy
+	 * @param args for creation of Galaxy tool xml: --create &lt;path_to.xml&gt;, otherwise parameters provided by Galaxy
 	 * @throws Exception if something went wrong
 	 */
 	public static void main( String[] args ) throws Exception {

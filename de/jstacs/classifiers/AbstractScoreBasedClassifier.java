@@ -296,7 +296,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * higher (relational) the class weight of class <code>j</code>, as more
 	 * probable it becomes, that any item is classified into this class. <br>
 	 * Class weights do not have to be logarithmic probabilities. If
-	 * {@latex.inline $\\sum_{j=0}^n \\exp(classWeight_j) \\stackrel{!}{=}1$},
+	 * \( \sum_{j=0}^n \exp(classWeight_j) \stackrel{!}{=}1 \),
 	 * the class weights may be interpreted as logarithmic class-a-priori-probabilities.
 	 * 
 	 * @param add
@@ -350,7 +350,7 @@ public abstract class AbstractScoreBasedClassifier extends AbstractClassifier {
 	 * Sets a new threshold for 2-class-classifiers.<br>
 	 * Only available if this {@link AbstractScoreBasedClassifier} distinguishes
 	 * between 2 classes 0 and 1. In this case, <code>t</code> will be interpreted as
-	 * {@latex.inline $\\log\\left(\\frac{P(class1)}{P(class0)}\\right)$}. A large
+	 * \( \log\left(\frac{P(class1)}{P(class0)}\right) \). A large
 	 * <code>t</code> (greater than 0) makes the classifier to decide more often for
 	 * class 1. A small <code>t</code> (smaller than 0) makes the classifier to
 	 * decide more often for class 0.

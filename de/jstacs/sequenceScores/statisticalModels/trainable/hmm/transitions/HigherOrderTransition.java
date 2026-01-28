@@ -82,7 +82,7 @@ public class HigherOrderTransition extends BasicHigherOrderTransition implements
 	 * The main constructor.
 	 * 
 	 * @param transitions the {@link TransitionElement}s for the internal use
-	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 <=transIndex[i] <= i</code>
+	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 &le; transIndex[i] &le; i</code>
 	 * @param isSilent an array indicating for each state whether it is silent or not
 	 * 
 	 * @throws Exception if an error occurs during checking the {@link TransitionElement}s and creating internal fields 

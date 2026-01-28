@@ -33,8 +33,8 @@ import de.jstacs.utils.IntList;
 
 /**
  * This class implements a logistic function. The score is computed by the following formula
- * {@latex.ilb \\[ s(\\underline{x}) = \\exp\\left(\\sum_i \\lambda_{2i} \\cdot (f_i(\\underline{x})-\\lambda_{2i+1})\\right).\\]}
- * The constraints {@latex.inline $f_i(\\underline{x})$} are defined by {@link LogisticConstraint}s.  
+ * $$ s(&#92;underline{x}) = \exp\left(\sum_i \lambda_{2i} \cdot (f_i(&#92;underline{x})-\lambda_{2i+1})\right).$$
+ * The constraints \( f_i(&#92;underline{x}) \) are defined by {@link LogisticConstraint}s.  
  * 
  * @author Jens Keilwagen
  */

@@ -28,7 +28,7 @@ import de.jstacs.utils.ToolBox;
 
 /**
  * This class implements the false positive rate for a fixed sensitivity.
- * The false positive rate is defined as {@latex.inline $\\frac{FP}{TN+FP}$} and the sensitivity is defined as {@latex.inline $\\frac{TP}{TP+FN}$}. 
+ * The false positive rate is defined as \( \frac{FP}{TN+FP} \) and the sensitivity is defined as \( \frac{TP}{TP+FN} \). 
  * The classification threshold for computing false positive rate is chosen such that the classifier yields at least the specified sensitivity.
  * 
  * This measure corresponds to a specific point on the {@link ROCCurve}.

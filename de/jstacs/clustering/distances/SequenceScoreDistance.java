@@ -35,9 +35,9 @@ import de.jstacs.utils.RealTime;
  * Class for a distance metric between {@link StatisticalModel}s based on the correlation of score
  * profiles on De Bruijn sequences.
  * 
- * For two {@link StatisticalModel}s {@latex.inline $M_1$} and {@latex.inline $M_2$}, we compute the score profiles
- * {@latex.inline $s_1(x,M_1)$} and {@latex.inline $s_2(x,M_2)$} on a De Bruijn sequence {@latex.inline x} of length {@latex.inline $|A|^n$}. 
- * The distance is then defined based on the Pearson correlation as {@latex.inline $1 - cor( s_1(x,M_1), s_2(x,M_2) )$} between these score profiles,
+ * For two {@link StatisticalModel}s \( M_1 \) and \( M_2 \), we compute the score profiles
+ * \( s_1(x,M_1) \) and \( s_2(x,M_2) \) on a De Bruijn sequence \( x \) of length \( |A|^n \). 
+ * The distance is then defined based on the Pearson correlation as \( 1 - cor( s_1(x,M_1), s_2(x,M_2) ) \) between these score profiles,
  * maximizing over suitable shifts of the score profiles and both strand orientations. 
  * 
  * @author Jan Grau

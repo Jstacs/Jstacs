@@ -492,26 +492,6 @@ public class MultiSelectionParameter extends AbstractSelectionParameter {
 		current = XMLParser.extractObjectForTags(representation, "current", int.class );
 	}
 
-	/**
-	 * Returns the number of calls of
-	 * {@link MultiSelectionParameter#next()} that can be called
-	 * before <code>false</code> is returned.
-	 * 
-	 * @param afterIdx
-	 *            the index after which shall be counted
-	 * 
-	 * @return the number of calls of
-	 *         {@link MultiSelectionParameter#next()}
-	 */
-	public int getNumberOfNexts(int afterIdx) {
-		int count = 0;
-		for (int i = afterIdx + 1; i < selected.length; i++) {
-			if (selected[i]) {
-				count++;
-			}
-		}
-		return count;
-	}
 
 	/*
 	 * (non-Javadoc)

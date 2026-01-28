@@ -385,7 +385,7 @@ public abstract class HomogeneousTrainSM extends DiscreteGraphicalTrainSM {
 		 * @param old
 		 *            the old instance to be cloned
 		 * 
-		 * @see HomogeneousTrainSM.HomCondProb#HomogeneousTrainSM.HomCondProb(int[],int) HomogeneousTrainSM.HomCondProb#HomCondProb(int[],int) 
+		 * @see HomogeneousTrainSM.HomCondProb#HomCondProb(int[],int) 
 		 */
 		public HomCondProb( HomCondProb old ) {
 			this( old.usedPositions, old.freq.length );

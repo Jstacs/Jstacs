@@ -74,11 +74,11 @@ public class SimpleHistory implements History {
 	 * @param slots
 	 *            the number of memory slots
 	 * @param allowShift
-	 *            if <tt>true</tt> shifts are allow
+	 *            if <code>true</code> shifts are allow
 	 * @param allowShrink
-	 *            if <tt>true</tt> shrinks are allow
+	 *            if <code>true</code> shrinks are allow
 	 * @param allowExpand
-	 *            if <tt>true</tt> expands are allow
+	 *            if <code>true</code> expands are allow
 	 */
 	public SimpleHistory( int slots, boolean allowShift, boolean allowShrink, boolean allowExpand ) {
 		memory = new int[slots][];

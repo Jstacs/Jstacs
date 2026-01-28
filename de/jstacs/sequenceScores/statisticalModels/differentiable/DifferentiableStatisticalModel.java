@@ -57,7 +57,7 @@ public interface DifferentiableStatisticalModel extends DifferentiableSequenceSc
 	 * <code>parameterIndex</code>. This is the logarithm of the partial derivation of the
 	 * normalization constant for the parameter with index
 	 * <code>parameterIndex</code>, 
-	 * {@latex.ilb \\[\\log \\frac{\\partial Z(\\underline{\\lambda})}{\\partial \\lambda_{parameterindex}}\\]}.
+	 * $$\log \frac{\partial Z(&#92;underline{\lambda})}{\partial \lambda_{parameterindex}}$$.
 	 * 
 	 * @param parameterIndex
 	 *            the index of the parameter

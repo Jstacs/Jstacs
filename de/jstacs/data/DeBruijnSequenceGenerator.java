@@ -25,14 +25,14 @@ import de.jstacs.data.sequences.WrongSequenceTypeException;
 import de.jstacs.utils.IntList;
 
 /**
- * Generates De Buijn sequences using the algorithm from Frank Ruskey's Combinatorial Generation.
+ * Generates De Bruijn sequences using the algorithm from Frank Ruskey's Combinatorial Generation.
  * @author Jan Grau
  *
  */
 public class DeBruijnSequenceGenerator {
 	
 	/**
-	 * Generates a De Bruijn sequence of length {@latex.inline $|A|^n$}, where A denotes the alphabet.
+	 * Generates a De Bruijn sequence of length \( |A|^n \), where A denotes the alphabet.
 	 * @param alphabet the alphabet
 	 * @param n the exponent of length length, corresponds to the length of n-mers covered exactly once
 	 * @return the sequence (wrapped in an array)

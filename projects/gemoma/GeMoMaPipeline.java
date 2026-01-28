@@ -94,7 +94,7 @@ import projects.gemoma.Tools.Ambiguity;
  * @see DenoiseIntrons
  * @see Extractor
  * @see GeMoMa
- * @see GAF
+ * @see GeMoMaAnnotationFilter
  * @see AnnotationEvidence
  * @see AnnotationFinalizer
  * @see SyntenyChecker

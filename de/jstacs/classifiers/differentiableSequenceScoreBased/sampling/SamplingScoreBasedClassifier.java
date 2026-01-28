@@ -57,27 +57,27 @@ import de.jstacs.utils.Pair;
 
 /**
  * A classifier that samples the parameters of {@link SamplingDifferentiableStatisticalModel}s by the Metropolis-Hastings algorithm.
- * The distribution the parameters are sampled from is the distribution {@latex.inline $P(\\vec{\\lambda}^{t})$} represented by the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction} returned by
+ * The distribution the parameters are sampled from is the distribution \( P(&#92;underline{\lambda}^{t}) \) represented by the {@link de.jstacs.classifiers.differentiableSequenceScoreBased.DiffSSBasedOptimizableFunction} returned by
  * {@link SamplingScoreBasedClassifier#getFunction(DataSet[], double[][])}. As proposal distribution, a Gaussian distribution with given sampling
  * variance is used for each parameter.
- * Specifically, a new set of parameters {@latex.inline $\\vec{\\lambda}^{t}$} is drawn from a proposal distribution {@latex.inline $Q(\\vec{\\lambda}^{t} | \\vec{\\lambda}^{t-1})$},
+ * Specifically, a new set of parameters \( &#92;underline{\lambda}^{t} \) is drawn from a proposal distribution \( Q(&#92;underline{\lambda}^{t} | &#92;underline{\lambda}^{t-1}) \),
  * where
- * {@latex.ilb \\[ Q(\\vec{\\lambda}^{t}|\\vec{\\lambda}^{t-1}) = \\prod_{i} \\mathcal{N}(\\lambda_i^{t}|\\lambda_i^{t-1},\\sigma_i^2)\\]}
- * and {@latex.inline $\\sigma_i^2$} is the sampling variance for parameter {@latex.inline $\\lambda_i$}. The sampling variances are adapted to the
+ * $$ Q(&#92;underline{\lambda}^{t}|&#92;underline{\lambda}^{t-1}) = \prod_{i} \mathcal{N}(\lambda_i^{t}|\lambda_i^{t-1},\sigma_i^2)$$
+ * and \( \sigma_i^2 \) is the sampling variance for parameter \( \lambda_i \). The sampling variances are adapted to the
  * size of the event space of each parameter based on a class-dependent variance provided to the constructor. This adaption depends on the correct
- * implementation of {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)}. Let {@latex.inline $s_i$} be the size of the event space
- * of the random variable of parameter {@latex.inline $\\lambda_i$}, and let {@latex.inline $\\sigma^{2}$} be the class-dependent variance for the {@link SamplingDifferentiableStatisticalModel}
- * that {@latex.inline $\\lambda_i$} is a parameter of. Then {@latex.inline $\\sigma_i:=\\sigma^{2}*s_i$}. If {@latex.inline $s_i=0$} then {@latex.inline $\\sigma_i:=\\sigma^{2}$}.
+ * implementation of {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel#getSizeOfEventSpaceForRandomVariablesOfParameter(int)}. Let \( s_i \) be the size of the event space
+ * of the random variable of parameter \( \lambda_i \), and let \( \sigma^{2} \) be the class-dependent variance for the {@link SamplingDifferentiableStatisticalModel}
+ * that \( \lambda_i \) is a parameter of. Then \( \sigma_i:=\sigma^{2}*s_i \). If \( s_i=0 \) then \( \sigma_i:=\sigma^{2} \).
  * 
- * After a new set of parameters {@latex.inline $\\vec{\\lambda}^{t}$} has been drawn, the sampling process decides if this new set of parameters is accepted
- * according to the distribution {@latex.inline $P(\\vec{\\lambda}^{t})$} that we want to sample from.
+ * After a new set of parameters \( &#92;underline{\lambda}^{t} \) has been drawn, the sampling process decides if this new set of parameters is accepted
+ * according to the distribution \( P(&#92;underline{\lambda}^{t}) \) that we want to sample from.
  * Specifically, the parameters are accepted, iff.
- * {@latex.ilb \\[ \\alpha < \\frac{ P(\\vec{\\lambda}^{t})Q(\\vec{\\lambda}^{t-1} | \\vec{\\lambda}^{t}) }{P(\\vec{\\lambda}^{t-1}) Q(\\vec{\\lambda}^{t} | \\vec{\\lambda}^{t-1})},\\]}
- * where {@latex.inline $\\alpha$} is drawn from a uniform distribution in {@latex.inline $[0,1]$}, i.e. {@link Random#nextDouble()}.
- * Otherwise, the parameters are rejected and {@latex.inline $\\vec{\\lambda}^{t}:=\\vec{\\lambda}^{t-1}$}.
+ * $$ \alpha &lt; \frac{ P(&#92;underline{\lambda}^{t})Q(&#92;underline{\lambda}^{t-1} | &#92;underline{\lambda}^{t}) }{P(&#92;underline{\lambda}^{t-1}) Q(&#92;underline{\lambda}^{t} | &#92;underline{\lambda}^{t-1})},$$
+ * where \( \alpha \) is drawn from a uniform distribution in \( [0,1] \), i.e. {@link Random#nextDouble()}.
+ * Otherwise, the parameters are rejected and \( &#92;underline{\lambda}^{t}:=&#92;underline{\lambda}^{t-1} \).
  * 
- * Since the Gaussian distribution is symmetric around its mean, {@latex.inline $Q(\\vec{\\lambda}^{t-1} | \\vec{\\lambda}^{t})=Q(\\vec{\\lambda}^{t} | \\vec{\\lambda}^{t-1})$}, both terms
- * cancel, and the acceptance probability depends only on the current and previous values of {@latex.inline $P$}.
+ * Since the Gaussian distribution is symmetric around its mean, \( Q(&#92;underline{\lambda}^{t-1} | &#92;underline{\lambda}^{t})=Q(&#92;underline{\lambda}^{t} | &#92;underline{\lambda}^{t-1}) \), both terms
+ * cancel, and the acceptance probability depends only on the current and previous values of \( P \).
  * 
  * All sampled parameters are stored to separate temporary files for each concurrent sampling run by an internal {@link SamplingComponent}. The contents of these files
  * are stored together with the remaining representation of the {@link SamplingScoreBasedClassifier}, if {@link SamplingScoreBasedClassifier#toXML()} is called, and, hence,

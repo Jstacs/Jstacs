@@ -27,9 +27,9 @@ import de.jstacs.parameters.validation.NumberValidator;
 //http://en.wikipedia.org/wiki/F1_score
 
 /**
- * Computes the maximum of the general F-measure given a positive real parameter {@latex.inline $\\beta$}.
- * The F-measure is defined as {@latex.inline $F_\\beta = (1+\\beta^2) \\frac{PPV*Sn}{(\\beta^2 PPV) + Sn}$}, where PPV denotes the
- * positive predictive value and Sn denotes sensitivity. For {@latex.inline $\\beta = 1$} it is equal to the traditional F1-measure.
+ * Computes the maximum of the general F-measure given a positive real parameter \( \beta \).
+ * The F-measure is defined as \( F_\beta = (1+\beta^2) \frac{PPV \cdot Sn}{(\beta^2 PPV) + Sn} \), where PPV denotes the
+ * positive predictive value and Sn denotes sensitivity. For \( \beta = 1 \) it is equal to the traditional F1-measure.
  * 
  * @author Jens Keilwagen
  * @see PositivePredictiveValueForFixedSensitivity

@@ -220,8 +220,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @return the {@link Sequence.CompositeSequence}
 	 * 
-	 * @see Sequence.CompositeSequence#Sequence.CompositeSequence(de.jstacs.data.AlphabetContainer,
-	 * 			de.jstacs.data.sequences.Sequence, int[], int[])
+	 * @see Sequence.CompositeSequence#CompositeSequence(AlphabetContainer, Sequence, int[], int[])
 	 */
 	public Sequence<T> getCompositeSequence( AlphabetContainer abc, int[] starts, int[] lengths ) {
 		return new CompositeSequence( abc, this, starts, lengths );
@@ -238,7 +237,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @return the {@link Sequence.CompositeSequence}
 	 * 
-	 * @see Sequence.CompositeSequence#Sequence.CompositeSequence(de.jstacs.data.sequences.Sequence, int[], int[])
+	 * @see Sequence.CompositeSequence#CompositeSequence(de.jstacs.data.sequences.Sequence, int[], int[])
 	 */
 	public Sequence getCompositeSequence( int[] starts, int[] lengths ) {
 		return new CompositeSequence( this, starts, lengths );
@@ -290,7 +289,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @return the subsequence
 	 * 
-	 * @see Sequence.SubSequence#Sequence.SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.Sequence, int, int) SubSequence#SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.Sequence, int, int)
+	 * @see Sequence.SubSequence#SubSequence(de.jstacs.data.AlphabetContainer, de.jstacs.data.sequences.Sequence, int, int)
 	 */
 	public Sequence getSubSequence( AlphabetContainer abc, int start, int length ) {
 		if( start == 0 && length == getLength() ) {
@@ -329,7 +328,7 @@ public abstract class Sequence<T> implements Comparable<Sequence<T>> {
 	 * 
 	 * @return the subsequence
 	 * 
-	 * @see Sequence.SubSequence#Sequence.SubSequence(Sequence, int, int) SubSequence#SubSequence(Sequence, int, int)
+	 * @see Sequence.SubSequence#SubSequence(Sequence, int, int)
 	 */
 	public final Sequence getSubSequence( int start, int length ) {
 		return getSubSequence(null, start, length);

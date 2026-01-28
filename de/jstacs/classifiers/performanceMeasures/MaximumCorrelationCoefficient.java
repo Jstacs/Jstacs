@@ -20,7 +20,7 @@ package de.jstacs.classifiers.performanceMeasures;
 import de.jstacs.io.NonParsableException;
 
 /**
- * This class implements the maximum of the correlation coefficient {@latex.inline $\\frac{ TP*TN - FN*FP }{ \\sqrt{ (TP+FN)*(TN+FP)*(TP+FP)*(TN+FN) } }$}.
+ * This class implements the maximum of the correlation coefficient \( \frac{ TP\cdot TN - FN \cdot FP }{ \sqrt{ (TP+FN)\cdot(TN+FP)\cdot(TP+FP)\cdot(TN+FN) } } \).
  * 
  * @author Jan Grau, Jens Keilwagen
  */

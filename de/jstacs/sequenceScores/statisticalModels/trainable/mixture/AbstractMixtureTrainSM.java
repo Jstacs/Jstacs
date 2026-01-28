@@ -127,13 +127,13 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	public static enum Parameterization {
 		/**
 		 * This value indicates that the component probabilities will be
-		 * parameterized as {@latex.inline $\\theta_c = p(c)$}.
+		 * parameterized as \( \theta_c = p(c) \).
 		 */
 		THETA( -1 ),
 
 		/**
 		 * This value indicates that the component probabilities will be
-		 * parameterized as {@latex.inline $\\lambda_c = \\log p(c)$}.
+		 * parameterized as \( \lambda_c = \log p(c) \).
 		 */
 		LAMBDA( 0 );
 
@@ -1343,9 +1343,8 @@ public abstract class AbstractMixtureTrainSM extends AbstractTrainableStatistica
 	/**
 	 * Returns the index <code>i</code> of the component with
 	 * <code>P(i|s)</code> maximal. Therefore it computes 
-	 * {@latex.ilb %preamble{\\usepackage{amsmath}}
-	 * \\[i = \\operatorname{argmax}_j P(j|s)
-	 * 	= \\operatorname{argmax}_j P(s|j) \\cdot P(j).\\]} 
+	 * $$ i = \operatorname{argmax}_j P(j|s)
+	 * 	= \operatorname{argmax}_j P(s|j) \cdot P(j).$$ 
 	 * This method can be helpful for clustering.
 	 * 
 	 * @param s

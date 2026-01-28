@@ -45,7 +45,8 @@ public class RVDReferenceSequenceAnnotationParser extends SplitSequenceAnnotatio
 	 * @param key the key for the {@link ReferenceSequenceAnnotation}
 	 * @param keyValueDelimiter the delimiter between key and corresponding value
 	 * @param annotationDelimiter the delimiter between different {@link SequenceAnnotation}s
-	 * @param delim the delimiter between symbols a the reference sequence
+	 * @param alphabet12 the alphabet at position 12
+	 * @param alphabet13 the alphabet at position 13
 	 * 
 	 * @throws IllegalArgumentException if the delimiters are identical
 	 */

@@ -29,7 +29,7 @@ import de.jstacs.utils.Time;
 /**
  * This class implements a {@link TerminationCondition} that allows no further iteration in an optimization if the
  * the gradient becomes small, i.e.,
- * {@latex.inline $\\sum_i \\left|\\frac{\\partial f(\\underline{x})}{\\partial x_i}\\right| < \\epsilon$}.
+ * \( \\sum_i \\left|\\frac{\\partial f(\\underline{x})}{\\partial x_i}\\right| &lt; \\epsilon \).
  * 
  * @author Jan Grau, Jens Keilwagen
  */

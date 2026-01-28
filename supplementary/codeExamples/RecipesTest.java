@@ -32,12 +32,14 @@ import supplementary.cookbook.recipes.TrainSMBasedClassifierTest;
 public class RecipesTest {
 
 	/**
-	 * 
-	 * @param args the arguments to be passed to the recipes;
+	 * <ul>
 	 * <li>args[0] contains the path to the foreground train data set</li>
 	 * <li>args[1] contains the path to the background train data set</li>
 	 * <li>args[2] contains the path to the foreground test data set</li>
 	 * <li>args[3] contains the path to the background test data set</li>
+	 * </ul>
+	 * 
+	 * @param args the arguments to be passed to the recipes;
 	 * 
 	 * @throws Exception if something went wrong
 	 */

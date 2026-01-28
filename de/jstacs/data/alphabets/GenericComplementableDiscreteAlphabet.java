@@ -189,7 +189,7 @@ public class GenericComplementableDiscreteAlphabet extends ComplementableDiscret
 		 *             {@link StringBuffer} <code>representation</code> could
 		 *             not be parsed)
 		 * 
-		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#Alphabet.AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
+		 * @see de.jstacs.data.alphabets.Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer) Alphabet.AlphabetParameterSet#AlphabetParameterSet(StringBuffer)
 		 * @see de.jstacs.Storable
 		 */
 		public GenericComplementableDiscreteAlphabetParameterSet( StringBuffer representation ) throws NonParsableException {

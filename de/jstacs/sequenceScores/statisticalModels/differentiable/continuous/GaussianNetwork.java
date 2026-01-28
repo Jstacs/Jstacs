@@ -36,8 +36,8 @@ import de.jstacs.utils.random.RandomNumberGenerator;
  * Class for a fixed-structure Gaussian network, i.e., the structure of the Gaussian network needs to be provided at construction
  * and remains fixed. Conditional Gaussians at each node of the network are parameterized in terms of log-precision, mean, and dependency parameters
  * b.
- * The local likelihood at node {@latex.inline $i$} with parents {@latex.inline $pa(i)$} is defined as
- * {@latex.ilb \\begin{equation} P(x_i | pa(i)) = \\sqrt{ \\frac{\\exp(\\lambda)}{2 \\pi} } \\cdot \\exp\\left( -\\frac{ \\exp(\lambda) }{2} \\left( x_i - \\mu_i - \\sum_{j in pa(i)} b_{ij}\\left( x_j - \mu_j \\right)  \\right)^2 \\right) \\end{equation} }.
+ * The local likelihood at node \( i \) with parents \( pa(i) \) is defined as
+ * $$ \begin{equation} P(x_i | pa(i)) = \sqrt{ \frac{\exp(\lambda)}{2 \pi} } \cdot \exp\left( -\frac{ \exp(\lambda) }{2} \left( x_i - \mu_i - \sum_{j \in pa(i)} b_{ij}\left( x_j - \mu_j \right)  \right)^2 \right) \end{equation}.&#92;$$
  * Currently, this {@link de.jstacs.sequenceScores.statisticalModels.differentiable.DifferentiableStatisticalModel} is defined only for non-Bayesian learning, since {@link #addGradientOfLogPriorTerm(double[], int)}
  * and {@link #getESS()} are not implemented reasonably.
  *   

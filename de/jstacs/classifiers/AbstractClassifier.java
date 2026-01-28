@@ -43,10 +43,10 @@ import de.jstacs.results.StorableResult;
  * <br>
  * <br>
  * 
- * <a name="order"> The order of the classes is never changed inside the
+ * <div id="order"> The order of the classes is never changed inside the
  * classifier. The data sets you put in the methods like <code>train, test</code>
  * and <code>evaluate</code> should always have the same order that you have
- * used while instantiation of the object.</a>
+ * used while instantiation of the object.</div>
  * 
  * <br>
  * <br>

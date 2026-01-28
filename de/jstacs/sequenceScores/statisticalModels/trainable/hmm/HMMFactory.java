@@ -78,7 +78,7 @@ public class HMMFactory {
 	 * 
 	 * @author Jan Grau, Jens Keilwagen
 	 * 
-	 * @see HMMFactory#createProfileHMM(MaxHMMTrainingParameterSet, HMMType, boolean, int, int, AlphabetContainer, double, boolean, boolean, double[][])
+	 * @see HMMFactory#createProfileHMM(MaxHMMTrainingParameterSet, HMMType, int, int, AlphabetContainer, double, MState, boolean, double[][])
 	 */
 	public static enum HMMType {
 		/**
@@ -592,7 +592,7 @@ public class HMMFactory {
 	 * @param numLayers the number of layers of the profile HMM
 	 * @param con the alphabet of the profile HMM
 	 * @param ess the equivalent sample size, is propagated between states to obtain consistent hyper-parameters for all parameters
-	 * @param conditionalMain if <code>true</code>, the match states have {@link ReferenceSequenceDiscreteEmission}s, and {@link DiscreteEmission}s otherwise
+	 * @param mState the type of match state
 	 * @param closeCircle if <code>true</code> the circle from end to initial state is closed, i.e., the HMM can be traversed several times
 	 * @param conditionInitProbs the hyper-parameters for initializing the match states if <code>conditionalMain</code> is <code>true</code>. May be <code>null</code> for using the hyper-parameters of the prior
 	 * @return the profile HMM
@@ -613,7 +613,7 @@ public class HMMFactory {
 	 * @param numLayers the number of layers of the profile HMM
 	 * @param con the alphabet of the profile HMM
 	 * @param ess the equivalent sample size, is propagated between states to obtain consistent hyper-parameters for all parameters
-	 * @param conditionalMain if <code>true</code>, the match states have {@link ReferenceSequenceDiscreteEmission}s, and {@link DiscreteEmission}s otherwise
+	 * @param mState the type of match state
 	 * @param closeCircle if <code>true</code> the circle from end to initial state is closed, i.e., the HMM can be traversed several times
 	 * @param conditionInitProbs the hyper-parameters for initializing the match states if <code>conditionalMain</code> is <code>true</code>. May be <code>null</code> for using the hyper-parameters of the prior
 	 * @param insertUniform if <code>true</code> the insert states will use {@link UniformEmission}s

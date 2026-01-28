@@ -25,6 +25,7 @@ import java.io.FileReader;
 import de.jstacs.classifiers.performanceMeasures.AbstractPerformanceMeasure;
 import de.jstacs.classifiers.performanceMeasures.AucPR;
 import de.jstacs.classifiers.performanceMeasures.AucROC;
+import de.jstacs.classifiers.performanceMeasures.PerformanceMeasure;
 import de.jstacs.results.ResultSet;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.ToolBox;

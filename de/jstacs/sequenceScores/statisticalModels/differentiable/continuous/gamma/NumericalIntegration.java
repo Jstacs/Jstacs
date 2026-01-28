@@ -28,7 +28,7 @@ public class NumericalIntegration {
 	 * @param initDelta the initial width of the trapezoids for searching a bracketing interval for unimodal functions
 	 * @param acceptedEps the accepted error between two steps of nesting of a sub-integral, if the error falls below this value, nesting is stopped
 	 * @return the value of the integral
-	 * @throw DimensionException is thrown if the function does not accept parameter values of dimension {@link Function#getDimensionOfScope()}
+	 * @throws DimensionException is thrown if the function does not accept parameter values of dimension {@link Function#getDimensionOfScope()}
 	 * @throws EvaluationException is thrown if any specified limit of a non-unimodal function is infinite or both limits are infinite for a unimodal function
 	 */
 	public static double getIntegralByNestedIntervals(IntegrableFunction fun, double minValue, double initDelta, double acceptedEps) throws DimensionException, EvaluationException{

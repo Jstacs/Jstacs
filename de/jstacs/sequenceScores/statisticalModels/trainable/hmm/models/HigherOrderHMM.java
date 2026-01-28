@@ -63,17 +63,17 @@ import de.jstacs.utils.ToolBox;
  * Currently, the modeling of the transitions is higher order, but is easily possible to extend this to emissions.
  * 
  * <br>
- * <a name="final">
- * This implementation allows to have a set of final states {@latex.inline $S_F$}.
+ * <div id="final">
+ * This implementation allows to have a set of final states \(S_F\).
  * A state is denoted final states if it is allowed at the end of a path. Hence, any valid path always ends with a final state.
- * Using the method {@link #getLogProbFor(Sequence)} for sequence {@latex.inline $\\underline{x}$} returns the value
+ * Using the method {@link #getLogProbFor(Sequence)} for sequence \(&#92;underline{x}\) returns the value
  * 
- * {@latex.ilb \\[
- * P(\\underline{x}, u_F \\in S_F | \\underline{\\lambda}) = \\sum_{i \\in S_F} P(\\underline{x}, u_F = i | \\underline{\\lambda})
- * .\\]}
+ * $$
+ * P(&#92;underline{x}, u_F \in S_F | &#92;underline{\lambda}) = \sum_{i \in S_F} P(&#92;underline{x}, u_F = i | &#92;underline{\lambda})
+ * .$$
  * 
- * Setting {@latex.inline $S_F$} to all states leads to the computation of the likelihood.
- * </a>
+ * Setting \(S_F\) to all states leads to the computation of the likelihood.
+ * </div>
  * 
  * @author Jens Keilwagen
  */
@@ -577,11 +577,11 @@ public class HigherOrderHMM extends AbstractHMM {
 	 */
 	protected static enum Type {
 		/**
-		 * Defines to compute the likelihood: {@latex.inline $P(\\underline{x}|\\underline{\\lambda}) = \\sum_{\\underline{u}} P(\\underline{x},\\underline{u}|\\underline{\\lambda})$}.
+		 * Defines to compute the likelihood: \(P(&#92;underline{x}|&#92;underline{\lambda}) = \sum_{&#92;underline{u}} P(&#92;underline{x},&#92;underline{u}|&#92;underline{\lambda})\).
 		 */
 		LIKELIHOOD,
 		/**
-		 * Defines to compute the viterbi score: {@latex.inline $\\max_{\\underline{u}} P(\\underline{x},\\underline{u}|\\underline{\\lambda})$}.
+		 * Defines to compute the viterbi score: \(\max_{&#92;underline{u}} P(&#92;underline{x},&#92;underline{u}|&#92;underline{\lambda})\).
 		 */
 		VITERBI;
 	}
@@ -608,7 +608,7 @@ public class HigherOrderHMM extends AbstractHMM {
 	 * @param endPos the end position
 	 * @param weight the sequence weight, in most cases this is 1
 	 * @param seq the sequence
-	 * @param allowedStatesGroups groups of allowed states per position
+	 * @param allowedStatesGroup groups of allowed states per position
 	 * 
 	 * @return the viterbi score of the sequence
 	 * 

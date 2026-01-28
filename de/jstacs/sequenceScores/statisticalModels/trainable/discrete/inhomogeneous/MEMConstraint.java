@@ -173,36 +173,36 @@ public class MEMConstraint extends InhConstraint {
 	}
 
 	/**
-	 * Returns the exponential value of {@latex.inline $\\lambda_{index}$} at position
-	 * <code>index</code>: {@latex.inline $\\exp(\\lambda_{index})$}.
+	 * Returns the exponential value of \(\lambda_{index}\) at position
+	 * <code>index</code>: \(\exp(\lambda_{index})\).
 	 * 
 	 * @param index
 	 *            the index
 	 * 
-	 * @return {@latex.inline $\\exp(\\lambda_{index})$}
+	 * @return \(\exp(\lambda_{index})\)
 	 */
 	public double getExpLambda( int index ) {
 		return expLambda[index];
 	}
 
 	/**
-	 * Returns the value of {@latex.inline $\\lambda_{index}$}.
+	 * Returns the value of \(\lambda_{index}\).
 	 * 
 	 * @param index
 	 *            the index
 	 * 
-	 * @return {@latex.inline $\\lambda_{index}$}
+	 * @return \(\lambda_{index}\)
 	 */
 	public double getLambda( int index ) {
 		return lambda[index];
 	}
 
 	/**
-	 * Multiplies the exponential value of {@latex.inline $\\lambda_{index}$} with the factor <code>val</code>:
-	 * {@latex.inline $\\exp(\\lambda_{index}) \\cdot val$}. <br>
+	 * Multiplies the exponential value of \(\lambda_{index}\) with the factor <code>val</code>:
+	 * \(\exp(\lambda_{index}) \cdot val\). <br>
 	 * (Additionally it adds the logarithmic value of <code>val</code> to the
-	 * value of {@latex.inline $\\lambda_{index}$} at position <code>index</code>:
-	 * {@latex.inline $\\lambda_{index} + \\log(val)$}.)
+	 * value of \(\lambda_{index}\) at position <code>index</code>:
+	 * \(\lambda_{index} + \log(val)\).)
 	 * 
 	 * @param index
 	 *            the index
@@ -251,9 +251,9 @@ public class MEMConstraint extends InhConstraint {
 	}
 
 	/**
-	 * Sets the exponential value of {@latex.inline $\\exp(\\lambda_{index}) = val$}.<br>
-	 * (Additionally it sets the value of {@latex.inline $\\lambda_{index}$} to the logarithmic value of <code>val</code>:
-	 * {@latex.inline $\\lambda_{index} = \\log(val)$}.)
+	 * Sets the exponential value of \(\exp(\lambda_{index}) = val\).<br>
+	 * (Additionally it sets the value of \(\lambda_{index}\) to the logarithmic value of <code>val</code>:
+	 * \(\lambda_{index} = \log(val)\).)
 	 * 
 	 * @param index
 	 *            the index
@@ -266,10 +266,10 @@ public class MEMConstraint extends InhConstraint {
 	}
 
 	/**
-	 * Sets the value of {@latex.inline $\\lambda_{index} = val$}.<br>
-	 * (Additionally it sets the exponential value of {@latex.inline $\\lambda_{index} = val$}
+	 * Sets the value of \(\lambda_{index} = val\).<br>
+	 * (Additionally it sets the exponential value of \(\lambda_{index} = val\)
 	 * to the exponential value of <code>val</code>:
-	 * {@latex.inline $\\exp(\\lambda_{index}) = \\exp(val)$}.
+	 * \(\exp(\lambda_{index}) = \exp(val)\).
 	 * 
 	 * @param index
 	 *            the index

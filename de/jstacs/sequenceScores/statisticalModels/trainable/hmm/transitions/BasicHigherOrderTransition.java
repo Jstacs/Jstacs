@@ -71,7 +71,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	 * The main constructor.
 	 * 
 	 * @param transitions the {@link AbstractTransitionElement}s for the internal use
-	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 <=transIndex[i] <= i</code>
+	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 &le; transIndex[i] &le; i</code>
 	 * @param isSilent an array indicating for each state whether it is silent or not
 	 * 
 	 * @throws Exception if an error occurs during checking the {@link AbstractTransitionElement}s and creating internal fields 
@@ -741,7 +741,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @param states the transitions to all possible states; if <code>null</code> then no transition allowed
 		 * @param hyperParameters the hyper parameters for the transitions; if <code>null</code> then no prior is used
 		 * 
-		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement#BasicHigherOrderTransition.AbstractTransitionElement(int[], int[], double[], double[])
+		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement#AbstractTransitionElement(int[], int[], double[], double[])
 		 */
 		public AbstractTransitionElement( int[] context, int[] states, double[] hyperParameters ){
 			this( context, states, hyperParameters, null );

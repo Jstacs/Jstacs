@@ -604,7 +604,7 @@ public class MixtureTrainSM extends AbstractMixtureTrainSM {
 	 *            <code>data.getNumberofElements()</code>
 	 *            <li>for all i: <code>partitioning[i].length</code> has to be
 	 *            <code>getNumberOfModels()</code>
-	 *            <li>{@latex.inline $\\forall i:\\;\\sum_j partitioning[i][j] \\stackrel{!}{=}1$}
+	 *            <li>\( \forall i:\;\sum_j partitioning[i][j] \stackrel{!}{=}1 \)
 	 *            </ol>
 	 * 
 	 * @return the weighting array used to initialize, this array can be reused

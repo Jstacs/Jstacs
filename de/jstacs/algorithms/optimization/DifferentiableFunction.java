@@ -20,7 +20,7 @@ package de.jstacs.algorithms.optimization;
 
 /**
  * This class is the framework for any (at least) one time differentiable
- * function {@latex.inline $f: \\mathbb{R}^n \\to \\mathbb{R}$}.
+ * function \( f: \mathbb{R}^n \to \mathbb{R} \).
  * 
  * @author Jens Keilwagen
  */
@@ -39,7 +39,7 @@ public abstract class DifferentiableFunction implements Function {
 	/**
 	 * Evaluates the gradient of a function at a certain vector (in mathematical
 	 * sense) <code>x</code>, i.e.,
-	 * {@latex.inline $\\nabla f(\\underline{x}) = \\left(\\frac{\\partial f(\\underline{x})}{\\partial x_1},\\ldots,\\frac{\\partial f(\\underline{x})}{\\partial x_n}\\right)$}.
+	 * \( \nabla f(&#92;underline{x}) = \left(\frac{\partial f(&#92;underline{x})}{\partial x_1},\ldots,\frac{\partial f(&#92;underline{x})}{\partial x_n}\right) \).
 	 * 
 	 * @param x
 	 *            the current vector
@@ -48,7 +48,7 @@ public abstract class DifferentiableFunction implements Function {
 	 *         {@link Function#getDimensionOfScope()}
 	 * 
 	 * @throws DimensionException
-	 *             if <code>dim(x) != n</code>, with {@latex.inline $f: \\mathbb{R}^n \\to \\mathbb{R}$}
+	 *             if <code>dim(x) != n</code>, with \( f: \mathbb{R}^n \to \mathbb{R} \)
 	 * @throws EvaluationException
 	 *             if there was something wrong during the evaluation of the
 	 *             gradient
@@ -61,8 +61,8 @@ public abstract class DifferentiableFunction implements Function {
 	 * This method is used to find an approximation of an one-dimensional
 	 * subfunction. That means it will find an approximation of the minimum
 	 * starting at point <code>x</code> and search in direction
-	 * <code>d</code>, {@latex.ilb %preamble{\\usepackage{amsmath}} \\[\\operatorname{argmin}_{\\alpha
-	 * \\ge 0} f(\\underline{x} + \\alpha\\underline{d})\\]}.
+	 * <code>d</code>, $$ \operatorname{argmin}_{\alpha
+	 * \ge 0} f(&#92;underline{x} + \alpha&#92;underline{d}) $$.
 	 * 
 	 * This method is a standard implementation. You are enabled to overwrite
 	 * this method to be faster if you know anything about the problem or if you

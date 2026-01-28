@@ -22,7 +22,7 @@ import de.jstacs.Storable;
 import de.jstacs.data.sequences.Sequence;
 
 /**
- * This interface defines the function {@latex.inline $f(\\underline{x})$} for sequence {@latex.inline $\\underline{x}$} which can be used in {@link LogisticDiffSS}.
+ * This interface defines the function \( f(\\underline{x}) \) for sequence \( &#92;underline{x} \) which can be used in {@link LogisticDiffSS}.
  * 
  * @author Jens Keilwagen
  * 

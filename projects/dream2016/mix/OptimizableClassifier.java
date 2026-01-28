@@ -42,7 +42,7 @@ public interface OptimizableClassifier extends Cloneable {
 	 * @param classIndex the class index
 	 * @param seq the sequence
 	 * 
-	 * @return {@latex.inline $\\log P(classIndex | seq)$}
+	 * @return \( \log P(classIndex | seq) \)
 	 */
 	double getLogProb( int classIndex, Sequence seq ) throws EvaluationException;
 	
@@ -51,9 +51,9 @@ public interface OptimizableClassifier extends Cloneable {
 	 * @param classIndex the class index
 	 * @param seq the sequence
 	 * @param indices the indices of the parameter of the partial derivation
-	 * @param partialDer the partial derivation; {@latex.inline $\\frac{\\partial\\log P(classIndex | seq)}{\\partial \\lambda_i}$}
+	 * @param partialDer the partial derivation; \( \frac{\partial\log P(classIndex | seq)}{\partial \lambda_i} \)
 	 * 
-	 * @return {@latex.inline $\\log P(classIndex | seq)$}
+	 * @return \( \log P(classIndex | seq) \)
 	 */
 	double getLogProbAndPartialDerivations( int classIndex, Sequence seq, IntList indices, DoubleList partialDer );
 	

@@ -76,12 +76,12 @@ public interface DifferentiableEmission extends Emission, Cloneable {
 	 * @param indices
 	 *            an {@link IntList} of indices, after method invocation the
 	 *            list should contain the indices i where
-	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
+	 *            \( \\frac{\\partial \\log score(seq)}{\\partial \\lambda_i} \)
 	 *            is not zero
 	 * @param partDer
 	 *            a {@link DoubleList} of partial derivations, after method
 	 *            invocation the list should contain the corresponding
-	 *            {@latex.inline $\\frac{\\partial \\log score(seq)}{\\partial \\lambda_i}$}
+	 *            \( \\frac{\\partial \\log score(seq)}{\\partial \\lambda_i} \)
 	 *            that are not zero
 	 * 
 	 * @return the logarithmic score for the {@link Sequence}
