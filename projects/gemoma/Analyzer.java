@@ -17,9 +17,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import org.graalvm.polyglot.Context;
 
 import de.jstacs.DataType;
 import de.jstacs.parameters.ExpandableParameterSet;
@@ -96,8 +96,8 @@ public class Analyzer extends GeMoMaModule {
 		
 		ps = (SimpleParameterSet) parameters.getParameterForName("reliable").getValue();
 		String filter = Tools.prepareFilter(ps.getNumberOfParameters()==0? null : (String) ps.getParameterForName("filter").getValue() );
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine engine = mgr.getEngineByName("nashorn");
+
+		Context context = Context.newBuilder("js").build();
 		
 		boolean onlyIntrons= (Boolean) getParameter(parameters, "only introns").getValue();
 		
@@ -111,7 +111,7 @@ public class Analyzer extends GeMoMaModule {
 		attributesTruth.put(ALL,new int[1]);
 		ArrayList<String> attTruth = new ArrayList<String>();
 		HashMap<String,HashMap<String,Transcript>> res = readGFF( feature, truth, protocol, attributesTruth, attTruth );
-		HashMap<String,Gene[]> genes = toGenes(res, engine, filter, protocol, onlyIntrons );
+		HashMap<String,Gene[]> genes = toGenes(res, context, filter, protocol, onlyIntrons );
 
 		ArrayList<String> n = new ArrayList<String>();
 		ArrayList<GFFCompareStat> stats = new ArrayList<GFFCompareStat>();
@@ -135,7 +135,7 @@ public class Analyzer extends GeMoMaModule {
 			HashMap<String,HashMap<String,Transcript>> prediction = readGFF( feature, predicted, protocol, attributesPrediction, attPrediction );
 	
 			//remove duplicates in predictions
-			prediction = genesToTranscripts( toGenes(prediction, engine, "", protocol, onlyIntrons ) );
+			prediction = genesToTranscripts( toGenes(prediction, context, "", protocol, onlyIntrons ) );
 			
 			//compare
 			protocol.append("comparing true and predicted annotation\n");
@@ -576,7 +576,7 @@ public class Analyzer extends GeMoMaModule {
 		return help.cardinality();
 	}
 	
-	public HashMap<String,Gene[]> toGenes( HashMap<String,HashMap<String,Transcript>> res, ScriptEngine engine, String filter, Protocol protocol, boolean onlyIntrons ) throws ScriptException {
+	public HashMap<String,Gene[]> toGenes( HashMap<String,HashMap<String,Transcript>> res, Context context, String filter, Protocol protocol, boolean onlyIntrons ) throws ScriptException {
 		Iterator<String> it = res.keySet().iterator();
 		HashMap<String,Gene> g = new HashMap<String,Gene>();
 		HashMap<String,Gene[]> sortedGenes = new HashMap<String,Gene[]>();
@@ -593,7 +593,7 @@ public class Analyzer extends GeMoMaModule {
 				String tkey = tit.next();
 				Transcript t = current.get(tkey);
 				if( t.parts.size()>0 ) {
-					if( filter.length()>0 ) t.reliable = Tools.filter(engine, filter, t.hash);
+					if( filter.length()>0 ) t.reliable = Tools.filter(context, filter, t.hash);
 					t.sortParts();
 					if( t.parent == null ) {
 						t.parent = t.id+".gene";
@@ -795,6 +795,10 @@ public class Analyzer extends GeMoMaModule {
 		
 		public int getMin() {
 			return min;
+		}
+		
+		public int getMax() {
+			return max;
 		}
 		
 		public HashMap<String,String> getInfos(){
@@ -1015,7 +1019,7 @@ public class Analyzer extends GeMoMaModule {
 						}
 						h[1]++;
 
-						if( value.length()>100 ) value="<TOO_LONG>";
+						//if( value.length()>100 ) value="<TOO_LONG>";
 						hash.put(key, value);
 					}
 				}else {
@@ -1033,7 +1037,7 @@ public class Analyzer extends GeMoMaModule {
 						}
 						h[1]++;
 
-						if( value.length()>100 ) value="<TOO_LONG>";
+						//if( value.length()>100 ) value="<TOO_LONG>";
 						hash.put(key, value);
 					}
 				}
@@ -1198,7 +1202,7 @@ public class Analyzer extends GeMoMaModule {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	static class TranscriptComparator implements Comparator<Transcript> {
+	public static class TranscriptComparator implements Comparator<Transcript> {
 		
 		public final static TranscriptComparator SINGLETON = new TranscriptComparator();
 		
@@ -1220,7 +1224,7 @@ public class Analyzer extends GeMoMaModule {
 	 * 
 	 * @author Jens Keilwagen
 	 */
-	static class TranscriptIntronComparator implements Comparator<Transcript> {
+	public static class TranscriptIntronComparator implements Comparator<Transcript> {
 		
 		public final static TranscriptIntronComparator SINGLETON = new TranscriptIntronComparator();
 		

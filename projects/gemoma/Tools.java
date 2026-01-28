@@ -38,9 +38,10 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipException;
 
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
 
 import de.jstacs.parameters.Parameter;
 import de.jstacs.tools.Protocol;
@@ -63,7 +64,7 @@ public class Tools {
 	 * 
 	 * @throws FileNotFoundException the {@link File} cannot be found
 	 * 
-	 * @see {@link Parameter#isSet()}
+	 * @see Parameter#isSet()
 	 */
 	public static InputStream getInputStream( Parameter parameter, String alternative ) throws FileNotFoundException {
 		InputStream in;
@@ -85,8 +86,8 @@ public class Tools {
 	 * 
 	 * @throws IOException
 	 * 
-	 * @see {@link #GeMoMa_TEMP}
-	 * @see {@link File#deleteOnExit()}
+	 * @see #GeMoMa_TEMP
+	 * @see File#deleteOnExit()
 	 */
 	public static File createTempFile( String infix ) throws IOException {
 			return createTempFile(infix, GeMoMa_TEMP);
@@ -696,14 +697,14 @@ public class Tools {
 	}
 	
 	/**
-	 * This method modifies a filter String that can be used in a {@link ScriptEngine}.
+	 * This method modifies a filter String that can be used in JavaScript.
 	 *  
 	 * @param filter the user-specified filter String
 	 * 
 	 * @return the modified filter String
 	 * 
-	 * @see ScriptEngine
-	 * @see #filter(ScriptEngine, String, HashMap)
+	 * @see Context
+	 * @see #filter(Context, String, HashMap)
 	 */
 	public static String prepareFilter( String filter ) {
 		if( filter == null ) {
@@ -719,7 +720,7 @@ public class Tools {
 	/**
 	 * This method evaluates an <code>expression</code>.
 	 * 
-	 * @param engine the {@link ScriptEngine} to be used for filtering
+	 * @param context the {@link Context} to be used for filtering
 	 * @param expression to be evaluated
 	 * @param hash the hash containing the attributes in key-value-pairs
 	 * 
@@ -727,27 +728,26 @@ public class Tools {
 	 * 
 	 * @throws ScriptException if the expression could not be evaluated properly
 	 * 
-	 * @see ScriptEngine
+	 * @see Context
 	 */
-	public static String eval( ScriptEngine engine, String expression, HashMap<String,String> hash ) throws ScriptException {
-		Bindings b = engine.createBindings();
+	public static String eval( Context context, String expression, HashMap<String,String> hash ) throws ScriptException {
+		Value b = context.getBindings("js");
 		Iterator<Entry<String,String>> it = hash.entrySet().iterator();
 		while( it.hasNext() ) {
 			Entry<String,String> e = it.next();
 			String key = e.getKey();
 			if( expression.indexOf(key)>=0 ) {
 				String val = e.getValue();
-				b.put(key, val.equals("NA")?""+Double.NaN:val);
+				b.putMember(key, val.equals("NA")?""+Double.NaN:val);
 			}
-		}			
-		
-		return engine.eval(expression, b).toString();
+		}
+		return context.eval("js", expression).toString();
 	}
 	
 	/**
 	 * This method evaluates a filter String and returns a boolean.
 	 * 
-	 * @param engine the {@link ScriptEngine} to be used for filtering
+	 * @param context the {@link Context} to be used for filtering
 	 * @param filter the filter String
 	 * @param hash the hash containing the attributes in key-value-pairs
 	 * @return the result of the evaluated filter String
@@ -755,15 +755,15 @@ public class Tools {
 	 * @throws ScriptException if the filter String could not be evaluated properly
 	 * 
 	 * @see #prepareFilter(String)
-	 * @see #eval(ScriptEngine, String, HashMap)
+	 * @see #eval(Context, String, HashMap)
 	 */
-	public static boolean filter( ScriptEngine engine, String filter, HashMap<String,String> hash ) throws ScriptException {
+	public static boolean filter( Context context, String filter, HashMap<String,String> hash ) throws ScriptException {
 		if( hash == null ) {
 			return false;
 		} else if( filter.length()== 0 ) {
 			return true;
 		} else {			
-			String s = eval(engine, filter, hash);
+			String s = eval(context, filter, hash);
 			Boolean bool = Boolean.parseBoolean( s );
 			return bool;
 		}

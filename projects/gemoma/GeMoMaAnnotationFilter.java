@@ -36,9 +36,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import org.graalvm.polyglot.Context;
 
 import de.jstacs.DataType;
 import de.jstacs.clustering.kmeans.Kmeans;
@@ -126,15 +126,15 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 		String[] keys;
 		HashSet<String> errors;
 		Protocol protocol;
-		ScriptEngine engine;
+		Context context;
 		
-		public UserSpecifiedComparator( String specified, ScriptEngine engine, Protocol protocol ) {
+		public UserSpecifiedComparator( String specified, Context context, Protocol protocol ) {
 			keys=specified.split(",");
 			for( int i = 0; i < keys.length; i++ ) {
 				keys[i] = keys[i].trim();
 			}
 			errors = new HashSet<String>();
-			this.engine=engine;
+			this.context = context;
 			this.protocol = protocol;
 		}
 		
@@ -153,7 +153,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				boolean asDoubleNow = asDouble.contains(keys[i]);
 				if( v == null ) {
 					try {
-						v=Tools.eval(engine, keys[i], p.hash);
+						v=Tools.eval(context, keys[i], p.hash);
 						asDoubleNow=true;
 					} catch( ScriptException se ) {
 						if( !errors.contains(keys[i])) {
@@ -196,11 +196,12 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				defAttributes[i] = null;
 			}
 		}
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine engine = mgr.getEngineByName("nashorn");
+		
+		Context context = Context.newBuilder("js").build();
+		
 
 		String filter = Tools.prepareFilter( (String) parameters.getParameterForName("filter").getValue() );
-		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), engine, protocol );
+		UserSpecifiedComparator comp = new UserSpecifiedComparator( (String) parameters.getParameterForName("sorting").getValue(), context, protocol );
 		Double d = null;
 		Parameter pa = parameters.getParameterForName("length difference");
 		if( pa != null ) {
@@ -395,7 +396,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				for( int i = 0; i < list.size(); i++ ) {
 					Prediction cur = list.get(i);
 					for( int j = 0; j< ex.length; j++ ) {
-						matrix[i][j] = Double.parseDouble(Tools.eval(engine, ex[j], cur.hash));
+						matrix[i][j] = Double.parseDouble(Tools.eval(context, ex[j], cur.hash));
 						anyNAN |= Double.isNaN( matrix[i][j] ) ;
 					}
 				}
@@ -549,7 +550,7 @@ public class GeMoMaAnnotationFilter extends GeMoMaModule {
 				for( int i = pred.size()-1; i >= 0; i-- ){
 					Prediction p = pred.get(i);
 					p.setEvidenceAndWeight( weight );
-					if( !Tools.filter(engine, filter, p.hash) ) {
+					if( !Tools.filter(context, filter, p.hash) ) {
 						//System.out.println(p.hash.toString());
 						pred.remove(i);
 					} else {
@@ -603,7 +604,7 @@ System.out.println();
 						}
 					}
 					//cluster predictions
-					split(addAdd, clustered, pred, comp, engine, lenPerc, altFilter, rnaSeq, maxTranscripts, w, cbTh, protocol);
+					split(addAdd, clustered, pred, comp, context, lenPerc, altFilter, rnaSeq, maxTranscripts, w, cbTh, protocol);
 				}
 			}
 			w.close();
@@ -642,7 +643,7 @@ System.out.println();
 	static int[][] stats;
 	int gene;
 	
-	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, UserSpecifiedComparator comp, ScriptEngine engine, double lenPerc, String altFilter, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
+	void split( boolean addAdd, int[] clustered, ArrayList<Prediction> pred, UserSpecifiedComparator comp, Context context, double lenPerc, String altFilter, boolean rnaSeq, int maxTranscripts, BufferedWriter w, double cbTh, Protocol protocol ) throws Exception {
 		int i = 0;
 		Prediction next = pred.get(i), current;
 		ArrayList<Prediction> currentCluster = new ArrayList<Prediction>();
@@ -663,7 +664,7 @@ System.out.println();
 			//sort and alternative filter
 			for( Prediction p: currentCluster ) {
 				comp.prepare(p);
-				p.altCand = Tools.filter(engine, altFilter, p.hash);
+				p.altCand = Tools.filter(context, altFilter, p.hash);
 			}
 			Collections.sort( currentCluster, comp );
 			for( Prediction p: currentCluster ) {
@@ -1355,7 +1356,7 @@ System.out.println();
 					new SimpleParameter(DataType.DOUBLE,"length difference","maximal percentage of length difference between the representative transcript and an alternative transcript, alternative transcripts with a higher percentage are discarded", false, new NumberValidator<Double>(0d, 10000d) ),
 					new SimpleParameter(DataType.STRING,"alternative transcript filter","If a prediction is suggested as an alternative transcript, this additional filter will be applied. The filter works syntactically like the 'filter' parameter and allows you to keep the number of alternative transcripts small based on meaningful criteria. "
 							+ "Reasonable filter could be based on RNA-seq data (tie==1) or on sumWeight (sumWeight>1). "
-							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or sumWeight>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!?:'\\-\\+\\*\\/]*"), "tie==1 or sumWeight>1" ),
+							+ "A more sophisticated filter could be applied combining several criteria: tie==1 or sumWeight>1", false, new RegExpValidator("[a-zA-Z 0-9\\.()><=!?:'\\-\\+\\*\\/_]*"), "tie==1 or sumWeight>1" ),
 					new SimpleParameter(DataType.DOUBLE,"common border filter","the filter on the common borders of transcripts, the lower the more transcripts will be checked as alternative splice isoforms", true, new NumberValidator<Double>(0d, 1d), 0.75 ),
 					new SimpleParameter(DataType.INT,"maximal number of transcripts per gene","the maximal number of allowed transcript predictions per gene", true, new NumberValidator<Comparable<Integer>>(1, Integer.MAX_VALUE), Integer.MAX_VALUE ),
 					new SimpleParameter(DataType.BOOLEAN, "add alternative transcripts", "a switch to decide whether the IDs of alternative transcripts that have the same CDS should be listed for each prediction", true, false),
