@@ -20,6 +20,7 @@ package projects.gemoma;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,10 +42,10 @@ public class CombineIntronFiles {
 	public static void main(String[] args) throws IOException {
 		String[] in  = new String[args.length-1];
 		System.arraycopy(args, 1, in, 0, in.length);
-		combine(new SysProtocol(), args[0], in);
+		combine(new SysProtocol(), new File(args[0]), in);
 	}
 	
-	public static void combine( Protocol protocol, String out, String... in ) throws IOException {
+	public static void combine( Protocol protocol, File out, String... in ) throws IOException {
 		protocol.append("files: " + in.length+"\n");
 		
 		BufferedWriter w = new BufferedWriter( new FileWriter(out) );
