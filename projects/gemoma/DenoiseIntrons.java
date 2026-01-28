@@ -129,11 +129,12 @@ public class DenoiseIntrons extends GeMoMaModule {
 				fName.add(y.getValue().toString());
 			}
 		}
-		String combined;
+		File combined;
 		if( fName.size()==1 ) {
-			combined = fName.get(0);
+			combined = new File(fName.get(0));
 		} else {
-			combined = File.createTempFile("combined-introns",".gff").getAbsolutePath();
+			combined = Tools.createTempFile("combined-introns",temp);
+			//combined = File.createTempFile("combined-introns",".gff").getAbsolutePath();
 			String[] in = fName.toArray(new String[0]);
 			CombineIntronFiles.combine(protocol, combined, in);
 		}
