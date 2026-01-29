@@ -25,6 +25,8 @@ package de.jstacs.algorithms.optimization;
  * 
  * \( \partial_k f(x) = \frac{f(x)-f(x+\varepsilon*e_k)}{\varepsilon} \).
  * 
+ * Be careful with the choice of epsilon, too small values might result in precision problems
+ * 
  * @author Jens Keilwagen
  */
 public class NumericalDifferentiableFunction extends DifferentiableFunction {
@@ -77,15 +79,32 @@ public class NumericalDifferentiableFunction extends DifferentiableFunction {
 			}
 		}
 		double[] gradient = new double[n];
+		/*
+		//(too) simple approximation
 		double current = evaluateFunction( x ), h;
+		//System.out.println(current);
 		for( int i = 0; i < n; i++ ) {
 			h = x[i];
 			x[i] += eps;
-			gradient[i] = ( evaluateFunction( x ) - current ) / eps;
-			//System.out.println( i + "\t" + gradient[i] + "\t" + Arrays.toString(x));
+			double fx = evaluateFunction( x );
+			gradient[i] = ( fx - current ) / eps;
+			//System.out.println( i + "\t" + fx + "\t" + (fx-current) + "\t" + gradient[i] + "\t" + Arrays.toString(x));
+			x[i] = h;
+		}/**/
+		
+		//better approximation
+		for( int i = 0; i < n; i++ ) {
+			double h = x[i];
+			
+			x[i] = h + eps;
+			double fx1 = evaluateFunction( x );
+			x[i] = h - eps;
+			double fx2 = evaluateFunction( x );
+			gradient[i] = ( fx1 - fx2 ) / (2*eps);
+			//System.out.println( i + "\t" + fx1 + "\t" + fx2 + "\t" + gradient[i] );
+			
 			x[i] = h;
 		}
-
 		return gradient;
 	}
 
@@ -97,5 +116,37 @@ public class NumericalDifferentiableFunction extends DifferentiableFunction {
 	@Override
 	public int getDimensionOfScope() {
 		return f.getDimensionOfScope();
+	}
+		
+	/**
+	 * Compares the analytical and numerical gradient.
+	 *  
+	 * @param df the differentiable function
+	 * @param x the parameters
+	 * @param eps the epsilon for the numerical gradient
+	 * 
+	 * @throws DimensionException if the dimension of parameters does not match the function
+	 * @throws EvaluationException if the evaluation of the function does not work
+	 */
+	public static void compare( DifferentiableFunction df, double[] x, double eps ) throws DimensionException, EvaluationException {
+		NumericalDifferentiableFunction nFun = new NumericalDifferentiableFunction(df, eps);
+
+		double[] anaGrad = df.evaluateGradientOfFunction(x);
+		double[] numGrad = nFun.evaluateGradientOfFunction(x);
+		
+		double max = Double.NEGATIVE_INFINITY, maxPerc=0;
+		System.out.println( "#\tparameter\tanalytical gradient\tnumerical gradient\tabs difference\t|%|" );
+		for( int i = 0; i < anaGrad.length; i++ ) {
+			double m = Math.abs(anaGrad[i]-numGrad[i]);
+			double p = m/Math.abs(anaGrad[i])*100;
+			System.out.println( i + "\t" + x[i] + "\t" + anaGrad[i] + "\t" + numGrad[i] + "\t" + m + "\t" + p );
+			if( m > max ) {
+				max = m;
+			}
+			if( p > maxPerc ) {
+				maxPerc = p;
+			}
+		}
+		System.out.println("<max>\t\t\t\t"+max+"\t"+maxPerc);
 	}
 }
