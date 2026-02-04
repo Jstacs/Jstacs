@@ -53,8 +53,20 @@ public class ClusterTree<T> implements Storable{
 	 * @param originalIndex the index of the leaf element in the complete set of cluster elements
 	 */
 	public ClusterTree(T leaf, int originalIndex){
+		this(Double.NEGATIVE_INFINITY, leaf, originalIndex);
+		//TODO @Jan: why Double.NEGATIVE_INFINITY and not 0?
+	}
+	
+	/**
+	 * Creates a new cluster tree for a given leaf element (i.e., the tree comprises just this leaf) with the
+	 * supplied index in the set of cluster elements
+	 * @param dist the distance
+	 * @param leaf the leaf element
+	 * @param originalIndex the index of the leaf element in the complete set of cluster elements
+	 */
+	public ClusterTree(double dist, T leaf, int originalIndex){
 		this.elements = (T[])ArrayHandler.cast( new Object[]{leaf} );
-		this.distance = Double.NEGATIVE_INFINITY;
+		this.distance = dist;
 		this.originalIndex = originalIndex;
 	}
 	

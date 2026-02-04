@@ -214,7 +214,7 @@ public class ToolBox {
 	 */
 	public static final int getMaxIndex( IntList idx, double[] w ) {
 		if(idx.length()==0){
-			throw new IllegalArgumentException( "List idx was empty." );
+			throw new IllegalArgumentException( "List idx is empty." );
 		}
 		int max = idx.get(0);
 		for( int i = 1; i < idx.length(); i++ ) {
