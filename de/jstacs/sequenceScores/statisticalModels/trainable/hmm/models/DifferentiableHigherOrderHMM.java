@@ -28,6 +28,13 @@ import java.util.Random;
 
 import javax.naming.OperationNotSupportedException;
 
+import de.jstacs.algorithms.optimization.NumericalDifferentiableFunction;
+import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
+import de.jstacs.algorithms.optimization.termination.CombinedCondition;
+import de.jstacs.algorithms.optimization.termination.IterationCondition;
+import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.algorithms.optimization.termination.TimeCondition;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
@@ -40,14 +47,15 @@ import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
 import de.jstacs.io.XMLParser;
 import de.jstacs.results.StorableResult;
+import de.jstacs.sequenceScores.differentiable.DifferentiableSequenceScore;
 import de.jstacs.sequenceScores.statisticalModels.differentiable.SamplingDifferentiableStatisticalModel;
 import de.jstacs.sequenceScores.statisticalModels.trainable.DifferentiableStatisticalModelWrapperTrainSM;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.DifferentiableState;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.SimpleDifferentiableState;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableCombinedWrapperEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableSMWrapperEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.UniformEmission;
-import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.discrete.DiscreteEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.filter.Filter;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWelchParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.HMMTrainingParameterSet;
@@ -89,7 +97,10 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 	 * Help array for the gradient. (Dimensions: first = layer mod 2, second = context, third = parameter)
 	 */
 	protected double[][][] gradient, gradient2;
-	protected double[] logScore, prop;
+	protected double[][] slice, slice2;
+	
+	protected double[] logScore;
+	protected double[] prop;
 	
 	/**
 	 * Help array for the indexes of the parameters of the states
@@ -150,9 +161,16 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		childrenBW = new IntList();
 		childrenFW = new IntList();
 		forwardIntermediate  = new double[getNumberOfStates()];
+		provideSlice();
 	}
 	
-	protected void setTrainingParameter( HMMTrainingParameterSet trainingParameterSet ) throws CloneNotSupportedException {
+	protected void provideSlice() {
+		int dim = transition.getNumberOfIndexes( transition.getMaximalMarkovOrder() );		
+		slice = new double[2][dim];
+		slice2 = new double[2][dim];
+	}
+	
+	public void setTrainingParameter( HMMTrainingParameterSet trainingParameterSet ) throws CloneNotSupportedException {
 		super.setTrainingParameter(trainingParameterSet);
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
 			training = ((NumericalHMMTrainingParameterSet) trainingParameter).getTrainingType();
@@ -160,6 +178,10 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 			training = TrainingType.VITERBI;
 		} else if( trainingParameter instanceof BaumWelchParameterSet ){
 			training = TrainingType.LIKELIHOOD;
+		} else {
+			if( !(trainingParameterSet instanceof MaxHMMTrainingParameterSet) ) {
+				throw new IllegalArgumentException( "Training parameter set must be a MaxHMMTrainingParameterSet.");
+			}
 		}
 		setTrain(false);
 	}	
@@ -182,6 +204,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		childrenBW = new IntList();
 		childrenFW = new IntList();
 		forwardIntermediate  = new double[getNumberOfStates()];
+		provideSlice();
 	}
 	
 	@Override
@@ -198,6 +221,9 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 
 	protected void createHelperVariables() {
 		if( container == null ) {
+			if( numberOfParameters == 0 ) {
+				getOffsets();
+			}
 			int maxOrder = transition.getMaximalMarkovOrder(), anz = 0, i;
 			for( i = 0; i <= maxOrder; i++ ) {
 				anz = Math.max( anz, transition.getNumberOfIndexes( i ) );
@@ -205,6 +231,7 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 			if( gradient == null || gradient[0].length != anz || gradient[0][0].length != numberOfParameters ) {
 				gradient = new double[2][anz][numberOfParameters];
 				gradient2 = new double[2][anz][numberOfParameters];
+				
 				index = new int[4][anz];
 			}
 			if( indicesState == null ) {
@@ -219,8 +246,8 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 					throw getRunTimeException( cnse );
 				}
 			}
-			logScore = new double[2];
-			prop = new double[2];
+			this.logScore = new double[2];
+			this.prop = new double[2];
 		}
 		super.createHelperVariables();
 	}
@@ -244,7 +271,8 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		clone.forwardIntermediate = forwardIntermediate.clone();
 		clone.childrenBW = childrenBW.clone();
 		clone.childrenFW = childrenFW.clone();
-		
+		clone.provideSlice();
+				
 		//reverse
 		gradient = grad;
 		indicesState = ind;
@@ -334,109 +362,126 @@ public class DifferentiableHigherOrderHMM extends HigherOrderHMM implements Samp
 		//XXX
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
 			boolean[] diffEM = new boolean[emission.length]; 
-			boolean sub = false;
 			for( int i = 0; i < emission.length; i++ ) {
-				diffEM[i] = emission[i] instanceof DifferentiableSMWrapperEmission;
-				sub |= diffEM[i];
+				diffEM[i] = emission[i] instanceof DifferentiableSMWrapperEmission || emission[i] instanceof DifferentiableCombinedWrapperEmission;
 			}
 						
 			try {
-				NumericalHMMTrainingParameterSet trainingParameterSet = (NumericalHMMTrainingParameterSet) trainingParameter;
-				TrainingType tType = trainingParameterSet.getTrainingType();
-				if( tType.isViterbiLike() ) {
-					trainingParameter = new ViterbiParameterSet(1, ((MaxHMMTrainingParameterSet)trainingParameter).getTerminationCondition(), ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads() );
-					training = TrainingType.VITERBI;
-				} else {
-					trainingParameter = new BaumWelchParameterSet(1, ((MaxHMMTrainingParameterSet)trainingParameter).getTerminationCondition(), ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads() );
-					training = TrainingType.LIKELIHOOD;
-				}
-				if( !sub ) {
-					super.train(data[index], weights==null? null : weights[index] );
-				} else {
-					//create simple variant
-					DifferentiableEmission[] dEmission = new DifferentiableEmission[emission.length];
-					ArrayList<Sequence>[] seqs = new ArrayList[emission.length];
-					DoubleList[] subW = new DoubleList[emission.length];
-					int[] l = new int[emission.length], offset=new int[l.length];
-					for( int i = 0; i < emission.length; i++ ) {
-						if( diffEM[i] ) {
+				AbstractTerminationCondition tc = new CombinedCondition(3, 
+						new IterationCondition(25),
+						new SmallDifferenceOfFunctionEvaluationsCondition(1E-3),
+						new TimeCondition(3600)
+					);
+				MaxHMMTrainingParameterSet maxPar = new ViterbiParameterSet(1, tc, ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads() );
+				
+				//create simple variant
+				DifferentiableEmission[] dEmission = new DifferentiableEmission[emission.length];
+				ArrayList<Sequence>[] seqs = new ArrayList[emission.length];
+				DoubleList[] subW = new DoubleList[emission.length];
+				int[] l = new int[emission.length], offset=new int[l.length];
+				for( int i = 0; i < emission.length; i++ ) {
+					if( diffEM[i] ) {
 /*							if( getAlphabetContainer().isDiscrete() ) {
 								dEmission[i] = new DiscreteEmission(getAlphabetContainer(),getESS());
 							} else {/**/
-								dEmission[i] = new UniformEmission(getAlphabetContainer());
+							dEmission[i] = new UniformEmission(getAlphabetContainer());
 //							}
-							seqs[i] = new ArrayList<Sequence>();
-							subW[i] = new DoubleList();
+						seqs[i] = new ArrayList<Sequence>();
+						subW[i] = new DoubleList();
+						if( emission[i] instanceof DifferentiableSMWrapperEmission ) {
 							DifferentiableSMWrapperEmission help = (DifferentiableSMWrapperEmission) emission[i];
 							l[i] = help.getLength();
 							offset[i] = help.getOffset(); 
 						} else {
-							dEmission[i] = (DifferentiableEmission) emission[i];
+							DifferentiableCombinedWrapperEmission help = (DifferentiableCombinedWrapperEmission) emission[i];
+							l[i] = help.getLength();
+							offset[i] = help.getOffset();
 						}
-					}
-					DifferentiableHigherOrderHMM simple;
-					if( this instanceof FastDifferentiableHigherOrderHMM ) {
-						simple = new FastDifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, dEmission, ess, transIndex, getTransitionElements() );
 					} else {
-						simple = new DifferentiableHigherOrderHMM(type, null, (MaxHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, forward, dEmission, ess, transIndex, getTransitionElements() );
+						dEmission[i] = (DifferentiableEmission) emission[i];
 					}
-					simple.defContext = defContext;
-					simple.preComputedContext = preComputedContext;
-					
-					//train
-					simple.train(data[index], weights==null? null : weights[index] );
-					
-					//ML estimation of (previously not used) models
-					if( type!=null ) {
-						Random random = new Random();
-						for( int i = 0; i < data[index].getNumberOfElements(); i++ ) {
-							Sequence seq = data[index].getElementAt(i);
-							double w = (weights==null || weights[index]==null) ? 1: weights[index][i];
-							
-							SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
-							if( sa !=null ) {
-								//select one of all possible paths
-								StorableResult res = (StorableResult) sa.getResultAt(random.nextInt(sa.getNumberOfResults()) );
-								int[] allowedStatesGroup=((AllowedStatesGroups) res.getResultInstance()).groups;
-								for( int j = 0; j < allowedStatesGroup.length; j++ ) {
-									int[] states = statesGroups[allowedStatesGroup[j]];
-									if( states.length==1 ) { //XXX simple solution
-										int e = emissionIdx[states[0]];
-										int st = j+offset[e];
-										if( seqs[e] != null 
-											&& st>=0 && st+l[e]<seq.getLength() ) {
-											seqs[e].add( seq.getSubSequence(st, l[e]) );
-											subW[e].add(w);
-										}
-									}
+				}
+				DifferentiableHigherOrderHMM simple;
+				//maxPar.getParameterForName( "termination condition" ).setValue(tc);
+				if( this instanceof FastDifferentiableHigherOrderHMM ) {
+					simple = new FastDifferentiableHigherOrderHMM(type, statesGroups, maxPar, name, filter, emissionIdx, dEmission, ess, transIndex, getTransitionElements() );
+				} else {
+					simple = new DifferentiableHigherOrderHMM(type, statesGroups, maxPar, name, filter, emissionIdx, forward, dEmission, ess, transIndex, getTransitionElements() );
+				}
+				
+				//train generatively without motifs
+				simple.train(data[index], weights==null? null : weights[index] );
+				
+				//train discriminatively without motifs XXX
+				/*
+				transition.setParameters(simple.transition);
+				for( int i = 0; i < dEmission.length; i++ ) {
+					if( !diffEM[i] ) {
+						dEmission[i].setParameters(simple.emission[i]);
+					}
+				}
+				if( this instanceof FastDifferentiableHigherOrderHMM ) {
+					simple = new FastDifferentiableHigherOrderHMM(type, statesGroups, (NumericalHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, dEmission, ess, transIndex, getTransitionElements() );
+				} else {
+					simple = new DifferentiableHigherOrderHMM(type, statesGroups, (NumericalHMMTrainingParameterSet) trainingParameter, name, filter, emissionIdx, forward, dEmission, ess, transIndex, getTransitionElements() );
+				}
+				simple.setSkiptInit(true);
+				simple.train(data[index], weights==null? null : weights[index] );
+				/**/
+				
+				//ML estimation of (previously not used) models
+				if( type!=null ) {
+					Random random = new Random();
+					for( int i = 0; i < data[index].getNumberOfElements(); i++ ) {
+						Sequence seq = data[index].getElementAt(i);
+						double w = (weights==null || weights[index]==null) ? 1: weights[index][i];
+						SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
+						if( sa !=null ) {
+							//select one of all possible paths
+							StorableResult res = (StorableResult) sa.getResultAt(random.nextInt(sa.getNumberOfResults()) );
+							int[] allowedStatesGroup=((AllowedStatesGroups) res.getResultInstance()).groups;
+							for( int j = 0; j < allowedStatesGroup.length; j++ ) {
+								int[] em = statesGroupsEm[allowedStatesGroup[j]];
+								int k = 
+									//0; ///XXX simple solution
+									random.nextInt(em.length);
+								int e = em[k];
+								int st = j+offset[e];
+								if( seqs[e] != null 
+									&& st>=0 && st+l[e]<seq.getLength() ) {
+									seqs[e].add( seq.getSubSequence(st, l[e]) );
+									subW[e].add(w);
 								}
 							}
 						}
 					}
-					
-					//set
-					transition.setParameters(simple.transition);
-					NumberFormat nf = NumberFormat.getInstance(Locale.US);
-					nf.setMaximumFractionDigits(3);
-					for( int i = 0; i < emission.length; i++ ) {
-						if( diffEM[i] ) {
-//							if( seqs[i].size()==0 ) {
-								//emission[i].initializeFunctionRandomly();
-								((DifferentiableSMWrapperEmission)emission[i]).initializeUniformly();
-/*							} else {
-System.out.println("initialize emission " + i + " with data");
-								DataSet partial = new DataSet("",seqs[i]);
-System.out.println("#="+seqs[i].size() + "\tlength=" + partial.getElementLength() + "\tfirst=" + seqs[i].get(0));
-								((DifferentiableSMWrapperEmission)emission[i]).initializeFunction( 0, false, new DataSet[] { partial }, new double[][] {subW[i].toArray()} );
-System.out.println(emission[i].toString(nf));
-							}/**/
+				}
+				/**/
+				
+				//set
+				transition.setParameters(simple.transition);
+				NumberFormat nf = NumberFormat.getInstance(Locale.US);
+				nf.setMaximumFractionDigits(3);
+				for( int i = 0; i < emission.length; i++ ) {
+					if( diffEM[i] ) {
+						if( seqs[i].size()==0 ) {
+							emission[i].initializeFunctionRandomly();
+							//((DifferentiableSMWrapperEmission)emission[i]).initializeUniformly();
 						} else {
-							emission[i].setParameters(simple.emission[i]);
-						}
+System.out.println("initialize emission " + i + " with data");
+							DataSet partial = new DataSet("",seqs[i]);
+System.out.println("#="+seqs[i].size() + "\tlength=" + partial.getElementLength() + "\tfirst=" + seqs[i].get(0));
+							if( emission[i] instanceof DifferentiableSMWrapperEmission ) {
+								((DifferentiableSMWrapperEmission)emission[i]).initializeFunction( 0, false, new DataSet[] { partial }, new double[][] {subW[i].toArray()} );
+							} else {
+								((DifferentiableCombinedWrapperEmission)emission[i]).initializeFunction( 0, false, new DataSet[] { partial }, new double[][] {subW[i].toArray()} );
+							}
+System.out.println(emission[i].toString(nf));
+						}/**/
+					} else {
+						emission[i].setParameters(simple.emission[i]);
 					}
 				}
-				trainingParameter = trainingParameterSet;
-				training = tType;
 			} catch( Exception e ) {
 				e.printStackTrace();
 				sostream.writeln("Problem while initialization from data. " + e.getClass().getSimpleName() + ": " + e.getCause() );
@@ -445,17 +490,20 @@ System.out.println(emission[i].toString(nf));
 		} else {			
 			initializeFunctionRandomly( freeParams );
 		}
-		System.out.println("initialization:\n" + this);
 	}
 	
 	public void train( DataSet data, double[] weights ) throws Exception {
+		train( data, weights,((MaxHMMTrainingParameterSet) trainingParameter).getTerminationCondition() );
+	}
+	
+	public void train( DataSet data, double[] weights, AbstractTerminationCondition tc ) throws Exception {
 		if( trainingParameter instanceof NumericalHMMTrainingParameterSet ) {
 			setTrain(true);
+			System.out.println(training + " threads=" + threads );
 			NumericalHMMTrainingParameterSet params = (NumericalHMMTrainingParameterSet) trainingParameter;
-			LogPrior p = 
-					DoesNothingLogPrior.defaultInstance;
+			LogPrior p = DoesNothingLogPrior.defaultInstance;
 					//new SimpleGaussianSumLogPrior(1);//TODO
-			DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( this, params.getNumberOfThreads(), params.getAlgorithm(), params.getTerminationCondition(), params.getLineEps(), params.getStartDistance(), params.randomInitialization(), p );
+			DifferentiableStatisticalModelWrapperTrainSM model = new DifferentiableStatisticalModelWrapperTrainSM( this, params.getNumberOfThreads(), params.getAlgorithm(), tc, params.getLineEps(), params.getStartDistance(), params.randomInitialization(), p, true );
 			model.setOutputStream( sostream );
 			model.train( data, weights );
 			
@@ -468,6 +516,16 @@ System.out.println(emission[i].toString(nf));
 			super.train( data, weights );
 		}
 	}
+	
+	public void testGrad( DataSet d ) throws Exception {
+		double[][] wei = new double[1][d.getNumberOfElements()];
+		Arrays.fill(wei[0], 1);
+		LogGenDisMixFunction f = new LogGenDisMixFunction( threads, new DifferentiableSequenceScore[] {this}, new DataSet[]{d}, wei, DoesNothingLogPrior.defaultInstance, LearningPrinciple.getBeta(LearningPrinciple.ML), true, false );
+		f.reset();
+		double[] x = f.getParameters(KindOfParameter.PLUGIN);
+		NumericalDifferentiableFunction.compare(f, x, 1e-3);
+	}
+	
 
 //XXX is normalized? start
 	public boolean isNormalized() {
@@ -520,93 +578,8 @@ System.out.println("trans\t" + isNormalized);
 	 */
 	@Override
 	public double getLogScoreFor( Sequence seq, int start, int end ) {
-		int[] allowedStatesGroup=null;
-		double s = Double.NEGATIVE_INFINITY;
-		if( train && type != null ) {
-			SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
-			if( sa !=null ) {
-				switch( training ) {
-					case VITERBI:
-					case DISCRIMINATIVE_VITERBI:
-						for( int i = 0; i <sa.getNumberOfResults(); i++ ) {
-							StorableResult res = (StorableResult) sa.getResultAt(i);
-							AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
-							allowedStatesGroup=asg.groups;
-							double current = logProb( start, end, seq, allowedStatesGroup, score );
-							if( current > s ) {
-								s = current;
-							}
-						}
-						break;
-					case DISCRIMINATIVE_VITERBI2:
-						for( int i = 0; i <sa.getNumberOfResults(); i++ ) {
-							StorableResult res = (StorableResult) sa.getResultAt(i);
-							AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
-							allowedStatesGroup=asg.groups;
-							double current = fill( seq, allowedStatesGroup, start, end, null, null );
-							if( current > s ) {
-								s = current;
-							}
-						}
-						return s;
-					case LIKELIHOOD:
-					case DISCRIMINATIVE_LIKELIHOOD:
-						//XXX logSum? Problem overlapping allowedPathSets
-						StorableResult res = (StorableResult) sa.getResultAt(0);
-						AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
-						allowedStatesGroup=asg.groups;
-						s = logProb( start, end, seq, allowedStatesGroup, score );
-				}
-			} //else //XXX
-		} else {
-			s = logProb( start, end, seq, allowedStatesGroup, score );
-		}
-		if( train && training.isDiscrimnative() ) {
-			/*if( training == TrainingType.DISCRIMINATIVE_VITERBI2 ) {
-				s -= logProb( start, end, seq, null, Type.VITERBI );
-			} else {*/
-				s -= logProb( start, end, seq, null, Type.LIKELIHOOD );
-			//}
-		}
-		return s;
-	}
-	
-	public double getLogScoreFor( Sequence seq, int start, int end, int[] allowedStatesGroup ) {
-		return logProb( start, end, seq, allowedStatesGroup );
-	}
-	
-	protected double logProb( int startpos, int endpos, Sequence sequence ) {
-		return logProb(startpos, endpos, sequence, null);
-	}
-	
-	protected double logProb( int startpos, int endpos, Sequence sequence, int[] allowedStatesGroups ) {
-		return logProb(startpos, endpos, sequence, allowedStatesGroups, score);
-	}
-	
-	protected double logProb( int startpos, int endpos, Sequence sequence, int[] allowedStatesGroups, Type score ) {
-		try {
-			fillBwdOrViterbiMatrix( score, startpos, endpos, 0, sequence, allowedStatesGroups, false );
-			
-			/* sanity check
-			fillFwdMatrix(startpos, endpos, sequence, allowedStatesGroups );
-			System.out.println(bwdMatrix[0][0] + "\t" + Normalisation.getLogSum(fwdMatrix[endpos-startpos+1]));
-			
-			System.out.println("bwd");
-			for( int i = 0; i < endpos-startpos+1; i++ ) {
-				System.out.println(i + "\t" + Arrays.toString(bwdMatrix[i]));
-			}
-			System.out.println("fwd");
-			for( int i = 0; i < endpos-startpos+1; i++ ) {
-				System.out.println(i + "\t" + Arrays.toString(fwdMatrix[i]));
-			}
-			System.exit(1);
-			/**/
-		} catch( Exception e ) {
-			throw getRunTimeException( e );
-		}
-
-		return bwdMatrix[0][0];
-	}
+		return getLogScoreAndPartialDerivation(seq, start, end, null, null);
+	}	
 	
 	public double getLogScoreAndPartialDerivation( Sequence seq, IntList indices, DoubleList partialDer ) {
 		return getLogScoreAndPartialDerivation( seq, 0, indices, partialDer );
@@ -617,180 +590,138 @@ System.out.println("trans\t" + isNormalized);
 	}
 		
 	public double getLogScoreAndPartialDerivation( Sequence seq, int startPos, int endPos, IntList indices, DoubleList partialDer ) {
-		int[] allowedStatesGroup=null;
-		if( train && type != null ) {
+		if( !train || type==null ) {
+			return compute( seq, null, startPos, endPos, indices, partialDer, score, false );
+		} else {
 			SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
 			if( sa !=null ) {
-				int best = 0;
-				if( training.isViterbiLike() ) {
-					double b = Double.NEGATIVE_INFINITY;
+				//determine best
+				Type s = training.isViterbiLike()?Type.VITERBI:Type.LIKELIHOOD;
+				double max = Double.NEGATIVE_INFINITY;
+				int[] best = null;
+				if( sa.getNumberOfResults()==1 ) {
+					best = ((AllowedStatesGroups) ((StorableResult) sa.getResultAt(0)).getResultInstance()).groups;
+				} else {
+					int[] allowedStatesGroup=null;
 					for( int i = 0; i <sa.getNumberOfResults(); i++ ) {
 						StorableResult res = (StorableResult) sa.getResultAt(i);
 						AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
 						allowedStatesGroup=asg.groups;
-						double current = 
-								training == TrainingType.DISCRIMINATIVE_VITERBI2 
-								? fill(seq, allowedStatesGroup, startPos, endPos, null, null)
-								: logProb( startPos, endPos, seq, allowedStatesGroup, score );
-						if( current > b ) {
-							b=current;
-							best=i;
-						}
-					}					
-				}
-				StorableResult res = (StorableResult) sa.getResultAt(best);
-				AllowedStatesGroups asg = (AllowedStatesGroups) res.getResultInstance();
-				allowedStatesGroup=asg.groups;
-				
-				if( training == TrainingType.DISCRIMINATIVE_VITERBI2 ) {
-					return fill(seq, allowedStatesGroup, startPos, endPos, indices, partialDer);
-				}
-			}
-		}
-		double s = logScoreAndPartialDerivation( seq, startPos, endPos, indices, partialDer, allowedStatesGroup, score, 1d );
-		if( train && training.isDiscrimnative() ) {
-			/*if( training == TrainingType.DISCRIMINATIVE_VITERBI2 ) {
-				s -= logScoreAndPartialDerivation( seq, startPos, endPos, indices, partialDer, null, Type.VITERBI, -1d );
-			} else {*/
-				s -= logScoreAndPartialDerivation( seq, startPos, endPos, indices, partialDer, null, Type.LIKELIHOOD, -1d );
-			//}
-		}
-		return s;
-	}
-	
-	protected double logScoreAndPartialDerivation( Sequence seq, int startPos, int endPos, IntList indices, DoubleList partialDer, int[] allowedStatesGroup, Type score, double factor ) {
-		try {
-			int maxOrder = transition.getMaximalMarkovOrder();
-			boolean zero = maxOrder == 0;
-			int l = endPos-startPos+1, stateID, context, n, children;
-			
-			provideMatrix( 1, endPos-startPos+1 );
-			
-			for( int idx2 = 0; idx2 < gradient[1].length; idx2++ ) {
-				Arrays.fill( gradient[0][idx2], 0 );
-				Arrays.fill( gradient[1][idx2], 0 );
-			}
-			DifferentiableTransition diffTransition = (DifferentiableTransition) transition;
-			
-			//init
-			double val;
-			for( stateID = 0; stateID < states.length; stateID++ ) {
-				indicesState[stateID].clear();
-				partDerState[stateID].clear();
-			}
-			fillFilter(endPos, seq);
-			int[] allContext = getAllowedContext(endPos+1, startPos, allowedStatesGroup, maxOrder);
-			Arrays.fill( bwdMatrix[l], zero ? 0 : Double.NEGATIVE_INFINITY );
-			for( int x = allContext.length-1; x>=0; x-- ) {
-				context = allContext[x];
-				n = transition.getNumberOfChildren( l, context );
-
-				children = 0;
-				if( zero || finalState[transition.getLastContextState( l, context )] ) {
-					val = 0;
-				} else {
-					val = Double.NEGATIVE_INFINITY;
-				}
-				//for all different children states
-				for( stateID = 0; stateID < n; stateID++ ) {
-					transition.fillTransitionInformation( l, context, stateID, container );
-					if( filterRes[container[0]] ) {
-						if( states[container[0]].isSilent() ) {
-							indicesTransition[children].clear();
-							partDerTransition[children].clear();
-							
-							backwardIntermediate[children] =
-								bwdMatrix[l][container[1]] //backward score until next position
-								//there is no emission (silent state)
-							    + diffTransition.getLogScoreAndPartialDerivation( l, context, stateID, indicesTransition[children], partDerTransition[children], seq, endPos ); //transition
-							
-							if( backwardIntermediate[children] != Double.NEGATIVE_INFINITY ) {	
-								index[0][children] = container[0];
-								index[1][children] = container[1];
-								index[2][children] = container[2];
-								children++;
-							}
+						double current = compute( seq, allowedStatesGroup, startPos, endPos, null, null, s, false );
+						if( current > max ) {
+							max = current;
+							best=allowedStatesGroup;
 						}
 					}
 				}
-				merge( bwdMatrix, backwardIntermediate, children, l, context, val, score );
+				//compute score for best
+				return compute( seq, best, startPos, endPos, indices, partialDer, s, training.isDiscrimnative() );
+			} else {
+				throw new IllegalArgumentException("Missing allowedStatesGroup");
 			}
-			//System.out.println( seq.toString(endPos, endPos+1) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
-			
-			//compute scores for all positions backward
-			while( --l >= 0 ) {
-				fillLogEmissionAndPartialDer( endPos, seq, true );
-				fillFilter(endPos, seq);
-				
-				//for all different contexts
-				allContext = getAllowedContext(endPos, startPos, allowedStatesGroup, maxOrder);
-				for( int x = allContext.length-1; x>=0; x-- ) {
-					context = allContext[x];
-					n = transition.getNumberOfChildren( l, context );
-					//for all different children states
-					children = 0;
-					for( stateID = 0; stateID < n; stateID++ ) {
-						indicesTransition[children].clear();
-						partDerTransition[children].clear();
-						
-						transition.fillTransitionInformation( l, context, stateID, container );
-						if( filterRes[container[0]] ) {
-							backwardIntermediate[children] =
-								bwdMatrix[l+container[2]][container[1]] //backward score until next position
-								+ logEmission[getIndex(container[0])] //emission
-								+ diffTransition.getLogScoreAndPartialDerivation( l, context, stateID, indicesTransition[children], partDerTransition[children], seq, endPos ); //transition
-					
-							if( backwardIntermediate[children] != Double.NEGATIVE_INFINITY ) {
-								index[0][children] = container[0];
-								index[1][children] = container[1];
-								index[2][children] = container[2];
-								children++;
-							}
-						}
-					}
-					merge( bwdMatrix, backwardIntermediate, children, l, context, Double.NEGATIVE_INFINITY, score );
-				}
-				endPos--;
-
-				if( l-1>=0 ) {
-					Arrays.fill( bwdMatrix[l-1], Double.NEGATIVE_INFINITY );
-				}
-
-				//System.out.println( (l==0?" ":seq.toString(endPos, endPos+1)) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
-			}
-			
-			for( int p = 0; p < numberOfParameters; p++ ) {
-				if( gradient[0][0][p] != 0 ) {
-					indices.add( p );
-					partialDer.add( factor*gradient[0][0][p] );
-				}
-			}
-			return bwdMatrix[0][0];
-		} catch( Exception e ) {
-			throw getRunTimeException( e );
 		}
 	}
-
-	//XXX
-	public double test( Sequence seq, int[] allowedStatesGroup, int startPos, int endPos ) {
-		return fill(seq,allowedStatesGroup,startPos,endPos, null, null );
+		
+	/*
+	//TODO To be removed
+	private double[] toGrad( IntList ind, DoubleList partD ) {
+		double[] grad = new double[numberOfParameters];
+		for( int i = 0; i < ind.length(); i++ ) {
+			grad[ind.get(i)] += partD.get(i);
+		}
+		return(grad);
+	}
+	private void gradComp( IntList oldIndices, DoubleList oldPartDer, IntList newIndices, DoubleList newPartDer, boolean showAll ) {
+		System.out.println(oldIndices.length() + "\t" +oldPartDer.length() + "\t" + newIndices.length() + "\t" + newPartDer.length());
+		double[] oldGrad = toGrad( oldIndices, oldPartDer );
+		double[] newGrad = toGrad( newIndices, newPartDer );
+		double max = 0;
+		for( int i = 0; i < numberOfParameters; i++ ) {
+			if( showAll ) System.out.println(i + "\t" +oldGrad[i] + "\t" + newGrad[i]);
+			double delta = Math.abs( oldGrad[i] - newGrad[i] );
+			max = Math.max(delta, max);
+		}
+		System.out.println("delta=" + max);
+		System.out.println();
 	}
 	
-	public double fill( Sequence seq, int[] allowedStatesGroup, int startPos, int endPos, IntList indices, DoubleList partialDer ) {
-		//viterbi => backward
-		//second best => forward
+	public void myTest( Sequence seq ) throws Exception {
+		setTrain(true);
+		Type s = Type.VITERBI;
+		
+		boolean gradOut=false;
+		int start=0;
+		int end = seq.getLength()-1;
+		int[] asg = null;
+		IntList newIndices = new IntList();
+		DoubleList newPartDer = new DoubleList();
+		IntList oldIndices = new IntList();
+		DoubleList oldPartDer = new DoubleList();
+		
+		//generative
+		fillBwdOrViterbiMatrix( s, start, end, 0, seq, asg, false );
+		System.out.println(
+				bwdMatrix[0][0]
+				+ "\t"+ logScoreAndPartialDerivation(seq, start, end, oldIndices, oldPartDer, asg, s, 1)
+				+ "\t" + compute( seq, asg, start, end, null, null, s, false )
+				+ "\t" + compute( seq, asg, start, end, newIndices, newPartDer, s, false )
+		);
+		gradComp(oldIndices, oldPartDer, newIndices, newPartDer, gradOut);
+				
+		//generative
+		SequenceAnnotation sa = seq.getSequenceAnnotationByType(type, 0);
+		asg = ((AllowedStatesGroups) ((StorableResult) sa.getResultAt(0)).getResultInstance()).groups;
+		newIndices.clear();
+		newPartDer.clear();
+		oldIndices.clear();
+		oldPartDer.clear();
+		fillBwdOrViterbiMatrix( Type.VITERBI, start, end, 0, seq, asg, false );
+		System.out.println(
+				bwdMatrix[0][0]
+				+ "\t"+ logScoreAndPartialDerivation(seq, start, end, oldIndices, oldPartDer, asg,Type.VITERBI, 1)
+				+ "\t" + compute( seq, asg, start, end, null, null, s, false )
+				+ "\t" + compute( seq, asg, start, end, newIndices, newPartDer, s, false )
+		);
+		gradComp(oldIndices, oldPartDer, newIndices, newPartDer, gradOut);
+
+		//Discriminative
+		newIndices.clear();
+		newPartDer.clear();
+		oldIndices.clear();
+		oldPartDer.clear();
+		System.out.println(
+				getLogScoreFor(seq, start, end)
+				+ "\t" + getLogScoreAndPartialDerivation(seq, oldIndices, oldPartDer)
+				+ "\t" + compute( seq, asg, 0, seq.getLength()-1, null, null, s, true )
+				+ "\t" + compute( seq, asg, 0, seq.getLength()-1, newIndices, newPartDer, s, true )
+		);
+		gradComp(oldIndices, oldPartDer, newIndices, newPartDer, gradOut);
+	}/**/
+
+	//compute score (and if asked for the partial derivatives)
+	private double compute( Sequence seq, int[] allowedStatesGroup, int startPos, int endPos, IntList indices, DoubleList partialDer, Type s, boolean discriminative ) {
 		try {
+			//slice => Viterbi/Likelihood in allowed states
+			//slice2 => Likelihood
+			Type t = discriminative ? Type.LIKELIHOOD : null;
+
 			int maxOrder = transition.getMaximalMarkovOrder();
 			boolean zero = maxOrder == 0;
 			int l = endPos-startPos+1, stateID, context, n;
 			
-			provideMatrix( 0, endPos-startPos+1 );
-			provideMatrix( 1, endPos-startPos+1 );
 			DifferentiableTransition diffTransition = (DifferentiableTransition) transition;
 			
 			//init
 			double val, emTrans;
-			if( indices != null ) {
+			for( int i = 0; i < slice.length; i++ ) {
+				Arrays.fill( slice[i], 0 );
+				Arrays.fill( slice2[i], 0 );
+			}
+			boolean computePartialDer = indices != null && partialDer != null;
+			double[][][] g = null, g2 = null;
+			if( computePartialDer ) {
+				g=gradient;
+				g2=gradient2;
 				for( int idx2 = 0; idx2 < gradient[1].length; idx2++ ) {
 					Arrays.fill( gradient[0][idx2], 0 );
 					Arrays.fill( gradient[1][idx2], 0 );
@@ -806,13 +737,13 @@ System.out.println("trans\t" + isNormalized);
 			int[] all = getAllowedContext(endPos+1, startPos, null, maxOrder);
 			int[] allowed = getAllowedContext(endPos+1, startPos, allowedStatesGroup, maxOrder);
 			int a=allowed.length-1;
-			Arrays.fill( bwdMatrix[l], zero ? 0 : Double.NEGATIVE_INFINITY );
-			Arrays.fill( fwdMatrix[l], zero ? 0 : Double.NEGATIVE_INFINITY );
+	
 			for( int x = all.length-1; x>=0; x-- ) {
 				context = all[x];
 				n = transition.getNumberOfChildren( l, context );
 				boolean allowedState = a >=0 ? context == allowed[a] : false;
-
+	
+				//the stateIds which are filled
 				childrenBW.clear();
 				childrenFW.clear();
 				if( zero || finalState[transition.getLastContextState( l, context )] ) {
@@ -826,7 +757,7 @@ System.out.println("trans\t" + isNormalized);
 					if( filterRes[container[0]] ) {
 						if( states[container[0]].isSilent() ) {
 							emTrans=0;//there is no emission (silent state)
-							if( indices!= null ) {
+							if( computePartialDer ) {
 								indicesTransition[stateID].clear();
 								partDerTransition[stateID].clear();
 								emTrans += diffTransition.getLogScoreAndPartialDerivation( l, context, stateID, indicesTransition[stateID], partDerTransition[stateID], seq, endPos );
@@ -836,14 +767,14 @@ System.out.println("trans\t" + isNormalized);
 							
 							if( allowedState ) {
 								backwardIntermediate[stateID] = emTrans
-									+ bwdMatrix[l][container[1]]; //viterbi score until next position
+									+ slice[l%2][container[1]]; //viterbi score until next position
 								childrenBW.add(stateID);
-								forwardIntermediate[stateID] = Double.NEGATIVE_INFINITY;
-							} else {
-								forwardIntermediate[stateID] = emTrans
-									+ fwdMatrix[l][container[1]]; //score until next position
 							}
-							childrenFW.add(stateID);
+							if( discriminative ) {
+								forwardIntermediate[stateID] = emTrans
+									+ slice2[l%2][container[1]]; //score until next position
+								childrenFW.add(stateID);
+							}
 							
 							index[0][stateID] = container[0];
 							index[1][stateID] = container[1];
@@ -852,18 +783,18 @@ System.out.println("trans\t" + isNormalized);
 						}
 					}
 				}
-				bwdMatrix[l][context]=max( backwardIntermediate, childrenBW, l, context, val, indices==null ? null : gradient, null );
-				fwdMatrix[l][context]=max( forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient2, gradient );
+				slice[l%2][context] = merge( backwardIntermediate, childrenBW, l, context, val, s, g );
+				slice2[l%2][context] = merge( forwardIntermediate, childrenFW, l, context, val, t, g2 );
 				
 				if( allowedState ) {
 					a--;
 				}
 			}
-			//System.out.println( seq.toString(endPos, endPos+1) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
+			//System.out.println( seq.toString(endPos, endPos+1) + "\t" + l + "\t" + Arrays.toString( slice[l%2] ) );
 			
 			//compute scores for all positions backward
 			while( --l >= 0 ) {
-				fillLogEmissionAndPartialDer( endPos, seq, indices!=null );
+				fillLogEmissionAndPartialDer( endPos, seq, computePartialDer );
 				fillFilter(endPos, seq);
 				
 				//for all different contexts
@@ -882,14 +813,14 @@ System.out.println("trans\t" + isNormalized);
 						transition.fillTransitionInformation( l, context, stateID, container );
 						if( filterRes[container[0]] ) {
 							emTrans = logEmission[getIndex(container[0])]; //emission
-							if( indices != null ) {
+							if( computePartialDer ) {
 								indicesTransition[stateID].clear();
 								partDerTransition[stateID].clear();
 								emTrans += diffTransition.getLogScoreAndPartialDerivation( l, context, stateID, indicesTransition[stateID], partDerTransition[stateID], seq, endPos );
 							} else {
 								emTrans += diffTransition.getLogScoreFor( l, context, stateID, seq, endPos );
 							}
-
+	
 							index[0][stateID] = container[0];
 							index[1][stateID] = container[1];
 							index[2][stateID] = container[2];
@@ -897,57 +828,69 @@ System.out.println("trans\t" + isNormalized);
 							
 							if( allowedState ) {
 								backwardIntermediate[stateID] = emTrans
-									+ bwdMatrix[l+container[2]][container[1]]; //viterbi score until next position
+									+ slice[(l+container[2])%2][container[1]]; //inside viterbi score until next position
 								childrenBW.add(stateID);
+							}
+							
+							if( discriminative ) {
 								forwardIntermediate[stateID] = emTrans
-									+ fwdMatrix[l+container[2]][container[1]]; //score until next position
-							} else {
-								if( fwdMatrix[l+container[2]][container[1]] > bwdMatrix[l+container[2]][container[1]] ) {
-									forwardIntermediate[stateID] = emTrans
-											+ fwdMatrix[l+container[2]][container[1]]; //score until next position
-									
-								} else {
-									index[3][stateID] = 1;
-									forwardIntermediate[stateID] = emTrans
-											+ bwdMatrix[l+container[2]][container[1]]; //score until next position
-								}
-							}	
-							childrenFW.add(stateID);							
+										+ slice2[(l+container[2])%2][container[1]];
+								childrenFW.add(stateID);	
+							}							
 						}
 					}
-					bwdMatrix[l][context]=max( backwardIntermediate, childrenBW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient, null );
-					fwdMatrix[l][context]=max( forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, indices==null ? null : gradient2, gradient );
-
+					slice[l%2][context]=merge( backwardIntermediate, childrenBW, l, context, Double.NEGATIVE_INFINITY, s, g );
+					slice2[l%2][context]=merge( forwardIntermediate, childrenFW, l, context, Double.NEGATIVE_INFINITY, t, g2 );
+	
 					if( allowedState ) {
 						a--;
 					}
 				}
+				
+	
+				//System.out.println("X\t" + l + "\t" + (l==0?" ":seq.toString(endPos, endPos+1)) + "\t" + allowedStatesGroup[endPos] + "\t" + Arrays.toString( slice[l%2] ) );
+				//System.out.println("Y\t" + l + "\t" + (l==0?" ":seq.toString(endPos, endPos+1)) + "\t" + allowedStatesGroup[endPos] + "\t" + Arrays.toString( slice2[l%2] ) );
+				
 				endPos--;
-
-				//System.out.println( (l==0?" ":seq.toString(endPos, endPos+1)) + "\t" + l + "\t" + Arrays.toString( bwdMatrix[l] ) );
 			}
-			
-			logScore[0] = bwdMatrix[0][0];
-			logScore[1] = fwdMatrix[0][0];
-//System.out.println(Arrays.toString(logScore) + "\t" + Arrays.toString(prop));
-			double ls = Normalisation.logSumNormalisation(logScore, 0, 2, prop, 0);
-			
-			if( indices!= null ) {
+			logScore[0] = slice[0][0];
+			double ls = 0;
+			if( discriminative ) {
+				ls = slice2[0][0];//Normalisation.logSumNormalisation(slice2[0], 0, slice2[0].length, slice2[1], 0);
+				//System.out.println(slice[0][0] + "\t" + ls);
+			}
+			if( computePartialDer ) {
+				/*if( discriminative ) {
+					Arrays.fill(gradient2[1][0], 0);
+					for( int k = 0; k < gradient2[1].length; k++ ) {
+						if( slice2[1][k]!= 0 ) {
+							for( int p = 0; p < numberOfParameters; p++ ) {
+								gradient2[1][0][p] += slice2[1][k] * gradient2[0][k][p];
+							}
+						}
+					}
+				}/**/
+				
 				for( int p = 0; p < numberOfParameters; p++ ) {
-					double v = prop[1]*(gradient[0][0][p]-gradient2[0][0][p]);
+					double v = gradient[0][0][p] - (discriminative ? gradient2[0][0][p] : 0);
 					if( v!= 0 ) {
 						indices.add( p );
 						partialDer.add( v );
 					}
 				}
 			}
-			
-			return logScore[0] - ls;
+//System.out.println(slice[0][0] + "\t" + ls);
+			return slice[0][0] - ls;
 		} catch( Exception e ) {
 			throw getRunTimeException( e );
 		}
 	}
 	
+	public double test( Sequence seq, int[] allowedStatesGroup, int startPos, int endPos ) {
+		return compute( seq, allowedStatesGroup, startPos, endPos, null, null, Type.VITERBI, true );
+	}
+	
+	//this is slow if emissons are used several times
 	protected void fillLogEmissionAndPartialDer( int endPos, Sequence seq, boolean grad ) throws OperationNotSupportedException, WrongLengthException {
 		if( grad ) {
 			for( int stateID = 0; stateID < states.length; stateID++ ) {
@@ -973,7 +916,7 @@ System.out.println("trans\t" + isNormalized);
 				
 				double[] old;
 				int x = (layer+index[2][idx]) % 2;
-				if( altGradient==null || index[3][idx]==0 ) {
+				if( index[3][idx]==0 ) {
 					old = gradient[x][index[1][idx]];
 				} else {
 					old = altGradient[x][index[1][idx]];
@@ -988,61 +931,70 @@ System.out.println("trans\t" + isNormalized);
 		}
 	}
 	
-	protected void merge( double[][] matrix, double[] intermediate, int anz, int layer, int context, double val, Type score ) {
-		if( anz == 0 )  {
-			matrix[layer][context] = val;
-			resetGradient( gradient, layer, context, 0 );
+	protected double merge( double[] intermediate, IntList children, int layer, int context, double val, Type score, double[][][] gradient ) {
+		if( score==null ) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		if( children.length() == 0 )  {
+			if( gradient != null ) resetGradient( gradient, layer, context, 0 );
+			return val;
 		} else {
-		int h = layer % 2;
-		if( score == Type.VITERBI ) {
+			int h = layer % 2;
+			if( score == Type.VITERBI ) {
 				//determine best 
-			int idx = ToolBox.getMaxIndex( 0, anz, intermediate );
+				int idx = ToolBox.getMaxIndex( children, intermediate );
 				//sum gradient
-				System.arraycopy( gradient[(layer+index[2][idx]) % 2][index[1][idx]], 0, gradient[h][context], 0, numberOfParameters );
-				miniMerge( idx, 1, h, context, gradient );
-				//set partial log probability for (viterbi) path 
-				matrix[layer][context] = intermediate[idx];
-		} else { //LIKELIHOOD
-			matrix[layer][context] = Normalisation.logSumNormalisation( intermediate, 0, anz, intermediate, 0 );
-			
-			// S = \sum_i u_i v_i
-			// \frac{\partial \log(S)}{\partial \lambda}
-			// = \sum_i 
-			//		(u_i v_i / S) \frac{\partial \log u_i}{\partial \lambda}   (AAA)
-			//	 	+ (u_i v_i / S) \frac{\partial \log v_i}{\partial \lambda} (BBB)
-			
-			//help[0][0][i] = u_i v_i / S
-			
-			Arrays.fill( gradient[h][context], 0 );
-			
-			//slow version
-			/*
-			// old = (AAA)
-			for( int p = 0; p < numberOfParameters; p++ ) {
-				for( int i = 0; i < anz; i++ ) {
-					int x = (layer+index[2][i]) % 2;
-					gradient[h][context][p] += help[0][0][i] * gradient[x][index[1][i]][p];
+				if( gradient != null ) {
+					System.arraycopy( gradient[(layer+index[2][idx]) % 2][index[1][idx]], 0, gradient[h][context], 0, numberOfParameters );
+					miniMerge( idx, 1, h, context, gradient );				
 				}
-			}	
-			// transition & emission = (BBB)
-			for( int i = 0; i < anz; i++ ) {
-				miniMerge( i, help[0][0][i], h, context );
-			}
-			*/
-			
-			//fast version
-			for( int i = 0; i < anz; i++ ) {
-				// old = (AAA)
-				int x = (layer+index[2][i]) % 2;
-				for( int p = 0; p < numberOfParameters; p++ ) {
-					gradient[h][context][p] += intermediate[i] * gradient[x][index[1][i]][p];
+				//set partial log probability for (viterbi) path
+				return intermediate[idx];
+			} else { //LIKELIHOOD
+				double res = Normalisation.logSumNormalisation( intermediate, children, intermediate );
+				
+				if( gradient != null ) {
+					// S = \sum_i u_i v_i
+					// \frac{\partial \log(S)}{\partial \lambda}
+					// = \sum_i 
+					//		(u_i v_i / S) \frac{\partial \log u_i}{\partial \lambda}   (AAA)
+					//	 	+ (u_i v_i / S) \frac{\partial \log v_i}{\partial \lambda} (BBB)
+					
+					//help[0][0][i] = u_i v_i / S
+					
+					Arrays.fill( gradient[h][context], 0 );
+					
+					//slow version
+					/*
+					// old = (AAA)
+					for( int p = 0; p < numberOfParameters; p++ ) {
+						for( int i = 0; i < anz; i++ ) {
+							int x = (layer+index[2][i]) % 2;
+							gradient[h][context][p] += help[0][0][i] * gradient[x][index[1][i]][p];
+						}
+					}	
+					// transition & emission = (BBB)
+					for( int i = 0; i < anz; i++ ) {
+						miniMerge( i, help[0][0][i], h, context );
+					}
+					*/
+					
+					//fast version
+					for( int j = 0; j < children.length(); j++ ) {
+						int i = children.get(j);
+						// old = (AAA)
+						int x = (layer+index[2][i]) % 2;
+						for( int p = 0; p < numberOfParameters; p++ ) {
+							gradient[h][context][p] += intermediate[i] * gradient[x][index[1][i]][p];
+						}
+		
+						// transition & emission = (BBB)
+						miniMerge( i, intermediate[i], h, context, gradient );
+					}
 				}
-
-				// transition & emission = (BBB)
-				miniMerge( i, intermediate[i], h, context, gradient );
+				return res;
 			}
 		}
-	}
 	}
 	
 	//add the partial derivation with given weight
@@ -1087,12 +1039,11 @@ System.out.println("trans\t" + isNormalized);
 	public String getInstanceName() {
 		return "differentiable HMM(" + transition.getMaximalMarkovOrder() + ", " + training + ")";
 	}
-
-	//XXX
+	
 	public void setTrain( boolean train ) {
 		this.train=train;
 		if( train ) {
-			if( training==TrainingType.LIKELIHOOD || training==TrainingType.DISCRIMINATIVE_LIKELIHOOD ) {
+			if( training==TrainingType.LIKELIHOOD ) {
 				score = Type.LIKELIHOOD;
 			} else {
 				score = Type.VITERBI;
@@ -1109,7 +1060,7 @@ System.out.println("trans\t" + isNormalized);
 		setTrain(true);
 		double[][] w = new double[1][data.getNumberOfElements()];
 		Arrays.fill(w[0], 1);
-		LogGenDisMixFunction log = new LogGenDisMixFunction( ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads(), new DifferentiableHigherOrderHMM[] {this}, new DataSet[] {data}, w, null, LearningPrinciple.getBeta(ess==0?LearningPrinciple.ML:LearningPrinciple.MAP), true, false);
+		LogGenDisMixFunction log = new LogGenDisMixFunction( ((NumericalHMMTrainingParameterSet) trainingParameter).getNumberOfThreads(), new DifferentiableHigherOrderHMM[] { this }, new DataSet[] { data }, w, null, LearningPrinciple.getBeta(ess==0?LearningPrinciple.ML:LearningPrinciple.MAP), true, false);
 		log.reset();
 		double[] grad = log.evaluateGradientOfFunction(params);
 		int min = ToolBox.getMinIndex(grad);

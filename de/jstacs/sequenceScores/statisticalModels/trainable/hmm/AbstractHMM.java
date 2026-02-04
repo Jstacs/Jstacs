@@ -151,7 +151,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	 */
 	protected int[][] preComputedContext;	
 
-	protected int[][] statesGroups;
+	protected int[][] statesGroups, statesGroupsEm;
 	
 	protected void fillDefContext() {
 		int dim, max = transition.getMaximalMarkovOrder();
@@ -173,20 +173,37 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	protected void fillPreComputedContext( int[][] statesGroups ) throws CloneNotSupportedException {
 		if( statesGroups==null || statesGroups.length==0 ) {
 			this.statesGroups = new int[0][];
+			statesGroupsEm= new int[this.statesGroups.length][];
 			preComputedContext = null;
 		} else {
 			this.statesGroups = ArrayHandler.clone(statesGroups);
+			statesGroupsEm= new int[statesGroups.length][];
 			preComputedContext = new int[statesGroups.length][];
 			HashSet<Integer> allowed = new HashSet<Integer>();
 			HashSet<Integer> hash = new HashSet<Integer>();
 			int maxOrder= transition.getMaximalMarkovOrder();
 			int[] cont = new int[3];
+			boolean[] usedEm = new boolean[emission.length];
 			for( int i = 0; i < statesGroups.length; i++ ) {
 				allowed.clear();
 				hash.clear();
+				Arrays.fill(usedEm,false);
+				int a=0;
 				for( int j = 0; j < statesGroups[i].length; j++ ) {
 					hash.add(statesGroups[i][j]);
+					if( !usedEm[emissionIdx[statesGroups[i][j]]] ) {
+						usedEm[emissionIdx[statesGroups[i][j]]]=true;
+						a++;
+					}
 				}
+				statesGroupsEm[i] = new int[a];
+				a=0;
+				for( int j = 0; j < usedEm.length; j++ ) {
+					if( usedEm[j] ) {
+						statesGroupsEm[i][a++]=j;
+					}
+				}
+				
 				//maxOrder is necessary, as some state might not be reachable for maxOrder-1
 				for( int context=0; context < defContext[maxOrder].length; context++ ) {
 					//check context and add if allowed
@@ -377,17 +394,21 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 	public StringBuffer toXML() {
 		StringBuffer xml = new StringBuffer();
 		XMLParser.appendObjectWithTags( xml, trainingParameter, "trainingParameter" );
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, transition, "transition" );
-		
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, name, "name" );
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, filter, "filter" );
-		
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, emissionIdx, "emissionIdx" );
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, forward, "strand" );
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, emission, "emission" );
-		
+		xml.append("\n");
 		XMLParser.appendObjectWithTags( xml, statesGroups, "statesGroups" );
-		
+		xml.append("\n");
 		appendFurtherInformation( xml );
 		XMLParser.addTags( xml, getXMLTag() );
 		return xml;
@@ -476,6 +497,7 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		clone.trainingParameter = (HMMTrainingParameterSet) trainingParameter.clone();
 		clone.finalState = finalState.clone();
 		clone.statesGroups = ArrayHandler.clone(statesGroups);
+		clone.statesGroupsEm = ArrayHandler.clone(statesGroupsEm);
 		clone.preComputedContext = ArrayHandler.clone(preComputedContext);
 		clone.defContext = ArrayHandler.clone(defContext);
 		
@@ -1047,14 +1069,6 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		return bwdMatrix[0][0];
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see de.jstacs.trainableStatisticalModels.TrainableStatisticalModel#train(de.jstacs.data.DataSet)
-	 */
-	public void train(DataSet data) throws Exception {
-		train( data, null );
-	}
-	
 	/**
 	 * Sets the {@link OutputStream} that is used e.g. for writing information
 	 * while training. It is possible to set <code>o=null</code>, than nothing
@@ -1209,8 +1223,9 @@ public abstract class AbstractHMM extends AbstractTrainableStatisticalModel impl
 		
 		public static void add( int[] allowedStatesGroups, HashMap<String,int[]> stat, String[] names ) {
 			for( int i = 1; i <allowedStatesGroups.length; i++ ) {
-				String key= (names==null?allowedStatesGroups[i-1]:names[allowedStatesGroups[i-1]]) 
-						+ "->" + (names==null?allowedStatesGroups[i]:names[allowedStatesGroups[i]]);
+				String key= 
+					allowedStatesGroups[i-1] + "->" + allowedStatesGroups[i] + 
+					(names==null ? "" : (" = "+ names[allowedStatesGroups[i-1]]	+ "->" + names[allowedStatesGroups[i]]));
 				int[] s = stat.get(key);
 				if( s == null ) {
 					s = new int[1];
