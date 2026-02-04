@@ -71,7 +71,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	 * The main constructor.
 	 * 
 	 * @param transitions the {@link AbstractTransitionElement}s for the internal use
-	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 &le; transIndex[i] &le; i</code>
+	 * @param transIndex an index that can be used to use the same parameters for different {@link TransitionElement}s, constraint: <code>0 <=transIndex[i] <= i</code>
 	 * @param isSilent an array indicating for each state whether it is silent or not
 	 * 
 	 * @throws Exception if an error occurs during checking the {@link AbstractTransitionElement}s and creating internal fields 
@@ -322,7 +322,9 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			for( int s = t+1; s < transitions.length; s++ ){
 				if( transitions[t].hasSameContext( transitions[s] ) ) {
 					//multiple times the same context 
-					throw new IllegalArgumentException( "The context " + Arrays.toString( transitions[t].context ) + " is used by more than one TransitionElements." ); 
+					throw new IllegalArgumentException( "The context " + Arrays.toString( transitions[t].context ) + " is used by more than one TransitionElements:\n"
+							+ Arrays.toString(transitions[t].descendants) + " and\n" 
+							+ Arrays.toString(transitions[s].descendants) ); 
 				}
 			}
 		}
@@ -517,7 +519,17 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 			if( transIndex[t] == t ) {
 				transitions[t].initializeRandomly();
 			} else {
-				this.transitions[t].setParameters( this.transitions[transIndex[t]] );
+				transitions[t].setParameters( transitions[transIndex[t]] );
+			}
+		}
+	}
+	
+	public void setUniformly( int idx ) {
+		if( idx<0 || idx>transitions.length ) {
+			throw new IndexOutOfBoundsException("The requested index ("+idx+") is out of bounds ([0,"+(transitions.length-1)+"]");
+		} else {
+			if( transIndex[idx]==idx ) {
+				transitions[idx].initializeUniformly();
 			}
 		}
 	}
@@ -568,7 +580,9 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 	@Override
 	public double getLogScoreFor( int layer, int index, int childIdx, Sequence sequence, int sequencePosition ) {
 		//the link via transIndex is omitted for runtime reasons
-		return transitions[ getTransitionElementIndex( layer, index ) ].getLogScoreFor( childIdx, sequence, sequencePosition );
+		double fast = transitions[ getTransitionElementIndex( layer, index ) ].getLogScoreFor( childIdx, sequence, sequencePosition );
+		//double slow = transitions[ transIndex[getTransitionElementIndex( layer, index )] ].getLogScoreFor( childIdx, sequence, sequencePosition );
+		return fast;
 	}
 
 	@Override
@@ -683,11 +697,11 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		/**
 		 * The context, i.e. the visited states, of the {@link AbstractTransitionElement}
 		 */
-		protected int[] context;
+		public int[] context;
 		/**
 		 * The states that can be visited
 		 */
-		protected int[] states;
+		public int[] states;
 		/**
 		 * The hyperparameters of the prior over the parameters.
 		 * The order of the elements is the same as for states.
@@ -741,7 +755,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @param states the transitions to all possible states; if <code>null</code> then no transition allowed
 		 * @param hyperParameters the hyper parameters for the transitions; if <code>null</code> then no prior is used
 		 * 
-		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement#AbstractTransitionElement(int[], int[], double[], double[])
+		 * @see de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.BasicHigherOrderTransition.AbstractTransitionElement#BasicHigherOrderTransition.AbstractTransitionElement(int[], int[], double[], double[])
 		 */
 		public AbstractTransitionElement( int[] context, int[] states, double[] hyperParameters ){
 			this( context, states, hyperParameters, null );
@@ -756,7 +770,7 @@ public class BasicHigherOrderTransition implements TrainableTransition {
 		 * @param weight the weight for plotting the edges in Graphviz, enables to modify the edge length, larger weights imply shorter edges (default: 1)
 		 */
 		public AbstractTransitionElement( int[] context, int[] states, double[] hyperParameters, double[] weight ){
-this(context,states,hyperParameters,weight,true);
+			this(context,states,hyperParameters,weight,true);
 		}
 		
 		/**
@@ -798,9 +812,9 @@ this(context,states,hyperParameters,weight,true);
 				}
 			}
 			this.parameters = new double[s];
+			this.norm = norm;
 			init();
 			this.weight = weight==null ? null : weight.clone();
-			this.norm = norm;
 		}
 		
 		/**
@@ -915,7 +929,7 @@ this(context,states,hyperParameters,weight,true);
 		protected void precompute() {
 			if( norm ) {
 				logNorm = Normalisation.getLogSum( parameters );
-			} else { 
+			} else {
 				logNorm=0;
 			}
 		}
@@ -1242,7 +1256,8 @@ this(context,states,hyperParameters,weight,true);
 				for(int i=0;i<statistic.length;i++){
 					parameters[i] -= logNorm;
 				}
-				logNorm = 0;
+				//should be zero (logNorm = 0;), but sometimes it is not due to precision
+				logNorm = Normalisation.getLogSum( parameters );
 			}
 		}
 
@@ -1266,8 +1281,14 @@ this(context,states,hyperParameters,weight,true);
 			resetStatistic();
 			drawParametersFromStatistic();
 			resetStatistic();
-			
-			
+		}
+		
+		/**
+		 * This method sets new parameters to obtain a uniform distribution.
+		 */
+		public void initializeUniformly() {
+			Arrays.fill(parameters, 0);
+			precompute();
 		}
 		
 		/**
