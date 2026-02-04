@@ -154,18 +154,33 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @param ess the equivalent sample size
 	 * @param numConditions the number of conditions
 	 * @param numEmissions the number of emissions, assumed to be equal for all conditions
+	 * @param frac the fraction of the <code>ess</code> that is used for each parameter as hyper-parameter
 	 * @return hyper-parameters for all parameters
 	 */
-	protected static double[][] getHyperParams(double ess, int numConditions, int numEmissions){
+	protected static double[][] getHyperParams(double ess, int numConditions, int numEmissions, double[] frac ){
 		double[] ess2 = new double[numConditions];
 		Arrays.fill( ess2, ess/(double)numConditions );
-		return getHyperParams( ess2, numEmissions );
+		return getHyperParams( ess2, numEmissions, frac );
 	}
 	
-	private static double[][] getHyperParams( double[] ess, int number ){
+	private static double[][] getHyperParams( double[] ess, int number, double[] frac ){
 		double[][] res = new double[ess.length][number];
-		for(int i=0;i<res.length;i++){
-			Arrays.fill( res[i], ess[i]/(double) number );
+		if( frac == null ) {
+			for(int i=0;i<res.length;i++){
+				Arrays.fill( res[i], ess[i]/(double) number );
+			}
+		} else if( frac.length == number ) {
+			double sum = ToolBox.sum(frac);
+			if( Math.abs(1-sum)>1E-12 ) {
+				throw new IllegalArgumentException( "Could not create hyperparameters: Sum of " + Arrays.toString(frac) + " is not close to 1: " + sum );				
+			}
+			for(int i=0;i<res.length;i++){
+				for(int j=0;j<number;j++){
+					res[i][j] = ess[i] * frac[j];
+				}
+			}
+		} else {
+			throw new IllegalArgumentException( "Could not create hyperparameters: " + number + "!=" + frac.length );
 		}
 		return res;
 	}
@@ -190,7 +205,11 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	}
 	
 	protected AbstractConditionalDiscreteEmission( AlphabetContainer con, int numberOfConditions, double ess, double initEss, boolean norm ) throws WrongAlphabetException {
-		this( con, getHyperParams( ess, numberOfConditions, (int) con.getAlphabetLengthAt( 0 )), getHyperParams( initEss, numberOfConditions, (int) con.getAlphabetLengthAt( 0 )), norm );
+		this( con, numberOfConditions, ess, initEss, null, norm );
+	}
+	
+	protected AbstractConditionalDiscreteEmission( AlphabetContainer con, int numberOfConditions, double ess, double initEss, double[] frac, boolean norm ) throws WrongAlphabetException {
+		this( con, getHyperParams( ess, numberOfConditions, (int) con.getAlphabetLengthAt( 0 ), frac), getHyperParams( initEss, numberOfConditions, (int) con.getAlphabetLengthAt( 0 ), frac), norm );
 	}
 	
 	/**
@@ -228,7 +247,7 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @param con the {@link AlphabetContainer} of this emission
 	 * @param hyperParams the individual hyper parameters for each parameter (used during training)
 	 * @param initHyperParams the individual hyper parameters for each parameter used in {@link #initializeFunctionRandomly()}
-	 * @param normalized whether a normalized or unnormalized variante shoudl be created
+	 * @param normalized whether a normalized or unnormalized variant should be created
 	 * 
 	 * @throws WrongAlphabetException if the {@link AlphabetContainer} is not discrete or simple
 	 */
@@ -741,17 +760,17 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 
     public double getLogGammaScoreFromStatistic() {
 
-    	double[][] hyper = getHyperParams( ess, (int) con.getAlphabetLengthAt( 0 ) );
+    	//double[][] hyper = getHyperParams( ess, (int) con.getAlphabetLengthAt( 0 ) );
         double res = Double.NEGATIVE_INFINITY;
         for(int j=0;j<ess.length;j++){
         	
         	double sum = 0;
 
-        	for (double i : hyper[j]) sum += i;
+        	for (double i : hyperParams[j]) sum += i;
 
         	res = Gamma.logOfGamma(sum);
-        	for(int i = 0; i < hyper.length; i++)
-        		res += Gamma.logOfGamma(statistic[j][i]) - Gamma.logOfGamma(hyper[j][i]);
+        	for(int i = 0; i < hyperParams.length; i++)
+        		res += Gamma.logOfGamma(statistic[j][i]) - Gamma.logOfGamma(hyperParams[j][i]);
 
         	sum = 0;
         	for (double i : statistic[j]) sum += i;
