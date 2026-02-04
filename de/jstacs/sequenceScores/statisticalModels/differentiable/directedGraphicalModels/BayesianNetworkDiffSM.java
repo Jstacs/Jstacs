@@ -955,11 +955,7 @@ public class BayesianNetworkDiffSM extends
 		if(!(structureMeasure instanceof InhomogeneousMarkov)){
 			throw new Exception("Only implemented for IMMs");
 		}
-		precomputeNormalization();
-		for(int i=0;i<trees.length;i++){
-			trees[i].normalizeParameters();
-		}
-		precomputeNormalization();
+		normalize();
 		
 		double[] prof = new double[trees.length-kmer.getLength()+1];
 		
@@ -970,6 +966,17 @@ public class BayesianNetworkDiffSM extends
 			prof[i] *= trees[i+kmer.getLength()-1].getProbFor(kmer);
 		}
 		return prof;
+	}
+	
+	/**
+	 * Normalize internal parameters.
+	 */
+	public void normalize() {
+		precomputeNormalization();
+		for(int i=0;i<trees.length;i++){
+			trees[i].normalizeParameters();
+		}
+		precomputeNormalization();
 	}
 
 	/*
@@ -1146,7 +1153,4 @@ public class BayesianNetworkDiffSM extends
 		}
 		
 	}
-	
-	
-	
 }

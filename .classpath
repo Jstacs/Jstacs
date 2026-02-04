@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="lib" path="lib/BigWig.jar"/>
+	<classpathentry kind="lib" path="lib/biojava-live.jar"/>
+	<classpathentry kind="lib" path="lib/bytecode-1.9.0.jar"/>
+	<classpathentry kind="lib" path="lib/bytecode.jar"/>
+	<classpathentry kind="lib" path="lib/core-1.9.0.jar"/>
+	<classpathentry kind="lib" path="lib/htsjdk-2.5.0-4-gd683012-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/Jama-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/LaTeXlet-1.2f7.jar"/>
+	<classpathentry kind="lib" path="lib/LaTeXlet-1.2f8.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/numericalMethods.jar"/>
+	<classpathentry kind="lib" path="lib/RClient-0.6.7.jar"/>
+	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.13-beta-3.jar"/>
+	<classpathentry kind="lib" path="lib/xml-commons/pdf-transcoder.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/chromeinspector.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/collections.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/dap.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/graaljs.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/graaljs-launcher.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/insight.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/insight-heap.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/jline3.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/jniutils.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/launcher-common.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/lsp.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/lsp-api.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/maven-downloader.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/nativeimage.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/polyglot.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/tregex.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-api.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-compiler.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-coverage.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-icu4j.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-json.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-profiler.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-runtime.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/truffle-xz.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/wasm.jar"/>
+	<classpathentry kind="lib" path="lib/graaljs/word.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
