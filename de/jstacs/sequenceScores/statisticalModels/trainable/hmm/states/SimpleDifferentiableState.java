@@ -21,6 +21,7 @@ import javax.naming.OperationNotSupportedException;
 
 import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableCombinedWrapperEmission;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.states.emissions.DifferentiableEmission;
 import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
@@ -32,6 +33,8 @@ import de.jstacs.utils.IntList;
  */
 public class SimpleDifferentiableState extends SimpleState implements DifferentiableState {
 	
+	private int phase;
+	
 	/**
 	 * This is the constructor of a {@link SimpleDifferentiableState}.
 	 * 
@@ -41,10 +44,42 @@ public class SimpleDifferentiableState extends SimpleState implements Differenti
 	 */
 	public SimpleDifferentiableState( DifferentiableEmission e, String name, boolean forward ) {
 		super( e, name, forward );
+		determinePhase();
+	}
+	
+	protected void determinePhase() {
+		phase = e instanceof DifferentiableCombinedWrapperEmission ? -1 : -2;
+		if( phase>-2 ) {
+			if( name.equals("C_start") || name.equals("C_stop") ) {
+				phase = 0;
+			} else {
+				char first = name.charAt(0);
+				if(first =='A' || first =='D' || first=='C') {
+					phase = Integer.parseInt(name.substring(2,3));
+				}
+			}
+		}
 	}
 
+	public double getLogScoreFor( int startPos, int endPos, Sequence seq ) throws WrongLengthException,
+		OperationNotSupportedException {
+		setStartPhase();
+		return super.getLogScoreFor( startPos, endPos, seq );
+	}
+	
 	public double getLogScoreAndPartialDerivation( int startPos, int endPos, IntList indices, DoubleList partDer, Sequence seq ) throws WrongLengthException,
 			OperationNotSupportedException {
+		setStartPhase();
 		return ((DifferentiableEmission)e).getLogProbAndPartialDerivationFor( forward, startPos, endPos, indices, partDer, seq );
+	}
+	
+	protected void setStartPhase() {
+		if( phase>=0 ) {
+			((DifferentiableCombinedWrapperEmission)e).setStartPhase(phase);
+		}
+	}
+	
+	public int getPhase() {
+		return phase;
 	}
 }
