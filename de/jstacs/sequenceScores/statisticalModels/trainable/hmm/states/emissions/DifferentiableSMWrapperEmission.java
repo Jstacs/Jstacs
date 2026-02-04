@@ -28,7 +28,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 
 	private DifferentiableStatisticalModel model;
 	private int pOffset, offset, l;
-	private double logUniform;
+	private double logUniform, importance;
 	
 	/**
 	 * Create a {@link DifferentiableSMWrapperEmission}.
@@ -36,9 +36,9 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	 * @param offset the offset for the start
 	 * @param model a {@link DifferentiableStatisticalModel} with a fixed length
 	 * 
-	 * @throws CloneNotSupportedException if the model can not be cloned
+	 * @throws Exception if something goes wrong while initialization (e.g. not cloneable)
 	 */
-	public DifferentiableSMWrapperEmission( int offset, DifferentiableStatisticalModel model ) throws CloneNotSupportedException {
+	public DifferentiableSMWrapperEmission( int offset, DifferentiableStatisticalModel model ) throws Exception {
 		if( !model.getAlphabetContainer().isSimple() ) {
 			throw new IllegalArgumentException("Possible only for simple AlphabetContainer");
 		} 
@@ -71,6 +71,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 		model = (DifferentiableStatisticalModel) XMLParser.extractObjectForTags(xml, "model");
 		offset = (Integer) XMLParser.extractObjectForTags(xml, "offset");
 		pOffset = (Integer) XMLParser.extractObjectForTags(xml, "pOffset");
+		importance = (Double) XMLParser.extractObjectForTags(xml, "importance");
 		computeUniform();
 	}
 
@@ -80,6 +81,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 		XMLParser.appendObjectWithTags(xml, model, "model");
 		XMLParser.appendObjectWithTags(xml, offset, "offset");
 		XMLParser.appendObjectWithTags(xml, pOffset, "pOffset");
+		XMLParser.appendObjectWithTags(xml, importance, "importance");
 		XMLParser.addTags(xml, "DifferentiableSMWrapperEmission");
 		return xml;
 	}
@@ -100,6 +102,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	public void initializeFunctionRandomly() {
 		try {
 			model.initializeFunctionRandomly(false);
+			importance=0;
 		} catch (Exception e) {
 			throw new RuntimeException( e );
 		}
@@ -109,13 +112,15 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	public double getLogProbFor(boolean forward, int startPos, int endPos, Sequence seq)
 			throws OperationNotSupportedException {
 		if( !forward ) throw new OperationNotSupportedException("Only forward allowed");
-		int s = startPos + offset;//, e=endPos+offset+l-1;
-		//System.out.println(startPos+".."+endPos + "\t" + s + ".." + e); //System.exit(1);
 		try {
-			double logScore;
-			if( s < 0 || s+l > seq.getLength() ) logScore = logUniform;
-			else logScore = model.getLogScoreFor(seq, s);
-			return logScore;
+			double logScore=0;
+			int s = startPos + offset;
+			if( s < 0 || s+l > seq.getLength() ) {
+				logScore = logUniform;
+			} else {
+				logScore = model.getLogScoreFor(seq, s);
+			}
+			return importance + logScore;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
@@ -126,15 +131,19 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	public double getLogProbAndPartialDerivationFor(boolean forward, int startPos, int endPos, IntList indices,
 			DoubleList partDer, Sequence seq) throws OperationNotSupportedException {
 		if( !forward ) throw new OperationNotSupportedException("Only forward allowed");
-		int s = startPos + offset;//, e=endPos+offset+l-1;
-		//System.out.println(startPos+".."+endPos + " -> " + s + ".." + e); //System.exit(1);
 		try {
-			int indStart = indices.length();
-			double logScore;
-			if( s < 0 || s+l > seq.getLength() ) logScore = logUniform;
-			else logScore = model.getLogScoreAndPartialDerivation(seq, s, indices, partDer);
-			indices.addToValues(indStart, indices.length(), pOffset);
-			return logScore;
+			double logScore=0;
+			int s = startPos + offset;
+			if( s < 0 || s+l > seq.getLength() ) {
+				logScore = logUniform;
+			} else {
+				int indStart = indices.length();
+				logScore = model.getLogScoreAndPartialDerivation(seq, s, indices, partDer);
+				indices.addToValues(indStart, indices.length(), pOffset+1);
+			}
+			partDer.add(1);
+			indices.add(pOffset);
+			return importance + logScore;
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
@@ -142,7 +151,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 
 	@Override
 	public double getLogPriorTerm() {
-		return model.getLogPriorTerm();
+		throw new RuntimeException("DifferentiableSMWrapperEmission");
 	}
 
 	@Override
@@ -152,20 +161,20 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 
 	@Override
 	public String getNodeLabel(double weight, String name, NumberFormat nf) {
-		// TODO Auto-generated method stub
 		return "\""+name+"\"";
 	}
 
 	@Override
 	public String toString(NumberFormat nf) {
-		return "offset=" + offset + "\nmodel:\n" + model.toString(nf);
+		return "importance=" + importance + "\noffset=" + offset + "\nmodel:\n" + model.toString(nf);
 	}
 
 	@Override
 	public void fillCurrentParameter(double[] params) {
 		try {
 			double[] p = model.getCurrentParameterValues();
-			System.arraycopy(p, 0, params, pOffset, p.length);
+			params[pOffset]=importance;
+			System.arraycopy(p, 0, params, pOffset+1, p.length);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -173,27 +182,24 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 
 	@Override
 	public void setParameter(double[] params, int offset) {
-		model.setParameters(params, offset+pOffset);
+		importance=params[offset+pOffset];
+		model.setParameters(params, offset+pOffset+1);
 	}
 
 	@Override
 	public int setParameterOffset(int offset) {
 		pOffset=offset;
-		return pOffset+getNumberOfParameters();
+		return pOffset+1+getNumberOfParameters();
 	}
 
 	@Override
 	public void addGradientOfLogPriorTerm(double[] grad, int offset) {
-		try {
-			model.addGradientOfLogPriorTerm(grad, offset);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		throw new RuntimeException("DifferentiableSMWrapperEmission");
 	}
 
 	@Override
 	public int getNumberOfParameters() {
-		return model.getNumberOfParameters();
+		return 1+model.getNumberOfParameters();
 	}
 
 	@Override
@@ -205,6 +211,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	public void setParameters(Emission t) throws IllegalArgumentException {
 		DifferentiableSMWrapperEmission d = (DifferentiableSMWrapperEmission) t;
 		try {
+			importance = d.importance;
 			model.setParameters(d.model.getCurrentParameterValues(), 0);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -236,14 +243,7 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	public void estimateFromStatistic() {
 		throw new RuntimeException("DifferentiableSMWrapperEmission");
 	}
-	
-	public void initializeUniformly() throws Exception {
-		model.initializeFunctionRandomly(false);
-		double[] params = model.getCurrentParameterValues();
-		Arrays.fill(params, 0);
-		model.setParameters(params, 0);
-	}
-	
+		
 	/**
 	 * Allows to initialize the internal model using some data.
 	 * 
@@ -263,6 +263,14 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 	 */
 	public void initializeFunction(int index, boolean freeParams, DataSet[] data, double[][] weights ) throws Exception {
 		model.initializeFunction( index, freeParams, data, weights );
+		
+		//idea is to have neutral score close to zero (0)
+		double[]  logScore = new double[data[index].getNumberOfElements()];
+		for( int j = 0; j < logScore.length; j++ ) {
+			logScore[j] = model.getLogScoreFor(data[index].getElementAt(j));
+		}
+		Arrays.sort(logScore);
+		importance = -logScore[(int) (0.1*logScore.length)];
 	}
 
 	/**
@@ -285,8 +293,12 @@ public class DifferentiableSMWrapperEmission implements DifferentiableEmission {
 		return offset;
 	}
 
+	public DifferentiableStatisticalModel getModel() throws CloneNotSupportedException {
+		return (DifferentiableStatisticalModel) model.clone();
+	}
+	
 	@Override
 	public boolean isNormalized() {
-		return model.isNormalized();
+		return false;
 	}
 }
