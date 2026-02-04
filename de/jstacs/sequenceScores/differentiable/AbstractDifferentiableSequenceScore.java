@@ -121,7 +121,7 @@ public abstract class AbstractDifferentiableSequenceScore implements Differentia
 		if (alphabets == null) {
 			throw new NonParsableException( "AlphabetContainer could not be parsed." );
 		}
-		if (length < 0 || alphabets == null) {
+		if (length < 0) {
 			throw new NonParsableException("Length could not be parsed.");
 		}
 	}
