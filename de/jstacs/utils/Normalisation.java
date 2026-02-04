@@ -18,6 +18,8 @@
 
 package de.jstacs.utils;
 
+import java.util.Arrays;
+
 /**
  * This class can be used for normalisation of any <code>double</code> array or
  * a part of a <code>double</code> array.
@@ -374,6 +376,10 @@ public class Normalisation {
 			int startDest ) {
 		double sum = 0;
 		int i = 0, l = endD - startD;
+		if( offset == Double.NEGATIVE_INFINITY ) {
+			Arrays.fill( dest, startDest, startDest+l, 0 );
+			return Double.NEGATIVE_INFINITY;
+		}
 		for( ; i < l; i++ ) {
 			dest[startDest + i] = Math.exp( d[startD + i] - offset );
 
@@ -390,6 +396,59 @@ public class Normalisation {
 			normalisation( dest, sum, startDest, startDest + l );
 			if( secondValues != null ) {
 				normalisation( secondValues, sum );
+			}
+		}
+
+		return offset + Math.log( sum );
+	}
+	
+	
+	/**
+	 * The method does a log-sum-normalisation on the values of the array <code>d</code> using the indices given 
+	 * in <code>indices</code> and end index <code>endD</code>, where
+	 * the values of <code>d</code> are assumed to be logarithmised.
+	 * 
+	 * @param d
+	 *            the array with the logarithmised values that should be
+	 *            normalised
+	 * @param indices
+	 *            the indices to be used
+	 * @param dest
+	 *            the destination array for the normalised values
+	 * 
+	 * @return the logarithm of the sum of the values of <code>d</code> using the given indices
+	 * 
+	 * @see #logSumNormalisation(double[], int, int, double, double[], double[], int)
+	 */
+	public static double logSumNormalisation( double[] d, IntList indices, double[] dest ) {
+		//determine offset
+		double offset = Double.NEGATIVE_INFINITY;
+		for( int i = 0; i < indices.length(); i++ ) {
+			int j = indices.get(i);
+			offset = Math.max( offset, d[j] );
+		}
+		
+		if( offset == Double.NEGATIVE_INFINITY ) {
+			for( int i = 0; i < indices.length(); i++ ) {
+				int j = indices.get(i);
+				dest[j] = 0;
+			}
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		//shift
+		double sum = 0;
+		for( int i = 0; i < indices.length(); i++ ) {
+			int j = indices.get(i);
+			dest[j] = Math.exp( d[j] - offset );
+			sum += dest[j];
+
+		}
+		
+		//normalize if necessary
+		if( sum != 1d ) {
+			for( int i = 0; i < indices.length(); i++ ) {
+				dest[indices.get(i)] /= sum;
 			}
 		}
 
