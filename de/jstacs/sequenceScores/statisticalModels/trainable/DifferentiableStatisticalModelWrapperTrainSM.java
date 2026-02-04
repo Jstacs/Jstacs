@@ -18,6 +18,9 @@
 
 package de.jstacs.sequenceScores.statisticalModels.trainable;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.OutputStream;
 import java.text.NumberFormat;
 
@@ -28,17 +31,19 @@ import de.jstacs.algorithms.optimization.Optimizer;
 import de.jstacs.algorithms.optimization.StartDistanceForecaster;
 import de.jstacs.algorithms.optimization.termination.AbstractTerminationCondition;
 import de.jstacs.algorithms.optimization.termination.SmallDifferenceOfFunctionEvaluationsCondition;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.OptimizableFunction.KindOfParameter;
+import de.jstacs.classifiers.differentiableSequenceScoreBased.ParameterSavingFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LearningPrinciple;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.gendismix.LogGenDisMixFunction;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.CompositeLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.DoesNothingLogPrior;
 import de.jstacs.classifiers.differentiableSequenceScoreBased.logPrior.LogPrior;
 import de.jstacs.data.DataSet;
-import de.jstacs.data.WrongAlphabetException;
-import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.DataSet.WeightedDataSetFactory;
 import de.jstacs.data.DataSet.WeightedDataSetFactory.SortOperation;
+import de.jstacs.data.WrongAlphabetException;
+import de.jstacs.data.WrongLengthException;
 import de.jstacs.data.sequences.Sequence;
 import de.jstacs.io.ArrayHandler;
 import de.jstacs.io.NonParsableException;
@@ -73,6 +78,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	private int threads;
 	private LogPrior prior;
 	private boolean randomly;
+	private boolean parameterSaving;
 
 	/**
 	 * The main constructor that creates an instance with the user given parameters and {@link CompositeLogPrior}.
@@ -125,6 +131,28 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 	 */
 	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, boolean randomly, LogPrior prior ) throws CloneNotSupportedException
 	{
+		this(nsf, threads, algo, tc, lineps, startD, randomly, prior, false);
+	}
+	
+	/**
+	 * Constructor that creates an instance with the user given parameters.
+	 * 
+	 * @param nsf the {@link DifferentiableStatisticalModel} that should be used
+	 * @param threads the number of threads that should be used for optimization
+	 * @param algo the algorithm that should be used for the optimization
+	 * @param tc the {@link AbstractTerminationCondition} for stopping the optimization
+	 * @param lineps the line epsilon for stopping the line search in the optimization
+	 * @param startD the start distance that should be used initially
+	 * @param randomly if parameters should be initialized randomly
+	 * @param prior The prior on the parameters
+	 * @param parameterSaving a switch whether the parameters should be saved while optimization
+	 * 
+	 * @throws CloneNotSupportedException if <code>nsf</code> can not be cloned
+	 * 
+	 * @see ParameterSavingFunction
+	 */
+	public DifferentiableStatisticalModelWrapperTrainSM( DifferentiableStatisticalModel nsf, int threads, byte algo, AbstractTerminationCondition tc, double lineps, double startD, boolean randomly, LogPrior prior, boolean parameterSaving ) throws CloneNotSupportedException
+	{
 		super( nsf.getAlphabetContainer(), nsf.getLength() );
 		if( threads < 1 )
 		{
@@ -155,6 +183,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		setOutputStream( SafeOutputStream.DEFAULT_STREAM );
 		this.prior = prior.getNewInstance();
 		this.randomly=randomly;
+		this.parameterSaving = parameterSaving;
 	}
 
 	/**
@@ -230,12 +259,29 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 			DifferentiableStatisticalModel[] score = { (DifferentiableStatisticalModel) nsf.clone() };
 			double[] beta = LearningPrinciple.getBeta( prior == DoesNothingLogPrior.defaultInstance ? LearningPrinciple.ML : LearningPrinciple.MAP );
 			LogGenDisMixFunction f = new LogGenDisMixFunction( threads, score, new DataSet[]{small}, new double[][]{smallWeights}, prior, beta, true, false );
-			NegativeDifferentiableFunction minusF = new NegativeDifferentiableFunction( f );
+			OptimizableFunction g;
+			BufferedWriter w = null;
+			if( parameterSaving ) {
+				File file = File.createTempFile("parameters-", ".txt",new File("./"));
+				out.writeln("saving parameters: " + file.getAbsolutePath() );
+				w = new BufferedWriter( new FileWriter(file) );
+				w.append( nsf.toXML() );
+				w.newLine();
+				w.flush();
+				
+				g = new ParameterSavingFunction(f, w);
+			} else {
+				g=f;
+			}
+			NegativeDifferentiableFunction minusF = new NegativeDifferentiableFunction( g );
 			StartDistanceForecaster sd =
 				//new ConstantStartDistance( startD*fac );
 				new LimitedMedianStartDistance( 5, startD*fac );
 			for( int i = 0; i < nsf.getNumberOfRecommendedStarts(); i++ )
 			{
+				if( parameterSaving ) {
+					w.newLine();
+				}
 				out.writeln( "start: " + i );
 				boolean freeParams=false;//TODO freeParams???
 				if( randomly ) {
@@ -258,6 +304,9 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 				score[0] = (DifferentiableStatisticalModel) nsf.clone();
 			}
 			out.writeln( "best: " + max );
+			if( parameterSaving ) {
+				w.close();
+			}
 			nsf = best;
 			logNorm = nsf.getLogNormalizationConstant();
 			f.stopThreads();
@@ -370,6 +419,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 		{
 			prior = DoesNothingLogPrior.defaultInstance;
 		}
+		parameterSaving = XMLParser.extractObjectForTags( xml, "parameterSaving", boolean.class );
 		try
 		{
 			prior.set( false, nsf );
@@ -404,6 +454,7 @@ public class DifferentiableStatisticalModelWrapperTrainSM extends AbstractTraina
 			pr.append( "\t</prior>\n" );
 			xml.append( pr );
 		}
+		XMLParser.appendObjectWithTags( xml, parameterSaving, "parameterSaving" );
 		XMLParser.addTags( xml, XML_TAG );
 		return xml;
 	}
