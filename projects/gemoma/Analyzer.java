@@ -100,6 +100,13 @@ public class Analyzer extends GeMoMaModule {
 		Context context = Context.newBuilder("js").build();
 		
 		boolean onlyIntrons= (Boolean) getParameter(parameters, "only introns").getValue();
+
+		HashSet<String> ignore = new HashSet<String>();
+		String[] split = ((String) getParameter(parameters, "ignore").getValue()).split(",");
+		for( String s: split ) {
+			ignore.add(s);
+		}
+		if( ignore.size()>0 ) protocol.append("ignore: " + ignore + "\n");
 		
 		String sep, eol; //TODO
 		sep="\t"; eol="\n";
@@ -110,7 +117,7 @@ public class Analyzer extends GeMoMaModule {
 		HashMap<String,int[]> attributesTruth = new HashMap<String,int[]>();
 		attributesTruth.put(ALL,new int[1]);
 		ArrayList<String> attTruth = new ArrayList<String>();
-		HashMap<String,HashMap<String,Transcript>> res = readGFF( feature, truth, protocol, attributesTruth, attTruth );
+		HashMap<String,HashMap<String,Transcript>> res = readGFF( ignore, feature, truth, protocol, attributesTruth, attTruth );
 		HashMap<String,Gene[]> genes = toGenes(res, context, filter, protocol, onlyIntrons );
 
 		ArrayList<String> n = new ArrayList<String>();
@@ -132,7 +139,7 @@ public class Analyzer extends GeMoMaModule {
 			HashMap<String,int[]> attributesPrediction = new HashMap<String,int[]>();
 			attributesPrediction.put(ALL,new int[1]);
 			ArrayList<String> attPrediction = new ArrayList<String>();
-			HashMap<String,HashMap<String,Transcript>> prediction = readGFF( feature, predicted, protocol, attributesPrediction, attPrediction );
+			HashMap<String,HashMap<String,Transcript>> prediction = readGFF( ignore, feature, predicted, protocol, attributesPrediction, attPrediction );
 	
 			//remove duplicates in predictions
 			prediction = genesToTranscripts( toGenes(prediction, context, "", protocol, onlyIntrons ) );
@@ -642,7 +649,7 @@ public class Analyzer extends GeMoMaModule {
 		return transcripts;
 	}
 
-	public HashMap<String,HashMap<String,Transcript>> readGFF( String feature, String fName, Protocol protocol, HashMap<String,int[]> attributes, ArrayList<String> att ) throws IOException {
+	public HashMap<String,HashMap<String,Transcript>> readGFF( HashSet<String> ignore, String feature, String fName, Protocol protocol, HashMap<String,int[]> attributes, ArrayList<String> att ) throws IOException {
 		BufferedReader r = new BufferedReader( Tools.openGzOrPlain(fName) );
 		HashMap<String,HashMap<String,Transcript>> res = new HashMap<String,HashMap<String,Transcript>>();
 		HashMap<String,Transcript> current = new HashMap<String,Transcript>();
@@ -668,7 +675,7 @@ public class Analyzer extends GeMoMaModule {
 			}
 			
 			boolean relevant = split[2].equals(feature);
-			if( relevant || split[2].equals("mRNA") || split[2].equals("transcript") ) {
+			if( !ignore.contains(split[0]) && (relevant || split[2].equals("mRNA") || split[2].equals("transcript")) ) {
 				chr.add(split[0]);
 				current = res.get(split[0]+split[6]);
 				if( current == null ) {
@@ -1261,6 +1268,7 @@ public class Analyzer extends GeMoMaModule {
 				//new FileParameter("prediction", "the predicted annotation", "gff,gff3", true, new FileExistsValidator()),
 				new SimpleParameter( DataType.BOOLEAN, "CDS", "if true CDS features are used otherwise exon features", true, true),
 				new SimpleParameter( DataType.BOOLEAN, "only introns", "if true only intron borders (=splice sites) are evaluated", true, false),
+				new SimpleParameter( DataType.STRING, "ignore", "if specified, these chromosomes will be ignored", true, ""),
 
 				new SelectionParameter( DataType.PARAMETERSET, 
 						new String[]{"NO","YES"},
@@ -1330,4 +1338,5 @@ public class Analyzer extends GeMoMaModule {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 }
