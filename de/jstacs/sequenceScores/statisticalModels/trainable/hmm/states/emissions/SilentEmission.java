@@ -159,5 +159,10 @@ public final class SilentEmission implements DifferentiableEmission, SamplingEmi
 		if( !t.getClass().equals( getClass() ) ) {
 			throw new IllegalArgumentException( "The emissions are not comparable." );
 		}		
+	}
+
+	@Override
+	public boolean isNormalized() {
+		return true;
 	}	
 }

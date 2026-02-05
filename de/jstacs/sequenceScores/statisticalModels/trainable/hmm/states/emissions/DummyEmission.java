@@ -13,7 +13,7 @@ import de.jstacs.utils.DoubleList;
 import de.jstacs.utils.IntList;
 
 /**
- * A wrapper class for {@link Emission}s echoing the values of the sequence.
+ * A class for a uniform {@link Emission}s.
  * 
  * @author Jens Keilwagen
  * 
@@ -142,5 +142,10 @@ public class DummyEmission implements DifferentiableEmission {
 	@Override
 	public int getSizeOfEventSpace() {
 		return 0;
+	}
+
+	@Override
+	public boolean isNormalized() {
+		return false;
 	}
 }

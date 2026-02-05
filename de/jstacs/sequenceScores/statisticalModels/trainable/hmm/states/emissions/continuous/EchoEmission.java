@@ -167,4 +167,10 @@ public class EchoEmission implements DifferentiableEmission {
 	public int getSizeOfEventSpace() {
 		return 0;
 	}
+
+	@Override
+	public boolean isNormalized() {
+		// TODO ???
+		return false;
+	}
 }

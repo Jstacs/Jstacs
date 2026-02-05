@@ -183,4 +183,9 @@ public class UniformEmission implements DifferentiableEmission {
 	public String toString(NumberFormat nf) {
 		return getClass().getSimpleName();
 	}
+
+	@Override
+	public boolean isNormalized() {
+		return true;
+	}
 }

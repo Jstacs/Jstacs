@@ -170,4 +170,9 @@ public class MultiDimensionalSequenceWrapperEmission implements DifferentiableEm
 	public int getSizeOfEventSpace() {
 		return em.getSizeOfEventSpace();
 	}
+
+	@Override
+	public boolean isNormalized() {
+		return em.isNormalized();
+	}
 }
