@@ -2,10 +2,12 @@ package projects.sigma;
 
 import java.io.StringReader;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import de.jstacs.DataType;
 import de.jstacs.algorithms.optimization.Optimizer;
@@ -44,6 +46,7 @@ import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.BaumWel
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.MaxHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.ViterbiParameterSet;
+import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.training.NumericalHMMTrainingParameterSet.TrainingType;
 import de.jstacs.sequenceScores.statisticalModels.trainable.hmm.transitions.elements.TransitionElement;
 import de.jstacs.tools.JstacsTool;
 import de.jstacs.tools.ProgressUpdater;
@@ -67,7 +70,7 @@ public class SigmaHMM implements JstacsTool {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		CLI cli = new CLI(new boolean[]{true}, new SigmaHMM());
+		CLI cli = new CLI(new boolean[]{true,false,false,false}, new SigmaHMM(), new Predict(), new GenomicScan(), new ScanHMMer());
 		cli.run(args);
 		
 	}
@@ -554,15 +557,22 @@ public class SigmaHMM implements JstacsTool {
 				for(;i<maxDist;i++,k++){
 					name[k] = "G"+j+"-"+i;
 					emissionIdx[k] = 0;
-				
-					int[] states2 = new int[maxDist-i];
-					double[] hyperParameters = new double[maxDist-i];
-					for(int l=0;l<states2.length;l++){
-						states2[l] = k+l;
-						hyperParameters[l] = ess/hyperParameters.length;
+					if(i==minDist-1) {
+						int[] states2 = new int[maxDist-i];
+						double[] hyperParameters = new double[maxDist-i];
+						for(int l=0;l<states2.length;l++){
+							states2[l] = k+l;
+							hyperParameters[l] = ess/hyperParameters.length;
+						}
+						
+						tes.add(new TransitionElement(new int[]{k-1}, states2, hyperParameters));
+					}else {
+						tes.add(new TransitionElement(new int[]{k-1}, new int[] {k}, new double[] {ess}));
 					}
-					
-					tes.add(new TransitionElement(new int[]{k-1}, states2, hyperParameters));
+				}
+				if(!allowSwitch) {
+					int next = k+nFirst*nComponents1 + maxDist*(nComponents1-j) ;
+					tes.add(new TransitionElement(new int[] {k-1}, new int[] {next}, new double[] {ess}));
 				}
 			}
 			
@@ -598,10 +608,12 @@ public class SigmaHMM implements JstacsTool {
 				if(maxDist == Integer.MAX_VALUE){
 					int prev = minOffset+(j+1)*(nFirst+minDist)-1;
 					tes.add(new TransitionElement(new int[]{prev}, new int[]{prev,k}, new double[]{ess*(maxDiff - minDist)/2.0,ess}));
-				}else{
+				}/*else{
+					
 					int prev = minOffset+(j+1)*(nFirst+maxDist)-1;
-					tes.add(new TransitionElement(new int[]{prev}, new int[]{k}, new double[]{ess*(maxDiff - maxDist)/2.0,ess}));
-				}
+					System.out.println(prev+" "+k);
+					tes.add(new TransitionElement(new int[]{prev}, new int[]{k}, new double[]{ess*(maxDiff - maxDist)/2.0}));
+				}*/
 			}
 		}
 		
@@ -669,15 +681,15 @@ public class SigmaHMM implements JstacsTool {
 		}else if(train == Training.BAUMWELCH){
 			trainingParameterSet = new BaumWelchParameterSet(nStarts, new SmallDifferenceOfFunctionEvaluationsCondition(1E-6), threads);
 		}else{
-			trainingParameterSet = new NumericalHMMTrainingParameterSet(nStarts, new SmallDifferenceOfFunctionEvaluationsCondition(1E-9), threads, Optimizer.CONJUGATE_GRADIENTS_PRP, 1E-9, 1E-6);
+			trainingParameterSet = new NumericalHMMTrainingParameterSet(nStarts, new SmallDifferenceOfFunctionEvaluationsCondition(1E-9), threads, Optimizer.CONJUGATE_GRADIENTS_PRP, 1E-9, 1E-6,TrainingType.VITERBI,true);
 		}
 		
 		
-		DifferentiableHigherOrderHMM hmm = new DifferentiableHigherOrderHMM(trainingParameterSet, name, emissionIdx, forward, emission, true, ess, tes.toArray(new TransitionElement[0]));
+		DifferentiableHigherOrderHMM hmm = new DifferentiableHigherOrderHMM(trainingParameterSet, name, emissionIdx, forward, emission, ess, tes.toArray(new TransitionElement[0]));
 		
 		hmm.setOutputStream(new ProtocolOutputStream(protocol, true));
 		
-		System.out.println(hmm.getGraphvizRepresentation(new DecimalFormat()));
+		System.out.println(hmm.getGraphvizRepresentation(new DecimalFormat("##.###",new DecimalFormatSymbols(Locale.US))));
 		
 		hmm.train(data);
 		
