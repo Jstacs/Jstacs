@@ -154,6 +154,18 @@ public abstract class AbstractConditionalDiscreteEmission implements SamplingEmi
 	 * @param ess the equivalent sample size
 	 * @param numConditions the number of conditions
 	 * @param numEmissions the number of emissions, assumed to be equal for all conditions
+	 * @return hyper-parameters for all parameters
+	 */
+	protected static double[][] getHyperParams(double ess, int numConditions, int numEmissions ){
+		return getHyperParams(ess, numConditions, numEmissions, null);
+	}
+	
+	/**
+	 * Returns the hyper-parameters for all parameters and a given ess.
+	 * The equivalent sample size is distributed evenly across all parameters
+	 * @param ess the equivalent sample size
+	 * @param numConditions the number of conditions
+	 * @param numEmissions the number of emissions, assumed to be equal for all conditions
 	 * @param frac the fraction of the <code>ess</code> that is used for each parameter as hyper-parameter
 	 * @return hyper-parameters for all parameters
 	 */
