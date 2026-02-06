@@ -321,7 +321,7 @@ public class NewMixtureClassifier extends AbstractScoreBasedClassifier implement
 		DataSet[] all = { new DataSet( "all", seqs.toArray( new Sequence[0] ) ) };
 		double[][] weight = { (w.length() == 0 ? null : w.toArray()) };
 		if( model.getNumberOfParameters()>model.getNumberOfComponents() && trainModel ) {
-			DifferentiableStatisticalModelWrapperTrainSM myModel = new DifferentiableStatisticalModelWrapperTrainSM(model,threads,algo,new SmallDifferenceOfFunctionEvaluationsCondition(1E-3/*TODO*/),linEps,starts, this.mixPrior.getNewInstance());
+			DifferentiableStatisticalModelWrapperTrainSM myModel = new DifferentiableStatisticalModelWrapperTrainSM(model, threads, algo, new SmallDifferenceOfFunctionEvaluationsCondition(1E-3/*TODO*/),linEps,starts, false, this.mixPrior.getNewInstance());
 			//XXX myModel.setOutputStream(null);
 			myModel.train( all[0], weight[0] );
 			model = (MyMixtureScoringFunction) myModel.getFunction();
