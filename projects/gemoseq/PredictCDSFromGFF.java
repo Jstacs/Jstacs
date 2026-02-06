@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import de.jstacs.DataType;
@@ -68,7 +69,7 @@ public class PredictCDSFromGFF implements JstacsTool{
 		HashMap<String,int[]> attributesTruth = new HashMap<String,int[]>();
 		attributesTruth.put("ALL",new int[1]);
 		ArrayList<String> attTruth = new ArrayList<String>();
-		HashMap<String,HashMap<String,Transcript>> res = new Analyzer().readGFF( "exon", truth, protocol, attributesTruth, attTruth );
+		HashMap<String,HashMap<String,Transcript>> res = new Analyzer().readGFF( new HashSet<String>(), "exon", truth, protocol, attributesTruth, attTruth );
 		
 		File out = File.createTempFile("predictions", ".temp", new File("."));
 		out.deleteOnExit();
