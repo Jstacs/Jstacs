@@ -33,7 +33,7 @@ public class EchoEmission implements DifferentiableEmission {
 	 * The main constructor.
 	 * 
 	 * @param con the alphabet container
-	 * @param the offset of emissions that are echoed
+	 * @param offset the offset of emissions that are echoed
 	 * 
 	 * @throws WrongAlphabetException if the {@link AlphabetContainer} does not allow continuous {@link Sequence}s of arbitrary length 
 	 */
