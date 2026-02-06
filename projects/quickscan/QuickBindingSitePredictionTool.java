@@ -358,7 +358,7 @@ public class QuickBindingSitePredictionTool implements JstacsTool {
 		}
 	//	System.out.println("nTot: "+nTot);
 		//return new ListResult("Predicted binding sites", "Predicted binding sites for threshold "+threshold, null,ll );
-		return new Pair<Integer,TextResult>(nCorr,new TextResult("Predicted binding sites", "Predicted binding sites for threshold "+threshold, new FileParameter.FileRepresentation("", sb.toString()),"tsv","QBSPT",null,true));
+		return new Pair<Integer,TextResult>(nCorr,new TextResult("Predicted binding sites", "Predicted binding sites for threshold "+threshold, new FileParameter.FileRepresentation("", sb.toString()), false,"tsv","QBSPT",null,true));
 		
 	}
 	
