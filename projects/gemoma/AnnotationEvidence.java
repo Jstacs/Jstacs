@@ -255,7 +255,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 								String tieString = ( parts.length() == 1 ) ? "NA" : GeMoMa.decFormat.format( tie/(parts.length()-1d));
 								String tpcString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(covered/(double)l);
 								String avgCovString = ( GeMoMa.coverage == null ) ? "NA" : GeMoMa.decFormat.format(sum/(double)l);
-								String minCovString = ( GeMoMa.coverage == null ) ? "NA" : (""+min);
+								String minCovString = ( GeMoMa.coverage == null ) ? "NA" : (""+(min==Integer.MAX_VALUE?0:min));
 								String minSplitReadsString = ( parts.length() == 1 ) ? "NA" : (""+minSplitReads);
 								
 								if( (tie==parts.length()-1) && covered==l ) {
