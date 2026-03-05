@@ -305,7 +305,7 @@ public class AnnotationEvidence extends GeMoMaModule {
 								}
 								if( coverage ) {
 									add(old,attr,"tpc",tpcString);
-									add(old,attr,"minCov",""+min);
+									add(old,attr,"minCov",minCovString);
 									add(old,attr,"avgCov",avgCovString);
 								}
 								add(old,attr,"nps",""+preMatureStops);
